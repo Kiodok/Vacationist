@@ -8,6 +8,66 @@
 
 ---
 
+## 2026-05-11 — Phase 2: Trips, Members, Invites
+
+### Migration: `create_trips_members_invites`
+
+Created three interdependent tables in a single migration (RLS policies cross-reference each other):
+
+**Tables:**
+- `public.trips` — Core trip entity with soft delete, date validation, status lifecycle
+- `public.trip_members` — Membership join table with role enforcement (organizer/participant/guest)
+- `public.invite_tokens` — Secure invite system with expiry, revocation, and usage limits
+
+**RLS Policies:**
+- `trips`: SELECT by members only (soft-deleted hidden), INSERT by any auth user, UPDATE by organizers only
+- `trip_members`: SELECT by co-members, INSERT by self or organizer, UPDATE by organizer, DELETE by self or organizer
+- `invite_tokens`: SELECT/INSERT/UPDATE by organizers only
+
+**Triggers:**
+- `on_trip_created` — auto-inserts trip creator as `organizer` in `trip_members`
+
+**Functions:**
+- `redeem_invite_token(token_value TEXT) RETURNS UUID` — SECURITY DEFINER function that validates token (not expired/revoked/over limit), atomically increments `use_count`, inserts user as `participant` or `guest` based on `users.is_guest`, returns `trip_id`. Uses `FOR UPDATE` row lock to prevent race conditions.
+
+**Local migration file:** `supabase/migrations/20260511000002_create_trips_members_invites.sql`
+
+---
+
+## 2026-05-11 — Phase 2: Prevent Last Organizer Removal
+
+### Migration: `prevent_last_organizer_removal`
+
+Added two BEFORE triggers to prevent orphaning a trip without an organizer:
+
+**Triggers:**
+- `on_trip_member_delete` — BEFORE DELETE on `trip_members`: raises exception if the member being removed is the last organizer
+- `on_trip_member_role_change` — BEFORE UPDATE OF role on `trip_members`: raises exception if demoting the last organizer
+
+Both functions use `SECURITY DEFINER SET search_path = ''`.
+
+**Local migration file:** `supabase/migrations/20260511000003_prevent_last_organizer_removal.sql`
+
+---
+
+## 2026-05-11 — Phase 2: Invite Rate Limiting & Tighten Self-Insert
+
+### Migration: `invite_rate_limit_and_tighten_self_insert`
+
+**Rate limiting:**
+- Added `check_invite_rate_limit()` BEFORE INSERT trigger on `invite_tokens`
+- Limits organizers to max 10 invite tokens per trip per hour
+- Uses `SECURITY DEFINER SET search_path = ''`
+
+**Tightened trip_members INSERT policy:**
+- Dropped the permissive `trip_members_insert` policy (which allowed any authenticated user to insert themselves)
+- Replaced with `trip_members_insert_organizer_or_system` — only organizers can directly insert members
+- SECURITY DEFINER functions (`handle_new_trip`, `redeem_invite_token`) bypass RLS, so auto-insert on trip creation and invite redemption still work
+
+**Local migration file:** `supabase/migrations/20260511000004_invite_rate_limit_and_tighten_self_insert.sql`
+
+---
+
 ## 2026-05-11 — Fix: Backfill public.users and harden trigger
 
 ### Problem

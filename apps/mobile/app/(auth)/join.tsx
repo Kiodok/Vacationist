@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Input } from '@vacationist/ui';
-import { signInAnonymously } from '@vacationist/api';
+import { signInAnonymously, redeemInviteToken } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 
 export default function JoinScreen() {
@@ -32,8 +32,19 @@ export default function JoinScreen() {
     setLoading(true);
     try {
       await signInAnonymously({ name: trimmed });
-      // Auth state listener picks up session → auth guard redirects to (tabs)
-      // Token redemption (joining the trip) will be handled in Phase 2
+
+      if (token) {
+        try {
+          const tripId = await redeemInviteToken(token);
+          router.replace({ pathname: '/trip/[id]', params: { id: tripId } } as never);
+          return;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Invalid invite link';
+          addToast('error', message);
+          setLoading(false);
+          return;
+        }
+      }
     } catch {
       addToast('error', 'Failed to join. Please try again.');
       setLoading(false);

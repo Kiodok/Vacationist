@@ -12,3 +12,10 @@ export {
 } from './auth';
 
 export { getUserProfile, ensureUserProfile, updateUserProfile } from './users';
+
+export { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip } from './trips';
+
+export { getTripMembers, removeTripMember, updateMemberRole, getCurrentMemberRole } from './members';
+export type { TripMemberWithUser } from './members';
+
+export { createInviteToken, getActiveInvites, revokeInvite, redeemInviteToken } from './invites';

@@ -2,14 +2,17 @@ import '../global.css';
 import { useEffect } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { initDayjs } from '@vacationist/utils';
+import { redeemInviteToken } from '@vacationist/api';
 import { GlobalErrorBoundary } from '../src/components/GlobalErrorBoundary';
 import { QueryProvider } from '../src/providers/QueryProvider';
 import { ToastContainer } from '../src/components/Toast';
 import { useAuthInit } from '../src/features/auth/hooks/useAuthInit';
 import { useAuthStore } from '../src/stores/authStore';
+import { useToastStore } from '../src/stores/toastStore';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -21,6 +24,7 @@ function AuthGate() {
   const segments = useSegments();
   const hasSession = useAuthStore((s) => s.hasSession);
   const isLoading = useAuthStore((s) => s.isLoading);
+  const addToast = useToastStore((s) => s.addToast);
 
   useAuthInit();
 
@@ -35,6 +39,36 @@ function AuthGate() {
       router.replace('/(tabs)');
     }
   }, [hasSession, isLoading, segments, router]);
+
+  // Handle invite deep links when user is already authenticated
+  useEffect(() => {
+    if (!hasSession || isLoading) return;
+
+    function handleDeepLink(event: { url: string }) {
+      const parsed = Linking.parse(event.url);
+      const token = parsed.queryParams?.token;
+      if (typeof token === 'string' && token) {
+        redeemInviteToken(token)
+          .then((tripId) => {
+            addToast('success', 'You joined the trip!');
+            router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never);
+          })
+          .catch((err) => {
+            const message = err instanceof Error ? err.message : 'Invalid invite link';
+            addToast('error', message);
+          });
+      }
+    }
+
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    // Check if app was opened via deep link
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink({ url });
+    });
+
+    return () => subscription.remove();
+  }, [hasSession, isLoading, router, addToast]);
 
   useEffect(() => {
     if (!isLoading) {

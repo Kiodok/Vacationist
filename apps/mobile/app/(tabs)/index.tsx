@@ -1,29 +1,65 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { FlatList, View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useTrips } from '../../src/features/trips/hooks/useTrips';
+import { TripCard } from '../../src/features/trips/components/TripCard';
+import { EmptyTrips } from '../../src/features/trips/components/EmptyTrips';
+import type { Trip } from '@vacationist/types';
 
 export default function TripsScreen() {
+  const router = useRouter();
+  const { data: trips, isLoading, isFetching, refetch } = useTrips();
+
+  function handleCreateTrip() {
+    router.push('/trip/create' as never);
+  }
+
+  function handleTripPress(tripId: string) {
+    router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never);
+  }
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator color="#6C63FF" size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!trips || trips.length === 0) {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <EmptyTrips onCreateTrip={handleCreateTrip} />
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Vacationist</Text>
-      <Text style={styles.subtitle}>Your trips will appear here</Text>
-    </View>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-row items-center justify-between px-md pt-md pb-sm">
+        <Text className="text-heading-xl text-text-primary">Trips</Text>
+        <Pressable
+          onPress={handleCreateTrip}
+          className="w-[40px] h-[40px] rounded-full bg-primary items-center justify-center"
+        >
+          <Ionicons name="add" size={24} color="#FFFFFF" />
+        </Pressable>
+      </View>
+
+      <FlatList
+        data={trips}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TripCard
+            trip={item as Trip & { member_count: number }}
+            onPress={() => handleTripPress(item.id)}
+          />
+        )}
+        contentContainerClassName="px-md gap-sm pb-lg"
+        onRefresh={refetch}
+        refreshing={isFetching && !isLoading}
+      />
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0F0F0F',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#F2F2F2',
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#A0A0A0',
-    marginTop: 8,
-  },
-});

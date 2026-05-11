@@ -64,18 +64,18 @@ OAuth app:
 *Dependencies: Phase 1*
 *Goal: Core CRUD for trips and member management.*
 
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `trips` and `trip_members` tables with RLS
-  - [ ] Create `invite_tokens` table with expiry/usage logic
-  - [ ] Generate Zod schemas for trip creation and validation
-- [ ] **2. Services & Hooks**
-  - [ ] Create trip CRUD services and member management services
-  - [ ] Implement TanStack Query hooks (`useTrips`, `useTrip`, `useCreateTrip`)
-- [ ] **3. Components & Screens**
-  - [ ] Build `TripCard`, `MemberAvatar`, and layout primitives
-  - [ ] Implement Trip List screen (`/app/(tabs)`)
-  - [ ] Implement Trip Detail shell (Header + Navigation tabs)
-  - [ ] Implement Trip Settings (Manage members, generate invites)
+- [x] **1. DB/RLS & Types**
+  - [x] Create `trips` and `trip_members` tables with RLS
+  - [x] Create `invite_tokens` table with expiry/usage logic
+  - [x] Generate Zod schemas for trip creation and validation
+- [x] **2. Services & Hooks**
+  - [x] Create trip CRUD services and member management services
+  - [x] Implement TanStack Query hooks (`useTrips`, `useTrip`, `useCreateTrip`)
+- [x] **3. Components & Screens**
+  - [x] Build `TripCard`, `MemberAvatar`, and layout primitives
+  - [x] Implement Trip List screen (`/app/(tabs)`)
+  - [x] Implement Trip Detail shell (Header + Navigation tabs)
+  - [x] Implement Trip Settings (Manage members, generate invites)
 
 ---
 
