@@ -55,7 +55,11 @@ BEGIN
     NEW.email,
     NEW.raw_user_meta_data ->> 'avatar_url',
     COALESCE(NEW.is_anonymous, FALSE)
-  );
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    name = COALESCE(EXCLUDED.name, public.users.name),
+    email = COALESCE(EXCLUDED.email, public.users.email),
+    avatar_url = COALESCE(EXCLUDED.avatar_url, public.users.avatar_url);
   RETURN NEW;
 END;
 $$;

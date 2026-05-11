@@ -11,4 +11,4 @@ export {
   onAuthStateChange,
 } from './auth';
 
-export { getUserProfile, updateUserProfile } from './users';
+export { getUserProfile, ensureUserProfile, updateUserProfile } from './users';

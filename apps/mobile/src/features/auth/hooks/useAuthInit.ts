@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import * as Linking from 'expo-linking';
 import {
   getSession,
-  getUserProfile,
+  ensureUserProfile,
   onAuthStateChange,
   setSessionFromUrl,
 } from '@vacationist/api';
@@ -24,7 +24,7 @@ export function useAuthInit() {
 
         if (session) {
           setHasSession(true);
-          const profile = await getUserProfile(session.user.id);
+          const profile = await ensureUserProfile(session);
           if (mounted) setUser(profile);
         }
       } catch {
@@ -60,10 +60,10 @@ export function useAuthInit() {
 
       setHasSession(true);
       try {
-        const profile = await getUserProfile(session.user.id);
+        const profile = await ensureUserProfile(session);
         if (mounted) setUser(profile);
       } catch {
-        // Profile fetch failed — session exists but profile may not yet
+        // Profile ensure failed — will retry on next auth state change
       }
     });
 

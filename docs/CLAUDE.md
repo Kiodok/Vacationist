@@ -44,6 +44,9 @@ We are moving to the next task in the Implementation Plan.
 2. **Implementation Code:** Provide the full code for the requested layer (e.g., SQL migration scripts, TypeScript types, or Service functions).
 3. **Review Notes:** List any edge cases you handled or technical considerations for the next layer (e.g., "When we move to the Hook layer, we need to ensure we invalidate the 'trips' query").
 
+### Supabase changes
+Add details to the docs/supabase.md if you make changes in the Supabase project using the MCP server or other CLI tools.
+
 ---
 
 **Ready?** Please acknowledge these instructions and wait for my confirmation, or provide the first deliverable if the task above is fully defined.
