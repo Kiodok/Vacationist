@@ -13,7 +13,8 @@
       "PowerShell(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\src\" -Recurse -Force | Where-Object { !$_.PSIsContainer } | Select-Object FullName)",
       "Bash(npx expo *)",
       "Bash(dir F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app *)",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "WebFetch(domain:localhost)"
     ]
   }
 }
