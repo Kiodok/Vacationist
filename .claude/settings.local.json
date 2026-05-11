@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npx --version)",
+      "Bash(npx create-expo-app@latest apps/mobile --template tabs)",
+      "Bash(cd:*)",
+      "Bash(npm install:*)",
+      "Bash(npm ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "PowerShell(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\src\" -Recurse -Force | Where-Object { !$_.PSIsContainer } | Select-Object FullName)",
+      "Bash(npx expo *)",
+      "Bash(dir F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app *)",
+      "PowerShell(New-Item *)"
+    ]
+  }
+}
