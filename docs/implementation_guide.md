@@ -46,17 +46,17 @@ OAuth app:
 - Public Client: enabled
 
 ### Steps Phase 1
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `users` table schema and RLS policies
-  - [ ] Generate TypeScript interfaces for User and Guest states
-- [ ] **2. Services & Hooks**
-  - [ ] Implement Supabase Auth service (Google OAuth, Magic Links)
-  - [ ] Setup Zustand store for active session/user state ONLY
-- [ ] **3. Components & Screens**
-  - [ ] Build base Auth UI components (Inputs, Primary/Secondary Buttons)
-  - [ ] Implement Login and Magic Link screens
-  - [ ] Build Expo Router auth guards (protected route redirection)
-  - [ ] Implement basic "Join via Link" guest identity flow
+- [x] **1. DB/RLS & Types**
+  - [x] Create `users` table schema and RLS policies
+  - [x] Generate TypeScript interfaces for User and Guest states
+- [x] **2. Services & Hooks**
+  - [x] Implement Supabase Auth service (Google OAuth, Magic Links)
+  - [x] Setup Zustand store for active session/user state ONLY
+- [x] **3. Components & Screens**
+  - [x] Build base Auth UI components (Inputs, Primary/Secondary Buttons)
+  - [x] Implement Login and Magic Link screens
+  - [x] Build Expo Router auth guards (protected route redirection)
+  - [x] Implement basic "Join via Link" guest identity flow
 
 ---
 

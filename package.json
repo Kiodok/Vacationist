@@ -5,5 +5,17 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "start": "npm run start --workspace=@vacationist/mobile",
+    "android": "npm run android --workspace=@vacationist/mobile",
+    "ios": "npm run ios --workspace=@vacationist/mobile",
+    "web": "npm run web --workspace=@vacationist/mobile",
+    "typecheck": "tsc --noEmit --project apps/mobile/tsconfig.json",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:migrate": "npx supabase db push",
+    "supabase:types": "npx supabase gen types typescript --local > packages/api/src/database.types.ts",
+    "supabase:reset": "npx supabase db reset"
+  }
 }
