@@ -14,7 +14,8 @@
       "Bash(npx expo *)",
       "Bash(dir F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app *)",
       "PowerShell(New-Item *)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(npx supabase *)"
     ]
   }
 }
