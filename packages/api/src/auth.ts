@@ -24,8 +24,10 @@ export async function signInWithMagicLink(email: string, redirectTo: string) {
   return data;
 }
 
-export async function signInAnonymously() {
-  const { data, error } = await supabase.auth.signInAnonymously();
+export async function signInAnonymously(metadata?: Record<string, string>) {
+  const { data, error } = await supabase.auth.signInAnonymously({
+    options: metadata ? { data: metadata } : undefined,
+  });
   if (error) throw error;
   return data;
 }
