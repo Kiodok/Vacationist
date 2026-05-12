@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS } from './enums';
+import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS } from './enums';
 
 export const userSchema = z.object({
   id: z.string().uuid(),
@@ -57,6 +57,61 @@ export const updateTripSchema = z.object({
 
 export type CreateTripInput = z.infer<typeof createTripSchema>;
 export type UpdateTripInput = z.infer<typeof updateTripSchema>;
+
+// --- Activity schemas ---
+
+export const ACTIVITY_CATEGORIES = [
+  'sightseeing',
+  'food',
+  'nightlife',
+  'outdoors',
+  'culture',
+  'shopping',
+  'relaxation',
+  'sport',
+  'transport',
+  'other',
+] as const;
+export type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number];
+
+const httpsUrlSchema = z
+  .string()
+  .max(2048)
+  .refine((v) => v.startsWith('https://'), { message: 'URL must start with https://' });
+
+export const createActivitySchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().max(1000).optional(),
+  category: z.string().max(100).optional(),
+  cost_estimate: z.number().nonnegative().nullable().optional(),
+  activity_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+  start_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/).nullable().optional(),
+  end_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/).nullable().optional(),
+  external_url: httpsUrlSchema.nullable().optional(),
+  maps_url: httpsUrlSchema.nullable().optional(),
+});
+
+export const updateActivitySchema = createActivitySchema.partial().extend({
+  status: z.enum(ACTIVITY_STATUS).optional(),
+});
+
+export function createActivitySchemaForTrip(tripStartDate: string, tripEndDate: string) {
+  return createActivitySchema.refine(
+    (data) => {
+      if (!data.activity_date) return true;
+      return data.activity_date >= tripStartDate && data.activity_date <= tripEndDate;
+    },
+    {
+      message: `Date must be within the trip dates (${tripStartDate} – ${tripEndDate})`,
+      path: ['activity_date'],
+    },
+  );
+}
+
+export type CreateActivityInput = z.infer<typeof createActivitySchema>;
+export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
+
+// --- Invite schemas ---
 
 const INVITE_EXPIRY = ['1h', '24h', '7d'] as const;
 

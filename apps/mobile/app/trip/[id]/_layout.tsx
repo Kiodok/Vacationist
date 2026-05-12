@@ -10,6 +10,7 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import OverviewTab from './index';
+import ActivitiesTab from './activities';
 import SettingsTab from './settings';
 
 const TABS = ['Overview', 'Activities', 'Expenses', 'Shopping', 'Settings'] as const;
@@ -55,6 +56,8 @@ export default function TripDetailLayout() {
     switch (activeTab) {
       case 'Overview':
         return <OverviewTab />;
+      case 'Activities':
+        return <ActivitiesTab />;
       case 'Settings':
         return <SettingsTab />;
       default:

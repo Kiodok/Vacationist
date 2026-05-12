@@ -14,6 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          id: string
+          trip_id: string
+          title: string
+          description: string | null
+          category: string | null
+          cost_estimate: number | null
+          activity_date: string | null
+          start_time: string | null
+          end_time: string | null
+          external_url: string | null
+          maps_url: string | null
+          status: string
+          voting_open: boolean
+          created_by: string
+          created_at: string
+          updated_at: string
+          deleted_at: string | null
+        }
+        Insert: {
+          id?: string
+          trip_id: string
+          title: string
+          description?: string | null
+          category?: string | null
+          cost_estimate?: number | null
+          activity_date?: string | null
+          start_time?: string | null
+          end_time?: string | null
+          external_url?: string | null
+          maps_url?: string | null
+          status?: string
+          voting_open?: boolean
+          created_by: string
+          created_at?: string
+          updated_at?: string
+          deleted_at?: string | null
+        }
+        Update: {
+          id?: string
+          trip_id?: string
+          title?: string
+          description?: string | null
+          category?: string | null
+          cost_estimate?: number | null
+          activity_date?: string | null
+          start_time?: string | null
+          end_time?: string | null
+          external_url?: string | null
+          maps_url?: string | null
+          status?: string
+          voting_open?: boolean
+          created_by?: string
+          created_at?: string
+          updated_at?: string
+          deleted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_votes: {
+        Row: {
+          id: string
+          activity_id: string
+          user_id: string
+          vote: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          activity_id: string
+          user_id: string
+          vote: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          activity_id?: string
+          user_id?: string
+          vote?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_votes_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invite_tokens: {
         Row: {
           created_at: string
@@ -198,7 +312,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      close_activity_voting: { Args: { p_activity_id: string }; Returns: undefined }
       redeem_invite_token: { Args: { token_value: string }; Returns: string }
+      soft_delete_activity: { Args: { p_activity_id: string }; Returns: undefined }
+      soft_delete_trip: { Args: { p_trip_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

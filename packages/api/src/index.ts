@@ -19,3 +19,15 @@ export { getTripMembers, removeTripMember, leaveTrip, updateMemberRole, getCurre
 export type { TripMemberWithUser } from './members';
 
 export { createInviteToken, getActiveInvites, revokeInvite, redeemInviteToken } from './invites';
+
+export {
+  getActivities,
+  getActivity,
+  createActivity,
+  updateActivity,
+  softDeleteActivity,
+  closeActivityVoting,
+  getActivityVotes,
+  castActivityVote,
+  removeActivityVote,
+} from './activities';

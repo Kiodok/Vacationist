@@ -83,17 +83,17 @@ OAuth app:
 *Dependencies: Phase 2*
 *Goal: Activity planning and the non-numerical voting engine.*
 
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `activities` and `activity_votes` tables + RLS
-  - [ ] Define Vote TypeScript enums (`must_do`, `like`, `open`, `skip`, `group_blocker`)
-- [ ] **2. Services & Hooks**
-  - [ ] Implement Activity CRUD and optimistic Vote Upsert services
-  - [ ] Implement auto-finalization logic (trigger when all members vote)
-  - [ ] Create `useActivities` and `useCastVote` TanStack Query hooks
-- [ ] **3. Components & Screens**
-  - [ ] Build `ActivityCard` and `VoteChip` UI components
-  - [ ] Implement Bottom Sheet for vote casting/breakdown
-  - [ ] Implement Activity List screen and Activity Detail screen
+- [x] **1. DB/RLS & Types**
+  - [x] Create `activities` and `activity_votes` tables + RLS
+  - [x] Define Vote TypeScript enums (`must_do`, `like`, `open`, `skip`, `group_blocker`)
+- [x] **2. Services & Hooks**
+  - [x] Implement Activity CRUD and optimistic Vote Upsert services
+  - [x] Implement auto-finalization logic (trigger when all members vote)
+  - [x] Create `useActivities` and `useCastVote` TanStack Query hooks
+- [x] **3. Components & Screens**
+  - [x] Build `ActivityCard` and `VoteChip` UI components
+  - [x] Implement Bottom Sheet for vote casting/breakdown
+  - [x] Implement Activity List screen and Activity Detail screen
 
 ---
 

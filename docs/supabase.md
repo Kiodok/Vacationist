@@ -207,6 +207,73 @@ Updated `packages/api/src/trips.ts` → `softDeleteTrip` now calls `supabase.rpc
 
 ---
 
+## 2026-05-12 — Phase 3: Activities & Voting System
+
+### Migration: `create_activities_and_votes`
+
+**Tables:**
+- `public.activities` — Activity planning per trip with soft delete, status lifecycle, voting flag
+- `public.activity_votes` — Non-numeric voting (must_do/like/open/skip/group_blocker), UNIQUE on (activity_id, user_id) for upsert semantics
+
+**RLS Policies:**
+- `activities`: SELECT by trip members (non-deleted), INSERT by trip members (created_by = self), UPDATE by organizer or creator
+- `activity_votes`: SELECT by trip members, INSERT/UPDATE/DELETE by own user + voting must be open
+
+**Triggers:**
+- `activities_updated_at` — auto-updates `updated_at` on UPDATE (reuses `set_updated_at()`)
+- `on_activity_vote_inserted` — AFTER INSERT/UPDATE: auto-finalizes voting when all trip members have voted (sets `voting_open = FALSE`)
+
+**Functions:**
+- `public.soft_delete_activity(p_activity_id UUID)` — SECURITY DEFINER: organizer can delete any, participant can delete own, guest cannot delete
+- `public.close_activity_voting(p_activity_id UUID)` — SECURITY DEFINER: only organizers can manually close voting
+
+**Indexes:**
+- `idx_activities_trip_id` (partial: deleted_at IS NULL)
+- `idx_activities_created_by`
+- `idx_activities_activity_date` (partial: deleted_at IS NULL)
+- `idx_activity_votes_activity_id`
+- `idx_activity_votes_user_id`
+
+**Local migration file:** `supabase/migrations/20260512200000_create_activities_and_votes.sql`
+
+---
+
+## 2026-05-12 — Security: Restrict activity update fields
+
+### Migration: `restrict_activity_update_fields`
+
+Added `BEFORE UPDATE` trigger on `activities` that prevents non-organizers from modifying `voting_open` or `status` columns. Also prevents any user from changing `trip_id` or `created_by`.
+
+**Why needed:** The `activities_update_member` RLS policy allows the activity creator (any role) to UPDATE the row. Without this trigger, a participant-creator could bypass the `close_activity_voting` RPC and directly set `voting_open = FALSE` or change status.
+
+**Local migration file:** `supabase/migrations/20260512200001_restrict_activity_update_fields.sql`
+
+---
+
+## 2026-05-12 — Security: Enforce https:// URLs at DB level
+
+### Migration: `enforce_https_urls`
+
+Added CHECK constraints on `activities.external_url` and `activities.maps_url` requiring `https://` prefix. Prevents injection of `javascript:`, `data:`, or other unsafe URL schemes by clients bypassing Zod validation.
+
+**Local migration file:** `supabase/migrations/20260512200002_enforce_https_urls.sql`
+
+---
+
+## 2026-05-12 — Enforce activity_date within trip date range
+
+### Migration: `enforce_activity_date_within_trip`
+
+Added BEFORE INSERT/UPDATE trigger on `activities` that validates `activity_date` falls between the parent trip's `start_date` and `end_date`. NULL `activity_date` is allowed (activity without a set date).
+
+**Why needed:** Client-side Zod validation enforces the date range in `CreateActivitySheet`, but a direct API call could bypass it. The trigger provides defense in depth at the database level.
+
+**Function:** `public.check_activity_date_within_trip()` — SECURITY DEFINER, looks up trip dates and raises exception if out of range.
+
+**Local migration file:** `supabase/migrations/20260512220744_enforce_activity_date_within_trip.sql`
+
+---
+
 ## 2026-05-12 — Extend soft_delete_trip to revoke invite tokens
 
 ### Change

@@ -10,9 +10,18 @@
     "jsx": "react-jsx"
   },
   "references": [
-    { "path": "./packages/types" },
-    { "path": "./packages/utils" },
-    { "path": "./packages/api" },
-    { "path": "./packages/ui" }
-  ]
+    {
+      "path": "./packages/types"
+    },
+    {
+      "path": "./packages/utils"
+    },
+    {
+      "path": "./packages/api"
+    },
+    {
+      "path": "./packages/ui"
+    }
+  ],
+  "extends": "expo/tsconfig.base"
 }

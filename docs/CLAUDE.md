@@ -46,6 +46,7 @@ We are moving to the next task in the Implementation Plan.
 
 ### Supabase changes
 Add details to the docs/supabase.md if you make changes in the Supabase project using the MCP server or other CLI tools.
+Use CLI instead of MCP server.
 
 ---
 
