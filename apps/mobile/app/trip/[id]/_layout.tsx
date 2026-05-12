@@ -4,7 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
+import { TripNotFoundError } from '@vacationist/api';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
+import { useAuthStore } from '../../../src/stores/authStore';
 import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import OverviewTab from './index';
@@ -16,13 +18,35 @@ type Tab = (typeof TABS)[number];
 export default function TripDetailLayout() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { data: trip, isLoading } = useTrip(id!);
+  const { data: trip, isLoading, isError, error } = useTrip(id!);
+  const authLoading = useAuthStore((s) => s.isLoading);
   const [activeTab, setActiveTab] = useState<Tab>('Overview');
 
-  if (isLoading || !trip) {
+  if (isLoading || authLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center">
         <ActivityIndicator color="#6C63FF" size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  if (isError || !trip) {
+    const isNotMember = error instanceof TripNotFoundError;
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center px-md gap-md">
+        <Text className="text-text-secondary text-body text-center">
+          {isNotMember
+            ? "This trip doesn't exist or you don't have access to it."
+            : 'Failed to load trip.'}
+        </Text>
+        <Pressable
+          onPress={() => isNotMember ? router.replace('/(tabs)') : router.back()}
+          className="px-lg py-sm rounded-md bg-surface border border-border"
+        >
+          <Text className="text-text-primary text-body">
+            {isNotMember ? 'Go to home' : 'Go back'}
+          </Text>
+        </Pressable>
       </SafeAreaView>
     );
   }
@@ -89,10 +113,12 @@ export default function TripDetailLayout() {
         </ScrollView>
       </View>
 
-      {/* Tab content */}
-      <ScreenErrorBoundary>
-        {renderTab()}
-      </ScreenErrorBoundary>
+      {/* Tab content — flex: 1 ensures bounded height so Pressables inside ScrollViews register touches */}
+      <View style={{ flex: 1 }}>
+        <ScreenErrorBoundary>
+          {renderTab()}
+        </ScreenErrorBoundary>
+      </View>
     </SafeAreaView>
   );
 }

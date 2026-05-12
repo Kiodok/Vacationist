@@ -1,6 +1,13 @@
 import { supabase } from './client';
 import type { Trip, CreateTripInput, UpdateTripInput } from '@vacationist/types';
 
+export class TripNotFoundError extends Error {
+  constructor() {
+    super('Trip not found or you do not have access');
+    this.name = 'TripNotFoundError';
+  }
+}
+
 interface TripRow {
   id: string;
   title: string;
@@ -42,7 +49,10 @@ export async function getTrip(tripId: string): Promise<Trip & { member_count: nu
     .eq('id', tripId)
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST116') throw new TripNotFoundError();
+    throw error;
+  }
   return toTripWithCount(data as unknown as TripRow);
 }
 
@@ -82,10 +92,9 @@ export async function updateTrip(tripId: string, input: UpdateTripInput): Promis
 }
 
 export async function softDeleteTrip(tripId: string): Promise<void> {
-  const { error } = await supabase
-    .from('trips')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', tripId);
-
+  // Direct UPDATE is blocked by PostgreSQL 16+ implicit SELECT-policy WITH CHECK
+  // (setting deleted_at makes the new row invisible, failing trips_select_member).
+  // SECURITY DEFINER RPC bypasses RLS and checks organizer auth internally.
+  const { error } = await supabase.rpc('soft_delete_trip', { p_trip_id: tripId });
   if (error) throw error;
 }

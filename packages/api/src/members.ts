@@ -15,13 +15,36 @@ export async function getTripMembers(tripId: string): Promise<TripMemberWithUser
 }
 
 export async function removeTripMember(tripId: string, userId: string): Promise<void> {
-  const { error } = await supabase
+  // .select('id') is required: without it Supabase returns { data: null, error: null }
+  // even when RLS blocks the DELETE, making it impossible to detect 0-row deletions.
+  const { data, error } = await supabase
     .from('trip_members')
     .delete()
     .eq('trip_id', tripId)
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .select('id');
 
   if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error('Permission denied or member not found');
+  }
+}
+
+export async function leaveTrip(tripId: string): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('trip_members')
+    .delete()
+    .eq('trip_id', tripId)
+    .eq('user_id', user.id)
+    .select('id');
+
+  if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error('You are not a member of this trip');
+  }
 }
 
 export async function updateMemberRole(

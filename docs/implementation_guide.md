@@ -130,7 +130,7 @@ OAuth app:
 
 ---
 
-## 🛒 Phase 5: Realtime Shopping Lists
+## 🛒 Phase 5a: Realtime Shopping Lists
 *Dependencies: Phase 2*
 *Goal: Collaborative, real-time list management.*
 
@@ -143,6 +143,14 @@ OAuth app:
 - [ ] **3. Components & Screens**
   - [ ] Build interactive Checkbox/Item components (Optimistic UI required)
   - [ ] Implement Shopping List view
+
+## 🛒 Phase 5b: Realtime Voting System for Activities & Accommodations
+*Dependencies: Phase 5a*
+*Goal: Collaborative, real-time voting on activities & places to stay.*
+
+- [ ] **1. Realtime voting on activities**
+- [ ] **2. Realtime voting on places**
+- [ ] **3. Ensure alignment with Phase 5a functionalities & logic**
 
 ---
 
@@ -176,7 +184,7 @@ OAuth app:
 ---
 
 ## 🔔 Phase 8: Notifications
-*Dependencies: Phases 3, 4a, 4b, 5*
+*Dependencies: Phases 3, 4a, 4b, 5a, 5b*
 *Goal: Batched push notifications and in-app alerts.*
 
 - [ ] **1. DB/RLS & Types**

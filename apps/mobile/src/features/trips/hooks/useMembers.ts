@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTripMembers, removeTripMember, updateMemberRole, getCurrentMemberRole } from '@vacationist/api';
+import { getTripMembers, removeTripMember, leaveTrip, updateMemberRole, getCurrentMemberRole } from '@vacationist/api';
 import type { MemberRole } from '@vacationist/types';
 import { useToastStore } from '../../../stores/toastStore';
 
@@ -32,8 +32,25 @@ export function useRemoveMember(tripId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId] });
       addToast('success', 'Member removed');
     },
+    onError: (error: Error) => {
+      if (__DEV__) console.error('[useRemoveMember] error:', error.message);
+      addToast('error', error.message || 'Failed to remove member.');
+    },
+  });
+}
+
+export function useLeaveTrip(tripId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: () => leaveTrip(tripId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      addToast('success', 'You left the trip');
+    },
     onError: () => {
-      addToast('error', 'Failed to remove member.');
+      addToast('error', 'Failed to leave trip.');
     },
   });
 }

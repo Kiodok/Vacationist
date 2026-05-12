@@ -6,11 +6,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Button, Input } from '@vacationist/ui';
 import { signInAnonymously, redeemInviteToken } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
+import { useAuthStore } from '../../src/stores/authStore';
 
 export default function JoinScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
+  const setPendingInviteToken = useAuthStore((s) => s.setPendingInviteToken);
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,6 +54,7 @@ export default function JoinScreen() {
   }
 
   function handleSignInInstead() {
+    if (token) setPendingInviteToken(token);
     router.replace('/(auth)/login');
   }
 

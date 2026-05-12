@@ -16,7 +16,7 @@ export default function OverviewTab() {
   const duration = dayjs(trip.end_date).diff(dayjs(trip.start_date), 'day') + 1;
 
   return (
-    <ScrollView contentContainerClassName="px-md py-md gap-md">
+    <ScrollView style={{ flex: 1 }} contentContainerClassName="px-md py-md gap-md">
       {trip.description ? (
         <View className="bg-surface border border-border rounded-md p-md">
           <Text className="text-body text-text-primary">{trip.description}</Text>

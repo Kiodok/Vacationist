@@ -24,6 +24,8 @@ function AuthGate() {
   const segments = useSegments();
   const hasSession = useAuthStore((s) => s.hasSession);
   const isLoading = useAuthStore((s) => s.isLoading);
+  const pendingInviteToken = useAuthStore((s) => s.pendingInviteToken);
+  const setPendingInviteToken = useAuthStore((s) => s.setPendingInviteToken);
   const addToast = useToastStore((s) => s.addToast);
 
   useAuthInit();
@@ -39,6 +41,22 @@ function AuthGate() {
       router.replace('/(tabs)');
     }
   }, [hasSession, isLoading, segments, router]);
+
+  // Process invite token saved before OAuth redirect
+  useEffect(() => {
+    if (!hasSession || isLoading || !pendingInviteToken) return;
+    const token = pendingInviteToken;
+    setPendingInviteToken(null);
+    redeemInviteToken(token)
+      .then((tripId) => {
+        addToast('success', 'You joined the trip!');
+        router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never);
+      })
+      .catch((err) => {
+        const message = err instanceof Error ? err.message : 'Invalid invite link';
+        addToast('error', message);
+      });
+  }, [hasSession, isLoading, pendingInviteToken, setPendingInviteToken, router, addToast]);
 
   // Handle invite deep links when user is already authenticated
   useEffect(() => {

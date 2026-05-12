@@ -21,6 +21,7 @@ export interface User {
   timezone: string;
   is_guest: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Trip {
@@ -35,6 +36,7 @@ export interface Trip {
   status: TripStatus;
   created_by: string;
   created_at: string;
+  updated_at: string;
   deleted_at: string | null;
 }
 
@@ -57,6 +59,7 @@ export interface InviteToken {
   max_uses: number | null;
   use_count: number;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Activity {

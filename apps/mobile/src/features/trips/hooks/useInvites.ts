@@ -20,7 +20,6 @@ export function useCreateInvite(tripId: string) {
     mutationFn: (input: CreateInviteInput) => createInviteToken(tripId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'invites'] });
-      addToast('success', 'Invite link created');
     },
     onError: () => {
       addToast('error', 'Failed to create invite link.');

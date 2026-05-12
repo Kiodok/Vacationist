@@ -1,4 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useToastStore, type ToastType } from '../stores/toastStore';
 
 const TYPE_COLORS: Record<ToastType, { bg: string; text: string }> = {
@@ -8,13 +9,14 @@ const TYPE_COLORS: Record<ToastType, { bg: string; text: string }> = {
 };
 
 export function ToastContainer() {
+  const insets = useSafeAreaInsets();
   const toasts = useToastStore((s) => s.toasts);
   const removeToast = useToastStore((s) => s.removeToast);
 
   if (toasts.length === 0) return null;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { bottom: Math.max(insets.bottom, 16) + 8 }]}>
       {toasts.map((toast) => {
         const colors = TYPE_COLORS[toast.type];
         return (
@@ -34,7 +36,6 @@ export function ToastContainer() {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 60,
     left: 16,
     right: 16,
     zIndex: 9999,

@@ -68,6 +68,27 @@ Both functions use `SECURITY DEFINER SET search_path = ''`.
 
 ---
 
+## 2026-05-12 — Fix: Infinite recursion in trip_members RLS policies
+
+### Problem
+Creating a trip (or any query touching `trips`, `trip_members`, or `invite_tokens`) failed with:
+`infinite recursion detected in policy for relation "trip_members"`
+
+### Root Cause
+The `trip_members_select` RLS policy queried `trip_members` from within its own `USING` clause, creating infinite recursion. Every other policy on `trips` and `invite_tokens` that referenced `trip_members` cascaded into the same loop.
+
+### Fix
+1. Created `private` schema (not exposed via Data API) with `GRANT USAGE` to `authenticated`.
+2. Created two SECURITY DEFINER helper functions:
+   - `private.is_trip_member(p_trip_id UUID, p_user_id UUID)` — checks membership, bypasses RLS
+   - `private.is_trip_organizer(p_trip_id UUID, p_user_id UUID)` — checks organizer role, bypasses RLS
+3. Rewrote all 10 affected policies across `trips`, `trip_members`, and `invite_tokens` to call these helpers instead of querying `trip_members` directly.
+4. Added `created_by = auth.uid()` fallback to `trips_select_member` SELECT policy — in PostgreSQL 17, `RETURNING` is subject to SELECT policies, but the AFTER INSERT trigger (`handle_new_trip`) fires after `RETURNING` evaluates, so `is_trip_member()` would fail for newly created trips. The `created_by` check lets the creator see the row immediately.
+
+**Local migration file:** `supabase/migrations/20260512000001_fix_rls_infinite_recursion.sql`
+
+---
+
 ## 2026-05-11 — Fix: Backfill public.users and harden trigger
 
 ### Problem
@@ -165,3 +186,34 @@ To send emails to other recipients, please verify a domain at resend.com/domains
 Added to Supabase Dashboard > Authentication > URL Configuration:
 - `vacationist://` — production deep link scheme
 - `exp://192.168.x.x:8081` — Expo dev server (local development)
+
+---
+
+## 2026-05-12 — Fix: Soft-delete trip RLS violation
+
+### Problem
+Calling `softDeleteTrip` failed with:
+`42501: new row violates row-level security policy for table "trips"`
+
+### Root Cause
+PostgreSQL 16+ applies **SELECT policies as implicit WITH CHECK constraints on UPDATE**. The `trips_update_organizer` UPDATE policy's own `WITH CHECK` passed (organizer check → true), but PostgreSQL additionally requires the new row to satisfy the SELECT policy `trips_select_member`. That policy requires `deleted_at IS NULL`. After setting `deleted_at`, the new row fails this check — PostgreSQL rejects the UPDATE even though the organizer is authorized.
+
+### Fix
+Created `public.soft_delete_trip(p_trip_id UUID)` as a `SECURITY DEFINER` function. It bypasses RLS (runs as function owner), performs its own auth check (`auth.uid()` not null + `private.is_trip_organizer`), and then does the UPDATE directly.
+
+Updated `packages/api/src/trips.ts` → `softDeleteTrip` now calls `supabase.rpc('soft_delete_trip', { p_trip_id })` instead of a direct UPDATE.
+
+**Local migration file:** `supabase/migrations/20260512185430_fix_soft_delete_trip.sql`
+
+---
+
+## 2026-05-12 — Extend soft_delete_trip to revoke invite tokens
+
+### Change
+Updated `public.soft_delete_trip(p_trip_id)` to also revoke all active invite tokens for the trip when it is soft-deleted.
+
+**Why needed:** `invite_tokens.trip_id` has `ON DELETE CASCADE`, but that only fires on hard deletes. Since we never hard-delete trips, a soft-deleted trip's invite tokens would otherwise remain active and redeemable (though `redeem_invite_token` would fail at runtime because the user can't be added to a deleted trip, it is cleaner to revoke tokens explicitly).
+
+**Change:** Added a second `UPDATE public.invite_tokens SET revoked_at = NOW() WHERE trip_id = p_trip_id AND revoked_at IS NULL;` inside the function body, executed after the trip soft-delete.
+
+**Local migration file:** `supabase/migrations/20260512192444_revoke_tokens_on_trip_soft_delete.sql`

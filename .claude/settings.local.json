@@ -16,7 +16,17 @@
       "PowerShell(New-Item *)",
       "WebFetch(domain:localhost)",
       "Bash(npx supabase *)",
-      "mcp__plugin_supabase_supabase__list_projects"
+      "mcp__plugin_supabase_supabase__list_projects",
+      "Bash(supabase *)",
+      "PowerShell(supabase db *)",
+      "PowerShell(supabase projects *)",
+      "PowerShell(Get-Content *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Get-StoredCredential *)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
 }

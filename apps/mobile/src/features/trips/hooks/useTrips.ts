@@ -1,22 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip } from '@vacationist/api';
+import { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip, TripNotFoundError } from '@vacationist/api';
 import type { CreateTripInput, UpdateTripInput } from '@vacationist/types';
 import { useToastStore } from '../../../stores/toastStore';
+import { useAuthStore } from '../../../stores/authStore';
 
 export function useTrips() {
+  const hasSession = useAuthStore((s) => s.hasSession);
   return useQuery({
     queryKey: ['trips'],
     queryFn: getTrips,
+    enabled: hasSession,
     retry: 2,
   });
 }
 
 export function useTrip(tripId: string) {
+  const hasSession = useAuthStore((s) => s.hasSession);
   return useQuery({
     queryKey: ['trips', tripId],
     queryFn: () => getTrip(tripId),
-    retry: 2,
-    enabled: !!tripId,
+    retry: (failureCount, error) => {
+      if (error instanceof TripNotFoundError) return false;
+      return failureCount < 2;
+    },
+    enabled: hasSession && !!tripId,
   });
 }
 
@@ -26,8 +33,9 @@ export function useCreateTrip() {
 
   return useMutation({
     mutationFn: (input: CreateTripInput) => createTrip(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips'] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(['trips', data.id], { ...data, member_count: 1 });
+      queryClient.invalidateQueries({ queryKey: ['trips'], exact: true });
       addToast('success', 'Trip created!');
     },
     onError: () => {
