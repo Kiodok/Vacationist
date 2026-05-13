@@ -26,18 +26,26 @@ export default function LoginScreen() {
     setGoogleLoading(true);
     try {
       const redirectTo = makeRedirectUri();
+
+      if (__DEV__) {
+        console.log('[Auth] redirectTo:', redirectTo);
+      }
+
       const url = await getGoogleOAuthUrl(redirectTo);
 
       if (Platform.OS === 'web') {
-        // On web, redirect the page directly — the popup approach via
-        // openAuthSessionAsync is unreliable (popup blocked, session
-        // completion not detected). After OAuth, the page reloads with
-        // tokens in the URL hash and useAuthInit picks them up.
         window.location.href = url;
         return;
       }
 
-      const result = await WebBrowser.openAuthSessionAsync(url, redirectTo);
+      const result = await WebBrowser.openAuthSessionAsync(url, redirectTo, {
+        createTask: false,
+      });
+
+      if (__DEV__) {
+        console.log('[Auth] result type:', result.type);
+      }
+
       if (result.type === 'success') {
         await setSessionFromUrl(result.url);
       }

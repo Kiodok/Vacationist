@@ -39,7 +39,11 @@
       "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -notmatch 'TS6305|TS6306' })",
       "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match '^.+\\\\\\(\\\\d+,\\\\d+\\\\\\): error' })",
       "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match '^.+\\\\\\(\\\\d+,\\\\d+\\\\\\): error' -and $_ -notmatch 'TS6305|TS6306' })",
-      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match 'error TS' -and $_ -notmatch 'TS6305|TS6306' })"
+      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match 'error TS' -and $_ -notmatch 'TS6305|TS6306' })",
+      "mcp__plugin_supabase_supabase__get_logs",
+      "mcp__plugin_supabase_supabase__get_project",
+      "mcp__plugin_supabase_supabase__get_project_url",
+      "mcp__plugin_supabase_supabase__search_docs"
     ]
   },
   "enableAllProjectMcpServers": true,
