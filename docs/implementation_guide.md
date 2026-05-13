@@ -101,14 +101,14 @@ OAuth app:
 *Dependencies: Phase 3*
 *Goal: Suggesting and voting on places to stay.*
 
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `accommodations` and `accommodation_votes` tables + RLS
-- [ ] **2. Services & Hooks**
-  - [ ] Implement Accommodation CRUD services
-  - [ ] Extend existing voting hooks to support accommodation entities
-- [ ] **3. Components & Screens**
-  - [ ] Build Accommodation specific UI elements (price displays, external link buttons)
-  - [ ] Implement Accommodation List and Detail screens
+- [x] **1. DB/RLS & Types**
+  - [x] Create `accommodations` and `accommodation_votes` tables + RLS
+- [x] **2. Services & Hooks**
+  - [x] Implement Accommodation CRUD services
+  - [x] Extend existing voting hooks to support accommodation entities
+- [x] **3. Components & Screens**
+  - [x] Build Accommodation specific UI elements (price displays, external link buttons)
+  - [x] Implement Accommodation List and Detail screens
 
 ---
 
@@ -116,17 +116,17 @@ OAuth app:
 *Dependencies: Phase 2*
 *Goal: Shared cost tracking (No payments, just tracking).*
 
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `expenses` and `expense_splits` tables + RLS
-  - [ ] Define currency constants and types
-- [ ] **2. Services & Hooks**
-  - [ ] Implement Expense creation service
-  - [ ] Implement split calculation logic (e.g., divide by selected members)
-  - [ ] Create TanStack Query hooks for expenses
-- [ ] **3. Components & Screens**
-  - [ ] Build `ExpenseListItem` and settlement status badges
-  - [ ] Implement Expense List screen
-  - [ ] Implement Add Expense Form (React Hook Form + Zod)
+- [x] **1. DB/RLS & Types**
+  - [x] Create `expenses` and `expense_splits` tables + RLS
+  - [x] Define currency constants and types
+- [x] **2. Services & Hooks**
+  - [x] Implement Expense creation service
+  - [x] Implement split calculation logic (e.g., divide by selected members)
+  - [x] Create TanStack Query hooks for expenses
+- [x] **3. Components & Screens**
+  - [x] Build `ExpenseListItem` and settlement status badges
+  - [x] Implement Expense List screen
+  - [x] Implement Add Expense Form (React Hook Form + Zod)
 
 ---
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS } from './enums';
+import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD } from './enums';
 
 export const userSchema = z.object({
   id: z.string().uuid(),
@@ -110,6 +110,55 @@ export function createActivitySchemaForTrip(tripStartDate: string, tripEndDate: 
 
 export type CreateActivityInput = z.infer<typeof createActivitySchema>;
 export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
+
+// --- Accommodation schemas ---
+
+export const createAccommodationSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().max(1000).optional(),
+  price_total: z.number().nonnegative().nullable().optional(),
+  external_url: httpsUrlSchema.nullable().optional(),
+  notes: z.string().max(500).optional(),
+});
+
+export const updateAccommodationSchema = createAccommodationSchema.partial().extend({
+  status: z.enum(ACCOMMODATION_STATUS).optional(),
+});
+
+export type CreateAccommodationInput = z.infer<typeof createAccommodationSchema>;
+export type UpdateAccommodationInput = z.infer<typeof updateAccommodationSchema>;
+
+// --- Expense schemas ---
+
+export const splitEntrySchema = z.object({
+  user_id: z.string().uuid(),
+  amount: z.number().nonnegative().optional(),
+  shares: z.number().int().positive().optional(),
+});
+
+export type SplitEntry = z.infer<typeof splitEntrySchema>;
+
+export const createExpenseSchema = z.object({
+  title: z.string().min(1).max(100),
+  amount: z.number().positive(),
+  currency: z.enum(CURRENCY),
+  paid_by: z.string().uuid(),
+  related_type: z.enum(EXPENSE_RELATED_TYPE),
+  related_id: z.string().uuid().nullable().optional(),
+  split_method: z.enum(EXPENSE_SPLIT_METHOD),
+  splits: z.array(splitEntrySchema).min(1),
+});
+
+export const updateExpenseWithSplitsSchema = z.object({
+  title: z.string().min(1).max(100),
+  amount: z.number().positive(),
+  paid_by: z.string().uuid(),
+  split_method: z.enum(EXPENSE_SPLIT_METHOD),
+  splits: z.array(splitEntrySchema).min(1),
+});
+
+export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
+export type UpdateExpenseWithSplitsInput = z.infer<typeof updateExpenseWithSplitsSchema>;
 
 // --- Invite schemas ---
 

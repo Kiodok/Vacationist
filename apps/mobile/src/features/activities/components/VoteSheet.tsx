@@ -1,11 +1,16 @@
 import { View, Text, Pressable, Modal } from 'react-native';
-import { VOTE_TYPE, type VoteType, type ActivityVote } from '@vacationist/types';
+import { VOTE_TYPE, type VoteType } from '@vacationist/types';
 import { VoteChip } from './VoteChip';
+
+interface VoteRecord {
+  user_id: string;
+  vote: VoteType;
+}
 
 interface VoteSheetProps {
   visible: boolean;
   onClose: () => void;
-  votes: ActivityVote[];
+  votes: VoteRecord[];
   currentUserId: string | undefined;
   votingOpen: boolean;
   onCastVote: (vote: VoteType) => void;
@@ -87,7 +92,7 @@ export function VoteSheet({
   );
 }
 
-function VoteBreakdown({ votes }: { votes: ActivityVote[] }) {
+function VoteBreakdown({ votes }: { votes: VoteRecord[] }) {
   const ordered: VoteType[] = ['must_do', 'like', 'open', 'skip', 'group_blocker'];
 
   const counts = votes.reduce<Partial<Record<VoteType, number>>>((acc, v) => {

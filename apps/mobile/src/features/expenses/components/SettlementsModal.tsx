@@ -1,0 +1,102 @@
+import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import type { MemberBalance, User, Currency } from '@vacationist/types';
+import { formatCurrency, isNegligible, computeSettlements } from '@vacationist/utils';
+
+interface SettlementsModalProps {
+  visible: boolean;
+  onClose: () => void;
+  balances: MemberBalance[];
+  members: Map<string, User>;
+  currency: Currency;
+}
+
+export function SettlementsModal({ visible, onClose, balances, members, currency }: SettlementsModalProps) {
+  const settlements = computeSettlements(balances);
+  const allSettled = settlements.length === 0;
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View className="flex-1 justify-end">
+        <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[85%]">
+          <View className="items-center mb-md">
+            <View className="w-[36px] h-[4px] rounded-full bg-border" />
+          </View>
+
+          <Text className="text-heading-m text-text-primary mb-md">Balances & Settlements</Text>
+
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {/* Per-member balances */}
+            <Text className="text-body text-text-secondary font-semibold mb-sm">Member Balances</Text>
+            <View className="gap-xs mb-lg">
+              {balances.map((b) => {
+                const user = members.get(b.user_id);
+                const isPositive = !isNegligible(b.net_balance) && b.net_balance > 0;
+                const isNegative = !isNegligible(b.net_balance) && b.net_balance < 0;
+                return (
+                  <View key={b.user_id} className="flex-row items-center justify-between py-sm px-sm rounded-md bg-surface">
+                    <View className="flex-row items-center gap-sm flex-1">
+                      <View className="w-[28px] h-[28px] rounded-full bg-primary/15 items-center justify-center">
+                        <Text className="text-primary text-label font-semibold">
+                          {(user?.name ?? '?')[0].toUpperCase()}
+                        </Text>
+                      </View>
+                      <Text className="text-body text-text-primary" numberOfLines={1}>
+                        {user?.name ?? 'Unknown'}
+                      </Text>
+                    </View>
+                    <View className="items-end">
+                      <Text className={`text-body font-semibold ${isPositive ? 'text-success' : isNegative ? 'text-danger' : 'text-text-muted'}`}>
+                        {isPositive ? '+' : ''}{formatCurrency(b.net_balance, currency)}
+                      </Text>
+                      <Text className="text-label text-text-muted">
+                        paid {formatCurrency(b.total_paid, currency)} · owes {formatCurrency(b.total_owed, currency)}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+
+            {/* Simplified settlements */}
+            <Text className="text-body text-text-secondary font-semibold mb-sm">Simplified Settlements</Text>
+            {allSettled ? (
+              <View className="items-center py-lg gap-sm">
+                <Ionicons name="checkmark-done-circle-outline" size={40} color="#3ECF8E" />
+                <Text className="text-body text-success font-medium">All settled up!</Text>
+                <Text className="text-body-small text-text-muted">No payments needed</Text>
+              </View>
+            ) : (
+              <View className="gap-sm">
+                {settlements.map((s, i) => {
+                  const fromUser = members.get(s.from);
+                  const toUser = members.get(s.to);
+                  return (
+                    <View key={i} className="flex-row items-center py-sm px-sm rounded-md bg-surface gap-sm">
+                      <View className="flex-1 flex-row items-center gap-xs">
+                        <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
+                          {fromUser?.name ?? 'Unknown'}
+                        </Text>
+                        <Ionicons name="arrow-forward" size={14} color="#6C63FF" />
+                        <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
+                          {toUser?.name ?? 'Unknown'}
+                        </Text>
+                      </View>
+                      <Text className="text-body text-primary font-semibold">
+                        {formatCurrency(s.amount, currency)}
+                      </Text>
+                    </View>
+                  );
+                })}
+                <Text className="text-label text-text-muted text-center mt-xs">
+                  {settlements.length} payment{settlements.length === 1 ? '' : 's'} to settle all debts
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+}

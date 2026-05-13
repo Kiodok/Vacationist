@@ -16,6 +16,7 @@
     "supabase:stop": "npx supabase stop",
     "supabase:migrate": "npx supabase db push",
     "supabase:types": "npx supabase gen types typescript --local > packages/api/src/database.types.ts",
-    "supabase:reset": "npx supabase db reset"
+    "supabase:reset": "npx supabase db reset",
+    "test": "npm run test --workspace=@vacationist/utils"
   }
 }

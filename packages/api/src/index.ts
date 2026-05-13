@@ -31,3 +31,26 @@ export {
   castActivityVote,
   removeActivityVote,
 } from './activities';
+
+export {
+  getAccommodations,
+  getAccommodation,
+  createAccommodation,
+  updateAccommodation,
+  softDeleteAccommodation,
+  closeAccommodationVoting,
+  getAccommodationVotes,
+  castAccommodationVote,
+  removeAccommodationVote,
+} from './accommodations';
+
+export {
+  getExpenses,
+  createExpense,
+  updateExpenseWithSplits,
+  archiveExpense,
+  getExpenseSplits,
+  getTripBalances,
+  settleExpenseSplit,
+  unsettleExpenseSplit,
+} from './expenses';

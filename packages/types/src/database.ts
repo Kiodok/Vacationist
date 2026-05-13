@@ -5,6 +5,7 @@ import type {
   ActivityStatus,
   AccommodationStatus,
   ExpenseRelatedType,
+  ExpenseSplitMethod,
   ExpenseSplitStatus,
   ShoppingItemStatus,
   Currency,
@@ -136,9 +137,11 @@ export interface Expense {
   title: string;
   amount: number;
   currency: Currency;
+  split_method: ExpenseSplitMethod;
   paid_by: string;
   created_by: string;
   created_at: string;
+  updated_by: string | null;
   archived_at: string | null;
 }
 
@@ -148,6 +151,17 @@ export interface ExpenseSplit {
   user_id: string;
   amount_owed: number;
   status: ExpenseSplitStatus;
+}
+
+export interface ExpenseWithSplits extends Expense {
+  expense_splits: ExpenseSplit[];
+}
+
+export interface MemberBalance {
+  user_id: string;
+  total_paid: number;
+  total_owed: number;
+  net_balance: number;
 }
 
 export interface ShoppingList {

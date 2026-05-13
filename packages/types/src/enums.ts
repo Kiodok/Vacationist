@@ -16,6 +16,9 @@ export type AccommodationStatus = (typeof ACCOMMODATION_STATUS)[number];
 export const EXPENSE_RELATED_TYPE = ['accommodation', 'activity', 'transport', 'shopping', 'manual'] as const;
 export type ExpenseRelatedType = (typeof EXPENSE_RELATED_TYPE)[number];
 
+export const EXPENSE_SPLIT_METHOD = ['even', 'exact', 'shares'] as const;
+export type ExpenseSplitMethod = (typeof EXPENSE_SPLIT_METHOD)[number];
+
 export const EXPENSE_SPLIT_STATUS = ['open', 'settled'] as const;
 export type ExpenseSplitStatus = (typeof EXPENSE_SPLIT_STATUS)[number];
 

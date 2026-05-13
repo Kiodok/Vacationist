@@ -11,9 +11,11 @@ import { StatusBadge } from '../../../src/features/trips/components/StatusBadge'
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import OverviewTab from './index';
 import ActivitiesTab from './activities';
+import AccommodationsTab from './accommodations';
+import ExpensesTab from './expenses';
 import SettingsTab from './settings';
 
-const TABS = ['Overview', 'Activities', 'Expenses', 'Shopping', 'Settings'] as const;
+const TABS = ['Overview', 'Places', 'Activities', 'Expenses', 'Shopping', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
 
 function getInitialTab(paramTab?: string): Tab {
@@ -77,6 +79,10 @@ export default function TripDetailLayout() {
         return <OverviewTab />;
       case 'Activities':
         return <ActivitiesTab />;
+      case 'Places':
+        return <AccommodationsTab />;
+      case 'Expenses':
+        return <ExpensesTab />;
       case 'Settings':
         return <SettingsTab />;
       default:

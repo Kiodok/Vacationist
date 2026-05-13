@@ -284,3 +284,230 @@ Updated `public.soft_delete_trip(p_trip_id)` to also revoke all active invite to
 **Change:** Added a second `UPDATE public.invite_tokens SET revoked_at = NOW() WHERE trip_id = p_trip_id AND revoked_at IS NULL;` inside the function body, executed after the trip soft-delete.
 
 **Local migration file:** `supabase/migrations/20260512192444_revoke_tokens_on_trip_soft_delete.sql`
+
+---
+
+## 2026-05-13 — Phase 4a: Accommodations & Voting System
+
+### Migration: `create_accommodations_and_votes`
+
+**Tables:**
+- `public.accommodations` — Accommodation suggestions per trip with soft delete, status lifecycle (suggested/requested/reserved/booked/completed), voting flag
+- `public.accommodation_votes` — Non-numeric voting (must_do/like/open/skip/group_blocker), UNIQUE on (accommodation_id, user_id) for upsert semantics
+
+**RLS Policies:**
+- `accommodations`: SELECT by trip members (non-deleted), INSERT by trip members (created_by = self), UPDATE by organizer or creator
+- `accommodation_votes`: SELECT by trip members, INSERT/UPDATE/DELETE by own user + voting must be open
+
+**Triggers:**
+- `accommodations_updated_at` — auto-updates `updated_at` on UPDATE
+- `on_accommodation_update_restrict` — prevents non-organizers from modifying `voting_open` or `status`; prevents anyone from changing `trip_id` or `created_by`
+- `on_accommodation_vote_inserted` — AFTER INSERT/UPDATE: auto-finalizes voting when all trip members have voted
+
+**Functions:**
+- `public.soft_delete_accommodation(p_accommodation_id UUID)` — SECURITY DEFINER: organizer can delete any, participant can delete own, guest cannot delete
+- `public.close_accommodation_voting(p_accommodation_id UUID)` — SECURITY DEFINER: only organizers can manually close voting
+
+**Constraints:**
+- `accommodations_external_url_https` — CHECK constraint enforcing `https://` prefix on external URLs
+
+**Indexes:**
+- `idx_accommodations_trip_id` (partial: deleted_at IS NULL)
+- `idx_accommodations_created_by`
+- `idx_accommodation_votes_accommodation_id`
+- `idx_accommodation_votes_user_id`
+
+**Local migration file:** `supabase/migrations/20260513100000_create_accommodations_and_votes.sql`
+
+---
+
+## 2026-05-13 — Phase 4b: Expenses & Expense Splits
+
+### Migration: `create_expenses_and_splits`
+
+**Tables:**
+- `public.expenses` — Shared cost tracking per trip with archive semantics (`archived_at`), related entity linking, currency enforcement (EUR/CHF)
+- `public.expense_splits` — Per-member split amounts with settlement status tracking, UNIQUE on (expense_id, user_id)
+
+**RLS Policies:**
+- `expenses`: SELECT by trip members (non-archived), INSERT by trip members (created_by = self), UPDATE by organizer or creator
+- `expense_splits`: SELECT by trip members via expense join, INSERT by expense creator or organizer
+
+**Triggers:**
+- `expenses_updated_at` — auto-updates `updated_at` on UPDATE
+- `on_expense_update_restrict` — prevents changing `trip_id` or `created_by`
+
+**Functions:**
+- `public.archive_expense(p_expense_id UUID)` — SECURITY DEFINER: organizer can archive any, creator can archive own
+- `public.settle_expense_split(p_split_id UUID)` — SECURITY DEFINER: payer, split owner, or organizer can mark as settled
+- `public.unsettle_expense_split(p_split_id UUID)` — SECURITY DEFINER: same permissions, marks split back to open
+
+**Indexes:**
+- `idx_expenses_trip_id` (partial: archived_at IS NULL)
+- `idx_expenses_paid_by`
+- `idx_expenses_created_by`
+- `idx_expense_splits_expense_id`
+- `idx_expense_splits_user_id`
+- `idx_expense_splits_status` (partial: status = 'open')
+
+**Local migration file:** `supabase/migrations/20260513100001_create_expenses_and_splits.sql`
+
+---
+
+## 2026-05-13 — Atomic expense creation RPC
+
+### Migration: `atomic_create_expense`
+
+Replaced the two-step client-side expense+splits creation with a single SECURITY DEFINER RPC that inserts both atomically. Prevents orphaned expenses if split insertion fails.
+
+**Function:**
+- `public.create_expense_with_splits(p_trip_id, p_title, p_amount, p_currency, p_paid_by, p_related_type, p_related_id, p_split_user_ids UUID[]) RETURNS UUID` — validates auth + trip membership, inserts expense, calculates even splits with rounding correction on last member, inserts all splits, returns expense ID.
+
+**Local migration file:** `supabase/migrations/20260513200000_atomic_create_expense.sql`
+
+---
+
+## 2026-05-13 — Fix: accommodation_votes UPDATE policy missing trip membership
+
+### Migration: `fix_accommodation_votes_update_policy`
+
+The `accommodation_votes_update_own` UPDATE policy's USING clause only checked `user_id = auth.uid()` but did not verify trip membership. A user removed from a trip could still update their existing vote. Fixed by adding `private.is_trip_member(a.trip_id, auth.uid())` to the USING clause.
+
+**Local migration file:** `supabase/migrations/20260513200001_fix_accommodation_votes_update_policy.sql`
+
+---
+
+## 2026-05-13 — Fix: Auto-finalize accommodation voting blocked by restrict trigger
+
+### Problem
+When a non-organizer cast the last vote on an accommodation, the `auto_finalize_accommodation_voting` AFTER INSERT trigger attempted to set `voting_open = FALSE`. This fired the `restrict_accommodation_update_fields` BEFORE UPDATE trigger, which checked `private.is_trip_organizer(auth.uid())` — still the non-organizer — and raised `"Only organizers can change voting_open"`.
+
+### Fix
+Same pattern as the activity auto-finalize fix (`20260513000001`): added `pg_trigger_depth() > 1` early return to `restrict_accommodation_update_fields()`. When the update originates from a nested trigger (the auto-finalize function), permission checks are skipped. Direct client UPDATEs (depth = 1) still go through full validation.
+
+**Local migration file:** `supabase/migrations/20260513200002_fix_accommodation_auto_finalize_permissions.sql`
+
+---
+
+## 2026-05-13 — Auto-settle expenses when all splits are settled
+
+### Migration: `auto_settle_expense`
+
+**Schema change:**
+- Added `settled_at TIMESTAMPTZ DEFAULT NULL` to `public.expenses`
+
+**Trigger:**
+- `on_expense_split_status_change` — AFTER UPDATE OF status on `expense_splits`: when all splits for an expense are settled, sets `expenses.settled_at = NOW()`. When any split is reopened, clears `settled_at = NULL`.
+
+**Function:**
+- `public.auto_settle_expense()` — SECURITY DEFINER, counts total vs settled splits and toggles `settled_at` accordingly. Only writes when the value actually changes (avoids unnecessary updates).
+
+**Local migration file:** `supabase/migrations/20260513200003_auto_settle_expense.sql`
+
+---
+
+## 2026-05-13 — Fix: Auto-settle payer's own split on expense creation
+
+### Problem
+When an expense was created, all splits (including the payer's) started as `status = 'open'`. The payer's split showing as unsettled made no sense — they already paid. This also caused the settlement badge to show "1/2" instead of "0/1" (the payer's split was counted as an ower).
+
+### Fix
+1. Updated `create_expense_with_splits()` to insert the payer's split with `status = 'settled'` automatically. If every split member is the payer (edge case), also sets `expenses.settled_at = NOW()` immediately.
+2. Backfilled all existing payer splits to `status = 'settled'`.
+3. Backfilled `expenses.settled_at` for any expenses where all splits are now settled.
+
+### Related Code Changes
+- `ExpenseCard` settlement badge now counts only ower splits (excludes payer's split) for the `X/Y` display.
+- Expenses tab uses `SectionList` with "Active" and "Completed" sections based on `settled_at`.
+
+**Local migration file:** `supabase/migrations/20260513200004_auto_settle_payer_split.sql`
+
+---
+
+## 2026-05-13 — Fix: Allow SELECT on archived expenses and splits
+
+### Migrations: `allow_select_archived_expenses` & `allow_select_archived_expense_splits`
+
+Updated RLS policies to allow trip members to SELECT archived expenses and their splits. Previously the partial index and SELECT policies filtered out `archived_at IS NOT NULL` rows, preventing the UI from showing them in the Archived section.
+
+**Local migration files:**
+- `supabase/migrations/20260513200005_allow_select_archived_expenses.sql`
+- `supabase/migrations/20260513200006_allow_select_archived_expense_splits.sql`
+
+---
+
+## 2026-05-13 — Splitwise-like expense enhancements (flexible splits, editing, balances)
+
+### Migration: `expense_split_methods`
+
+**Schema changes:**
+- Added `split_method TEXT NOT NULL DEFAULT 'even' CHECK (split_method IN ('even', 'exact', 'shares'))` to `public.expenses`
+- Added `shares INT` column to `public.expense_splits` (used for shares-based splitting)
+
+**Local migration file:** `supabase/migrations/20260513300000_expense_split_methods.sql`
+
+---
+
+### Migration: `flexible_expense_splits`
+
+**Function (CREATE OR REPLACE):**
+- `public.create_expense_with_splits(...)` — new overload accepting `p_split_method TEXT` and `p_splits JSONB` (array of `{user_id, amount?, shares?}`) instead of `p_split_user_ids UUID[]`
+  - `even`: server-side calculated equal splits with rounding correction
+  - `exact`: uses provided amounts per split, validates sum equals total
+  - `shares`: uses provided integer shares to compute proportional amounts
+  - Payer's split auto-settled; all-payer edge case sets `settled_at` immediately
+
+**Local migration file:** `supabase/migrations/20260513300001_flexible_expense_splits.sql`
+
+---
+
+### Migration: `update_expense_with_splits`
+
+**Function (new):**
+- `public.update_expense_with_splits(p_expense_id UUID, p_title TEXT, p_amount NUMERIC, p_paid_by UUID, p_split_method TEXT, p_splits JSONB) RETURNS VOID` — SECURITY DEFINER
+  - Validates auth: organizer or expense creator
+  - Updates expense row (title, amount, paid_by, split_method)
+  - Deletes existing splits and re-inserts new ones
+  - Payer's split auto-settled, others reset to 'open'
+  - Clears `settled_at` (re-evaluated by trigger)
+
+**Local migration file:** `supabase/migrations/20260513300002_update_expense_with_splits.sql`
+
+---
+
+### Migration: `trip_balances`
+
+**Function (new):**
+- `public.get_trip_balances(p_trip_id UUID) RETURNS TABLE(user_id UUID, total_paid NUMERIC, total_owed NUMERIC, net_balance NUMERIC)` — SECURITY DEFINER
+  - Computes per-member balances across non-archived expenses
+  - `total_paid`: sum of `expenses.amount` where `paid_by = user_id`
+  - `total_owed`: sum of `expense_splits.amount_owed` where `split.user_id = user_id`
+  - `net_balance`: `total_paid - total_owed` (positive = others owe them)
+
+**Local migration file:** `supabase/migrations/20260513300003_trip_balances.sql`
+
+---
+
+## 2026-05-14 — Expense System Architecture Hardening
+
+### Migration: `20260514000001_expense_schema_hardening.sql`
+- **Dropped** `expense_splits.shares` column (input mechanics only, not business truth)
+- **Dropped** `expenses.settled_at` column + `auto_settle_expense()` trigger (settlement now derived from splits)
+- **Added** `expenses.updated_by UUID REFERENCES users(id)` for edit audit trail
+
+### Migration: `20260514000002_update_expense_rpcs.sql`
+- **Dropped** dead UUID[] overload of `create_expense_with_splits`
+- **Updated** `create_expense_with_splits` (JSONB): removed shares persistence, removed settled_at logic
+- **Updated** `update_expense_with_splits`: removed shares persistence, removed settled_at logic, added `updated_by = auth.uid()`
+- **Updated** `get_trip_balances`: added ROUND to 2 decimal places, zeroes net_balance below 0.01 threshold
+
+### Migration: `20260514000003_expense_security_hardening.sql`
+- **Updated** `create_expense_with_splits`: validates `paid_by` is a trip member, validates all split `user_id`s are trip members, caps splits at 50
+- **Updated** `update_expense_with_splits`: same three security validations as create
+
+### Migration: `20260514000004_settlement_aware_balances.sql`
+- **Updated** `get_trip_balances`: settlement-aware balance computation
+  - Added `settled_by_ower` CTE: credits owers who have settled their splits (+amount)
+  - Added `settled_to_payer` CTE: debits payers who received settlements (-amount)
+  - New formula: `net_balance = total_paid + settled_back - total_owed - received_settlements`
+  - Zeroes net_balance where `ABS(net_balance) < 0.01` (residual threshold)
