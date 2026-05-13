@@ -36,6 +36,7 @@ export default function TripDetailLayout() {
     setActiveTab(newTab);
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       const url = new URL(window.location.href);
+      url.searchParams.delete('id');
       url.searchParams.set('tab', newTab);
       window.history.replaceState(null, '', url.toString());
     }
@@ -94,7 +95,7 @@ export default function TripDetailLayout() {
       {/* Header */}
       <View className="px-md pt-md pb-sm">
         <View className="flex-row items-center gap-md mb-sm">
-          <Pressable onPress={() => router.back()} className="p-xs">
+          <Pressable onPress={() => router.replace('/(tabs)')} className="p-xs">
             <Ionicons name="arrow-back" size={24} color="#F2F2F2" />
           </Pressable>
           <View className="flex-1">
