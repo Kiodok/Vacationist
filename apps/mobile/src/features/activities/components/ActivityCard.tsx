@@ -1,7 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
-import type { Activity, ActivityVote } from '@vacationist/types';
+import type { Activity, ActivityVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
 
 interface ActivityCardProps {
@@ -74,26 +74,55 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
 
       {/* Vote section */}
       <View className="flex-row items-center justify-between mt-xs">
-        {showBreakdown ? (
-          <VoteSummary votes={votes} />
-        ) : myVote ? (
-          <VoteChip vote={myVote.vote} size="sm" onPress={onVotePress} />
-        ) : (
-          <Pressable
-            onPress={onVotePress}
-            className="flex-row items-center gap-xs px-md py-sm rounded-full bg-primary/10"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <Ionicons name="hand-left-outline" size={14} color="#6C63FF" />
-            <Text className="text-primary text-body-small font-medium">Vote</Text>
-          </Pressable>
-        )}
+        <View className="flex-row items-center gap-sm">
+          {votes.length > 0 && <VoteStats votes={votes} />}
+          {showBreakdown ? (
+            <VoteSummary votes={votes} />
+          ) : myVote ? (
+            <VoteChip vote={myVote.vote} size="sm" onPress={onVotePress} />
+          ) : (
+            <Pressable
+              onPress={onVotePress}
+              className="flex-row items-center gap-xs px-md py-sm rounded-full bg-primary/10"
+              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            >
+              <Ionicons name="hand-left-outline" size={14} color="#6C63FF" />
+              <Text className="text-primary text-body-small font-medium">Vote</Text>
+            </Pressable>
+          )}
+        </View>
         <Text className="text-body-small text-text-muted">
           {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
         </Text>
       </View>
       </Pressable>
       {detail}
+    </View>
+  );
+}
+
+const VOTE_SCORE: Record<VoteType, number> = {
+  must_do: 5,
+  like: 4,
+  open: 3,
+  skip: 2,
+  group_blocker: 1,
+};
+
+function VoteStats({ votes }: { votes: { vote: VoteType }[] }) {
+  const scores = votes.map((v) => VOTE_SCORE[v.vote]).sort((a, b) => a - b);
+  const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
+  const mid = Math.floor(scores.length / 2);
+  const median =
+    scores.length % 2 !== 0
+      ? scores[mid]
+      : (scores[mid - 1] + scores[mid]) / 2;
+
+  return (
+    <View className="flex-row items-center gap-xs">
+      <Text className="text-label text-text-muted">Avg {avg.toFixed(1)}</Text>
+      <Text className="text-label text-text-muted">·</Text>
+      <Text className="text-label text-text-muted">Med {median.toFixed(1)}</Text>
     </View>
   );
 }

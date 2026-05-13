@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -54,7 +54,12 @@ export default function JoinScreen() {
   }
 
   function handleSignInInstead() {
-    if (token) setPendingInviteToken(token);
+    if (token) {
+      setPendingInviteToken(token);
+      if (Platform.OS === 'web') {
+        try { sessionStorage.setItem('pendingInviteToken', token); } catch {}
+      }
+    }
     router.replace('/(auth)/login');
   }
 

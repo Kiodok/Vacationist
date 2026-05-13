@@ -143,65 +143,65 @@ function ActivityCardWithVotes({
       )}
 
       <View className="gap-sm mt-xs">
-        {canCloseVoting && (
-          confirmingCloseVoting ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text className="text-text-secondary text-body-small">Close voting permanently?</Text>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => { onCloseVoting(); setConfirmingCloseVoting(false); }}
-                style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: 'rgba(245, 166, 35, 0.2)' }}
-              >
-                <Text className="text-warning text-body-small font-semibold">Yes</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => setConfirmingCloseVoting(false)}
-                style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
-              >
-                <Text className="text-text-secondary text-body-small">Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
+        {confirmingCloseVoting ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text className="text-text-secondary text-body-small">Close voting permanently?</Text>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => setConfirmingCloseVoting(true)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(245, 166, 35, 0.1)', alignSelf: 'flex-start' }}
+              onPress={() => { onCloseVoting(); setConfirmingCloseVoting(false); }}
+              style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: 'rgba(245, 166, 35, 0.2)' }}
             >
-              <Ionicons name="lock-closed-outline" size={14} color="#F5A623" />
-              <Text className="text-warning text-body-small font-medium">End voting</Text>
+              <Text className="text-warning text-body-small font-semibold">Yes</Text>
             </TouchableOpacity>
-          )
-        )}
-        {canDelete && (
-          confirmingDelete ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text className="text-text-secondary text-body-small">Delete this activity?</Text>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => { onDelete(); setConfirmingDelete(false); }}
-                style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.2)' }}
-              >
-                <Text className="text-danger text-body-small font-semibold">Yes, delete</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => setConfirmingDelete(false)}
-                style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
-              >
-                <Text className="text-text-secondary text-body-small">Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => setConfirmingDelete(true)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.1)', alignSelf: 'flex-start' }}
+              onPress={() => setConfirmingCloseVoting(false)}
+              style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
             >
-              <Ionicons name="trash-outline" size={14} color="#FF5C5C" />
-              <Text className="text-danger text-body-small font-medium">Delete</Text>
+              <Text className="text-text-secondary text-body-small">Cancel</Text>
             </TouchableOpacity>
-          )
+          </View>
+        ) : confirmingDelete ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text className="text-text-secondary text-body-small">Delete this activity?</Text>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => { onDelete(); setConfirmingDelete(false); }}
+              style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.2)' }}
+            >
+              <Text className="text-danger text-body-small font-semibold">Yes, delete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setConfirmingDelete(false)}
+              style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
+            >
+              <Text className="text-text-secondary text-body-small">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {canCloseVoting && votes.length > 0 && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingCloseVoting(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(245, 166, 35, 0.1)' }}
+              >
+                <Ionicons name="lock-closed-outline" size={14} color="#F5A623" />
+                <Text className="text-warning text-body-small font-medium">End voting</Text>
+              </TouchableOpacity>
+            )}
+            {canDelete && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingDelete(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.1)' }}
+              >
+                <Ionicons name="trash-outline" size={14} color="#FF5C5C" />
+                <Text className="text-danger text-body-small font-medium">Delete activity</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         )}
       </View>
     </View>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,12 +16,30 @@ import SettingsTab from './settings';
 const TABS = ['Overview', 'Activities', 'Expenses', 'Shopping', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
 
+function getInitialTab(paramTab?: string): Tab {
+  if (TABS.includes(paramTab as Tab)) return paramTab as Tab;
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (TABS.includes(urlTab as Tab)) return urlTab as Tab;
+  }
+  return 'Overview';
+}
+
 export default function TripDetailLayout() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, tab } = useLocalSearchParams<{ id: string; tab?: string }>();
   const router = useRouter();
   const { data: trip, isLoading, isError, error } = useTrip(id!);
   const authLoading = useAuthStore((s) => s.isLoading);
-  const [activeTab, setActiveTab] = useState<Tab>('Overview');
+  const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab(tab));
+
+  const handleTabChange = (newTab: Tab) => {
+    setActiveTab(newTab);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', newTab);
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
 
   if (isLoading || authLoading) {
     return (
@@ -96,20 +114,20 @@ export default function TripDetailLayout() {
           showsHorizontalScrollIndicator={false}
           contentContainerClassName="gap-xs"
         >
-          {TABS.map((tab) => (
+          {TABS.map((t) => (
             <Pressable
-              key={tab}
-              onPress={() => setActiveTab(tab)}
+              key={t}
+              onPress={() => handleTabChange(t)}
               className={`px-md py-sm rounded-full ${
-                activeTab === tab ? 'bg-primary' : 'bg-surface'
+                activeTab === t ? 'bg-primary' : 'bg-surface'
               }`}
             >
               <Text
                 className={`text-body-small font-semibold ${
-                  activeTab === tab ? 'text-white' : 'text-text-secondary'
+                  activeTab === t ? 'text-white' : 'text-text-secondary'
                 }`}
               >
-                {tab}
+                {t}
               </Text>
             </Pressable>
           ))}

@@ -1,5 +1,6 @@
 import '../global.css';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
@@ -24,6 +25,7 @@ function AuthGate() {
   const segments = useSegments();
   const hasSession = useAuthStore((s) => s.hasSession);
   const isLoading = useAuthStore((s) => s.isLoading);
+  const user = useAuthStore((s) => s.user);
   const pendingInviteToken = useAuthStore((s) => s.pendingInviteToken);
   const setPendingInviteToken = useAuthStore((s) => s.setPendingInviteToken);
   const addToast = useToastStore((s) => s.addToast);
@@ -42,11 +44,23 @@ function AuthGate() {
     }
   }, [hasSession, isLoading, segments, router]);
 
-  // Process invite token saved before OAuth redirect
+  // Process invite token saved before OAuth redirect (Zustand or sessionStorage).
+  // Waits for `user` to be set — the profile must exist before the RLS-gated
+  // redeem_invite_token RPC can insert into trip_members.
   useEffect(() => {
-    if (!hasSession || isLoading || !pendingInviteToken) return;
-    const token = pendingInviteToken;
+    if (!hasSession || isLoading || !user) return;
+
+    let token = pendingInviteToken;
+    if (!token && Platform.OS === 'web') {
+      try { token = sessionStorage.getItem('pendingInviteToken'); } catch {}
+    }
+    if (!token) return;
+
     setPendingInviteToken(null);
+    if (Platform.OS === 'web') {
+      try { sessionStorage.removeItem('pendingInviteToken'); } catch {}
+    }
+
     redeemInviteToken(token)
       .then((tripId) => {
         addToast('success', 'You joined the trip!');
@@ -56,7 +70,7 @@ function AuthGate() {
         const message = err instanceof Error ? err.message : 'Invalid invite link';
         addToast('error', message);
       });
-  }, [hasSession, isLoading, pendingInviteToken, setPendingInviteToken, router, addToast]);
+  }, [hasSession, isLoading, user, pendingInviteToken, setPendingInviteToken, router, addToast]);
 
   // Handle invite deep links when user is already authenticated
   useEffect(() => {

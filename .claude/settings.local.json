@@ -22,7 +22,8 @@
       "PowerShell(supabase projects *)",
       "PowerShell(Get-Content *)",
       "PowerShell(Get-ChildItem *)",
-      "PowerShell(Get-StoredCredential *)"
+      "PowerShell(Get-StoredCredential *)",
+      "mcp__plugin_supabase_supabase__apply_migration"
     ]
   },
   "enableAllProjectMcpServers": true,
