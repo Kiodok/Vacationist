@@ -49,7 +49,8 @@
       "Bash(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\" -Recurse)",
       "Bash(Select-Object FullName)",
       "Bash(dir \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app\\\\trip\" /s /b)",
-      "Bash(findstr /i \"expenses\\\\|activities\\\\|shopping\\\\|_layout\")"
+      "Bash(findstr /i \"expenses\\\\|activities\\\\|shopping\\\\|_layout\")",
+      "mcp__plugin_supabase_supabase__execute_sql"
     ]
   },
   "enableAllProjectMcpServers": true,

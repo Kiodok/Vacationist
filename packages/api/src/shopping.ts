@@ -148,8 +148,9 @@ export function subscribeToShoppingItems(
   listId: string,
   callbacks: ShoppingRealtimeCallbacks,
 ): RealtimeChannel {
+  const uid = Math.random().toString(36).slice(2, 8);
   const channel = supabase
-    .channel(`shopping-items:${listId}`)
+    .channel(`shopping-items:${listId}:${uid}`)
     .on(
       'postgres_changes',
       {
@@ -183,6 +184,25 @@ export function subscribeToShoppingItems(
     .subscribe();
 
   return channel;
+}
+
+export function subscribeToShoppingItemChanges(
+  tripId: string,
+  onEvent: () => void,
+): RealtimeChannel {
+  const uid = Math.random().toString(36).slice(2, 8);
+  return supabase
+    .channel(`shopping-items-overview:${tripId}:${uid}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'shopping_items',
+      },
+      onEvent,
+    )
+    .subscribe();
 }
 
 export function unsubscribeFromShoppingItems(channel: RealtimeChannel): void {

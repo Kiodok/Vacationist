@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getShoppingLists,
@@ -6,7 +7,10 @@ import {
   archiveShoppingList,
   unarchiveShoppingList,
   deleteShoppingList,
+  subscribeToShoppingItemChanges,
+  unsubscribeFromShoppingItems,
 } from '@vacationist/api';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { CreateShoppingListInput, UpdateShoppingListInput } from '@vacationist/types';
 import { useToastStore } from '../../../stores/toastStore';
 
@@ -98,4 +102,24 @@ export function useDeleteShoppingList(tripId: string) {
       addToast('error', error.message || 'Failed to delete list.');
     },
   });
+}
+
+export function useShoppingListsRealtime(tripId: string) {
+  const queryClient = useQueryClient();
+  const channelRef = useRef<RealtimeChannel | null>(null);
+
+  useEffect(() => {
+    if (!tripId) return;
+
+    channelRef.current = subscribeToShoppingItemChanges(tripId, () => {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
+    });
+
+    return () => {
+      if (channelRef.current) {
+        unsubscribeFromShoppingItems(channelRef.current);
+        channelRef.current = null;
+      }
+    };
+  }, [tripId, queryClient]);
 }

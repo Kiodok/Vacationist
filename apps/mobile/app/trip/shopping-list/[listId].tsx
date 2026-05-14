@@ -18,6 +18,14 @@ export default function ShoppingListDetail() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
+  const goBackToTrip = () => {
+    if (Platform.OS === 'web') {
+      router.replace(`/trip/${tripId}?tab=Shopping`);
+    } else {
+      goBackToTrip();
+    }
+  };
+
   const { data: lists } = useShoppingLists(tripId!);
   const list = lists?.find((l) => l.id === listId);
 
@@ -69,7 +77,7 @@ export default function ShoppingListDetail() {
     <SafeAreaView className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row items-center px-md pt-md pb-sm gap-sm">
-        <Pressable onPress={() => router.back()} className="p-xs">
+        <Pressable onPress={() => goBackToTrip()} className="p-xs">
           <Ionicons name="arrow-back" size={24} color="#F2F2F2" />
         </Pressable>
         <View className="flex-1">
@@ -96,7 +104,7 @@ export default function ShoppingListDetail() {
               </Pressable>
             ) : (
               <Pressable
-                onPress={() => archiveList.mutate(listId!, { onSuccess: () => router.back() })}
+                onPress={() => archiveList.mutate(listId!, { onSuccess: () => goBackToTrip() })}
                 className="p-xs"
                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
               >
@@ -119,7 +127,7 @@ export default function ShoppingListDetail() {
           <Text className="text-text-secondary text-body-small">Delete this entire list?</Text>
           <Pressable
             onPress={() => {
-              deleteList.mutate(listId!, { onSuccess: () => router.back() });
+              deleteList.mutate(listId!, { onSuccess: () => goBackToTrip() });
               setConfirmDeleteList(false);
             }}
             className="px-md py-xs rounded-sm bg-danger/20"

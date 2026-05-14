@@ -70,6 +70,7 @@ export {
   updateShoppingItem,
   softDeleteShoppingItem,
   subscribeToShoppingItems,
+  subscribeToShoppingItemChanges,
   unsubscribeFromShoppingItems,
 } from './shopping';
 export type { ShoppingRealtimeCallbacks } from './shopping';
