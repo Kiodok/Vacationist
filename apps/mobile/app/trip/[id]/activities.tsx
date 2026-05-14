@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { View, Text, Pressable, TouchableOpacity, FlatList, ActivityIndicator, Linking } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import type { Activity, VoteType, CreateActivityInput } from '@vacationist/types';
-import { useActivities, useCreateActivity, useDeleteActivity, useCloseVoting } from '../../../src/features/activities/hooks/useActivities';
+import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
+import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting } from '../../../src/features/activities/hooks/useActivities';
 import { useActivityVotes, useCastVote, useRemoveVote } from '../../../src/features/activities/hooks/useVotes';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -11,6 +11,7 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { ActivityCard } from '../../../src/features/activities/components/ActivityCard';
 import { VoteSheet } from '../../../src/features/activities/components/VoteSheet';
 import { CreateActivitySheet } from '../../../src/features/activities/components/CreateActivitySheet';
+import { EditActivitySheet } from '../../../src/features/activities/components/EditActivitySheet';
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
 
 export default function ActivitiesTab() {
@@ -20,13 +21,23 @@ export default function ActivitiesTab() {
   const { data: activities, isLoading } = useActivities(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createActivity = useCreateActivity(tripId!);
+  const updateActivityMutation = useUpdateActivity(tripId!);
   const deleteActivity = useDeleteActivity(tripId!);
   const closeVoting = useCloseVoting(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
 
   const handleCreate = (input: CreateActivityInput) => {
     createActivity.mutate(input, { onSuccess: () => setShowCreate(false) });
+  };
+
+  const handleUpdate = (input: UpdateActivityInput) => {
+    if (!editingActivity) return;
+    updateActivityMutation.mutate(
+      { activityId: editingActivity.id, input },
+      { onSuccess: () => setEditingActivity(null) },
+    );
   };
 
   if (isLoading) {
@@ -52,6 +63,7 @@ export default function ActivitiesTab() {
             tripId={tripId!}
             currentUserId={user?.id}
             role={role}
+            onEdit={() => setEditingActivity(item)}
             onDelete={() => deleteActivity.mutate(item.id)}
             onCloseVoting={() => closeVoting.mutate(item.id)}
           />
@@ -75,6 +87,18 @@ export default function ActivitiesTab() {
         tripStartDate={trip?.start_date ?? ''}
         tripEndDate={trip?.end_date ?? ''}
       />
+
+      {editingActivity && (
+        <EditActivitySheet
+          visible={!!editingActivity}
+          onClose={() => setEditingActivity(null)}
+          onSubmit={handleUpdate}
+          isPending={updateActivityMutation.isPending}
+          activity={editingActivity}
+          tripStartDate={trip?.start_date ?? ''}
+          tripEndDate={trip?.end_date ?? ''}
+        />
+      )}
     </View>
   );
 }
@@ -84,6 +108,7 @@ function ActivityCardWithVotes({
   tripId,
   currentUserId,
   role,
+  onEdit,
   onDelete,
   onCloseVoting,
 }: {
@@ -91,6 +116,7 @@ function ActivityCardWithVotes({
   tripId: string;
   currentUserId: string | undefined;
   role: string | null | undefined;
+  onEdit: () => void;
   onDelete: () => void;
   onCloseVoting: () => void;
 }) {
@@ -102,6 +128,9 @@ function ActivityCardWithVotes({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingCloseVoting, setConfirmingCloseVoting] = useState(false);
 
+  const canEdit =
+    role === 'organizer' ||
+    (role === 'participant' && activity.created_by === currentUserId);
   const canDelete =
     role === 'organizer' ||
     (role === 'participant' && activity.created_by === currentUserId);
@@ -180,7 +209,17 @@ function ActivityCardWithVotes({
             </TouchableOpacity>
           </View>
         ) : (
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+            {canEdit && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={onEdit}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(108, 99, 255, 0.1)' }}
+              >
+                <Ionicons name="create-outline" size={14} color="#6C63FF" />
+                <Text className="text-primary text-body-small font-medium">Edit</Text>
+              </TouchableOpacity>
+            )}
             {canCloseVoting && votes.length > 0 && (
               <TouchableOpacity
                 activeOpacity={0.7}

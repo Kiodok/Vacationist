@@ -1,0 +1,274 @@
+import { useEffect, useMemo } from 'react';
+import { View, Text, Pressable, Modal, TextInput, ScrollView } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, ACTIVITY_CATEGORIES } from '@vacationist/types';
+
+interface EditActivitySheetProps {
+  visible: boolean;
+  onClose: () => void;
+  onSubmit: (input: UpdateActivityInput) => void;
+  isPending: boolean;
+  activity: Activity;
+  tripStartDate: string;
+  tripEndDate: string;
+}
+
+export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activity, tripStartDate, tripEndDate }: EditActivitySheetProps) {
+  const schema = useMemo(
+    () => updateActivitySchemaForTrip(tripStartDate, tripEndDate),
+    [tripStartDate, tripEndDate],
+  );
+
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateActivityInput>({
+    resolver: zodResolver(schema),
+  });
+
+  useEffect(() => {
+    if (visible) {
+      reset({
+        title: activity.title,
+        description: activity.description ?? undefined,
+        category: activity.category ?? undefined,
+        cost_estimate: activity.cost_estimate ?? undefined,
+        activity_date: activity.activity_date ?? undefined,
+        start_time: activity.start_time ? activity.start_time.slice(0, 5) : undefined,
+        end_time: activity.end_time ? activity.end_time.slice(0, 5) : undefined,
+        external_url: activity.external_url ?? undefined,
+      });
+    }
+  }, [visible, activity]);
+
+  const onValid = (data: UpdateActivityInput) => {
+    onSubmit(data);
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View className="flex-1 justify-end">
+        <Pressable
+          className="absolute inset-0 bg-background/80"
+          onPress={onClose}
+        />
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[85%]">
+          {/* Handle bar */}
+          <View className="items-center mb-md">
+            <View className="w-[36px] h-[4px] rounded-full bg-border" />
+          </View>
+
+          <View className="flex-row items-center justify-between mb-md">
+            <Text className="text-heading-m text-text-primary">Edit Activity</Text>
+            <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Text className="text-text-secondary text-body">Cancel</Text>
+            </Pressable>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <View className="gap-md">
+              {/* Title */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">Title *</Text>
+                <Controller
+                  control={control}
+                  name="title"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder="e.g. Visit Colosseum"
+                      value={value ?? ''}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      maxLength={100}
+                    />
+                  )}
+                />
+                {errors.title && (
+                  <Text className="text-danger text-body-small">{errors.title.message}</Text>
+                )}
+              </View>
+
+              {/* Description */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">Description</Text>
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder="What's the plan?"
+                      value={value ?? ''}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      multiline
+                      numberOfLines={3}
+                      maxLength={1000}
+                      style={{ minHeight: 80, textAlignVertical: 'top' }}
+                    />
+                  )}
+                />
+              </View>
+
+              {/* Category */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">Category</Text>
+                <Controller
+                  control={control}
+                  name="category"
+                  render={({ field: { onChange, value } }) => (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerClassName="gap-xs"
+                    >
+                      {ACTIVITY_CATEGORIES.map((cat) => (
+                        <Pressable
+                          key={cat}
+                          onPress={() => onChange(value === cat ? undefined : cat)}
+                          className={`px-md py-sm rounded-full ${
+                            value === cat ? 'bg-primary' : 'bg-surface border border-border'
+                          }`}
+                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                        >
+                          <Text
+                            className={`text-body-small capitalize ${
+                              value === cat ? 'text-white font-semibold' : 'text-text-secondary'
+                            }`}
+                          >
+                            {cat}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  )}
+                />
+              </View>
+
+              {/* Date */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">Date</Text>
+                <Controller
+                  control={control}
+                  name="activity_date"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder="YYYY-MM-DD"
+                      value={value ?? ''}
+                      onChangeText={(t) => onChange(t || null)}
+                      maxLength={10}
+                    />
+                  )}
+                />
+                {errors.activity_date && (
+                  <Text className="text-danger text-body-small">{errors.activity_date.message}</Text>
+                )}
+              </View>
+
+              {/* Time row */}
+              <View className="flex-row gap-sm">
+                <View className="flex-1 gap-xs">
+                  <Text className="text-label text-text-muted uppercase">Start Time</Text>
+                  <Controller
+                    control={control}
+                    name="start_time"
+                    render={({ field: { onChange, value } }) => (
+                      <TextInput
+                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        placeholderTextColor="#5C5C5C"
+                        placeholder="HH:MM"
+                        value={value ?? ''}
+                        onChangeText={(t) => onChange(t || null)}
+                        maxLength={5}
+                      />
+                    )}
+                  />
+                </View>
+                <View className="flex-1 gap-xs">
+                  <Text className="text-label text-text-muted uppercase">End Time</Text>
+                  <Controller
+                    control={control}
+                    name="end_time"
+                    render={({ field: { onChange, value } }) => (
+                      <TextInput
+                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        placeholderTextColor="#5C5C5C"
+                        placeholder="HH:MM"
+                        value={value ?? ''}
+                        onChangeText={(t) => onChange(t || null)}
+                        maxLength={5}
+                      />
+                    )}
+                  />
+                </View>
+              </View>
+
+              {/* Cost Estimate */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">Cost Estimate (€)</Text>
+                <Controller
+                  control={control}
+                  name="cost_estimate"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder="0.00"
+                      value={value != null ? String(value) : ''}
+                      onChangeText={(t) => {
+                        const num = parseFloat(t);
+                        onChange(isNaN(num) ? null : num);
+                      }}
+                      keyboardType="decimal-pad"
+                    />
+                  )}
+                />
+              </View>
+
+              {/* External URL */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">Link</Text>
+                <Controller
+                  control={control}
+                  name="external_url"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder="https://..."
+                      value={value ?? ''}
+                      onChangeText={(t) => onChange(t || null)}
+                      autoCapitalize="none"
+                      keyboardType="url"
+                      maxLength={2048}
+                    />
+                  )}
+                />
+                {errors.external_url && (
+                  <Text className="text-danger text-body-small">{errors.external_url.message}</Text>
+                )}
+              </View>
+
+              {/* Submit */}
+              <Pressable
+                onPress={handleSubmit(onValid)}
+                disabled={isPending}
+                className={`items-center py-sm rounded-md mt-sm ${
+                  isPending ? 'bg-primary/50' : 'bg-primary'
+                }`}
+                style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
+              >
+                <Text className="text-white text-body font-semibold">
+                  {isPending ? 'Saving...' : 'Save Changes'}
+                </Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+}

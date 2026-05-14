@@ -43,7 +43,11 @@
       "mcp__plugin_supabase_supabase__get_logs",
       "mcp__plugin_supabase_supabase__get_project",
       "mcp__plugin_supabase_supabase__get_project_url",
-      "mcp__plugin_supabase_supabase__search_docs"
+      "mcp__plugin_supabase_supabase__search_docs",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(xargs grep -l \"edit\\\\|Edit\")",
+      "Bash(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\" -Recurse)",
+      "Bash(Select-Object FullName)"
     ]
   },
   "enableAllProjectMcpServers": true,

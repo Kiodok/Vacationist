@@ -108,6 +108,19 @@ export function createActivitySchemaForTrip(tripStartDate: string, tripEndDate: 
   );
 }
 
+export function updateActivitySchemaForTrip(tripStartDate: string, tripEndDate: string) {
+  return updateActivitySchema.refine(
+    (data) => {
+      if (!data.activity_date) return true;
+      return data.activity_date >= tripStartDate && data.activity_date <= tripEndDate;
+    },
+    {
+      message: `Date must be within the trip dates (${tripStartDate} – ${tripEndDate})`,
+      path: ['activity_date'],
+    },
+  );
+}
+
 export type CreateActivityInput = z.infer<typeof createActivitySchema>;
 export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 
