@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { View, Text, Pressable, TouchableOpacity, FlatList, ActivityIndicator, Linking } from 'react-native';
+import { useState, useMemo } from 'react';
+import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator, Linking } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { dayjs } from '@vacationist/utils';
 import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
-import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting } from '../../../src/features/activities/hooks/useActivities';
+import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
 import { useActivityVotes, useCastVote, useRemoveVote } from '../../../src/features/activities/hooks/useVotes';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -13,6 +14,31 @@ import { VoteSheet } from '../../../src/features/activities/components/VoteSheet
 import { CreateActivitySheet } from '../../../src/features/activities/components/CreateActivitySheet';
 import { EditActivitySheet } from '../../../src/features/activities/components/EditActivitySheet';
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
+
+function isOngoing(activity: Activity): boolean {
+  if (!activity.activity_date) return false;
+  const now = dayjs();
+  const date = activity.activity_date;
+  if (activity.start_time && activity.end_time) {
+    const start = dayjs(`${date}T${activity.start_time}`);
+    const end = dayjs(`${date}T${activity.end_time}`);
+    return now.isAfter(start) && now.isBefore(end);
+  }
+  if (activity.start_time) {
+    const start = dayjs(`${date}T${activity.start_time}`);
+    return now.isAfter(start) && now.isBefore(start.add(2, 'hour'));
+  }
+  return dayjs(date).isSame(now, 'day');
+}
+
+function sortByDate(a: Activity, b: Activity): number {
+  const dateA = a.activity_date ?? '';
+  const dateB = b.activity_date ?? '';
+  if (dateA === dateB) return 0;
+  if (!dateA) return 1;
+  if (!dateB) return -1;
+  return dateA < dateB ? -1 : 1;
+}
 
 export default function ActivitiesTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -24,9 +50,50 @@ export default function ActivitiesTab() {
   const updateActivityMutation = useUpdateActivity(tripId!);
   const deleteActivity = useDeleteActivity(tripId!);
   const closeVoting = useCloseVoting(tripId!);
+  const reopenVoting = useReopenVoting(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+
+  const { inPlanningList, plannedList, ongoingList, completedList } = useMemo(() => {
+    const inPlanning: Activity[] = [];
+    const planned: Activity[] = [];
+    const ongoing: Activity[] = [];
+    const completed: Activity[] = [];
+    for (const a of activities ?? []) {
+      if (a.status === 'completed' || a.status === 'skipped') {
+        completed.push(a);
+      } else if (isOngoing(a)) {
+        ongoing.push(a);
+      } else if (a.voting_open) {
+        inPlanning.push(a);
+      } else {
+        planned.push(a);
+      }
+    }
+    inPlanning.sort(sortByDate);
+    planned.sort(sortByDate);
+    ongoing.sort(sortByDate);
+    completed.sort(sortByDate);
+    return { inPlanningList: inPlanning, plannedList: planned, ongoingList: ongoing, completedList: completed };
+  }, [activities]);
+
+  const sections = useMemo(() => {
+    const result: { key: string; title: string; data: Activity[] }[] = [];
+    if (ongoingList.length > 0) {
+      result.push({ key: 'ongoing', title: 'Ongoing', data: ongoingList });
+    }
+    if (inPlanningList.length > 0) {
+      result.push({ key: 'in_planning', title: 'In Planning', data: inPlanningList });
+    }
+    if (plannedList.length > 0) {
+      result.push({ key: 'planned', title: 'Planned', data: plannedList });
+    }
+    if (completedList.length > 0) {
+      result.push({ key: 'completed', title: 'Completed', data: completedList });
+    }
+    return result;
+  }, [ongoingList, inPlanningList, plannedList, completedList]);
 
   const handleCreate = (input: CreateActivityInput) => {
     createActivity.mutate(input, { onSuccess: () => setShowCreate(false) });
@@ -48,27 +115,57 @@ export default function ActivitiesTab() {
     );
   }
 
+  const isEmpty = !activities || activities.length === 0;
+
   return (
     <View className="flex-1">
-      <FlatList
-        data={activities}
-        keyExtractor={(item) => item.id}
-        removeClippedSubviews={false}
-        contentContainerClassName="px-md py-md gap-sm"
-        contentContainerStyle={activities?.length === 0 ? { flex: 1 } : undefined}
-        ListEmptyComponent={<EmptyActivities />}
-        renderItem={({ item }) => (
-          <ActivityCardWithVotes
-            activity={item}
-            tripId={tripId!}
-            currentUserId={user?.id}
-            role={role}
-            onEdit={() => setEditingActivity(item)}
-            onDelete={() => deleteActivity.mutate(item.id)}
-            onCloseVoting={() => closeVoting.mutate(item.id)}
-          />
-        )}
-      />
+      {isEmpty ? (
+        <View className="flex-1 px-md py-md">
+          <EmptyActivities />
+        </View>
+      ) : (
+        <SectionList
+          sections={sections}
+          keyExtractor={(item) => item.id}
+          removeClippedSubviews={false}
+          stickySectionHeadersEnabled={false}
+          contentContainerClassName="px-md py-md"
+          renderSectionHeader={({ section }) => {
+            const config: Record<string, { icon: keyof typeof Ionicons.glyphMap; color: string; textClass: string }> = {
+              ongoing: { icon: 'play-circle-outline', color: '#F5A623', textClass: 'text-warning' },
+              in_planning: { icon: 'compass-outline', color: '#6C63FF', textClass: 'text-primary' },
+              planned: { icon: 'calendar-outline', color: '#F2F2F2', textClass: 'text-text-primary' },
+              completed: { icon: 'checkmark-done-outline', color: '#3ECF8E', textClass: 'text-success' },
+            };
+            const cfg = config[section.key] ?? config.planned;
+            return (
+              <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
+                <Ionicons name={cfg.icon} size={16} color={cfg.color} />
+                <Text className={`text-body font-semibold ${cfg.textClass}`}>
+                  {section.title}
+                </Text>
+                <Text className="text-body-small text-text-muted">
+                  ({section.data.length})
+                </Text>
+              </View>
+            );
+          }}
+          renderItem={({ item }) => (
+            <View className="mb-sm">
+              <ActivityCardWithVotes
+                activity={item}
+                tripId={tripId!}
+                currentUserId={user?.id}
+                role={role}
+                onEdit={() => setEditingActivity(item)}
+                onDelete={() => deleteActivity.mutate(item.id)}
+                onCloseVoting={() => closeVoting.mutate(item.id)}
+                onReopenVoting={() => reopenVoting.mutate(item.id)}
+              />
+            </View>
+          )}
+        />
+      )}
 
       {/* FAB */}
       <Pressable
@@ -111,6 +208,7 @@ function ActivityCardWithVotes({
   onEdit,
   onDelete,
   onCloseVoting,
+  onReopenVoting,
 }: {
   activity: Activity;
   tripId: string;
@@ -119,6 +217,7 @@ function ActivityCardWithVotes({
   onEdit: () => void;
   onDelete: () => void;
   onCloseVoting: () => void;
+  onReopenVoting: () => void;
 }) {
   const { data: votes = [] } = useActivityVotes(activity.id);
   const castVote = useCastVote(tripId, activity.id);
@@ -135,6 +234,7 @@ function ActivityCardWithVotes({
     role === 'organizer' ||
     (role === 'participant' && activity.created_by === currentUserId);
   const canCloseVoting = role === 'organizer' && activity.voting_open;
+  const canReopenVoting = role === 'organizer' && !activity.voting_open;
 
   const handleCastVote = (vote: VoteType) => {
     castVote.mutate(vote, { onSuccess: () => setShowVoteSheet(false) });
@@ -174,7 +274,7 @@ function ActivityCardWithVotes({
       <View className="gap-sm mt-xs">
         {confirmingCloseVoting ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text className="text-text-secondary text-body-small">Close voting permanently?</Text>
+            <Text className="text-text-secondary text-body-small">Close voting?</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onCloseVoting(); setConfirmingCloseVoting(false); }}
@@ -228,6 +328,16 @@ function ActivityCardWithVotes({
               >
                 <Ionicons name="lock-closed-outline" size={14} color="#F5A623" />
                 <Text className="text-warning text-body-small font-medium">End voting</Text>
+              </TouchableOpacity>
+            )}
+            {canReopenVoting && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={onReopenVoting}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(108, 99, 255, 0.1)' }}
+              >
+                <Ionicons name="lock-open-outline" size={14} color="#6C63FF" />
+                <Text className="text-primary text-body-small font-medium">Re-open voting</Text>
               </TouchableOpacity>
             )}
             {canDelete && (

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { View, Text, Pressable, TouchableOpacity, FlatList, ActivityIndicator, Linking } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import type { Accommodation, VoteType, CreateAccommodationInput } from '@vacationist/types';
-import { useAccommodations, useCreateAccommodation, useDeleteAccommodation, useCloseAccommodationVoting } from '../../../src/features/accommodations/hooks/useAccommodations';
+import type { Accommodation, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
+import { useAccommodations, useCreateAccommodation, useUpdateAccommodation, useDeleteAccommodation, useCloseAccommodationVoting, useReopenAccommodationVoting } from '../../../src/features/accommodations/hooks/useAccommodations';
 import { useAccommodationVotes, useCastAccommodationVote, useRemoveAccommodationVote } from '../../../src/features/accommodations/hooks/useAccommodationVotes';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -11,6 +11,7 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { AccommodationCard } from '../../../src/features/accommodations/components/AccommodationCard';
 import { VoteSheet } from '../../../src/features/activities/components/VoteSheet';
 import { CreateAccommodationSheet } from '../../../src/features/accommodations/components/CreateAccommodationSheet';
+import { EditAccommodationSheet } from '../../../src/features/accommodations/components/EditAccommodationSheet';
 import { EmptyAccommodations } from '../../../src/features/accommodations/components/EmptyAccommodations';
 
 export default function AccommodationsTab() {
@@ -20,13 +21,24 @@ export default function AccommodationsTab() {
   const { data: accommodations, isLoading } = useAccommodations(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createAccommodation = useCreateAccommodation(tripId!);
+  const updateAccommodationMutation = useUpdateAccommodation(tripId!);
   const deleteAccommodation = useDeleteAccommodation(tripId!);
   const closeVoting = useCloseAccommodationVoting(tripId!);
+  const reopenVoting = useReopenAccommodationVoting(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
+  const [editingAccommodation, setEditingAccommodation] = useState<Accommodation | null>(null);
 
   const handleCreate = (input: CreateAccommodationInput) => {
     createAccommodation.mutate(input, { onSuccess: () => setShowCreate(false) });
+  };
+
+  const handleUpdate = (input: UpdateAccommodationInput) => {
+    if (!editingAccommodation) return;
+    updateAccommodationMutation.mutate(
+      { accommodationId: editingAccommodation.id, input },
+      { onSuccess: () => setEditingAccommodation(null) },
+    );
   };
 
   if (isLoading) {
@@ -53,8 +65,10 @@ export default function AccommodationsTab() {
             currentUserId={user?.id}
             currency={trip?.base_currency ?? 'EUR'}
             role={role}
+            onEdit={() => setEditingAccommodation(item)}
             onDelete={() => deleteAccommodation.mutate(item.id)}
             onCloseVoting={() => closeVoting.mutate(item.id)}
+            onReopenVoting={() => reopenVoting.mutate(item.id)}
           />
         )}
       />
@@ -75,6 +89,17 @@ export default function AccommodationsTab() {
         isPending={createAccommodation.isPending}
         currency={trip?.base_currency ?? 'EUR'}
       />
+
+      {editingAccommodation && (
+        <EditAccommodationSheet
+          visible={!!editingAccommodation}
+          onClose={() => setEditingAccommodation(null)}
+          onSubmit={handleUpdate}
+          isPending={updateAccommodationMutation.isPending}
+          accommodation={editingAccommodation}
+          currency={trip?.base_currency ?? 'EUR'}
+        />
+      )}
     </View>
   );
 }
@@ -85,16 +110,20 @@ function AccommodationCardWithVotes({
   currentUserId,
   currency,
   role,
+  onEdit,
   onDelete,
   onCloseVoting,
+  onReopenVoting,
 }: {
   accommodation: Accommodation;
   tripId: string;
   currentUserId: string | undefined;
   currency: string;
   role: string | null | undefined;
+  onEdit: () => void;
   onDelete: () => void;
   onCloseVoting: () => void;
+  onReopenVoting: () => void;
 }) {
   const { data: votes = [] } = useAccommodationVotes(accommodation.id);
   const castVote = useCastAccommodationVote(tripId, accommodation.id);
@@ -104,10 +133,14 @@ function AccommodationCardWithVotes({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingCloseVoting, setConfirmingCloseVoting] = useState(false);
 
+  const canEdit =
+    role === 'organizer' ||
+    (role === 'participant' && accommodation.created_by === currentUserId);
   const canDelete =
     role === 'organizer' ||
     (role === 'participant' && accommodation.created_by === currentUserId);
   const canCloseVoting = role === 'organizer' && accommodation.voting_open;
+  const canReopenVoting = role === 'organizer' && !accommodation.voting_open;
 
   const handleCastVote = (vote: VoteType) => {
     castVote.mutate(vote, { onSuccess: () => setShowVoteSheet(false) });
@@ -176,7 +209,17 @@ function AccommodationCardWithVotes({
             </TouchableOpacity>
           </View>
         ) : (
-          <View className="flex-row gap-sm">
+          <View className="flex-row gap-sm flex-wrap">
+            {canEdit && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={onEdit}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
+              >
+                <Ionicons name="create-outline" size={14} color="#6C63FF" />
+                <Text className="text-primary text-body-small font-medium">Edit</Text>
+              </TouchableOpacity>
+            )}
             {canCloseVoting && votes.length > 0 && (
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -185,6 +228,16 @@ function AccommodationCardWithVotes({
               >
                 <Ionicons name="lock-closed-outline" size={14} color="#F5A623" />
                 <Text className="text-warning text-body-small font-medium">End voting</Text>
+              </TouchableOpacity>
+            )}
+            {canReopenVoting && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={onReopenVoting}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
+              >
+                <Ionicons name="lock-open-outline" size={14} color="#6C63FF" />
+                <Text className="text-primary text-body-small font-medium">Re-open voting</Text>
               </TouchableOpacity>
             )}
             {canDelete && (

@@ -28,6 +28,7 @@ export {
   updateActivity,
   softDeleteActivity,
   closeActivityVoting,
+  reopenActivityVoting,
   getActivityVotes,
   castActivityVote,
   removeActivityVote,
@@ -40,6 +41,7 @@ export {
   updateAccommodation,
   softDeleteAccommodation,
   closeAccommodationVoting,
+  reopenAccommodationVoting,
   getAccommodationVotes,
   castAccommodationVote,
   removeAccommodationVote,
@@ -55,3 +57,19 @@ export {
   settleExpenseSplit,
   unsettleExpenseSplit,
 } from './expenses';
+
+export {
+  getShoppingLists,
+  createShoppingList,
+  updateShoppingList,
+  archiveShoppingList,
+  unarchiveShoppingList,
+  deleteShoppingList,
+  getShoppingItems,
+  createShoppingItem,
+  updateShoppingItem,
+  softDeleteShoppingItem,
+  subscribeToShoppingItems,
+  unsubscribeFromShoppingItems,
+} from './shopping';
+export type { ShoppingRealtimeCallbacks } from './shopping';

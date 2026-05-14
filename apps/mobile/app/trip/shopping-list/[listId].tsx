@@ -1,0 +1,191 @@
+import { useState } from 'react';
+import { View, Text, FlatList, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import type { ShoppingItem, UpdateShoppingItemInput } from '@vacationist/types';
+import { useShoppingItems, useCreateShoppingItem, useUpdateShoppingItem, useDeleteShoppingItem } from '../../../src/features/shopping/hooks/useShoppingItems';
+import { useShoppingRealtime } from '../../../src/features/shopping/hooks/useShoppingRealtime';
+import { useShoppingLists, useDeleteShoppingList, useArchiveShoppingList, useUnarchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
+import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
+import { useAuthStore } from '../../../src/stores/authStore';
+import { ShoppingItemRow } from '../../../src/features/shopping/components/ShoppingItemRow';
+import { AddShoppingItemInput } from '../../../src/features/shopping/components/AddShoppingItemInput';
+import { EditShoppingItemSheet } from '../../../src/features/shopping/components/EditShoppingItemSheet';
+
+export default function ShoppingListDetail() {
+  const { listId, tripId } = useLocalSearchParams<{ listId: string; tripId: string }>();
+  const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+
+  const { data: lists } = useShoppingLists(tripId!);
+  const list = lists?.find((l) => l.id === listId);
+
+  const { data: items, isLoading } = useShoppingItems(listId!);
+  const { data: role } = useCurrentMemberRole(tripId!);
+  const createItem = useCreateShoppingItem(tripId!, listId!);
+  const updateItem = useUpdateShoppingItem(tripId!, listId!);
+  const deleteItem = useDeleteShoppingItem(tripId!, listId!);
+  const deleteList = useDeleteShoppingList(tripId!);
+  const archiveList = useArchiveShoppingList(tripId!);
+  const unarchiveList = useUnarchiveShoppingList(tripId!);
+
+  useShoppingRealtime(listId!);
+
+  const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
+  const [confirmDeleteList, setConfirmDeleteList] = useState(false);
+
+  const isArchived = !!list?.archived_at;
+  const canManageList = role === 'organizer' || list?.created_by === user?.id;
+
+  const canEditItem = (item: ShoppingItem) =>
+    role === 'organizer' || (role === 'participant' && item.created_by === user?.id);
+  const canDeleteItem = (item: ShoppingItem) =>
+    role === 'organizer' || (role === 'participant' && item.created_by === user?.id);
+
+  const handleToggle = (item: ShoppingItem) => {
+    const newStatus = item.status === 'open' ? 'bought' : 'open';
+    updateItem.mutate({ itemId: item.id, input: { status: newStatus } });
+  };
+
+  const handleAdd = (title: string) => {
+    createItem.mutate({ title });
+  };
+
+  const handleEditSubmit = (input: UpdateShoppingItemInput) => {
+    if (!editingItem) return;
+    updateItem.mutate(
+      { itemId: editingItem.id, input },
+      { onSuccess: () => setEditingItem(null) },
+    );
+  };
+
+  const handleDelete = () => {
+    if (!editingItem) return;
+    deleteItem.mutate(editingItem.id, { onSuccess: () => setEditingItem(null) });
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-background">
+      {/* Header */}
+      <View className="flex-row items-center px-md pt-md pb-sm gap-sm">
+        <Pressable onPress={() => router.back()} className="p-xs">
+          <Ionicons name="arrow-back" size={24} color="#F2F2F2" />
+        </Pressable>
+        <View className="flex-1">
+          <Text className="text-heading-m text-text-primary" numberOfLines={1}>
+            {list?.title ?? 'Shopping List'}
+          </Text>
+          {items && items.length > 0 && (
+            <Text className="text-body-small text-text-secondary">
+              {items.filter((i) => i.status === 'bought').length === items.length
+                ? 'All done!'
+                : `${items.filter((i) => i.status === 'bought').length}/${items.length} bought`}
+            </Text>
+          )}
+        </View>
+        {canManageList && (
+          <View className="flex-row items-center gap-xs">
+            {isArchived ? (
+              <Pressable
+                onPress={() => unarchiveList.mutate(listId!)}
+                className="p-xs"
+                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
+              >
+                <Ionicons name="arrow-undo-outline" size={20} color="#A0A0A0" />
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={() => archiveList.mutate(listId!, { onSuccess: () => router.back() })}
+                className="p-xs"
+                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
+              >
+                <Ionicons name="archive-outline" size={20} color="#A0A0A0" />
+              </Pressable>
+            )}
+            <Pressable
+              onPress={() => setConfirmDeleteList(true)}
+              className="p-xs"
+              style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
+            >
+              <Ionicons name="trash-outline" size={20} color="#FF5C5C" />
+            </Pressable>
+          </View>
+        )}
+      </View>
+
+      {confirmDeleteList && (
+        <View className="flex-row items-center justify-center gap-sm px-md py-sm bg-surface border-b border-border">
+          <Text className="text-text-secondary text-body-small">Delete this entire list?</Text>
+          <Pressable
+            onPress={() => {
+              deleteList.mutate(listId!, { onSuccess: () => router.back() });
+              setConfirmDeleteList(false);
+            }}
+            className="px-md py-xs rounded-sm bg-danger/20"
+          >
+            <Text className="text-danger text-body-small font-semibold">Yes, delete</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setConfirmDeleteList(false)}
+            className="px-md py-xs rounded-sm"
+          >
+            <Text className="text-text-secondary text-body-small">Cancel</Text>
+          </Pressable>
+        </View>
+      )}
+
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={0}
+      >
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator color="#6C63FF" />
+          </View>
+        ) : (
+          <FlatList
+            data={items}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={items?.length === 0 ? { flex: 1 } : undefined}
+            ListEmptyComponent={
+              <View className="flex-1 items-center justify-center px-xl gap-sm">
+                <Ionicons name="basket-outline" size={40} color="#5C5C5C" />
+                <Text className="text-body text-text-secondary text-center">
+                  No items yet. Add one below.
+                </Text>
+              </View>
+            }
+            renderItem={({ item }) => (
+              <ShoppingItemRow
+                item={item}
+                onToggle={() => handleToggle(item)}
+                onDelete={canDeleteItem(item) ? () => deleteItem.mutate(item.id) : undefined}
+                onLongPress={() => setEditingItem(item)}
+              />
+            )}
+          />
+        )}
+
+        <AddShoppingItemInput
+          onAdd={handleAdd}
+          isPending={createItem.isPending}
+        />
+      </KeyboardAvoidingView>
+
+      {editingItem && (
+        <EditShoppingItemSheet
+          visible={!!editingItem}
+          onClose={() => setEditingItem(null)}
+          onSubmit={handleEditSubmit}
+          onDelete={handleDelete}
+          isPending={updateItem.isPending}
+          item={editingItem}
+          canEdit={canEditItem(editingItem)}
+          canDelete={canDeleteItem(editingItem)}
+        />
+      )}
+    </SafeAreaView>
+  );
+}

@@ -13,6 +13,7 @@ import OverviewTab from './index';
 import ActivitiesTab from './activities';
 import AccommodationsTab from './accommodations';
 import ExpensesTab from './expenses';
+import ShoppingTab from './shopping';
 import SettingsTab from './settings';
 
 const TABS = ['Overview', 'Places', 'Activities', 'Expenses', 'Shopping', 'Settings'] as const;
@@ -83,16 +84,10 @@ export default function TripDetailLayout() {
         return <AccommodationsTab />;
       case 'Expenses':
         return <ExpensesTab />;
+      case 'Shopping':
+        return <ShoppingTab />;
       case 'Settings':
         return <SettingsTab />;
-      default:
-        return (
-          <View className="flex-1 items-center justify-center">
-            <Text className="text-text-secondary text-body">
-              {activeTab} coming soon
-            </Text>
-          </View>
-        );
     }
   }
 

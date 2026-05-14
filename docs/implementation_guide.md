@@ -141,15 +141,15 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 *Dependencies: Phase 2*
 *Goal: Collaborative, real-time list management.*
 
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `shopping_lists` and `shopping_items` tables + RLS
-- [ ] **2. Services & Hooks**
-  - [ ] Implement List and Item CRUD services
-  - [ ] **Realtime Setup:** Implement Supabase Realtime channel subscription for item statuses
-  - [ ] Implement reconnection logic and heartbeat handling for realtime
-- [ ] **3. Components & Screens**
-  - [ ] Build interactive Checkbox/Item components (Optimistic UI required)
-  - [ ] Implement Shopping List view
+- [x] **1. DB/RLS & Types**
+  - [x] Create `shopping_lists` and `shopping_items` tables + RLS
+- [x] **2. Services & Hooks**
+  - [x] Implement List and Item CRUD services
+  - [x] **Realtime Setup:** Implement Supabase Realtime channel subscription for item statuses
+  - [x] Implement reconnection logic and heartbeat handling for realtime
+- [x] **3. Components & Screens**
+  - [x] Build interactive Checkbox/Item components (Optimistic UI required)
+  - [x] Implement Shopping List view
 
 ## 🛒 Phase 5b: Realtime Voting System for Activities & Accommodations
 *Dependencies: Phase 5a*

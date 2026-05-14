@@ -406,6 +406,114 @@ export type Database = {
           },
         ]
       }
+      shopping_items: {
+        Row: {
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          id: string
+          notes: string | null
+          position: number
+          quantity: number | null
+          shopping_list_id: string
+          source_recipe_id: string | null
+          status: string
+          title: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          id?: string
+          notes?: string | null
+          position?: number
+          quantity?: number | null
+          shopping_list_id: string
+          source_recipe_id?: string | null
+          status?: string
+          title: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          id?: string
+          notes?: string | null
+          position?: number
+          quantity?: number | null
+          shopping_list_id?: string
+          source_recipe_id?: string | null
+          status?: string
+          title?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shopping_items_shopping_list_id_fkey"
+            columns: ["shopping_list_id"]
+            isOneToOne: false
+            referencedRelation: "shopping_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shopping_lists: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          created_by: string
+          id: string
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_lists_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shopping_lists_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_members: {
         Row: {
           id: string
@@ -565,6 +673,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_shopping_list: { Args: { p_list_id: string }; Returns: undefined }
       get_trip_balances: {
         Args: { p_trip_id: string }
         Returns: {
@@ -575,6 +684,14 @@ export type Database = {
         }[]
       }
       redeem_invite_token: { Args: { token_value: string }; Returns: string }
+      reopen_accommodation_voting: {
+        Args: { p_accommodation_id: string }
+        Returns: undefined
+      }
+      reopen_activity_voting: {
+        Args: { p_activity_id: string }
+        Returns: undefined
+      }
       settle_expense_split: { Args: { p_split_id: string }; Returns: undefined }
       soft_delete_accommodation: {
         Args: { p_accommodation_id: string }
@@ -582,6 +699,10 @@ export type Database = {
       }
       soft_delete_activity: {
         Args: { p_activity_id: string }
+        Returns: undefined
+      }
+      soft_delete_shopping_item: {
+        Args: { p_item_id: string }
         Returns: undefined
       }
       soft_delete_trip: { Args: { p_trip_id: string }; Returns: undefined }
@@ -732,3 +853,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

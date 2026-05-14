@@ -6,6 +6,7 @@ import {
   updateAccommodation,
   softDeleteAccommodation,
   closeAccommodationVoting,
+  reopenAccommodationVoting,
 } from '@vacationist/api';
 import type { CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
 import { useToastStore } from '../../../stores/toastStore';
@@ -90,6 +91,22 @@ export function useCloseAccommodationVoting(tripId: string) {
     },
     onError: () => {
       addToast('error', 'Failed to close voting.');
+    },
+  });
+}
+
+export function useReopenAccommodationVoting(tripId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (accommodationId: string) => reopenAccommodationVoting(accommodationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
+      addToast('success', 'Voting re-opened');
+    },
+    onError: () => {
+      addToast('error', 'Failed to re-open voting.');
     },
   });
 }

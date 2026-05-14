@@ -47,7 +47,9 @@
       "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
       "Bash(xargs grep -l \"edit\\\\|Edit\")",
       "Bash(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\" -Recurse)",
-      "Bash(Select-Object FullName)"
+      "Bash(Select-Object FullName)",
+      "Bash(dir \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app\\\\trip\" /s /b)",
+      "Bash(findstr /i \"expenses\\\\|activities\\\\|shopping\\\\|_layout\")"
     ]
   },
   "enableAllProjectMcpServers": true,

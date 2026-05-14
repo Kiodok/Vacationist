@@ -6,6 +6,7 @@ import {
   updateActivity,
   softDeleteActivity,
   closeActivityVoting,
+  reopenActivityVoting,
 } from '@vacationist/api';
 import type { CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 import { useToastStore } from '../../../stores/toastStore';
@@ -90,6 +91,22 @@ export function useCloseVoting(tripId: string) {
     },
     onError: () => {
       addToast('error', 'Failed to close voting.');
+    },
+  });
+}
+
+export function useReopenVoting(tripId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (activityId: string) => reopenActivityVoting(activityId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
+      addToast('success', 'Voting re-opened');
+    },
+    onError: () => {
+      addToast('error', 'Failed to re-open voting.');
     },
   });
 }

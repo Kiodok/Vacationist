@@ -67,6 +67,11 @@ export async function closeAccommodationVoting(accommodationId: string): Promise
   if (error) throw error;
 }
 
+export async function reopenAccommodationVoting(accommodationId: string): Promise<void> {
+  const { error } = await supabase.rpc('reopen_accommodation_voting', { p_accommodation_id: accommodationId });
+  if (error) throw error;
+}
+
 export async function getAccommodationVotes(accommodationId: string): Promise<AccommodationVote[]> {
   const { data, error } = await supabase
     .from('accommodation_votes')

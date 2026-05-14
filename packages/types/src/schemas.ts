@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD } from './enums';
+import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS } from './enums';
 
 export const userSchema = z.object({
   id: z.string().uuid(),
@@ -172,6 +172,35 @@ export const updateExpenseWithSplitsSchema = z.object({
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseWithSplitsInput = z.infer<typeof updateExpenseWithSplitsSchema>;
+
+// --- Shopping schemas ---
+
+export const createShoppingListSchema = z.object({
+  title: z.string().min(1).max(100),
+});
+
+export const updateShoppingListSchema = z.object({
+  title: z.string().min(1).max(100),
+});
+
+export type CreateShoppingListInput = z.infer<typeof createShoppingListSchema>;
+export type UpdateShoppingListInput = z.infer<typeof updateShoppingListSchema>;
+
+export const createShoppingItemSchema = z.object({
+  title: z.string().min(1).max(100),
+});
+
+export const updateShoppingItemSchema = z.object({
+  title: z.string().min(1).max(100).optional(),
+  quantity: z.number().nonnegative().nullable().optional(),
+  unit: z.string().max(50).nullable().optional(),
+  notes: z.string().max(500).nullable().optional(),
+  status: z.enum(SHOPPING_ITEM_STATUS).optional(),
+  position: z.number().int().nonnegative().optional(),
+});
+
+export type CreateShoppingItemInput = z.infer<typeof createShoppingItemSchema>;
+export type UpdateShoppingItemInput = z.infer<typeof updateShoppingItemSchema>;
 
 // --- Invite schemas ---
 

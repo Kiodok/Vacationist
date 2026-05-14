@@ -16,9 +16,13 @@ interface ActivityCardProps {
 export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePress, detail }: ActivityCardProps) {
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !activity.voting_open;
+  const borderColor = getVoteBorderColor(votes);
 
   return (
-    <View className={`bg-surface border border-border ${detail ? 'rounded-t-md' : 'rounded-md'}`}>
+    <View
+      className={`bg-surface border border-border ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      style={borderColor ? { borderColor } : undefined}
+    >
       <Pressable
         onPress={onPress}
         className="p-md gap-sm"
@@ -108,6 +112,16 @@ const VOTE_SCORE: Record<VoteType, number> = {
   skip: 2,
   group_blocker: 1,
 };
+
+function getVoteBorderColor(votes: { vote: VoteType }[]): string | undefined {
+  if (votes.length === 0) return undefined;
+  if (votes.some((v) => v.vote === 'group_blocker')) return '#FF5C5C';
+
+  const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
+  if (avg >= 4.0) return '#3ECF8E';
+  if (avg >= 3.0) return undefined;
+  return '#F5A623';
+}
 
 function VoteStats({ votes }: { votes: { vote: VoteType }[] }) {
   const scores = votes.map((v) => VOTE_SCORE[v.vote]).sort((a, b) => a - b);

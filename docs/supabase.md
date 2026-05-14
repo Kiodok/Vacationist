@@ -511,3 +511,51 @@ Updated RLS policies to allow trip members to SELECT archived expenses and their
   - Added `settled_to_payer` CTE: debits payers who received settlements (-amount)
   - New formula: `net_balance = total_paid + settled_back - total_owed - received_settlements`
   - Zeroes net_balance where `ABS(net_balance) < 0.01` (residual threshold)
+
+---
+
+## 2026-05-14 — Phase 5a: Shopping Lists & Items
+
+### Migration: `20260514100000_create_shopping_lists_and_items.sql`
+
+**Tables:**
+- `public.shopping_lists` — shopping lists per trip
+- `public.shopping_items` — items within a shopping list with soft delete, position ordering, V1 statuses (open/bought)
+
+**RLS Policies:**
+- `shopping_lists`: SELECT by trip members, INSERT by trip members (created_by = self), UPDATE by organizer or list creator
+- `shopping_items`: SELECT by trip members (non-deleted, via list → trip), INSERT by trip members, UPDATE by any trip member (status changes)
+
+**Triggers:**
+- `shopping_lists_updated_at` / `shopping_items_updated_at` — auto-updates `updated_at`
+- `on_shopping_item_update_restrict` — prevents guests from changing title/quantity/unit/notes; prevents anyone from changing shopping_list_id/created_by
+
+**Functions:**
+- `public.soft_delete_shopping_item(p_item_id UUID)` — SECURITY DEFINER: organizer can delete any, participant can delete own, guest cannot delete
+- `public.delete_shopping_list(p_list_id UUID)` — SECURITY DEFINER: organizer or list creator can hard-delete (cascades items)
+
+**Indexes:**
+- `idx_shopping_lists_trip_id` on `shopping_lists(trip_id)`
+- `idx_shopping_items_list_id` on `shopping_items(shopping_list_id)` WHERE `deleted_at IS NULL`
+- `idx_shopping_items_status` on `shopping_items(status)` WHERE `deleted_at IS NULL`
+
+**Supabase Realtime:**
+- `shopping_items` table added to `supabase_realtime` publication for live item status updates
+
+**Local migration file:** `supabase/migrations/20260514100000_create_shopping_lists_and_items.sql`
+
+### Migration: `20260514120000_add_shopping_list_archived_at.sql`
+
+Adds `archived_at TIMESTAMPTZ DEFAULT NULL` column to `shopping_lists` for section grouping (Active / Completed / Archived). Existing UPDATE RLS policy already covers organizer/creator access.
+
+**Local migration file:** `supabase/migrations/20260514120000_add_shopping_list_archived_at.sql`
+
+### Migration: `20260514130000_reopen_voting_functions.sql`
+
+Adds SECURITY DEFINER functions for re-opening voting on activities and accommodations (organizer only):
+- `public.reopen_activity_voting(p_activity_id UUID)` — sets `voting_open = TRUE`
+- `public.reopen_accommodation_voting(p_accommodation_id UUID)` — sets `voting_open = TRUE`
+
+Both functions check authentication, entity existence, and organizer role.
+
+**Local migration file:** `supabase/migrations/20260514130000_reopen_voting_functions.sql`

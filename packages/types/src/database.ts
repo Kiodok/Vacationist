@@ -170,6 +170,13 @@ export interface ShoppingList {
   title: string;
   created_by: string;
   created_at: string;
+  updated_at: string;
+  archived_at: string | null;
+}
+
+export interface ShoppingListWithCounts extends ShoppingList {
+  item_count: number;
+  bought_count: number;
 }
 
 export interface ShoppingItem {
@@ -178,9 +185,13 @@ export interface ShoppingItem {
   title: string;
   quantity: number | null;
   unit: string | null;
+  notes: string | null;
+  position: number;
   status: ShoppingItemStatus;
   source_recipe_id: string | null;
   created_by: string;
+  created_at: string;
+  updated_at: string;
   deleted_at: string | null;
 }
 
