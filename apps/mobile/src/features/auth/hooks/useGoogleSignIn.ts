@@ -67,23 +67,16 @@ export function useGoogleSignIn(
       const response = await GoogleSignin.signIn();
 
       if (__DEV__) {
-        console.log('[GoogleSignIn] response type:', response.type);
-        console.log('[GoogleSignIn] has data:', 'data' in response);
-        console.log('[GoogleSignIn] has idToken:', !!response.data?.idToken);
+        console.log('[GoogleSignIn] has idToken:', !!response.idToken);
       }
 
-      if (!('data' in response) || !response.data?.idToken) {
+      if (!response.idToken) {
         throw new Error(
           'No ID token received from Google. Verify your Google Web Client ID is configured correctly.',
         );
       }
 
-      if (__DEV__) {
-        console.log('[GoogleSignIn] idToken length:', response.data.idToken.length);
-        console.log('[GoogleSignIn] Calling signInWithGoogleIdToken...');
-      }
-
-      await signInWithGoogleIdToken(response.data.idToken);
+      await signInWithGoogleIdToken(response.idToken);
 
       if (__DEV__) {
         console.log('[GoogleSignIn] Supabase signInWithIdToken succeeded');

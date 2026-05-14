@@ -8,6 +8,7 @@ import { Button, Input } from '@vacationist/ui';
 import { createTripSchema, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { CreateTripInput } from '@vacationist/types';
 import { useCreateTrip } from '../../src/features/trips/hooks/useTrips';
+import { DateTimePickerField } from '../../src/components/DateTimePickerField';
 
 export default function CreateTripScreen() {
   const router = useRouter();
@@ -83,15 +84,13 @@ export default function CreateTripScreen() {
             <Controller
               control={control}
               name="start_date"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
+              render={({ field: { onChange, value } }) => (
+                <DateTimePickerField
                   label="Start date"
-                  placeholder="YYYY-MM-DD"
+                  mode="date"
                   value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
+                  onChange={(v) => onChange(v ?? '')}
                   error={errors.start_date?.message}
-                  keyboardType="numbers-and-punctuation"
                 />
               )}
             />
@@ -100,15 +99,13 @@ export default function CreateTripScreen() {
             <Controller
               control={control}
               name="end_date"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
+              render={({ field: { onChange, value } }) => (
+                <DateTimePickerField
                   label="End date"
-                  placeholder="YYYY-MM-DD"
+                  mode="date"
                   value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
+                  onChange={(v) => onChange(v ?? '')}
                   error={errors.end_date?.message}
-                  keyboardType="numbers-and-punctuation"
                 />
               )}
             />

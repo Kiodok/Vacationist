@@ -3,6 +3,7 @@ import { View, Text, Pressable, Modal, TextInput, ScrollView } from 'react-nativ
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, ACTIVITY_CATEGORIES } from '@vacationist/types';
+import { DateTimePickerField } from '../../../components/DateTimePickerField';
 
 interface EditActivitySheetProps {
   visible: boolean;
@@ -147,59 +148,48 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
               </View>
 
               {/* Date */}
-              <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Date</Text>
-                <Controller
-                  control={control}
-                  name="activity_date"
-                  render={({ field: { onChange, value } }) => (
-                    <TextInput
-                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                      placeholderTextColor="#5C5C5C"
-                      placeholder="YYYY-MM-DD"
-                      value={value ?? ''}
-                      onChangeText={(t) => onChange(t || null)}
-                      maxLength={10}
-                    />
-                  )}
-                />
-                {errors.activity_date && (
-                  <Text className="text-danger text-body-small">{errors.activity_date.message}</Text>
+              <Controller
+                control={control}
+                name="activity_date"
+                render={({ field: { onChange, value } }) => (
+                  <DateTimePickerField
+                    label="Date"
+                    mode="date"
+                    value={value}
+                    onChange={onChange}
+                    error={errors.activity_date?.message}
+                    minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
+                    maximumDate={tripEndDate ? new Date(tripEndDate + 'T00:00:00') : undefined}
+                  />
                 )}
-              </View>
+              />
 
               {/* Time row */}
               <View className="flex-row gap-sm">
-                <View className="flex-1 gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Start Time</Text>
+                <View className="flex-1">
                   <Controller
                     control={control}
                     name="start_time"
                     render={({ field: { onChange, value } }) => (
-                      <TextInput
-                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                        placeholderTextColor="#5C5C5C"
-                        placeholder="HH:MM"
-                        value={value ?? ''}
-                        onChangeText={(t) => onChange(t || null)}
-                        maxLength={5}
+                      <DateTimePickerField
+                        label="Start Time"
+                        mode="time"
+                        value={value}
+                        onChange={onChange}
                       />
                     )}
                   />
                 </View>
-                <View className="flex-1 gap-xs">
-                  <Text className="text-label text-text-muted uppercase">End Time</Text>
+                <View className="flex-1">
                   <Controller
                     control={control}
                     name="end_time"
                     render={({ field: { onChange, value } }) => (
-                      <TextInput
-                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                        placeholderTextColor="#5C5C5C"
-                        placeholder="HH:MM"
-                        value={value ?? ''}
-                        onChangeText={(t) => onChange(t || null)}
-                        maxLength={5}
+                      <DateTimePickerField
+                        label="End Time"
+                        mode="time"
+                        value={value}
+                        onChange={onChange}
                       />
                     )}
                   />
