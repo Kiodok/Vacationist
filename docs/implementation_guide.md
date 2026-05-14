@@ -33,17 +33,24 @@ When working through this document, Claude must act as a **Senior Fullstack Engi
 ## 🔐 Phase 1: Authentication & Identity
 *Goal: Implement the auth foundation, guest model, and protected routing.*
 
-### Google OAuth using Supabase OAuth App (Vacationist) & Google Sign In / Provider
-Site URL: http://localhost:3000
-Authorization Path: /oauth/consent
-Authorization endpoint: https://aejywkbkcwyanhyzhrle.supabase.co/auth/v1/oauth/authorize
-Token endpoint: https://aejywkbkcwyanhyzhrle.supabase.co/auth/v1/oauth/token
-JWKS endpoint: https://aejywkbkcwyanhyzhrle.supabase.co/auth/v1/.well-known/jwks.json
-OIDC discovery: https://aejywkbkcwyanhyzhrle.supabase.co/auth/v1/.well-known/openid-configuration
-OAuth app:
-- Client ID: 9d40a6d2-1601-4049-94e6-207628f0c073
-- Redirect URI: https://aejywkbkcwyanhyzhrle.supabase.co/auth/v1/callback
+### Google Sign-In (Native SDK + Supabase signInWithIdToken)
+Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to native Google Sign-In
+(`@react-native-google-signin/google-signin`) with `signInWithIdToken`. Requires development build (not Expo Go).
+
+**Google Cloud / Firebase:**
+- GCP Project: `vacationist` (project number: 632483929424)
+- Web Client ID: stored in `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` env var
+- Android OAuth Client ID: registered in GCP with package `com.vacationist.mobile` + SHA-1/SHA-256
+- Firebase: linked to same GCP project for `google-services.json`
+
+**Supabase Auth config:**
+- Google provider uses the same Web Client ID
+- Redirect URLs: `vacationist://`, `exp+vacationist://`
+- OAuth app Client ID: 9d40a6d2-1601-4049-94e6-207628f0c073
 - Public Client: enabled
+
+**Auth flow (native):** GoogleSignin.signIn() → idToken → supabase.auth.signInWithIdToken() → session
+**Auth flow (web):** Browser-based OAuth via getGoogleOAuthUrl() (unchanged)
 
 ### Steps Phase 1
 - [x] **1. DB/RLS & Types**

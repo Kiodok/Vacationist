@@ -53,6 +53,18 @@ export async function setSessionFromUrl(url: string) {
   return data;
 }
 
+export async function signInWithGoogleIdToken(idToken: string) {
+  if (!idToken) {
+    throw new Error('Google ID token is required');
+  }
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token: idToken,
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;

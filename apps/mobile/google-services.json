@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "632483929424",
+    "project_id": "vacationist",
+    "storage_bucket": "vacationist.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632483929424:android:4b1075a0b7be630ab7e055",
+        "android_client_info": {
+          "package_name": "com.vacationist.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "632483929424-dk2ti4ltjh5vf4288e2p5acoh6cb2j3c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vacationist.mobile",
+            "certificate_hash": "78d1c2949e2d1d16e6a67f4191b177abd0e00295"
+          }
+        },
+        {
+          "client_id": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzrscN1NN2bxh39ZbhPPIU_YDVxMw2RE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,10 @@
+{
+  "android": {
+    "package": "com.garylude.vacationist"
+  },
+  "extra": {
+    "eas": {
+      "projectId": "a1dc4172-7c41-4aa9-a44d-afb1a0088278"
+    }
+  }
+}

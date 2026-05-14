@@ -1,60 +1,22 @@
 import { useState } from 'react';
 import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
 import { useRouter } from 'expo-router';
 import { Button, Input } from '@vacationist/ui';
-import {
-  getGoogleOAuthUrl,
-  signInWithMagicLink,
-  setSessionFromUrl,
-} from '@vacationist/api';
+import { signInWithMagicLink } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
-
-WebBrowser.maybeCompleteAuthSession();
+import { useGoogleSignIn } from '../../src/features/auth/hooks/useGoogleSignIn';
 
 export default function LoginScreen() {
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
 
-  async function handleGoogleSignIn() {
-    setGoogleLoading(true);
-    try {
-      const redirectTo = makeRedirectUri();
-
-      if (__DEV__) {
-        console.log('[Auth] redirectTo:', redirectTo);
-      }
-
-      const url = await getGoogleOAuthUrl(redirectTo);
-
-      if (Platform.OS === 'web') {
-        window.location.href = url;
-        return;
-      }
-
-      const result = await WebBrowser.openAuthSessionAsync(url, redirectTo, {
-        createTask: false,
-      });
-
-      if (__DEV__) {
-        console.log('[Auth] result type:', result.type);
-      }
-
-      if (result.type === 'success') {
-        await setSessionFromUrl(result.url);
-      }
-    } catch {
-      addToast('error', 'Google sign-in failed. Please try again.');
-    } finally {
-      setGoogleLoading(false);
-    }
-  }
+  const { signIn: handleGoogleSignIn, loading: googleLoading } =
+    useGoogleSignIn((msg) => addToast('error', msg));
 
   async function handleMagicLink() {
     setEmailError('');

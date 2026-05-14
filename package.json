@@ -7,6 +7,8 @@
     "packages/*"
   ],
   "scripts": {
+    "build:dev": "cd apps/mobile && eas build --profile development --platform android",
+    "build:prod": "cd apps/mobile && eas build --profile production --platform android",
     "start": "npm run start --workspace=@vacationist/mobile",
     "android": "npm run android --workspace=@vacationist/mobile",
     "ios": "npm run ios --workspace=@vacationist/mobile",
@@ -18,5 +20,10 @@
     "supabase:types": "npx supabase gen types typescript --local > packages/api/src/database.types.ts",
     "supabase:reset": "npx supabase db reset",
     "test": "npm run test --workspace=@vacationist/utils"
+  },
+  "dependencies": {
+    "expo": "^55.0.24",
+    "react": "19.2.0",
+    "react-native": "0.83.6"
   }
 }

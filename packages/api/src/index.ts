@@ -6,6 +6,7 @@ export {
   signInWithMagicLink,
   signInAnonymously,
   setSessionFromUrl,
+  signInWithGoogleIdToken,
   signOut,
   getSession,
   onAuthStateChange,
