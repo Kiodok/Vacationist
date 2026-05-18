@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Image } from 'react-native';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
@@ -25,12 +26,14 @@ function getInitials(name: string): string {
 
 export function MemberAvatar({ name, avatarUrl, size = 'md' }: MemberAvatarProps) {
   const config = sizeConfig[size];
+  const [imgError, setImgError] = useState(false);
 
-  if (avatarUrl) {
+  if (avatarUrl && !imgError) {
     return (
       <Image
         source={{ uri: avatarUrl }}
         className={`${config.container} rounded-full`}
+        onError={() => setImgError(true)}
       />
     );
   }

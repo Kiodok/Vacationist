@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FlatList, View, Text, Pressable, ActivityIndicator, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -14,6 +15,7 @@ export default function TripsScreen() {
   const { data: trips, isLoading, isFetching, refetch } = useTrips();
   const user = useAuthStore((s) => s.user);
   const { handleSignOut } = useSignOut();
+  const [avatarError, setAvatarError] = useState(false);
 
   function confirmSignOut() {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -50,8 +52,8 @@ export default function TripsScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center justify-between px-md pt-md pb-sm">
         <Pressable onPress={confirmSignOut} className="w-[40px] h-[40px] rounded-full bg-surface items-center justify-center overflow-hidden">
-          {user?.avatar_url ? (
-            <Image source={{ uri: user.avatar_url }} className="w-full h-full" />
+          {user?.avatar_url && !avatarError ? (
+            <Image source={{ uri: user.avatar_url }} className="w-full h-full" onError={() => setAvatarError(true)} />
           ) : (
             <Ionicons name="person" size={20} color="#FFFFFF" />
           )}
