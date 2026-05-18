@@ -162,7 +162,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 ---
 
 ## 🍳 Phase 6: Recipes
-*Dependencies: Phase 5*
+*Dependencies: Phase 5a & 5b*
 *Goal: Recipe management that pipes directly into shopping lists.*
 
 - [ ] **1. DB/RLS & Types**
