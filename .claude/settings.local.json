@@ -53,7 +53,9 @@
       "mcp__plugin_supabase_supabase__execute_sql",
       "Bash(node -e \"const p = require\\('./apps/mobile/node_modules/@react-native-google-signin/google-signin/package.json'\\); console.log\\(p.version\\)\")",
       "Bash(node -e \"const p = require\\('./node_modules/@react-native-google-signin/google-signin/package.json'\\); console.log\\(p.version\\)\")",
-      "Bash(node -e \"const mod = require\\('./node_modules/@react-native-google-signin/google-signin'\\); console.log\\('Exports:', Object.keys\\(mod\\)\\); console.log\\('GoogleSignin methods:', Object.getOwnPropertyNames\\(Object.getPrototypeOf\\(mod.GoogleSignin\\)\\).filter\\(m => m !== 'constructor'\\)\\)\")"
+      "Bash(node -e \"const mod = require\\('./node_modules/@react-native-google-signin/google-signin'\\); console.log\\('Exports:', Object.keys\\(mod\\)\\); console.log\\('GoogleSignin methods:', Object.getOwnPropertyNames\\(Object.getPrototypeOf\\(mod.GoogleSignin\\)\\).filter\\(m => m !== 'constructor'\\)\\)\")",
+      "Bash(findstr /i \"realtime\\\\|Voting\\\\|activity_votes\\\\|accommodation_votes\\\\|activities.ts\\\\|accommodations.ts\")",
+      "Bash(findstr /v \"app.config.ts\")"
     ]
   },
   "enableAllProjectMcpServers": true,

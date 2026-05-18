@@ -32,7 +32,10 @@ export {
   getActivityVotes,
   castActivityVote,
   removeActivityVote,
+  subscribeToActivityVotingRealtime,
+  unsubscribeFromActivityVoting,
 } from './activities';
+export type { ActivityVotingRealtimeCallbacks } from './activities';
 
 export {
   getAccommodations,
@@ -45,7 +48,10 @@ export {
   getAccommodationVotes,
   castAccommodationVote,
   removeAccommodationVote,
+  subscribeToAccommodationVotingRealtime,
+  unsubscribeFromAccommodationVoting,
 } from './accommodations';
+export type { AccommodationVotingRealtimeCallbacks } from './accommodations';
 
 export {
   getExpenses,

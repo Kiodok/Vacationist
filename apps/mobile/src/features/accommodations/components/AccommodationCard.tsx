@@ -22,7 +22,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
   return (
     <View
       className={`bg-surface border border-border ${detail ? 'rounded-t-md' : 'rounded-md'}`}
-      style={borderColor ? { borderColor } : undefined}
+      style={{ borderColor }}
     >
       <Pressable
         onPress={onPress}
@@ -61,10 +61,8 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
         {/* Vote section */}
         <View className="flex-row items-center justify-between mt-xs">
           <View className="flex-row items-center gap-sm">
-            {votes.length > 0 && <VoteStats votes={votes} />}
-            {showBreakdown ? (
-              <VoteSummary votes={votes} />
-            ) : myVote ? (
+            {votes.length > 0 && <VoteSummary votes={votes} />}
+            {showBreakdown ? null : myVote ? (
               <VoteChip vote={myVote.vote} size="sm" onPress={onVotePress} />
             ) : (
               <Pressable
@@ -95,33 +93,16 @@ const VOTE_SCORE: Record<VoteType, number> = {
   group_blocker: 1,
 };
 
-function getVoteBorderColor(votes: { vote: VoteType }[]): string | undefined {
-  if (votes.length === 0) return undefined;
+function getVoteBorderColor(votes: { vote: VoteType }[]): string {
+  if (votes.length === 0) return '#555555';
   if (votes.some((v) => v.vote === 'group_blocker')) return '#FF5C5C';
 
   const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
   if (avg >= 4.0) return '#3ECF8E';
-  if (avg >= 3.0) return undefined;
+  if (avg >= 3.0) return '#555555';
   return '#F5A623';
 }
 
-function VoteStats({ votes }: { votes: { vote: VoteType }[] }) {
-  const scores = votes.map((v) => VOTE_SCORE[v.vote]).sort((a, b) => a - b);
-  const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
-  const mid = Math.floor(scores.length / 2);
-  const median =
-    scores.length % 2 !== 0
-      ? scores[mid]
-      : (scores[mid - 1] + scores[mid]) / 2;
-
-  return (
-    <View className="flex-row items-center gap-xs">
-      <Text className="text-label text-text-muted">Avg {avg.toFixed(1)}</Text>
-      <Text className="text-label text-text-muted">·</Text>
-      <Text className="text-label text-text-muted">Med {median.toFixed(1)}</Text>
-    </View>
-  );
-}
 
 function StatusIndicator({ status, votingOpen }: { status: string; votingOpen: boolean }) {
   if (votingOpen) {

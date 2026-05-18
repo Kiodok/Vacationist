@@ -559,3 +559,29 @@ Adds SECURITY DEFINER functions for re-opening voting on activities and accommod
 Both functions check authentication, entity existence, and organizer role.
 
 **Local migration file:** `supabase/migrations/20260514130000_reopen_voting_functions.sql`
+
+---
+
+## 2026-05-18 — Phase 5b: Realtime Voting for Activities & Accommodations
+
+### Migration: `20260518000001_add_voting_realtime_publication.sql`
+
+Added vote tables and entity tables to Supabase Realtime publication for live vote updates across all trip members.
+
+**Realtime publication additions:**
+- `public.activity_votes` — live vote INSERT/UPDATE/DELETE events
+- `public.accommodation_votes` — live vote INSERT/UPDATE/DELETE events
+- `public.activities` — live entity UPDATE events (voting_open status changes, edits)
+- `public.accommodations` — live entity UPDATE events (voting_open status changes, edits)
+
+**REPLICA IDENTITY changes:**
+- `public.activity_votes` → FULL (DELETE payloads include all columns, needed to identify which activity a deleted vote belonged to)
+- `public.accommodation_votes` → FULL (same reason)
+
+**Architecture:**
+- One realtime channel per trip per feature (`activity-voting:{tripId}`, `accommodation-voting:{tripId}`)
+- Each channel listens to both vote events (unfiltered, since vote tables lack `trip_id`) and entity UPDATE events (filtered by `trip_id`)
+- Realtime callbacks update TanStack Query cache directly, following the same pattern as Phase 5a shopping items
+- App foreground resume triggers resubscription + query invalidation for reconciliation
+
+**Local migration file:** `supabase/migrations/20260518000001_add_voting_realtime_publication.sql`

@@ -85,8 +85,9 @@ export function useCloseVoting(tripId: string) {
 
   return useMutation({
     mutationFn: (activityId: string) => closeActivityVoting(activityId),
-    onSuccess: () => {
+    onSuccess: (_data, activityId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
+      queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
       addToast('success', 'Voting closed');
     },
     onError: () => {
@@ -101,8 +102,9 @@ export function useReopenVoting(tripId: string) {
 
   return useMutation({
     mutationFn: (activityId: string) => reopenActivityVoting(activityId),
-    onSuccess: () => {
+    onSuccess: (_data, activityId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
+      queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
       addToast('success', 'Voting re-opened');
     },
     onError: () => {

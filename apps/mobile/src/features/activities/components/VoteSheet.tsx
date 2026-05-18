@@ -54,6 +54,17 @@ export function VoteSheet({
 
           {votingOpen ? (
             <View className="gap-sm">
+              {myVote && (
+                <Pressable
+                  onPress={() => { if (!isPending) onRemoveVote(); }}
+                  disabled={isPending}
+                  className="mb-xs items-center py-sm"
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                >
+                  <Text className="text-danger text-body-small">Remove my vote</Text>
+                </Pressable>
+              )}
+
               {VOTE_TYPE.map((voteType) => (
                 <Pressable
                   key={voteType}
@@ -71,17 +82,6 @@ export function VoteSheet({
                   />
                 </Pressable>
               ))}
-
-              {myVote && (
-                <Pressable
-                  onPress={() => { if (!isPending) onRemoveVote(); }}
-                  disabled={isPending}
-                  className="mt-sm items-center py-sm"
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                >
-                  <Text className="text-danger text-body-small">Remove my vote</Text>
-                </Pressable>
-              )}
             </View>
           ) : (
             <VoteBreakdown votes={votes} />

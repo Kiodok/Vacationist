@@ -151,18 +151,25 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [x] Build interactive Checkbox/Item components (Optimistic UI required)
   - [x] Implement Shopping List view
 
-## 🛒 Phase 5b: Realtime Voting System for Activities & Accommodations/Places
+## 🎯 Phase 5b: Realtime Voting System for Accommodations/Places & Activities
 *Dependencies: Phases 3, 4a, 4b & 5a*
 *Goal: Collaborative, real-time voting on activities & places to stay.*
 
-- [ ] **1. Realtime voting on activities**
-- [ ] **2. Realtime voting on places**
-- [ ] **3. Ensure alignment with Phase 5a functionalities & logic**
+- [x] **1. Realtime voting on activities**
+- [x] **2. Realtime voting on places**
+- [x] **3. Ensure alignment with Phase 5a functionalities & logic**
+
+## 🛒 Phase 5c: Realtime Expenses
+*Dependencies: Phases 3, 4a, 4b, 5a & 5b*
+*Goal: Collaborative, real-time expenses.*
+
+- [ ] **1. Realtime handling of expenses**
+- [ ] **2. Ensure alignment with Phase 5a & 5b functionalities & logic**
 
 ---
 
 ## 🍳 Phase 6: Recipes
-*Dependencies: Phase 5a & 5b*
+*Dependencies: Phase 5a, 5b & 5c*
 *Goal: Recipe management that pipes directly into shopping lists.*
 
 - [ ] **1. DB/RLS & Types**
@@ -170,6 +177,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 - [ ] **2. Services & Hooks**
   - [ ] Implement Recipe CRUD services
   - [ ] Implement Ingredient-to-Shopping-Item sync logic (Duplicate merging logic)
+  - [ ] **Realtime Setup:** Implement Supabase Realtime channel subscription
   - [ ] Create Recipe query hooks
 - [ ] **3. Components & Screens**
   - [ ] Implement Recipe List and Detail screens
@@ -183,7 +191,9 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
 - [ ] **1. Logic & Utils**
   - [ ] Implement timezone resolution using trip configuration + `dayjs.tz`
-- [ ] **2. Components & Screens**
+- [ ] **2. Services & Hooks**
+  - [ ] **Realtime Setup:** Implement Supabase Realtime channel subscription
+- [ ] **3. Components & Screens**
   - [ ] Build visual Calendar primitives (Day blocks, event pills)
   - [ ] Implement Trip Calendar Screen
   - [ ] Implement Global Calendar Screen
@@ -191,7 +201,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 ---
 
 ## 🔔 Phase 8: Notifications
-*Dependencies: Phases 3, 4a, 4b, 5a & 5b*
+*Dependencies: Phases 3, 4a, 4b, 5a, 5b & 5c*
 *Goal: Batched push notifications and in-app alerts.*
 
 - [ ] **1. DB/RLS & Types**

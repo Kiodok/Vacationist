@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Activity, ActivityVote, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 
 export async function getActivities(tripId: string): Promise<Activity[]> {
@@ -116,4 +117,46 @@ export async function removeActivityVote(activityId: string): Promise<void> {
     .eq('user_id', user.id);
 
   if (error) throw error;
+}
+
+export interface ActivityVotingRealtimeCallbacks {
+  onVoteInsert: (vote: ActivityVote) => void;
+  onVoteUpdate: (vote: ActivityVote) => void;
+  onVoteDelete: (oldVote: ActivityVote) => void;
+  onActivityUpdate: (activity: Activity) => void;
+}
+
+export function subscribeToActivityVotingRealtime(
+  tripId: string,
+  callbacks: ActivityVotingRealtimeCallbacks,
+  onStatus?: (status: string) => void,
+): RealtimeChannel {
+  const uid = Math.random().toString(36).slice(2, 8);
+  return supabase
+    .channel(`activity-voting:${tripId}:${uid}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'activity_votes' },
+      (payload) => callbacks.onVoteInsert(payload.new as unknown as ActivityVote),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'activity_votes' },
+      (payload) => callbacks.onVoteUpdate(payload.new as unknown as ActivityVote),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'public', table: 'activity_votes' },
+      (payload) => callbacks.onVoteDelete(payload.old as unknown as ActivityVote),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'activities', filter: `trip_id=eq.${tripId}` },
+      (payload) => callbacks.onActivityUpdate(payload.new as unknown as Activity),
+    )
+    .subscribe((status) => onStatus?.(status));
+}
+
+export function unsubscribeFromActivityVoting(channel: RealtimeChannel): void {
+  supabase.removeChannel(channel);
 }

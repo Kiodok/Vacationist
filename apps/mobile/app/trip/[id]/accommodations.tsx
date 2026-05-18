@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { Accommodation, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
 import { useAccommodations, useCreateAccommodation, useUpdateAccommodation, useDeleteAccommodation, useCloseAccommodationVoting, useReopenAccommodationVoting } from '../../../src/features/accommodations/hooks/useAccommodations';
 import { useAccommodationVotes, useCastAccommodationVote, useRemoveAccommodationVote } from '../../../src/features/accommodations/hooks/useAccommodationVotes';
+import { useAccommodationVotesRealtime } from '../../../src/features/accommodations/hooks/useAccommodationVotesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
@@ -25,6 +26,7 @@ export default function AccommodationsTab() {
   const deleteAccommodation = useDeleteAccommodation(tripId!);
   const closeVoting = useCloseAccommodationVoting(tripId!);
   const reopenVoting = useReopenAccommodationVoting(tripId!);
+  useAccommodationVotesRealtime(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingAccommodation, setEditingAccommodation] = useState<Accommodation | null>(null);

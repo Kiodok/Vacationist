@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Accommodation, AccommodationVote, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
 
 export async function getAccommodations(tripId: string): Promise<Accommodation[]> {
@@ -110,4 +111,46 @@ export async function removeAccommodationVote(accommodationId: string): Promise<
     .eq('user_id', user.id);
 
   if (error) throw error;
+}
+
+export interface AccommodationVotingRealtimeCallbacks {
+  onVoteInsert: (vote: AccommodationVote) => void;
+  onVoteUpdate: (vote: AccommodationVote) => void;
+  onVoteDelete: (oldVote: AccommodationVote) => void;
+  onAccommodationUpdate: (accommodation: Accommodation) => void;
+}
+
+export function subscribeToAccommodationVotingRealtime(
+  tripId: string,
+  callbacks: AccommodationVotingRealtimeCallbacks,
+  onStatus?: (status: string) => void,
+): RealtimeChannel {
+  const uid = Math.random().toString(36).slice(2, 8);
+  return supabase
+    .channel(`accommodation-voting:${tripId}:${uid}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'accommodation_votes' },
+      (payload) => callbacks.onVoteInsert(payload.new as unknown as AccommodationVote),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'accommodation_votes' },
+      (payload) => callbacks.onVoteUpdate(payload.new as unknown as AccommodationVote),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'public', table: 'accommodation_votes' },
+      (payload) => callbacks.onVoteDelete(payload.old as unknown as AccommodationVote),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'accommodations', filter: `trip_id=eq.${tripId}` },
+      (payload) => callbacks.onAccommodationUpdate(payload.new as unknown as Accommodation),
+    )
+    .subscribe((status) => onStatus?.(status));
+}
+
+export function unsubscribeFromAccommodationVoting(channel: RealtimeChannel): void {
+  supabase.removeChannel(channel);
 }

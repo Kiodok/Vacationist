@@ -6,6 +6,7 @@ import { dayjs } from '@vacationist/utils';
 import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
 import { useActivityVotes, useCastVote, useRemoveVote } from '../../../src/features/activities/hooks/useVotes';
+import { useActivityVotesRealtime } from '../../../src/features/activities/hooks/useActivityVotesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
@@ -51,6 +52,7 @@ export default function ActivitiesTab() {
   const deleteActivity = useDeleteActivity(tripId!);
   const closeVoting = useCloseVoting(tripId!);
   const reopenVoting = useReopenVoting(tripId!);
+  useActivityVotesRealtime(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);

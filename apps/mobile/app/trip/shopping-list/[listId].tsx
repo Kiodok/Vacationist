@@ -22,7 +22,7 @@ export default function ShoppingListDetail() {
     if (Platform.OS === 'web') {
       router.replace(`/trip/${tripId}?tab=Shopping`);
     } else {
-      goBackToTrip();
+      router.back();
     }
   };
 
