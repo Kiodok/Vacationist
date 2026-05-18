@@ -151,8 +151,8 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [x] Build interactive Checkbox/Item components (Optimistic UI required)
   - [x] Implement Shopping List view
 
-## 🛒 Phase 5b: Realtime Voting System for Activities & Accommodations
-*Dependencies: Phase 5a*
+## 🛒 Phase 5b: Realtime Voting System for Activities & Accommodations/Places
+*Dependencies: Phases 3, 4a, 4b & 5a*
 *Goal: Collaborative, real-time voting on activities & places to stay.*
 
 - [ ] **1. Realtime voting on activities**
@@ -178,7 +178,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 ---
 
 ## 📅 Phase 7: Calendar
-*Dependencies: Phase 2, Phase 3*
+*Dependencies: Phases 2 & 3*
 *Goal: Timezone-aware visual schedule.*
 
 - [ ] **1. Logic & Utils**
@@ -191,7 +191,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 ---
 
 ## 🔔 Phase 8: Notifications
-*Dependencies: Phases 3, 4a, 4b, 5a, 5b*
+*Dependencies: Phases 3, 4a, 4b, 5a & 5b*
 *Goal: Batched push notifications and in-app alerts.*
 
 - [ ] **1. DB/RLS & Types**
