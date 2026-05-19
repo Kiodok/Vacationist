@@ -706,6 +706,7 @@ export type Database = {
         Returns: undefined
       }
       soft_delete_trip: { Args: { p_trip_id: string }; Returns: undefined }
+      unarchive_expense: { Args: { p_expense_id: string }; Returns: undefined }
       unsettle_expense_split: {
         Args: { p_split_id: string }
         Returns: undefined
@@ -853,4 +854,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

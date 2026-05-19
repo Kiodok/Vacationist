@@ -163,8 +163,8 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 *Dependencies: Phases 3, 4a, 4b, 5a & 5b*
 *Goal: Collaborative, real-time expenses.*
 
-- [ ] **1. Realtime handling of expenses**
-- [ ] **2. Ensure alignment with Phase 5a & 5b functionalities & logic**
+- [x] **1. Realtime handling of expenses**
+- [x] **2. Ensure alignment with Phase 5a & 5b functionalities & logic**
 
 ---
 

@@ -585,3 +585,28 @@ Added vote tables and entity tables to Supabase Realtime publication for live vo
 - App foreground resume triggers resubscription + query invalidation for reconciliation
 
 **Local migration file:** `supabase/migrations/20260518000001_add_voting_realtime_publication.sql`
+
+---
+
+## 2026-05-19 — Phase 5c: Realtime Expenses
+
+### Migration: `20260519000001_add_expenses_realtime_publication.sql`
+
+Added expense tables to Supabase Realtime publication for live expense updates across all trip members.
+
+**Realtime publication additions:**
+- `public.expenses` — live INSERT/UPDATE events (create, edit, archive)
+- `public.expense_splits` — live INSERT/UPDATE/DELETE events (create, settle/unsettle, cascade from update RPC)
+
+**REPLICA IDENTITY changes:**
+- `public.expense_splits` → FULL (DELETE payloads include all columns, needed because `update_expense_with_splits` DELETEs and recreates splits — `expense_id` is needed for client-side trip filtering)
+
+**Architecture:**
+- One realtime channel per trip: `expenses:{tripId}:{uid}`
+- `expenses` events use server-side filter `trip_id=eq.{tripId}`
+- `expense_splits` events are unfiltered (no `trip_id` column) — client-side guard checks `expense_id` against cached trip expenses
+- Uses **debounced invalidation** (300ms) instead of surgical `setQueryData` because RPCs produce event bursts (e.g., `update_expense_with_splits` fires 1 UPDATE + N DELETEs + N INSERTs)
+- Invalidates `['trips', tripId, 'expenses']`, `['trips', tripId, 'balances']`, and specific `['expenses', expenseId, 'splits']`
+- Follows voting-style Pattern B: exponential backoff, status callbacks, AppState foreground resubscription
+
+**Local migration file:** `supabase/migrations/20260519000001_add_expenses_realtime_publication.sql`

@@ -4,6 +4,7 @@ import {
   createExpense,
   updateExpenseWithSplits,
   archiveExpense,
+  unarchiveExpense,
   getExpenseSplits,
   getTripBalances,
   settleExpenseSplit,
@@ -79,6 +80,23 @@ export function useArchiveExpense(tripId: string) {
     },
     onError: (error: Error) => {
       addToast('error', error.message || 'Failed to archive expense.');
+    },
+  });
+}
+
+export function useUnarchiveExpense(tripId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (expenseId: string) => unarchiveExpense(expenseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+      addToast('success', 'Expense restored');
+    },
+    onError: (error: Error) => {
+      addToast('error', error.message || 'Failed to restore expense.');
     },
   });
 }

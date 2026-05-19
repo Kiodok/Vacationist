@@ -4,7 +4,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
 import { formatCurrency, isExpenseFullySettled } from '@vacationist/utils';
-import { useExpenses, useCreateExpense, useArchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useTripBalances, useUpdateExpenseWithSplits } from '../../../src/features/expenses/hooks/useExpenses';
+import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useTripBalances, useUpdateExpenseWithSplits } from '../../../src/features/expenses/hooks/useExpenses';
+import { useExpensesRealtime } from '../../../src/features/expenses/hooks/useExpensesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
@@ -25,7 +26,9 @@ export default function ExpensesTab() {
   const { data: role } = useCurrentMemberRole(tripId!);
   const { data: balances = [] } = useTripBalances(tripId!);
   const createExpense = useCreateExpense(tripId!);
-  const archiveExpense = useArchiveExpense(tripId!);
+  const archiveExpenseMutation = useArchiveExpense(tripId!);
+  const unarchiveExpenseMutation = useUnarchiveExpense(tripId!);
+  useExpensesRealtime(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
   const [showSettlements, setShowSettlements] = useState(false);
@@ -48,7 +51,11 @@ export default function ExpensesTab() {
         completed.push(e);
       } else {
         active.push(e);
-        total += Number(e.amount);
+        for (const s of e.expense_splits) {
+          if (s.status === 'open' && s.user_id !== e.paid_by) {
+            total += Number(s.amount_owed);
+          }
+        }
       }
     }
     return { activeExpenses: active, completedExpenses: completed, archivedExpenses: archived, activeTotal: total };
@@ -92,6 +99,7 @@ export default function ExpensesTab() {
       ) : (
         <SectionList
           sections={sections}
+          extraData={activeTotal}
           keyExtractor={(item) => item.id}
           stickySectionHeadersEnabled={false}
           contentContainerClassName="px-md py-md"
@@ -141,7 +149,8 @@ export default function ExpensesTab() {
                 currentUserId={user?.id}
                 role={role}
                 currency={currency}
-                onArchive={() => archiveExpense.mutate(item.id)}
+                onArchive={() => archiveExpenseMutation.mutate(item.id)}
+                onUnarchive={() => unarchiveExpenseMutation.mutate(item.id)}
               />
             </View>
           )}
@@ -191,6 +200,7 @@ function ExpenseCardWithSplits({
   role,
   currency,
   onArchive,
+  onUnarchive,
 }: {
   expense: ExpenseWithSplits;
   tripId: string;
@@ -200,6 +210,7 @@ function ExpenseCardWithSplits({
   role: string | null | undefined;
   currency: import('@vacationist/types').Currency;
   onArchive: () => void;
+  onUnarchive: () => void;
 }) {
   const splits = expense.expense_splits;
   const updateExpense = useUpdateExpenseWithSplits(tripId);
@@ -212,7 +223,8 @@ function ExpenseCardWithSplits({
 
   const canEdit =
     !expense.archived_at && (role === 'organizer' || expense.created_by === currentUserId);
-  const canArchive =
+  const isArchived = !!expense.archived_at;
+  const canArchiveOrRestore =
     role === 'organizer' || expense.created_by === currentUserId;
   const canManage = role === 'organizer';
 
@@ -230,12 +242,19 @@ function ExpenseCardWithSplits({
       <View className="gap-sm mt-xs">
         {confirmingArchive ? (
           <View className="flex-row items-center gap-sm">
-            <Text className="text-text-secondary text-body-small">Archive this expense?</Text>
+            <Text className="text-text-secondary text-body-small">
+              {isArchived ? 'Restore this expense?' : 'Archive this expense?'}
+            </Text>
             <Pressable
-              onPress={() => { onArchive(); setConfirmingArchive(false); }}
-              className="px-sm py-xs rounded-sm bg-danger/20"
+              onPress={() => {
+                if (isArchived) { onUnarchive(); } else { onArchive(); }
+                setConfirmingArchive(false);
+              }}
+              className={`px-sm py-xs rounded-sm ${isArchived ? 'bg-success/20' : 'bg-danger/20'}`}
             >
-              <Text className="text-danger text-body-small font-semibold">Yes, archive</Text>
+              <Text className={`text-body-small font-semibold ${isArchived ? 'text-success' : 'text-danger'}`}>
+                {isArchived ? 'Yes, restore' : 'Yes, archive'}
+              </Text>
             </Pressable>
             <Pressable
               onPress={() => setConfirmingArchive(false)}
@@ -255,13 +274,19 @@ function ExpenseCardWithSplits({
                 <Text className="text-primary text-body-small font-medium">Edit</Text>
               </Pressable>
             )}
-            {canArchive && (
+            {canArchiveOrRestore && (
               <Pressable
                 onPress={() => setConfirmingArchive(true)}
-                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
+                className={`flex-row items-center gap-xs px-md py-sm rounded-sm ${isArchived ? 'bg-success/10' : 'bg-danger/10'}`}
               >
-                <Ionicons name="archive-outline" size={14} color="#FF5C5C" />
-                <Text className="text-danger text-body-small font-medium">Archive</Text>
+                <Ionicons
+                  name={isArchived ? 'arrow-undo-outline' : 'archive-outline'}
+                  size={14}
+                  color={isArchived ? '#3ECF8E' : '#FF5C5C'}
+                />
+                <Text className={`text-body-small font-medium ${isArchived ? 'text-success' : 'text-danger'}`}>
+                  {isArchived ? 'Restore' : 'Archive'}
+                </Text>
               </Pressable>
             )}
           </View>

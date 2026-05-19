@@ -26,8 +26,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/images/adaptive-icon.png',
       backgroundColor: '#ffffff',
     },
+    // @ts-expect-error — SDK 55 property, types not yet updated
     edgeToEdgeEnabled: true,
-    predictiveBackGestureEnabled: false,
     package: 'com.vacationist.mobile',
     googleServicesFile: './google-services.json',
   },

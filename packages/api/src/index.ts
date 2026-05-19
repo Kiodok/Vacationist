@@ -58,11 +58,15 @@ export {
   createExpense,
   updateExpenseWithSplits,
   archiveExpense,
+  unarchiveExpense,
   getExpenseSplits,
   getTripBalances,
   settleExpenseSplit,
   unsettleExpenseSplit,
+  subscribeToExpensesRealtime,
+  unsubscribeFromExpenses,
 } from './expenses';
+export type { ExpenseRealtimeCallbacks } from './expenses';
 
 export {
   getShoppingLists,
