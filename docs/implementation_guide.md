@@ -213,6 +213,8 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 - [ ] **3. Components & Screens**
   - [ ] Implement Notification Center slide-out/screen
   - [ ] Add notification preference toggles to Trip Settings
+  - [ ] Allow the organizer of a trip to trigger predefined playful/waggish random selected messages like
+        "Are you in favor of dictatorships? If not, live for democracy now!"
 
 ---
 
@@ -243,6 +245,34 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 - [ ] **3. DevOps**
   - [ ] Configure Expo EAS build profiles
   - [ ] Setup OTA updates
+
+## 🌐 Phase 11: Landing Page / Marketing Website (Web UI)
+*Dependencies: Phase 10*
+*Goal: Create a polished, responsive, mobile-first landing page for Vacationist.*
+
+- [ ] **1. Content**
+  - [ ] Explains the product clearly within seconds
+  - [ ] Showcases the core features visually
+  - [ ] Demonstrates the collaborative vacation planning workflow
+  - [ ] Allows users to immediately enter the web app
+  - [ ] Provides a QR code + Play Store/App Store links for mobile onboarding
+  - [ ] Establishes a modern product identity and trust
+  - [ ] SEO optimizations & metadata including robots file etc.
+- [ ] **2. It does NOT implement the actual web app itself, it focuses purely on**
+  - [ ] Marketing & product presentation
+  - [ ] Onboarding
+  - [ ] App distribution entry points
+- [ ] **3. Landing page feeling**
+  - [ ] Modern & lightweight
+  - [ ] Premium & fast
+  - [ ] Social & collaborative
+  - [ ] Travel-oriented
+- [ ] *4. Avoid the following*
+  - [ ] Enterprise/SaaS aesthetics
+  - [ ] Dark corporate UI
+  - [ ] AI buzzword marketing
+  - [ ] Feature overload
+  - [ ] Pricing sections (V1 has no monetization)
 
 ---
 
