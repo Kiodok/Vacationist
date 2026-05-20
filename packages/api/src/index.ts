@@ -34,8 +34,11 @@ export {
   removeActivityVote,
   subscribeToActivityVotingRealtime,
   unsubscribeFromActivityVoting,
+  getActivitiesForTrips,
+  subscribeToCalendarActivitiesRealtime,
+  unsubscribeFromCalendarActivities,
 } from './activities';
-export type { ActivityVotingRealtimeCallbacks } from './activities';
+export type { ActivityVotingRealtimeCallbacks, CalendarActivityRealtimeCallbacks } from './activities';
 
 export {
   getAccommodations,

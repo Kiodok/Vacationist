@@ -1,0 +1,54 @@
+import { Pressable, Text, View } from 'react-native';
+import type { MonthGridDay } from '@vacationist/types';
+
+interface MonthDayCellProps {
+  day: MonthGridDay;
+  isSelected: boolean;
+  cellSize: number;
+  onPress: (date: string) => void;
+}
+
+export function MonthDayCell({ day, isSelected, cellSize, onPress }: MonthDayCellProps) {
+  const textColor = isSelected
+    ? 'text-white'
+    : day.isCurrentMonth
+      ? 'text-text-primary'
+      : 'text-text-muted';
+
+  const bgClass = isSelected
+    ? 'bg-primary'
+    : day.isToday
+      ? 'border border-primary'
+      : '';
+
+  return (
+    <Pressable
+      onPress={() => onPress(day.date)}
+      style={({ pressed }) => ({
+        width: cellSize,
+        height: cellSize,
+        opacity: pressed ? 0.7 : 1,
+      })}
+      className="items-center justify-center"
+    >
+      <View className={`w-[36px] h-[36px] rounded-full items-center justify-center ${bgClass}`}>
+        <Text className={`text-body font-medium ${textColor}`}>
+          {day.dayNumber}
+        </Text>
+      </View>
+      <View
+        className={`w-[5px] h-[5px] rounded-full mt-xs ${
+          day.hasActivities
+            ? isSelected
+              ? 'bg-white'
+              : 'bg-primary'
+            : day.hasTripCoverage
+              ? isSelected
+                ? 'bg-white'
+                : 'bg-warning'
+              : 'bg-transparent'
+        }`}
+      />
+    </Pressable>
+  );
+}

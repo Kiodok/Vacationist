@@ -201,14 +201,14 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 *Dependencies: Phases 2 & 3*
 *Goal: Timezone-aware visual schedule.*
 
-- [ ] **1. Logic & Utils**
-  - [ ] Implement timezone resolution using trip configuration + `dayjs.tz`
-- [ ] **2. Services & Hooks**
-  - [ ] **Realtime Setup:** Implement Supabase Realtime channel subscription
-- [ ] **3. Components & Screens**
-  - [ ] Build visual Calendar primitives (Day blocks, event pills)
-  - [ ] Implement Trip Calendar Screen
-  - [ ] Implement Global Calendar Screen
+- [x] **1. Logic & Utils**
+  - [x] Implement timezone resolution using trip configuration + `dayjs.tz`
+- [x] **2. Services & Hooks**
+  - [x] **Realtime Setup:** Implement Supabase Realtime channel subscription
+- [x] **3. Components & Screens**
+  - [x] Build visual Calendar primitives (Day blocks, event pills)
+  - [x] Implement Trip Calendar Screen
+  - [x] Implement Global Calendar Screen
 
 ---
 

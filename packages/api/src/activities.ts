@@ -160,3 +160,55 @@ export function subscribeToActivityVotingRealtime(
 export function unsubscribeFromActivityVoting(channel: RealtimeChannel): void {
   supabase.removeChannel(channel);
 }
+
+export async function getActivitiesForTrips(tripIds: string[]): Promise<Activity[]> {
+  if (tripIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('activities')
+    .select('*')
+    .in('trip_id', tripIds)
+    .not('activity_date', 'is', null)
+    .order('activity_date', { ascending: true, nullsFirst: false })
+    .order('start_time', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as unknown as Activity[];
+}
+
+export interface CalendarActivityRealtimeCallbacks {
+  onActivityInsert: (activity: Activity) => void;
+  onActivityUpdate: (activity: Activity) => void;
+  onActivityDelete: (oldActivity: { id: string; trip_id: string }) => void;
+}
+
+export function subscribeToCalendarActivitiesRealtime(
+  tripId: string,
+  callbacks: CalendarActivityRealtimeCallbacks,
+  onStatus?: (status: string) => void,
+): RealtimeChannel {
+  const uid = Math.random().toString(36).slice(2, 8);
+  return supabase
+    .channel(`calendar-activities:${tripId}:${uid}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'activities', filter: `trip_id=eq.${tripId}` },
+      (payload) => callbacks.onActivityInsert(payload.new as unknown as Activity),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'activities', filter: `trip_id=eq.${tripId}` },
+      (payload) => callbacks.onActivityUpdate(payload.new as unknown as Activity),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'public', table: 'activities', filter: `trip_id=eq.${tripId}` },
+      (payload) => callbacks.onActivityDelete(payload.old as unknown as { id: string; trip_id: string }),
+    )
+    .subscribe((status) => onStatus?.(status));
+}
+
+export function unsubscribeFromCalendarActivities(channel: RealtimeChannel): void {
+  supabase.removeChannel(channel);
+}

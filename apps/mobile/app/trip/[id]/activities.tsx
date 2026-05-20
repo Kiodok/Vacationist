@@ -42,7 +42,7 @@ function sortByDate(a: Activity, b: Activity): number {
 }
 
 export default function ActivitiesTab() {
-  const { id: tripId } = useLocalSearchParams<{ id: string }>();
+  const { id: tripId, activityId } = useLocalSearchParams<{ id: string; activityId?: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
   const { data: activities, isLoading } = useActivities(tripId!);
@@ -139,7 +139,7 @@ export default function ActivitiesTab() {
               planned: { icon: 'calendar-outline', color: '#F2F2F2', textClass: 'text-text-primary' },
               completed: { icon: 'checkmark-done-outline', color: '#3ECF8E', textClass: 'text-success' },
             };
-            const cfg = config[section.key] ?? config.planned;
+            const cfg = config[section.key ?? 'planned'] ?? config.planned;
             return (
               <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
                 <Ionicons name={cfg.icon} size={16} color={cfg.color} />
@@ -159,6 +159,7 @@ export default function ActivitiesTab() {
                 tripId={tripId!}
                 currentUserId={user?.id}
                 role={role}
+                initialExpanded={item.id === activityId}
                 onEdit={() => setEditingActivity(item)}
                 onDelete={() => deleteActivity.mutate(item.id)}
                 onCloseVoting={() => closeVoting.mutate(item.id)}
@@ -207,6 +208,7 @@ function ActivityCardWithVotes({
   tripId,
   currentUserId,
   role,
+  initialExpanded,
   onEdit,
   onDelete,
   onCloseVoting,
@@ -216,6 +218,7 @@ function ActivityCardWithVotes({
   tripId: string;
   currentUserId: string | undefined;
   role: string | null | undefined;
+  initialExpanded?: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onCloseVoting: () => void;
@@ -225,7 +228,7 @@ function ActivityCardWithVotes({
   const castVote = useCastVote(tripId, activity.id);
   const removeVote = useRemoveVote(tripId, activity.id);
   const [showVoteSheet, setShowVoteSheet] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
+  const [showDetail, setShowDetail] = useState(initialExpanded ?? false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingCloseVoting, setConfirmingCloseVoting] = useState(false);
 

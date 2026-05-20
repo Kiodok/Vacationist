@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, ActivityVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
+import { StatusIndicator } from './StatusIndicator';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -33,31 +34,31 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
           <Text className="text-body text-text-primary font-semibold" numberOfLines={1}>
             {activity.title}
           </Text>
-          {activity.category && (
+          {activity.category ? (
             <Text className="text-body-small text-text-secondary capitalize">
               {activity.category}
             </Text>
-          )}
+          ) : null}
         </View>
         <StatusIndicator status={activity.status} votingOpen={activity.voting_open} />
       </View>
 
-      {activity.description && (
+      {activity.description ? (
         <Text className="text-body-small text-text-secondary" numberOfLines={2}>
           {activity.description}
         </Text>
-      )}
+      ) : null}
 
       <View className="flex-row flex-wrap items-center gap-sm">
-        {activity.activity_date && (
+        {activity.activity_date ? (
           <View className="flex-row items-center gap-xs">
             <Ionicons name="calendar-outline" size={14} color="#A0A0A0" />
             <Text className="text-body-small text-text-secondary">
               {dayjs(activity.activity_date).format('D MMM')}
             </Text>
           </View>
-        )}
-        {activity.start_time && (
+        ) : null}
+        {activity.start_time ? (
           <View className="flex-row items-center gap-xs">
             <Ionicons name="time-outline" size={14} color="#A0A0A0" />
             <Text className="text-body-small text-text-secondary">
@@ -65,7 +66,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
               {activity.end_time ? ` – ${activity.end_time.slice(0, 5)}` : ''}
             </Text>
           </View>
-        )}
+        ) : null}
         {activity.cost_estimate != null && (
           <View className="flex-row items-center gap-xs">
             <Ionicons name="wallet-outline" size={14} color="#A0A0A0" />
@@ -122,28 +123,3 @@ function getVoteBorderColor(votes: { vote: VoteType }[]): string {
 }
 
 
-function StatusIndicator({ status, votingOpen }: { status: string; votingOpen: boolean }) {
-  if (votingOpen) {
-    return (
-      <View className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10">
-        <View className="w-[6px] h-[6px] rounded-full bg-primary" />
-        <Text className="text-primary text-label font-medium">Voting</Text>
-      </View>
-    );
-  }
-
-  const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-    planned: { bg: 'bg-primary/10', text: 'text-primary', label: 'Planned' },
-    reserved: { bg: 'bg-success/10', text: 'text-success', label: 'Reserved' },
-    completed: { bg: 'bg-border/50', text: 'text-text-muted', label: 'Done' },
-    skipped: { bg: 'bg-warning/10', text: 'text-warning', label: 'Skipped' },
-  };
-
-  const cfg = statusConfig[status] ?? statusConfig.planned;
-
-  return (
-    <View className={`px-sm py-xs rounded-full ${cfg.bg}`}>
-      <Text className={`${cfg.text} text-label font-medium`}>{cfg.label}</Text>
-    </View>
-  );
-}

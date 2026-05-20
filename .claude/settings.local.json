@@ -63,7 +63,9 @@
       "Bash(findstr /V \"Matched by\")",
       "Bash(findstr /V \"^$\")",
       "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -notmatch 'TS6305|The file is in the program|Matched by default' } | Select-Object -First 20)",
-      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -notmatch 'TS6305|The file is in the program|Matched by default' } | Select-Object -First 20)"
+      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -notmatch 'TS6305|The file is in the program|Matched by default' } | Select-Object -First 20)",
+      "PowerShell(head *)",
+      "Bash(xargs grep -l *)"
     ]
   },
   "enableAllProjectMcpServers": true,
