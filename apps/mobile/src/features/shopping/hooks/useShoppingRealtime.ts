@@ -1,7 +1,11 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
-import { subscribeToShoppingItems, unsubscribeFromShoppingItems } from '@vacationist/api';
+import {
+  subscribeToShoppingItems,
+  subscribeToShoppingSync,
+  unsubscribeFromShoppingItems,
+} from '@vacationist/api';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { ShoppingItem } from '@vacationist/types';
 
@@ -10,6 +14,7 @@ const RECONNECT_DELAY_MS = 3000;
 export function useShoppingRealtime(listId: string) {
   const queryClient = useQueryClient();
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const syncChannelRef = useRef<RealtimeChannel | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const queryKey = ['shopping-lists', listId, 'items'];
@@ -18,6 +23,10 @@ export function useShoppingRealtime(listId: string) {
     if (channelRef.current) {
       unsubscribeFromShoppingItems(channelRef.current);
       channelRef.current = null;
+    }
+    if (syncChannelRef.current) {
+      unsubscribeFromShoppingItems(syncChannelRef.current);
+      syncChannelRef.current = null;
     }
     if (reconnectTimerRef.current) {
       clearTimeout(reconnectTimerRef.current);
@@ -55,6 +64,13 @@ export function useShoppingRealtime(listId: string) {
     });
 
     channelRef.current = channel;
+
+    const syncChannel = subscribeToShoppingSync(listId, (ids) => {
+      queryClient.setQueryData<ShoppingItem[]>(queryKey, (old) =>
+        old?.filter((i) => !ids.includes(i.id)),
+      );
+    });
+    syncChannelRef.current = syncChannel;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listId, queryClient, cleanup]);
 

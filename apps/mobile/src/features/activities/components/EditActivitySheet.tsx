@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { View, Text, Pressable, Modal, TextInput, ScrollView } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, ACTIVITY_CATEGORIES } from '@vacationist/types';
@@ -46,6 +46,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
       <View className="flex-1 justify-end">
         <Pressable
           className="absolute inset-0 bg-background/80"
@@ -259,6 +260,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
           </ScrollView>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

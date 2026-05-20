@@ -189,6 +189,7 @@ export interface ShoppingItem {
   position: number;
   status: ShoppingItemStatus;
   source_recipe_id: string | null;
+  source_ingredient_id: string | null;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -202,6 +203,8 @@ export interface Recipe {
   description: string | null;
   servings: number;
   created_by: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface RecipeIngredient {
@@ -210,6 +213,12 @@ export interface RecipeIngredient {
   title: string;
   quantity: number | null;
   unit: string | null;
+  sort_order: number;
+}
+
+export interface RecipeWithIngredients extends Recipe {
+  recipe_ingredients: RecipeIngredient[];
+  ingredient_count: number;
 }
 
 export interface Notification {

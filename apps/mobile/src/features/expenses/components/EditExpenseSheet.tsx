@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
@@ -136,6 +136,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
       <View className="flex-1 justify-end">
         <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
         <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[85%]">
@@ -357,6 +358,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
           </ScrollView>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

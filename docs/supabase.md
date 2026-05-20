@@ -610,3 +610,50 @@ Added expense tables to Supabase Realtime publication for live expense updates a
 - Follows voting-style Pattern B: exponential backoff, status callbacks, AppState foreground resubscription
 
 **Local migration file:** `supabase/migrations/20260519000001_add_expenses_realtime_publication.sql`
+
+---
+
+## 2026-05-19 — Phase 6: Recipes & Ingredients
+
+### Migration: `20260519100000_create_recipes_and_ingredients.sql`
+
+**Tables:**
+- `public.recipes` — Recipe management per trip (hard delete), with title, description, servings
+- `public.recipe_ingredients` — Ingredients per recipe (hard delete via CASCADE), with quantity, unit, sort_order
+
+**RLS Policies:**
+- `recipes`: SELECT by trip members, INSERT by trip members (created_by = self), UPDATE by organizer or creator
+- `recipe_ingredients`: SELECT/INSERT by trip members (via recipes join), UPDATE/DELETE by organizer or recipe creator
+
+**Triggers:**
+- `recipes_updated_at` — auto-updates `updated_at` on UPDATE (reuses `set_updated_at()`)
+- `on_recipe_update_restrict` — prevents guests from editing recipes; prevents anyone from changing `trip_id` or `created_by`
+
+**Functions:**
+- `public.delete_recipe(p_recipe_id UUID)` — SECURITY DEFINER: organizer or recipe creator can hard-delete (cascades ingredients)
+
+**FK Constraints:**
+- `fk_shopping_items_source_recipe` on `shopping_items.source_recipe_id` → `recipes(id) ON DELETE SET NULL`
+- `fk_shopping_items_source_ingredient` on `shopping_items.source_ingredient_id` → `recipe_ingredients(id) ON DELETE SET NULL`
+
+**Columns added to shopping_items:**
+- `source_ingredient_id UUID DEFAULT NULL` — tracks which recipe ingredient each shopping item was created from. Enables auto-propagation of ingredient add/update/delete to linked shopping lists. Only set on directly-created items (not merged duplicates).
+
+**Indexes:**
+- `idx_recipes_trip_id` on `recipes(trip_id)`
+- `idx_recipe_ingredients_recipe_id` on `recipe_ingredients(recipe_id)`
+- `idx_shopping_items_source_ingredient_id` on `shopping_items(source_ingredient_id) WHERE source_ingredient_id IS NOT NULL`
+
+**Supabase Realtime:**
+- `recipes` table added to `supabase_realtime` publication for live recipe CRUD updates
+- `recipe_ingredients` table added to `supabase_realtime` publication for live ingredient changes (migration: `20260520100000_enable_realtime_recipe_ingredients.sql`)
+
+**Functions:**
+- `get_recipe_linked_lists(p_recipe_id UUID) RETURNS TABLE(shopping_list_id UUID)` — SECURITY DEFINER function that returns all distinct shopping list IDs a recipe has been added to, including lists where all items have been soft-deleted. Bypasses RLS to see soft-deleted rows that the SELECT policy would otherwise hide.
+
+**Local migration files:**
+- `supabase/migrations/20260519100000_create_recipes_and_ingredients.sql`
+- `supabase/migrations/20260520100000_enable_realtime_recipe_ingredients.sql`
+- `supabase/migrations/20260520110000_add_source_ingredient_id_to_shopping_items.sql`
+- `supabase/migrations/20260520120000_fix_shopping_items_update_rls_for_soft_delete.sql` — removed `deleted_at IS NULL` from `WITH CHECK` clause of `shopping_items_update_member` policy so that direct soft-deletes via UPDATE work (needed for recipe ingredient propagation)
+- `supabase/migrations/20260520130000_add_get_recipe_linked_lists_fn.sql` — SECURITY DEFINER function to find linked shopping lists even when all items are soft-deleted

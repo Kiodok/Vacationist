@@ -1349,8 +1349,8 @@ Create recipe
 # IMPORTANT
 
 Shopping items must:
-- remain editable
-- work independently from recipes
+- remain editable by the user
+- auto-sync with their source recipe ingredient when it changes
 
 ---
 
@@ -1367,18 +1367,29 @@ Two items are considered duplicates if their `title` matches case-insensitively 
 - The existing item's `quantity` is incremented by the recipe ingredient's quantity
 - The existing item retains its current `status`
 - The existing item gains the `source_recipe_id` reference only if it did not already have one
+- Merged items do NOT get `source_ingredient_id` set (they are detached from auto-sync)
 - A toast is shown: "3 items merged with existing list entries"
 
 **If no match is found:**
-- A new `shopping_item` is created with `source_recipe_id` set to the recipe's id
+- A new `shopping_item` is created with `source_recipe_id` and `source_ingredient_id` set
 
-### Manual Override
-After any recipe-generated merge, the user can manually edit quantities or split merged items. These edits are independent and not recalculated if the recipe is modified later.
+### Auto-Propagation of Ingredient Changes
+
+When a recipe has been added to one or more shopping lists, subsequent ingredient changes propagate automatically:
+
+- **Ingredient added:** A new shopping item is created in every linked shopping list. The quantity is scaled using the same ratio that was used when the recipe was first added (derived from existing linked items).
+- **Ingredient updated (title, quantity, unit):** All shopping items linked via `source_ingredient_id` are updated with the new values (quantity is scaled).
+- **Ingredient deleted:** All shopping items linked via `source_ingredient_id` are soft-deleted (`deleted_at` is set).
+
+The scale factor is derived at propagation time by comparing a linked shopping item's quantity to its source ingredient's quantity. If no scalable pair exists, scale defaults to 1.
+
+Merged items (those without `source_ingredient_id`) are NOT affected by auto-propagation and can be freely edited.
 
 ### Recipe Deletion
 If a recipe is deleted:
 - Its ingredients are NOT removed from the shopping list
 - Items with `source_recipe_id` referencing the deleted recipe have that field set to `NULL` (`ON DELETE SET NULL`)
+- Items with `source_ingredient_id` referencing deleted ingredients have that field set to `NULL` (`ON DELETE SET NULL`)
 - This ensures shopping list continuity even after recipe removal
 
 ---

@@ -208,3 +208,44 @@ export function subscribeToShoppingItemChanges(
 export function unsubscribeFromShoppingItems(channel: RealtimeChannel): void {
   supabase.removeChannel(channel);
 }
+
+export function subscribeToShoppingSync(
+  listId: string,
+  onItemsRemoved: (ids: string[]) => void,
+): RealtimeChannel {
+  return supabase
+    .channel(`shopping-sync:${listId}`)
+    .on('broadcast', { event: 'items-removed' }, ({ payload }) => {
+      onItemsRemoved(payload.ids);
+    })
+    .subscribe();
+}
+
+export async function broadcastShoppingItemsRemoved(
+  listId: string,
+  itemIds: string[],
+): Promise<void> {
+  try {
+    const channel = supabase.channel(`shopping-sync:${listId}`);
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        supabase.removeChannel(channel);
+        reject(new Error('timeout'));
+      }, 5000);
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          clearTimeout(timeout);
+          resolve();
+        }
+      });
+    });
+    await channel.send({
+      type: 'broadcast',
+      event: 'items-removed',
+      payload: { ids: itemIds },
+    });
+    supabase.removeChannel(channel);
+  } catch {
+    // Best-effort — clients will see the change on next refetch
+  }
+}

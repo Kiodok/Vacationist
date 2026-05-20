@@ -26,7 +26,11 @@ export function useCreateShoppingItem(tripId: string, listId: string) {
     onSuccess: (newItem) => {
       queryClient.setQueryData<ShoppingItem[]>(
         ['shopping-lists', listId, 'items'],
-        (old) => (old ? [...old, newItem] : [newItem]),
+        (old) => {
+          if (!old) return [newItem];
+          if (old.some((i) => i.id === newItem.id)) return old;
+          return [...old, newItem];
+        },
       );
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
     },

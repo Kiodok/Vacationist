@@ -145,8 +145,8 @@ export default function ShoppingListDetail() {
 
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={0}
+        behavior="padding"
+        keyboardVerticalOffset={Platform.OS === 'android' ? 80 : 0}
       >
         {isLoading ? (
           <View className="flex-1 items-center justify-center">

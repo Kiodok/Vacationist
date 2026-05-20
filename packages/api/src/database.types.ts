@@ -406,6 +406,89 @@ export type Database = {
           },
         ]
       }
+      recipe_ingredients: {
+        Row: {
+          id: string
+          quantity: number | null
+          recipe_id: string
+          sort_order: number
+          title: string
+          unit: string | null
+        }
+        Insert: {
+          id?: string
+          quantity?: number | null
+          recipe_id: string
+          sort_order?: number
+          title: string
+          unit?: string | null
+        }
+        Update: {
+          id?: string
+          quantity?: number | null
+          recipe_id?: string
+          sort_order?: number
+          title?: string
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_ingredients_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipes: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          servings: number
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          servings?: number
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          servings?: number
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipes_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shopping_items: {
         Row: {
           created_at: string
@@ -416,6 +499,7 @@ export type Database = {
           position: number
           quantity: number | null
           shopping_list_id: string
+          source_ingredient_id: string | null
           source_recipe_id: string | null
           status: string
           title: string
@@ -431,6 +515,7 @@ export type Database = {
           position?: number
           quantity?: number | null
           shopping_list_id: string
+          source_ingredient_id?: string | null
           source_recipe_id?: string | null
           status?: string
           title: string
@@ -446,6 +531,7 @@ export type Database = {
           position?: number
           quantity?: number | null
           shopping_list_id?: string
+          source_ingredient_id?: string | null
           source_recipe_id?: string | null
           status?: string
           title?: string
@@ -453,6 +539,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_shopping_items_source_ingredient"
+            columns: ["source_ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "recipe_ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_shopping_items_source_recipe"
+            columns: ["source_recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shopping_items_created_by_fkey"
             columns: ["created_by"]
@@ -673,7 +773,12 @@ export type Database = {
         }
         Returns: string
       }
+      delete_recipe: { Args: { p_recipe_id: string }; Returns: undefined }
       delete_shopping_list: { Args: { p_list_id: string }; Returns: undefined }
+      get_recipe_linked_lists: {
+        Args: { p_recipe_id: string }
+        Returns: { shopping_list_id: string }[]
+      }
       get_trip_balances: {
         Args: { p_trip_id: string }
         Returns: {

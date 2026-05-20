@@ -82,5 +82,25 @@ export {
   subscribeToShoppingItems,
   subscribeToShoppingItemChanges,
   unsubscribeFromShoppingItems,
+  subscribeToShoppingSync,
+  broadcastShoppingItemsRemoved,
 } from './shopping';
 export type { ShoppingRealtimeCallbacks } from './shopping';
+
+export {
+  getRecipes,
+  getRecipe,
+  createRecipe,
+  updateRecipe,
+  deleteRecipe,
+  addIngredient,
+  updateIngredient,
+  deleteIngredient,
+  getRecipeShoppingStatus,
+  addRecipeToShoppingList,
+  subscribeToRecipesRealtime,
+  unsubscribeFromRecipes,
+  subscribeToIngredientsRealtime,
+  unsubscribeFromIngredients,
+} from './recipes';
+export type { RecipeRealtimeCallbacks, IngredientRealtimeCallbacks, RecipeShoppingListInfo } from './recipes';

@@ -202,6 +202,38 @@ export const updateShoppingItemSchema = z.object({
 export type CreateShoppingItemInput = z.infer<typeof createShoppingItemSchema>;
 export type UpdateShoppingItemInput = z.infer<typeof updateShoppingItemSchema>;
 
+// --- Recipe schemas ---
+
+export const createRecipeSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().max(1000).nullable().optional(),
+  servings: z.number().int().positive(),
+});
+
+export const updateRecipeSchema = z.object({
+  title: z.string().min(1).max(100).optional(),
+  description: z.string().max(1000).nullable().optional(),
+  servings: z.number().int().positive().optional(),
+});
+
+export const createRecipeIngredientSchema = z.object({
+  title: z.string().min(1).max(100),
+  quantity: z.number().nonnegative().nullable().optional(),
+  unit: z.string().max(50).nullable().optional(),
+});
+
+export const updateRecipeIngredientSchema = z.object({
+  title: z.string().min(1).max(100).optional(),
+  quantity: z.number().nonnegative().nullable().optional(),
+  unit: z.string().max(50).nullable().optional(),
+  sort_order: z.number().int().nonnegative().optional(),
+});
+
+export type CreateRecipeInput = z.infer<typeof createRecipeSchema>;
+export type UpdateRecipeInput = z.infer<typeof updateRecipeSchema>;
+export type CreateRecipeIngredientInput = z.infer<typeof createRecipeIngredientSchema>;
+export type UpdateRecipeIngredientInput = z.infer<typeof updateRecipeIngredientSchema>;
+
 // --- Invite schemas ---
 
 const INVITE_EXPIRY = ['1h', '24h', '7d'] as const;

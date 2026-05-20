@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Modal, TextInput, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createShoppingListSchema, type CreateShoppingListInput } from '@vacationist/types';
@@ -28,6 +28,7 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
       <View className="flex-1 justify-end">
         <Pressable
           className="absolute inset-0 bg-background/80"
@@ -82,6 +83,7 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
           </View>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

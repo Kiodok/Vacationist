@@ -11,6 +11,18 @@ When working through this document, Claude must act as a **Senior Fullstack Engi
 
 ---
 
+## 💡 How to Prompt Claude with this Checklist
+
+When you are ready to start a task, copy the specific sub-item and format your prompt like this:
+
+> **Role:** You are the senior engineer for Vacationist.
+> **Context:** React Native, Expo Router, Supabase, TanStack Query, Zustand, NativeWind. Read `software_engineering_guide.md` for standards.
+> **Task:** We are on Phase X, Step Y: [Insert Checkbox Task Here].
+> **Requirements:** [List specific constraints from the guide]
+> **Deliverables:** Provide the exact code for this layer only. Do not build the frontend yet.
+
+---
+
 ## 🛠️ Phase 0: Infrastructure Foundation
 *Goal: Set up the monorepo, tooling, and core utilities before writing any product features.*
 
@@ -172,16 +184,16 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 *Dependencies: Phase 5a, 5b & 5c*
 *Goal: Recipe management that pipes directly into shopping lists.*
 
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `recipes` and `recipe_ingredients` tables + RLS
-- [ ] **2. Services & Hooks**
-  - [ ] Implement Recipe CRUD services
-  - [ ] Implement Ingredient-to-Shopping-Item sync logic (Duplicate merging logic)
-  - [ ] **Realtime Setup:** Implement Supabase Realtime channel subscription
-  - [ ] Create Recipe query hooks
-- [ ] **3. Components & Screens**
-  - [ ] Implement Recipe List and Detail screens
-  - [ ] Implement "Add to Shopping List" action flow
+- [x] **1. DB/RLS & Types**
+  - [x] Create `recipes` and `recipe_ingredients` tables + RLS
+- [x] **2. Services & Hooks**
+  - [x] Implement Recipe CRUD services
+  - [x] Implement Ingredient-to-Shopping-Item sync logic (Duplicate merging logic)
+  - [x] **Realtime Setup:** Implement Supabase Realtime channel subscription
+  - [x] Create Recipe query hooks
+- [x] **3. Components & Screens**
+  - [x] Implement Recipe List and Detail screens
+  - [x] Implement "Add to Shopping List" action flow
 
 ---
 
@@ -273,15 +285,3 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [ ] AI buzzword marketing
   - [ ] Feature overload
   - [ ] Pricing sections (V1 has no monetization)
-
----
-
-## 💡 How to Prompt Claude with this Checklist
-
-When you are ready to start a task, copy the specific sub-item and format your prompt like this:
-
-> **Role:** You are the senior engineer for Vacationist.
-> **Context:** React Native, Expo Router, Supabase, TanStack Query, Zustand, NativeWind. Read `software_engineering_guide.md` for standards.
-> **Task:** We are on Phase X, Step Y: [Insert Checkbox Task Here].
-> **Requirements:** [List specific constraints from the guide]
-> **Deliverables:** Provide the exact code for this layer only. Do not build the frontend yet.
