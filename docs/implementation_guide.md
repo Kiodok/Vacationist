@@ -226,7 +226,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [ ] Implement Notification Center slide-out/screen
   - [ ] Add notification preference toggles to Trip Settings
   - [ ] Allow the organizer of a trip to trigger predefined playful/waggish random selected messages like
-        "Are you in favor of dictatorships? If not, live for democracy now!"
+        "Are you in favor of dictatorships? If not, live for democracy now!" or "Three hot women nearby already voted, now its your turn!"
 
 ---
 
