@@ -18,7 +18,7 @@ import RecipesTab from './recipes';
 import SettingsTab from './settings';
 import CalendarTab from './calendar';
 
-const TABS = ['Overview', 'Places', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Settings'] as const;
+const TABS = ['Overview', 'Base', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
 
 function getInitialTab(paramTab?: string): Tab {
@@ -84,7 +84,7 @@ export default function TripDetailLayout() {
         return <CalendarTab />;
       case 'Activities':
         return <ActivitiesTab />;
-      case 'Places':
+      case 'Base':
         return <AccommodationsTab />;
       case 'Expenses':
         return <ExpensesTab />;

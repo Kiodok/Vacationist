@@ -1,4 +1,4 @@
-import { View, useWindowDimensions } from 'react-native';
+import { View, Platform } from 'react-native';
 import { useMemo } from 'react';
 import type { MonthGridData } from '@vacationist/types';
 import { MonthHeader } from './MonthHeader';
@@ -16,6 +16,7 @@ interface MonthGridProps {
 }
 
 const HORIZONTAL_PADDING = 16;
+const MAX_CALENDAR_WIDTH = 600;
 
 export function MonthGrid({
   monthGrid,
@@ -26,16 +27,16 @@ export function MonthGrid({
   onTodayPress,
   onBackToYear,
 }: MonthGridProps) {
-  const { width } = useWindowDimensions();
-  const cellSize = (width - HORIZONTAL_PADDING * 2) / 7;
-
   const isCurrentMonth = useMemo(() => {
     const now = new Date();
     return monthGrid.year === now.getFullYear() && monthGrid.month === now.getMonth();
   }, [monthGrid.year, monthGrid.month]);
 
   return (
-    <View className="bg-surface border-b border-border pb-sm">
+    <View
+      className="bg-surface border-b border-border pb-sm"
+      style={Platform.OS === 'web' ? { maxWidth: MAX_CALENDAR_WIDTH, width: '100%', alignSelf: 'center' } : undefined}
+    >
       <MonthHeader
         label={monthGrid.label}
         showTodayButton={!isCurrentMonth}
@@ -46,15 +47,14 @@ export function MonthGrid({
         onBackPress={onBackToYear}
       />
       <View style={{ paddingHorizontal: HORIZONTAL_PADDING }}>
-        <WeekdayHeader cellSize={cellSize} />
+        <WeekdayHeader />
         {monthGrid.weeks.map((week, weekIdx) => (
-          <View key={weekIdx} className="flex-row">
+          <View key={weekIdx} style={{ flexDirection: 'row' }}>
             {week.map((day) => (
               <MonthDayCell
                 key={day.date}
                 day={day}
                 isSelected={day.date === selectedDate}
-                cellSize={cellSize}
                 onPress={onSelectDate}
               />
             ))}

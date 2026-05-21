@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getShoppingItems,
+  getAllShoppingItemsForTrip,
   createShoppingItem,
   updateShoppingItem,
   softDeleteShoppingItem,
@@ -14,6 +15,15 @@ export function useShoppingItems(listId: string) {
     queryFn: () => getShoppingItems(listId),
     retry: 2,
     enabled: !!listId,
+  });
+}
+
+export function useAllTripShoppingItems(tripId: string) {
+  return useQuery({
+    queryKey: ['trips', tripId, 'all-shopping-items'],
+    queryFn: () => getAllShoppingItemsForTrip(tripId),
+    retry: 2,
+    enabled: !!tripId,
   });
 }
 
@@ -70,6 +80,23 @@ export function useUpdateShoppingItem(tripId: string, listId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
+    },
+  });
+}
+
+export function useUpdateShoppingItemGlobal(tripId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: ({ itemId, input }: { itemId: string; input: UpdateShoppingItemInput }) =>
+      updateShoppingItem(itemId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
+    },
+    onError: () => {
+      addToast('error', 'Failed to update item.');
     },
   });
 }

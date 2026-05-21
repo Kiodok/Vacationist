@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator, Linking } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
-import { useActivityVotes, useCastVote, useRemoveVote } from '../../../src/features/activities/hooks/useVotes';
+import { useActivityVotes, useCastVote, useRemoveVote, useActivityVotesBatch } from '../../../src/features/activities/hooks/useVotes';
 import { useActivityVotesRealtime } from '../../../src/features/activities/hooks/useActivityVotesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -47,6 +47,16 @@ export default function ActivitiesTab() {
   const { data: trip } = useTrip(tripId!);
   const { data: activities, isLoading } = useActivities(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
+  const allActivityIds = useMemo(() => (activities ?? []).map((a) => a.id), [activities]);
+  const { data: allVotes } = useActivityVotesBatch(allActivityIds);
+  const blockedActivityIds = useMemo(() => {
+    if (!allVotes) return new Set<string>();
+    const blocked = new Set<string>();
+    for (const v of allVotes) {
+      if (v.vote === 'group_blocker') blocked.add(v.activity_id);
+    }
+    return blocked;
+  }, [allVotes]);
   const createActivity = useCreateActivity(tripId!);
   const updateActivityMutation = useUpdateActivity(tripId!);
   const deleteActivity = useDeleteActivity(tripId!);
@@ -57,9 +67,10 @@ export default function ActivitiesTab() {
   const [showCreate, setShowCreate] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
 
-  const { inPlanningList, plannedList, ongoingList, completedList } = useMemo(() => {
+  const { inPlanningList, plannedList, blockedList, ongoingList, completedList } = useMemo(() => {
     const inPlanning: Activity[] = [];
     const planned: Activity[] = [];
+    const blocked: Activity[] = [];
     const ongoing: Activity[] = [];
     const completed: Activity[] = [];
     for (const a of activities ?? []) {
@@ -69,16 +80,19 @@ export default function ActivitiesTab() {
         ongoing.push(a);
       } else if (a.voting_open) {
         inPlanning.push(a);
+      } else if (blockedActivityIds.has(a.id)) {
+        blocked.push(a);
       } else {
         planned.push(a);
       }
     }
     inPlanning.sort(sortByDate);
     planned.sort(sortByDate);
+    blocked.sort(sortByDate);
     ongoing.sort(sortByDate);
     completed.sort(sortByDate);
-    return { inPlanningList: inPlanning, plannedList: planned, ongoingList: ongoing, completedList: completed };
-  }, [activities]);
+    return { inPlanningList: inPlanning, plannedList: planned, blockedList: blocked, ongoingList: ongoing, completedList: completed };
+  }, [activities, blockedActivityIds]);
 
   const sections = useMemo(() => {
     const result: { key: string; title: string; data: Activity[] }[] = [];
@@ -91,11 +105,30 @@ export default function ActivitiesTab() {
     if (plannedList.length > 0) {
       result.push({ key: 'planned', title: 'Planned', data: plannedList });
     }
+    if (blockedList.length > 0) {
+      result.push({ key: 'blocked', title: 'Blocked', data: blockedList });
+    }
     if (completedList.length > 0) {
       result.push({ key: 'completed', title: 'Completed', data: completedList });
     }
     return result;
-  }, [ongoingList, inPlanningList, plannedList, completedList]);
+  }, [ongoingList, inPlanningList, plannedList, blockedList, completedList]);
+
+  const sectionListRef = useRef<SectionList>(null);
+
+  useEffect(() => {
+    if (!activityId || sections.length === 0) return;
+    const timer = setTimeout(() => {
+      for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+        const itemIndex = sections[sectionIndex].data.findIndex((a) => a.id === activityId);
+        if (itemIndex >= 0) {
+          sectionListRef.current?.scrollToLocation({ sectionIndex, itemIndex, animated: true, viewOffset: 80 });
+          break;
+        }
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [activityId, sections]);
 
   const handleCreate = (input: CreateActivityInput) => {
     createActivity.mutate(input, { onSuccess: () => setShowCreate(false) });
@@ -127,6 +160,7 @@ export default function ActivitiesTab() {
         </View>
       ) : (
         <SectionList
+          ref={sectionListRef}
           sections={sections}
           keyExtractor={(item) => item.id}
           removeClippedSubviews={false}
@@ -137,6 +171,7 @@ export default function ActivitiesTab() {
               ongoing: { icon: 'play-circle-outline', color: '#F5A623', textClass: 'text-warning' },
               in_planning: { icon: 'compass-outline', color: '#6C63FF', textClass: 'text-primary' },
               planned: { icon: 'calendar-outline', color: '#F2F2F2', textClass: 'text-text-primary' },
+              blocked: { icon: 'ban-outline', color: '#FF5C5C', textClass: 'text-danger' },
               completed: { icon: 'checkmark-done-outline', color: '#3ECF8E', textClass: 'text-success' },
             };
             const cfg = config[section.key ?? 'planned'] ?? config.planned;
@@ -160,6 +195,7 @@ export default function ActivitiesTab() {
                 currentUserId={user?.id}
                 role={role}
                 initialExpanded={item.id === activityId}
+                isBlocked={blockedActivityIds.has(item.id)}
                 onEdit={() => setEditingActivity(item)}
                 onDelete={() => deleteActivity.mutate(item.id)}
                 onCloseVoting={() => closeVoting.mutate(item.id)}
@@ -209,6 +245,7 @@ function ActivityCardWithVotes({
   currentUserId,
   role,
   initialExpanded,
+  isBlocked,
   onEdit,
   onDelete,
   onCloseVoting,
@@ -219,6 +256,7 @@ function ActivityCardWithVotes({
   currentUserId: string | undefined;
   role: string | null | undefined;
   initialExpanded?: boolean;
+  isBlocked: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onCloseVoting: () => void;
@@ -370,6 +408,8 @@ function ActivityCardWithVotes({
         onPress={() => setShowDetail(!showDetail)}
         onVotePress={() => setShowVoteSheet(true)}
         detail={detailContent}
+        displayStatus={isBlocked ? 'blocked' : undefined}
+        highlight={initialExpanded}
       />
 
       <VoteSheet

@@ -245,7 +245,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
 ## ✨ Phase 10: Polish & Hardening
 *Dependencies: All previous phases*
-*Goal: Production readiness.*
+*Goal: Production & legal readiness; Google Play Store.*
 
 - [ ] **1. UI/UX Polish**
   - [ ] Implement Skeleton Screens (`TripListSkeleton`, `ActivityListSkeleton`, etc.)
@@ -257,6 +257,16 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 - [ ] **3. DevOps**
   - [ ] Configure Expo EAS build profiles
   - [ ] Setup OTA updates
+  - [ ] Production database etc.
+- [ ] *4. Third-party style guidelines*
+  - [ ] Sign in with Google Branding IMPORTANT
+  - [ ] Scan the code base for other relevant guidelines and fullfil them
+- [ ] *5. Prepare Google Play Store release*
+  - [ ] Technical details like Target API Level, Production Build & more
+  - [ ] Google Play Console Assets like the app icon etc.
+  - [ ] Compliance & Policy
+  - [ ] Release Strategy
+  - [ ] Expo-Specific Deployment like a Service Account or Automated Submission
 
 ## 🌐 Phase 11: Landing Page / Marketing Website (Web UI)
 *Dependencies: Phase 10*
@@ -268,6 +278,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [ ] Demonstrates the collaborative vacation planning workflow
   - [ ] Allows users to immediately enter the web app
   - [ ] Provides a QR code + Play Store/App Store links for mobile onboarding
+  - [ ] Switzerland policies and impressum for a private person (Nebererwerbstätigkeit) ask me for details like name etc.
   - [ ] Establishes a modern product identity and trust
   - [ ] SEO optimizations & metadata including robots file etc.
 - [ ] **2. It does NOT implement the actual web app itself, it focuses purely on**

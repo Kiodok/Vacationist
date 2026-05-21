@@ -6,12 +6,13 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ShoppingItem, UpdateShoppingItemInput } from '@vacationist/types';
 import { useShoppingItems, useCreateShoppingItem, useUpdateShoppingItem, useDeleteShoppingItem } from '../../../src/features/shopping/hooks/useShoppingItems';
 import { useShoppingRealtime } from '../../../src/features/shopping/hooks/useShoppingRealtime';
-import { useShoppingLists, useDeleteShoppingList, useArchiveShoppingList, useUnarchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
+import { useShoppingLists, useUpdateShoppingList, useDeleteShoppingList, useArchiveShoppingList, useUnarchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
 import { ShoppingItemRow } from '../../../src/features/shopping/components/ShoppingItemRow';
 import { AddShoppingItemInput } from '../../../src/features/shopping/components/AddShoppingItemInput';
 import { EditShoppingItemSheet } from '../../../src/features/shopping/components/EditShoppingItemSheet';
+import { EditShoppingListSheet } from '../../../src/features/shopping/components/EditShoppingListSheet';
 
 export default function ShoppingListDetail() {
   const { listId, tripId } = useLocalSearchParams<{ listId: string; tripId: string }>();
@@ -40,7 +41,9 @@ export default function ShoppingListDetail() {
 
   useShoppingRealtime(listId!);
 
+  const updateList = useUpdateShoppingList(tripId!);
   const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
+  const [showEditList, setShowEditList] = useState(false);
   const [confirmDeleteList, setConfirmDeleteList] = useState(false);
 
   const isArchived = !!list?.archived_at;
@@ -94,6 +97,13 @@ export default function ShoppingListDetail() {
         </View>
         {canManageList && (
           <View className="flex-row items-center gap-xs">
+            <Pressable
+              onPress={() => setShowEditList(true)}
+              className="p-xs"
+              style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
+            >
+              <Ionicons name="create-outline" size={20} color="#6C63FF" />
+            </Pressable>
             {isArchived ? (
               <Pressable
                 onPress={() => unarchiveList.mutate(listId!)}
@@ -194,6 +204,19 @@ export default function ShoppingListDetail() {
           canDelete={canDeleteItem(editingItem)}
         />
       )}
+
+      <EditShoppingListSheet
+        visible={showEditList}
+        onClose={() => setShowEditList(false)}
+        onSubmit={(input) => {
+          updateList.mutate(
+            { listId: listId!, input },
+            { onSuccess: () => setShowEditList(false) },
+          );
+        }}
+        isPending={updateList.isPending}
+        currentTitle={list?.title ?? ''}
+      />
     </SafeAreaView>
   );
 }

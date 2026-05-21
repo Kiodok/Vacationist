@@ -10,6 +10,7 @@ interface AgendaListProps {
   timezone: SupportedTimezone;
   selectedDate: string;
   onActivityPress: (activity: Activity) => void;
+  attendeesByActivity?: Record<string, string[]>;
 }
 
 interface AgendaSection {
@@ -18,7 +19,7 @@ interface AgendaSection {
   data: Activity[];
 }
 
-export function AgendaList({ activities, timezone, selectedDate, onActivityPress }: AgendaListProps) {
+export function AgendaList({ activities, timezone, selectedDate, onActivityPress, attendeesByActivity }: AgendaListProps) {
   if (activities.length === 0) {
     return <EmptyCalendarDay date={selectedDate} timezone={timezone} />;
   }
@@ -38,7 +39,12 @@ export function AgendaList({ activities, timezone, selectedDate, onActivityPress
       sections={sections}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <AgendaItem activity={item} timezone={timezone} onPress={onActivityPress} />
+        <AgendaItem
+          activity={item}
+          timezone={timezone}
+          onPress={onActivityPress}
+          attendees={attendeesByActivity?.[item.id]}
+        />
       )}
       renderSectionHeader={({ section }) => (
         <View className="flex-row items-center gap-sm px-md pt-md pb-sm">

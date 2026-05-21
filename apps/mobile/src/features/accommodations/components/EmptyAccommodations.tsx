@@ -7,7 +7,7 @@ export function EmptyAccommodations() {
       <Ionicons name="bed-outline" size={48} color="#5C5C5C" />
       <Text className="text-heading-m text-text-primary text-center">No accommodations yet</Text>
       <Text className="text-body-small text-text-secondary text-center">
-        Suggest places to stay and vote on them with your group.
+        Suggest a base to stay and vote on it with your group.
       </Text>
     </View>
   );

@@ -14,6 +14,7 @@ interface CalendarActivitySheetProps {
   activity: Activity | null;
   timezone: SupportedTimezone;
   onViewFullDetails: (activityId: string) => void;
+  onEdit?: (activity: Activity) => void;
 }
 
 export function CalendarActivitySheet({
@@ -22,16 +23,31 @@ export function CalendarActivitySheet({
   activity,
   timezone,
   onViewFullDetails,
+  onEdit,
 }: CalendarActivitySheetProps) {
   const { data: votes, isLoading: votesLoading } = useActivityVotes(activity?.id ?? '');
   const { data: members } = useTripMembers(activity?.trip_id ?? '');
-  const [showVoters, setShowVoters] = useState(false);
+  const [showVotes, setShowVotes] = useState(false);
 
-  const voterNames = useMemo(() => {
-    if (!votes || !members) return [];
+  const { attendees, voterDetails } = useMemo(() => {
+    if (!members) return { attendees: [], voterDetails: [] };
     const memberMap = new Map(members.map((m) => [m.user_id, m.user.name]));
-    return votes.map((v) => ({ name: memberMap.get(v.user_id) ?? 'Unknown', vote: v.vote }));
+    const voterIds = new Set((votes ?? []).map((v) => v.user_id));
+    const skipUserIds = new Set(
+      (votes ?? []).filter((v) => v.vote === 'skip').map((v) => v.user_id),
+    );
+    const attending = members
+      .filter((m) => voterIds.has(m.user_id) && !skipUserIds.has(m.user_id))
+      .map((m) => m.user.name);
+    const details = (votes ?? []).map((v) => ({
+      name: memberMap.get(v.user_id) ?? 'Unknown',
+      vote: v.vote,
+    }));
+    return { attendees: attending, voterDetails: details };
   }, [votes, members]);
+
+  const hasBlocker = votes?.some((v) => v.vote === 'group_blocker');
+  const displayStatus = hasBlocker && !activity?.voting_open ? 'blocked' : activity?.status;
 
   if (!activity) return null;
 
@@ -61,7 +77,7 @@ export function CalendarActivitySheet({
               <Ionicons name="time-outline" size={16} color="#A0A0A0" />
               <Text className="text-body text-text-secondary">{timeLabel}</Text>
             </View>
-            <StatusIndicator status={activity.status} votingOpen={activity.voting_open} />
+            <StatusIndicator status={displayStatus ?? activity.status} votingOpen={activity.voting_open} />
           </View>
 
           {/* Title */}
@@ -91,64 +107,81 @@ export function CalendarActivitySheet({
             </Text>
           ) : null}
 
-          {/* Vote summary */}
+          {/* Attendees */}
+          {attendees.length > 0 && (
+            <View className="mb-md">
+              <View className="flex-row items-center gap-xs mb-sm">
+                <Ionicons name="people" size={16} color="#6C63FF" />
+                <Text className="text-primary text-body-small font-semibold">
+                  {attendees.length} {attendees.length === 1 ? 'attendee' : 'attendees'}
+                </Text>
+              </View>
+              <View className="flex-row flex-wrap gap-xs">
+                {attendees.map((name, i) => (
+                  <View key={i} className="bg-primary/10 rounded-full px-sm py-xs">
+                    <Text className="text-primary text-body-small font-medium">{name}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Vote summary (collapsible) */}
           <View className="mb-md">
             {votesLoading ? (
               <ActivityIndicator size="small" color="#6C63FF" />
             ) : votes && votes.length > 0 ? (
-              <View className="flex-row items-center gap-sm">
-                <VoteSummary votes={votes} />
-                <Text className="text-body-small text-text-muted">
-                  {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
-                </Text>
+              <View>
+                <Pressable
+                  onPress={() => setShowVotes(!showVotes)}
+                  className="flex-row items-center gap-xs"
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                >
+                  <VoteSummary votes={votes} />
+                  <Text className="text-body-small text-text-muted ml-xs">
+                    {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
+                  </Text>
+                  <Ionicons
+                    name={showVotes ? 'chevron-up' : 'chevron-down'}
+                    size={14}
+                    color="#A0A0A0"
+                  />
+                </Pressable>
+                {showVotes && (
+                  <ScrollView className="mt-sm" style={{ maxHeight: 140 }}>
+                    {voterDetails.map((v, i) => (
+                      <View key={i} className="flex-row items-center gap-sm py-xs">
+                        <VoteIcon vote={v.vote} />
+                        <Text className="text-body-small text-text-primary">{v.name}</Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                )}
               </View>
             ) : (
               <Text className="text-body-small text-text-muted">No votes yet</Text>
             )}
           </View>
 
-          {/* Voters */}
-          {voterNames.length > 0 && (
-            <View className="mb-md">
+          {/* Action buttons */}
+          <View className="flex-row gap-sm">
+            {onEdit && (
               <Pressable
-                onPress={() => setShowVoters(!showVoters)}
-                className="flex-row items-center gap-xs"
-                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                onPress={() => onEdit(activity)}
+                className="bg-primary/10 rounded-md py-md items-center justify-center px-md"
+                style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
               >
-                <Ionicons name="people-outline" size={16} color="#6C63FF" />
-                <Text className="text-primary text-body-small font-medium">
-                  {voterNames.length} {voterNames.length === 1 ? 'voter' : 'voters'}
-                </Text>
-                <Ionicons
-                  name={showVoters ? 'chevron-up' : 'chevron-down'}
-                  size={14}
-                  color="#6C63FF"
-                />
+                <Ionicons name="create-outline" size={20} color="#6C63FF" />
               </Pressable>
-              {showVoters && (
-                <ScrollView
-                  className="mt-sm"
-                  style={{ maxHeight: 160 }}
-                >
-                  {voterNames.map((v, i) => (
-                    <View key={i} className="flex-row items-center gap-sm py-xs">
-                      <VoteIcon vote={v.vote} />
-                      <Text className="text-body-small text-text-primary">{v.name}</Text>
-                    </View>
-                  ))}
-                </ScrollView>
-              )}
-            </View>
-          )}
-
-          {/* View full details button */}
-          <Pressable
-            onPress={() => onViewFullDetails(activity.id)}
-            className="bg-primary rounded-md py-md items-center"
-            style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
-          >
-            <Text className="text-white text-body font-semibold">View full details</Text>
-          </Pressable>
+            )}
+            <Pressable
+              onPress={() => onViewFullDetails(activity.id)}
+              className="bg-primary rounded-md py-md items-center flex-1"
+              style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+            >
+              <Text className="text-white text-body font-semibold">View full details</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </Modal>

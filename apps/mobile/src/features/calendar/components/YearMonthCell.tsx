@@ -6,7 +6,6 @@ interface YearMonthCellProps {
   hasActivities: boolean;
   hasTripOnly: boolean;
   isCurrentMonth: boolean;
-  cellWidth: number;
   onPress: (monthIndex: number) => void;
 }
 
@@ -16,7 +15,6 @@ export function YearMonthCell({
   hasActivities,
   hasTripOnly,
   isCurrentMonth,
-  cellWidth,
   onPress,
 }: YearMonthCellProps) {
   const dotClass = hasActivities
@@ -29,10 +27,12 @@ export function YearMonthCell({
     <Pressable
       onPress={() => onPress(monthIndex)}
       style={({ pressed }) => ({
-        width: cellWidth,
+        flex: 1,
         opacity: pressed ? 0.7 : 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 24,
       })}
-      className="items-center justify-center py-lg"
     >
       <View
         className={`rounded-md px-md py-sm items-center ${

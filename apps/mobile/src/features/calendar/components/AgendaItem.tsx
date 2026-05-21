@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
@@ -8,36 +9,69 @@ interface AgendaItemProps {
   activity: Activity;
   timezone: SupportedTimezone;
   onPress: (activity: Activity) => void;
+  attendees?: string[];
 }
 
-export function AgendaItem({ activity, onPress }: AgendaItemProps) {
+export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
   const timeLabel = formatActivityTime(activity.start_time, activity.end_time);
+  const [showAttendees, setShowAttendees] = useState(false);
 
   return (
-    <Pressable
-      onPress={() => onPress(activity)}
-      className="bg-surface border border-border rounded-md p-md flex-row items-center gap-md"
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
-    >
-      <View className="bg-surface-elevated rounded-sm px-sm py-xs min-w-[64px] items-center">
-        <Ionicons name="time-outline" size={12} color="#A0A0A0" />
-        <Text className="text-body-small text-text-secondary font-medium mt-xs">
-          {timeLabel}
-        </Text>
-      </View>
-
-      <View className="flex-1 gap-xs">
-        <Text className="text-body text-text-primary font-semibold" numberOfLines={1}>
-          {activity.title}
-        </Text>
-        {activity.category && (
-          <Text className="text-body-small text-text-secondary capitalize" numberOfLines={1}>
-            {activity.category}
+    <View className="bg-surface border border-border rounded-md overflow-hidden">
+      <Pressable
+        onPress={() => onPress(activity)}
+        className="p-md flex-row items-center gap-md"
+        style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+      >
+        <View className="bg-surface-elevated rounded-sm px-sm py-xs min-w-[64px] items-center">
+          <Ionicons name="time-outline" size={12} color="#A0A0A0" />
+          <Text className="text-body-small text-text-secondary font-medium mt-xs">
+            {timeLabel}
           </Text>
-        )}
-      </View>
+        </View>
 
-      <StatusIndicator status={activity.status} votingOpen={activity.voting_open} />
-    </Pressable>
+        <View className="flex-1 gap-xs">
+          <Text className="text-body text-text-primary font-semibold" numberOfLines={1}>
+            {activity.title}
+          </Text>
+          {activity.category && (
+            <Text className="text-body-small text-text-secondary capitalize" numberOfLines={1}>
+              {activity.category}
+            </Text>
+          )}
+        </View>
+
+        <StatusIndicator status={activity.status} votingOpen={activity.voting_open} />
+      </Pressable>
+
+      {attendees && attendees.length > 0 && (
+        <View className="border-t border-border px-md">
+          <Pressable
+            onPress={() => setShowAttendees(!showAttendees)}
+            className="flex-row items-center gap-xs py-sm"
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          >
+            <Ionicons name="people" size={14} color="#6C63FF" />
+            <Text className="text-primary text-body-small font-medium">
+              {attendees.length} {attendees.length === 1 ? 'attendee' : 'attendees'}
+            </Text>
+            <Ionicons
+              name={showAttendees ? 'chevron-up' : 'chevron-down'}
+              size={12}
+              color="#6C63FF"
+            />
+          </Pressable>
+          {showAttendees && (
+            <View className="flex-row flex-wrap gap-xs pb-sm">
+              {attendees.map((name, i) => (
+                <View key={i} className="bg-primary/10 rounded-full px-sm py-xs">
+                  <Text className="text-primary text-body-small">{name}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+      )}
+    </View>
   );
 }

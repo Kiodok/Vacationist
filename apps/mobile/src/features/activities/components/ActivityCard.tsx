@@ -1,4 +1,5 @@
-import { View, Text, Pressable } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, ActivityVote, VoteType } from '@vacationist/types';
@@ -12,17 +13,47 @@ interface ActivityCardProps {
   onPress: () => void;
   onVotePress: () => void;
   detail?: React.ReactNode;
+  displayStatus?: string;
+  highlight?: boolean;
 }
 
-export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePress, detail }: ActivityCardProps) {
+export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePress, detail, displayStatus, highlight }: ActivityCardProps) {
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !activity.voting_open;
   const borderColor = getVoteBorderColor(votes);
 
+  const highlightAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (highlight) {
+      const timer = setTimeout(() => {
+        Animated.sequence([
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 600, useNativeDriver: false }),
+        ]).start();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [highlight]);
+
+  const animatedBorderColor = highlight
+    ? highlightAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [borderColor, '#6C63FF'],
+      })
+    : borderColor;
+
   return (
-    <View
-      className={`bg-surface border border-border ${detail ? 'rounded-t-md' : 'rounded-md'}`}
-      style={{ borderColor }}
+    <Animated.View
+      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
     >
       <Pressable
         onPress={onPress}
@@ -40,7 +71,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
             </Text>
           ) : null}
         </View>
-        <StatusIndicator status={activity.status} votingOpen={activity.voting_open} />
+        <StatusIndicator status={displayStatus ?? activity.status} votingOpen={activity.voting_open} />
       </View>
 
       {activity.description ? (
@@ -54,7 +85,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
           <View className="flex-row items-center gap-xs">
             <Ionicons name="calendar-outline" size={14} color="#A0A0A0" />
             <Text className="text-body-small text-text-secondary">
-              {dayjs(activity.activity_date).format('D MMM')}
+              {dayjs(activity.activity_date).format('ddd, D MMM')}
             </Text>
           </View>
         ) : null}
@@ -100,7 +131,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
       </View>
       </Pressable>
       {detail}
-    </View>
+    </Animated.View>
   );
 }
 

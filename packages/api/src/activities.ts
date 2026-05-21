@@ -89,6 +89,18 @@ export async function getActivityVotes(activityId: string): Promise<ActivityVote
   return data as unknown as ActivityVote[];
 }
 
+export async function getActivityVotesBatch(activityIds: string[]): Promise<ActivityVote[]> {
+  if (activityIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('activity_votes')
+    .select('*')
+    .in('activity_id', activityIds);
+
+  if (error) throw error;
+  return data as unknown as ActivityVote[];
+}
+
 export async function castActivityVote(activityId: string, vote: VoteType): Promise<ActivityVote> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');

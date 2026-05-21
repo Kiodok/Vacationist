@@ -2,13 +2,17 @@ import { useState, useMemo } from 'react';
 import { View, Text, SectionList, ActivityIndicator, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import type { CreateShoppingListInput, ShoppingListWithCounts } from '@vacationist/types';
+import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem } from '@vacationist/types';
 import { useShoppingLists, useShoppingListsRealtime, useCreateShoppingList, useDeleteShoppingList, useArchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
+import { useAllTripShoppingItems, useUpdateShoppingItemGlobal } from '../../../src/features/shopping/hooks/useShoppingItems';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
 import { ShoppingListCard } from '../../../src/features/shopping/components/ShoppingListCard';
+import { ShoppingItemRow } from '../../../src/features/shopping/components/ShoppingItemRow';
 import { CreateShoppingListSheet } from '../../../src/features/shopping/components/CreateShoppingListSheet';
 import { EmptyShopping } from '../../../src/features/shopping/components/EmptyShopping';
+
+type ViewMode = 'lists' | 'all';
 
 export default function ShoppingTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -23,6 +27,7 @@ export default function ShoppingTab() {
   useShoppingListsRealtime(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('lists');
 
   const { activeLists, completedLists, archivedLists } = useMemo(() => {
     const active: ShoppingListWithCounts[] = [];
@@ -70,10 +75,34 @@ export default function ShoppingTab() {
 
   return (
     <View className="flex-1">
+      {/* View mode toggle */}
+      {!isEmpty && (
+        <View className="flex-row gap-xs px-md pt-sm pb-xs">
+          <Pressable
+            onPress={() => setViewMode('lists')}
+            className={`px-md py-sm rounded-full ${viewMode === 'lists' ? 'bg-primary' : 'bg-surface'}`}
+          >
+            <Text className={`text-body-small font-semibold ${viewMode === 'lists' ? 'text-white' : 'text-text-secondary'}`}>
+              Lists
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setViewMode('all')}
+            className={`px-md py-sm rounded-full ${viewMode === 'all' ? 'bg-primary' : 'bg-surface'}`}
+          >
+            <Text className={`text-body-small font-semibold ${viewMode === 'all' ? 'text-white' : 'text-text-secondary'}`}>
+              All Items
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
       {isEmpty ? (
         <View className="flex-1 px-md py-md">
           <EmptyShopping />
         </View>
+      ) : viewMode === 'all' ? (
+        <AllItemsView tripId={tripId!} />
       ) : (
         <SectionList
           sections={sections}
@@ -131,6 +160,76 @@ export default function ShoppingTab() {
         isPending={createList.isPending}
       />
     </View>
+  );
+}
+
+function AllItemsView({ tripId }: { tripId: string }) {
+  const { data: allItems, isLoading } = useAllTripShoppingItems(tripId);
+  const updateItem = useUpdateShoppingItemGlobal(tripId);
+
+  const sections = useMemo(() => {
+    if (!allItems) return [];
+    const byList: Record<string, (ShoppingItem & { list_title: string })[]> = {};
+    for (const item of allItems) {
+      if (!byList[item.list_title]) byList[item.list_title] = [];
+      byList[item.list_title].push(item);
+    }
+    return Object.entries(byList).map(([title, items]) => ({
+      key: title,
+      title,
+      data: items,
+      boughtCount: items.filter((i) => i.status === 'bought').length,
+    }));
+  }, [allItems]);
+
+  const handleToggle = (item: ShoppingItem) => {
+    const newStatus = item.status === 'open' ? 'bought' : 'open';
+    updateItem.mutate({ itemId: item.id, input: { status: newStatus } });
+  };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator color="#6C63FF" />
+      </View>
+    );
+  }
+
+  if (!allItems || allItems.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center px-xl gap-sm">
+        <Ionicons name="basket-outline" size={40} color="#5C5C5C" />
+        <Text className="text-body text-text-secondary text-center">
+          No items across any list yet.
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <SectionList
+      sections={sections}
+      keyExtractor={(item) => item.id}
+      stickySectionHeadersEnabled={false}
+      contentContainerClassName="pb-xl"
+      renderSectionHeader={({ section }) => (
+        <View className="flex-row items-center gap-xs pt-md pb-sm px-md bg-background">
+          <Ionicons name="list-outline" size={16} color="#6C63FF" />
+          <Text className="text-body font-semibold text-text-primary">
+            {section.title}
+          </Text>
+          <Text className="text-body-small text-text-muted">
+            ({section.boughtCount}/{section.data.length})
+          </Text>
+        </View>
+      )}
+      renderItem={({ item }) => (
+        <ShoppingItemRow
+          item={item}
+          onToggle={() => handleToggle(item)}
+        />
+      )}
+    />
   );
 }
 

@@ -1,13 +1,13 @@
-import { View, useWindowDimensions } from 'react-native';
+import { View, Platform } from 'react-native';
 import { dayjs } from '@vacationist/utils';
 import { YearHeader } from './YearHeader';
 import { YearMonthCell } from './YearMonthCell';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const COLUMNS = 3;
 const HORIZONTAL_PADDING = 16;
 const ROWS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]];
+const MAX_CALENDAR_WIDTH = 600;
 
 interface YearGridProps {
   year: number;
@@ -26,19 +26,19 @@ export function YearGrid({
   onNextYear,
   onSelectMonth,
 }: YearGridProps) {
-  const { width } = useWindowDimensions();
-  const cellWidth = (width - HORIZONTAL_PADDING * 2) / COLUMNS;
-
   const now = dayjs();
   const currentYear = now.year();
   const currentMonth = now.month();
 
   return (
-    <View className="bg-surface border-b border-border pb-md">
+    <View
+      className="bg-surface border-b border-border pb-md"
+      style={Platform.OS === 'web' ? { maxWidth: MAX_CALENDAR_WIDTH, width: '100%', alignSelf: 'center' } : undefined}
+    >
       <YearHeader year={year} onPrevYear={onPrevYear} onNextYear={onNextYear} />
       <View style={{ paddingHorizontal: HORIZONTAL_PADDING }}>
         {ROWS.map((row, rowIdx) => (
-          <View key={rowIdx} className="flex-row">
+          <View key={rowIdx} style={{ flexDirection: 'row' }}>
             {row.map((monthIdx) => {
               const key = `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
               const hasActivities = activityMonths.has(key);
@@ -51,7 +51,6 @@ export function YearGrid({
                   hasActivities={hasActivities}
                   hasTripOnly={hasTripOnly}
                   isCurrentMonth={year === currentYear && monthIdx === currentMonth}
-                  cellWidth={cellWidth}
                   onPress={onSelectMonth}
                 />
               );

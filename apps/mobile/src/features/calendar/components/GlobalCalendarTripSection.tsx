@@ -1,8 +1,11 @@
+import { useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { AgendaItem } from './AgendaItem';
+import { useTripMembers } from '../../trips/hooks/useMembers';
+import { useActivityVotesBatch } from '../../activities/hooks/useVotes';
 
 interface GlobalCalendarTripSectionProps {
   trip: { id: string; title: string; start_date: string; end_date: string; timezone: SupportedTimezone };
@@ -17,6 +20,29 @@ export function GlobalCalendarTripSection({
   onActivityPress,
   onTripPress,
 }: GlobalCalendarTripSectionProps) {
+  const activityIds = useMemo(() => activities.map((a) => a.id), [activities]);
+  const { data: batchVotes } = useActivityVotesBatch(activityIds);
+  const { data: members } = useTripMembers(trip.id);
+
+  const attendeesByActivity = useMemo(() => {
+    if (!members) return {};
+    const result: Record<string, string[]> = {};
+    const votesByActivity: Record<string, { user_id: string; vote: string }[]> = {};
+    for (const v of batchVotes ?? []) {
+      if (!votesByActivity[v.activity_id]) votesByActivity[v.activity_id] = [];
+      votesByActivity[v.activity_id].push(v);
+    }
+    for (const activity of activities) {
+      const actVotes = votesByActivity[activity.id] ?? [];
+      const voterIds = new Set(actVotes.map((v) => v.user_id));
+      const skipIds = new Set(actVotes.filter((v) => v.vote === 'skip').map((v) => v.user_id));
+      result[activity.id] = members
+        .filter((m) => voterIds.has(m.user_id) && !skipIds.has(m.user_id))
+        .map((m) => m.user.name);
+    }
+    return result;
+  }, [members, batchVotes, activities]);
+
   return (
     <View className="bg-surface border border-border rounded-md overflow-hidden">
       {/* Trip header */}
@@ -44,6 +70,7 @@ export function GlobalCalendarTripSection({
             activity={activity}
             timezone={trip.timezone}
             onPress={onActivityPress}
+            attendees={attendeesByActivity[activity.id]}
           />
         ))}
       </View>

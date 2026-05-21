@@ -113,6 +113,7 @@ export function useShoppingListsRealtime(tripId: string) {
 
     channelRef.current = subscribeToShoppingItemChanges(tripId, () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
     });
 
     return () => {

@@ -1,12 +1,16 @@
 import { useState, useMemo } from 'react';
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
-import type { Activity, SupportedTimezone } from '@vacationist/types';
+import type { Activity, SupportedTimezone, UpdateActivityInput } from '@vacationist/types';
+import { useUpdateActivity } from '../../src/features/activities/hooks/useActivities';
+import { useActivityVotesBatch } from '../../src/features/activities/hooks/useVotes';
+import { EditActivitySheet } from '../../src/features/activities/components/EditActivitySheet';
 import { useTrips } from '../../src/features/trips/hooks/useTrips';
 import { useGlobalCalendarActivities } from '../../src/features/calendar/hooks/useGlobalCalendarActivities';
+import { useGlobalCalendarRealtime } from '../../src/features/calendar/hooks/useGlobalCalendarRealtime';
 import { useMonthNavigation } from '../../src/features/calendar/hooks/useMonthNavigation';
 import { MonthGrid } from '../../src/features/calendar/components/MonthGrid';
 import { YearGrid } from '../../src/features/calendar/components/YearGrid';
@@ -18,18 +22,35 @@ export default function GlobalCalendarScreen() {
   const { data: trips, isLoading: tripsLoading } = useTrips();
   const { data: globalData, isLoading: activitiesLoading } = useGlobalCalendarActivities();
 
+  const tripIds = useMemo(() => (trips?.map((t) => t.id) ?? []), [trips]);
+  useGlobalCalendarRealtime(tripIds);
+
+  const allGlobalActivityIds = useMemo(() => {
+    if (!globalData) return [];
+    return globalData.flatMap((gt) => gt.activities.map((a) => a.id));
+  }, [globalData]);
+  const { data: allGlobalVotes } = useActivityVotesBatch(allGlobalActivityIds);
+  const blockedActivityIds = useMemo(() => {
+    if (!allGlobalVotes) return new Set<string>();
+    const blocked = new Set<string>();
+    for (const v of allGlobalVotes) {
+      if (v.vote === 'group_blocker') blocked.add(v.activity_id);
+    }
+    return blocked;
+  }, [allGlobalVotes]);
+
   const activityCountByDate = useMemo(() => {
     if (!globalData) return {};
     const counts: Record<string, number> = {};
     for (const gt of globalData) {
       for (const a of gt.activities) {
-        if (a.activity_date) {
+        if (a.activity_date && !blockedActivityIds.has(a.id)) {
           counts[a.activity_date] = (counts[a.activity_date] ?? 0) + 1;
         }
       }
     }
     return counts;
-  }, [globalData]);
+  }, [globalData, blockedActivityIds]);
 
   const { tripDateSet, tripMonths } = useMemo(() => {
     const dates = new Set<string>();
@@ -73,13 +94,29 @@ export default function GlobalCalendarScreen() {
     return globalData
       .map((gt) => ({
         ...gt,
-        activitiesForDate: gt.activities.filter((a) => a.activity_date === selectedDate),
+        activitiesForDate: gt.activities.filter((a) => a.activity_date === selectedDate && !blockedActivityIds.has(a.id)),
       }))
       .filter((gt) => gt.activitiesForDate.length > 0);
-  }, [globalData, selectedDate]);
+  }, [globalData, selectedDate, blockedActivityIds]);
 
   const [previewActivity, setPreviewActivity] = useState<Activity | null>(null);
   const [previewTimezone, setPreviewTimezone] = useState<SupportedTimezone>('Europe/Berlin');
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [editingTripId, setEditingTripId] = useState<string | null>(null);
+
+  const editingTrip = useMemo(
+    () => trips?.find((t) => t.id === editingTripId),
+    [trips, editingTripId],
+  );
+  const updateActivityMutation = useUpdateActivity(editingTripId ?? '');
+
+  const handleUpdate = (input: UpdateActivityInput) => {
+    if (!editingActivity) return;
+    updateActivityMutation.mutate(
+      { activityId: editingActivity.id, input },
+      { onSuccess: () => { setEditingActivity(null); setEditingTripId(null); } },
+    );
+  };
 
   if (tripsLoading || activitiesLoading) {
     return (
@@ -133,7 +170,7 @@ export default function GlobalCalendarScreen() {
               </Text>
             </View>
           ) : (
-            <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+            <ScrollView contentContainerStyle={{ padding: 16, gap: 12, ...(Platform.OS === 'web' ? { maxWidth: 600, width: '100%', alignSelf: 'center' } : {}) }}>
               {tripsForSelectedDate.map(({ trip, activitiesForDate }) => (
                 <GlobalCalendarTripSection
                   key={trip.id}
@@ -158,6 +195,11 @@ export default function GlobalCalendarScreen() {
         onClose={() => setPreviewActivity(null)}
         activity={previewActivity}
         timezone={previewTimezone}
+        onEdit={(act) => {
+          setEditingTripId(act.trip_id);
+          setEditingActivity(act);
+          setPreviewActivity(null);
+        }}
         onViewFullDetails={(activityId) => {
           const tripId = previewActivity?.trip_id;
           setPreviewActivity(null);
@@ -169,6 +211,18 @@ export default function GlobalCalendarScreen() {
           }
         }}
       />
+
+      {editingActivity && editingTrip && (
+        <EditActivitySheet
+          visible={!!editingActivity}
+          onClose={() => { setEditingActivity(null); setEditingTripId(null); }}
+          onSubmit={handleUpdate}
+          isPending={updateActivityMutation.isPending}
+          activity={editingActivity}
+          tripStartDate={editingTrip.start_date}
+          tripEndDate={editingTrip.end_date}
+        />
+      )}
     </SafeAreaView>
   );
 }

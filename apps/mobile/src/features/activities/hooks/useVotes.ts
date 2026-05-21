@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getActivityVotes, castActivityVote, removeActivityVote } from '@vacationist/api';
+import { getActivityVotes, getActivityVotesBatch, castActivityVote, removeActivityVote } from '@vacationist/api';
 import type { VoteType, ActivityVote } from '@vacationist/types';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -10,6 +10,16 @@ export function useActivityVotes(activityId: string) {
     queryFn: () => getActivityVotes(activityId),
     retry: 2,
     enabled: !!activityId,
+  });
+}
+
+export function useActivityVotesBatch(activityIds: string[]) {
+  const sortedIds = [...activityIds].sort();
+  return useQuery({
+    queryKey: ['activity-votes-batch', ...sortedIds],
+    queryFn: () => getActivityVotesBatch(sortedIds),
+    retry: 2,
+    enabled: sortedIds.length > 0,
   });
 }
 

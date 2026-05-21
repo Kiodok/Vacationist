@@ -19,6 +19,7 @@ export function useAddRecipeToShoppingList(tripId: string) {
     onSuccess: ({ added, merged }, { shoppingListId }) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
       queryClient.invalidateQueries({ queryKey: ['shopping-lists', shoppingListId, 'items'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'recipe-shopping-status'] });
 
       const parts: string[] = [];

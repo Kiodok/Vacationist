@@ -91,6 +91,25 @@ export async function getShoppingItems(listId: string): Promise<ShoppingItem[]> 
   return data as unknown as ShoppingItem[];
 }
 
+export async function getAllShoppingItemsForTrip(tripId: string): Promise<(ShoppingItem & { list_title: string })[]> {
+  const { data, error } = await supabase
+    .from('shopping_items')
+    .select('*, shopping_lists!inner(title, trip_id)')
+    .eq('shopping_lists.trip_id', tripId)
+    .is('deleted_at', null)
+    .order('position', { ascending: true })
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+
+  return ((data ?? []) as unknown as (ShoppingItem & { shopping_lists: { title: string } })[]).map(
+    ({ shopping_lists: sl, ...item }) => ({
+      ...item,
+      list_title: sl.title,
+    }),
+  );
+}
+
 export async function createShoppingItem(listId: string, input: CreateShoppingItemInput): Promise<ShoppingItem> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
