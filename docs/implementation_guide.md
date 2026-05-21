@@ -230,20 +230,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
 ---
 
-## 🗺️ Phase 9: Tours
-*Dependencies: Phase 3*
-*Goal: Grouping activities into organized sequences.*
-
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `tours` and `tour_activities` join table + RLS
-- [ ] **2. Services & Hooks**
-  - [ ] Implement Tour CRUD and activity linking/ordering services
-- [ ] **3. Components & Screens**
-  - [ ] Implement Tour List and detail screens
-
----
-
-## ✨ Phase 10: Polish & Hardening
+## ✨ Phase 9: Polish & Hardening
 *Dependencies: All previous phases*
 *Goal: Production & legal readiness; Google Play Store.*
 

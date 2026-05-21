@@ -604,33 +604,6 @@ UNIQUE (activity_id, user_id)
 
 ---
 
-### tours
-
-A collection of multiple linked activities.
-
-```sql
-id              UUID PRIMARY KEY
-trip_id         UUID REFERENCES trips(id) ON DELETE CASCADE
-title           TEXT NOT NULL
-description     TEXT
-created_by      UUID REFERENCES users(id)
-created_at      TIMESTAMPTZ DEFAULT NOW()
-```
-
----
-
-### tour_activities
-
-```sql
-id              UUID PRIMARY KEY
-tour_id         UUID REFERENCES tours(id) ON DELETE CASCADE
-activity_id     UUID REFERENCES activities(id) ON DELETE CASCADE
-sort_order      INT NOT NULL
-UNIQUE (tour_id, activity_id)
-```
-
----
-
 ### expenses
 
 ```sql
@@ -1849,17 +1822,7 @@ The following order is mandatory. A feature must not be started until all its li
   └─────────────────────────────────────────────────┘
          │
          ▼
-[Phase 9: Tours]
-  Depends on: Phase 3 (Activities)
-  ┌─────────────────────────────────────────────────┐
-  │  • tours + tour_activities tables + RLS          │
-  │  • Create / manage tours                         │
-  │  • Link activities to tours                      │
-  │  • Tour detail view                              │
-  └─────────────────────────────────────────────────┘
-         │
-         ▼
-[Phase 10: Polish & Hardening]
+[Phase 9: Polish & Hardening]
   Depends on: All previous phases
   ┌─────────────────────────────────────────────────┐
   │  • Skeleton screens for all list/detail views    │
@@ -1886,8 +1849,7 @@ The following order is mandatory. A feature must not be started until all its li
 | 6 | Recipes | Phase 5 |
 | 7 | Calendar | Phase 3, Phase 2 |
 | 8 | Notifications | Phase 3, 4a, 4b, 5 |
-| 9 | Tours | Phase 3 |
-| 10 | Polish | All |
+| 9 | Polish | All |
 
 Note: Phases 4a and 4b can be developed in parallel. Phase 5 can also begin in parallel with Phase 4a/4b since it only depends on Phase 2.
 
