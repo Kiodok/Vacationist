@@ -109,3 +109,13 @@ export {
   unsubscribeFromIngredients,
 } from './recipes';
 export type { RecipeRealtimeCallbacks, IngredientRealtimeCallbacks, RecipeShoppingListInfo } from './recipes';
+
+export {
+  getPreworkPreferences,
+  getMyPreworkPreferences,
+  upsertPreworkPreferences,
+  deletePreworkPreferences,
+  subscribeToPreworkRealtime,
+  unsubscribeFromPrework,
+} from './prework';
+export type { PreworkRealtimeCallbacks } from './prework';

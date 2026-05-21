@@ -234,6 +234,30 @@ export type UpdateRecipeInput = z.infer<typeof updateRecipeSchema>;
 export type CreateRecipeIngredientInput = z.infer<typeof createRecipeIngredientSchema>;
 export type UpdateRecipeIngredientInput = z.infer<typeof updateRecipeIngredientSchema>;
 
+// --- Prework schemas ---
+
+export const preworkFilterSchema = z.object({
+  label: z.string().min(1).max(100),
+  weight: z.number().int().min(1).max(100),
+});
+
+export const upsertPreworkPreferencesSchema = z.object({
+  filters: z.array(preworkFilterSchema).refine(
+    (filters) => {
+      if (filters.length === 0) return true;
+      const sum = filters.reduce((acc, f) => acc + f.weight, 0);
+      return sum <= 100;
+    },
+    { message: 'Total credits must not exceed 100' }
+  ).refine(
+    (filters) => filters.every((f) => f.weight >= 1),
+    { message: 'Every filter must have at least 1 credit' }
+  ),
+});
+
+export type PreworkFilterInput = z.infer<typeof preworkFilterSchema>;
+export type UpsertPreworkPreferencesInput = z.infer<typeof upsertPreworkPreferencesSchema>;
+
 // --- Invite schemas ---
 
 const INVITE_EXPIRY = ['1h', '24h', '7d'] as const;

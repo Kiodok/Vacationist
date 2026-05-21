@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       accommodation_votes: {
@@ -406,6 +431,45 @@ export type Database = {
           },
         ]
       }
+      prework_preferences: {
+        Row: {
+          filters: Json
+          id: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          filters?: Json
+          id?: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          filters?: Json
+          id?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prework_preferences_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prework_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recipe_ingredients: {
         Row: {
           id: string
@@ -777,7 +841,9 @@ export type Database = {
       delete_shopping_list: { Args: { p_list_id: string }; Returns: undefined }
       get_recipe_linked_lists: {
         Args: { p_recipe_id: string }
-        Returns: { shopping_list_id: string }[]
+        Returns: {
+          shopping_list_id: string
+        }[]
       }
       get_trip_balances: {
         Args: { p_trip_id: string }
@@ -955,6 +1021,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

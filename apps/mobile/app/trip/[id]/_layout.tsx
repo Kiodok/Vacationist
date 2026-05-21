@@ -10,6 +10,7 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import OverviewTab from './index';
+import PreworkTab from './prework';
 import ActivitiesTab from './activities';
 import AccommodationsTab from './accommodations';
 import ExpensesTab from './expenses';
@@ -18,7 +19,7 @@ import RecipesTab from './recipes';
 import SettingsTab from './settings';
 import CalendarTab from './calendar';
 
-const TABS = ['Overview', 'Base', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Settings'] as const;
+const TABS = ['Overview', 'Prework', 'Base', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
 
 function getInitialTab(paramTab?: string): Tab {
@@ -80,6 +81,8 @@ export default function TripDetailLayout() {
     switch (activeTab) {
       case 'Overview':
         return <OverviewTab />;
+      case 'Prework':
+        return <PreworkTab />;
       case 'Calendar':
         return <CalendarTab />;
       case 'Activities':

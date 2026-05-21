@@ -212,6 +212,25 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
 ---
 
+## 🔍 Phase 7b: Prework (Base Search Preferences)
+*Dependencies: Phase 2 (Trips)*
+*Goal: Collect (credit) weighted filter preferences from all members to guide the organizer's external accommodation search.*
+
+- [x] **1. DB/RLS & Types**
+  - [x] Create `prework_preferences` table (JSONB filters) + RLS policies
+  - [x] Add `PreworkFilter` and `PreworkPreferences` TypeScript interfaces
+  - [x] Add Zod schemas with 100 credits weight-sum validation
+- [x] **2. Services & Hooks**
+  - [x] Implement prework CRUD services (get all, get mine, upsert, delete)
+  - [x] Create TanStack Query hooks (`usePreworkPreferences`, `useMyPreworkPreferences`, `useUpsertPreworkPreferences`)
+- [x] **3. Components & Screens**
+  - [x] Build `MyPreferencesSection` (inline filter editor with weight inputs and live sum counter)
+  - [x] Build `GroupSummarySection` (aggregated ranked filter list with per-member breakdown)
+  - [x] Implement Prework tab screen (between Overview and Base)
+  - [x] Build `aggregateFilters` utility for client-side weight averaging
+
+---
+
 ## 🔔 Phase 8: Notifications
 *Dependencies: Phases 3, 4a, 4b, 5a, 5b & 5c*
 *Goal: Batched push notifications and in-app alerts.*
@@ -244,7 +263,8 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 - [ ] **3. DevOps**
   - [ ] Configure Expo EAS build profiles
   - [ ] Setup OTA updates
-  - [ ] Production database etc.
+  - [ ] Optimize the EAS build using this [guide](https://expo.dev/blog/build-fast-no-matter-what-how-expo-is-optimizing-for-speed)
+  - [ ] Production database & deployment etc.
 - [ ] *4. Third-party style guidelines*
   - [ ] Sign in with Google Branding IMPORTANT
   - [ ] Scan the code base for other relevant guidelines and fullfil them
@@ -255,8 +275,8 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [ ] Release Strategy
   - [ ] Expo-Specific Deployment like a Service Account or Automated Submission
 
-## 🌐 Phase 11: Landing Page / Marketing Website (Web UI)
-*Dependencies: Phase 10*
+## 🌐 Phase 10: Landing Page / Marketing Website (Web UI)
+*Dependencies: Phase 9*
 *Goal: Create a polished, responsive, mobile-first landing page for Vacationist.*
 
 - [ ] **1. Content**

@@ -95,7 +95,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="Details about the place"
+                      placeholder="Details about the base"
                       value={value ?? ''}
                       onChangeText={onChange}
                       onBlur={onBlur}

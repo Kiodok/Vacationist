@@ -52,10 +52,22 @@ export default function GlobalCalendarScreen() {
     return counts;
   }, [globalData, blockedActivityIds]);
 
-  const { tripDateSet, tripMonths } = useMemo(() => {
+  const { tripDateSet, monthDots } = useMemo(() => {
     const dates = new Set<string>();
-    const months = new Set<string>();
-    if (trips) {
+    const dots: Record<string, { activity: number; tripOnly: number }> = {};
+
+    if (trips && globalData) {
+      const tripActivityMonths = new Map<string, Set<string>>();
+      for (const gt of globalData) {
+        const actMonths = new Set<string>();
+        for (const a of gt.activities) {
+          if (a.activity_date && !blockedActivityIds.has(a.id)) {
+            actMonths.add(a.activity_date.slice(0, 7));
+          }
+        }
+        tripActivityMonths.set(gt.trip.id, actMonths);
+      }
+
       for (const trip of trips) {
         let current = dayjs(trip.start_date);
         const end = dayjs(trip.end_date);
@@ -65,20 +77,27 @@ export default function GlobalCalendarScreen() {
         }
         let monthCursor = dayjs(trip.start_date).startOf('month');
         while (monthCursor.isBefore(end) || monthCursor.isSame(end, 'month')) {
-          months.add(monthCursor.format('YYYY-MM'));
+          const monthKey = monthCursor.format('YYYY-MM');
+          if (!dots[monthKey]) dots[monthKey] = { activity: 0, tripOnly: 0 };
+          const hasAct = tripActivityMonths.get(trip.id)?.has(monthKey) ?? false;
+          if (hasAct) {
+            dots[monthKey].activity++;
+          } else {
+            dots[monthKey].tripOnly++;
+          }
           monthCursor = monthCursor.add(1, 'month');
         }
       }
     }
-    return { tripDateSet: dates, tripMonths: months };
-  }, [trips]);
+
+    return { tripDateSet: dates, monthDots: dots };
+  }, [trips, globalData, blockedActivityIds]);
 
   const {
     year,
     selectedDate,
     monthGrid,
     view,
-    activeMonths,
     selectDate,
     goToPrevMonth,
     goToNextMonth,
@@ -143,8 +162,7 @@ export default function GlobalCalendarScreen() {
       {view === 'year' ? (
         <YearGrid
           year={year}
-          activityMonths={activeMonths}
-          tripMonths={tripMonths}
+          monthDots={monthDots}
           onPrevYear={goToPrevYear}
           onNextYear={goToNextYear}
           onSelectMonth={drillIntoMonth}

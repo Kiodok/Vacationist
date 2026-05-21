@@ -657,3 +657,55 @@ Added expense tables to Supabase Realtime publication for live expense updates a
 - `supabase/migrations/20260520110000_add_source_ingredient_id_to_shopping_items.sql`
 - `supabase/migrations/20260520120000_fix_shopping_items_update_rls_for_soft_delete.sql` — removed `deleted_at IS NULL` from `WITH CHECK` clause of `shopping_items_update_member` policy so that direct soft-deletes via UPDATE work (needed for recipe ingredient propagation)
 - `supabase/migrations/20260520130000_add_get_recipe_linked_lists_fn.sql` — SECURITY DEFINER function to find linked shopping lists even when all items are soft-deleted
+
+---
+
+## 2026-05-21 — Phase 7b: Prework Preferences
+
+### Migration: `20260521000001_create_prework_preferences.sql`
+
+Per-member preference filters for accommodation search prework. Each trip member distributes up to 100 credits across free-text filters (e.g., "Pool", "Near beach", "Kitchen") to guide the organizer's external accommodation search.
+
+**Table:**
+- `public.prework_preferences` — One row per member per trip. Filters stored as JSONB array `[{ "label": "Pool", "weight": 40 }, ...]`. UNIQUE constraint on `(trip_id, user_id)` enables upsert semantics.
+
+**Columns:**
+- `id` UUID PK
+- `trip_id` UUID NOT NULL → `trips(id) ON DELETE CASCADE`
+- `user_id` UUID NOT NULL → `users(id) ON DELETE CASCADE`
+- `filters` JSONB NOT NULL DEFAULT `'[]'` with CHECK `jsonb_typeof(filters) = 'array'`
+- `updated_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+**RLS Policies:**
+- `prework_preferences_select_member` — SELECT: any trip member can see all preferences for their trip
+- `prework_preferences_insert_member` — INSERT: trip members can insert their own row only (`user_id = auth.uid()`)
+- `prework_preferences_update_own` — UPDATE: own row only
+- `prework_preferences_delete_own` — DELETE: own row only
+
+**Triggers:**
+- `prework_preferences_updated_at` — BEFORE UPDATE: reuses existing `set_updated_at()`
+
+**Indexes:**
+- `idx_prework_preferences_trip_id` on `prework_preferences(trip_id)`
+
+**Design decisions:**
+- JSONB single-row-per-member pattern avoids cross-row sum constraints — 100-credit max enforced at app level via Zod
+- No status/voting columns — this is a lightweight input-gathering feature, not a voting system
+- All members can see all preferences (no privacy restrictions)
+
+**Local migration file:** `supabase/migrations/20260521000001_create_prework_preferences.sql`
+
+### Migration: `20260521000002_enable_prework_realtime.sql`
+
+Added `prework_preferences` table to Supabase Realtime publication for live preference updates across trip members.
+
+**Realtime publication additions:**
+- `public.prework_preferences` — live INSERT/UPDATE/DELETE events
+
+**Architecture:**
+- One realtime channel per trip: `prework:{tripId}`
+- Server-side filter on `trip_id=eq.{tripId}`
+- Client uses `setQueryData` for surgical cache updates on INSERT/UPDATE/DELETE
+- Follows existing realtime pattern: exponential backoff reconnection [2s, 5s, 10s, 30s], AppState foreground resubscription + query invalidation
+
+**Local migration file:** `supabase/migrations/20260521000002_enable_prework_realtime.sql`

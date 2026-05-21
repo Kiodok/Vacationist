@@ -384,6 +384,7 @@ This strict isolation ensures that the Supabase client is never scattered across
   /trips
   /activities
   /accommodations
+  /prework
   /expenses
   /calendar
   /shopping
@@ -557,6 +558,25 @@ open
 skip
 group_blocker
 ```
+
+---
+
+### prework_preferences
+
+```sql
+id              UUID PRIMARY KEY
+trip_id         UUID REFERENCES trips(id) ON DELETE CASCADE
+user_id         UUID REFERENCES users(id) ON DELETE CASCADE
+filters         JSONB NOT NULL DEFAULT '[]' CHECK (jsonb_typeof(filters) = 'array')
+updated_at      TIMESTAMPTZ DEFAULT NOW()
+UNIQUE (trip_id, user_id)
+```
+
+`filters` stores an array of objects: `[{ "label": "Pool", "weight": 40 }, { "label": "Near beach", "weight": 60 }]`
+
+Weight constraint (sum = 100%) is enforced at the application level via Zod validation, not at the database level.
+
+This table does NOT use soft deletes — rows are fully removed when a member clears all their preferences.
 
 ---
 

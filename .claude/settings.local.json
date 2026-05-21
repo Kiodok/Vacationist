@@ -66,7 +66,12 @@
       "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -notmatch 'TS6305|The file is in the program|Matched by default' } | Select-Object -First 20)",
       "PowerShell(head *)",
       "Bash(xargs grep -l *)",
-      "Bash(Select-Object -First 20)"
+      "Bash(Select-Object -First 20)",
+      "Bash(not exist *)",
+      "Bash(Select-Object -First 30)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(try { \\(Invoke-WebRequest -Uri \"http://localhost:8081/status\" -TimeoutSec 3 -ErrorAction Stop\\).Content } catch { \"Not responding: $_\" })",
+      "PowerShell(adb devices *)"
     ]
   },
   "enableAllProjectMcpServers": true,

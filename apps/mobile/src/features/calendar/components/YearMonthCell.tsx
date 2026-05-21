@@ -3,8 +3,8 @@ import { View, Text, Pressable } from 'react-native';
 interface YearMonthCellProps {
   monthIndex: number;
   monthLabel: string;
-  hasActivities: boolean;
-  hasTripOnly: boolean;
+  activityDots: number;
+  tripOnlyDots: number;
   isCurrentMonth: boolean;
   onPress: (monthIndex: number) => void;
 }
@@ -12,42 +12,47 @@ interface YearMonthCellProps {
 export function YearMonthCell({
   monthIndex,
   monthLabel,
-  hasActivities,
-  hasTripOnly,
+  activityDots,
+  tripOnlyDots,
   isCurrentMonth,
   onPress,
 }: YearMonthCellProps) {
-  const dotClass = hasActivities
-    ? 'bg-primary'
-    : hasTripOnly
-      ? 'bg-warning'
-      : 'bg-transparent';
+  const dots: string[] = [];
+  for (let i = 0; i < activityDots; i++) dots.push('activity');
+  for (let i = 0; i < tripOnlyDots; i++) dots.push('tripOnly');
 
   return (
-    <Pressable
-      onPress={() => onPress(monthIndex)}
-      style={({ pressed }) => ({
-        flex: 1,
-        opacity: pressed ? 0.7 : 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 24,
-      })}
-    >
-      <View
-        className={`rounded-md px-md py-sm items-center ${
-          isCurrentMonth ? 'border border-primary' : ''
-        }`}
+    <View style={{ flex: 1 }}>
+      <Pressable
+        onPress={() => onPress(monthIndex)}
+        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
       >
-        <Text
-          className={`text-heading-m font-medium ${
-            isCurrentMonth ? 'text-primary' : 'text-text-primary'
-          }`}
-        >
-          {monthLabel}
-        </Text>
-        <View className={`w-[5px] h-[5px] rounded-full mt-xs ${dotClass}`} />
-      </View>
-    </Pressable>
+        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 24 }}>
+          <View
+            className={`rounded-md px-md py-sm items-center ${
+              isCurrentMonth ? 'border border-primary' : ''
+            }`}
+          >
+            <Text
+              className={`text-heading-m font-medium ${
+                isCurrentMonth ? 'text-primary' : 'text-text-primary'
+              }`}
+            >
+              {monthLabel}
+            </Text>
+            <View className="flex-row items-center justify-center gap-xs mt-xs" style={{ minHeight: 5 }}>
+              {dots.map((type, i) => (
+                <View
+                  key={i}
+                  className={`w-[5px] h-[5px] rounded-full ${
+                    type === 'activity' ? 'bg-primary' : 'bg-warning'
+                  }`}
+                />
+              ))}
+            </View>
+          </View>
+        </View>
+      </Pressable>
+    </View>
   );
 }

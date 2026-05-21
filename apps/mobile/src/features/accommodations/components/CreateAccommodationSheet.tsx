@@ -49,7 +49,7 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary">New Accommodation</Text>
+            <Text className="text-heading-m text-text-primary">New Base</Text>
             <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">Cancel</Text>
             </Pressable>
@@ -90,7 +90,7 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="Details about the place"
+                      placeholder="Details about the base"
                       value={value ?? ''}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -184,7 +184,7 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold">
-                  {isPending ? 'Adding...' : 'Add Accommodation'}
+                  {isPending ? 'Adding...' : 'Add Base'}
                 </Text>
               </Pressable>
             </View>

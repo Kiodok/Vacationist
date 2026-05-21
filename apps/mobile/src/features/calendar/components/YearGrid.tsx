@@ -9,10 +9,14 @@ const HORIZONTAL_PADDING = 16;
 const ROWS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]];
 const MAX_CALENDAR_WIDTH = 600;
 
+export interface MonthDots {
+  activity: number;
+  tripOnly: number;
+}
+
 interface YearGridProps {
   year: number;
-  activityMonths: Set<string>;
-  tripMonths: Set<string>;
+  monthDots: Record<string, MonthDots>;
   onPrevYear: () => void;
   onNextYear: () => void;
   onSelectMonth: (monthIndex: number) => void;
@@ -20,8 +24,7 @@ interface YearGridProps {
 
 export function YearGrid({
   year,
-  activityMonths,
-  tripMonths,
+  monthDots,
   onPrevYear,
   onNextYear,
   onSelectMonth,
@@ -33,23 +36,25 @@ export function YearGrid({
   return (
     <View
       className="bg-surface border-b border-border pb-md"
-      style={Platform.OS === 'web' ? { maxWidth: MAX_CALENDAR_WIDTH, width: '100%', alignSelf: 'center' } : undefined}
+      style={Platform.OS === 'web'
+        ? { flex: 1, maxWidth: MAX_CALENDAR_WIDTH, width: '100%', alignSelf: 'center' }
+        : { flex: 1 }
+      }
     >
       <YearHeader year={year} onPrevYear={onPrevYear} onNextYear={onNextYear} />
-      <View style={{ paddingHorizontal: HORIZONTAL_PADDING }}>
+      <View style={{ flex: 1, paddingHorizontal: HORIZONTAL_PADDING }}>
         {ROWS.map((row, rowIdx) => (
-          <View key={rowIdx} style={{ flexDirection: 'row' }}>
+          <View key={rowIdx} style={{ flex: 1, flexDirection: 'row' }}>
             {row.map((monthIdx) => {
               const key = `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
-              const hasActivities = activityMonths.has(key);
-              const hasTripOnly = !hasActivities && tripMonths.has(key);
+              const dots = monthDots[key];
               return (
                 <YearMonthCell
                   key={monthIdx}
                   monthIndex={monthIdx}
                   monthLabel={MONTH_LABELS[monthIdx]}
-                  hasActivities={hasActivities}
-                  hasTripOnly={hasTripOnly}
+                  activityDots={dots?.activity ?? 0}
+                  tripOnlyDots={dots?.tripOnly ?? 0}
                   isCurrentMonth={year === currentYear && monthIdx === currentMonth}
                   onPress={onSelectMonth}
                 />

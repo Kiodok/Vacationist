@@ -221,6 +221,19 @@ export interface RecipeWithIngredients extends Recipe {
   ingredient_count: number;
 }
 
+export interface PreworkFilter {
+  label: string;
+  weight: number;
+}
+
+export interface PreworkPreferences {
+  id: string;
+  trip_id: string;
+  user_id: string;
+  filters: PreworkFilter[];
+  updated_at: string;
+}
+
 export interface Notification {
   id: string;
   trip_id: string;
