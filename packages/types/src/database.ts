@@ -11,6 +11,8 @@ import type {
   Currency,
   NotificationType,
   SupportedTimezone,
+  TransferFlightStatus,
+  TransferDirection,
 } from './enums';
 
 export interface User {
@@ -232,6 +234,84 @@ export interface PreworkPreferences {
   user_id: string;
   filters: PreworkFilter[];
   updated_at: string;
+}
+
+export interface TransferFlight {
+  id: string;
+  trip_id: string;
+  title: string;
+  description: string | null;
+  direction: TransferDirection;
+  airline: string | null;
+  departure_airport: string | null;
+  arrival_airport: string | null;
+  departure_time: string | null;
+  arrival_time: string | null;
+  price_per_person: number | null;
+  external_url: string | null;
+  flight_number: string | null;
+  booking_reference: string | null;
+  notes: string | null;
+  status: TransferFlightStatus;
+  voting_open: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface TransferFlightVote {
+  id: string;
+  flight_id: string;
+  user_id: string;
+  vote: VoteType;
+  created_at: string;
+}
+
+export interface TransferFlightPassenger {
+  id: string;
+  flight_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface TransferVehicle {
+  id: string;
+  trip_id: string;
+  title: string;
+  direction: TransferDirection;
+  notes: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface TransferVehiclePassenger {
+  id: string;
+  vehicle_id: string;
+  user_id: string;
+  is_driver: boolean;
+  created_at: string;
+}
+
+export interface TransferRental {
+  id: string;
+  trip_id: string;
+  title: string;
+  company: string | null;
+  pickup_location: string | null;
+  dropoff_location: string | null;
+  pickup_date: string | null;
+  dropoff_date: string | null;
+  booking_reference: string | null;
+  price_total: number | null;
+  external_url: string | null;
+  notes: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }
 
 export interface Notification {

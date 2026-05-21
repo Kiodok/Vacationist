@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS } from './enums';
+import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION } from './enums';
 
 export const userSchema = z.object({
   id: z.string().uuid(),
@@ -257,6 +257,64 @@ export const upsertPreworkPreferencesSchema = z.object({
 
 export type PreworkFilterInput = z.infer<typeof preworkFilterSchema>;
 export type UpsertPreworkPreferencesInput = z.infer<typeof upsertPreworkPreferencesSchema>;
+
+// --- Transfer schemas ---
+
+export const createTransferFlightSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().max(1000).optional(),
+  direction: z.enum(TRANSFER_DIRECTION),
+  airline: z.string().max(100).optional(),
+  departure_airport: z.string().max(100).optional(),
+  arrival_airport: z.string().max(100).optional(),
+  departure_time: z.string().nullable().optional(),
+  arrival_time: z.string().nullable().optional(),
+  price_per_person: z.number().nonnegative().nullable().optional(),
+  external_url: httpsUrlSchema.nullable().optional(),
+  notes: z.string().max(500).optional(),
+});
+
+export const updateTransferFlightSchema = createTransferFlightSchema.partial().extend({
+  status: z.enum(TRANSFER_FLIGHT_STATUS).optional(),
+});
+
+export const bookTransferFlightSchema = z.object({
+  flight_number: z.string().max(20).optional(),
+  booking_reference: z.string().max(50).optional(),
+});
+
+export type CreateTransferFlightInput = z.infer<typeof createTransferFlightSchema>;
+export type UpdateTransferFlightInput = z.infer<typeof updateTransferFlightSchema>;
+export type BookTransferFlightInput = z.infer<typeof bookTransferFlightSchema>;
+
+export const createTransferVehicleSchema = z.object({
+  title: z.string().min(1).max(100),
+  direction: z.enum(TRANSFER_DIRECTION),
+  notes: z.string().max(500).optional(),
+});
+
+export const updateTransferVehicleSchema = createTransferVehicleSchema.partial();
+
+export type CreateTransferVehicleInput = z.infer<typeof createTransferVehicleSchema>;
+export type UpdateTransferVehicleInput = z.infer<typeof updateTransferVehicleSchema>;
+
+export const createTransferRentalSchema = z.object({
+  title: z.string().min(1).max(100),
+  company: z.string().max(100).optional(),
+  pickup_location: z.string().max(200).optional(),
+  dropoff_location: z.string().max(200).optional(),
+  pickup_date: z.string().nullable().optional(),
+  dropoff_date: z.string().nullable().optional(),
+  booking_reference: z.string().max(50).optional(),
+  price_total: z.number().nonnegative().nullable().optional(),
+  external_url: httpsUrlSchema.nullable().optional(),
+  notes: z.string().max(500).optional(),
+});
+
+export const updateTransferRentalSchema = createTransferRentalSchema.partial();
+
+export type CreateTransferRentalInput = z.infer<typeof createTransferRentalSchema>;
+export type UpdateTransferRentalInput = z.infer<typeof updateTransferRentalSchema>;
 
 // --- Invite schemas ---
 

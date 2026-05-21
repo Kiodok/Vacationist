@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       accommodation_votes: {
@@ -678,6 +653,330 @@ export type Database = {
           },
         ]
       }
+      transfer_flight_passengers: {
+        Row: {
+          created_at: string
+          flight_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          flight_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          flight_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_flight_passengers_flight_id_fkey"
+            columns: ["flight_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_flights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_flight_passengers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_flight_votes: {
+        Row: {
+          created_at: string
+          flight_id: string
+          id: string
+          user_id: string
+          vote: string
+        }
+        Insert: {
+          created_at?: string
+          flight_id: string
+          id?: string
+          user_id: string
+          vote: string
+        }
+        Update: {
+          created_at?: string
+          flight_id?: string
+          id?: string
+          user_id?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_flight_votes_flight_id_fkey"
+            columns: ["flight_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_flights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_flight_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_flights: {
+        Row: {
+          airline: string | null
+          arrival_airport: string | null
+          arrival_time: string | null
+          booking_reference: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          departure_airport: string | null
+          departure_time: string | null
+          description: string | null
+          direction: string
+          external_url: string | null
+          flight_number: string | null
+          id: string
+          notes: string | null
+          price_per_person: number | null
+          status: string
+          title: string
+          trip_id: string
+          updated_at: string
+          voting_open: boolean
+        }
+        Insert: {
+          airline?: string | null
+          arrival_airport?: string | null
+          arrival_time?: string | null
+          booking_reference?: string | null
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          departure_airport?: string | null
+          departure_time?: string | null
+          description?: string | null
+          direction: string
+          external_url?: string | null
+          flight_number?: string | null
+          id?: string
+          notes?: string | null
+          price_per_person?: number | null
+          status?: string
+          title: string
+          trip_id: string
+          updated_at?: string
+          voting_open?: boolean
+        }
+        Update: {
+          airline?: string | null
+          arrival_airport?: string | null
+          arrival_time?: string | null
+          booking_reference?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          departure_airport?: string | null
+          departure_time?: string | null
+          description?: string | null
+          direction?: string
+          external_url?: string | null
+          flight_number?: string | null
+          id?: string
+          notes?: string | null
+          price_per_person?: number | null
+          status?: string
+          title?: string
+          trip_id?: string
+          updated_at?: string
+          voting_open?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_flights_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_flights_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_rentals: {
+        Row: {
+          booking_reference: string | null
+          company: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          dropoff_date: string | null
+          dropoff_location: string | null
+          external_url: string | null
+          id: string
+          notes: string | null
+          pickup_date: string | null
+          pickup_location: string | null
+          price_total: number | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          booking_reference?: string | null
+          company?: string | null
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          dropoff_date?: string | null
+          dropoff_location?: string | null
+          external_url?: string | null
+          id?: string
+          notes?: string | null
+          pickup_date?: string | null
+          pickup_location?: string | null
+          price_total?: number | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          booking_reference?: string | null
+          company?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          dropoff_date?: string | null
+          dropoff_location?: string | null
+          external_url?: string | null
+          id?: string
+          notes?: string | null
+          pickup_date?: string | null
+          pickup_location?: string | null
+          price_total?: number | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_rentals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_rentals_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_vehicle_passengers: {
+        Row: {
+          created_at: string
+          id: string
+          is_driver: boolean
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_driver?: boolean
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_driver?: boolean
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_vehicle_passengers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_vehicle_passengers_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_vehicles: {
+        Row: {
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          direction: string
+          id: string
+          notes: string | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          direction: string
+          id?: string
+          notes?: string | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          direction?: string
+          id?: string
+          notes?: string | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_vehicles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_vehicles_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_members: {
         Row: {
           id: string
@@ -815,12 +1114,24 @@ export type Database = {
     }
     Functions: {
       archive_expense: { Args: { p_expense_id: string }; Returns: undefined }
+      book_transfer_flight: {
+        Args: {
+          p_booking_reference?: string
+          p_flight_id: string
+          p_flight_number?: string
+        }
+        Returns: undefined
+      }
       close_accommodation_voting: {
         Args: { p_accommodation_id: string }
         Returns: undefined
       }
       close_activity_voting: {
         Args: { p_activity_id: string }
+        Returns: undefined
+      }
+      close_transfer_flight_voting: {
+        Args: { p_flight_id: string }
         Returns: undefined
       }
       create_expense_with_splits: {
@@ -863,6 +1174,14 @@ export type Database = {
         Args: { p_activity_id: string }
         Returns: undefined
       }
+      reopen_transfer_flight_voting: {
+        Args: { p_flight_id: string }
+        Returns: undefined
+      }
+      set_transfer_flight_passengers: {
+        Args: { p_flight_id: string; p_user_ids: string[] }
+        Returns: undefined
+      }
       settle_expense_split: { Args: { p_split_id: string }; Returns: undefined }
       soft_delete_accommodation: {
         Args: { p_accommodation_id: string }
@@ -874,6 +1193,18 @@ export type Database = {
       }
       soft_delete_shopping_item: {
         Args: { p_item_id: string }
+        Returns: undefined
+      }
+      soft_delete_transfer_flight: {
+        Args: { p_flight_id: string }
+        Returns: undefined
+      }
+      soft_delete_transfer_rental: {
+        Args: { p_rental_id: string }
+        Returns: undefined
+      }
+      soft_delete_transfer_vehicle: {
+        Args: { p_vehicle_id: string }
         Returns: undefined
       }
       soft_delete_trip: { Args: { p_trip_id: string }; Returns: undefined }
@@ -1021,9 +1352,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

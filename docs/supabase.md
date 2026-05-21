@@ -709,3 +709,140 @@ Added `prework_preferences` table to Supabase Realtime publication for live pref
 - Follows existing realtime pattern: exponential backoff reconnection [2s, 5s, 10s, 30s], AppState foreground resubscription + query invalidation
 
 **Local migration file:** `supabase/migrations/20260521000002_enable_prework_realtime.sql`
+
+---
+
+## 2026-05-22 — Phase 7c: Transfer (Flights, Vehicles, Rental Cars)
+
+### Migration: `20260522000001_create_transfer_flights_and_votes`
+
+**Tables:**
+- `public.transfer_flights` — Flight options per trip with soft delete, direction (outbound/return), airline info, departure/arrival airports + times, price per person, post-booking fields (flight_number, booking_reference), status lifecycle (suggested/booked/completed), voting flag
+- `public.transfer_flight_votes` — Non-numeric voting (must_do/like/open/skip/group_blocker), UNIQUE on (flight_id, user_id) for upsert semantics
+
+**RLS Policies:**
+- `transfer_flights`: SELECT by trip members (non-deleted), INSERT by trip members (created_by = self), UPDATE by organizer any or creator own
+- `transfer_flight_votes`: SELECT by trip members, INSERT/UPDATE/DELETE by own user + voting must be open; own-update policy also checks trip membership
+
+**Triggers:**
+- `transfer_flights_updated_at` — auto-updates `updated_at` on UPDATE
+- `restrict_transfer_flight_update_fields` — BEFORE UPDATE: prevents changing trip_id/created_by; restricts voting_open, status, flight_number, booking_reference changes to organizers only; skips check when called from nested trigger (pg_trigger_depth > 1)
+- `auto_finalize_transfer_flight_voting` — AFTER INSERT/UPDATE on transfer_flight_votes: SECURITY DEFINER, sets voting_open=FALSE when all trip members have voted
+
+**Functions:**
+- `public.soft_delete_transfer_flight(p_flight_id UUID)` — SECURITY DEFINER: organizer any, participant own, guest cannot
+- `public.close_transfer_flight_voting(p_flight_id UUID)` — SECURITY DEFINER: organizer only
+- `public.reopen_transfer_flight_voting(p_flight_id UUID)` — SECURITY DEFINER: organizer only
+- `public.book_transfer_flight(p_flight_id UUID, p_flight_number TEXT DEFAULT NULL, p_booking_reference TEXT DEFAULT NULL)` — SECURITY DEFINER: organizer only, atomically sets status='booked' + voting_open=FALSE
+
+**Constraints:**
+- `transfer_flights_external_url_https` — CHECK enforcing `https://` prefix on external URLs
+
+**Indexes:**
+- `idx_transfer_flights_trip_id` (partial: deleted_at IS NULL)
+- `idx_transfer_flights_created_by`
+- `idx_transfer_flight_votes_flight_id`
+- `idx_transfer_flight_votes_user_id`
+
+**Local migration file:** `supabase/migrations/20260522000001_create_transfer_flights_and_votes.sql`
+
+---
+
+### Migration: `20260522000002_create_transfer_flight_passengers`
+
+**Table:**
+- `public.transfer_flight_passengers` — Passengers assigned to a booked flight. UNIQUE on (flight_id, user_id).
+
+**RLS Policies:**
+- SELECT: trip members (via flight → trip join)
+- INSERT/DELETE: organizer only
+
+**Triggers:**
+- `verify_flight_booked_before_passenger` — BEFORE INSERT: raises exception if the flight's status is not 'booked'
+
+**Functions:**
+- `public.set_transfer_flight_passengers(p_flight_id UUID, p_user_ids UUID[])` — SECURITY DEFINER: organizer only, atomically replaces entire passenger list (DELETE all + INSERT new) in a single transaction
+
+**Indexes:**
+- `idx_transfer_flight_passengers_flight_id`
+
+**Local migration file:** `supabase/migrations/20260522000002_create_transfer_flight_passengers.sql`
+
+---
+
+### Migration: `20260522000003_create_transfer_vehicles_and_passengers`
+
+**Tables:**
+- `public.transfer_vehicles` — Personal vehicles per trip with soft delete and direction (outbound/return)
+- `public.transfer_vehicle_passengers` — Members in each vehicle with an `is_driver` flag. UNIQUE on (vehicle_id, user_id).
+
+**RLS Policies:**
+- `transfer_vehicles`: SELECT by trip members (non-deleted), INSERT by trip members, UPDATE by organizer or creator
+- `transfer_vehicle_passengers`: SELECT by trip members (via vehicle → trip join), INSERT/UPDATE/DELETE by organizer or vehicle creator
+
+**Triggers:**
+- `transfer_vehicles_updated_at` — auto-updates `updated_at` on UPDATE
+
+**Functions:**
+- `public.soft_delete_transfer_vehicle(p_vehicle_id UUID)` — SECURITY DEFINER: organizer any, participant own, guest cannot
+
+**Indexes:**
+- `idx_transfer_vehicles_trip_id` (partial: deleted_at IS NULL)
+- `idx_transfer_vehicles_created_by`
+- `idx_transfer_vehicle_passengers_vehicle_id`
+
+**Local migration file:** `supabase/migrations/20260522000003_create_transfer_vehicles_and_passengers.sql`
+
+---
+
+### Migration: `20260522000004_create_transfer_rentals`
+
+**Table:**
+- `public.transfer_rentals` — Rental car bookings per trip with soft delete. No voting, no passengers. Fields: company, pickup/dropoff locations, pickup/dropoff dates, booking_reference, price_total, external_url (HTTPS-only), notes.
+
+**RLS Policies:**
+- SELECT: trip members (non-deleted)
+- INSERT: trip members (created_by = self)
+- UPDATE: organizer or creator
+
+**Triggers:**
+- `transfer_rentals_updated_at` — auto-updates `updated_at` on UPDATE
+
+**Functions:**
+- `public.soft_delete_transfer_rental(p_rental_id UUID)` — SECURITY DEFINER: organizer any, participant own, guest cannot
+
+**Constraints:**
+- `transfer_rentals_external_url_https` — CHECK enforcing `https://` prefix on external URLs
+
+**Indexes:**
+- `idx_transfer_rentals_trip_id` (partial: deleted_at IS NULL)
+- `idx_transfer_rentals_created_by`
+
+**Local migration file:** `supabase/migrations/20260522000004_create_transfer_rentals.sql`
+
+---
+
+### Migration: `20260522000005_enable_transfer_realtime`
+
+Added all six transfer tables to Supabase Realtime publication and configured REPLICA IDENTITY for junction tables.
+
+**Realtime publication additions:**
+- `public.transfer_flights` — live INSERT/UPDATE events
+- `public.transfer_flight_votes` — live INSERT/UPDATE/DELETE events
+- `public.transfer_flight_passengers` — live INSERT/DELETE events
+- `public.transfer_vehicles` — live INSERT/UPDATE events
+- `public.transfer_vehicle_passengers` — live INSERT/UPDATE/DELETE events
+- `public.transfer_rentals` — live INSERT/UPDATE events
+
+**REPLICA IDENTITY changes:**
+- `public.transfer_flight_votes` → FULL (DELETE payloads include all columns to identify the flight a vote belonged to)
+- `public.transfer_flight_passengers` → FULL (DELETE payloads include all columns)
+- `public.transfer_vehicle_passengers` → FULL (DELETE payloads include all columns)
+
+**Architecture:**
+- One channel per trip per category: `transfer-flights:{tripId}:{uid}`, `transfer-vehicles:{tripId}:{uid}`, `transfer-rentals:{tripId}:{uid}`
+- Flight channel subscribes to vote, flight update, and passenger change events
+- Vehicle channel subscribes to vehicle and vehicle-passenger change events
+- All channels use exponential backoff reconnection and AppState foreground resubscription
+
+**Local migration file:** `supabase/migrations/20260522000005_enable_transfer_realtime.sql`

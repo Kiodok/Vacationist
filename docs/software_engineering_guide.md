@@ -728,6 +728,126 @@ unit            TEXT
 
 ---
 
+### transfer_flights
+
+```sql
+id                  UUID PRIMARY KEY
+trip_id             UUID REFERENCES trips(id) ON DELETE CASCADE
+title               TEXT NOT NULL
+description         TEXT
+direction           TEXT NOT NULL CHECK (direction IN ('outbound', 'return'))
+airline             TEXT
+departure_airport   TEXT
+arrival_airport     TEXT
+departure_time      TIMESTAMPTZ
+arrival_time        TIMESTAMPTZ
+price_per_person    NUMERIC(10,2)
+external_url        TEXT  -- HTTPS-only CHECK constraint
+flight_number       TEXT  -- set after booking
+booking_reference   TEXT  -- set after booking
+notes               TEXT
+status              TEXT DEFAULT 'suggested' CHECK (status IN ('suggested', 'booked', 'completed'))
+voting_open         BOOLEAN DEFAULT TRUE
+created_by          UUID REFERENCES users(id)
+created_at          TIMESTAMPTZ DEFAULT NOW()
+updated_at          TIMESTAMPTZ DEFAULT NOW()
+deleted_at          TIMESTAMPTZ DEFAULT NULL
+```
+
+Status values:
+- `suggested`
+- `booked`
+- `completed`
+
+---
+
+### transfer_flight_votes
+
+```sql
+id          UUID PRIMARY KEY
+flight_id   UUID REFERENCES transfer_flights(id) ON DELETE CASCADE
+user_id     UUID REFERENCES users(id) ON DELETE CASCADE
+vote        TEXT CHECK (vote IN ('must_do', 'like', 'open', 'skip', 'group_blocker'))
+created_at  TIMESTAMPTZ DEFAULT NOW()
+UNIQUE (flight_id, user_id)
+```
+
+Same vote semantics as `activity_votes`. Winner is computed client-side by `computeFlightWinner` — no DB column.
+
+---
+
+### transfer_flight_passengers
+
+```sql
+id          UUID PRIMARY KEY
+flight_id   UUID REFERENCES transfer_flights(id) ON DELETE CASCADE
+user_id     UUID REFERENCES users(id) ON DELETE CASCADE
+created_at  TIMESTAMPTZ DEFAULT NOW()
+UNIQUE (flight_id, user_id)
+```
+
+Passengers can only be assigned after `transfer_flights.status = 'booked'` (enforced by BEFORE INSERT trigger). Set atomically via `set_transfer_flight_passengers(p_flight_id, p_user_ids)` RPC.
+
+---
+
+### transfer_vehicles
+
+```sql
+id          UUID PRIMARY KEY
+trip_id     UUID REFERENCES trips(id) ON DELETE CASCADE
+title       TEXT NOT NULL
+direction   TEXT NOT NULL CHECK (direction IN ('outbound', 'return'))
+notes       TEXT
+created_by  UUID REFERENCES users(id)
+created_at  TIMESTAMPTZ DEFAULT NOW()
+updated_at  TIMESTAMPTZ DEFAULT NOW()
+deleted_at  TIMESTAMPTZ DEFAULT NULL
+```
+
+No voting — tracks which members travel in which personal vehicle. Grouped by direction in the UI.
+
+---
+
+### transfer_vehicle_passengers
+
+```sql
+id          UUID PRIMARY KEY
+vehicle_id  UUID REFERENCES transfer_vehicles(id) ON DELETE CASCADE
+user_id     UUID REFERENCES users(id) ON DELETE CASCADE
+is_driver   BOOLEAN DEFAULT FALSE
+created_at  TIMESTAMPTZ DEFAULT NOW()
+UNIQUE (vehicle_id, user_id)
+```
+
+`is_driver` is toggled per passenger. Managed via `useUpdateTransferVehiclePassenger({ userId, isDriver })`.
+
+---
+
+### transfer_rentals
+
+```sql
+id                  UUID PRIMARY KEY
+trip_id             UUID REFERENCES trips(id) ON DELETE CASCADE
+title               TEXT NOT NULL
+company             TEXT
+pickup_location     TEXT
+dropoff_location    TEXT
+pickup_date         TIMESTAMPTZ
+dropoff_date        TIMESTAMPTZ
+booking_reference   TEXT
+price_total         NUMERIC(10,2)
+external_url        TEXT  -- HTTPS-only CHECK constraint
+notes               TEXT
+created_by          UUID REFERENCES users(id)
+created_at          TIMESTAMPTZ DEFAULT NOW()
+updated_at          TIMESTAMPTZ DEFAULT NOW()
+deleted_at          TIMESTAMPTZ DEFAULT NULL
+```
+
+Simplest transfer entity — no voting, no passengers. Ordered by `pickup_date ASC NULLS LAST` in the UI.
+
+---
+
 ### notifications
 
 ```sql

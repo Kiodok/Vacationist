@@ -13,13 +13,14 @@ import OverviewTab from './index';
 import PreworkTab from './prework';
 import ActivitiesTab from './activities';
 import AccommodationsTab from './accommodations';
+import TransferTab from './transfer';
 import ExpensesTab from './expenses';
 import ShoppingTab from './shopping';
 import RecipesTab from './recipes';
 import SettingsTab from './settings';
 import CalendarTab from './calendar';
 
-const TABS = ['Overview', 'Prework', 'Base', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Settings'] as const;
+const TABS = ['Overview', 'Prework', 'Base', 'Transfer', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
 
 function getInitialTab(paramTab?: string): Tab {
@@ -89,6 +90,8 @@ export default function TripDetailLayout() {
         return <ActivitiesTab />;
       case 'Base':
         return <AccommodationsTab />;
+      case 'Transfer':
+        return <TransferTab />;
       case 'Expenses':
         return <ExpensesTab />;
       case 'Shopping':

@@ -1,4 +1,9 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-6",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6"
+  },
   "permissions": {
     "allow": [
       "Bash(npm -v)",
@@ -14,7 +19,6 @@
       "Bash(npx expo *)",
       "Bash(dir F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app *)",
       "PowerShell(New-Item *)",
-      "WebFetch(domain:localhost)",
       "Bash(npx supabase *)",
       "mcp__plugin_supabase_supabase__list_projects",
       "Bash(supabase *)",
@@ -51,12 +55,8 @@
       "Bash(dir \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app\\\\trip\" /s /b)",
       "Bash(findstr /i \"expenses\\\\|activities\\\\|shopping\\\\|_layout\")",
       "mcp__plugin_supabase_supabase__execute_sql",
-      "Bash(node -e \"const p = require\\('./apps/mobile/node_modules/@react-native-google-signin/google-signin/package.json'\\); console.log\\(p.version\\)\")",
-      "Bash(node -e \"const p = require\\('./node_modules/@react-native-google-signin/google-signin/package.json'\\); console.log\\(p.version\\)\")",
-      "Bash(node -e \"const mod = require\\('./node_modules/@react-native-google-signin/google-signin'\\); console.log\\('Exports:', Object.keys\\(mod\\)\\); console.log\\('GoogleSignin methods:', Object.getOwnPropertyNames\\(Object.getPrototypeOf\\(mod.GoogleSignin\\)\\).filter\\(m => m !== 'constructor'\\)\\)\")",
       "Bash(findstr /i \"realtime\\\\|Voting\\\\|activity_votes\\\\|accommodation_votes\\\\|activities.ts\\\\|accommodations.ts\")",
       "Bash(findstr /v \"app.config.ts\")",
-      "Bash(Select-String -Pattern \"\\(expenses|useExpensesRealtime|ExpenseRealtime\\)\")",
       "Bash(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\\\\supabase\\\\migrations\" -File)",
       "Bash(findstr /V \"TS6305\")",
       "Bash(findstr /V \"The file is\")",
@@ -70,10 +70,11 @@
       "Bash(not exist *)",
       "Bash(Select-Object -First 30)",
       "PowerShell(Get-Process *)",
-      "PowerShell(try { \\(Invoke-WebRequest -Uri \"http://localhost:8081/status\" -TimeoutSec 3 -ErrorAction Stop\\).Content } catch { \"Not responding: $_\" })",
-      "PowerShell(adb devices *)"
+      "PowerShell(adb devices *)",
+      "mcp__plugin_supabase_supabase__list_migrations"
     ]
   },
+  "model": "opusplan",
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "supabase"
