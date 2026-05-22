@@ -1,130 +1,166 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, Text, Pressable, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { dayjs, formatCurrency } from '@vacationist/utils';
-import type { UpdateTripInput } from '@vacationist/types';
-import { useTrip, useUpdateTrip } from '../../../src/features/trips/hooks/useTrips';
-import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
-import { MemberAvatarGroup } from '../../../src/features/trips/components/MemberAvatarGroup';
-import { EditTripSheet } from '../../../src/features/trips/components/EditTripSheet';
+import { dayjs } from '@vacationist/utils';
+import { TripNotFoundError } from '@vacationist/api';
+import { useTrip } from '../../../src/features/trips/hooks/useTrips';
+import { useTripRealtime } from '../../../src/features/trips/hooks/useTripRealtime';
+import { useAuthStore } from '../../../src/stores/authStore';
+import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
+import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
+import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
+import OverviewTab from './overview';
+import PreworkTab from './prework';
+import ActivitiesTab from './activities';
+import AccommodationsTab from './accommodations';
+import TransferTab from './transfer';
+import ExpensesTab from './expenses';
+import ShoppingTab from './shopping';
+import RecipesTab from './recipes';
+import SettingsTab from './settings';
+import CalendarTab from './calendar';
+import NotesTab from './notes';
 
-export default function OverviewTab() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: trip } = useTrip(id!);
-  const { data: members } = useTripMembers(id!);
-  const { data: role } = useCurrentMemberRole(id!);
-  const updateTrip = useUpdateTrip();
-  const [editOpen, setEditOpen] = useState(false);
+const TABS = ['Overview', 'Prework', 'Base', 'Transfer', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Notes', 'Settings'] as const;
+type Tab = (typeof TABS)[number];
 
-  if (!trip) return null;
+function getInitialTab(paramTab?: string): Tab {
+  if (TABS.includes(paramTab as Tab)) return paramTab as Tab;
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (TABS.includes(urlTab as Tab)) return urlTab as Tab;
+  }
+  return 'Overview';
+}
 
-  const isOrganizer = role === 'organizer';
-  const duration = dayjs(trip.end_date).diff(dayjs(trip.start_date), 'day') + 1;
+export default function TripDetailScreen() {
+  const { id, tab } = useLocalSearchParams<{ id: string; tab?: string }>();
+  const router = useRouter();
+  const { data: trip, isLoading, isError, error } = useTrip(id!);
+  const authLoading = useAuthStore((s) => s.isLoading);
+  useTripRealtime(id!);
+  const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab(tab));
 
-  async function handleEditSubmit(input: UpdateTripInput) {
-    try {
-      await updateTrip.mutateAsync({ tripId: id!, input });
-      setEditOpen(false);
-    } catch {
-      // onError toast shown by useUpdateTrip
+  const handleTabChange = (newTab: Tab) => {
+    setActiveTab(newTab);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('id');
+      url.searchParams.set('tab', newTab);
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
+
+  if (isLoading || authLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator color="#6C63FF" size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  if (isError || !trip) {
+    const isNotMember = error instanceof TripNotFoundError;
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center px-md gap-md">
+        <Text className="text-text-secondary text-body text-center">
+          {isNotMember
+            ? "This trip doesn't exist or you don't have access to it."
+            : 'Failed to load trip.'}
+        </Text>
+        <Pressable
+          onPress={() => isNotMember ? router.replace('/(tabs)') : router.back()}
+          className="px-lg py-sm rounded-md bg-surface border border-border"
+        >
+          <Text className="text-text-primary text-body">
+            {isNotMember ? 'Go to home' : 'Go back'}
+          </Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
+
+  function renderTab() {
+    switch (activeTab) {
+      case 'Overview':
+        return <OverviewTab />;
+      case 'Prework':
+        return <PreworkTab />;
+      case 'Calendar':
+        return <CalendarTab />;
+      case 'Activities':
+        return <ActivitiesTab />;
+      case 'Base':
+        return <AccommodationsTab />;
+      case 'Transfer':
+        return <TransferTab />;
+      case 'Expenses':
+        return <ExpensesTab />;
+      case 'Shopping':
+        return <ShoppingTab />;
+      case 'Recipes':
+        return <RecipesTab />;
+      case 'Notes':
+        return <NotesTab />;
+      case 'Settings':
+        return <SettingsTab />;
     }
   }
 
   return (
-    <>
-      <ScrollView style={{ flex: 1 }} contentContainerClassName="px-md py-md gap-md">
-        {/* Edit button — organizers only */}
-        {isOrganizer && (
-          <Pressable
-            onPress={() => setEditOpen(true)}
-            className="flex-row items-center justify-end gap-xs"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <Ionicons name="pencil-outline" size={16} color="#A0A0A0" />
-            <Text className="text-body-small text-text-secondary">Edit trip</Text>
+    <SafeAreaView className="flex-1 bg-background">
+      {/* Header */}
+      <View className="px-md pt-md pb-sm">
+        <View className="flex-row items-center gap-md mb-sm">
+          <Pressable onPress={() => router.replace('/(tabs)')} className="p-xs">
+            <Ionicons name="arrow-back" size={24} color="#F2F2F2" />
           </Pressable>
-        )}
-
-        {trip.description ? (
-          <View className="bg-surface border border-border rounded-md p-md">
-            <Text className="text-body text-text-primary">{trip.description}</Text>
-          </View>
-        ) : null}
-
-        {/* Quick stats */}
-        <View className="flex-row gap-sm">
-          <View className="flex-1 bg-surface border border-border rounded-md p-md items-center">
-            <Ionicons name="calendar-outline" size={20} color="#A0A0A0" />
-            <Text className="text-heading-m text-text-primary mt-xs">{duration}</Text>
+          <View className="flex-1">
+            <Text className="text-heading-l text-text-primary" numberOfLines={1}>
+              {trip.title}
+            </Text>
             <Text className="text-body-small text-text-secondary">
-              {duration === 1 ? 'Day' : 'Days'}
+              {dayjs(trip.start_date).format('D MMM')} – {dayjs(trip.end_date).format('D MMM YYYY')}
             </Text>
           </View>
-
-          <View className="flex-1 bg-surface border border-border rounded-md p-md items-center">
-            <Ionicons name="people-outline" size={20} color="#A0A0A0" />
-            <Text className="text-heading-m text-text-primary mt-xs">
-              {trip.member_count}
-            </Text>
-            <Text className="text-body-small text-text-secondary">Members</Text>
-          </View>
-
-          {trip.budget_per_person != null && (
-            <View className="flex-1 bg-surface border border-border rounded-md p-md items-center">
-              <Ionicons name="wallet-outline" size={20} color="#A0A0A0" />
-              <Text className="text-heading-m text-text-primary mt-xs">
-                {formatCurrency(trip.budget_per_person, trip.base_currency)}
-              </Text>
-              <Text className="text-body-small text-text-secondary">Budget/person</Text>
-            </View>
-          )}
+          <TripNotificationBell tripId={id!} />
+          <StatusBadge status={trip.status} />
         </View>
 
-        {/* Members preview */}
-        {members && members.length > 0 && (
-          <View className="bg-surface border border-border rounded-md p-md">
-            <Text className="text-label text-text-muted uppercase mb-sm">Members</Text>
-            <View className="flex-row items-center gap-md">
-              <MemberAvatarGroup
-                members={members.map((m) => ({
-                  id: m.user_id,
-                  name: m.user.name,
-                  avatar_url: m.user.avatar_url,
-                }))}
-              />
-              <Text className="text-body-small text-text-secondary">
-                {members.length} {members.length === 1 ? 'member' : 'members'}
+        {/* Tab bar */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="gap-xs"
+        >
+          {TABS.map((t) => (
+            <Pressable
+              key={t}
+              onPress={() => handleTabChange(t)}
+              className={`px-md py-sm rounded-full ${
+                activeTab === t ? 'bg-primary' : 'bg-surface'
+              }`}
+            >
+              <Text
+                className={`text-body-small font-semibold ${
+                  activeTab === t ? 'text-white' : 'text-text-secondary'
+                }`}
+              >
+                {t}
               </Text>
-            </View>
-          </View>
-        )}
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
 
-        {/* Info */}
-        <View className="bg-surface border border-border rounded-md p-md gap-sm">
-          <Text className="text-label text-text-muted uppercase">Details</Text>
-          <View className="flex-row justify-between">
-            <Text className="text-body-small text-text-secondary">Currency</Text>
-            <Text className="text-body-small text-text-primary">{trip.base_currency}</Text>
-          </View>
-          <View className="flex-row justify-between">
-            <Text className="text-body-small text-text-secondary">Timezone</Text>
-            <Text className="text-body-small text-text-primary">
-              {trip.timezone.replace('Europe/', '')}
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-
-      {isOrganizer && (
-        <EditTripSheet
-          visible={editOpen}
-          onClose={() => setEditOpen(false)}
-          onSubmit={handleEditSubmit}
-          isPending={updateTrip.isPending}
-          trip={trip}
-        />
-      )}
-    </>
+      {/* Tab content — flex: 1 ensures bounded height so Pressables inside ScrollViews register touches */}
+      <View style={{ flex: 1 }}>
+        <ScreenErrorBoundary>
+          {renderTab()}
+        </ScreenErrorBoundary>
+      </View>
+    </SafeAreaView>
   );
 }

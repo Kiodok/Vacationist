@@ -42,6 +42,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-font',
     'expo-web-browser',
     [
+      'expo-notifications',
+      {
+        color: '#6C63FF',
+        defaultChannel: 'default',
+        sounds: [],
+      },
+    ],
+    [
       '@react-native-google-signin/google-signin',
       {
         iosUrlScheme: googleWebClientId

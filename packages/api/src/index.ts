@@ -168,6 +168,20 @@ export type { RentalRealtimeCallbacks } from './transferRentals';
 export { getNotes, createNote, updateNote, deleteNote } from './notes';
 
 export {
+  getNotifications,
+  getTripNotifications,
+  getUnreadCount,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification,
+  getNotificationPreferences,
+  updateNotificationPreferences,
+  sendOrganizerNudge,
+} from './notifications';
+
+export { upsertPushToken, deletePushToken } from './pushTokens';
+
+export {
   getMyTravelDocuments,
   upsertTravelDocument,
   deleteTravelDocument,

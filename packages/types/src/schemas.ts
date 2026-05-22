@@ -402,6 +402,19 @@ export const createDocumentAccessRequestSchema = z.object({
 
 export type CreateDocumentAccessRequestInput = z.infer<typeof createDocumentAccessRequestSchema>;
 
+// --- Notification preference schemas ---
+
+export const updateNotificationPreferencesSchema = z.object({
+  new_activity:    z.boolean().optional(),
+  vote_update:     z.boolean().optional(),
+  expense_change:  z.boolean().optional(),
+  new_member:      z.boolean().optional(),
+  schedule_change: z.boolean().optional(),
+  reminder:        z.boolean().optional(),
+});
+
+export type UpdateNotificationPreferencesInput = z.infer<typeof updateNotificationPreferencesSchema>;
+
 // --- Trip note schemas ---
 
 export const createTripNoteSchema = z.object({

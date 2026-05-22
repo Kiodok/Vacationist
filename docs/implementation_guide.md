@@ -355,7 +355,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
     - [x] **Flights segment:** `useTransferFlights` + `useTransferFlightRealtime`; batch-fetch votes via `getTransferFlightVotesBatch`; `computeFlightWinner` util; `SectionList` with "Outbound" / "Return" sticky headers; `FlightCardWithVotes` per item; FAB → `CreateFlightSheet`
     - [x] **Vehicles segment:** `useTransferVehicles` + `useTransferVehicleRealtime`; `SectionList` with direction headers; `VehicleCardWithPassengers` per item; FAB → `CreateVehicleSheet`
     - [x] **Rentals segment:** `useTransferRentals` + `useTransferRentalRealtime`; `FlatList`; `RentalCard` per item; FAB → `CreateRentalSheet`
-  - [x] **3.14 Register Transfer tab in `apps/mobile/app/trip/[id]/_layout.tsx`**
+  - [x] **3.14 Register Transfer tab in `apps/mobile/app/trip/[id]/index.tsx`** *(note: file was `_layout.tsx` at Phase 7c time; restructured in Phase 8)*
     - [x] Add `'Transfer'` to TABS array between `'Base'` and `'Activities'`
     - [x] Import `TransferTab` from `./transfer`
     - [x] Add `case 'Transfer': return <TransferTab />;` in `renderTab()`
@@ -523,7 +523,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [x] `NoteCard` `onPress` → `EditNoteSheet`; delete clears `editingNote` state on success
   - [x] `canDelete`: creator OR organizer; no realtime (notes are low-frequency, polling not needed)
 
-  **`apps/mobile/app/trip/[id]/_layout.tsx`**
+  **`apps/mobile/app/trip/[id]/index.tsx`** *(was `_layout.tsx` at Phase 7e time; restructured in Phase 8)*
 
   - [x] `'Notes'` added to TABS array (between `'Recipes'` and `'Settings'`)
   - [x] `NotesTab` imported and returned in `renderTab()` switch
@@ -532,21 +532,133 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
 ## 🔔 Phase 8: Notifications
 *Dependencies: Phases 3, 4a, 4b, 5a, 5b & 5c*
-*Goal: Batched push notifications and in-app alerts.*
+*Goal: In-app notification center + Expo push notifications with per-trip preference controls.*
 
-- [ ] **1. DB/RLS & Types**
-  - [ ] Create `notifications` and `notification_preferences` tables + RLS
-- [ ] **2. Services & Hooks**
-  - [ ] Setup Expo Notifications SDK and token registration
-  - [ ] Implement backend dispatch logic (batching multiple events)
-  - [ ] Create preference toggle hooks
-- [ ] **3. Components & Screens**
-  - [ ] Implement Notification Center slide-out/screen
-  - [ ] Add notification preference toggles to Trip Settings
-  - [ ] Add notification for any relevant feature, but don't overload it
-  - [ ] Add notification for document access requests from trip organizers
-  - [ ] Allow the organizer of a trip to trigger predefined playful/waggish random selected messages like
-        "Are you in favor of dictatorships? If not, live for democracy now!" or "Three hot women nearby already voted, now its your turn!"
+**Architecture decisions:**
+- In-app notifications: DB triggers create rows in `notifications` table; polled by TanStack Query (30s interval, no realtime channel)
+- Push notifications: Supabase Edge Function called via `pg_net` AFTER INSERT trigger on `notifications` (fire-and-forget)
+- Notification preferences: control push delivery only — in-app always visible
+- No per-vote notifications; `vote_finalized` only (anti-spam)
+
+- [x] **1. DB/RLS & Types**
+
+  **Migration: `20260522213020_create_push_tokens`**
+  - [x] `user_push_tokens` table: `id`, `user_id` FK→users CASCADE, `push_token TEXT`, `platform TEXT CHECK('ios','android')`, timestamps, `UNIQUE(user_id, push_token)`
+  - [x] RLS: own rows only for SELECT/INSERT/UPDATE/DELETE
+  - [x] `upsert_push_token(p_push_token, p_platform)` SECURITY DEFINER RPC
+  - [x] `delete_push_token(p_push_token)` SECURITY DEFINER RPC
+
+  **Migration: `20260522213020_create_notifications`**
+  - [x] `notifications` table: `id`, `trip_id` FK→trips CASCADE, `user_id` FK→users CASCADE (recipient), `type TEXT CHECK(8 types including 'document_access_request')`, `title`, `body` nullable, `related_type`, `related_id`, `is_read BOOLEAN DEFAULT FALSE`, `push_sent_at TIMESTAMPTZ DEFAULT NULL`, `created_at`
+  - [x] `restrict_notification_update_fields()` trigger — only `is_read` and `push_sent_at` may be changed
+  - [x] RLS: SELECT/UPDATE/DELETE own rows; INSERT `WITH CHECK (false)` (all writes via SECURITY DEFINER)
+  - [x] `mark_notification_read(p_notification_id UUID)` SECURITY DEFINER RPC
+  - [x] `mark_all_notifications_read(p_trip_id UUID DEFAULT NULL)` SECURITY DEFINER RPC
+  - [x] `get_unread_notification_count(p_trip_id UUID DEFAULT NULL)` SECURITY DEFINER STABLE RPC
+  - [x] Indexes: `(user_id, is_read, created_at DESC)`, `(trip_id, user_id, created_at DESC)`
+
+  **Migration: `20260522213021_create_notification_preferences`**
+  - [x] `notification_preferences` table: `id`, `user_id` FK→users CASCADE, `trip_id` FK→trips CASCADE, 6 boolean columns all `DEFAULT TRUE`, `UNIQUE(user_id, trip_id)`
+  - [x] INSERT blocked by RLS; auto-created via `auto_create_notification_preferences()` SECURITY DEFINER trigger AFTER INSERT on `trip_members`
+  - [x] RLS: SELECT/UPDATE own rows only
+
+  **Migration: `20260522213021_create_notification_helpers`**
+  - [x] `private.create_trip_notification(p_trip_id, p_exclude_user_id, p_type, p_title, p_body, p_related_type, p_related_id)` SECURITY DEFINER — loops over `trip_members`, inserts one notification row per member (each INSERT fires push trigger)
+  - [x] `send_organizer_nudge(p_trip_id, p_title, p_body)` SECURITY DEFINER — organizer only, rate-limited to 3 nudges/hour per trip, type=`'reminder'`
+
+  **Migration: `20260522213022_create_notification_push_trigger`**
+  - [x] `CREATE EXTENSION IF NOT EXISTS pg_net`
+  - [x] Vault secrets stored via `vault.create_secret()` (Edge Function URL + service_role_key)
+  - [x] `private.dispatch_push_notification()` AFTER INSERT on `notifications` FOR EACH ROW — reads vault secrets, calls `net.http_post()` fire-and-forget
+
+  **Migration: `20260522213022_create_notification_event_triggers`**
+  - [x] `notify_new_activity` — AFTER INSERT on `activities` → type `new_activity`, excludes `created_by`
+  - [x] `notify_new_expense` — AFTER INSERT on `expenses` → type `expense_change`, excludes `created_by`
+  - [x] `notify_new_member` — AFTER INSERT on `trip_members` → type `new_member`, excludes `user_id`
+  - [x] `notify_activity_vote_finalized` — AFTER UPDATE WHERE `OLD.voting_open AND NOT NEW.voting_open` on `activities` → type `vote_finalized`, notifies all members
+  - [x] `notify_accommodation_vote_finalized` — same pattern on `accommodations`
+  - [x] `notify_schedule_change` — AFTER UPDATE on `activities` WHERE date/time fields changed → type `schedule_change`, excludes `auth.uid()`, guarded by `pg_trigger_depth() > 1`
+  - [x] `notify_document_access_request` — AFTER INSERT on `document_access_requests` → type `document_access_request`, notifies organizer (recipient), excludes `requested_by`
+
+  **Types**
+  - [x] `packages/types/src/enums.ts` — added `'document_access_request'` to `NOTIFICATION_TYPE` (now 8 types)
+  - [x] `packages/types/src/database.ts` — added `UserPushToken` interface; added `push_sent_at: string | null` to `Notification`
+  - [x] `packages/types/src/schemas.ts` — added `updateNotificationPreferencesSchema` (6 optional booleans) + `UpdateNotificationPreferencesInput`
+  - [x] `packages/types/src/notifications.ts` (new) — `NudgeMessage` interface + `NUDGE_MESSAGES` array (8 predefined playful nudge messages)
+  - [x] `packages/types/src/index.ts` — exports `./notifications`
+  - [x] `packages/api/src/database.types.ts` — regenerated from remote project to include new tables and RPCs
+
+- [x] **2. Services & Hooks**
+
+  **Edge Function: `supabase/functions/push-notification/index.ts`**
+  - [x] Auth: validates `Authorization: Bearer <service_role_key>` header
+  - [x] Checks `notification_preferences` for user/trip; maps type → preference column; skips push if pref is `false` (in-app notification still exists)
+  - [x] Fetches `user_push_tokens` for recipient; sends to `https://exp.host/--/api/v2/push/send`
+  - [x] Includes `data: { notificationId, tripId, type, relatedType, relatedId }` for deep-link tap handling
+  - [x] On `DeviceNotRegistered` ticket error: deletes stale token from `user_push_tokens`
+  - [x] Updates `push_sent_at` on success
+  - [x] `document_access_request` type is always-on (no preference column gate)
+
+  **`packages/api/src/notifications.ts`** (new)
+  - [x] `getNotifications(limit=50)`, `getTripNotifications(tripId, limit=50)`, `getUnreadCount(tripId?)`, `markNotificationRead(id)`, `markAllNotificationsRead(tripId?)`, `deleteNotification(id)`, `getNotificationPreferences(tripId)`, `updateNotificationPreferences(tripId, prefs)`, `sendOrganizerNudge(tripId, title, body)`
+
+  **`packages/api/src/pushTokens.ts`** (new)
+  - [x] `upsertPushToken(token, platform)`, `deletePushToken(token)`
+  - [x] Both exported from `packages/api/src/index.ts`
+
+  **Expo Notifications SDK**
+  - [x] `expo-notifications`, `expo-device`, `expo-constants` installed
+  - [x] `expo-notifications` plugin added to `apps/mobile/app.config.ts` with `color: '#6C63FF'`, `defaultChannel: 'default'`
+
+  **`apps/mobile/src/features/notifications/utils/registerForPushNotifications.ts`**
+  - [x] Checks `Device.isDevice`, requests permissions, gets Expo push token (projectId `a1dc4172-7c41-4aa9-a44d-afb1a0088278`), calls `upsertPushToken`, sets Android notification channel
+
+  **`apps/mobile/src/features/notifications/utils/resolveNotificationPath.ts`**
+  - [x] Shared util used by all 3 navigation paths (screens + push tap handler)
+  - [x] Accepts `Pick<Notification, 'type' | 'trip_id' | 'related_type'>`
+  - [x] `vote_finalized` / `vote_update`: routes to `?tab=Base` for `related_type === 'accommodation'`, `?tab=Activities` otherwise
+  - [x] `new_activity` / `schedule_change` → `?tab=Activities`; `expense_change` → `?tab=Expenses`; `new_member` → `?tab=Settings`; `reminder` → trip root; `document_access_request` → `/(tabs)/profile`
+
+  **Hooks**
+  - [x] `useNotifications.ts` — `useNotifications`, `useTripNotifications` (30s poll each), `useMarkNotificationRead`, `useMarkAllNotificationsRead`, `useDeleteNotification` (optimistic removal + rollback)
+  - [x] `useUnreadCount.ts` — `useUnreadCount`, `useTripUnreadCount` (30s poll each; used for badge display)
+  - [x] `useNotificationPreferences.ts` — `useNotificationPreferences`, `useUpdateNotificationPreferences` (optimistic toggle)
+  - [x] `useSendNudge.ts` — rate-limit-aware error message, success toast
+  - [x] `usePushNotificationHandler.ts` — `addNotificationResponseReceivedListener` for tap deep-linking; extracts `type`, `tripId`, `relatedType` from push payload data; calls `resolveNotificationPath`
+
+  **Auth store + sign-out**
+  - [x] `apps/mobile/src/stores/authStore.ts` — added `pushToken: string | null` + `setPushToken` action
+  - [x] `apps/mobile/src/features/auth/hooks/useSignOut.ts` — calls `deletePushToken(pushToken)` BEFORE `signOut()` while session is still valid (prevents ghost pushes)
+
+  **Root layout `apps/mobile/app/_layout.tsx`**
+  - [x] `Notifications.setNotificationHandler` at module level
+  - [x] `registerForPushNotificationsAsync()` called after `hasSession && userId` confirmed; result stored via `setPushToken`
+  - [x] `usePushNotificationHandler()` mounted globally
+
+- [x] **3. Components & Screens**
+
+  **Components**
+  - [x] `NotificationItem.tsx` — icon by type, bold title if unread, unread dot (right side, `bg-danger`), `dayjs().fromNow()` timestamp; `onPress` marks read + navigates
+  - [x] `EmptyNotifications.tsx` — standard empty state
+  - [x] `NotificationPreferencesSection.tsx` — 6 Switch toggles (new activities, vote results, expense updates, new members, schedule changes, reminders & nudges); optimistic updates
+  - [x] `NudgeSheet.tsx` — Modal with FlatList of `NUDGE_MESSAGES`; `useSendNudge`; closes on success
+  - [x] `TripNotificationBell.tsx` — `notifications-outline` icon; badge dot `bg-danger` (red) when unread count > 0; navigates to `/trip/${tripId}/notifications`
+
+  **Screens**
+  - [x] `apps/mobile/app/(tabs)/notifications.tsx` — Global notification center (4th tab); `useNotifications`; FlatList + pull-to-refresh; "Mark all as read" button; `EmptyNotifications` empty state; uses `resolveNotificationPath`
+  - [x] `apps/mobile/app/trip/[id]/notifications.tsx` — Per-trip notification screen; `useTripNotifications`; back button (`router.back()`); `SafeAreaView`; same list pattern as global
+
+  **Integration**
+  - [x] `apps/mobile/app/(tabs)/_layout.tsx` — 4th Notifications tab with `useUnreadCount` badge (`backgroundColor: '#FF3B30'` red)
+  - [x] `apps/mobile/app/trip/[id]/index.tsx` — `<TripNotificationBell tripId={id!} />` in trip header
+  - [x] `apps/mobile/app/trip/[id]/settings.tsx` — `NotificationPreferencesSection` + `NudgeSheet` (organizer only, `Platform.OS !== 'web'` guards)
+
+  **Routing fix: `apps/mobile/app/trip/[id]/` restructure**
+  - [x] Root cause: `[id]/_layout.tsx` was a custom component with no `<Stack>`/`<Slot>`, making `notifications.tsx` unreachable as a pushed route — the bell Pressable appeared unresponsive because `router.push` failed before press animation committed
+  - [x] `apps/mobile/app/trip/[id]/_layout.tsx` → replaced with `<Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }} />`
+  - [x] `apps/mobile/app/trip/[id]/index.tsx` → now contains the full custom trip UI (formerly in `_layout.tsx`)
+  - [x] `apps/mobile/app/trip/[id]/overview.tsx` (new) → the former `index.tsx` OverviewTab component
+  - [x] `notifications.tsx` is now a proper Stack screen; back button navigates with `router.back()`
 
 ---
 
@@ -565,7 +677,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [ ] Configure Expo EAS build profiles
   - [ ] Setup OTA updates
   - [ ] Optimize the EAS build using this [guide](https://expo.dev/blog/build-fast-no-matter-what-how-expo-is-optimizing-for-speed)
-  - [ ] Production database, triggers, edge functions, deployment etc.
+  - [ ] Production database, triggers, edge functions, deployment, Firebase Cloud Messaging API (V1) expo.prd etc.
 - [ ] *4. Third-party style guidelines*
   - [ ] Sign in with Google Branding IMPORTANT
   - [ ] Scan the code base for other relevant guidelines and fullfil them

@@ -8,6 +8,199 @@
 
 ---
 
+## 2026-05-23 — Phase 8: Notifications
+
+### Migration: `20260522213020_create_push_tokens`
+
+**Why:** Store Expo push tokens per user/device so the Edge Function can deliver push notifications to the correct device. Tokens are upserted on login and deleted on logout — lifecycle managed in code to prevent ghost pushes.
+
+**Table created:** `public.user_push_tokens`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | `gen_random_uuid()` |
+| `user_id` | UUID FK → users CASCADE | |
+| `push_token` | TEXT | Expo push token |
+| `platform` | TEXT | CHECK ('ios', 'android') |
+| `created_at` | TIMESTAMPTZ | `DEFAULT NOW()` |
+| `updated_at` | TIMESTAMPTZ | `DEFAULT NOW()`, trigger-maintained |
+| UNIQUE | `(user_id, push_token)` | enables upsert semantics |
+
+**RLS:** SELECT/INSERT/UPDATE/DELETE own rows only (`auth.uid() = user_id`).
+
+**RPCs:**
+- `upsert_push_token(p_push_token TEXT, p_platform TEXT)` — SECURITY DEFINER; upserts on `(user_id, push_token)` conflict, updates `updated_at`
+- `delete_push_token(p_push_token TEXT)` — SECURITY DEFINER; deletes own token by value
+
+---
+
+### Migration: `20260522213020_create_notifications`
+
+**Why:** Central store for all in-app notifications. Created by DB triggers (never by the client directly). Polled every 30 seconds by TanStack Query — no realtime channel needed.
+
+**Table created:** `public.notifications`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `trip_id` | UUID FK → trips CASCADE | |
+| `user_id` | UUID FK → users CASCADE | recipient |
+| `type` | TEXT | CHECK (8 types: `new_activity`, `vote_finalized`, `vote_update`, `expense_change`, `new_member`, `schedule_change`, `reminder`, `document_access_request`) |
+| `title` | TEXT | |
+| `body` | TEXT nullable | |
+| `related_type` | TEXT nullable | entity type for deep linking (`activity`, `accommodation`) |
+| `related_id` | UUID nullable | entity id for deep linking |
+| `is_read` | BOOLEAN | `DEFAULT FALSE` |
+| `push_sent_at` | TIMESTAMPTZ nullable | set by Edge Function on successful push delivery |
+| `created_at` | TIMESTAMPTZ | `DEFAULT NOW()` |
+
+**Indexes:** `(user_id, is_read, created_at DESC)`, `(trip_id, user_id, created_at DESC)`
+
+**RLS:**
+- SELECT: `auth.uid() = user_id`
+- UPDATE: `auth.uid() = user_id`
+- INSERT: `WITH CHECK (false)` — all creates go through SECURITY DEFINER triggers
+- DELETE: `auth.uid() = user_id`
+
+**Trigger:** `restrict_notification_update_fields()` BEFORE UPDATE — raises exception if any column other than `is_read` or `push_sent_at` is modified.
+
+**RPCs:**
+- `mark_notification_read(p_notification_id UUID)` — SECURITY DEFINER; verifies ownership, sets `is_read = true`
+- `mark_all_notifications_read(p_trip_id UUID DEFAULT NULL)` — SECURITY DEFINER; marks all unread for caller (optionally filtered by trip)
+- `get_unread_notification_count(p_trip_id UUID DEFAULT NULL)` — SECURITY DEFINER STABLE; returns unread count for caller
+
+---
+
+### Migration: `20260522213021_create_notification_preferences`
+
+**Why:** Control push delivery per trip per notification type. In-app notifications are always created; these flags determine whether the Edge Function actually sends a push. Rows are auto-created when a user joins a trip (all preferences default to `TRUE`).
+
+**Table created:** `public.notification_preferences`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `user_id` | UUID FK → users CASCADE | |
+| `trip_id` | UUID FK → trips CASCADE | |
+| `new_activity` | BOOLEAN | `DEFAULT TRUE` |
+| `vote_update` | BOOLEAN | `DEFAULT TRUE` |
+| `expense_change` | BOOLEAN | `DEFAULT TRUE` |
+| `new_member` | BOOLEAN | `DEFAULT TRUE` |
+| `schedule_change` | BOOLEAN | `DEFAULT TRUE` |
+| `reminder` | BOOLEAN | `DEFAULT TRUE` |
+| UNIQUE | `(user_id, trip_id)` | |
+
+**RLS:** SELECT/UPDATE own rows only. INSERT denied — created by trigger.
+
+**Trigger:** `auto_create_notification_preferences()` SECURITY DEFINER AFTER INSERT on `trip_members` — inserts preference row with all defaults, `ON CONFLICT DO NOTHING`.
+
+---
+
+### Migration: `20260522213021_create_notification_helpers`
+
+**Why:** Centralize the fan-out logic (one notification per trip member) in a single SECURITY DEFINER function so event triggers stay simple.
+
+**Functions:**
+- `private.create_trip_notification(p_trip_id, p_exclude_user_id, p_type, p_title, p_body, p_related_type, p_related_id)` — SECURITY DEFINER, `SET search_path = ''`; loops over `trip_members WHERE trip_id = p_trip_id AND user_id != p_exclude_user_id`; INSERTs one `notifications` row per member (each INSERT fires the push trigger)
+- `send_organizer_nudge(p_trip_id UUID, p_title TEXT, p_body TEXT)` — SECURITY DEFINER; validates caller is organizer via `private.is_trip_organizer()`; rate-limits to 3 nudges per trip per hour; calls `private.create_trip_notification` with type `'reminder'`
+
+---
+
+### Migration: `20260522213022_create_notification_push_trigger`
+
+**Why:** Deliver push notifications asynchronously without blocking the DB transaction. `pg_net` makes an HTTP POST to the Edge Function as a fire-and-forget call.
+
+**Extension:** `CREATE EXTENSION IF NOT EXISTS pg_net`
+
+**Vault secrets (stored via `vault.create_secret()`):**
+- `push_notification_edge_fn_url` — deployed Edge Function URL
+- `push_notification_service_role_key` — service_role key for Edge Function auth
+
+**Trigger function:** `private.dispatch_push_notification()` — AFTER INSERT on `notifications` FOR EACH ROW, SECURITY DEFINER, `SET search_path = ''`
+- Reads URL and key from `vault.decrypted_secrets`
+- Calls `net.http_post(url, body, headers)` with the notification row serialized as JSON
+- Fire-and-forget: the DB transaction does not wait for the HTTP response
+
+**⚠️ Important:** After deploying the Edge Function, populate the vault secrets:
+```sql
+SELECT vault.create_secret('<edge-fn-url>', 'push_notification_edge_fn_url');
+SELECT vault.create_secret('<service-role-key>', 'push_notification_service_role_key');
+```
+
+---
+
+### Migration: `20260522213022_create_notification_event_triggers`
+
+**Why:** Translate product events into notifications without any client involvement. All SECURITY DEFINER, `SET search_path = ''`.
+
+| Trigger | Table | Event | Type | Exclude |
+|---|---|---|---|---|
+| `notify_new_activity` | `activities` | AFTER INSERT | `new_activity` | `NEW.created_by` |
+| `notify_new_expense` | `expenses` | AFTER INSERT | `expense_change` | `NEW.created_by` |
+| `notify_new_member` | `trip_members` | AFTER INSERT | `new_member` | `NEW.user_id` |
+| `notify_activity_vote_finalized` | `activities` | AFTER UPDATE WHERE `OLD.voting_open AND NOT NEW.voting_open` | `vote_finalized` | nil (notify all) |
+| `notify_accommodation_vote_finalized` | `accommodations` | AFTER UPDATE WHERE `OLD.voting_open AND NOT NEW.voting_open` | `vote_finalized` | nil (notify all) |
+| `notify_schedule_change` | `activities` | AFTER UPDATE WHERE date/time changed | `schedule_change` | `auth.uid()` |
+| `notify_document_access_request` | `document_access_requests` | AFTER INSERT | `document_access_request` | `NEW.requested_by` |
+
+**Guard on `notify_schedule_change`:** `pg_trigger_depth() > 1` early return prevents cascade loops (e.g., when `notify_activity_vote_finalized` updates an activity, `notify_schedule_change` would otherwise fire too).
+
+**`related_type` propagation:** `notify_activity_vote_finalized` sets `related_type = 'activity'`; `notify_accommodation_vote_finalized` sets `related_type = 'accommodation'` — used by `resolveNotificationPath` to route accommodation vote notifications to the Base tab vs. Activities tab.
+
+---
+
+### Edge Function: `supabase/functions/push-notification/index.ts`
+
+Receives notification data from the `pg_net` trigger. Logic:
+
+1. Auth: validates `Authorization: Bearer <service_role_key>` header
+2. Checks `notification_preferences` for `(user_id, trip_id)`; maps type → preference column (`vote_finalized`/`vote_update` → `vote_update`; `document_access_request` → always-on)
+3. Fetches `user_push_tokens` for user; if empty, returns 200 early
+4. POSTs to `https://exp.host/--/api/v2/push/send` with `data: { notificationId, tripId, type, relatedType, relatedId }` for deep-link tap handling
+5. On `DeviceNotRegistered` ticket: deletes stale token from `user_push_tokens`
+6. Updates `push_sent_at` on success
+
+**Not yet deployed** — run `supabase functions deploy push-notification`, then populate vault secrets (see above).
+
+---
+
+### Code changes (Phase 8)
+
+**New files:**
+- `supabase/migrations/20260522213020_create_push_tokens.sql`
+- `supabase/migrations/20260522213020_create_notifications.sql`
+- `supabase/migrations/20260522213021_create_notification_preferences.sql`
+- `supabase/migrations/20260522213021_create_notification_helpers.sql`
+- `supabase/migrations/20260522213022_create_notification_push_trigger.sql`
+- `supabase/migrations/20260522213022_create_notification_event_triggers.sql`
+- `supabase/functions/push-notification/index.ts`
+- `packages/api/src/notifications.ts`, `packages/api/src/pushTokens.ts`
+- `packages/types/src/notifications.ts` — `NUDGE_MESSAGES` constant
+- `apps/mobile/src/features/notifications/hooks/` — `useNotifications.ts`, `useUnreadCount.ts`, `useNotificationPreferences.ts`, `useSendNudge.ts`, `usePushNotificationHandler.ts`
+- `apps/mobile/src/features/notifications/utils/` — `registerForPushNotifications.ts`, `resolveNotificationPath.ts`
+- `apps/mobile/src/features/notifications/components/` — `NotificationItem.tsx`, `EmptyNotifications.tsx`, `NotificationPreferencesSection.tsx`, `NudgeSheet.tsx`, `TripNotificationBell.tsx`
+- `apps/mobile/app/(tabs)/notifications.tsx`
+- `apps/mobile/app/trip/[id]/notifications.tsx`
+- `apps/mobile/app/trip/[id]/overview.tsx` (OverviewTab; was `index.tsx`)
+
+**Modified files:**
+- `packages/types/src/enums.ts` — added `'document_access_request'` to `NOTIFICATION_TYPE`
+- `packages/types/src/database.ts` — `UserPushToken` interface; `push_sent_at` on `Notification`
+- `packages/types/src/schemas.ts` — `updateNotificationPreferencesSchema`
+- `packages/types/src/index.ts` — exports `./notifications`
+- `packages/api/src/database.types.ts` — regenerated from remote project
+- `packages/api/src/index.ts` — exports notifications + pushTokens
+- `apps/mobile/src/stores/authStore.ts` — `pushToken` state + `setPushToken` action
+- `apps/mobile/src/features/auth/hooks/useSignOut.ts` — `deletePushToken` before `signOut`
+- `apps/mobile/app/_layout.tsx` — push registration + notification handler setup
+- `apps/mobile/app/(tabs)/_layout.tsx` — 4th Notifications tab + red badge
+- `apps/mobile/app/trip/[id]/_layout.tsx` — replaced with `<Stack>`; custom trip UI moved to `index.tsx`
+- `apps/mobile/app/trip/[id]/index.tsx` — now contains the full custom trip UI (formerly `_layout.tsx`)
+- `apps/mobile/app/trip/[id]/settings.tsx` — `NotificationPreferencesSection` + `NudgeSheet`
+- `apps/mobile/app.config.ts` — `expo-notifications` plugin
+
+---
+
 ## 2026-05-25 — Phase 7e: Trip Notes
 
 ### Migration: `20260525000005_create_trip_notes`

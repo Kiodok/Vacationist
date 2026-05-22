@@ -327,6 +327,15 @@ export interface TransferRental {
   deleted_at: string | null;
 }
 
+export interface UserPushToken {
+  id: string;
+  user_id: string;
+  push_token: string;
+  platform: 'ios' | 'android';
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Notification {
   id: string;
   trip_id: string;
@@ -337,6 +346,7 @@ export interface Notification {
   related_type: string | null;
   related_id: string | null;
   is_read: boolean;
+  push_sent_at: string | null;
   created_at: string;
 }
 

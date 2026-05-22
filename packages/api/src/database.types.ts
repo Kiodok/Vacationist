@@ -566,6 +566,114 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          expense_change: boolean
+          id: string
+          new_activity: boolean
+          new_member: boolean
+          reminder: boolean
+          schedule_change: boolean
+          trip_id: string
+          user_id: string
+          vote_update: boolean
+        }
+        Insert: {
+          expense_change?: boolean
+          id?: string
+          new_activity?: boolean
+          new_member?: boolean
+          reminder?: boolean
+          schedule_change?: boolean
+          trip_id: string
+          user_id: string
+          vote_update?: boolean
+        }
+        Update: {
+          expense_change?: boolean
+          id?: string
+          new_activity?: boolean
+          new_member?: boolean
+          reminder?: boolean
+          schedule_change?: boolean
+          trip_id?: string
+          user_id?: string
+          vote_update?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          push_sent_at: string | null
+          related_id: string | null
+          related_type: string | null
+          title: string
+          trip_id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          push_sent_at?: string | null
+          related_id?: string | null
+          related_type?: string | null
+          title: string
+          trip_id: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          push_sent_at?: string | null
+          related_id?: string | null
+          related_type?: string | null
+          title?: string
+          trip_id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prework_preferences: {
         Row: {
           filters: Json
@@ -1228,6 +1336,51 @@ export type Database = {
           },
         ]
       }
+      trip_notes: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_notes_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trips: {
         Row: {
           base_currency: string
@@ -1278,6 +1431,41 @@ export type Database = {
           {
             foreignKeyName: "trips_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_push_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          platform: string
+          push_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          platform: string
+          push_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          platform?: string
+          push_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_push_tokens_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -1417,6 +1605,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_push_token: { Args: { p_push_token: string }; Returns: undefined }
       delete_recipe: { Args: { p_recipe_id: string }; Returns: undefined }
       delete_shopping_list: { Args: { p_list_id: string }; Returns: undefined }
       delete_travel_document: {
@@ -1441,7 +1630,7 @@ export type Database = {
         }[]
       }
       get_my_active_grants: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           expires_at: string
           grant_id: string
@@ -1453,7 +1642,7 @@ export type Database = {
         }[]
       }
       get_my_pending_access_requests: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           duration_minutes: number
@@ -1466,7 +1655,7 @@ export type Database = {
         }[]
       }
       get_my_travel_documents: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           date_of_birth: string
@@ -1510,6 +1699,18 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_unread_notification_count: {
+        Args: { p_trip_id?: string }
+        Returns: number
+      }
+      mark_all_notifications_read: {
+        Args: { p_trip_id?: string }
+        Returns: undefined
+      }
+      mark_notification_read: {
+        Args: { p_notification_id: string }
+        Returns: undefined
+      }
       redeem_invite_token: { Args: { token_value: string }; Returns: string }
       reopen_accommodation_voting: {
         Args: { p_accommodation_id: string }
@@ -1529,6 +1730,10 @@ export type Database = {
       }
       revoke_document_access: {
         Args: { p_request_id: string }
+        Returns: undefined
+      }
+      send_organizer_nudge: {
+        Args: { p_body: string; p_title: string; p_trip_id: string }
         Returns: undefined
       }
       set_transfer_flight_passengers: {
@@ -1575,6 +1780,10 @@ export type Database = {
           p_splits: Json
           p_title: string
         }
+        Returns: undefined
+      }
+      upsert_push_token: {
+        Args: { p_platform: string; p_push_token: string }
         Returns: undefined
       }
       upsert_travel_document: {
@@ -1722,3 +1931,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

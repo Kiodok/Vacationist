@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
+import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { initDayjs } from '@vacationist/utils';
@@ -14,6 +15,17 @@ import { ToastContainer } from '../src/components/Toast';
 import { useAuthInit } from '../src/features/auth/hooks/useAuthInit';
 import { useAuthStore } from '../src/stores/authStore';
 import { useToastStore } from '../src/stores/toastStore';
+import { registerForPushNotificationsAsync } from '../src/features/notifications/utils/registerForPushNotifications';
+import { usePushNotificationHandler } from '../src/features/notifications/hooks/usePushNotificationHandler';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -28,9 +40,21 @@ function AuthGate() {
   const user = useAuthStore((s) => s.user);
   const pendingInviteToken = useAuthStore((s) => s.pendingInviteToken);
   const setPendingInviteToken = useAuthStore((s) => s.setPendingInviteToken);
+  const setPushToken = useAuthStore((s) => s.setPushToken);
   const addToast = useToastStore((s) => s.addToast);
+  const userId = user?.id;
 
   useAuthInit();
+  usePushNotificationHandler();
+
+  // Register for push notifications once per user session
+  useEffect(() => {
+    if (!hasSession || !userId) return;
+
+    registerForPushNotificationsAsync().then((token) => {
+      setPushToken(token);
+    });
+  }, [hasSession, userId, setPushToken]);
 
   useEffect(() => {
     if (isLoading) return;

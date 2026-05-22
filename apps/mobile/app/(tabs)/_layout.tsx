@@ -1,7 +1,10 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useUnreadCount } from '../../src/features/notifications/hooks/useUnreadCount';
 
 export default function TabLayout() {
+  const { data: unreadCount = 0 } = useUnreadCount();
+
   return (
     <Tabs
       screenOptions={{
@@ -30,6 +33,17 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Notifications',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="notifications-outline" size={size} color={color} />
+          ),
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+          tabBarBadgeStyle: { backgroundColor: '#FF3B30', fontSize: 10 },
         }}
       />
       <Tabs.Screen

@@ -36,6 +36,7 @@ export const NOTIFICATION_TYPE = [
   'schedule_change',
   'reminder',
   'vote_finalized',
+  'document_access_request',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPE)[number];
 

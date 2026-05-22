@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +14,8 @@ import { useCreateDocumentAccessRequest } from '../../../src/features/profile/ho
 import { useAccessibleMemberDocuments } from '../../../src/features/profile/hooks/useAccessibleMemberDocuments';
 import { DocumentAccessRequestSheet } from '../../../src/features/profile/components/DocumentAccessRequestSheet';
 import { MemberDocumentsSheet } from '../../../src/features/profile/components/MemberDocumentsSheet';
+import { NotificationPreferencesSection } from '../../../src/features/notifications/components/NotificationPreferencesSection';
+import { NudgeSheet } from '../../../src/features/notifications/components/NudgeSheet';
 
 const ROLE_LABELS: Record<string, string> = {
   organizer: 'Organizer',
@@ -45,6 +47,7 @@ export default function SettingsTab() {
   const [pendingDelete, setPendingDelete] = useState(false);
   const [requestDocVisible, setRequestDocVisible] = useState(false);
   const [viewDocsVisible, setViewDocsVisible] = useState(false);
+  const [nudgeVisible, setNudgeVisible] = useState(false);
 
   const createAccessRequest = useCreateDocumentAccessRequest();
   const { data: memberDocuments = [], isLoading: memberDocsLoading } = useAccessibleMemberDocuments(tripId, isOrganizer);
@@ -205,11 +208,34 @@ export default function SettingsTab() {
                   label="View Member Documents"
                   variant="secondary"
                   onPress={() => setViewDocsVisible(true)}
-                  icon={<Ionicons name="document-text-outline" size={hasActiveDocs ? '#3ECF8E' : '#6C63FF'} />}
+                  icon={<Ionicons name="document-text-outline" size={18} color={hasActiveDocs ? '#3ECF8E' : '#6C63FF'} />}
                   className={hasActiveDocs ? 'border-success' : ''}
                 />
               </View>
             </View>
+          </View>
+        </View>
+      )}
+
+      {/* Push Notification Preferences */}
+      {Platform.OS !== 'web' && (
+        <NotificationPreferencesSection tripId={tripId} />
+      )}
+
+      {/* Organizer nudge */}
+      {isOrganizer && Platform.OS !== 'web' && (
+        <View>
+          <Text className="text-label text-text-muted uppercase mb-sm">Nudge Members</Text>
+          <View className="bg-surface border border-border rounded-md p-md">
+            <Text className="text-body-small text-text-secondary mb-md">
+              Send a playful reminder to your group to check open votes.
+            </Text>
+            <Button
+              label="Send a Nudge"
+              variant="secondary"
+              onPress={() => setNudgeVisible(true)}
+              icon={<Ionicons name="megaphone-outline" size={18} color="#6C63FF" />}
+            />
           </View>
         </View>
       )}
@@ -331,6 +357,12 @@ export default function SettingsTab() {
       onClose={() => setViewDocsVisible(false)}
       documents={memberDocuments}
       isLoading={memberDocsLoading}
+    />
+
+    <NudgeSheet
+      tripId={tripId}
+      visible={nudgeVisible}
+      onClose={() => setNudgeVisible(false)}
     />
     </>
   );

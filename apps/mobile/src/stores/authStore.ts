@@ -6,6 +6,7 @@ interface AuthState {
   isLoading: boolean;
   hasSession: boolean;
   pendingInviteToken: string | null;
+  pushToken: string | null;
 }
 
 interface AuthActions {
@@ -13,6 +14,7 @@ interface AuthActions {
   setHasSession: (hasSession: boolean) => void;
   setLoading: (isLoading: boolean) => void;
   setPendingInviteToken: (token: string | null) => void;
+  setPushToken: (token: string | null) => void;
   reset: () => void;
 }
 
@@ -21,6 +23,7 @@ const initialState: AuthState = {
   isLoading: true,
   hasSession: false,
   pendingInviteToken: null,
+  pushToken: null,
 };
 
 export const useAuthStore = create<AuthState & AuthActions>()((set) => ({
@@ -29,5 +32,6 @@ export const useAuthStore = create<AuthState & AuthActions>()((set) => ({
   setHasSession: (hasSession) => set({ hasSession }),
   setLoading: (isLoading) => set({ isLoading }),
   setPendingInviteToken: (token) => set({ pendingInviteToken: token }),
+  setPushToken: (token) => set({ pushToken: token }),
   reset: () => set({ ...initialState, isLoading: false }),
 }));

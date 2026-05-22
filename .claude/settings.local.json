@@ -73,7 +73,11 @@
       "PowerShell(adb devices *)",
       "mcp__plugin_supabase_supabase__list_migrations",
       "Bash(Sort-Object -Descending)",
-      "Bash(Select-Object -First 5)"
+      "Bash(Select-Object -First 5)",
+      "PowerShell(Get-ChildItem \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app\\\\trip\\\\[id]\" | ForEach-Object { $_.Name })",
+      "mcp__plugin_supabase_supabase__deploy_edge_function",
+      "Read(//c/Users/Gary/.supabase/**)",
+      "Read(//c/Users/Gary/.config/supabase/**)"
     ]
   },
   "model": "opusplan",
