@@ -47,7 +47,7 @@ export default function SettingsTab() {
   const [viewDocsVisible, setViewDocsVisible] = useState(false);
 
   const createAccessRequest = useCreateDocumentAccessRequest();
-  const { data: memberDocuments = [], isLoading: memberDocsLoading } = useAccessibleMemberDocuments(tripId, viewDocsVisible);
+  const { data: memberDocuments = [], isLoading: memberDocsLoading } = useAccessibleMemberDocuments(tripId, isOrganizer);
 
   const hasActiveDocs = memberDocuments.length > 0;
 
@@ -190,21 +190,26 @@ export default function SettingsTab() {
             <Text className="text-body-small text-text-secondary">
               Request members to share their travel documents for a limited time. Each member must individually grant access.
             </Text>
-            <Button
-              label="Request Document Access"
-              variant="secondary"
-              onPress={() => setRequestDocVisible(true)}
-              loading={createAccessRequest.isPending}
-              icon={<Ionicons name="shield-checkmark-outline" size={18} color="#6C63FF" />}
-            />
-            {hasActiveDocs && (
-              <Button
-                label="View Member Documents"
-                variant="secondary"
-                onPress={() => setViewDocsVisible(true)}
-                icon={<Ionicons name="document-text-outline" size={18} color="#6C63FF" />}
-              />
-            )}
+            <View className="flex-row gap-sm">
+              <View className="flex-1">
+                <Button
+                  label="Request Document Access"
+                  variant="secondary"
+                  onPress={() => setRequestDocVisible(true)}
+                  loading={createAccessRequest.isPending}
+                  icon={<Ionicons name="shield-checkmark-outline" size={18} color="#6C63FF" />}
+                />
+              </View>
+              <View className="flex-1">
+                <Button
+                  label="View Member Documents"
+                  variant="secondary"
+                  onPress={() => setViewDocsVisible(true)}
+                  icon={<Ionicons name="document-text-outline" size={hasActiveDocs ? '#3ECF8E' : '#6C63FF'} />}
+                  className={hasActiveDocs ? 'border-success' : ''}
+                />
+              </View>
+            </View>
           </View>
         </View>
       )}

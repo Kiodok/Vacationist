@@ -8,6 +8,7 @@ export function useAccessibleMemberDocuments(tripId: string, enabled = true) {
     staleTime: 0,
     gcTime: 0,
     retry: 2,
+    refetchInterval: 15_000,
     enabled: !!tripId && enabled,
   });
 }
