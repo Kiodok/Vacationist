@@ -260,7 +260,7 @@ export type UpsertPreworkPreferencesInput = z.infer<typeof upsertPreworkPreferen
 
 // --- Transfer schemas ---
 
-export const createTransferFlightSchema = z.object({
+const flightBaseSchema = z.object({
   title: z.string().min(1).max(100),
   description: z.string().max(1000).optional(),
   direction: z.enum(TRANSFER_DIRECTION),
@@ -269,13 +269,43 @@ export const createTransferFlightSchema = z.object({
   arrival_airport: z.string().max(100).optional(),
   departure_time: z.string().nullable().optional(),
   arrival_time: z.string().nullable().optional(),
+  return_departure_airport: z.string().max(100).optional(),
+  return_arrival_airport: z.string().max(100).optional(),
+  return_departure_time: z.string().nullable().optional(),
+  return_arrival_time: z.string().nullable().optional(),
   price_per_person: z.number().nonnegative().nullable().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
 });
 
-export const updateTransferFlightSchema = createTransferFlightSchema.partial().extend({
+export const createTransferFlightSchema = flightBaseSchema.superRefine((data, ctx) => {
+  if (data.departure_time && data.arrival_time && data.arrival_time < data.departure_time) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Arrival cannot be before departure', path: ['arrival_time'] });
+  }
+  if (data.direction === 'outbound-return') {
+    if (data.return_departure_time && data.arrival_time && data.return_departure_time < data.arrival_time) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Return departure cannot be before outbound arrival', path: ['return_departure_time'] });
+    }
+    if (data.return_departure_time && data.return_arrival_time && data.return_arrival_time < data.return_departure_time) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Return arrival cannot be before return departure', path: ['return_arrival_time'] });
+    }
+  }
+});
+
+export const updateTransferFlightSchema = flightBaseSchema.partial().extend({
   status: z.enum(TRANSFER_FLIGHT_STATUS).optional(),
+}).superRefine((data, ctx) => {
+  if (data.departure_time && data.arrival_time && data.arrival_time < data.departure_time) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Arrival cannot be before departure', path: ['arrival_time'] });
+  }
+  if (data.direction === 'outbound-return') {
+    if (data.return_departure_time && data.arrival_time && data.return_departure_time < data.arrival_time) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Return departure cannot be before outbound arrival', path: ['return_departure_time'] });
+    }
+    if (data.return_departure_time && data.return_arrival_time && data.return_arrival_time < data.return_departure_time) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Return arrival cannot be before return departure', path: ['return_arrival_time'] });
+    }
+  }
 });
 
 export const bookTransferFlightSchema = z.object({

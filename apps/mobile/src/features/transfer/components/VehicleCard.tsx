@@ -56,6 +56,13 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail }: V
 }
 
 function DirectionBadge({ direction }: { direction: string }) {
+  if (direction === 'outbound-return') {
+    return (
+      <View className="px-sm py-xs rounded-full bg-success/10">
+        <Text className="text-label font-medium text-success">Outbound + Return</Text>
+      </View>
+    );
+  }
   return (
     <View className={`px-sm py-xs rounded-full ${direction === 'outbound' ? 'bg-primary/10' : 'bg-warning/10'}`}>
       <Text className={`text-label font-medium ${direction === 'outbound' ? 'text-primary' : 'text-warning'}`}>

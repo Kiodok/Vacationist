@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateTransferVehicleSchema, type UpdateTransferVehicleInput, type TransferVehicle, TRANSFER_DIRECTION } from '@vacationist/types';
+import { updateTransferVehicleSchema, type UpdateTransferVehicleInput, type TransferVehicle } from '@vacationist/types';
 
 interface EditVehicleSheetProps {
   visible: boolean;
@@ -80,7 +80,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">Direction *</Text>
                   <View className="flex-row gap-sm">
-                    {TRANSFER_DIRECTION.map((dir) => (
+                    {(['outbound-return', 'outbound', 'return'] as const).map((dir) => (
                       <Pressable
                         key={dir}
                         onPress={() => setValue('direction', dir)}
@@ -89,8 +89,8 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
                         }`}
                         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                       >
-                        <Text className={`text-body font-medium ${direction === dir ? 'text-white' : 'text-text-secondary'}`}>
-                          {dir === 'outbound' ? 'Outbound' : 'Return'}
+                        <Text className={`text-body-small font-medium ${direction === dir ? 'text-white' : 'text-text-secondary'}`}>
+                          {dir === 'outbound-return' ? 'Both' : dir === 'outbound' ? 'Outbound' : 'Return'}
                         </Text>
                       </Pressable>
                     ))}

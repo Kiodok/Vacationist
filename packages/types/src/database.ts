@@ -247,6 +247,10 @@ export interface TransferFlight {
   arrival_airport: string | null;
   departure_time: string | null;
   arrival_time: string | null;
+  return_departure_airport: string | null;
+  return_arrival_airport: string | null;
+  return_departure_time: string | null;
+  return_arrival_time: string | null;
   price_per_person: number | null;
   external_url: string | null;
   flight_number: string | null;

@@ -746,6 +746,10 @@ export type Database = {
           id: string
           notes: string | null
           price_per_person: number | null
+          return_arrival_airport: string | null
+          return_arrival_time: string | null
+          return_departure_airport: string | null
+          return_departure_time: string | null
           status: string
           title: string
           trip_id: string
@@ -769,6 +773,10 @@ export type Database = {
           id?: string
           notes?: string | null
           price_per_person?: number | null
+          return_arrival_airport?: string | null
+          return_arrival_time?: string | null
+          return_departure_airport?: string | null
+          return_departure_time?: string | null
           status?: string
           title: string
           trip_id: string
@@ -792,6 +800,10 @@ export type Database = {
           id?: string
           notes?: string | null
           price_per_person?: number | null
+          return_arrival_airport?: string | null
+          return_arrival_time?: string | null
+          return_departure_airport?: string | null
+          return_departure_time?: string | null
           status?: string
           title?: string
           trip_id?: string

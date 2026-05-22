@@ -12,6 +12,7 @@ export async function getTransferVehicles(tripId: string): Promise<TransferVehic
     .from('transfer_vehicles')
     .select('*')
     .eq('trip_id', tripId)
+    .is('deleted_at', null)
     .order('direction', { ascending: true })
     .order('created_at', { ascending: false });
 

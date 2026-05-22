@@ -37,14 +37,25 @@ export function useTransferRentalRealtime(tripId: string) {
         onRentalInsert: (rental) => {
           queryClient.setQueryData<TransferRental[]>(
             ['trips', tripId, 'transfer-rentals'],
-            (old) => (old ? [rental, ...old] : [rental]),
+            (old) => {
+              if (!old) return [rental];
+              if (old.some((r) => r.id === rental.id)) return old;
+              return [rental, ...old];
+            },
           );
         },
         onRentalUpdate: (rental) => {
-          queryClient.setQueryData<TransferRental[]>(
-            ['trips', tripId, 'transfer-rentals'],
-            (old) => old?.map((r) => (r.id === rental.id ? rental : r)),
-          );
+          if (rental.deleted_at) {
+            queryClient.setQueryData<TransferRental[]>(
+              ['trips', tripId, 'transfer-rentals'],
+              (old) => old?.filter((r) => r.id !== rental.id),
+            );
+          } else {
+            queryClient.setQueryData<TransferRental[]>(
+              ['trips', tripId, 'transfer-rentals'],
+              (old) => old?.map((r) => (r.id === rental.id ? rental : r)),
+            );
+          }
         },
         onRentalDelete: (oldRental) => {
           queryClient.setQueryData<TransferRental[]>(

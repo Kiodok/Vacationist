@@ -11,6 +11,7 @@ export async function getTransferRentals(tripId: string): Promise<TransferRental
     .from('transfer_rentals')
     .select('*')
     .eq('trip_id', tripId)
+    .is('deleted_at', null)
     .order('pickup_date', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false });
 

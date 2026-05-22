@@ -1,7 +1,12 @@
+import { useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createTransferVehicleSchema, type CreateTransferVehicleInput, TRANSFER_DIRECTION } from '@vacationist/types';
+import { createTransferVehicleSchema, type CreateTransferVehicleInput } from '@vacationist/types';
+
+type DirectionMode = 'both' | 'outbound' | 'return';
+
+const DIRECTION_ORDER: DirectionMode[] = ['both', 'outbound', 'return'];
 
 interface CreateVehicleSheetProps {
   visible: boolean;
@@ -11,21 +16,24 @@ interface CreateVehicleSheetProps {
 }
 
 export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: CreateVehicleSheetProps) {
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateTransferVehicleInput>({
-    resolver: zodResolver(createTransferVehicleSchema),
-    defaultValues: { title: '', direction: 'outbound' },
+  const [directionMode, setDirectionMode] = useState<DirectionMode>('both');
+
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<Omit<CreateTransferVehicleInput, 'direction'>>({
+    resolver: zodResolver(createTransferVehicleSchema.omit({ direction: true })),
+    defaultValues: { title: '' },
   });
 
-  const direction = watch('direction');
-
-  const onValid = (data: CreateTransferVehicleInput) => {
+  const onValid = (data: Omit<CreateTransferVehicleInput, 'direction'>) => {
     Keyboard.dismiss();
-    onSubmit(data);
-    reset({ title: '', direction: 'outbound' });
+    const direction = directionMode === 'both' ? 'outbound-return' : directionMode;
+    onSubmit({ ...data, direction });
+    reset({ title: '' });
+    setDirectionMode('both');
   };
 
   const handleClose = () => {
-    reset({ title: '', direction: 'outbound' });
+    reset({ title: '' });
+    setDirectionMode('both');
     onClose();
   };
 
@@ -75,17 +83,17 @@ export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: Cr
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">Direction *</Text>
                   <View className="flex-row gap-sm">
-                    {TRANSFER_DIRECTION.map((dir) => (
+                    {DIRECTION_ORDER.map((dir) => (
                       <Pressable
                         key={dir}
-                        onPress={() => setValue('direction', dir)}
+                        onPress={() => setDirectionMode(dir)}
                         className={`flex-1 items-center py-sm rounded-sm border ${
-                          direction === dir ? 'bg-primary border-primary' : 'bg-surface border-border'
+                          directionMode === dir ? 'bg-primary border-primary' : 'bg-surface border-border'
                         }`}
                         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                       >
-                        <Text className={`text-body font-medium ${direction === dir ? 'text-white' : 'text-text-secondary'}`}>
-                          {dir === 'outbound' ? 'Outbound' : 'Return'}
+                        <Text className={`text-body-small font-medium ${directionMode === dir ? 'text-white' : 'text-text-secondary'}`}>
+                          {dir === 'both' ? 'Both' : dir === 'outbound' ? 'Outbound' : 'Return'}
                         </Text>
                       </Pressable>
                     ))}

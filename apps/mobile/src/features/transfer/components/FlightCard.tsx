@@ -1,6 +1,5 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { dayjs } from '@vacationist/utils';
 import type { TransferFlight, TransferFlightVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 
@@ -21,9 +20,13 @@ function getVoteBorderColor(votes: { vote: VoteType }[]): string {
   return '#F5A623';
 }
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 function formatDatetime(value: string | null): string | null {
   if (!value) return null;
-  return dayjs(value).format('D MMM, HH:mm');
+  const match = value.replace(' ', 'T').match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (!match) return null;
+  return `${parseInt(match[3])} ${MONTHS[parseInt(match[2]) - 1]}, ${match[4]}:${match[5]}`;
 }
 
 interface FlightCardProps {
@@ -45,6 +48,9 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
 
   const departureFormatted = formatDatetime(flight.departure_time);
   const arrivalFormatted = formatDatetime(flight.arrival_time);
+  const returnDepartureFormatted = formatDatetime(flight.return_departure_time);
+  const returnArrivalFormatted = formatDatetime(flight.return_arrival_time);
+  const isRoundTrip = flight.direction === 'outbound-return';
 
   return (
     <View
@@ -76,12 +82,12 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
           <FlightStatusIndicator status={flight.status} votingOpen={flight.voting_open} />
         </View>
 
-        {/* Route & times */}
+        {/* Route & times — outbound leg */}
         {(flight.departure_airport || flight.arrival_airport) && (
           <View className="flex-row items-center gap-xs">
             <Ionicons name="airplane-outline" size={14} color="#A0A0A0" />
             <Text className="text-body-small text-text-secondary">
-              {[flight.departure_airport, flight.arrival_airport].filter(Boolean).join(' → ')}
+              {isRoundTrip ? 'Out: ' : ''}{[flight.departure_airport, flight.arrival_airport].filter(Boolean).join(' → ')}
             </Text>
           </View>
         )}
@@ -89,7 +95,25 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
           <View className="flex-row items-center gap-xs">
             <Ionicons name="time-outline" size={14} color="#A0A0A0" />
             <Text className="text-body-small text-text-secondary">
-              {[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
+              {isRoundTrip ? 'Out: ' : ''}{[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
+            </Text>
+          </View>
+        )}
+
+        {/* Return leg (outbound-return only) */}
+        {isRoundTrip && (flight.return_departure_airport || flight.return_arrival_airport) && (
+          <View className="flex-row items-center gap-xs">
+            <Ionicons name="return-up-back-outline" size={14} color="#A0A0A0" />
+            <Text className="text-body-small text-text-secondary">
+              {'Ret: '}{[flight.return_departure_airport, flight.return_arrival_airport].filter(Boolean).join(' → ')}
+            </Text>
+          </View>
+        )}
+        {isRoundTrip && (returnDepartureFormatted || returnArrivalFormatted) && (
+          <View className="flex-row items-center gap-xs">
+            <Ionicons name="time-outline" size={14} color="#A0A0A0" />
+            <Text className="text-body-small text-text-secondary">
+              {'Ret: '}{[returnDepartureFormatted, returnArrivalFormatted].filter(Boolean).join(' → ')}
             </Text>
           </View>
         )}

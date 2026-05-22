@@ -846,3 +846,52 @@ Added all six transfer tables to Supabase Realtime publication and configured RE
 - All channels use exponential backoff reconnection and AppState foreground resubscription
 
 **Local migration file:** `supabase/migrations/20260522000005_enable_transfer_realtime.sql`
+
+---
+
+### Migration: `20260522000006_transfer_outbound_return`
+
+Extended `transfer_flights` to support round-trip tickets stored as a single entry.
+
+**Schema changes:**
+- `transfer_flights.direction` CHECK constraint extended to accept `'outbound-return'` (was `'outbound' | 'return'`)
+- Added four return-leg columns (all nullable, only used when `direction = 'outbound-return'`):
+  - `return_departure_airport TEXT` CHECK `char_length <= 100`
+  - `return_arrival_airport TEXT` CHECK `char_length <= 100`
+  - `return_departure_time TIMESTAMPTZ`
+  - `return_arrival_time TIMESTAMPTZ`
+- `REPLICA IDENTITY FULL` applied to `transfer_flights` so realtime INSERT events carry the full row payload
+
+**Why REPLICA IDENTITY FULL:** The flight INSERT realtime handler was added to ensure other users see new flights without a manual refresh. Full replica identity guarantees the complete row is available in the INSERT payload.
+
+**Local migration file:** `supabase/migrations/20260522000006_transfer_outbound_return.sql`
+
+---
+
+## 2026-05-22 — Transfer: Vehicle outbound-return + Realtime REPLICA IDENTITY
+
+### Migration: `20260522000007_vehicle_outbound_return_and_replica_identity`
+
+**Changes:**
+- `transfer_vehicles.direction` CHECK constraint extended to allow `'outbound-return'` (was only `'outbound' | 'return'`)
+- `REPLICA IDENTITY FULL` applied to `transfer_vehicles` — ensures the `trip_id` filter on realtime UPDATE events (soft-delete) works reliably for all subscribers
+- `REPLICA IDENTITY FULL` applied to `transfer_rentals` — same reason
+
+**Why REPLICA IDENTITY FULL on vehicles and rentals:** Without it, UPDATE payloads in Supabase realtime only include changed columns. The `trip_id` filter on the subscription would not match because `trip_id` is not present in the old/new diff. Setting FULL replica identity guarantees all columns are available in every UPDATE payload, enabling correct filter evaluation and soft-delete propagation to all users.
+
+**Local migration file:** `supabase/migrations/20260522000007_vehicle_outbound_return_and_replica_identity.sql`
+
+---
+
+## 2026-05-22 — Transfer: Fix soft-delete realtime propagation (RLS)
+
+### Migration: `20260522000008_transfer_realtime_softdelete_rls`
+
+**Problem:** After a soft-delete UPDATE, the updated row has `deleted_at IS NOT NULL`. The previous SELECT RLS policy required `deleted_at IS NULL`, so Supabase realtime dropped the UPDATE event for other subscribers — they never saw the deletion. Adding `REPLICA IDENTITY FULL` was necessary but not sufficient; the RLS gate was still blocking delivery.
+
+**Fix:**
+- Removed `deleted_at IS NULL` from the SELECT RLS policies on `transfer_flights`, `transfer_vehicles`, and `transfer_rentals`
+- Added explicit `.is('deleted_at', null)` filters to `getTransferFlights`, `getTransferVehicles`, and `getTransferRentals` in the API layer, so deleted items still don't appear in regular queries
+- Now the post-soft-delete row passes RLS (trip member check only), Supabase realtime delivers the UPDATE event, and the client-side `onUpdate` handler removes the item from the cache
+
+**Local migration file:** `supabase/migrations/20260522000008_transfer_realtime_softdelete_rls.sql`

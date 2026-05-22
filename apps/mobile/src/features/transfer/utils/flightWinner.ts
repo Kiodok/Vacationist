@@ -1,4 +1,4 @@
-import type { TransferFlight, TransferFlightVote, TransferDirection } from '@vacationist/types';
+import type { TransferFlight, TransferFlightVote } from '@vacationist/types';
 
 const VOTE_SCORE: Record<string, number> = {
   must_do: 5,
@@ -38,11 +38,13 @@ function pickWinner(
 export function computeFlightWinner(
   flights: TransferFlight[],
   votesByFlightId: Record<string, TransferFlightVote[]>,
-): Record<TransferDirection, string | null> {
+): Record<string, string | null> {
   const outbound = flights.filter((f) => f.direction === 'outbound');
   const ret = flights.filter((f) => f.direction === 'return');
+  const outboundReturn = flights.filter((f) => f.direction === 'outbound-return');
   return {
     outbound: pickWinner(outbound, votesByFlightId),
     return: pickWinner(ret, votesByFlightId),
+    'outbound-return': pickWinner(outboundReturn, votesByFlightId),
   };
 }

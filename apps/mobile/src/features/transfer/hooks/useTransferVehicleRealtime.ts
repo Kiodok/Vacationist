@@ -38,14 +38,25 @@ export function useTransferVehicleRealtime(tripId: string) {
         onVehicleInsert: (vehicle) => {
           queryClient.setQueryData<TransferVehicle[]>(
             ['trips', tripId, 'transfer-vehicles'],
-            (old) => (old ? [vehicle, ...old] : [vehicle]),
+            (old) => {
+              if (!old) return [vehicle];
+              if (old.some((v) => v.id === vehicle.id)) return old;
+              return [vehicle, ...old];
+            },
           );
         },
         onVehicleUpdate: (vehicle) => {
-          queryClient.setQueryData<TransferVehicle[]>(
-            ['trips', tripId, 'transfer-vehicles'],
-            (old) => old?.map((v) => (v.id === vehicle.id ? vehicle : v)),
-          );
+          if (vehicle.deleted_at) {
+            queryClient.setQueryData<TransferVehicle[]>(
+              ['trips', tripId, 'transfer-vehicles'],
+              (old) => old?.filter((v) => v.id !== vehicle.id),
+            );
+          } else {
+            queryClient.setQueryData<TransferVehicle[]>(
+              ['trips', tripId, 'transfer-vehicles'],
+              (old) => old?.map((v) => (v.id === vehicle.id ? vehicle : v)),
+            );
+          }
         },
         onVehicleDelete: (oldVehicle) => {
           queryClient.setQueryData<TransferVehicle[]>(

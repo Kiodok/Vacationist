@@ -42,7 +42,7 @@ export type NotificationType = (typeof NOTIFICATION_TYPE)[number];
 export const TRANSFER_FLIGHT_STATUS = ['suggested', 'booked', 'completed'] as const;
 export type TransferFlightStatus = (typeof TRANSFER_FLIGHT_STATUS)[number];
 
-export const TRANSFER_DIRECTION = ['outbound', 'return'] as const;
+export const TRANSFER_DIRECTION = ['outbound', 'return', 'outbound-return'] as const;
 export type TransferDirection = (typeof TRANSFER_DIRECTION)[number];
 
 export const SUPPORTED_TIMEZONES = [

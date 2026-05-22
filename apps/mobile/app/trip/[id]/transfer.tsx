@@ -88,18 +88,22 @@ export default function TransferTab() {
 
   // SectionList data
   const flightSections = useMemo(() => {
+    const both = flights.filter((f) => f.direction === 'outbound-return');
     const outbound = flights.filter((f) => f.direction === 'outbound');
     const ret = flights.filter((f) => f.direction === 'return');
     const sections: { key: string; title: string; data: TransferFlight[] }[] = [];
+    if (both.length > 0) sections.push({ key: 'outbound-return', title: 'Outbound + Return', data: both });
     if (outbound.length > 0) sections.push({ key: 'outbound', title: 'Outbound', data: outbound });
     if (ret.length > 0) sections.push({ key: 'return', title: 'Return', data: ret });
     return sections;
   }, [flights]);
 
   const vehicleSections = useMemo(() => {
+    const both = vehicles.filter((v) => v.direction === 'outbound-return');
     const outbound = vehicles.filter((v) => v.direction === 'outbound');
     const ret = vehicles.filter((v) => v.direction === 'return');
     const sections: { key: string; title: string; data: TransferVehicle[] }[] = [];
+    if (both.length > 0) sections.push({ key: 'outbound-return', title: 'Outbound + Return', data: both });
     if (outbound.length > 0) sections.push({ key: 'outbound', title: 'Outbound', data: outbound });
     if (ret.length > 0) sections.push({ key: 'return', title: 'Return', data: ret });
     return sections;
@@ -146,18 +150,19 @@ export default function TransferTab() {
     );
   };
 
-  const renderDirectionHeader = (title: string) => (
-    <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
-      <Ionicons
-        name={title === 'Outbound' ? 'airplane-outline' : 'return-up-back-outline'}
-        size={16}
-        color={title === 'Outbound' ? '#6C63FF' : '#F5A623'}
-      />
-      <Text className={`text-body font-semibold ${title === 'Outbound' ? 'text-primary' : 'text-warning'}`}>
-        {title}
-      </Text>
-    </View>
-  );
+  const renderDirectionHeader = (title: string) => {
+    const isBoth = title === 'Outbound + Return';
+    const isReturn = title === 'Return';
+    const iconName = isBoth ? 'swap-horizontal-outline' : isReturn ? 'return-up-back-outline' : 'airplane-outline';
+    const iconColor = isBoth ? '#3ECF8E' : isReturn ? '#F5A623' : '#6C63FF';
+    const textClass = isBoth ? 'text-success' : isReturn ? 'text-warning' : 'text-primary';
+    return (
+      <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
+        <Ionicons name={iconName} size={16} color={iconColor} />
+        <Text className={`text-body font-semibold ${textClass}`}>{title}</Text>
+      </View>
+    );
+  };
 
   if (isLoading) {
     return (

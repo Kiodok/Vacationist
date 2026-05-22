@@ -15,6 +15,7 @@ export async function getTransferFlights(tripId: string): Promise<TransferFlight
     .from('transfer_flights')
     .select('*')
     .eq('trip_id', tripId)
+    .is('deleted_at', null)
     .order('direction', { ascending: true })
     .order('created_at', { ascending: false });
 
@@ -49,6 +50,10 @@ export async function createTransferFlight(tripId: string, input: CreateTransfer
       arrival_airport: input.arrival_airport ?? null,
       departure_time: input.departure_time ?? null,
       arrival_time: input.arrival_time ?? null,
+      return_departure_airport: input.return_departure_airport ?? null,
+      return_arrival_airport: input.return_arrival_airport ?? null,
+      return_departure_time: input.return_departure_time ?? null,
+      return_arrival_time: input.return_arrival_time ?? null,
       price_per_person: input.price_per_person ?? null,
       external_url: input.external_url ?? null,
       notes: input.notes ?? null,
@@ -168,10 +173,11 @@ export async function setTransferFlightPassengers(flightId: string, userIds: str
 }
 
 export interface FlightVotingRealtimeCallbacks {
+  onFlightInsert: (flight: TransferFlight) => void;
+  onFlightUpdate: (flight: TransferFlight) => void;
   onVoteInsert: (vote: TransferFlightVote) => void;
   onVoteUpdate: (vote: TransferFlightVote) => void;
   onVoteDelete: (oldVote: TransferFlightVote) => void;
-  onFlightUpdate: (flight: TransferFlight) => void;
   onPassengerInsert: (passenger: TransferFlightPassenger) => void;
   onPassengerDelete: (oldPassenger: TransferFlightPassenger) => void;
 }
@@ -186,6 +192,16 @@ export function subscribeToFlightVotingRealtime(
     .channel(`transfer-flights:${tripId}:${uid}`)
     .on(
       'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'transfer_flights', filter: `trip_id=eq.${tripId}` },
+      (payload) => callbacks.onFlightInsert(payload.new as unknown as TransferFlight),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'transfer_flights', filter: `trip_id=eq.${tripId}` },
+      (payload) => callbacks.onFlightUpdate(payload.new as unknown as TransferFlight),
+    )
+    .on(
+      'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'transfer_flight_votes' },
       (payload) => callbacks.onVoteInsert(payload.new as unknown as TransferFlightVote),
     )
@@ -198,11 +214,6 @@ export function subscribeToFlightVotingRealtime(
       'postgres_changes',
       { event: 'DELETE', schema: 'public', table: 'transfer_flight_votes' },
       (payload) => callbacks.onVoteDelete(payload.old as unknown as TransferFlightVote),
-    )
-    .on(
-      'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'transfer_flights', filter: `trip_id=eq.${tripId}` },
-      (payload) => callbacks.onFlightUpdate(payload.new as unknown as TransferFlight),
     )
     .on(
       'postgres_changes',

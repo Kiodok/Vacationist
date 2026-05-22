@@ -35,6 +35,29 @@ export function useTransferFlightRealtime(tripId: string) {
     const channel = subscribeToFlightVotingRealtime(
       tripId,
       {
+        onFlightInsert: (flight) => {
+          queryClient.setQueryData<TransferFlight[]>(
+            ['trips', tripId, 'transfer-flights'],
+            (old) => {
+              if (!old) return [flight];
+              if (old.some((f) => f.id === flight.id)) return old;
+              return [flight, ...old];
+            },
+          );
+        },
+        onFlightUpdate: (flight) => {
+          if (flight.deleted_at) {
+            queryClient.setQueryData<TransferFlight[]>(
+              ['trips', tripId, 'transfer-flights'],
+              (old) => old?.filter((f) => f.id !== flight.id),
+            );
+          } else {
+            queryClient.setQueryData<TransferFlight[]>(
+              ['trips', tripId, 'transfer-flights'],
+              (old) => old?.map((f) => (f.id === flight.id ? flight : f)),
+            );
+          }
+        },
         onVoteInsert: (vote) => {
           queryClient.setQueryData<TransferFlightVote[]>(
             ['transfer-flights', vote.flight_id, 'votes'],
@@ -68,12 +91,6 @@ export function useTransferFlightRealtime(tripId: string) {
           } else {
             queryClient.invalidateQueries({ queryKey: ['transfer-flights'] });
           }
-        },
-        onFlightUpdate: (flight) => {
-          queryClient.setQueryData<TransferFlight[]>(
-            ['trips', tripId, 'transfer-flights'],
-            (old) => old?.map((f) => (f.id === flight.id ? flight : f)),
-          );
         },
         onPassengerInsert: (passenger) => {
           queryClient.invalidateQueries({
