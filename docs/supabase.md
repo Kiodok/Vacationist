@@ -45,6 +45,43 @@ auto-populates `trip_id` from the parent row — works correctly inside SECURITY
 
 ---
 
+## 2026-05-24 — Performance & Scaling: RLS Simplification, Indexes, Position Trigger, Count RPC
+
+### Migration: `20260524000001_rls_indexes_position_trigger`
+
+**Why:** Four child tables (`activity_votes`, `accommodation_votes`, `expense_splits`, `shopping_items`) had
+RLS SELECT policies that JOINed back to the parent table to find `trip_id`. Now that these tables have a
+denormalized `trip_id` directly (from the 2026-05-23 migration), the JOINs are unnecessary — this migration
+rewrites those policies to use `private.is_trip_member(trip_id, auth.uid())` directly. Also adds composite
+indexes for hot query paths and an atomic position trigger for shopping items.
+
+**RLS policies rewritten (SELECT — eliminates parent JOIN):**
+- `activity_votes`: removed JOIN to `activities`
+- `accommodation_votes`: removed JOIN to `accommodations`
+- `expense_splits`: removed JOIN to `expenses`
+- `shopping_items`: removed JOIN to `shopping_lists` on SELECT, INSERT, and UPDATE
+
+**Indexes added:**
+- `idx_shopping_items_list_position ON shopping_items(shopping_list_id, position) WHERE deleted_at IS NULL`
+- `idx_activities_trip_date ON activities(trip_id, activity_date) WHERE deleted_at IS NULL AND activity_date IS NOT NULL`
+- `idx_expense_splits_expense_status ON expense_splits(expense_id, status)`
+
+**Position trigger added:**
+- `trg_set_shopping_item_position` (BEFORE INSERT) — atomically assigns `position = MAX(position)+1`
+  within the transaction, eliminating the client-side SELECT-max + INSERT double round-trip and the
+  associated race condition under concurrent inserts.
+
+### Migration: `20260524000002_shopping_lists_count_fn`
+
+**Why:** `getShoppingLists` previously fetched all item rows client-side just to count them. This RPC
+computes `item_count` and `bought_count` server-side with SQL `COUNT ... FILTER`, returning one aggregated
+row per list — no item rows transferred to the client.
+
+**Function:** `get_shopping_lists_with_counts(p_trip_id UUID)` — SECURITY DEFINER, checks membership,
+returns `shopping_lists` columns + `item_count BIGINT` + `bought_count BIGINT`.
+
+---
+
 ## 2026-05-11 — Phase 2: Trips, Members, Invites
 
 ### Migration: `create_trips_members_invites`

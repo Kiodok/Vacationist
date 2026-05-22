@@ -1238,6 +1238,20 @@ export type Database = {
           shopping_list_id: string
         }[]
       }
+      get_shopping_lists_with_counts: {
+        Args: { p_trip_id: string }
+        Returns: {
+          archived_at: string
+          bought_count: number
+          created_at: string
+          created_by: string
+          id: string
+          item_count: number
+          title: string
+          trip_id: string
+          updated_at: string
+        }[]
+      }
       get_trip_balances: {
         Args: { p_trip_id: string }
         Returns: {

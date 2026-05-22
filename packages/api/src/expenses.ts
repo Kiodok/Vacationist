@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Json } from './database.types';
 import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, CreateExpenseInput, UpdateExpenseWithSplitsInput } from '@vacationist/types';
@@ -95,9 +95,7 @@ export function subscribeToExpensesRealtime(
   callbacks: ExpenseRealtimeCallbacks,
   onStatus?: (status: string) => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`expenses:${tripId}:${uid}`)
+  return freshChannel(`expenses:${tripId}`)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'expenses', filter: `trip_id=eq.${tripId}` },

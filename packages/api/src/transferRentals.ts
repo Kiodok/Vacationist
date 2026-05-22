@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferRental,
@@ -20,8 +20,9 @@ export async function getTransferRentals(tripId: string): Promise<TransferRental
 }
 
 export async function createTransferRental(tripId: string, input: CreateTransferRentalInput): Promise<TransferRental> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('transfer_rentals')
@@ -74,9 +75,7 @@ export function subscribeToRentalRealtime(
   callbacks: RentalRealtimeCallbacks,
   onStatus?: (status: string) => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`transfer-rentals:${tripId}:${uid}`)
+  return freshChannel(`transfer-rentals:${tripId}`)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'transfer_rentals', filter: `trip_id=eq.${tripId}` },

@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Accommodation, AccommodationVote, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
 
@@ -25,8 +25,9 @@ export async function getAccommodation(accommodationId: string): Promise<Accommo
 }
 
 export async function createAccommodation(tripId: string, input: CreateAccommodationInput): Promise<Accommodation> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('accommodations')
@@ -84,8 +85,9 @@ export async function getAccommodationVotes(accommodationId: string): Promise<Ac
 }
 
 export async function castAccommodationVote(accommodationId: string, vote: VoteType): Promise<AccommodationVote> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('accommodation_votes')
@@ -101,8 +103,9 @@ export async function castAccommodationVote(accommodationId: string, vote: VoteT
 }
 
 export async function removeAccommodationVote(accommodationId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { error } = await supabase
     .from('accommodation_votes')
@@ -125,9 +128,7 @@ export function subscribeToAccommodationVotingRealtime(
   callbacks: AccommodationVotingRealtimeCallbacks,
   onStatus?: (status: string) => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`accommodation-voting:${tripId}:${uid}`)
+  return freshChannel(`accommodation-voting:${tripId}`)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'accommodation_votes', filter: `trip_id=eq.${tripId}` },

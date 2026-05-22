@@ -31,8 +31,9 @@ export async function removeTripMember(tripId: string, userId: string): Promise<
 }
 
 export async function leaveTrip(tripId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('trip_members')
@@ -62,8 +63,9 @@ export async function updateMemberRole(
 }
 
 export async function getCurrentMemberRole(tripId: string): Promise<MemberRole | null> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return null;
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('trip_members')

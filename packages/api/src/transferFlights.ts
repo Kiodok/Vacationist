@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferFlight,
@@ -35,8 +35,9 @@ export async function getTransferFlight(flightId: string): Promise<TransferFligh
 }
 
 export async function createTransferFlight(tripId: string, input: CreateTransferFlightInput): Promise<TransferFlight> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('transfer_flights')
@@ -125,8 +126,9 @@ export async function getTransferFlightVotesBatch(flightIds: string[]): Promise<
 }
 
 export async function castTransferFlightVote(flightId: string, vote: VoteType): Promise<TransferFlightVote> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('transfer_flight_votes')
@@ -142,8 +144,9 @@ export async function castTransferFlightVote(flightId: string, vote: VoteType): 
 }
 
 export async function removeTransferFlightVote(flightId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { error } = await supabase
     .from('transfer_flight_votes')
@@ -187,9 +190,7 @@ export function subscribeToFlightVotingRealtime(
   callbacks: FlightVotingRealtimeCallbacks,
   onStatus?: (status: string) => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`transfer-flights:${tripId}:${uid}`)
+  return freshChannel(`transfer-flights:${tripId}`)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'transfer_flights', filter: `trip_id=eq.${tripId}` },

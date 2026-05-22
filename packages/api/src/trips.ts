@@ -57,8 +57,9 @@ export async function getTrip(tripId: string): Promise<Trip & { member_count: nu
 }
 
 export async function createTrip(input: CreateTripInput): Promise<Trip> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('trips')

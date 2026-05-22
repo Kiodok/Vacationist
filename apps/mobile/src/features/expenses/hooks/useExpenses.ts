@@ -26,6 +26,7 @@ export function useTripBalances(tripId: string) {
   return useQuery({
     queryKey: ['trips', tripId, 'balances'],
     queryFn: () => getTripBalances(tripId),
+    staleTime: 60_000,
     retry: 2,
     enabled: !!tripId,
   });

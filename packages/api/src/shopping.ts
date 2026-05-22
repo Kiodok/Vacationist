@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   ShoppingList,
@@ -11,26 +11,17 @@ import type {
 } from '@vacationist/types';
 
 export async function getShoppingLists(tripId: string): Promise<ShoppingListWithCounts[]> {
-  const { data, error } = await supabase
-    .from('shopping_lists')
-    .select('*, shopping_items(id, status)')
-    .eq('trip_id', tripId)
-    .order('created_at', { ascending: true });
-
+  const { data, error } = await supabase.rpc('get_shopping_lists_with_counts', {
+    p_trip_id: tripId,
+  });
   if (error) throw error;
-
-  return ((data ?? []) as unknown as (ShoppingList & { shopping_items: { id: string; status: string }[] })[]).map(
-    ({ shopping_items: items, ...list }) => ({
-      ...list,
-      item_count: items?.length ?? 0,
-      bought_count: items?.filter((i) => i.status === 'bought').length ?? 0,
-    }),
-  );
+  return (data ?? []) as unknown as ShoppingListWithCounts[];
 }
 
 export async function createShoppingList(tripId: string, input: CreateShoppingListInput): Promise<ShoppingList> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('shopping_lists')
@@ -111,26 +102,15 @@ export async function getAllShoppingItemsForTrip(tripId: string): Promise<(Shopp
 }
 
 export async function createShoppingItem(listId: string, input: CreateShoppingItemInput): Promise<ShoppingItem> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  const { data: maxRow } = await supabase
-    .from('shopping_items')
-    .select('position')
-    .eq('shopping_list_id', listId)
-    .is('deleted_at', null)
-    .order('position', { ascending: false })
-    .limit(1)
-    .single();
-
-  const nextPosition = (maxRow?.position ?? -1) + 1;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('shopping_items')
     .insert({
       shopping_list_id: listId,
       title: input.title,
-      position: nextPosition,
       created_by: user.id,
     })
     .select()
@@ -167,9 +147,7 @@ export function subscribeToShoppingItems(
   listId: string,
   callbacks: ShoppingRealtimeCallbacks,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  const channel = supabase
-    .channel(`shopping-items:${listId}:${uid}`)
+  const channel = freshChannel(`shopping-items:${listId}`)
     .on(
       'postgres_changes',
       {
@@ -209,9 +187,7 @@ export function subscribeToShoppingItemChanges(
   tripId: string,
   onEvent: () => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`shopping-items-overview:${tripId}:${uid}`)
+  return freshChannel(`shopping-items-overview:${tripId}`)
     .on(
       'postgres_changes',
       {
@@ -233,8 +209,7 @@ export function subscribeToShoppingSync(
   listId: string,
   onItemsRemoved: (ids: string[]) => void,
 ): RealtimeChannel {
-  return supabase
-    .channel(`shopping-sync:${listId}`)
+  return freshChannel(`shopping-sync:${listId}`)
     .on('broadcast', { event: 'items-removed' }, ({ payload }) => {
       onItemsRemoved(payload.ids);
     })
@@ -246,7 +221,18 @@ export async function broadcastShoppingItemsRemoved(
   itemIds: string[],
 ): Promise<void> {
   try {
-    const channel = supabase.channel(`shopping-sync:${listId}`);
+    const channelName = `shopping-sync:${listId}`;
+    const payload = { type: 'broadcast' as const, event: 'items-removed', payload: { ids: itemIds } };
+
+    // Reuse the existing subscriber channel if present (from subscribeToShoppingSync)
+    const existing = supabase.getChannels().find((c) => c.topic === `realtime:${channelName}`);
+    if (existing) {
+      await existing.send(payload);
+      return;
+    }
+
+    // No existing subscriber — create a temporary channel just to broadcast
+    const channel = supabase.channel(channelName);
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
         supabase.removeChannel(channel);
@@ -259,11 +245,7 @@ export async function broadcastShoppingItemsRemoved(
         }
       });
     });
-    await channel.send({
-      type: 'broadcast',
-      event: 'items-removed',
-      payload: { ids: itemIds },
-    });
+    await channel.send(payload);
     supabase.removeChannel(channel);
   } catch {
     // Best-effort — clients will see the change on next refetch

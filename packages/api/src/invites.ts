@@ -15,8 +15,9 @@ export async function createInviteToken(
   tripId: string,
   input: CreateInviteInput
 ): Promise<InviteToken> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const token = crypto.randomUUID();
 

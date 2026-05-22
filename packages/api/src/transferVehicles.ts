@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferVehicle,
@@ -21,8 +21,9 @@ export async function getTransferVehicles(tripId: string): Promise<TransferVehic
 }
 
 export async function createTransferVehicle(tripId: string, input: CreateTransferVehicleInput): Promise<TransferVehicle> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('transfer_vehicles')
@@ -123,9 +124,7 @@ export function subscribeToVehicleRealtime(
   callbacks: VehicleRealtimeCallbacks,
   onStatus?: (status: string) => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`transfer-vehicles:${tripId}:${uid}`)
+  return freshChannel(`transfer-vehicles:${tripId}`)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'transfer_vehicles', filter: `trip_id=eq.${tripId}` },

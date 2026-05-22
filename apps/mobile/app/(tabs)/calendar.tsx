@@ -119,19 +119,15 @@ export default function GlobalCalendarScreen() {
   const [previewActivity, setPreviewActivity] = useState<Activity | null>(null);
   const [previewTimezone, setPreviewTimezone] = useState<SupportedTimezone>('Europe/Berlin');
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
-  const [editingTripId, setEditingTripId] = useState<string | null>(null);
+  const [editingTripDates, setEditingTripDates] = useState<{ start_date: string; end_date: string; trip_id: string } | null>(null);
 
-  const editingTrip = useMemo(
-    () => trips?.find((t) => t.id === editingTripId),
-    [trips, editingTripId],
-  );
-  const updateActivityMutation = useUpdateActivity(editingTripId ?? '');
+  const updateActivityMutation = useUpdateActivity(editingTripDates?.trip_id ?? '');
 
   const handleUpdate = (input: UpdateActivityInput) => {
     if (!editingActivity) return;
     updateActivityMutation.mutate(
       { activityId: editingActivity.id, input },
-      { onSuccess: () => { setEditingActivity(null); setEditingTripId(null); } },
+      { onSuccess: () => { setEditingActivity(null); setEditingTripDates(null); } },
     );
   };
 
@@ -212,8 +208,10 @@ export default function GlobalCalendarScreen() {
         activity={previewActivity}
         timezone={previewTimezone}
         onEdit={(act) => {
-          setEditingTripId(act.trip_id);
+          const trip = trips?.find((t) => t.id === act.trip_id);
+          if (!trip) return;
           setEditingActivity(act);
+          setEditingTripDates({ start_date: trip.start_date, end_date: trip.end_date, trip_id: trip.id });
           setPreviewActivity(null);
         }}
         onViewFullDetails={(activityId) => {
@@ -228,15 +226,15 @@ export default function GlobalCalendarScreen() {
         }}
       />
 
-      {editingActivity && editingTrip && (
+      {editingActivity && editingTripDates && (
         <EditActivitySheet
           visible={!!editingActivity}
-          onClose={() => { setEditingActivity(null); setEditingTripId(null); }}
+          onClose={() => { setEditingActivity(null); setEditingTripDates(null); }}
           onSubmit={handleUpdate}
           isPending={updateActivityMutation.isPending}
           activity={editingActivity}
-          tripStartDate={editingTrip.start_date}
-          tripEndDate={editingTrip.end_date}
+          tripStartDate={editingTripDates.start_date}
+          tripEndDate={editingTripDates.end_date}
         />
       )}
     </SafeAreaView>

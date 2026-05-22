@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Activity, ActivityVote, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 
@@ -27,8 +27,9 @@ export async function getActivity(activityId: string): Promise<Activity> {
 }
 
 export async function createActivity(tripId: string, input: CreateActivityInput): Promise<Activity> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('activities')
@@ -102,8 +103,9 @@ export async function getActivityVotesBatch(activityIds: string[]): Promise<Acti
 }
 
 export async function castActivityVote(activityId: string, vote: VoteType): Promise<ActivityVote> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('activity_votes')
@@ -119,8 +121,9 @@ export async function castActivityVote(activityId: string, vote: VoteType): Prom
 }
 
 export async function removeActivityVote(activityId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { error } = await supabase
     .from('activity_votes')
@@ -143,9 +146,7 @@ export function subscribeToActivityVotingRealtime(
   callbacks: ActivityVotingRealtimeCallbacks,
   onStatus?: (status: string) => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`activity-voting:${tripId}:${uid}`)
+  return freshChannel(`activity-voting:${tripId}`)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'activity_votes', filter: `trip_id=eq.${tripId}` },
@@ -180,6 +181,7 @@ export async function getActivitiesForTrips(tripIds: string[]): Promise<Activity
     .from('activities')
     .select('*')
     .in('trip_id', tripIds)
+    .is('deleted_at', null)
     .not('activity_date', 'is', null)
     .order('activity_date', { ascending: true, nullsFirst: false })
     .order('start_time', { ascending: true, nullsFirst: false })
@@ -200,9 +202,7 @@ export function subscribeToCalendarActivitiesRealtime(
   callbacks: CalendarActivityRealtimeCallbacks,
   onStatus?: (status: string) => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`calendar-activities:${tripId}:${uid}`)
+  return freshChannel(`calendar-activities:${tripId}`)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'activities', filter: `trip_id=eq.${tripId}` },

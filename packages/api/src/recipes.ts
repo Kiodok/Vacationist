@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import { broadcastShoppingItemsRemoved } from './shopping';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
@@ -53,8 +53,9 @@ export async function getRecipe(recipeId: string): Promise<RecipeWithIngredients
 }
 
 export async function createRecipe(tripId: string, input: CreateRecipeInput): Promise<Recipe> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('recipes')
@@ -222,10 +223,9 @@ async function propagateIngredientAdd(
   const listIds = await getLinkedShoppingListIds(recipeId);
   if (listIds.length === 0) return;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return;
+  const user = session.user;
 
   for (const listId of listIds) {
     const scale = await deriveRecipeScale(recipeId, listId);
@@ -423,8 +423,9 @@ export async function addRecipeToShoppingList(
   shoppingListId: string,
   targetServings: number,
 ): Promise<{ added: number; merged: number }> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const recipe = await getRecipe(recipeId);
   const ingredients = recipe.recipe_ingredients;
@@ -520,9 +521,7 @@ export function subscribeToRecipesRealtime(
   tripId: string,
   callbacks: RecipeRealtimeCallbacks,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  const channel = supabase
-    .channel(`recipes:${tripId}:${uid}`)
+  const channel = freshChannel(`recipes:${tripId}`)
     .on(
       'postgres_changes',
       {
@@ -576,9 +575,7 @@ export function subscribeToIngredientsRealtime(
   recipeId: string,
   callbacks: IngredientRealtimeCallbacks,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  const channel = supabase
-    .channel(`ingredients:${recipeId}:${uid}`)
+  const channel = freshChannel(`ingredients:${recipeId}`)
     .on(
       'postgres_changes',
       {

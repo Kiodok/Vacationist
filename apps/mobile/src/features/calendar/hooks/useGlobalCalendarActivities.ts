@@ -10,7 +10,7 @@ export function useGlobalCalendarActivities() {
   const tripIds = useMemo(() => (trips?.map((t) => t.id) ?? []).sort(), [trips]);
 
   return useQuery({
-    queryKey: ['global-calendar-activities', ...tripIds],
+    queryKey: ['global-calendar-activities', tripIds],
     queryFn: () => getActivitiesForTrips(tripIds),
     refetchInterval: 30_000,
     select: (data: Activity[]): GlobalCalendarTrip[] => {

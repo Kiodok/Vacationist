@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { PreworkPreferences, UpsertPreworkPreferencesInput } from '@vacationist/types';
 
@@ -14,8 +14,9 @@ export async function getPreworkPreferences(tripId: string): Promise<PreworkPref
 }
 
 export async function getMyPreworkPreferences(tripId: string): Promise<PreworkPreferences | null> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('prework_preferences')
@@ -32,8 +33,9 @@ export async function upsertPreworkPreferences(
   tripId: string,
   input: UpsertPreworkPreferencesInput
 ): Promise<PreworkPreferences> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { data, error } = await supabase
     .from('prework_preferences')
@@ -53,8 +55,9 @@ export async function upsertPreworkPreferences(
 }
 
 export async function deletePreworkPreferences(tripId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error('Not authenticated');
+  const user = session.user;
 
   const { error } = await supabase
     .from('prework_preferences')
@@ -76,9 +79,7 @@ export function subscribeToPreworkRealtime(
   callbacks: PreworkRealtimeCallbacks,
   onStatus?: (status: string) => void,
 ): RealtimeChannel {
-  const uid = Math.random().toString(36).slice(2, 8);
-  return supabase
-    .channel(`prework:${tripId}:${uid}`)
+  return freshChannel(`prework:${tripId}`)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'prework_preferences', filter: `trip_id=eq.${tripId}` },

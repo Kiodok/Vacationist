@@ -54,7 +54,6 @@ export function useUpdateActivity(tripId: string) {
       updateActivity(activityId, input),
     onSuccess: (_data, { activityId }) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'calendar-activities'] });
       queryClient.invalidateQueries({ queryKey: ['global-calendar-activities'] });
       queryClient.invalidateQueries({ queryKey: ['activities', activityId] });
       addToast('success', 'Activity updated');

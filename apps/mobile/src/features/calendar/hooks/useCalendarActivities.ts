@@ -5,7 +5,7 @@ import { groupActivitiesByDate } from '@vacationist/utils';
 
 export function useCalendarActivities(tripId: string) {
   return useQuery({
-    queryKey: ['trips', tripId, 'calendar-activities'],
+    queryKey: ['trips', tripId, 'activities'],
     queryFn: () => getActivities(tripId),
     select: (data: Activity[]): Record<string, Activity[]> => {
       const scheduled = data.filter((a) => a.activity_date !== null);

@@ -1173,6 +1173,95 @@ for (const tripId of tripIds) subscribeToCalendarActivitiesRealtime(tripId, call
 useQuery({ queryKey: [...], queryFn: ..., refetchInterval: 30_000 });
 ```
 
+### Rule 6: Use deterministic channel names (no random UID suffix)
+
+Subscription functions use a fixed channel name: `channel-type:${tripId}`. Do not append
+`Math.random()` UIDs. `useEffect` cleanup calls `removeChannel` on unmount — that is the
+correct lifecycle. A random suffix creates orphaned channels on fast navigation.
+
+```typescript
+// WRONG:
+const uid = Math.random().toString(36).slice(2, 8);
+supabase.channel(`activity-voting:${tripId}:${uid}`)
+
+// CORRECT:
+supabase.channel(`activity-voting:${tripId}`)
+```
+
+### Rule 7: Reuse channels for fire-and-forget broadcasts
+
+`broadcastShoppingItemsRemoved` (and any future broadcast sender) MUST check for an existing
+subscribed channel before creating a temporary one:
+
+```typescript
+const existing = supabase.getChannels().find((c) => c.topic === `realtime:${channelName}`);
+if (existing) { await existing.send(payload); return; }
+// fall through to temporary channel creation only if no listener exists
+```
+
+---
+
+## RLS Policy Optimization
+
+### Use denormalized columns in RLS policies to avoid JOINs
+
+RLS policies run **per row**. A policy that does `EXISTS (SELECT 1 FROM parent WHERE parent.id = fk AND is_trip_member(parent.trip_id, ...))` executes one correlated subquery per row returned. With the denormalized `trip_id` column on child tables, this becomes a direct function call:
+
+```sql
+-- SLOW — JOIN per row:
+USING (
+  EXISTS (SELECT 1 FROM public.activities a
+    WHERE a.id = activity_id AND private.is_trip_member(a.trip_id, auth.uid()))
+)
+
+-- FAST — direct use of denormalized column:
+USING (private.is_trip_member(trip_id, auth.uid()))
+```
+
+Tables where this pattern is applied: `activity_votes`, `accommodation_votes`, `expense_splits`, `shopping_items` (SELECT, INSERT, UPDATE policies).
+
+---
+
+## Auth Pattern
+
+### Use `getSession()` for client-side user ID reads
+
+`supabase.auth.getUser()` validates the JWT with the Auth server on every call (~100–300ms
+network round-trip). For mutation functions that only need `user.id` to set `created_by` or
+similar, use `getSession()` instead — it reads from local storage synchronously:
+
+```typescript
+// SLOW — server round-trip on every mutation:
+const { data: { user } } = await supabase.auth.getUser();
+
+// FAST — local cache, no network:
+const { data: { session } } = await supabase.auth.getSession();
+const user = session?.user;
+```
+
+RLS policies enforce `auth.uid()` on the DB side independently, so there is no security
+downgrade from using `getSession()` for `created_by` population.
+
+---
+
+## Known Tech Debt / Future Scaling Concerns
+
+### Pagination (not yet implemented)
+All list queries (`getActivities`, `getShoppingItems`, `getExpenses`, etc.) fetch **all rows**.
+For trips with >200 activities or >500 expenses this will be noticeable. Proper fix requires
+cursor-based infinite scroll in the UI. Do NOT add a silent server-side `.limit()` cap — that
+would truncate data without telling the user.
+
+**When to address:** When any list reaches sustained usage above ~200 items per trip.
+
+### Rate limiting (not yet implemented)
+There is no per-user rate limiting on RPC calls or mutations. The app uses `isPending` to
+disable buttons during mutations (preventing UI-level spam), but a malicious or buggy client
+could still flood the server. Proper fix requires either a proxy layer or DB-level rate tracking
+per `(user_id, function_name, time_window)`.
+
+**When to address:** Before a public launch or when sustained abuse is observed.
+
 ---
 
 ## Reconnection Logic

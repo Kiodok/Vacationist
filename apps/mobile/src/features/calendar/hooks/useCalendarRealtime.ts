@@ -24,7 +24,7 @@ export function useCalendarRealtime(tripId: string) {
   }, []);
 
   const reconcile = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'calendar-activities'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
   }, [queryClient, tripId]);
 
   const subscribe = useCallback(() => {
@@ -34,13 +34,13 @@ export function useCalendarRealtime(tripId: string) {
       tripId,
       {
         onActivityInsert: () => {
-          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'calendar-activities'] });
+          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
         },
         onActivityUpdate: () => {
-          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'calendar-activities'] });
+          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
         },
         onActivityDelete: () => {
-          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'calendar-activities'] });
+          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
         },
       },
       (status) => {

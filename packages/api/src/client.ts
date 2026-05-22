@@ -14,3 +14,25 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
     detectSessionInUrl: false,
   },
 });
+
+/**
+ * Returns a fresh Supabase realtime channel, evicting any stale channel with
+ * the same name that is still in the client registry.
+ *
+ * supabase.channel(name) deduplicates by topic: if a previous channel with the
+ * same name was not fully removed yet (removeChannel is async), it returns the
+ * already-subscribed instance. Calling .on('postgres_changes') on a subscribed
+ * channel throws. This helper synchronously removes the stale entry before
+ * creating the new channel so every subscriber starts clean.
+ */
+export function freshChannel(name: string) {
+  const topic = `realtime:${name}`;
+  const channels = supabase.getChannels();
+  const staleIdx = channels.findIndex((c) => c.topic === topic);
+  if (staleIdx >= 0) {
+    const stale = channels[staleIdx];
+    channels.splice(staleIdx, 1);
+    stale.unsubscribe().catch(() => {});
+  }
+  return supabase.channel(name);
+}
