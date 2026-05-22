@@ -48,6 +48,7 @@ export function useCastTransferFlightVote(tripId: string, flightId: string) {
                 {
                   id: `optimistic-${Date.now()}`,
                   flight_id: flightId,
+                  trip_id: tripId,
                   user_id: currentUserId!,
                   vote,
                   created_at: new Date().toISOString(),

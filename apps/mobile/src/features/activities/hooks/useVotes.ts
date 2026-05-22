@@ -38,7 +38,7 @@ export function useCastVote(tripId: string, activityId: string) {
         const optimistic: ActivityVote[] =
           exists >= 0
             ? previous.map((v) => (v.user_id === currentUserId ? { ...v, vote } : v))
-            : [...previous, { id: `optimistic-${Date.now()}`, activity_id: activityId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
+            : [...previous, { id: `optimistic-${Date.now()}`, activity_id: activityId, trip_id: tripId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
         queryClient.setQueryData(['activities', activityId, 'votes'], optimistic);
       }
       return { previous };

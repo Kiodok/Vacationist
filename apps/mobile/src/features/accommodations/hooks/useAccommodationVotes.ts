@@ -28,7 +28,7 @@ export function useCastAccommodationVote(tripId: string, accommodationId: string
         const optimistic: AccommodationVote[] =
           exists >= 0
             ? previous.map((v) => (v.user_id === currentUserId ? { ...v, vote } : v))
-            : [...previous, { id: `optimistic-${Date.now()}`, accommodation_id: accommodationId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
+            : [...previous, { id: `optimistic-${Date.now()}`, accommodation_id: accommodationId, trip_id: tripId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
         queryClient.setQueryData(['accommodations', accommodationId, 'votes'], optimistic);
       }
       return { previous };

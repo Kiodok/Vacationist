@@ -218,6 +218,7 @@ export function subscribeToShoppingItemChanges(
         event: '*',
         schema: 'public',
         table: 'shopping_items',
+        filter: `trip_id=eq.${tripId}`,
       },
       onEvent,
     )

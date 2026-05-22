@@ -8,6 +8,43 @@
 
 ---
 
+## 2026-05-23 — Realtime Scaling: Denormalize `trip_id` to Child Tables
+
+### Migration: `20260523000001_denormalize_trip_id_for_realtime_filters`
+
+**Why:** Supabase Realtime `postgres_changes` subscriptions on child tables (votes, passengers,
+splits, shopping items) had no `filter` parameter because those tables had no `trip_id` column.
+Without a filter, Supabase delivers all events to all subscribers — O(events × subscribers) load.
+This fixes the root cause by adding a denormalized `trip_id` to each child table.
+
+**Tables modified (7):**
+
+| Table | Parent FK | Backfill path |
+|---|---|---|
+| `activity_votes` | `activity_id` | `activities.trip_id` |
+| `accommodation_votes` | `accommodation_id` | `accommodations.trip_id` |
+| `transfer_flight_votes` | `flight_id` | `transfer_flights.trip_id` |
+| `transfer_flight_passengers` | `flight_id` | `transfer_flights.trip_id` |
+| `transfer_vehicle_passengers` | `vehicle_id` | `transfer_vehicles.trip_id` |
+| `expense_splits` | `expense_id` | `expenses.trip_id` |
+| `shopping_items` | `shopping_list_id` | `shopping_lists.trip_id` |
+
+**Per table:** Added `trip_id UUID NOT NULL REFERENCES trips(id)`, backfilled existing rows,
+created index on `trip_id`, added BEFORE INSERT trigger (`trg_set_{table}_trip_id`) that
+auto-populates `trip_id` from the parent row — works correctly inside SECURITY DEFINER RPCs.
+
+**Additional:**
+- `shopping_items` set to `REPLICA IDENTITY FULL` (required for DELETE event payloads to include `trip_id`)
+- `restrict_shopping_item_update_fields()` updated to also block `trip_id` mutation
+
+**API layer changes:**
+- Added `filter: trip_id=eq.${tripId}` to all previously-unfiltered realtime subscriptions in
+  `activities.ts`, `accommodations.ts`, `expenses.ts`, `transferFlights.ts`, `transferVehicles.ts`, `shopping.ts`
+- Replaced N-channel global calendar realtime (`useGlobalCalendarRealtime`) with `refetchInterval: 30_000`
+  on `useGlobalCalendarActivities` — deleted `useGlobalCalendarRealtime.ts`
+
+---
+
 ## 2026-05-11 — Phase 2: Trips, Members, Invites
 
 ### Migration: `create_trips_members_invites`

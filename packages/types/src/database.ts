@@ -86,6 +86,7 @@ export interface Activity {
 
 export interface ActivityVote {
   id: string;
+  trip_id: string;
   activity_id: string;
   user_id: string;
   vote: VoteType;
@@ -109,6 +110,7 @@ export interface Accommodation {
 
 export interface AccommodationVote {
   id: string;
+  trip_id: string;
   accommodation_id: string;
   user_id: string;
   vote: VoteType;
@@ -149,6 +151,7 @@ export interface Expense {
 
 export interface ExpenseSplit {
   id: string;
+  trip_id: string;
   expense_id: string;
   user_id: string;
   amount_owed: number;
@@ -183,6 +186,7 @@ export interface ShoppingListWithCounts extends ShoppingList {
 
 export interface ShoppingItem {
   id: string;
+  trip_id: string;
   shopping_list_id: string;
   title: string;
   quantity: number | null;
@@ -266,6 +270,7 @@ export interface TransferFlight {
 
 export interface TransferFlightVote {
   id: string;
+  trip_id: string;
   flight_id: string;
   user_id: string;
   vote: VoteType;
@@ -274,6 +279,7 @@ export interface TransferFlightVote {
 
 export interface TransferFlightPassenger {
   id: string;
+  trip_id: string;
   flight_id: string;
   user_id: string;
   created_at: string;
@@ -293,6 +299,7 @@ export interface TransferVehicle {
 
 export interface TransferVehiclePassenger {
   id: string;
+  trip_id: string;
   vehicle_id: string;
   user_id: string;
   is_driver: boolean;

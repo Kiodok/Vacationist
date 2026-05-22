@@ -148,17 +148,17 @@ export function subscribeToActivityVotingRealtime(
     .channel(`activity-voting:${tripId}:${uid}`)
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'activity_votes' },
+      { event: 'INSERT', schema: 'public', table: 'activity_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteInsert(payload.new as unknown as ActivityVote),
     )
     .on(
       'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'activity_votes' },
+      { event: 'UPDATE', schema: 'public', table: 'activity_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteUpdate(payload.new as unknown as ActivityVote),
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'activity_votes' },
+      { event: 'DELETE', schema: 'public', table: 'activity_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteDelete(payload.old as unknown as ActivityVote),
     )
     .on(

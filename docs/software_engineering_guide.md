@@ -1109,6 +1109,72 @@ Too many listeners will hurt performance.
 
 ---
 
+## Realtime Subscription Rules
+
+# CRITICAL — These rules prevent scaling failures. Claude must enforce them.
+
+### Rule 1: Every `postgres_changes` subscription MUST include a `filter` parameter
+
+Subscribing without a filter forces Supabase Realtime to evaluate RLS for every
+event on that table against every connected subscriber globally — O(events × subscribers) load.
+An unfiltered subscription is a scaling bomb.
+
+```typescript
+// WRONG — delivers every vote from every trip to every client:
+.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_votes' }, cb)
+
+// CORRECT — only delivers votes for the current trip:
+.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_votes', filter: `trip_id=eq.${tripId}` }, cb)
+```
+
+### Rule 2: The filter column must exist directly on the subscribed table
+
+Supabase Realtime only supports `filter: 'column=eq.value'` — equality on a single
+column that exists directly on the subscribed table. No joins, no subqueries, no `in` operator.
+
+### Rule 3: Denormalize `trip_id` if needed
+
+If the table has no `trip_id` column (e.g., a child table like `activity_votes` that
+references `activities`), add a denormalized `trip_id` column with a BEFORE INSERT trigger
+to auto-populate it from the parent. This is the pattern used throughout Vacationist:
+
+```sql
+CREATE OR REPLACE FUNCTION public.set_activity_vote_trip_id()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
+BEGIN
+  SELECT a.trip_id INTO NEW.trip_id FROM public.activities a WHERE a.id = NEW.activity_id;
+  RETURN NEW;
+END;
+$$;
+CREATE TRIGGER trg_set_activity_vote_trip_id
+  BEFORE INSERT ON public.activity_votes
+  FOR EACH ROW EXECUTE FUNCTION public.set_activity_vote_trip_id();
+```
+
+Tables that already have this pattern applied:
+`activity_votes`, `accommodation_votes`, `transfer_flight_votes`, `transfer_flight_passengers`,
+`transfer_vehicle_passengers`, `expense_splits`, `shopping_items`
+
+### Rule 4: Never use `event: '*'` without a filter
+
+Wildcard event subscriptions without a filter deliver every INSERT, UPDATE, and DELETE
+on the entire table from every user on the platform.
+
+### Rule 5: Prefer polling for overview/aggregate screens
+
+If realtime would require N channels (one per entity) and the callback only calls
+`invalidateQueries` without using the payload, use `refetchInterval` on the TanStack Query.
+
+```typescript
+// WRONG — opens one channel per trip:
+for (const tripId of tripIds) subscribeToCalendarActivitiesRealtime(tripId, callbacks);
+
+// CORRECT — single polling query, same freshness for a non-critical screen:
+useQuery({ queryKey: [...], queryFn: ..., refetchInterval: 30_000 });
+```
+
+---
+
 ## Reconnection Logic
 
 Supabase Realtime channels can disconnect silently. Vacationist must handle this reliably.

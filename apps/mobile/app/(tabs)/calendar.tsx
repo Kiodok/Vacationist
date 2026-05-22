@@ -10,7 +10,6 @@ import { useActivityVotesBatch } from '../../src/features/activities/hooks/useVo
 import { EditActivitySheet } from '../../src/features/activities/components/EditActivitySheet';
 import { useTrips } from '../../src/features/trips/hooks/useTrips';
 import { useGlobalCalendarActivities } from '../../src/features/calendar/hooks/useGlobalCalendarActivities';
-import { useGlobalCalendarRealtime } from '../../src/features/calendar/hooks/useGlobalCalendarRealtime';
 import { useMonthNavigation } from '../../src/features/calendar/hooks/useMonthNavigation';
 import { MonthGrid } from '../../src/features/calendar/components/MonthGrid';
 import { YearGrid } from '../../src/features/calendar/components/YearGrid';
@@ -23,7 +22,6 @@ export default function GlobalCalendarScreen() {
   const { data: globalData, isLoading: activitiesLoading } = useGlobalCalendarActivities();
 
   const tripIds = useMemo(() => (trips?.map((t) => t.id) ?? []), [trips]);
-  useGlobalCalendarRealtime(tripIds);
 
   const allGlobalActivityIds = useMemo(() => {
     if (!globalData) return [];

@@ -36,6 +36,12 @@ We are moving to the next task in the Implementation Plan.
 3. **Strict Typing:** No `any` types. Use Zod for validation where applicable.
 4. **No UX Assumptions:** If a business rule or UI flow is not defined in the guide or this prompt, **STOP and ask me** for clarification.
 5. **Atomic Commits:** Provide code in a way that represents logical, mergeable units.
+6. **🔴 Realtime Subscription Review (CRITICAL):** Before writing or modifying ANY Supabase Realtime `postgres_changes` subscription, you MUST:
+   - Confirm the `.on()` call includes a `filter: 'column=eq.value'` parameter
+   - Confirm that filter column exists directly on the subscribed table (no joins)
+   - If the table lacks the needed column, propose adding a denormalized column + BEFORE INSERT trigger (see `software_engineering_guide.md` Section 8 Realtime Subscription Rules)
+   - If you are about to write an unfiltered subscription OR open multiple channels in a loop, **STOP and ask the Tech Lead** before proceeding — this is a scaling issue that will break production
+   - If subscribing to an overview/aggregate screen where the callback only invalidates queries, prefer `refetchInterval` on the TanStack Query over a realtime channel
 
 ---
 

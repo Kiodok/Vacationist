@@ -130,17 +130,17 @@ export function subscribeToAccommodationVotingRealtime(
     .channel(`accommodation-voting:${tripId}:${uid}`)
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'accommodation_votes' },
+      { event: 'INSERT', schema: 'public', table: 'accommodation_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteInsert(payload.new as unknown as AccommodationVote),
     )
     .on(
       'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'accommodation_votes' },
+      { event: 'UPDATE', schema: 'public', table: 'accommodation_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteUpdate(payload.new as unknown as AccommodationVote),
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'accommodation_votes' },
+      { event: 'DELETE', schema: 'public', table: 'accommodation_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteDelete(payload.old as unknown as AccommodationVote),
     )
     .on(

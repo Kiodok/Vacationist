@@ -19,6 +19,7 @@ export type Database = {
           accommodation_id: string
           created_at: string
           id: string
+          trip_id: string | null
           user_id: string
           vote: string
         }
@@ -26,6 +27,7 @@ export type Database = {
           accommodation_id: string
           created_at?: string
           id?: string
+          trip_id?: string | null
           user_id: string
           vote: string
         }
@@ -33,6 +35,7 @@ export type Database = {
           accommodation_id?: string
           created_at?: string
           id?: string
+          trip_id?: string | null
           user_id?: string
           vote?: string
         }
@@ -42,6 +45,13 @@ export type Database = {
             columns: ["accommodation_id"]
             isOneToOne: false
             referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accommodation_votes_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
           {
@@ -196,6 +206,7 @@ export type Database = {
           activity_id: string
           created_at: string
           id: string
+          trip_id: string | null
           user_id: string
           vote: string
         }
@@ -203,6 +214,7 @@ export type Database = {
           activity_id: string
           created_at?: string
           id?: string
+          trip_id?: string | null
           user_id: string
           vote: string
         }
@@ -210,6 +222,7 @@ export type Database = {
           activity_id?: string
           created_at?: string
           id?: string
+          trip_id?: string | null
           user_id?: string
           vote?: string
         }
@@ -219,6 +232,13 @@ export type Database = {
             columns: ["activity_id"]
             isOneToOne: false
             referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_votes_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
           {
@@ -236,6 +256,7 @@ export type Database = {
           expense_id: string
           id: string
           status: string
+          trip_id: string | null
           user_id: string
         }
         Insert: {
@@ -243,6 +264,7 @@ export type Database = {
           expense_id: string
           id?: string
           status?: string
+          trip_id?: string | null
           user_id: string
         }
         Update: {
@@ -250,6 +272,7 @@ export type Database = {
           expense_id?: string
           id?: string
           status?: string
+          trip_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -258,6 +281,13 @@ export type Database = {
             columns: ["expense_id"]
             isOneToOne: false
             referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_splits_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
           {
@@ -542,6 +572,7 @@ export type Database = {
           source_recipe_id: string | null
           status: string
           title: string
+          trip_id: string | null
           unit: string | null
           updated_at: string
         }
@@ -558,6 +589,7 @@ export type Database = {
           source_recipe_id?: string | null
           status?: string
           title: string
+          trip_id?: string | null
           unit?: string | null
           updated_at?: string
         }
@@ -574,6 +606,7 @@ export type Database = {
           source_recipe_id?: string | null
           status?: string
           title?: string
+          trip_id?: string | null
           unit?: string | null
           updated_at?: string
         }
@@ -604,6 +637,13 @@ export type Database = {
             columns: ["shopping_list_id"]
             isOneToOne: false
             referencedRelation: "shopping_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shopping_items_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
         ]
@@ -658,18 +698,21 @@ export type Database = {
           created_at: string
           flight_id: string
           id: string
+          trip_id: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           flight_id: string
           id?: string
+          trip_id?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           flight_id?: string
           id?: string
+          trip_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -678,6 +721,13 @@ export type Database = {
             columns: ["flight_id"]
             isOneToOne: false
             referencedRelation: "transfer_flights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_flight_passengers_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
           {
@@ -694,6 +744,7 @@ export type Database = {
           created_at: string
           flight_id: string
           id: string
+          trip_id: string | null
           user_id: string
           vote: string
         }
@@ -701,6 +752,7 @@ export type Database = {
           created_at?: string
           flight_id: string
           id?: string
+          trip_id?: string | null
           user_id: string
           vote: string
         }
@@ -708,6 +760,7 @@ export type Database = {
           created_at?: string
           flight_id?: string
           id?: string
+          trip_id?: string | null
           user_id?: string
           vote?: string
         }
@@ -717,6 +770,13 @@ export type Database = {
             columns: ["flight_id"]
             isOneToOne: false
             referencedRelation: "transfer_flights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_flight_votes_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
           {
@@ -904,6 +964,7 @@ export type Database = {
           created_at: string
           id: string
           is_driver: boolean
+          trip_id: string | null
           user_id: string
           vehicle_id: string
         }
@@ -911,6 +972,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_driver?: boolean
+          trip_id?: string | null
           user_id: string
           vehicle_id: string
         }
@@ -918,10 +980,18 @@ export type Database = {
           created_at?: string
           id?: string
           is_driver?: boolean
+          trip_id?: string | null
           user_id?: string
           vehicle_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "transfer_vehicle_passengers_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transfer_vehicle_passengers_user_id_fkey"
             columns: ["user_id"]

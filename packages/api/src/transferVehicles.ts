@@ -143,17 +143,17 @@ export function subscribeToVehicleRealtime(
     )
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'transfer_vehicle_passengers' },
+      { event: 'INSERT', schema: 'public', table: 'transfer_vehicle_passengers', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onPassengerInsert(payload.new as unknown as TransferVehiclePassenger),
     )
     .on(
       'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'transfer_vehicle_passengers' },
+      { event: 'UPDATE', schema: 'public', table: 'transfer_vehicle_passengers', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onPassengerUpdate(payload.new as unknown as TransferVehiclePassenger),
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'transfer_vehicle_passengers' },
+      { event: 'DELETE', schema: 'public', table: 'transfer_vehicle_passengers', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onPassengerDelete(payload.old as unknown as TransferVehiclePassenger),
     )
     .subscribe((status) => onStatus?.(status));

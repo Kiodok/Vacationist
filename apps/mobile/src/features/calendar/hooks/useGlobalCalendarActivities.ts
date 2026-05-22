@@ -12,6 +12,7 @@ export function useGlobalCalendarActivities() {
   return useQuery({
     queryKey: ['global-calendar-activities', ...tripIds],
     queryFn: () => getActivitiesForTrips(tripIds),
+    refetchInterval: 30_000,
     select: (data: Activity[]): GlobalCalendarTrip[] => {
       if (!trips) return [];
 

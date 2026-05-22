@@ -202,27 +202,27 @@ export function subscribeToFlightVotingRealtime(
     )
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'transfer_flight_votes' },
+      { event: 'INSERT', schema: 'public', table: 'transfer_flight_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteInsert(payload.new as unknown as TransferFlightVote),
     )
     .on(
       'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'transfer_flight_votes' },
+      { event: 'UPDATE', schema: 'public', table: 'transfer_flight_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteUpdate(payload.new as unknown as TransferFlightVote),
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'transfer_flight_votes' },
+      { event: 'DELETE', schema: 'public', table: 'transfer_flight_votes', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onVoteDelete(payload.old as unknown as TransferFlightVote),
     )
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'transfer_flight_passengers' },
+      { event: 'INSERT', schema: 'public', table: 'transfer_flight_passengers', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onPassengerInsert(payload.new as unknown as TransferFlightPassenger),
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'transfer_flight_passengers' },
+      { event: 'DELETE', schema: 'public', table: 'transfer_flight_passengers', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onPassengerDelete(payload.old as unknown as TransferFlightPassenger),
     )
     .subscribe((status) => onStatus?.(status));

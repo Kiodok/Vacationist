@@ -110,7 +110,7 @@ export function subscribeToExpensesRealtime(
     )
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'expense_splits' },
+      { event: 'INSERT', schema: 'public', table: 'expense_splits', filter: `trip_id=eq.${tripId}` },
       (payload) => {
         const row = payload.new as { expense_id?: string };
         callbacks.onSplitChange(row.expense_id ?? null);
@@ -118,7 +118,7 @@ export function subscribeToExpensesRealtime(
     )
     .on(
       'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'expense_splits' },
+      { event: 'UPDATE', schema: 'public', table: 'expense_splits', filter: `trip_id=eq.${tripId}` },
       (payload) => {
         const row = payload.new as { expense_id?: string };
         callbacks.onSplitChange(row.expense_id ?? null);
@@ -126,7 +126,7 @@ export function subscribeToExpensesRealtime(
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'expense_splits' },
+      { event: 'DELETE', schema: 'public', table: 'expense_splits', filter: `trip_id=eq.${tripId}` },
       (payload) => {
         const row = payload.old as { expense_id?: string };
         callbacks.onSplitChange(row.expense_id ?? null);
