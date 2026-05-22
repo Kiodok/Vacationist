@@ -1569,6 +1569,124 @@ Europe/Istanbul     (Turkey)
 
 No other timezones are supported in V1.
 
+---
+
+# 14. PII & Sensitive Data Security Pattern
+
+Use this pattern whenever a feature stores personally identifiable information (PII) or sensitive data that must be protected even if the database is breached (e.g., passport numbers, ID numbers, financial data).
+
+## 4-Layer Defense Model
+
+| Layer | Mechanism | Protects Against |
+|-------|-----------|-----------------|
+| **Database** | pgcrypto AES-256 column encryption + Vault key + SECURITY DEFINER RPCs | DB breach, stolen backups, raw SQL access |
+| **Network** | HTTPS/TLS (Supabase default) | MITM, eavesdropping |
+| **Application** | `staleTime: 0, gcTime: 0` on TanStack Query — zero caching for sensitive queries | Device theft, memory inspection |
+| **UX** | Biometric/PIN gate via `expo-local-authentication`, masked field values, auto-hide timers | Shoulder surfing, unlocked device |
+
+## Database Layer Rules
+
+### Encryption
+- Encrypt sensitive fields as `BYTEA` using `extensions.pgp_sym_encrypt(value, key)`
+- Store the encryption key in `vault.secrets` via `vault.create_secret()` (NOT direct `INSERT INTO vault.secrets`)
+- Access the key through a `private.get_X_encryption_key()` SECURITY DEFINER helper that reads `vault.decrypted_secrets`
+
+### RLS — Deny Direct Writes
+Tables with encrypted columns must have INSERT/UPDATE/DELETE policies that deny all direct writes:
+```sql
+-- Prevent direct writes — all mutations go through SECURITY DEFINER RPCs
+CREATE POLICY "deny_direct_insert" ON public.sensitive_table
+  FOR INSERT WITH CHECK (false);
+```
+This forces all writes through vetted SECURITY DEFINER functions.
+
+### SECURITY DEFINER RPCs
+Every RPC that reads or writes encrypted data must use:
+```sql
+CREATE OR REPLACE FUNCTION public.my_rpc(...)
+RETURNS ...
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+```
+- `SECURITY DEFINER` — runs as function owner (postgres), bypassing RLS, enabling Vault key access
+- `SET search_path = ''` — prevents schema injection attacks
+
+### Input Validation in RPCs
+Validate all inputs inside the RPC, not just at the Zod layer:
+- Trim whitespace on all text inputs
+- Validate format with regex (e.g., ISO alpha-2 country codes: `^[A-Z]{2}$`, dates: `^\d{4}-\d{2}-\d{2}$`)
+- This defends against clients that bypass the mobile app's Zod validation
+
+## Application Layer Rules
+
+### No Caching for Sensitive Queries
+```typescript
+// CORRECT — sensitive data never persists in memory after component unmounts:
+useQuery({
+  queryKey: ['sensitiveData'],
+  queryFn: fetchSensitiveData,
+  staleTime: 0,
+  gcTime: 0,
+});
+```
+
+### Conditional Fetching
+Only fetch sensitive data after authentication has been confirmed:
+```typescript
+useQuery({
+  queryKey: ['travelDocuments'],
+  queryFn: getMyTravelDocuments,
+  enabled: isUnlocked, // only fetch after biometric gate passes
+  staleTime: 0,
+  gcTime: 0,
+});
+```
+
+### Form Memory Clearing
+Clear sensitive form fields when a modal closes:
+```typescript
+useEffect(() => {
+  if (visible) {
+    reset({ ...document }); // pre-populate
+  } else {
+    reset(); // clear sensitive data from memory
+  }
+}, [visible, document]);
+```
+
+## UX Layer Rules
+
+### Biometric Gate
+Wrap sensitive content in a `<BiometricGate>` that calls `LocalAuthentication.authenticateAsync()`.
+- Never silently bypass when hardware is unavailable — show an Alert warning, then offer bypass
+- Trigger re-lock when the app moves to the background via `AppState.addEventListener`
+
+### Auto-Hide Timer
+For any "revealed" sensitive value (tap-to-show), start a `setTimeout` to re-mask after 30 seconds:
+```typescript
+useEffect(() => {
+  if (!revealed) return;
+  const timer = setTimeout(() => setRevealed(false), 30_000);
+  return () => clearTimeout(timer);
+}, [revealed]);
+```
+
+### AppState Locking Pattern
+```typescript
+const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+useEffect(() => {
+  const sub = AppState.addEventListener('change', (next) => {
+    if (appStateRef.current === 'active' && (next === 'background' || next === 'inactive')) {
+      setUnlocked(false); // lock on background
+    }
+    appStateRef.current = next;
+  });
+  return () => sub.remove();
+}, []);
+```
+
 The timezone is set once at trip creation and cannot be changed after activities have been added.
 
 All `activity_date`, `start_time`, and `end_time` values are stored without timezone in the database and are interpreted within the trip's configured timezone at render time using `dayjs.tz()`.

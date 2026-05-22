@@ -362,6 +362,111 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
 ---
 
+## 🔐 Phase 7d: Profile Settings — Encrypted Travel Documents & Organizer Access
+*Dependencies: Phase 2 (Trips), Phase 1 (Auth)*
+*Goal: Allow users to store encrypted passport/ID card details behind biometric authentication, and let trip organizers temporarily request access to members' documents for group bookings.*
+
+- [x] **1. DB/RLS & Types**
+
+  **Migration 1 — `20260525000001_enable_pgcrypto_and_vault_secret.sql`**
+
+  - [x] `CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions`
+  - [x] `CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault`
+  - [x] Insert encryption key via `vault.create_secret()` (NOT direct INSERT — see docs/supabase.md)
+  - [x] `private.get_travel_doc_encryption_key()` SECURITY DEFINER helper
+
+  **Migration 2 — `20260525000002_create_user_travel_documents.sql`**
+
+  - [x] `user_travel_documents` table: PII fields as BYTEA (AES-256 encrypted), country fields plaintext
+  - [x] UNIQUE(user_id, document_type) — max one passport + one id_card per user
+  - [x] RLS: SELECT = owner only; INSERT/UPDATE/DELETE = deny all (RPCs only)
+  - [x] `upsert_travel_document(...)` RPC — SECURITY DEFINER, encrypts fields, upserts on conflict
+  - [x] `get_my_travel_documents()` RPC — SECURITY DEFINER, decrypts and returns own documents
+  - [x] `delete_travel_document(p_document_id)` RPC — SECURITY DEFINER
+
+  **Migration 3 — `20260525000003_create_document_access_system.sql`**
+
+  - [x] `document_access_requests` table + RLS (visible to trip members)
+  - [x] `document_access_grants` table + RLS (visible to own user + organizer)
+  - [x] `create_document_access_request(p_trip_id, p_duration_minutes)` — organizer only, 1 active per trip per 24h
+  - [x] `respond_to_document_access_request(p_request_id, p_granted)` — member only, sets expires_at
+  - [x] `get_my_pending_access_requests()` — returns unresponded requests with trip + requester info
+  - [x] `get_accessible_member_documents(p_trip_id)` — organizer only, returns decrypted docs for active grants
+
+  **Migration 4 — `20260525000004_profile_settings_security_fixes.sql`** (security hardening)
+
+  - [x] `document_access_audit_log` table + RLS + auto-populated by `get_accessible_member_documents`
+  - [x] Input validation in `upsert_travel_document`: ISO alpha-2 regex, date format regex, trim()
+  - [x] Per-trip rate limit in `create_document_access_request`
+  - [x] TOCTOU check in `respond_to_document_access_request` (reject requests > 24h old)
+  - [x] `revoke_document_access(p_request_id)` RPC — member can revoke their own grant
+  - [x] `get_my_active_grants()` RPC — returns currently active grants for caller
+
+  **Types (`packages/types/`)**
+
+  - [x] `DOCUMENT_TYPE = ['passport', 'id_card']` + `DocumentType` enum
+  - [x] `ACCESS_REQUEST_DURATION = [15, 30, 60]` + `AccessRequestDuration` enum
+  - [x] `TravelDocument`, `DocumentAccessRequest`, `AccessibleMemberDocument`, `ActiveGrant` interfaces
+  - [x] `upsertTravelDocumentSchema`, `createDocumentAccessRequestSchema` Zod schemas
+  - [x] `UpsertTravelDocumentInput`, `CreateDocumentAccessRequestInput` exported types
+
+- [x] **2. Services & Hooks**
+
+  **`packages/api/src/travelDocuments.ts`** (new file)
+
+  - [x] `getMyTravelDocuments()` → `TravelDocument[]`
+  - [x] `upsertTravelDocument(input)` → `string` (id)
+  - [x] `deleteTravelDocument(documentId)` → `void`
+  - [x] `createDocumentAccessRequest(tripId, durationMinutes)` → `string`
+  - [x] `respondToDocumentAccessRequest(requestId, granted)` → `void`
+  - [x] `getMyPendingAccessRequests()` → `DocumentAccessRequest[]`
+  - [x] `getAccessibleMemberDocuments(tripId)` → `AccessibleMemberDocument[]`
+  - [x] `revokeDocumentAccess(requestId)` → `void`
+  - [x] `getMyActiveGrants()` → `ActiveGrant[]`
+  - [x] All exported from `packages/api/src/index.ts`
+
+  **`apps/mobile/src/features/profile/hooks/`** (all new)
+
+  - [x] `useTravelDocuments.ts` — `staleTime: 0, gcTime: 0` (no caching for sensitive data), enabled only after biometric unlock
+  - [x] `useUpsertTravelDocument.ts` — invalidates `['travelDocuments']`, success/error toasts
+  - [x] `useDeleteTravelDocument.ts` — invalidates `['travelDocuments']`, success/error toasts
+  - [x] `useUpdateProfile.ts` — calls `updateUserProfile`, syncs `authStore.setUser()`
+  - [x] `useDocumentAccessRequests.ts` — `usePendingAccessRequests` (polls every 30s), `useRespondToAccessRequest`, `useActiveGrants` (polls every 60s), `useRevokeDocumentAccess`
+  - [x] `useAccessibleMemberDocuments.ts` — `staleTime: 0, gcTime: 0`
+
+- [x] **3. Components & Screens**
+
+  **`apps/mobile/src/features/profile/components/`** (all new)
+
+  - [x] `BiometricGate.tsx` — `expo-local-authentication` gate; shows locked placeholder until verified; shows Alert warning (with bypass) when device has no biometrics/PIN enrolled; locks on app background (AppState)
+  - [x] `EditProfileSheet.tsx` — RHF + Zod; name, locale, timezone picker; pre-populated from user prop
+  - [x] `TravelDocumentCard.tsx` — masked doc number, reveal tap, 30s auto-hide timer; flag emoji for country; expiry warning < 6 months; Edit + Delete buttons
+  - [x] `AddTravelDocumentSheet.tsx` — document type picker, form fields; `zodResolver(upsertTravelDocumentSchema)`
+  - [x] `EditTravelDocumentSheet.tsx` — pre-populated from document prop; `reset()` clears form on close
+  - [x] `DocumentAccessRequestBanner.tsx` — expandable pending request list with Grant/Deny per entry
+  - [x] `ActiveGrantsBanner.tsx` — shows member's active grants with expiry countdown and Revoke button
+  - [x] `DocumentAccessRequestSheet.tsx` — organizer bottom sheet; duration picker (15/30/60 min); "Request Access" button
+  - [x] `MemberDocumentsSheet.tsx` — organizer view of accessible member documents; grouped by member; shows time remaining
+
+  **Profile screen: `apps/mobile/app/(tabs)/profile.tsx`** (new tab)
+
+  - [x] Avatar + Name + Email header
+  - [x] Edit Profile button → `EditProfileSheet`
+  - [x] `DocumentAccessRequestBanner` (if pending requests)
+  - [x] `ActiveGrantsBanner` (if active grants)
+  - [x] Travel Documents section behind `BiometricGate`
+  - [x] `TravelDocumentCard` per document + Add button for missing types
+  - [x] AppState listener locks documents when app backgrounds
+  - [x] Sign Out button with Alert confirmation
+  - [x] Profile tab registered in `apps/mobile/app/(tabs)/_layout.tsx`
+
+  **Trip Settings integration: `apps/mobile/app/trip/[id]/settings.tsx`**
+
+  - [x] "Request Member Documents" section (organizer only) — opens `DocumentAccessRequestSheet`
+  - [x] "View Member Documents" button (visible when active grants exist) — opens `MemberDocumentsSheet`
+
+---
+
 ## 🔔 Phase 8: Notifications
 *Dependencies: Phases 3, 4a, 4b, 5a, 5b & 5c*
 *Goal: Batched push notifications and in-app alerts.*

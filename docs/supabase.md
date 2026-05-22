@@ -982,6 +982,148 @@ Extended `transfer_flights` to support round-trip tickets stored as a single ent
 
 ---
 
+## 2026-05-25 — Phase 7d: Profile Settings — Encrypted Travel Documents & Organizer Access
+
+### Migration: `20260525000001_enable_pgcrypto_and_vault_secret`
+
+Bootstraps the encryption layer for travel document PII fields.
+
+**Extensions:**
+- `CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions` — provides `pgp_sym_encrypt` / `pgp_sym_decrypt` / `gen_random_bytes`
+- `CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault` — secure key storage
+
+**Vault secret:**
+```sql
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'travel_documents_encryption_key') THEN
+    PERFORM vault.create_secret(
+      encode(extensions.gen_random_bytes(32), 'hex'),
+      'travel_documents_encryption_key',
+      'AES-256 key for encrypting travel document PII fields'
+    );
+  END IF;
+END $$;
+```
+**IMPORTANT:** Use `vault.create_secret()` (SECURITY DEFINER function), NOT `INSERT INTO vault.secrets` directly. Direct INSERT triggers `_crypto_aead_det_noncegen`, which requires pgsodium internals unavailable to the migrator role and produces `permission denied for function _crypto_aead_det_noncegen`.
+
+**Private helper:**
+- `private.get_travel_doc_encryption_key() RETURNS TEXT` — SECURITY DEFINER, reads from `vault.decrypted_secrets`. Isolates vault access to a single trusted function; SECURITY DEFINER RPCs call this helper, PostgREST API cannot reach it.
+
+**Local migration file:** `supabase/migrations/20260525000001_enable_pgcrypto_and_vault_secret.sql`
+
+---
+
+### Migration: `20260525000002_create_user_travel_documents`
+
+Creates the encrypted travel document store.
+
+**Table `user_travel_documents`:**
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | UUID PK | |
+| `user_id` | UUID FK→users | CASCADE |
+| `document_type` | TEXT | CHECK ('passport', 'id_card') |
+| `full_legal_name` | BYTEA | AES-256 encrypted |
+| `document_number` | BYTEA | AES-256 encrypted |
+| `date_of_birth` | BYTEA | AES-256 encrypted |
+| `nationality` | TEXT | plaintext ISO alpha-2 |
+| `issuing_country` | TEXT | plaintext ISO alpha-2 |
+| `expiry_date` | DATE | plaintext (for reminder logic) |
+| `notes` | BYTEA | AES-256 encrypted |
+| `created_at`, `updated_at` | TIMESTAMPTZ | `set_updated_at()` trigger |
+| UNIQUE(user_id, document_type) | | one per type per user |
+
+**RLS:** Enabled. SELECT restricted to `user_id = auth.uid()`. INSERT/UPDATE/DELETE policies deny all (`WITH CHECK (false)`) — forces all writes through SECURITY DEFINER RPCs.
+
+**RPCs (all SECURITY DEFINER, `SET search_path = ''`):**
+- `upsert_travel_document(p_document_type, p_full_legal_name, p_document_number, p_date_of_birth, p_nationality, p_issuing_country, p_expiry_date, p_notes)` — encrypts sensitive fields, upserts on `(user_id, document_type)` conflict
+- `get_my_travel_documents()` — returns decrypted rows for `auth.uid()` only
+- `delete_travel_document(p_document_id)` — deletes own document by id
+
+**Local migration file:** `supabase/migrations/20260525000002_create_user_travel_documents.sql`
+
+---
+
+### Migration: `20260525000003_create_document_access_system`
+
+Creates the time-limited access request and grant system.
+
+**Table `document_access_requests`:**
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | UUID PK | |
+| `trip_id` | UUID FK→trips | CASCADE |
+| `requested_by` | UUID FK→users | CASCADE |
+| `duration_minutes` | INT | CHECK (15, 30, 60) |
+| `created_at` | TIMESTAMPTZ | |
+
+**Table `document_access_grants`:**
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | UUID PK | |
+| `request_id` | UUID FK→document_access_requests | CASCADE |
+| `user_id` | UUID FK→users | CASCADE |
+| `granted` | BOOLEAN | |
+| `expires_at` | TIMESTAMPTZ | set when granted=true |
+| `responded_at` | TIMESTAMPTZ | |
+| UNIQUE(request_id, user_id) | | one response per member |
+
+**RLS:** Requests visible to trip members. Grants visible to own user + the organizer who made the request. No direct writes (RPCs only).
+
+**RPCs:**
+- `create_document_access_request(p_trip_id, p_duration_minutes)` — organizer only, rate-limited to 1 active request per trip per 24h
+- `respond_to_document_access_request(p_request_id, p_granted)` — member only (not the requester), sets `expires_at = NOW() + duration` if granted
+- `get_my_pending_access_requests()` — returns unresponded requests for current user, with trip title + requester info
+- `get_accessible_member_documents(p_trip_id)` — organizer only, returns decrypted docs for members with active non-expired grants
+
+**Local migration file:** `supabase/migrations/20260525000003_create_document_access_system.sql`
+
+---
+
+### Migration: `20260525000004_profile_settings_security_fixes`
+
+Security hardening migration applying all CRITICAL and HIGH fixes found during security review.
+
+**New table `document_access_audit_log`:**
+- Records every `get_accessible_member_documents` call (organizer, member, timestamp)
+- RLS: organizer sees their own entries; member sees entries where their docs were accessed
+- No direct INSERT (populated only by the SECURITY DEFINER RPC)
+
+**Updated RPC `upsert_travel_document`:**
+- Added `trim()` on all text inputs
+- ISO alpha-2 regex validation: `^[A-Z]{2}$` on `nationality` and `issuing_country`
+- Date format regex: `^\d{4}-\d{2}-\d{2}$` on `date_of_birth`
+
+**Updated RPC `create_document_access_request`:**
+- Rate limit tightened from per-organizer-per-trip to per-trip (any organizer)
+
+**Updated RPC `respond_to_document_access_request`:**
+- TOCTOU mitigation: rejects requests older than 24 hours (`created_at < NOW() - INTERVAL '24 hours'`)
+
+**Updated RPC `get_accessible_member_documents`:**
+- Inserts into `document_access_audit_log` before returning documents
+
+**New RPC `revoke_document_access(p_request_id UUID)`:**
+- Allows a member to revoke their own grant: sets `granted=false, expires_at=NULL`
+
+**New RPC `get_my_active_grants()`:**
+- Returns grants where `granted=true AND expires_at > NOW()` for caller, with trip title + requester info
+
+**Local migration file:** `supabase/migrations/20260525000004_profile_settings_security_fixes.sql`
+
+---
+
+### Security Architecture Summary (4-Layer Model)
+
+| Layer | Mechanism | What It Protects Against |
+|-------|-----------|--------------------------|
+| **Database** | pgcrypto AES-256 column encryption + Vault key + SECURITY DEFINER RPCs (no direct table access) | DB breach, stolen backups, direct SQL access |
+| **Network** | HTTPS/TLS (Supabase default) | MITM, eavesdropping |
+| **Application** | TanStack Query `staleTime: 0` + `gcTime: 0`, no local caching | Device theft, memory inspection |
+| **UX** | Biometric/PIN gate (`expo-local-authentication`), masked doc numbers, 30s auto-hide, AppState lock | Shoulder surfing, unlocked device |
+
+---
+
 ## 2026-05-22 — Transfer: Fix soft-delete realtime propagation (RLS)
 
 ### Migration: `20260522000008_transfer_realtime_softdelete_rls`

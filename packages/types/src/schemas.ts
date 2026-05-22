@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION } from './enums';
+import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE } from './enums';
 
 export const userSchema = z.object({
   id: z.string().uuid(),
@@ -357,3 +357,47 @@ export const createInviteSchema = z.object({
 
 export type InviteExpiry = (typeof INVITE_EXPIRY)[number];
 export type CreateInviteInput = z.infer<typeof createInviteSchema>;
+
+// --- Travel document schemas ---
+
+export const upsertTravelDocumentSchema = z.object({
+  document_type: z.enum(DOCUMENT_TYPE),
+  full_legal_name: z.string().min(1, 'Required').max(200),
+  document_number: z.string().min(1, 'Required').max(50),
+  date_of_birth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD')
+    .nullable()
+    .optional(),
+  nationality: z
+    .string()
+    .length(2, 'Must be a 2-letter ISO country code')
+    .toUpperCase()
+    .nullable()
+    .optional(),
+  issuing_country: z
+    .string()
+    .length(2, 'Must be a 2-letter ISO country code')
+    .toUpperCase()
+    .nullable()
+    .optional(),
+  expiry_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD')
+    .nullable()
+    .optional(),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export type UpsertTravelDocumentInput = z.infer<typeof upsertTravelDocumentSchema>;
+
+export const createDocumentAccessRequestSchema = z.object({
+  trip_id: z.string().uuid(),
+  duration_minutes: z
+    .number()
+    .refine((v): v is 15 | 30 | 60 => [15, 30, 60].includes(v), {
+      message: 'Duration must be 15, 30, or 60 minutes',
+    }),
+});
+
+export type CreateDocumentAccessRequestInput = z.infer<typeof createDocumentAccessRequestSchema>;

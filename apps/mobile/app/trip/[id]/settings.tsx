@@ -10,6 +10,10 @@ import { useActiveInvites, useCreateInvite, useRevokeInvite } from '../../../src
 import { MemberAvatar } from '../../../src/features/trips/components/MemberAvatar';
 import { useAuthStore } from '../../../src/stores/authStore';
 import { useToastStore } from '../../../src/stores/toastStore';
+import { useCreateDocumentAccessRequest } from '../../../src/features/profile/hooks/useDocumentAccessRequests';
+import { useAccessibleMemberDocuments } from '../../../src/features/profile/hooks/useAccessibleMemberDocuments';
+import { DocumentAccessRequestSheet } from '../../../src/features/profile/components/DocumentAccessRequestSheet';
+import { MemberDocumentsSheet } from '../../../src/features/profile/components/MemberDocumentsSheet';
 
 const ROLE_LABELS: Record<string, string> = {
   organizer: 'Organizer',
@@ -39,6 +43,13 @@ export default function SettingsTab() {
   const [pendingRemovalId, setPendingRemovalId] = useState<string | null>(null);
   const [pendingLeave, setPendingLeave] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
+  const [requestDocVisible, setRequestDocVisible] = useState(false);
+  const [viewDocsVisible, setViewDocsVisible] = useState(false);
+
+  const createAccessRequest = useCreateDocumentAccessRequest();
+  const { data: memberDocuments = [], isLoading: memberDocsLoading } = useAccessibleMemberDocuments(tripId, viewDocsVisible);
+
+  const hasActiveDocs = memberDocuments.length > 0;
 
   async function handleCreateInvite() {
     try {
@@ -54,6 +65,7 @@ export default function SettingsTab() {
   if (!trip) return null;
 
   return (
+    <>
     <ScrollView style={{ flex: 1 }} contentContainerClassName="px-md py-md gap-lg">
       {/* Members section */}
       <View>
@@ -170,6 +182,33 @@ export default function SettingsTab() {
         </View>
       )}
 
+      {/* Member documents (organizer only) */}
+      {isOrganizer && (
+        <View>
+          <Text className="text-label text-text-muted uppercase mb-sm">Member Documents</Text>
+          <View className="bg-surface border border-border rounded-md p-md gap-md">
+            <Text className="text-body-small text-text-secondary">
+              Request members to share their travel documents for a limited time. Each member must individually grant access.
+            </Text>
+            <Button
+              label="Request Document Access"
+              variant="secondary"
+              onPress={() => setRequestDocVisible(true)}
+              loading={createAccessRequest.isPending}
+              icon={<Ionicons name="shield-checkmark-outline" size={18} color="#6C63FF" />}
+            />
+            {hasActiveDocs && (
+              <Button
+                label="View Member Documents"
+                variant="secondary"
+                onPress={() => setViewDocsVisible(true)}
+                icon={<Ionicons name="document-text-outline" size={18} color="#6C63FF" />}
+              />
+            )}
+          </View>
+        </View>
+      )}
+
       {/* Danger zone */}
       <View>
         <Text className="text-label text-text-muted uppercase mb-sm">Danger Zone</Text>
@@ -269,5 +308,25 @@ export default function SettingsTab() {
         </View>
       </View>
     </ScrollView>
+
+    <DocumentAccessRequestSheet
+      visible={requestDocVisible}
+      onClose={() => setRequestDocVisible(false)}
+      onSubmit={(durationMinutes) =>
+        createAccessRequest.mutate(
+          { tripId, durationMinutes },
+          { onSuccess: () => setRequestDocVisible(false) }
+        )
+      }
+      isPending={createAccessRequest.isPending}
+    />
+
+    <MemberDocumentsSheet
+      visible={viewDocsVisible}
+      onClose={() => setViewDocsVisible(false)}
+      documents={memberDocuments}
+      isLoading={memberDocsLoading}
+    />
+    </>
   );
 }

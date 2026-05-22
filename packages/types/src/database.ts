@@ -13,6 +13,8 @@ import type {
   SupportedTimezone,
   TransferFlightStatus,
   TransferDirection,
+  DocumentType,
+  AccessRequestDuration,
 } from './enums';
 
 export interface User {
@@ -348,4 +350,54 @@ export interface NotificationPreference {
   new_member: boolean;
   schedule_change: boolean;
   reminder: boolean;
+}
+
+export interface TravelDocument {
+  id: string;
+  document_type: DocumentType;
+  full_legal_name: string;
+  document_number: string;
+  date_of_birth: string | null;
+  nationality: string | null;
+  issuing_country: string | null;
+  expiry_date: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DocumentAccessRequest {
+  request_id: string;
+  trip_id: string;
+  trip_title: string;
+  requested_by: string;
+  requester_name: string;
+  requester_avatar: string | null;
+  duration_minutes: AccessRequestDuration;
+  created_at: string;
+}
+
+export interface AccessibleMemberDocument {
+  user_id: string;
+  user_name: string;
+  user_avatar: string | null;
+  document_type: DocumentType;
+  full_legal_name: string;
+  document_number: string;
+  date_of_birth: string | null;
+  nationality: string | null;
+  issuing_country: string | null;
+  expiry_date: string | null;
+  notes: string | null;
+  grant_expires_at: string;
+}
+
+export interface ActiveGrant {
+  grant_id: string;
+  request_id: string;
+  trip_id: string;
+  trip_title: string;
+  requester_name: string;
+  requester_avatar: string | null;
+  expires_at: string;
 }

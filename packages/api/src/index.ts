@@ -164,3 +164,15 @@ export {
   unsubscribeFromRentalRealtime,
 } from './transferRentals';
 export type { RentalRealtimeCallbacks } from './transferRentals';
+
+export {
+  getMyTravelDocuments,
+  upsertTravelDocument,
+  deleteTravelDocument,
+  createDocumentAccessRequest,
+  respondToDocumentAccessRequest,
+  getMyPendingAccessRequests,
+  getAccessibleMemberDocuments,
+  revokeDocumentAccess,
+  getMyActiveGrants,
+} from './travelDocuments';

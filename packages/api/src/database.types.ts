@@ -250,6 +250,136 @@ export type Database = {
           },
         ]
       }
+      document_access_audit_log: {
+        Row: {
+          accessed_at: string
+          document_type: string
+          id: string
+          member_id: string
+          organizer_id: string
+          trip_id: string
+        }
+        Insert: {
+          accessed_at?: string
+          document_type: string
+          id?: string
+          member_id: string
+          organizer_id: string
+          trip_id: string
+        }
+        Update: {
+          accessed_at?: string
+          document_type?: string
+          id?: string
+          member_id?: string
+          organizer_id?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_access_audit_log_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_access_audit_log_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_access_audit_log_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_access_grants: {
+        Row: {
+          expires_at: string | null
+          granted: boolean
+          id: string
+          request_id: string
+          responded_at: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          granted: boolean
+          id?: string
+          request_id: string
+          responded_at?: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          granted?: boolean
+          id?: string
+          request_id?: string
+          responded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_access_grants_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "document_access_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_access_grants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_access_requests: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          id: string
+          requested_by: string
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes: number
+          id?: string
+          requested_by: string
+          trip_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          requested_by?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_access_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_access_requests_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_splits: {
         Row: {
           amount_owed: number
@@ -1154,6 +1284,59 @@ export type Database = {
           },
         ]
       }
+      user_travel_documents: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          document_number: string
+          document_type: string
+          expiry_date: string | null
+          full_legal_name: string
+          id: string
+          issuing_country: string | null
+          nationality: string | null
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          document_number: string
+          document_type: string
+          expiry_date?: string | null
+          full_legal_name: string
+          id?: string
+          issuing_country?: string | null
+          nationality?: string | null
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          document_number?: string
+          document_type?: string
+          expiry_date?: string | null
+          full_legal_name?: string
+          id?: string
+          issuing_country?: string | null
+          nationality?: string | null
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_travel_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           avatar_url: string | null
@@ -1216,6 +1399,10 @@ export type Database = {
         Args: { p_flight_id: string }
         Returns: undefined
       }
+      create_document_access_request: {
+        Args: { p_duration_minutes: number; p_trip_id: string }
+        Returns: string
+      }
       create_expense_with_splits: {
         Args: {
           p_amount: number
@@ -1232,6 +1419,68 @@ export type Database = {
       }
       delete_recipe: { Args: { p_recipe_id: string }; Returns: undefined }
       delete_shopping_list: { Args: { p_list_id: string }; Returns: undefined }
+      delete_travel_document: {
+        Args: { p_document_id: string }
+        Returns: undefined
+      }
+      get_accessible_member_documents: {
+        Args: { p_trip_id: string }
+        Returns: {
+          date_of_birth: string
+          document_number: string
+          document_type: string
+          expiry_date: string
+          full_legal_name: string
+          grant_expires_at: string
+          issuing_country: string
+          nationality: string
+          notes: string
+          user_avatar: string
+          user_id: string
+          user_name: string
+        }[]
+      }
+      get_my_active_grants: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          expires_at: string
+          grant_id: string
+          request_id: string
+          requester_avatar: string
+          requester_name: string
+          trip_id: string
+          trip_title: string
+        }[]
+      }
+      get_my_pending_access_requests: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          duration_minutes: number
+          request_id: string
+          requested_by: string
+          requester_avatar: string
+          requester_name: string
+          trip_id: string
+          trip_title: string
+        }[]
+      }
+      get_my_travel_documents: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          date_of_birth: string
+          document_number: string
+          document_type: string
+          expiry_date: string
+          full_legal_name: string
+          id: string
+          issuing_country: string
+          nationality: string
+          notes: string
+          updated_at: string
+        }[]
+      }
       get_recipe_linked_lists: {
         Args: { p_recipe_id: string }
         Returns: {
@@ -1272,6 +1521,14 @@ export type Database = {
       }
       reopen_transfer_flight_voting: {
         Args: { p_flight_id: string }
+        Returns: undefined
+      }
+      respond_to_document_access_request: {
+        Args: { p_granted: boolean; p_request_id: string }
+        Returns: undefined
+      }
+      revoke_document_access: {
+        Args: { p_request_id: string }
         Returns: undefined
       }
       set_transfer_flight_passengers: {
@@ -1319,6 +1576,19 @@ export type Database = {
           p_title: string
         }
         Returns: undefined
+      }
+      upsert_travel_document: {
+        Args: {
+          p_date_of_birth?: string
+          p_document_number: string
+          p_document_type: string
+          p_expiry_date?: string
+          p_full_legal_name: string
+          p_issuing_country?: string
+          p_nationality?: string
+          p_notes?: string
+        }
+        Returns: string
       }
     }
     Enums: {
