@@ -565,7 +565,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [ ] Configure Expo EAS build profiles
   - [ ] Setup OTA updates
   - [ ] Optimize the EAS build using this [guide](https://expo.dev/blog/build-fast-no-matter-what-how-expo-is-optimizing-for-speed)
-  - [ ] Production database & deployment etc.
+  - [ ] Production database, triggers, edge functions, deployment etc.
 - [ ] *4. Third-party style guidelines*
   - [ ] Sign in with Google Branding IMPORTANT
   - [ ] Scan the code base for other relevant guidelines and fullfil them
