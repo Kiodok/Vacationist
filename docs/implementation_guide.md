@@ -543,6 +543,8 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 - [ ] **3. Components & Screens**
   - [ ] Implement Notification Center slide-out/screen
   - [ ] Add notification preference toggles to Trip Settings
+  - [ ] Add notification for any relevant feature, but don't overload it
+  - [ ] Add notification for document access requests from trip organizers
   - [ ] Allow the organizer of a trip to trigger predefined playful/waggish random selected messages like
         "Are you in favor of dictatorships? If not, live for democracy now!" or "Three hot women nearby already voted, now its your turn!"
 
