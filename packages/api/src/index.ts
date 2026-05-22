@@ -165,6 +165,8 @@ export {
 } from './transferRentals';
 export type { RentalRealtimeCallbacks } from './transferRentals';
 
+export { getNotes, createNote, updateNote, deleteNote } from './notes';
+
 export {
   getMyTravelDocuments,
   upsertTravelDocument,

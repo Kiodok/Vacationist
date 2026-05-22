@@ -401,3 +401,13 @@ export interface ActiveGrant {
   requester_avatar: string | null;
   expires_at: string;
 }
+
+export interface TripNote {
+  id: string;
+  trip_id: string;
+  created_by: string;
+  title: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}

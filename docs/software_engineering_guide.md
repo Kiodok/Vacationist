@@ -848,6 +848,28 @@ Simplest transfer entity — no voting, no passengers. Ordered by `pickup_date A
 
 ---
 
+### trip_notes
+
+```sql
+id              UUID PRIMARY KEY
+trip_id         UUID REFERENCES trips(id) ON DELETE CASCADE
+created_by      UUID REFERENCES users(id)
+title           TEXT NOT NULL CHECK (char_length(title) <= 100)
+description     TEXT CHECK (description IS NULL OR char_length(description) <= 1000)
+created_at      TIMESTAMPTZ DEFAULT NOW()
+updated_at      TIMESTAMPTZ DEFAULT NOW()
+```
+
+Ordered by `created_at DESC` (newest first). No realtime — notes are low-frequency edits.
+
+**RLS:** SELECT by any trip member. INSERT by member with `created_by = auth.uid()`. UPDATE by note creator only. DELETE by note creator OR trip organizer.
+
+**Triggers:** `set_updated_at` on BEFORE UPDATE. `restrict_trip_note_update_fields()` prevents mutating `trip_id` or `created_by`.
+
+**No soft delete** — hard delete used; content is ephemeral, no audit requirement.
+
+---
+
 ### notifications
 
 ```sql

@@ -8,6 +8,53 @@
 
 ---
 
+## 2026-05-25 — Phase 7e: Trip Notes
+
+### Migration: `20260525000005_create_trip_notes`
+
+**Why:** Trip members need a lightweight, shared notepad per trip — free-text notes with a title and optional description, visible to all members, editable by the author, deletable by the author or trip organizer.
+
+**Table created:** `public.trip_notes`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | `gen_random_uuid()` |
+| `trip_id` | UUID FK → trips CASCADE | |
+| `created_by` | UUID FK → users | |
+| `title` | TEXT | `char_length <= 100` CHECK |
+| `description` | TEXT nullable | `char_length <= 1000` CHECK |
+| `created_at` | TIMESTAMPTZ | `DEFAULT NOW()` |
+| `updated_at` | TIMESTAMPTZ | `DEFAULT NOW()`, maintained by trigger |
+
+**Index:** `idx_trip_notes_trip_id ON trip_notes (trip_id)`
+
+**RLS policies:**
+- SELECT: `private.is_trip_member(trip_id, auth.uid())`
+- INSERT: member + `created_by = auth.uid()`
+- UPDATE: `created_by = auth.uid()` (creator only)
+- DELETE: `created_by = auth.uid()` OR `private.is_trip_organizer(trip_id, auth.uid())`
+
+**Triggers:**
+- `trip_notes_updated_at` (BEFORE UPDATE) — calls `public.set_updated_at()`
+- `on_trip_note_update_restrict` (BEFORE UPDATE) — `restrict_trip_note_update_fields()` raises exception if `trip_id` or `created_by` is changed
+
+**No realtime publication** — notes are low-frequency, queries invalidate on mutation.
+
+**No soft delete** — hard delete; no audit trail needed for notes content.
+
+**Code changes:**
+- `supabase/migrations/20260525000005_create_trip_notes.sql` — migration
+- `packages/types/src/database.ts` — `TripNote` interface
+- `packages/types/src/schemas.ts` — `createTripNoteSchema`, `updateTripNoteSchema`, `CreateTripNoteInput`, `UpdateTripNoteInput`
+- `packages/api/src/notes.ts` — `getNotes`, `createNote`, `updateNote`, `deleteNote`
+- `packages/api/src/index.ts` — exports for notes functions
+- `apps/mobile/src/features/notes/hooks/useNotes.ts` — `useNotes`, `useCreateNote`, `useUpdateNote`, `useDeleteNote`
+- `apps/mobile/src/features/notes/components/` — `EmptyNotes`, `NoteCard`, `CreateNoteSheet`, `EditNoteSheet`
+- `apps/mobile/app/trip/[id]/notes.tsx` — Notes tab screen
+- `apps/mobile/app/trip/[id]/_layout.tsx` — `'Notes'` tab registered between Recipes and Settings
+
+---
+
 ## 2026-05-23 — Realtime Scaling: Denormalize `trip_id` to Child Tables
 
 ### Migration: `20260523000001_denormalize_trip_id_for_realtime_filters`

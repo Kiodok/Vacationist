@@ -467,6 +467,69 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
 ---
 
+## 📝 Phase 7e: Trip Notes
+*Dependencies: Phase 2 (Trips), Phase 1 (Auth)*
+*Goal: Allow all trip members to create, edit, and delete free-text notes per trip. Organizers can delete any member's note.*
+
+- [x] **1. DB/RLS & Types**
+
+  **Migration — `20260525000005_create_trip_notes.sql`**
+
+  - [x] `trip_notes` table: `id` UUID PK, `trip_id` FK→trips CASCADE, `created_by` FK→users, `title` TEXT(100) NOT NULL, `description` TEXT(1000) nullable, `created_at`, `updated_at` (trigger)
+  - [x] `set_updated_at` BEFORE UPDATE trigger
+  - [x] `restrict_trip_note_update_fields()` trigger — prevents changing `trip_id` or `created_by`
+  - [x] Index on `trip_id`
+  - [x] RLS SELECT: any trip member | INSERT: member + `created_by = auth.uid()` | UPDATE: note creator only | DELETE: note creator OR trip organizer
+
+  **Types (`packages/types/`)**
+
+  - [x] `TripNote` interface in `packages/types/src/database.ts`
+  - [x] `createTripNoteSchema` (title min 1 / max 100, description max 1000 nullable optional)
+  - [x] `updateTripNoteSchema` (all fields optional)
+  - [x] `CreateTripNoteInput`, `UpdateTripNoteInput` exported types
+
+- [x] **2. Services & Hooks**
+
+  **`packages/api/src/notes.ts`** (new file)
+
+  - [x] `getNotes(tripId)` — SELECT *, ordered by `created_at DESC`
+  - [x] `createNote(tripId, input)` — resolves `created_by` from session, INSERT + `.select().single()`
+  - [x] `updateNote(noteId, input)` — UPDATE + `.select().single()`
+  - [x] `deleteNote(noteId)` — DELETE by `id`
+  - [x] All exported from `packages/api/src/index.ts`
+
+  **`apps/mobile/src/features/notes/hooks/useNotes.ts`** (new file)
+
+  - [x] `useNotes(tripId)` — query key `['trips', tripId, 'notes']`, `retry: 2`, `enabled: !!tripId`
+  - [x] `useCreateNote(tripId)` — invalidates notes list, success/error toasts
+  - [x] `useUpdateNote(tripId)` — invalidates notes list, success/error toasts
+  - [x] `useDeleteNote(tripId)` — invalidates notes list, success/error toasts
+
+- [x] **3. Components & Screens**
+
+  **`apps/mobile/src/features/notes/components/`** (all new)
+
+  - [x] `EmptyNotes.tsx` — empty state illustration/text
+  - [x] `NoteCard.tsx` — displays title, description, author name, timestamps; `onPress` opens edit sheet
+  - [x] `CreateNoteSheet.tsx` — RHF + Zod; title + description fields; `isPending` guard
+  - [x] `EditNoteSheet.tsx` — pre-populated form; Delete button shown only to creator or organizer (`canDelete` prop); `isUpdatePending` / `isDeletePending` guards
+
+  **`apps/mobile/app/trip/[id]/notes.tsx`** (new screen)
+
+  - [x] `useNotes`, `useCreateNote`, `useUpdateNote`, `useDeleteNote` wired
+  - [x] `useTripMembers` + `useCurrentMemberRole` for author name map and organizer check
+  - [x] Loading spinner while `isLoading`; `EmptyNotes` when list is empty; `FlatList` otherwise
+  - [x] FAB (bottom-right, primary color) → `CreateNoteSheet`
+  - [x] `NoteCard` `onPress` → `EditNoteSheet`; delete clears `editingNote` state on success
+  - [x] `canDelete`: creator OR organizer; no realtime (notes are low-frequency, polling not needed)
+
+  **`apps/mobile/app/trip/[id]/_layout.tsx`**
+
+  - [x] `'Notes'` added to TABS array (between `'Recipes'` and `'Settings'`)
+  - [x] `NotesTab` imported and returned in `renderTab()` switch
+
+---
+
 ## 🔔 Phase 8: Notifications
 *Dependencies: Phases 3, 4a, 4b, 5a, 5b & 5c*
 *Goal: Batched push notifications and in-app alerts.*

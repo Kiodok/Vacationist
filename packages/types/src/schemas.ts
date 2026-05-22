@@ -401,3 +401,18 @@ export const createDocumentAccessRequestSchema = z.object({
 });
 
 export type CreateDocumentAccessRequestInput = z.infer<typeof createDocumentAccessRequestSchema>;
+
+// --- Trip note schemas ---
+
+export const createTripNoteSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(100),
+  description: z.string().max(1000).nullable().optional(),
+});
+
+export const updateTripNoteSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(100).optional(),
+  description: z.string().max(1000).nullable().optional(),
+});
+
+export type CreateTripNoteInput = z.infer<typeof createTripNoteSchema>;
+export type UpdateTripNoteInput = z.infer<typeof updateTripNoteSchema>;
