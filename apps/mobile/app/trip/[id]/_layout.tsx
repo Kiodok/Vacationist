@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import { TripNotFoundError } from '@vacationist/api';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
+import { useTripRealtime } from '../../../src/features/trips/hooks/useTripRealtime';
 import { useAuthStore } from '../../../src/stores/authStore';
 import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
@@ -37,6 +38,7 @@ export default function TripDetailLayout() {
   const router = useRouter();
   const { data: trip, isLoading, isError, error } = useTrip(id!);
   const authLoading = useAuthStore((s) => s.isLoading);
+  useTripRealtime(id!);
   const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab(tab));
 
   const handleTabChange = (newTab: Tab) => {

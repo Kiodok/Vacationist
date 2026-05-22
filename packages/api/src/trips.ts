@@ -1,4 +1,5 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Trip, CreateTripInput, UpdateTripInput } from '@vacationist/types';
 
 export class TripNotFoundError extends Error {
@@ -98,4 +99,26 @@ export async function softDeleteTrip(tripId: string): Promise<void> {
   // SECURITY DEFINER RPC bypasses RLS and checks organizer auth internally.
   const { error } = await supabase.rpc('soft_delete_trip', { p_trip_id: tripId });
   if (error) throw error;
+}
+
+export interface TripRealtimeCallbacks {
+  onUpdate: (trip: Trip) => void;
+}
+
+export function subscribeToTripRealtime(
+  tripId: string,
+  callbacks: TripRealtimeCallbacks,
+  onStatus?: (status: string) => void,
+): RealtimeChannel {
+  return freshChannel(`trip-details:${tripId}`)
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'trips', filter: `id=eq.${tripId}` },
+      (payload) => callbacks.onUpdate(payload.new as unknown as Trip),
+    )
+    .subscribe((status) => onStatus?.(status));
+}
+
+export function unsubscribeFromTrip(channel: RealtimeChannel): void {
+  supabase.removeChannel(channel);
 }

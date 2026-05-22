@@ -45,6 +45,31 @@ auto-populates `trip_id` from the parent row — works correctly inside SECURITY
 
 ---
 
+## 2026-05-24 — Trips Realtime: Propagate edits to all members
+
+### Migration: `20260524000003_enable_trips_realtime`
+
+Added `public.trips` to the Supabase Realtime publication so UPDATE events (title, description, dates, budget, timezone, currency) are delivered to all trip members in real time.
+
+**Realtime publication addition:**
+- `public.trips` — live UPDATE events
+
+**REPLICA IDENTITY:** DEFAULT is sufficient — the subscription filter uses `id=eq.{tripId}` and `id` is the primary key, which is always present in the WAL record without FULL.
+
+**Architecture:**
+- One channel per trip: `trip-details:{tripId}` (mounted in the trip layout, active for all tabs)
+- On UPDATE: surgically patches `['trips', tripId]` cache with `setQueryData`, preserving the joined `member_count` field; invalidates the top-level `['trips']` list so the home screen card stays in sync
+- Follows standard exponential backoff reconnection [2s, 5s, 10s, 30s] and AppState foreground resubscription pattern
+
+**Code changes:**
+- `supabase/migrations/20260524000003_enable_trips_realtime.sql` — migration
+- `packages/api/src/trips.ts` — added `subscribeToTripRealtime`, `unsubscribeFromTrip`, `TripRealtimeCallbacks`
+- `packages/api/src/index.ts` — exported new symbols
+- `apps/mobile/src/features/trips/hooks/useTripRealtime.ts` — new hook
+- `apps/mobile/app/trip/[id]/_layout.tsx` — mounts `useTripRealtime(id!)`
+
+---
+
 ## 2026-05-24 — Performance & Scaling: RLS Simplification, Indexes, Position Trigger, Count RPC
 
 ### Migration: `20260524000001_rls_indexes_position_trigger`
