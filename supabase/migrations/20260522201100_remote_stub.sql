@@ -1,0 +1,1 @@
+-- applied remotely; stub for migration history sync
