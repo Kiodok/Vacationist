@@ -1,7 +1,5 @@
 import type { ExpoConfig, ConfigContext } from 'expo/config';
 
-const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '';
-
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Vacationist',
@@ -59,9 +57,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       '@react-native-google-signin/google-signin',
       {
-        iosUrlScheme: googleWebClientId
-          ? `com.googleusercontent.apps.${googleWebClientId.split('.')[0]}`
-          : undefined,
+        iosUrlScheme:
+          'com.googleusercontent.apps.632483929424-80snbqvfadb86eiidc4sfbee8nm30naj',
       },
     ],
     [
