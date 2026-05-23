@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Screenshot 2 – Activity Voting</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  width: 390px; height: 844px; overflow: hidden;
+  background: #0F0F0F;
+  font-family: -apple-system, 'Roboto', sans-serif;
+  color: #FFFFFF;
+}
+
+.status-bar {
+  height: 48px; background: #0F0F0F;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 22px 8px;
+}
+.status-time { font-size: 15px; font-weight: 600; }
+.status-icons { display: flex; gap: 6px; align-items: center; }
+
+.nav-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px 10px;
+  border-bottom: 1px solid #2E2E2E;
+}
+.back-btn {
+  width: 32px; height: 32px; border-radius: 16px;
+  background: #1A1A1A; border: 1px solid #2E2E2E;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.nav-title { font-size: 17px; font-weight: 600; flex: 1; }
+.nav-flag { font-size: 18px; }
+
+/* Tabs */
+.tabs {
+  display: flex; overflow-x: auto; padding: 0 16px;
+  border-bottom: 1px solid #2E2E2E;
+  gap: 0; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-item {
+  padding: 12px 14px; font-size: 13px; font-weight: 500;
+  color: #6B7280; white-space: nowrap; position: relative; cursor: pointer;
+}
+.tab-item.active { color: #6C63FF; }
+.tab-item.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: #6C63FF; border-radius: 2px 2px 0 0;
+}
+
+/* Section header */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 8px;
+}
+.section-head-label { font-size: 11px; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.08em; }
+.section-count { font-size: 11px; color: #6B7280; }
+
+/* Activity card */
+.activity-card {
+  margin: 0 16px 10px;
+  background: #1A1A1A;
+  border: 1px solid #2E2E2E;
+  border-radius: 12px;
+  padding: 14px;
+}
+.activity-card.blocked { border-color: rgba(255,92,92,0.3); }
+.activity-card.finalized { border-color: rgba(34,197,94,0.3); }
+
+.act-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.act-name { font-size: 15px; font-weight: 600; flex: 1; }
+.act-category {
+  font-size: 10px; font-weight: 600; color: #6C63FF;
+  background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.25);
+  border-radius: 8px; padding: 2px 8px; white-space: nowrap; margin-left: 8px;
+}
+.act-category.food { color: #F59E0B; background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.25); }
+.act-category.nature { color: #10B981; background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.25); }
+
+.act-meta { font-size: 12px; color: #9CA3AF; margin-bottom: 10px; }
+
+.act-bottom { display: flex; align-items: center; justify-content: space-between; }
+.vote-buttons { display: flex; gap: 8px; }
+.vote-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; border: 1px solid;
+}
+.vote-up   { border-color: rgba(34,197,94,0.4);  color: #22C55E; background: rgba(34,197,94,0.1);  }
+.vote-down { border-color: rgba(239,68,68,0.4);  color: #EF4444; background: rgba(239,68,68,0.1);  }
+.vote-block{ border-color: rgba(255,92,92,0.4);  color: #FF5C5C; background: rgba(255,92,92,0.08); font-size:11px; padding: 6px 9px; }
+
+.vote-active-up   { background: rgba(34,197,94,0.2);  border-color: #22C55E; }
+.vote-active-down { background: rgba(239,68,68,0.2);  border-color: #EF4444; }
+
+.act-status {
+  font-size: 10px; font-weight: 600; border-radius: 8px; padding: 3px 8px;
+}
+.act-status.open   { color: #9CA3AF; background: #2E2E2E; }
+.act-status.win    { color: #22C55E; background: rgba(34,197,94,0.12); }
+
+.vote-summary { font-size: 11px; color: #6B7280; display: flex; align-items: center; gap: 4px; }
+</style>
+</head>
+<body>
+
+<!-- Status bar -->
+<div class="status-bar">
+  <span class="status-time">9:41</span>
+  <div class="status-icons">
+    <svg width="17" height="11" viewBox="0 0 17 11" fill="white">
+      <rect x="0" y="5" width="3" height="6" rx="1"/>
+      <rect x="4.5" y="3" width="3" height="8" rx="1"/>
+      <rect x="9" y="0" width="3" height="11" rx="1"/>
+      <rect x="13.5" y="0" width="3" height="11" rx="1" opacity="0.3"/>
+    </svg>
+    <svg width="24" height="11" viewBox="0 0 24 11" fill="white">
+      <rect x="0" y="0.5" width="20" height="10" rx="2" stroke="white" stroke-width="1" fill="none" opacity="0.4"/>
+      <rect x="1.5" y="2" width="13" height="7" rx="1.5"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Nav header -->
+<div class="nav-header">
+  <div class="back-btn">‹</div>
+  <span class="nav-title">Summer in Portugal</span>
+  <span class="nav-flag">🇵🇹</span>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab-item active">Activities</div>
+  <div class="tab-item">Expenses</div>
+  <div class="tab-item">Shopping</div>
+  <div class="tab-item">Notes</div>
+  <div class="tab-item">Hotels</div>
+  <div class="tab-item">Flights</div>
+</div>
+
+<!-- In Planning section -->
+<div class="section-head">
+  <span class="section-head-label">In Planning</span>
+  <span class="section-count">3 activities</span>
+</div>
+
+<!-- Activity 1 -->
+<div class="activity-card">
+  <div class="act-top">
+    <span class="act-name">Torre de Belém Visit</span>
+    <span class="act-category">Culture</span>
+  </div>
+  <div class="act-meta">📍 Belém · 📅 Jul 13 · ⏰ 10:00 – 12:00</div>
+  <div class="act-bottom">
+    <div class="vote-buttons">
+      <div class="vote-btn vote-up vote-active-up">👍 3</div>
+      <div class="vote-btn vote-down">👎 1</div>
+      <div class="vote-btn vote-block">🚫</div>
+    </div>
+    <div class="act-status open">Voting open</div>
+  </div>
+</div>
+
+<!-- Activity 2 -->
+<div class="activity-card">
+  <div class="act-top">
+    <span class="act-name">Pastel de Nata Tasting Tour</span>
+    <span class="act-category food">Food</span>
+  </div>
+  <div class="act-meta">📍 Pastéis de Belém · 📅 Jul 14</div>
+  <div class="act-bottom">
+    <div class="vote-buttons">
+      <div class="vote-btn vote-up">👍 4</div>
+      <div class="vote-btn vote-down vote-active-down">👎 0</div>
+      <div class="vote-btn vote-block">🚫</div>
+    </div>
+    <div class="act-status win">✓ Group favourite</div>
+  </div>
+</div>
+
+<!-- Activity 3 -->
+<div class="activity-card">
+  <div class="act-top">
+    <span class="act-name">Sintra Day Trip</span>
+    <span class="act-category nature">Nature</span>
+  </div>
+  <div class="act-meta">📍 Sintra · 📅 Jul 15 · Full day</div>
+  <div class="act-bottom">
+    <div class="vote-buttons">
+      <div class="vote-btn vote-up">👍 2</div>
+      <div class="vote-btn vote-down">👎 2</div>
+      <div class="vote-btn vote-block">🚫</div>
+    </div>
+    <div class="act-status open">Voting open</div>
+  </div>
+</div>
+
+<!-- FAB -->
+<div style="position:absolute; bottom:24px; right:16px; width:52px; height:52px; border-radius:26px; background:#6C63FF; display:flex; align-items:center; justify-content:center; font-size:26px; color:white; box-shadow:0 4px 20px rgba(108,99,255,0.45);">+</div>
+
+</body>
+</html>

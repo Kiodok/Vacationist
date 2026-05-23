@@ -34,7 +34,7 @@ export function Input({ label, error, className = '', ...props }: InputProps) {
         }}
         {...props}
       />
-      {error && <Text className="text-body-small text-danger">{error}</Text>}
+      {!!error && <Text className="text-body-small text-danger">{error}</Text>}
     </View>
   );
 }

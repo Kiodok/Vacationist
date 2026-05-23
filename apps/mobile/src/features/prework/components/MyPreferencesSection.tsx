@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { PreworkFilter } from '@vacationist/types';
 import { upsertPreworkPreferencesSchema } from '@vacationist/types';
 import { PreworkFilterRow } from './PreworkFilterRow';
+import { colors } from '@vacationist/ui';
 
 interface MyPreferencesSectionProps {
   initialFilters: PreworkFilter[];
@@ -147,7 +148,7 @@ export function MyPreferencesSection({
                 onPress={() => addFilter(label)}
                 className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10 border border-primary/20"
               >
-                <Ionicons name="add-circle-outline" size={14} color="#6C63FF" />
+                <Ionicons name="add-circle-outline" size={14} color={colors.primary} />
                 <Text className="text-body-small text-primary">{label}</Text>
               </Pressable>
             ))}
@@ -218,7 +219,7 @@ export function MyPreferencesSection({
             className="px-md py-sm rounded-md bg-danger/10"
           >
             {isClearing ? (
-              <ActivityIndicator size="small" color="#FF5C5C" />
+              <ActivityIndicator size="small" color={colors.danger} />
             ) : (
               <Text className="text-danger text-body font-medium">Clear all</Text>
             )}

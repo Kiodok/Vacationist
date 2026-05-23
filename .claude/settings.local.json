@@ -77,7 +77,10 @@
       "PowerShell(Get-ChildItem \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\\\\app\\\\trip\\\\[id]\" | ForEach-Object { $_.Name })",
       "mcp__plugin_supabase_supabase__deploy_edge_function",
       "Read(//c/Users/Gary/.supabase/**)",
-      "Read(//c/Users/Gary/.config/supabase/**)"
+      "Read(//c/Users/Gary/.config/supabase/**)",
+      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\" && npx tsc --noEmit 2>&1; Write-Host \"Exit code: $LASTEXITCODE\")",
+      "Bash(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\" -Directory)",
+      "mcp__plugin_supabase_supabase__get_publishable_keys"
     ]
   },
   "model": "opusplan",

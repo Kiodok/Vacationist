@@ -1,5 +1,7 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import * as Sentry from '@sentry/react-native';
+import { colors } from '@vacationist/ui';
 
 interface Props {
   children: ReactNode;
@@ -20,7 +22,9 @@ export class ScreenErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ScreenErrorBoundary caught:', error, errorInfo);
+    Sentry.captureException(error, {
+      captureContext: { extra: { componentStack: errorInfo.componentStack } },
+    });
   }
 
   handleReset = () => {
@@ -51,23 +55,23 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0F0F0F',
+    backgroundColor: colors.background,
     padding: 24,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#F2F2F2',
+    color: colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 15,
-    color: '#A0A0A0',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
   },
   button: {
-    backgroundColor: '#6C63FF',
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 12,

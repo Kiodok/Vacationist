@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUnreadCount } from '../../src/features/notifications/hooks/useUnreadCount';
+import { colors } from '@vacationist/ui';
 
 export default function TabLayout() {
   const { data: unreadCount = 0 } = useUnreadCount();
@@ -13,7 +14,7 @@ export default function TabLayout() {
           backgroundColor: '#0F0F0F',
           borderTopColor: '#2E2E2E',
         },
-        tabBarActiveTintColor: '#6C63FF',
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: '#5C5C5C',
       }}
     >
@@ -43,7 +44,7 @@ export default function TabLayout() {
             <Ionicons name="notifications-outline" size={size} color={color} />
           ),
           tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
-          tabBarBadgeStyle: { backgroundColor: '#FF3B30', fontSize: 10 },
+          tabBarBadgeStyle: { backgroundColor: colors.danger, fontSize: 10 },
         }}
       />
       <Tabs.Screen

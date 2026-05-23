@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, Pressable, TouchableOpacity, FlatList, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { Accommodation, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
@@ -14,12 +15,13 @@ import { VoteSheet } from '../../../src/features/activities/components/VoteSheet
 import { CreateAccommodationSheet } from '../../../src/features/accommodations/components/CreateAccommodationSheet';
 import { EditAccommodationSheet } from '../../../src/features/accommodations/components/EditAccommodationSheet';
 import { EmptyAccommodations } from '../../../src/features/accommodations/components/EmptyAccommodations';
+import { colors } from '@vacationist/ui';
 
 export default function AccommodationsTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
-  const { data: accommodations, isLoading } = useAccommodations(tripId!);
+  const { data: accommodations, isLoading, isFetching, refetch } = useAccommodations(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createAccommodation = useCreateAccommodation(tripId!);
   const updateAccommodationMutation = useUpdateAccommodation(tripId!);
@@ -46,19 +48,21 @@ export default function AccommodationsTab() {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
 
   return (
     <View className="flex-1">
-      <FlatList
+      <FlashList
         data={accommodations}
         keyExtractor={(item) => item.id}
-        removeClippedSubviews={false}
-        contentContainerClassName="px-md py-md gap-sm"
-        contentContainerStyle={accommodations?.length === 0 ? { flex: 1 } : undefined}
+        contentContainerStyle={
+          accommodations?.length === 0
+            ? { flex: 1, paddingHorizontal: 16, paddingVertical: 16 }
+            : { paddingHorizontal: 16, paddingVertical: 16, gap: 8 }
+        }
         ListEmptyComponent={<EmptyAccommodations />}
         renderItem={({ item }) => (
           <AccommodationCardWithVotes
@@ -73,13 +77,21 @@ export default function AccommodationsTab() {
             onReopenVoting={() => reopenVoting.mutate(item.id)}
           />
         )}
+        refreshControl={
+          <RefreshControl
+            refreshing={isFetching && !isLoading}
+            onRefresh={refetch}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       />
 
       {/* FAB */}
       <Pressable
         onPress={() => setShowCreate(true)}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 4, shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </Pressable>
@@ -166,7 +178,7 @@ function AccommodationCardWithVotes({
           onPress={() => Linking.openURL(accommodation.external_url!)}
           className="flex-row items-center gap-xs"
         >
-          <Ionicons name="link-outline" size={14} color="#6C63FF" />
+          <Ionicons name="link-outline" size={14} color={colors.primary} />
           <Text className="text-primary text-body-small underline" numberOfLines={1}>
             {accommodation.external_url}
           </Text>
@@ -218,7 +230,7 @@ function AccommodationCardWithVotes({
                 onPress={onEdit}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color="#6C63FF" />
+                <Ionicons name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Edit</Text>
               </TouchableOpacity>
             )}
@@ -228,7 +240,7 @@ function AccommodationCardWithVotes({
                 onPress={() => setConfirmingCloseVoting(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               >
-                <Ionicons name="lock-closed-outline" size={14} color="#F5A623" />
+                <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
                 <Text className="text-warning text-body-small font-medium">End voting</Text>
               </TouchableOpacity>
             )}
@@ -238,7 +250,7 @@ function AccommodationCardWithVotes({
                 onPress={onReopenVoting}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="lock-open-outline" size={14} color="#6C63FF" />
+                <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Re-open voting</Text>
               </TouchableOpacity>
             )}
@@ -248,7 +260,7 @@ function AccommodationCardWithVotes({
                 onPress={() => setConfirmingDelete(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
-                <Ionicons name="trash-outline" size={14} color="#FF5C5C" />
+                <Ionicons name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">Remove</Text>
               </TouchableOpacity>
             )}

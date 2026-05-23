@@ -2,6 +2,7 @@ import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { MemberBalance, User, Currency } from '@vacationist/types';
 import { formatCurrency, isNegligible, computeSettlements } from '@vacationist/utils';
+import { colors } from '@vacationist/ui';
 
 interface SettlementsModalProps {
   visible: boolean;
@@ -63,7 +64,7 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
             <Text className="text-body text-text-secondary font-semibold mb-sm">Simplified Settlements</Text>
             {allSettled ? (
               <View className="items-center py-lg gap-sm">
-                <Ionicons name="checkmark-done-circle-outline" size={40} color="#3ECF8E" />
+                <Ionicons name="checkmark-done-circle-outline" size={40} color={colors.success} />
                 <Text className="text-body text-success font-medium">All settled up!</Text>
                 <Text className="text-body-small text-text-muted">No payments needed</Text>
               </View>
@@ -78,7 +79,7 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
                         <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
                           {fromUser?.name ?? 'Unknown'}
                         </Text>
-                        <Ionicons name="arrow-forward" size={14} color="#6C63FF" />
+                        <Ionicons name="arrow-forward" size={14} color={colors.primary} />
                         <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
                           {toUser?.name ?? 'Unknown'}
                         </Text>

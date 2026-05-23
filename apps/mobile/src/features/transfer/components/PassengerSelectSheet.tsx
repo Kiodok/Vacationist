@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { TripMemberWithUser } from '@vacationist/api';
+import { colors } from '@vacationist/ui';
 
 interface PassengerSelectSheetProps {
   visible: boolean;
@@ -90,8 +91,8 @@ export function PassengerSelectSheet({
                         <Switch
                           value={isDriver}
                           onValueChange={(val) => onDriverToggle(member.user_id, val)}
-                          thumbColor={isDriver ? '#6C63FF' : '#555555'}
-                          trackColor={{ false: '#2E2E2E', true: '#6C63FF55' }}
+                          thumbColor={isDriver ? colors.primary : '#555555'}
+                          trackColor={{ false: '#2E2E2E', true: colors.primaryMuted }}
                         />
                       </View>
                     )}

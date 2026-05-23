@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ import { ShoppingItemRow } from '../../../src/features/shopping/components/Shopp
 import { AddShoppingItemInput } from '../../../src/features/shopping/components/AddShoppingItemInput';
 import { EditShoppingItemSheet } from '../../../src/features/shopping/components/EditShoppingItemSheet';
 import { EditShoppingListSheet } from '../../../src/features/shopping/components/EditShoppingListSheet';
+import { colors } from '@vacationist/ui';
 
 export default function ShoppingListDetail() {
   const { listId, tripId } = useLocalSearchParams<{ listId: string; tripId: string }>();
@@ -30,7 +32,7 @@ export default function ShoppingListDetail() {
   const { data: lists } = useShoppingLists(tripId!);
   const list = lists?.find((l) => l.id === listId);
 
-  const { data: items, isLoading } = useShoppingItems(listId!);
+  const { data: items, isLoading, isFetching, refetch } = useShoppingItems(listId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createItem = useCreateShoppingItem(tripId!, listId!);
   const updateItem = useUpdateShoppingItem(tripId!, listId!);
@@ -102,7 +104,7 @@ export default function ShoppingListDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="create-outline" size={20} color="#6C63FF" />
+              <Ionicons name="create-outline" size={20} color={colors.primary} />
             </Pressable>
             {isArchived ? (
               <Pressable
@@ -126,7 +128,7 @@ export default function ShoppingListDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="trash-outline" size={20} color="#FF5C5C" />
+              <Ionicons name="trash-outline" size={20} color={colors.danger} />
             </Pressable>
           </View>
         )}
@@ -160,10 +162,10 @@ export default function ShoppingListDetail() {
       >
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator color="#6C63FF" />
+            <ActivityIndicator color={colors.primary} />
           </View>
         ) : (
-          <FlatList
+          <FlashList
             data={items}
             keyExtractor={(item) => item.id}
             contentContainerStyle={items?.length === 0 ? { flex: 1 } : undefined}
@@ -183,6 +185,14 @@ export default function ShoppingListDetail() {
                 onLongPress={() => setEditingItem(item)}
               />
             )}
+            refreshControl={
+              <RefreshControl
+                refreshing={isFetching && !isLoading}
+                onRefresh={refetch}
+                tintColor={colors.primary}
+                colors={[colors.primary]}
+              />
+            }
           />
         )}
 

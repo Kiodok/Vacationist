@@ -2,6 +2,7 @@ import { View, Text, Pressable, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { TransferRental } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
 
 interface RentalCardProps {
   rental: TransferRental;
@@ -71,7 +72,7 @@ export function RentalCard({ rental, currency, onPress, detail }: RentalCardProp
             onPress={() => Linking.openURL(rental.external_url!)}
             className="flex-row items-center gap-xs"
           >
-            <Ionicons name="link-outline" size={14} color="#6C63FF" />
+            <Ionicons name="link-outline" size={14} color={colors.primary} />
             <Text className="text-primary text-body-small underline" numberOfLines={1}>
               {rental.external_url}
             </Text>

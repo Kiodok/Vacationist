@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { CreateRecipeInput, Recipe } from '@vacationist/types';
@@ -11,12 +12,13 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { RecipeCard } from '../../../src/features/recipes/components/RecipeCard';
 import { CreateRecipeSheet } from '../../../src/features/recipes/components/CreateRecipeSheet';
 import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyRecipes';
+import { colors } from '@vacationist/ui';
 
 export default function RecipesTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  const { data: recipes, isLoading } = useRecipes(tripId!);
+  const { data: recipes, isLoading, isFetching, refetch } = useRecipes(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createRecipe = useCreateRecipe(tripId!);
   const deleteRecipeMut = useDeleteRecipe(tripId!);
@@ -35,7 +37,7 @@ export default function RecipesTab() {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
@@ -49,10 +51,10 @@ export default function RecipesTab() {
           <EmptyRecipes />
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={recipes}
           keyExtractor={(item) => item.id}
-          contentContainerClassName="px-md py-md gap-sm"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
           renderItem={({ item }) => (
             <RecipeCardWrapper
               recipe={item}
@@ -64,6 +66,14 @@ export default function RecipesTab() {
               onDelete={() => deleteRecipeMut.mutate(item.id)}
             />
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         />
       )}
 
@@ -71,7 +81,7 @@ export default function RecipesTab() {
         <Pressable
           onPress={() => setShowCreate(true)}
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-          style={{ elevation: 6, zIndex: 10, shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+          style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
           <Ionicons name="add" size={28} color="#FFFFFF" />
         </Pressable>

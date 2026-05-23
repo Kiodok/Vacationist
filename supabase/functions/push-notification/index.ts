@@ -50,10 +50,11 @@ Deno.serve(async (req: Request) => {
     return new Response('Method Not Allowed', { status: 405 });
   }
 
-  // Validate shared secret (set via `supabase secrets set PUSH_NOTIFICATION_SECRET`)
+  // Validate caller: the DB trigger sends the service role key as a bearer token.
+  // SUPABASE_SERVICE_ROLE_KEY is auto-injected by Supabase into every Edge Function.
   const authHeader = req.headers.get('Authorization');
-  const sharedSecret = Deno.env.get('PUSH_NOTIFICATION_SECRET');
-  if (!authHeader || !sharedSecret || authHeader !== `Bearer ${sharedSecret}`) {
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!authHeader || !serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
     return new Response('Unauthorized', { status: 401 });
   }
 

@@ -1,11 +1,12 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useToastStore, type ToastType } from '../stores/toastStore';
+import { colors } from '@vacationist/ui';
 
 const TYPE_COLORS: Record<ToastType, { bg: string; text: string }> = {
-  success: { bg: 'rgba(62, 207, 142, 0.15)', text: '#3ECF8E' },
-  error: { bg: 'rgba(255, 92, 92, 0.15)', text: '#FF5C5C' },
-  warning: { bg: 'rgba(245, 166, 35, 0.15)', text: '#F5A623' },
+  success: { bg: 'rgba(62, 207, 142, 0.15)', text: colors.success },
+  error: { bg: 'rgba(255, 92, 92, 0.15)', text: colors.danger },
+  warning: { bg: 'rgba(245, 166, 35, 0.15)', text: colors.warning },
 };
 
 export function ToastContainer() {

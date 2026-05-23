@@ -1,6 +1,7 @@
 import { View, Text, Switch, ActivityIndicator } from 'react-native';
 import { useNotificationPreferences, useUpdateNotificationPreferences } from '../hooks/useNotificationPreferences';
 import type { UpdateNotificationPreferencesInput } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
 
 const PREFERENCE_ROWS: { key: keyof UpdateNotificationPreferencesInput; label: string }[] = [
   { key: 'new_activity',    label: 'New activities' },
@@ -22,7 +23,7 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
   if (isLoading) {
     return (
       <View className="py-lg items-center">
-        <ActivityIndicator size="small" color="#6C63FF" />
+        <ActivityIndicator size="small" color={colors.primary} />
       </View>
     );
   }
@@ -46,7 +47,7 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
             <Switch
               value={prefs[key] ?? true}
               onValueChange={(val) => updatePrefs({ [key]: val })}
-              trackColor={{ false: '#3A3A3A', true: '#6C63FF' }}
+              trackColor={{ false: '#3A3A3A', true: colors.primary }}
               thumbColor="#FFFFFF"
             />
           </View>

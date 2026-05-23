@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@vacationist/ui';
 
 interface RecipeCardProps {
   title: string;
@@ -52,7 +53,7 @@ export function RecipeCard({
             </View>
             {shoppingListNames.length > 0 && (
               <View className="flex-row items-center gap-xs">
-                <Ionicons name="cart" size={14} color="#6C63FF" />
+                <Ionicons name="cart" size={14} color={colors.primary} />
                 <Text className="text-body-small text-primary" numberOfLines={1}>
                   {shoppingListNames.join(', ')}
                 </Text>

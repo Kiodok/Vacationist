@@ -7,6 +7,8 @@ export {
   signInAnonymously,
   setSessionFromUrl,
   signInWithGoogleIdToken,
+  linkGuestWithGoogle,
+  linkGuestWithMagicLink,
   signOut,
   getSession,
   onAuthStateChange,

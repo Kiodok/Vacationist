@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
+import { View, Text, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, TextInput, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +16,7 @@ import { IngredientRow } from '../../../src/features/recipes/components/Ingredie
 import { AddIngredientInput } from '../../../src/features/recipes/components/AddIngredientInput';
 import { EditRecipeSheet } from '../../../src/features/recipes/components/EditRecipeSheet';
 import { AddToShoppingListSheet } from '../../../src/features/recipes/components/AddToShoppingListSheet';
+import { colors } from '@vacationist/ui';
 
 export default function RecipeDetail() {
   const { recipeId, tripId } = useLocalSearchParams<{ recipeId: string; tripId: string }>();
@@ -29,7 +31,7 @@ export default function RecipeDetail() {
     }
   };
 
-  const { data: recipe, isLoading } = useRecipe(recipeId!);
+  const { data: recipe, isLoading, isFetching, refetch } = useRecipe(recipeId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const { data: shoppingLists } = useShoppingLists(tripId!);
   const updateRecipeMut = useUpdateRecipe(tripId!);
@@ -64,7 +66,7 @@ export default function RecipeDetail() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator color="#6C63FF" size="large" />
+        <ActivityIndicator color={colors.primary} size="large" />
       </SafeAreaView>
     );
   }
@@ -102,7 +104,7 @@ export default function RecipeDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="cart-outline" size={22} color="#6C63FF" />
+              <Ionicons name="cart-outline" size={22} color={colors.primary} />
             </Pressable>
           )}
           {canEdit && (
@@ -120,7 +122,7 @@ export default function RecipeDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="trash-outline" size={20} color="#FF5C5C" />
+              <Ionicons name="trash-outline" size={20} color={colors.danger} />
             </Pressable>
           )}
         </View>
@@ -177,7 +179,7 @@ export default function RecipeDetail() {
           <Text className="text-label text-text-muted uppercase">Ingredients</Text>
         </View>
 
-        <FlatList
+        <FlashList
           data={recipe.recipe_ingredients}
           keyExtractor={(item) => item.id}
           contentContainerStyle={recipe.recipe_ingredients.length === 0 ? { flex: 1 } : undefined}
@@ -197,6 +199,14 @@ export default function RecipeDetail() {
               onDelete={canEdit ? () => deleteIngredientMut.mutate(item.id) : undefined}
             />
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         />
 
         {!isGuest && (

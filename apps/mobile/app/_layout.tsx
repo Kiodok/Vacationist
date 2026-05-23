@@ -1,6 +1,11 @@
 import '../global.css';
-import { useEffect } from 'react';
-import { Platform } from 'react-native';
+import * as Sentry from '@sentry/react-native';
+import { initSentry } from '../src/utils/sentry';
+import { useEffect, useRef } from 'react';
+import { AppState, Platform } from 'react-native';
+import { checkForUpdate } from '../src/utils/updateChecker';
+
+initSentry();
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
@@ -46,6 +51,17 @@ function AuthGate() {
 
   useAuthInit();
   usePushNotificationHandler();
+
+  const appState = useRef(AppState.currentState);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (appState.current.match(/inactive|background/) && nextState === 'active') {
+        checkForUpdate();
+      }
+      appState.current = nextState;
+    });
+    return () => sub.remove();
+  }, []);
 
   // Register for push notifications once per user session
   useEffect(() => {
@@ -135,7 +151,7 @@ function AuthGate() {
   return <Slot />;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <GlobalErrorBoundary>
       <QueryProvider>
@@ -146,3 +162,5 @@ export default function RootLayout() {
     </GlobalErrorBoundary>
   );
 }
+
+export default Sentry.wrap(RootLayout);

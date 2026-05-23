@@ -2,6 +2,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { Notification, NotificationType } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
 
 function iconForType(type: NotificationType): keyof typeof Ionicons.glyphMap {
   switch (type) {
@@ -32,7 +33,7 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
         <Ionicons
           name={iconForType(notification.type)}
           size={22}
-          color={notification.is_read ? '#5C5C5C' : '#6C63FF'}
+          color={notification.is_read ? colors.textMuted : colors.primary}
         />
       </View>
 

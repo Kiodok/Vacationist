@@ -2,6 +2,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
+import { colors } from '@vacationist/ui';
 
 interface ExpenseCardProps {
   expense: Expense;
@@ -51,7 +52,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
 
         {iOwe && mySplit && (
           <View className="flex-row items-center gap-xs px-sm py-xs rounded-sm bg-warning/10 self-start">
-            <Ionicons name="alert-circle-outline" size={14} color="#F5A623" />
+            <Ionicons name="alert-circle-outline" size={14} color={colors.warning} />
             <Text className="text-warning text-body-small font-medium">
               You owe {formatCurrency(Number(mySplit.amount_owed), currency)}
             </Text>

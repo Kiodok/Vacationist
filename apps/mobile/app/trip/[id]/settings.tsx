@@ -16,6 +16,7 @@ import { DocumentAccessRequestSheet } from '../../../src/features/profile/compon
 import { MemberDocumentsSheet } from '../../../src/features/profile/components/MemberDocumentsSheet';
 import { NotificationPreferencesSection } from '../../../src/features/notifications/components/NotificationPreferencesSection';
 import { NudgeSheet } from '../../../src/features/notifications/components/NudgeSheet';
+import { colors } from '@vacationist/ui';
 
 const ROLE_LABELS: Record<string, string> = {
   organizer: 'Organizer',
@@ -104,14 +105,14 @@ export default function SettingsTab() {
                     hitSlop={12}
                     style={{ padding: 4 }}
                   >
-                    <Ionicons name="close-circle-outline" size={22} color="#FF5C5C" />
+                    <Ionicons name="close-circle-outline" size={22} color={colors.danger} />
                   </Pressable>
                 )}
 
                 {canRemove && isPending && (
                   <View className="flex-row gap-xs items-center">
                     {isRemoving ? (
-                      <ActivityIndicator size="small" color="#6C63FF" />
+                      <ActivityIndicator size="small" color={colors.primary} />
                     ) : (
                       <>
                         <Pressable
@@ -152,7 +153,7 @@ export default function SettingsTab() {
               variant="secondary"
               onPress={handleCreateInvite}
               loading={createInvite.isPending}
-              icon={<Ionicons name="link-outline" size={18} color="#6C63FF" />}
+              icon={<Ionicons name="link-outline" size={18} color={colors.primary} />}
             />
 
             {invites && invites.length > 0 && (
@@ -175,7 +176,7 @@ export default function SettingsTab() {
                       onPress={() => revokeInvite.mutate(invite.id)}
                       className="p-xs"
                     >
-                      <Ionicons name="trash-outline" size={18} color="#FF5C5C" />
+                      <Ionicons name="trash-outline" size={18} color={colors.danger} />
                     </Pressable>
                   </View>
                 ))}
@@ -200,7 +201,7 @@ export default function SettingsTab() {
                   variant="secondary"
                   onPress={() => setRequestDocVisible(true)}
                   loading={createAccessRequest.isPending}
-                  icon={<Ionicons name="shield-checkmark-outline" size={18} color="#6C63FF" />}
+                  icon={<Ionicons name="shield-checkmark-outline" size={18} color={colors.primary} />}
                 />
               </View>
               <View className="flex-1">
@@ -208,7 +209,7 @@ export default function SettingsTab() {
                   label="View Member Documents"
                   variant="secondary"
                   onPress={() => setViewDocsVisible(true)}
-                  icon={<Ionicons name="document-text-outline" size={18} color={hasActiveDocs ? '#3ECF8E' : '#6C63FF'} />}
+                  icon={<Ionicons name="document-text-outline" size={18} color={hasActiveDocs ? colors.success : colors.primary} />}
                   className={hasActiveDocs ? 'border-success' : ''}
                 />
               </View>
@@ -234,7 +235,7 @@ export default function SettingsTab() {
               label="Send a Nudge"
               variant="secondary"
               onPress={() => setNudgeVisible(true)}
-              icon={<Ionicons name="megaphone-outline" size={18} color="#6C63FF" />}
+              icon={<Ionicons name="megaphone-outline" size={18} color={colors.primary} />}
             />
           </View>
         </View>
@@ -251,7 +252,7 @@ export default function SettingsTab() {
               label="Leave Trip"
               variant="secondary"
               onPress={() => setPendingLeave(true)}
-              icon={<Ionicons name="exit-outline" size={18} color="#6C63FF" />}
+              icon={<Ionicons name="exit-outline" size={18} color={colors.primary} />}
             />
           )}
           {!isOrganizer && pendingLeave && (
@@ -296,7 +297,7 @@ export default function SettingsTab() {
               onPress={() => setPendingDelete(true)}
               className="min-h-[48px] rounded-md border border-danger items-center justify-center flex-row gap-sm"
             >
-              <Ionicons name="trash-outline" size={18} color="#FF5C5C" />
+              <Ionicons name="trash-outline" size={18} color={colors.danger} />
               <Text className="text-body text-danger font-semibold">Delete Trip</Text>
             </Pressable>
           )}

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, SectionList, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, SectionList, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem } from '@vacationist/types';
@@ -11,6 +11,7 @@ import { ShoppingListCard } from '../../../src/features/shopping/components/Shop
 import { ShoppingItemRow } from '../../../src/features/shopping/components/ShoppingItemRow';
 import { CreateShoppingListSheet } from '../../../src/features/shopping/components/CreateShoppingListSheet';
 import { EmptyShopping } from '../../../src/features/shopping/components/EmptyShopping';
+import { colors } from '@vacationist/ui';
 
 type ViewMode = 'lists' | 'all';
 
@@ -18,7 +19,7 @@ export default function ShoppingTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  const { data: lists, isLoading } = useShoppingLists(tripId!);
+  const { data: lists, isLoading, isFetching, refetch } = useShoppingLists(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createList = useCreateShoppingList(tripId!);
   const deleteList = useDeleteShoppingList(tripId!);
@@ -66,7 +67,7 @@ export default function ShoppingTab() {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
@@ -108,6 +109,9 @@ export default function ShoppingTab() {
           sections={sections}
           keyExtractor={(item) => item.id}
           stickySectionHeadersEnabled={false}
+          windowSize={5}
+          maxToRenderPerBatch={10}
+          initialNumToRender={10}
           contentContainerClassName="px-md py-md"
           renderSectionHeader={({ section }) => {
             const icon = section.key === 'active'
@@ -115,7 +119,7 @@ export default function ShoppingTab() {
               : section.key === 'completed'
                 ? 'checkmark-done-outline' as const
                 : 'archive-outline' as const;
-            const color = section.key === 'active' ? '#F2F2F2' : section.key === 'completed' ? '#3ECF8E' : '#A0A0A0';
+            const color = section.key === 'active' ? colors.textPrimary : section.key === 'completed' ? colors.success : colors.textMuted;
             const textClass = section.key === 'active' ? 'text-text-primary' : section.key === 'completed' ? 'text-success' : 'text-text-muted';
             return (
               <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
@@ -142,13 +146,21 @@ export default function ShoppingTab() {
             />
           )}
           ItemSeparatorComponent={() => <View className="h-sm" />}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         />
       )}
 
       <Pressable
         onPress={() => setShowCreate(true)}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 6, zIndex: 10, shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </Pressable>
@@ -190,7 +202,7 @@ function AllItemsView({ tripId }: { tripId: string }) {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
@@ -211,10 +223,13 @@ function AllItemsView({ tripId }: { tripId: string }) {
       sections={sections}
       keyExtractor={(item) => item.id}
       stickySectionHeadersEnabled={false}
+      windowSize={5}
+      maxToRenderPerBatch={10}
+      initialNumToRender={10}
       contentContainerClassName="pb-xl"
       renderSectionHeader={({ section }) => (
         <View className="flex-row items-center gap-xs pt-md pb-sm px-md bg-background">
-          <Ionicons name="list-outline" size={16} color="#6C63FF" />
+          <Ionicons name="list-outline" size={16} color={colors.primary} />
           <Text className="text-body font-semibold text-text-primary">
             {section.title}
           </Text>

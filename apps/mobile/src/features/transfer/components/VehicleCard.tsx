@@ -2,6 +2,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { TransferVehicle, TransferVehiclePassenger } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
+import { colors } from '@vacationist/ui';
 
 interface VehicleCardProps {
   vehicle: TransferVehicle;
@@ -37,7 +38,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail }: V
           <View className="flex-row flex-wrap gap-xs">
             {resolvedPassengers.map((p) => (
               <View key={p.id} className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-surface-elevated border border-border">
-                {p.is_driver && <Ionicons name="car-outline" size={12} color="#6C63FF" />}
+                {p.is_driver && <Ionicons name="car-outline" size={12} color={colors.primary} />}
                 <Text className={`text-body-small ${p.is_driver ? 'text-primary font-medium' : 'text-text-secondary'}`}>
                   {p.name}
                 </Text>

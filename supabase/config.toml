@@ -39,13 +39,15 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 site_url = "http://localhost:8081"
-additional_redirect_urls = ["vacationist://", "http://localhost:8081"]
+# Production override (Supabase Dashboard → Auth → URL Configuration):
+#   site_url = "https://vacationist.app"
+additional_redirect_urls = ["vacationist://", "http://localhost:8081", "https://vacationist.app", "https://vacationist.app/**"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
 enable_signup = true
 enable_anonymous_sign_ins = true
-enable_manual_linking = false
+enable_manual_linking = true
 minimum_password_length = 6
 
 [auth.email]
@@ -55,6 +57,18 @@ enable_confirmations = false
 max_frequency = "1s"
 otp_length = 6
 otp_expiry = 3600
+
+# Production SMTP via Resend (vacationist.app verified domain).
+# Local dev uses Inbucket at http://localhost:54324 instead.
+# [auth.smtp] is commented out because supabase CLI v2.98.2 does not support it.
+# Upgrade CLI to v2.101.0+ to re-enable.
+# [auth.smtp]
+# enabled = true
+# host = "smtp.resend.com"
+# port = 465
+# user = "resend"
+# pass = "env(RESEND_API_KEY)"
+# sender_name = "Vacationist"
 
 [auth.sms]
 enable_signup = false

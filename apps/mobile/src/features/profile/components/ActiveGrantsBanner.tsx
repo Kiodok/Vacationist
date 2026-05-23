@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveGrant } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -25,7 +26,7 @@ export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrant
         className="flex-row items-center justify-between px-md py-sm"
       >
         <View className="flex-row items-center gap-sm">
-          <Ionicons name="eye-outline" size={18} color="#6C63FF" />
+          <Ionicons name="eye-outline" size={18} color={colors.primary} />
           <Text className="text-body-small text-primary font-semibold">
             {grants.length === 1
               ? '1 active document share'
@@ -35,7 +36,7 @@ export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrant
         <Ionicons
           name={expanded ? 'chevron-up' : 'chevron-down'}
           size={16}
-          color="#6C63FF"
+          color={colors.primary}
         />
       </Pressable>
 
@@ -63,7 +64,7 @@ export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrant
                 className="min-h-[36px] px-sm rounded-sm border border-danger items-center justify-center"
               >
                 {isRevoking ? (
-                  <ActivityIndicator size="small" color="#FF5C5C" />
+                  <ActivityIndicator size="small" color={colors.danger} />
                 ) : (
                   <Text className="text-body-small text-danger font-medium">Revoke</Text>
                 )}

@@ -2,6 +2,7 @@ import { View, Text, Pressable, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
+import { colors } from '@vacationist/ui';
 
 interface ExpenseSplitBreakdownProps {
   visible: boolean;
@@ -71,7 +72,7 @@ export function ExpenseSplitBreakdown({
                       <Ionicons
                         name={isSettled ? 'checkmark-circle' : 'ellipse-outline'}
                         size={20}
-                        color={isSettled ? '#3ECF8E' : '#5C5C5C'}
+                        color={isSettled ? colors.success : colors.textMuted}
                       />
                     </View>
                     <View className="flex-1">

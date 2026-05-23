@@ -11,6 +11,7 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
+import { colors } from '@vacationist/ui';
 import OverviewTab from './overview';
 import PreworkTab from './prework';
 import ActivitiesTab from './activities';
@@ -56,7 +57,7 @@ export default function TripDetailScreen() {
   if (isLoading || authLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator color="#6C63FF" size="large" />
+        <ActivityIndicator color={colors.primary} size="large" />
       </SafeAreaView>
     );
   }

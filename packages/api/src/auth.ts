@@ -65,9 +65,34 @@ export async function signInWithGoogleIdToken(idToken: string) {
   return data;
 }
 
+export async function linkGuestWithGoogle(idToken: string) {
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token: idToken,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function linkGuestWithMagicLink(email: string, redirectTo: string) {
+  const { data, error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: redirectTo,
+      shouldCreateUser: false,
+    },
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
-  if (error) throw error;
+  if (error) {
+    // Global revocation failed (e.g. expired token, network error).
+    // Clear the local session so the user is always signed out on this device.
+    await supabase.auth.signOut({ scope: 'local' });
+  }
 }
 
 export async function getSession() {

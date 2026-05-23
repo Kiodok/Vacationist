@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { FlatList, View, Text, Pressable, ActivityIndicator, Alert, Image } from 'react-native';
+import { View, Text, Pressable, Alert, Image, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTrips } from '../../src/features/trips/hooks/useTrips';
 import { TripCard } from '../../src/features/trips/components/TripCard';
+import { TripListSkeleton } from '../../src/features/trips/components/TripListSkeleton';
 import { EmptyTrips } from '../../src/features/trips/components/EmptyTrips';
 import { useSignOut } from '../../src/features/auth/hooks/useSignOut';
 import { useAuthStore } from '../../src/stores/authStore';
 import type { Trip } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
 
 export default function TripsScreen() {
   const router = useRouter();
@@ -34,8 +37,8 @@ export default function TripsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator color="#6C63FF" size="large" />
+      <SafeAreaView className="flex-1 bg-background">
+        <TripListSkeleton />
       </SafeAreaView>
     );
   }
@@ -62,7 +65,7 @@ export default function TripsScreen() {
         <View className="w-[40px]" />
       </View>
 
-      <FlatList
+      <FlashList
         data={trips}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -71,15 +74,21 @@ export default function TripsScreen() {
             onPress={() => handleTripPress(item.id)}
           />
         )}
-        contentContainerClassName="px-md gap-sm pb-lg"
-        onRefresh={refetch}
-        refreshing={isFetching && !isLoading}
+        contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingBottom: 32 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isFetching && !isLoading}
+            onRefresh={refetch}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       />
 
       <Pressable
         onPress={handleCreateTrip}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 6, zIndex: 10, shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </Pressable>

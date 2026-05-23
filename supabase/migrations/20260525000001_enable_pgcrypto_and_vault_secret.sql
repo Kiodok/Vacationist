@@ -11,15 +11,18 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault;
 
 -- Generate and store a 256-bit encryption key for travel documents.
--- The hex-encoded 32-byte random value is used as the pgcrypto passphrase.
--- In production, rotate this key via the Supabase dashboard after the initial migration.
-INSERT INTO vault.secrets (name, secret, description)
-VALUES (
-  'travel_documents_encryption_key',
-  encode(extensions.gen_random_bytes(32), 'hex'),
-  'AES-256 key for encrypting travel document PII fields'
-)
-ON CONFLICT (name) DO NOTHING;
+-- Uses vault.create_secret() (SECURITY DEFINER) instead of direct INSERT — required for hosted Supabase.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'travel_documents_encryption_key') THEN
+    PERFORM vault.create_secret(
+      encode(extensions.gen_random_bytes(32), 'hex'),
+      'travel_documents_encryption_key',
+      'AES-256 key for encrypting travel document PII fields'
+    );
+  END IF;
+END;
+$$;
 
 -- Private helper: fetches the decrypted key from vault.
 -- SECURITY DEFINER + search_path = '' ensures:

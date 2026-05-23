@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator, AppState } from 'react-native';
+import { View, Text, ScrollView, Pressable, TouchableOpacity, ActivityIndicator, AppState } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../src/stores/authStore';
-import { useToastStore } from '../../src/stores/toastStore';
 import { useSignOut } from '../../src/features/auth/hooks/useSignOut';
 import { useUpdateProfile } from '../../src/features/profile/hooks/useUpdateProfile';
 import { useTravelDocuments } from '../../src/features/profile/hooks/useTravelDocuments';
@@ -20,15 +19,20 @@ import { DocumentAccessRequestBanner } from '../../src/features/profile/componen
 import { ActiveGrantsBanner } from '../../src/features/profile/components/ActiveGrantsBanner';
 import { MemberAvatar } from '../../src/features/trips/components/MemberAvatar';
 import type { TravelDocument, UpsertTravelDocumentInput } from '@vacationist/types';
+import { isGuest } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
+import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestUpgradeBanner';
+import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
-  const addToast = useToastStore((s) => s.addToast);
 
   const [docsUnlocked, setDocsUnlocked] = useState(false);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
   const [addDocVisible, setAddDocVisible] = useState(false);
   const [editingDoc, setEditingDoc] = useState<TravelDocument | null>(null);
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [upgradeSheetVisible, setUpgradeSheetVisible] = useState(false);
 
   // Lock documents when the app moves to the background.
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
@@ -45,7 +49,7 @@ export default function ProfileScreen() {
     return () => sub.remove();
   }, []);
 
-  const { handleSignOut, loading: signingOut } = useSignOut((msg) => addToast('error', msg));
+  const { handleSignOut } = useSignOut();
   const updateProfile = useUpdateProfile();
   const { data: documents = [], isLoading: docsLoading } = useTravelDocuments(docsUnlocked);
   const upsertDoc = useUpsertTravelDocument();
@@ -60,17 +64,6 @@ export default function ProfileScreen() {
   const existingTypes = documents.map((d) => d.document_type);
   const canAddMore = existingTypes.length < 2;
 
-  function handleSignOutPress() {
-    Alert.alert('Sign out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Sign out',
-        style: 'destructive',
-        onPress: handleSignOut,
-      },
-    ]);
-  }
-
   function handleUpsert(input: UpsertTravelDocumentInput) {
     upsertDoc.mutate(input, {
       onSuccess: () => {
@@ -83,6 +76,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={{ padding: 16, gap: 24 }}
         showsVerticalScrollIndicator={false}
       >
@@ -104,6 +98,11 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
+
+        {/* Guest upgrade banner */}
+        {isGuest(user) && (
+          <GuestUpgradeBanner onPress={() => setUpgradeSheetVisible(true)} />
+        )}
 
         {/* Edit profile */}
         <Pressable
@@ -141,7 +140,7 @@ export default function ProfileScreen() {
           <BiometricGate onUnlocked={() => setDocsUnlocked(true)} unlocked={docsUnlocked}>
             {docsLoading ? (
               <View className="py-lg items-center">
-                <ActivityIndicator color="#6C63FF" />
+                <ActivityIndicator color={colors.primary} />
               </View>
             ) : (
               <View className="gap-sm">
@@ -160,7 +159,7 @@ export default function ProfileScreen() {
                     onPress={() => setAddDocVisible(true)}
                     className="flex-row items-center justify-center gap-sm min-h-[48px] rounded-md border border-dashed border-border"
                   >
-                    <Ionicons name="add" size={18} color="#6C63FF" />
+                    <Ionicons name="add" size={18} color={colors.primary} />
                     <Text className="text-body text-primary font-medium">
                       Add {existingTypes.includes('passport') ? 'ID Card' : 'Document'}
                     </Text>
@@ -176,22 +175,31 @@ export default function ProfileScreen() {
             )}
           </BiometricGate>
         </View>
-
         {/* Sign out */}
-        <Pressable
-          onPress={handleSignOutPress}
-          disabled={signingOut}
-          className="flex-row items-center justify-center gap-sm min-h-[48px] rounded-md border border-danger"
-        >
-          {signingOut ? (
-            <ActivityIndicator size="small" color="#FF5C5C" />
-          ) : (
-            <>
-              <Ionicons name="log-out-outline" size={18} color="#FF5C5C" />
-              <Text className="text-body text-danger font-semibold">Sign Out</Text>
-            </>
-          )}
-        </Pressable>
+        {confirmSignOut ? (
+          <View className="flex-row gap-sm">
+            <TouchableOpacity
+              onPress={() => setConfirmSignOut(false)}
+              style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#2E2E2E', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text className="text-body text-text-secondary">Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleSignOut}
+              style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#FF5C5C', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,92,92,0.1)' }}
+            >
+              <Text className="text-body text-danger font-semibold">Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            onPress={() => setConfirmSignOut(true)}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#FF5C5C' }}
+          >
+            <Ionicons name="log-out-outline" size={18} color={colors.danger} />
+            <Text className="text-body text-danger font-semibold">Sign Out</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       <EditProfileSheet
@@ -202,6 +210,11 @@ export default function ProfileScreen() {
         }
         isPending={updateProfile.isPending}
         user={user}
+      />
+
+      <GuestUpgradeSheet
+        visible={upgradeSheetVisible}
+        onClose={() => setUpgradeSheetVisible(false)}
       />
 
       <AddTravelDocumentSheet

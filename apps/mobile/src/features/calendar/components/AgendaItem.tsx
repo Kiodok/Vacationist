@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { formatActivityTime } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
+import { colors } from '@vacationist/ui';
 
 interface AgendaItemProps {
   activity: Activity;
@@ -51,14 +52,14 @@ export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
             className="flex-row items-center gap-xs py-sm"
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
-            <Ionicons name="people" size={14} color="#6C63FF" />
+            <Ionicons name="people" size={14} color={colors.primary} />
             <Text className="text-primary text-body-small font-medium">
               {attendees.length} {attendees.length === 1 ? 'attendee' : 'attendees'}
             </Text>
             <Ionicons
               name={showAttendees ? 'chevron-up' : 'chevron-down'}
               size={12}
-              color="#6C63FF"
+              color={colors.primary}
             />
           </Pressable>
           {showAttendees && (

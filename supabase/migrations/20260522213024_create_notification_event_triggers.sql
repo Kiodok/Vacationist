@@ -197,37 +197,5 @@ CREATE TRIGGER trg_notify_schedule_change
   AFTER UPDATE ON public.activities
   FOR EACH ROW EXECUTE FUNCTION private.notify_schedule_change();
 
-----------------------------------------------------------------------
--- 7. DOCUMENT ACCESS REQUEST
--- Fires when an organizer requests access to member travel documents
-----------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION private.notify_document_access_request()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = ''
-AS $$
-DECLARE
-  v_trip_title TEXT;
-BEGIN
-  SELECT title INTO v_trip_title
-  FROM public.trips
-  WHERE id = NEW.trip_id;
-
-  -- Notify all non-organizer members (they need to respond)
-  PERFORM private.create_trip_notification(
-    NEW.trip_id,
-    NEW.requested_by,         -- exclude the organizer who made the request
-    'document_access_request',
-    'Document access requested',
-    'The organizer of "' || COALESCE(v_trip_title, 'your trip') || '" has requested access to your travel documents.',
-    'document_access_request',
-    NEW.id
-  );
-  RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER trg_notify_document_access_request
-  AFTER INSERT ON public.document_access_requests
-  FOR EACH ROW EXECUTE FUNCTION private.notify_document_access_request();
+-- 7. DOCUMENT ACCESS REQUEST trigger is in 20260525000007_notify_document_access_request_trigger.sql
+-- (must run after document_access_requests table is created in 20260525000003)

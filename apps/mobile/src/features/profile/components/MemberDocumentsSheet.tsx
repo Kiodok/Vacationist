@@ -4,6 +4,7 @@ import type { AccessibleMemberDocument } from '@vacationist/types';
 import { MemberAvatar } from '../../trips/components/MemberAvatar';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { colors } from '@vacationist/ui';
 
 dayjs.extend(relativeTime);
 
@@ -56,7 +57,7 @@ export function MemberDocumentsSheet({ visible, onClose, documents, isLoading }:
 
           {earliestExpiry && (
             <View className="bg-warning/10 border border-warning/30 rounded-sm px-md py-xs mb-md flex-row items-center gap-xs">
-              <Ionicons name="time-outline" size={14} color="#F5A623" />
+              <Ionicons name="time-outline" size={14} color={colors.warning} />
               <Text className="text-body-small text-warning">
                 Access expires {dayjs(earliestExpiry).fromNow()}
               </Text>
@@ -65,7 +66,7 @@ export function MemberDocumentsSheet({ visible, onClose, documents, isLoading }:
 
           {isLoading ? (
             <View className="py-xl items-center">
-              <ActivityIndicator color="#6C63FF" />
+              <ActivityIndicator color={colors.primary} />
             </View>
           ) : groups.length === 0 ? (
             <View className="py-xl items-center gap-sm">

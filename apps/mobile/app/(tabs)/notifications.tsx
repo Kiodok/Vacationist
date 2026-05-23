@@ -1,11 +1,14 @@
-import { View, Text, FlatList, Pressable, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, Pressable, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import type { Notification } from '@vacationist/types';
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from '../../src/features/notifications/hooks/useNotifications';
 import { NotificationItem } from '../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../src/features/notifications/components/EmptyNotifications';
+import { NotificationListSkeleton } from '../../src/features/notifications/components/NotificationListSkeleton';
 import { resolveNotificationPath } from '../../src/features/notifications/utils/resolveNotificationPath';
+import { colors } from '@vacationist/ui';
 
 export default function NotificationsScreen() {
   const router = useRouter();
@@ -35,11 +38,9 @@ export default function NotificationsScreen() {
       </View>
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#6C63FF" />
-        </View>
+        <NotificationListSkeleton />
       ) : (
-        <FlatList
+        <FlashList
           data={notifications}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, gap: 8, flexGrow: 1 }}
@@ -51,7 +52,7 @@ export default function NotificationsScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#6C63FF"
+              tintColor={colors.primary}
             />
           }
         />

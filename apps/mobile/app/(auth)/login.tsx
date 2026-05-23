@@ -3,7 +3,7 @@ import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { makeRedirectUri } from 'expo-auth-session';
 import { useRouter } from 'expo-router';
-import { Button, Input } from '@vacationist/ui';
+import { Button, GoogleSignInButton, Input } from '@vacationist/ui';
 import { signInWithMagicLink } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useGoogleSignIn } from '../../src/features/auth/hooks/useGoogleSignIn';
@@ -56,8 +56,7 @@ export default function LoginScreen() {
         </View>
 
         <View className="gap-md">
-          <Button
-            label="Continue with Google"
+          <GoogleSignInButton
             onPress={handleGoogleSignIn}
             loading={googleLoading}
             disabled={magicLinkLoading}

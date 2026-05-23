@@ -8,7 +8,11 @@
   ],
   "scripts": {
     "build:dev": "cd apps/mobile && eas build --profile development --platform android",
+    "build:preview": "cd apps/mobile && eas build --profile preview --platform android",
     "build:prod": "cd apps/mobile && eas build --profile production --platform android",
+    "submit:prod": "cd apps/mobile && eas submit --profile production --platform android",
+    "ota:preview": "cd apps/mobile && eas update --branch preview --message",
+    "ota:prod": "cd apps/mobile && eas update --branch production --message",
     "start": "npm run start --workspace=@vacationist/mobile",
     "android": "npm run android --workspace=@vacationist/mobile",
     "ios": "npm run ios --workspace=@vacationist/mobile",
@@ -22,8 +26,12 @@
     "test": "npm run test --workspace=@vacationist/utils"
   },
   "dependencies": {
+    "@sentry/react-native": "^8.12.0",
     "expo": "^55.0.24",
     "react": "19.2.0",
     "react-native": "0.83.6"
+  },
+  "devDependencies": {
+    "sharp-cli": "^5.2.0"
   }
 }

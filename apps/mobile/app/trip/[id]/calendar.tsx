@@ -14,6 +14,7 @@ import { DayStrip } from '../../../src/features/calendar/components/DayStrip';
 import { AgendaList } from '../../../src/features/calendar/components/AgendaList';
 import { CalendarActivitySheet } from '../../../src/features/calendar/components/CalendarActivitySheet';
 import { EditActivitySheet } from '../../../src/features/activities/components/EditActivitySheet';
+import { colors } from '@vacationist/ui';
 
 export default function CalendarTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -97,7 +98,7 @@ export default function CalendarTab() {
   if (tripLoading || activitiesLoading || !trip) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" size="large" />
+        <ActivityIndicator color={colors.primary} size="large" />
       </View>
     );
   }

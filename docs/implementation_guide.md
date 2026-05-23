@@ -666,31 +666,36 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 *Dependencies: All previous phases*
 *Goal: Production & legal readiness; Google Play Store.*
 
-- [ ] **1. UI/UX Polish**
-  - [ ] Implement Skeleton Screens (`TripListSkeleton`, `ActivityListSkeleton`, etc.)
-  - [ ] Finalize Guest upgrade flow UI
-- [ ] **2. Security & Performance**
-  - [ ] Conduct full RLS audit on all tables
-  - [ ] Implement rate limiting via Edge Functions/DB triggers
-  - [ ] Implement list virtualization (`FlashList` or `FlatList` optimizations)
-- [ ] **3. DevOps**
-  - [ ] Configure Expo EAS build profiles
-  - [ ] Setup OTA updates
-  - [ ] Optimize the EAS build using this [guide](https://expo.dev/blog/build-fast-no-matter-what-how-expo-is-optimizing-for-speed)
-  - [ ] Production database, triggers, edge functions, deployment, Firebase Cloud Messaging API (V1) expo.prd etc.
-- [ ] *4. Third-party style guidelines*
-  - [ ] Sign in with Google Branding IMPORTANT
-  - [ ] Scan the code base for other relevant guidelines and fullfil them
-- [ ] *5. Prepare Google Play Store release*
-  - [ ] Technical details like Target API Level, Production Build & more
-  - [ ] Google Play Console Assets like the app icon etc.
-  - [ ] Compliance & Policy
-  - [ ] Release Strategy
-  - [ ] Expo-Specific Deployment like a Service Account or Automated Submission
+- [x] **1. UI/UX Polish**
+  - [x] Implement Skeleton Screens — `TripListSkeleton`, `ActivityListSkeleton`, `ExpenseListSkeleton`, `NotificationListSkeleton`; `Skeleton` base component in `@vacationist/ui` with reanimated shimmer; `LoadingScreen`, `FloatingActionButton`, `EmptyState` shared components; primary screens now show skeletons instead of `ActivityIndicator`
+  - [x] Finalize Guest upgrade flow UI — `GuestUpgradeBanner` + `GuestUpgradeSheet` (Google + Magic Link options); `useGuestUpgrade` hook; `linkGuestWithGoogle` / `linkGuestWithMagicLink` API functions; shown on profile screen when `isGuest(user)` is true
+  - [x] Extract hardcoded colors to `packages/ui/src/theme.ts` — `colors.*` constants, replaced across all app files
+- [x] **2. Security & Performance**
+  - [x] Conduct full RLS audit on all tables — all 29 tables clean, no fixes required
+  - [x] Enable `manual_linking` in `supabase/config.toml` (required for guest upgrade flow)
+  - [x] Implement vote rate limiting — `check_vote_rate_limit()` SECURITY DEFINER trigger; 60 votes/hour per user per trip across `activity_votes`, `accommodation_votes`, `transfer_flight_votes`; migration `20260523120000_vote_rate_limit.sql`
+  - [x] Implement list virtualization — `@shopify/flash-list@2.3.1` installed; FlatList → FlashList in 9 screens (index, notifications ×2, accommodations, notes, recipes, shopping-list, recipe detail, transfer rentals); SectionList perf props (`windowSize=5`, `maxToRenderPerBatch=10`, `initialNumToRender=10`) added to 4 screens (activities, expenses, shopping, transfer); pull-to-refresh added to all 9 screens that were missing it
+- [x] **3. DevOps**
+  - [x] Configure Expo EAS build profiles — root `eas.json` consolidated; channels, Android AAB, submit config; stale `apps/mobile/eas.json` deleted
+  - [x] Crash reporting — Sentry (`@sentry/react-native`) wired into `_layout.tsx`, both error boundaries, `app.config.ts` plugin; disabled in dev
+  - [x] Fix splash screen & adaptive icon background (`#ffffff` → `#0F0F0F`)
+  - [x] Setup OTA updates — `expo-updates` installed; `updateChecker.ts` checks on app foreground via `AppState`; `app.config.ts` has `runtimeVersion.policy: 'fingerprint'`, `updates.url`, and `expo-updates` plugin
+  - [x] Production database, triggers, edge functions, app deployment, Firebase Cloud Messaging API (V1), expo.prd, OAuth (Google), Resend custom domain etc.
+- [x] *4. Third-party style guidelines*
+  - [x] Sign in with Google Branding — `GoogleSignInButton` component in `@vacationist/ui`; dark `#131314` background, white text, Ionicons `logo-google`, 4dp border radius, 48dp height; replaces generic purple `<Button>` in `login.tsx`
+  - [x] Scan the code base for other relevant guidelines and fulfil them
+- [x] *5. Prepare Google Play Store release*
+  - [x] Technical details — `expo-build-properties` installed; `targetSdkVersion: 36`, `compileSdkVersion: 36` in `app.config.ts` (exceeds Play Store 2025 minimum of 35)
+  - [x] `push-notification` Edge Function deployed to prod (`fsfsqghbejwvgxujoyne`); simplified auth uses `SUPABASE_SERVICE_ROLE_KEY` (auto-injected); vault secrets `push_notification_edge_fn_url` and `push_notification_service_role_key` both set in prod
+  - [x] EAS Submit & Release Pipeline — already configured
+  - [x] Google Play Console Assets — app icon 512×512 (`play-store/icon.png`), feature graphic 1024×500 (`play-store/feature-graphic.png`), 4 screenshot HTML mockups (`play-store/screenshots/`), store listing text (`play-store/listing.md`); **manual step remaining**: take actual device screenshots from HTML mockups (Chrome DevTools 390×844), upload to Play Console
+  - [x] Compliance & Policy — Privacy Policy (`docs/privacy-policy.html`, Swiss nDSG + GDPR, hosted on GitHub Pages); Terms of Service (`docs/terms-of-service.html`, Swiss OR); Landing page (`docs/home.html`)
+  - [x] Release Strategy — documented in `docs/CLAUDE.md`: version numbering (MAJOR.MINOR.PATCH), EAS channels & build profiles, OTA rules, staged rollout (10%→50%→100%), hotfix process, pre-release checklist, monitoring table, key IDs reference
 
 ## 🌐 Phase 10: Landing Page / Marketing Website (Web UI)
 *Dependencies: Phase 9*
 *Goal: Create a polished, responsive, mobile-first landing page for Vacationist.*
+*Info: HTML files in docs for GitHub Pages are already available and can be used as a starting point.*
 
 - [ ] **1. Content**
   - [ ] Explains the product clearly within seconds
@@ -716,3 +721,10 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [ ] AI buzzword marketing
   - [ ] Feature overload
   - [ ] Pricing sections (V1 has no monetization)
+- [ ] *5. Other important details*
+  - [ ] Move the GitHub Pages privacy policy to the website
+  - [ ] Cloudflare DNS:
+    - [ ] CNAME  www   →  your-vercel-deployment.vercel.app
+    - [ ] A/CNAME @    →  same (or Cloudflare proxied)
+    - [ ] The Resend DKIM/SPF records also go here when you set up the custom email domain.
+  - [ ] Firebase App Hosting

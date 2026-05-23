@@ -12,10 +12,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: 'vacationist',
   userInterfaceStyle: 'dark',
   newArchEnabled: true,
+  runtimeVersion: {
+    policy: 'fingerprint',
+  },
+  updates: {
+    url: 'https://u.expo.dev/a1dc4172-7c41-4aa9-a44d-afb1a0088278',
+  },
   splash: {
     image: './assets/images/splash-icon.png',
     resizeMode: 'contain',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#0F0F0F',
   },
   ios: {
     supportsTablet: true,
@@ -24,7 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#0F0F0F',
     },
     // @ts-expect-error — SDK 55 property, types not yet updated
     edgeToEdgeEnabled: true,
@@ -38,6 +44,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    'expo-updates',
     'expo-secure-store',
     'expo-font',
     'expo-web-browser',
@@ -55,6 +62,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         iosUrlScheme: googleWebClientId
           ? `com.googleusercontent.apps.${googleWebClientId.split('.')[0]}`
           : undefined,
+      },
+    ],
+    [
+      '@sentry/react-native/expo',
+      {
+        organization: 'vacationist',
+        project: 'react-native',
+      },
+    ],
+    [
+      'expo-build-properties',
+      {
+        android: {
+          targetSdkVersion: 36,
+          compileSdkVersion: 36,
+        },
       },
     ],
   ],

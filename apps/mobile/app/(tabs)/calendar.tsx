@@ -15,6 +15,7 @@ import { MonthGrid } from '../../src/features/calendar/components/MonthGrid';
 import { YearGrid } from '../../src/features/calendar/components/YearGrid';
 import { CalendarActivitySheet } from '../../src/features/calendar/components/CalendarActivitySheet';
 import { GlobalCalendarTripSection } from '../../src/features/calendar/components/GlobalCalendarTripSection';
+import { colors } from '@vacationist/ui';
 
 export default function GlobalCalendarScreen() {
   const router = useRouter();
@@ -134,7 +135,7 @@ export default function GlobalCalendarScreen() {
   if (tripsLoading || activitiesLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator color="#6C63FF" size="large" />
+        <ActivityIndicator color={colors.primary} size="large" />
       </SafeAreaView>
     );
   }

@@ -3,7 +3,7 @@ import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input } from '@vacationist/ui';
+import { Button, Input, colors } from '@vacationist/ui';
 import { signInAnonymously, redeemInviteToken } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useAuthStore } from '../../src/stores/authStore';
@@ -67,7 +67,7 @@ export default function JoinScreen() {
     <SafeAreaView className="flex-1 bg-background justify-center px-lg">
       <View className="items-center gap-lg">
         <View className="w-[64px] h-[64px] rounded-full bg-primary-muted items-center justify-center">
-          <Ionicons name="people-outline" size={32} color="#6C63FF" />
+          <Ionicons name="people-outline" size={32} color={colors.primary} />
         </View>
 
         <Text className="text-heading-l text-text-primary text-center">

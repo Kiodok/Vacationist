@@ -1,5 +1,6 @@
 import { Stack, Link } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '@vacationist/ui';
 
 export default function NotFoundScreen() {
   return (
@@ -34,6 +35,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 15,
-    color: '#6C63FF',
+    color: colors.primary,
   },
 });

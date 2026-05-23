@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, FlatList, ActivityIndicator, Pressable } from 'react-native';
+import { View, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { CreateTripNoteInput, TripNote, UpdateTripNoteInput } from '@vacationist/types';
@@ -10,12 +11,13 @@ import { NoteCard } from '../../../src/features/notes/components/NoteCard';
 import { EmptyNotes } from '../../../src/features/notes/components/EmptyNotes';
 import { CreateNoteSheet } from '../../../src/features/notes/components/CreateNoteSheet';
 import { EditNoteSheet } from '../../../src/features/notes/components/EditNoteSheet';
+import { colors } from '@vacationist/ui';
 
 export default function NotesTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const currentUser = useAuthStore((s) => s.user);
 
-  const { data: notes, isLoading } = useNotes(tripId!);
+  const { data: notes, isLoading, isFetching, refetch } = useNotes(tripId!);
   const { data: members } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createNote = useCreateNote(tripId!);
@@ -51,7 +53,7 @@ export default function NotesTab() {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
@@ -65,10 +67,10 @@ export default function NotesTab() {
           <EmptyNotes />
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={notes}
           keyExtractor={(item) => item.id}
-          contentContainerClassName="px-md py-md gap-sm"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
           renderItem={({ item }) => (
             <NoteCard
               note={item}
@@ -76,13 +78,21 @@ export default function NotesTab() {
               onPress={() => setEditingNote(item)}
             />
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         />
       )}
 
       <Pressable
         onPress={() => setShowCreate(true)}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 6, zIndex: 10, shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </Pressable>

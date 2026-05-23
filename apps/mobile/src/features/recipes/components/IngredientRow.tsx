@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { RecipeIngredient } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
 
 interface IngredientRowProps {
   ingredient: RecipeIngredient;
@@ -48,7 +49,7 @@ export function IngredientRow({ ingredient, canEdit, onEdit, onDelete }: Ingredi
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.6 })}
         >
-          <Ionicons name="trash-outline" size={18} color="#FF5C5C" />
+          <Ionicons name="trash-outline" size={18} color={colors.danger} />
         </Pressable>
       )}
     </View>

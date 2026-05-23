@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { upsertPushToken } from '@vacationist/api';
+import { colors } from '@vacationist/ui';
 
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   if (!Device.isDevice) {
@@ -37,7 +38,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
         name: 'Default',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#6C63FF',
+        lightColor: colors.primary,
       });
     }
 

@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
@@ -15,6 +15,8 @@ import { VoteSheet } from '../../../src/features/activities/components/VoteSheet
 import { CreateActivitySheet } from '../../../src/features/activities/components/CreateActivitySheet';
 import { EditActivitySheet } from '../../../src/features/activities/components/EditActivitySheet';
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
+import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
+import { colors } from '@vacationist/ui';
 
 function isOngoing(activity: Activity): boolean {
   if (!activity.activity_date) return false;
@@ -45,7 +47,7 @@ export default function ActivitiesTab() {
   const { id: tripId, activityId } = useLocalSearchParams<{ id: string; activityId?: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
-  const { data: activities, isLoading } = useActivities(tripId!);
+  const { data: activities, isLoading, isFetching, refetch } = useActivities(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const allActivityIds = useMemo(() => (activities ?? []).map((a) => a.id), [activities]);
   const { data: allVotes } = useActivityVotesBatch(allActivityIds);
@@ -143,11 +145,7 @@ export default function ActivitiesTab() {
   };
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" />
-      </View>
-    );
+    return <ActivityListSkeleton />;
   }
 
   const isEmpty = !activities || activities.length === 0;
@@ -165,14 +163,17 @@ export default function ActivitiesTab() {
           keyExtractor={(item) => item.id}
           removeClippedSubviews={false}
           stickySectionHeadersEnabled={false}
+          windowSize={5}
+          maxToRenderPerBatch={10}
+          initialNumToRender={10}
           contentContainerClassName="px-md py-md"
           renderSectionHeader={({ section }) => {
             const config: Record<string, { icon: keyof typeof Ionicons.glyphMap; color: string; textClass: string }> = {
-              ongoing: { icon: 'play-circle-outline', color: '#F5A623', textClass: 'text-warning' },
-              in_planning: { icon: 'compass-outline', color: '#6C63FF', textClass: 'text-primary' },
-              planned: { icon: 'calendar-outline', color: '#F2F2F2', textClass: 'text-text-primary' },
-              blocked: { icon: 'ban-outline', color: '#FF5C5C', textClass: 'text-danger' },
-              completed: { icon: 'checkmark-done-outline', color: '#3ECF8E', textClass: 'text-success' },
+              ongoing: { icon: 'play-circle-outline', color: colors.warning, textClass: 'text-warning' },
+              in_planning: { icon: 'compass-outline', color: colors.primary, textClass: 'text-primary' },
+              planned: { icon: 'calendar-outline', color: colors.textPrimary, textClass: 'text-text-primary' },
+              blocked: { icon: 'ban-outline', color: colors.danger, textClass: 'text-danger' },
+              completed: { icon: 'checkmark-done-outline', color: colors.success, textClass: 'text-success' },
             };
             const cfg = config[section.key ?? 'planned'] ?? config.planned;
             return (
@@ -203,6 +204,14 @@ export default function ActivitiesTab() {
               />
             </View>
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         />
       )}
 
@@ -210,7 +219,7 @@ export default function ActivitiesTab() {
       <Pressable
         onPress={() => setShowCreate(true)}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 4, shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </Pressable>
@@ -295,7 +304,7 @@ function ActivityCardWithVotes({
           onPress={() => Linking.openURL(activity.external_url!)}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
         >
-          <Ionicons name="link-outline" size={14} color="#6C63FF" />
+          <Ionicons name="link-outline" size={14} color={colors.primary} />
           <Text className="text-primary text-body-small underline" numberOfLines={1}>
             {activity.external_url}
           </Text>
@@ -307,7 +316,7 @@ function ActivityCardWithVotes({
           onPress={() => Linking.openURL(activity.maps_url!)}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
         >
-          <Ionicons name="map-outline" size={14} color="#6C63FF" />
+          <Ionicons name="map-outline" size={14} color={colors.primary} />
           <Text className="text-primary text-body-small underline" numberOfLines={1}>
             {activity.maps_url}
           </Text>
@@ -359,7 +368,7 @@ function ActivityCardWithVotes({
                 onPress={onEdit}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(108, 99, 255, 0.1)' }}
               >
-                <Ionicons name="create-outline" size={14} color="#6C63FF" />
+                <Ionicons name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Edit</Text>
               </TouchableOpacity>
             )}
@@ -369,7 +378,7 @@ function ActivityCardWithVotes({
                 onPress={() => setConfirmingCloseVoting(true)}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(245, 166, 35, 0.1)' }}
               >
-                <Ionicons name="lock-closed-outline" size={14} color="#F5A623" />
+                <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
                 <Text className="text-warning text-body-small font-medium">End voting</Text>
               </TouchableOpacity>
             )}
@@ -379,7 +388,7 @@ function ActivityCardWithVotes({
                 onPress={onReopenVoting}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(108, 99, 255, 0.1)' }}
               >
-                <Ionicons name="lock-open-outline" size={14} color="#6C63FF" />
+                <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Re-open voting</Text>
               </TouchableOpacity>
             )}
@@ -389,7 +398,7 @@ function ActivityCardWithVotes({
                 onPress={() => setConfirmingDelete(true)}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.1)' }}
               >
-                <Ionicons name="trash-outline" size={14} color="#FF5C5C" />
+                <Ionicons name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">Delete activity</Text>
               </TouchableOpacity>
             )}

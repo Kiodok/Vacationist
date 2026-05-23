@@ -2,6 +2,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { MemberBalance } from '@vacationist/types';
 import { isNegligible } from '@vacationist/utils';
+import { colors } from '@vacationist/ui';
 
 interface SettlementsCardProps {
   balances: MemberBalance[];
@@ -24,7 +25,7 @@ export function SettlementsCard({ balances, onPress }: SettlementsCardProps) {
             <Ionicons
               name={allSettled ? 'checkmark-done' : 'swap-horizontal'}
               size={20}
-              color={allSettled ? '#3ECF8E' : '#6C63FF'}
+              color={allSettled ? colors.success : colors.primary}
             />
           </View>
           <View>

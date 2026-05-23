@@ -3,6 +3,7 @@ import { View, Text, Pressable, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { TravelDocument } from '@vacationist/types';
 import dayjs from 'dayjs';
+import { colors } from '@vacationist/ui';
 
 interface TravelDocumentCardProps {
   document: TravelDocument;
@@ -27,11 +28,11 @@ function maskNumber(n: string): string {
 }
 
 function expiryColor(expiryDate: string | null): string {
-  if (!expiryDate) return '#A0A0A0';
+  if (!expiryDate) return colors.textMuted;
   const monthsLeft = dayjs(expiryDate).diff(dayjs(), 'month');
-  if (monthsLeft < 0) return '#FF5C5C';
-  if (monthsLeft < 6) return '#F5A623';
-  return '#A0A0A0';
+  if (monthsLeft < 0) return colors.danger;
+  if (monthsLeft < 6) return colors.warning;
+  return colors.textMuted;
 }
 
 export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: TravelDocumentCardProps) {
@@ -65,7 +66,7 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
           <Ionicons
             name={DOCUMENT_ICONS[document.document_type] ?? 'document-outline'}
             size={20}
-            color="#6C63FF"
+            color={colors.primary}
           />
           <Text className="text-body text-text-primary font-semibold">
             {DOCUMENT_LABELS[document.document_type]}
@@ -76,7 +77,7 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
             <Ionicons name="pencil-outline" size={18} color="#A0A0A0" />
           </Pressable>
           <Pressable onPress={handleDelete} disabled={isDeleting} hitSlop={8}>
-            <Ionicons name="trash-outline" size={18} color="#FF5C5C" />
+            <Ionicons name="trash-outline" size={18} color={colors.danger} />
           </Pressable>
         </View>
       </View>

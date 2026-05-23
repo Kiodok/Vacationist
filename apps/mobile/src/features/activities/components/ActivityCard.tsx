@@ -5,6 +5,7 @@ import { dayjs } from '@vacationist/utils';
 import type { Activity, ActivityVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
 import { StatusIndicator } from './StatusIndicator';
+import { colors } from '@vacationist/ui';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -46,7 +47,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
   const animatedBorderColor = highlight
     ? highlightAnim.interpolate({
         inputRange: [0, 1],
-        outputRange: [borderColor, '#6C63FF'],
+        outputRange: [borderColor, colors.primary],
       })
     : borderColor;
 
@@ -120,7 +121,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
               className="flex-row items-center gap-xs px-md py-sm rounded-full bg-primary/10"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <Ionicons name="hand-left-outline" size={14} color="#6C63FF" />
+              <Ionicons name="hand-left-outline" size={14} color={colors.primary} />
               <Text className="text-primary text-body-small font-medium">Vote</Text>
             </Pressable>
           )}
@@ -145,12 +146,12 @@ const VOTE_SCORE: Record<VoteType, number> = {
 
 function getVoteBorderColor(votes: { vote: VoteType }[]): string {
   if (votes.length === 0) return '#555555';
-  if (votes.some((v) => v.vote === 'group_blocker')) return '#FF5C5C';
+  if (votes.some((v) => v.vote === 'group_blocker')) return colors.danger;
 
   const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
-  if (avg >= 4.0) return '#3ECF8E';
+  if (avg >= 4.0) return colors.success;
   if (avg >= 3.0) return '#555555';
-  return '#F5A623';
+  return colors.warning;
 }
 
 

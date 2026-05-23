@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
 import { updateTripNoteSchema, type UpdateTripNoteInput, type TripNote } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
 
 interface EditNoteSheetProps {
   visible: boolean;
@@ -128,7 +129,7 @@ export function EditNoteSheet({
                     className="flex-row items-center justify-center gap-xs py-sm"
                     style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   >
-                    <Ionicons name="trash-outline" size={16} color="#FF5C5C" />
+                    <Ionicons name="trash-outline" size={16} color={colors.danger} />
                     <Text className="text-danger text-body-small font-semibold">Delete note</Text>
                   </Pressable>
                 )}

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, SectionList, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, SectionList, RefreshControl } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
@@ -14,14 +14,16 @@ import { ExpenseSplitBreakdown } from '../../../src/features/expenses/components
 import { CreateExpenseSheet } from '../../../src/features/expenses/components/CreateExpenseSheet';
 import { EditExpenseSheet } from '../../../src/features/expenses/components/EditExpenseSheet';
 import { EmptyExpenses } from '../../../src/features/expenses/components/EmptyExpenses';
+import { ExpenseListSkeleton } from '../../../src/features/expenses/components/ExpenseListSkeleton';
 import { SettlementsCard } from '../../../src/features/expenses/components/SettlementsCard';
 import { SettlementsModal } from '../../../src/features/expenses/components/SettlementsModal';
+import { colors } from '@vacationist/ui';
 
 export default function ExpensesTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
-  const { data: expenses, isLoading } = useExpenses(tripId!);
+  const { data: expenses, isLoading, isFetching, refetch } = useExpenses(tripId!);
   const { data: members = [] } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const { data: balances = [] } = useTripBalances(tripId!);
@@ -80,11 +82,7 @@ export default function ExpensesTab() {
   };
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" />
-      </View>
-    );
+    return <ExpenseListSkeleton />;
   }
 
   const currency = trip?.base_currency ?? 'EUR';
@@ -102,6 +100,9 @@ export default function ExpensesTab() {
           extraData={activeTotal}
           keyExtractor={(item) => item.id}
           stickySectionHeadersEnabled={false}
+          windowSize={5}
+          maxToRenderPerBatch={10}
+          initialNumToRender={10}
           contentContainerClassName="px-md py-md"
           ListHeaderComponent={
             <View className="gap-sm mb-xs">
@@ -125,7 +126,7 @@ export default function ExpensesTab() {
               : section.key === 'completed'
                 ? 'checkmark-done-outline' as const
                 : 'archive-outline' as const;
-            const color = section.key === 'active' ? '#F2F2F2' : section.key === 'completed' ? '#3ECF8E' : '#A0A0A0';
+            const color = section.key === 'active' ? colors.textPrimary : section.key === 'completed' ? colors.success : colors.textMuted;
             const textClass = section.key === 'active' ? 'text-text-primary' : section.key === 'completed' ? 'text-success' : 'text-text-muted';
             return (
               <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
@@ -154,6 +155,14 @@ export default function ExpensesTab() {
               />
             </View>
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         />
       )}
 
@@ -183,7 +192,7 @@ export default function ExpensesTab() {
       <Pressable
         onPress={() => setShowCreate(true)}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 6, zIndex: 10, shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </Pressable>
@@ -235,7 +244,7 @@ function ExpenseCardWithSplits({
         className="flex-row items-center gap-xs"
         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
       >
-        <Ionicons name="people-outline" size={14} color="#6C63FF" />
+        <Ionicons name="people-outline" size={14} color={colors.primary} />
         <Text className="text-primary text-body-small font-medium">View splits ({splits.length})</Text>
       </Pressable>
 
@@ -270,7 +279,7 @@ function ExpenseCardWithSplits({
                 onPress={() => setShowEdit(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color="#6C63FF" />
+                <Ionicons name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Edit</Text>
               </Pressable>
             )}
@@ -282,7 +291,7 @@ function ExpenseCardWithSplits({
                 <Ionicons
                   name={isArchived ? 'arrow-undo-outline' : 'archive-outline'}
                   size={14}
-                  color={isArchived ? '#3ECF8E' : '#FF5C5C'}
+                  color={isArchived ? colors.success : colors.danger}
                 />
                 <Text className={`text-body-small font-medium ${isArchived ? 'text-success' : 'text-danger'}`}>
                   {isArchived ? 'Restore' : 'Archive'}

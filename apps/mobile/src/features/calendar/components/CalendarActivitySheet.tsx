@@ -7,6 +7,7 @@ import { StatusIndicator } from '../../activities/components/StatusIndicator';
 import { VoteSummary } from '../../activities/components/VoteChip';
 import { useActivityVotes } from '../../activities/hooks/useVotes';
 import { useTripMembers } from '../../trips/hooks/useMembers';
+import { colors } from '@vacationist/ui';
 
 interface CalendarActivitySheetProps {
   visible: boolean;
@@ -111,7 +112,7 @@ export function CalendarActivitySheet({
           {attendees.length > 0 && (
             <View className="mb-md">
               <View className="flex-row items-center gap-xs mb-sm">
-                <Ionicons name="people" size={16} color="#6C63FF" />
+                <Ionicons name="people" size={16} color={colors.primary} />
                 <Text className="text-primary text-body-small font-semibold">
                   {attendees.length} {attendees.length === 1 ? 'attendee' : 'attendees'}
                 </Text>
@@ -129,7 +130,7 @@ export function CalendarActivitySheet({
           {/* Vote summary (collapsible) */}
           <View className="mb-md">
             {votesLoading ? (
-              <ActivityIndicator size="small" color="#6C63FF" />
+              <ActivityIndicator size="small" color={colors.primary} />
             ) : votes && votes.length > 0 ? (
               <View>
                 <Pressable
@@ -171,7 +172,7 @@ export function CalendarActivitySheet({
                 className="bg-primary/10 rounded-md py-md items-center justify-center px-md"
                 style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
               >
-                <Ionicons name="create-outline" size={20} color="#6C63FF" />
+                <Ionicons name="create-outline" size={20} color={colors.primary} />
               </Pressable>
             )}
             <Pressable
@@ -189,11 +190,11 @@ export function CalendarActivitySheet({
 }
 
 const VOTE_ICONS: Record<VoteType, { name: keyof typeof Ionicons.glyphMap; color: string }> = {
-  must_do: { name: 'heart', color: '#FF5C5C' },
-  like: { name: 'thumbs-up', color: '#3ECF8E' },
+  must_do: { name: 'heart', color: colors.danger },
+  like: { name: 'thumbs-up', color: colors.success },
   open: { name: 'remove-outline', color: '#A0A0A0' },
-  skip: { name: 'thumbs-down', color: '#F5A623' },
-  group_blocker: { name: 'ban', color: '#FF5C5C' },
+  skip: { name: 'thumbs-down', color: colors.warning },
+  group_blocker: { name: 'ban', color: colors.danger },
 };
 
 function VoteIcon({ vote }: { vote: VoteType }) {

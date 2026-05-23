@@ -6,5 +6,22 @@
     "eas": {
       "projectId": "a1dc4172-7c41-4aa9-a44d-afb1a0088278"
     }
+  },
+  "expo": {
+    "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "vacationist"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a1dc4172-7c41-4aa9-a44d-afb1a0088278"
+      }
+    }
   }
 }

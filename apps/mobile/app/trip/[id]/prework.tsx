@@ -15,6 +15,7 @@ import { aggregateFilters, getRecommendedLabels } from '../../../src/features/pr
 import { MyPreferencesSection } from '../../../src/features/prework/components/MyPreferencesSection';
 import { GroupSummarySection } from '../../../src/features/prework/components/GroupSummarySection';
 import { EmptyPrework } from '../../../src/features/prework/components/EmptyPrework';
+import { colors } from '@vacationist/ui';
 
 export default function PreworkTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -62,7 +63,7 @@ export default function PreworkTab() {
   if (isLoadingAll || isLoadingMy) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#6C63FF" />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }

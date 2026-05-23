@@ -2,6 +2,7 @@ import { View, Text, Pressable, Modal, FlatList, ActivityIndicator } from 'react
 import { Ionicons } from '@expo/vector-icons';
 import { NUDGE_MESSAGES } from '@vacationist/types';
 import { useSendNudge } from '../hooks/useSendNudge';
+import { colors } from '@vacationist/ui';
 
 interface NudgeSheetProps {
   tripId: string;
@@ -47,7 +48,7 @@ export function NudgeSheet({ tripId, visible, onClose }: NudgeSheetProps) {
             ListFooterComponent={
               isPending ? (
                 <View className="items-center py-md">
-                  <ActivityIndicator size="small" color="#6C63FF" />
+                  <ActivityIndicator size="small" color={colors.primary} />
                 </View>
               ) : null
             }

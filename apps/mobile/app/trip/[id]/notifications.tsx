@@ -1,4 +1,5 @@
-import { View, Text, FlatList, Pressable, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +8,7 @@ import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsR
 import { NotificationItem } from '../../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../../src/features/notifications/components/EmptyNotifications';
 import { resolveNotificationPath } from '../../../src/features/notifications/utils/resolveNotificationPath';
+import { colors } from '@vacationist/ui';
 
 export default function TripNotificationsScreen() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -44,10 +46,10 @@ export default function TripNotificationsScreen() {
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#6C63FF" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={notifications}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, gap: 8, flexGrow: 1 }}
@@ -59,7 +61,7 @@ export default function TripNotificationsScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#6C63FF"
+              tintColor={colors.primary}
             />
           }
         />

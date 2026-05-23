@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { ShoppingItem } from '@vacationist/types';
+import { colors } from '@vacationist/ui';
 
 interface ShoppingItemRowProps {
   item: ShoppingItem;
@@ -52,7 +53,7 @@ export function ShoppingItemRow({ item, onToggle, onDelete, onLongPress }: Shopp
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.6 })}
         >
-          <Ionicons name="trash-outline" size={18} color="#FF5C5C" />
+          <Ionicons name="trash-outline" size={18} color={colors.danger} />
         </Pressable>
       )}
     </Pressable>

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, TouchableOpacity, SectionList, FlatList, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator, Linking, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type {
@@ -38,6 +39,7 @@ import { EditRentalSheet } from '../../../src/features/transfer/components/EditR
 import { EmptyFlights } from '../../../src/features/transfer/components/EmptyFlights';
 import { EmptyVehicles } from '../../../src/features/transfer/components/EmptyVehicles';
 import { EmptyRentals } from '../../../src/features/transfer/components/EmptyRentals';
+import { colors } from '@vacationist/ui';
 
 type Segment = 'Flights' | 'Vehicles' | 'Rentals';
 
@@ -52,7 +54,7 @@ export default function TransferTab() {
   const [activeSegment, setActiveSegment] = useState<Segment>('Flights');
 
   // Flights
-  const { data: flights = [], isLoading: flightsLoading } = useTransferFlights(tripId!);
+  const { data: flights = [], isLoading: flightsLoading, isFetching: flightsFetching, refetch: refetchFlights } = useTransferFlights(tripId!);
   const createFlight = useCreateTransferFlight(tripId!);
   const updateFlightMutation = useUpdateTransferFlight(tripId!);
   const deleteFlight = useDeleteTransferFlight(tripId!);
@@ -62,14 +64,14 @@ export default function TransferTab() {
   useTransferFlightRealtime(tripId!);
 
   // Vehicles
-  const { data: vehicles = [], isLoading: vehiclesLoading } = useTransferVehicles(tripId!);
+  const { data: vehicles = [], isLoading: vehiclesLoading, isFetching: vehiclesFetching, refetch: refetchVehicles } = useTransferVehicles(tripId!);
   const createVehicle = useCreateTransferVehicle(tripId!);
   const updateVehicleMutation = useUpdateTransferVehicle(tripId!);
   const deleteVehicle = useDeleteTransferVehicle(tripId!);
   useTransferVehicleRealtime(tripId!);
 
   // Rentals
-  const { data: rentals = [], isLoading: rentalsLoading } = useTransferRentals(tripId!);
+  const { data: rentals = [], isLoading: rentalsLoading, isFetching: rentalsFetching, refetch: refetchRentals } = useTransferRentals(tripId!);
   const createRental = useCreateTransferRental(tripId!);
   const updateRentalMutation = useUpdateTransferRental(tripId!);
   const deleteRental = useDeleteTransferRental(tripId!);
@@ -154,7 +156,7 @@ export default function TransferTab() {
     const isBoth = title === 'Outbound + Return';
     const isReturn = title === 'Return';
     const iconName = isBoth ? 'swap-horizontal-outline' : isReturn ? 'return-up-back-outline' : 'airplane-outline';
-    const iconColor = isBoth ? '#3ECF8E' : isReturn ? '#F5A623' : '#6C63FF';
+    const iconColor = isBoth ? colors.success : isReturn ? colors.warning : colors.primary;
     const textClass = isBoth ? 'text-success' : isReturn ? 'text-warning' : 'text-primary';
     return (
       <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
@@ -171,7 +173,7 @@ export default function TransferTab() {
           <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
         </View>
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#6C63FF" />
+          <ActivityIndicator color={colors.primary} />
         </View>
       </View>
     );
@@ -195,6 +197,9 @@ export default function TransferTab() {
             keyExtractor={(item) => item.id}
             removeClippedSubviews={false}
             stickySectionHeadersEnabled={false}
+            windowSize={5}
+            maxToRenderPerBatch={10}
+            initialNumToRender={10}
             contentContainerClassName="px-md pb-md"
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title)}
             renderItem={({ item }) => (
@@ -216,6 +221,14 @@ export default function TransferTab() {
                 />
               </View>
             )}
+            refreshControl={
+              <RefreshControl
+                refreshing={flightsFetching && !flightsLoading}
+                onRefresh={refetchFlights}
+                tintColor={colors.primary}
+                colors={[colors.primary]}
+              />
+            }
           />
         )
       )}
@@ -232,6 +245,9 @@ export default function TransferTab() {
             keyExtractor={(item) => item.id}
             removeClippedSubviews={false}
             stickySectionHeadersEnabled={false}
+            windowSize={5}
+            maxToRenderPerBatch={10}
+            initialNumToRender={10}
             contentContainerClassName="px-md pb-md"
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title)}
             renderItem={({ item }) => (
@@ -247,6 +263,14 @@ export default function TransferTab() {
                 />
               </View>
             )}
+            refreshControl={
+              <RefreshControl
+                refreshing={vehiclesFetching && !vehiclesLoading}
+                onRefresh={refetchVehicles}
+                tintColor={colors.primary}
+                colors={[colors.primary]}
+              />
+            }
           />
         )
       )}
@@ -258,11 +282,10 @@ export default function TransferTab() {
             <EmptyRentals />
           </View>
         ) : (
-          <FlatList
+          <FlashList
             data={rentals}
             keyExtractor={(item) => item.id}
-            removeClippedSubviews={false}
-            contentContainerClassName="px-md py-md gap-sm"
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
             renderItem={({ item }) => (
               <RentalCardExpanded
                 rental={item}
@@ -273,6 +296,14 @@ export default function TransferTab() {
                 onDelete={() => deleteRental.mutate(item.id)}
               />
             )}
+            refreshControl={
+              <RefreshControl
+                refreshing={rentalsFetching && !rentalsLoading}
+                onRefresh={refetchRentals}
+                tintColor={colors.primary}
+                colors={[colors.primary]}
+              />
+            }
           />
         )
       )}
@@ -285,7 +316,7 @@ export default function TransferTab() {
           else setShowCreateRental(true);
         }}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 4, shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </Pressable>
@@ -442,7 +473,7 @@ function FlightCardWithVotes({
           onPress={() => Linking.openURL(flight.external_url!)}
           className="flex-row items-center gap-xs"
         >
-          <Ionicons name="link-outline" size={14} color="#6C63FF" />
+          <Ionicons name="link-outline" size={14} color={colors.primary} />
           <Text className="text-primary text-body-small underline" numberOfLines={1}>
             {flight.external_url}
           </Text>
@@ -510,7 +541,7 @@ function FlightCardWithVotes({
                 onPress={onEdit}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color="#6C63FF" />
+                <Ionicons name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Edit</Text>
               </TouchableOpacity>
             )}
@@ -520,7 +551,7 @@ function FlightCardWithVotes({
                 onPress={() => setConfirmingCloseVoting(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               >
-                <Ionicons name="lock-closed-outline" size={14} color="#F5A623" />
+                <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
                 <Text className="text-warning text-body-small font-medium">End voting</Text>
               </TouchableOpacity>
             )}
@@ -530,7 +561,7 @@ function FlightCardWithVotes({
                 onPress={onReopenVoting}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="lock-open-outline" size={14} color="#6C63FF" />
+                <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Re-open voting</Text>
               </TouchableOpacity>
             )}
@@ -540,7 +571,7 @@ function FlightCardWithVotes({
                 onPress={() => setShowBookSheet(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
               >
-                <Ionicons name="checkmark-circle-outline" size={14} color="#3ECF8E" />
+                <Ionicons name="checkmark-circle-outline" size={14} color={colors.success} />
                 <Text className="text-success text-body-small font-medium">Book</Text>
               </TouchableOpacity>
             )}
@@ -550,7 +581,7 @@ function FlightCardWithVotes({
                 onPress={() => setShowPassengerSheet(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="people-outline" size={14} color="#6C63FF" />
+                <Ionicons name="people-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Passengers</Text>
               </TouchableOpacity>
             )}
@@ -560,7 +591,7 @@ function FlightCardWithVotes({
                 onPress={() => setConfirmingDelete(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
-                <Ionicons name="trash-outline" size={14} color="#FF5C5C" />
+                <Ionicons name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">Remove</Text>
               </TouchableOpacity>
             )}
@@ -700,7 +731,7 @@ function VehicleCardWithPassengers({
                 onPress={onEdit}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color="#6C63FF" />
+                <Ionicons name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Edit</Text>
               </TouchableOpacity>
             )}
@@ -710,7 +741,7 @@ function VehicleCardWithPassengers({
                 onPress={() => setShowPassengerSheet(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="people-outline" size={14} color="#6C63FF" />
+                <Ionicons name="people-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Passengers</Text>
               </TouchableOpacity>
             )}
@@ -720,7 +751,7 @@ function VehicleCardWithPassengers({
                 onPress={() => setConfirmingDelete(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
-                <Ionicons name="trash-outline" size={14} color="#FF5C5C" />
+                <Ionicons name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">Remove</Text>
               </TouchableOpacity>
             )}
@@ -814,7 +845,7 @@ function RentalCardExpanded({
                 onPress={onEdit}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color="#6C63FF" />
+                <Ionicons name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">Edit</Text>
               </TouchableOpacity>
             )}
@@ -824,7 +855,7 @@ function RentalCardExpanded({
                 onPress={() => setConfirmingDelete(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
-                <Ionicons name="trash-outline" size={14} color="#FF5C5C" />
+                <Ionicons name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">Remove</Text>
               </TouchableOpacity>
             )}
