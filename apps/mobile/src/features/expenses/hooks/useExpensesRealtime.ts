@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
+import type { InfiniteData } from '@tanstack/react-query';
 import { subscribeToExpensesRealtime, unsubscribeFromExpenses } from '@vacationist/api';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { ExpenseWithSplits } from '@vacationist/types';
@@ -51,13 +52,12 @@ export function useExpensesRealtime(tripId: string) {
   const isSplitForThisTrip = useCallback(
     (expenseId: string | null): boolean => {
       if (!expenseId) return false;
-      const expenses = queryClient.getQueryData<ExpenseWithSplits[]>([
-        'trips',
-        tripId,
-        'expenses',
-      ]);
-      if (!expenses) return true;
-      return expenses.some((e) => e.id === expenseId);
+      const cached = queryClient.getQueryData<InfiniteData<{ items: ExpenseWithSplits[]; hasMore: boolean }>>(
+        ['trips', tripId, 'expenses'],
+      );
+      if (!cached) return true;
+      const allExpenses = cached.pages.flatMap((p) => p.items);
+      return allExpenses.some((e) => e.id === expenseId);
     },
     [queryClient, tripId],
   );

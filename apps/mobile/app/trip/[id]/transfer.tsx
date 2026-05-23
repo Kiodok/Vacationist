@@ -16,12 +16,10 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { useTransferFlights, useCreateTransferFlight, useUpdateTransferFlight, useDeleteTransferFlight, useCloseTransferFlightVoting, useReopenTransferFlightVoting, useBookTransferFlight } from '../../../src/features/transfer/hooks/useTransferFlights';
 import { useTransferFlightVotes, useCastTransferFlightVote, useRemoveTransferFlightVote } from '../../../src/features/transfer/hooks/useTransferFlightVotes';
 import { useTransferFlightPassengers, useSetTransferFlightPassengers } from '../../../src/features/transfer/hooks/useTransferFlightPassengers';
-import { useTransferFlightRealtime } from '../../../src/features/transfer/hooks/useTransferFlightRealtime';
 import { useTransferVehicles, useCreateTransferVehicle, useUpdateTransferVehicle, useDeleteTransferVehicle } from '../../../src/features/transfer/hooks/useTransferVehicles';
 import { useTransferVehiclePassengers, useAddTransferVehiclePassenger, useRemoveTransferVehiclePassenger, useUpdateTransferVehiclePassenger } from '../../../src/features/transfer/hooks/useTransferVehiclePassengers';
-import { useTransferVehicleRealtime } from '../../../src/features/transfer/hooks/useTransferVehicleRealtime';
 import { useTransferRentals, useCreateTransferRental, useUpdateTransferRental, useDeleteTransferRental } from '../../../src/features/transfer/hooks/useTransferRentals';
-import { useTransferRentalRealtime } from '../../../src/features/transfer/hooks/useTransferRentalRealtime';
+import { useTransferRealtime } from '../../../src/features/transfer/hooks/useTransferRealtime';
 import { computeFlightWinner } from '../../../src/features/transfer/utils/flightWinner';
 import { TransferSegmentedControl } from '../../../src/features/transfer/components/TransferSegmentedControl';
 import { FlightCard } from '../../../src/features/transfer/components/FlightCard';
@@ -61,21 +59,19 @@ export default function TransferTab() {
   const closeFlightVoting = useCloseTransferFlightVoting(tripId!);
   const reopenFlightVoting = useReopenTransferFlightVoting(tripId!);
   const bookFlight = useBookTransferFlight(tripId!);
-  useTransferFlightRealtime(tripId!);
+  useTransferRealtime(tripId!);
 
   // Vehicles
   const { data: vehicles = [], isLoading: vehiclesLoading, isFetching: vehiclesFetching, refetch: refetchVehicles } = useTransferVehicles(tripId!);
   const createVehicle = useCreateTransferVehicle(tripId!);
   const updateVehicleMutation = useUpdateTransferVehicle(tripId!);
   const deleteVehicle = useDeleteTransferVehicle(tripId!);
-  useTransferVehicleRealtime(tripId!);
 
   // Rentals
   const { data: rentals = [], isLoading: rentalsLoading, isFetching: rentalsFetching, refetch: refetchRentals } = useTransferRentals(tripId!);
   const createRental = useCreateTransferRental(tripId!);
   const updateRentalMutation = useUpdateTransferRental(tripId!);
   const deleteRental = useDeleteTransferRental(tripId!);
-  useTransferRentalRealtime(tripId!);
 
   // Sheet state
   const [showCreateFlight, setShowCreateFlight] = useState(false);

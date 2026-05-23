@@ -85,8 +85,8 @@ export async function getShoppingItems(listId: string): Promise<ShoppingItem[]> 
 export async function getAllShoppingItemsForTrip(tripId: string): Promise<(ShoppingItem & { list_title: string })[]> {
   const { data, error } = await supabase
     .from('shopping_items')
-    .select('*, shopping_lists!inner(title, trip_id)')
-    .eq('shopping_lists.trip_id', tripId)
+    .select('*, shopping_lists!inner(title)')
+    .eq('trip_id', tripId)
     .is('deleted_at', null)
     .order('position', { ascending: true })
     .order('created_at', { ascending: true });
@@ -181,24 +181,6 @@ export function subscribeToShoppingItems(
     .subscribe();
 
   return channel;
-}
-
-export function subscribeToShoppingItemChanges(
-  tripId: string,
-  onEvent: () => void,
-): RealtimeChannel {
-  return freshChannel(`shopping-items-overview:${tripId}`)
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'shopping_items',
-        filter: `trip_id=eq.${tripId}`,
-      },
-      onEvent,
-    )
-    .subscribe();
 }
 
 export function unsubscribeFromShoppingItems(channel: RealtimeChannel): void {

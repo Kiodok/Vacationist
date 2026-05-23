@@ -1,4 +1,5 @@
-import { supabase } from './client';
+import { supabase, freshChannel } from './client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Notification, NotificationPreference, UpdateNotificationPreferencesInput } from '@vacationist/types';
 
 export async function getNotifications(limit = 50): Promise<Notification[]> {
@@ -96,4 +97,38 @@ export async function sendOrganizerNudge(tripId: string, title: string, body: st
   });
 
   if (error) throw error;
+}
+
+export interface NotificationRealtimeCallbacks {
+  onInsert: (notification: Notification) => void;
+  onUpdate: (notification: Notification) => void;
+  onDelete: (id: string) => void;
+}
+
+export function subscribeToNotificationsRealtime(
+  userId: string,
+  callbacks: NotificationRealtimeCallbacks,
+  onStatus?: (status: string) => void,
+): RealtimeChannel {
+  return freshChannel(`notifications:${userId}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+      (payload) => callbacks.onInsert(payload.new as unknown as Notification),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+      (payload) => callbacks.onUpdate(payload.new as unknown as Notification),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+      (payload) => callbacks.onDelete((payload.old as { id: string }).id),
+    )
+    .subscribe((status) => onStatus?.(status));
+}
+
+export function unsubscribeFromNotifications(channel: RealtimeChannel): void {
+  supabase.removeChannel(channel);
 }

@@ -3,15 +3,22 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Json } from './database.types';
 import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, CreateExpenseInput, UpdateExpenseWithSplitsInput } from '@vacationist/types';
 
-export async function getExpenses(tripId: string): Promise<ExpenseWithSplits[]> {
+export const EXPENSE_PAGE_SIZE = 30;
+
+export async function getExpenses(
+  tripId: string,
+  offset = 0,
+): Promise<{ items: ExpenseWithSplits[]; hasMore: boolean }> {
   const { data, error } = await supabase
     .from('expenses')
     .select('*, expense_splits(*)')
     .eq('trip_id', tripId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(offset, offset + EXPENSE_PAGE_SIZE - 1);
 
   if (error) throw error;
-  return data as unknown as ExpenseWithSplits[];
+  const items = (data as unknown as ExpenseWithSplits[]) ?? [];
+  return { items, hasMore: items.length === EXPENSE_PAGE_SIZE };
 }
 
 export async function createExpense(tripId: string, input: CreateExpenseInput): Promise<string> {

@@ -9,44 +9,20 @@ export class TripNotFoundError extends Error {
   }
 }
 
-interface TripRow {
-  id: string;
-  title: string;
-  description: string | null;
-  start_date: string;
-  end_date: string;
-  budget_per_person: number | null;
-  base_currency: string;
-  timezone: string;
-  status: string;
-  created_by: string;
-  created_at: string;
-  deleted_at: string | null;
-  trip_members: { count: number }[];
-}
-
-function toTripWithCount(row: TripRow): Trip & { member_count: number } {
-  const { trip_members, ...tripFields } = row;
-  return {
-    ...tripFields,
-    member_count: trip_members?.[0]?.count ?? 0,
-  } as Trip & { member_count: number };
-}
-
 export async function getTrips(): Promise<(Trip & { member_count: number })[]> {
   const { data, error } = await supabase
     .from('trips')
-    .select('*, trip_members(count)')
+    .select('*')
     .order('start_date', { ascending: false });
 
   if (error) throw error;
-  return (data as unknown as TripRow[]).map(toTripWithCount);
+  return data as unknown as (Trip & { member_count: number })[];
 }
 
 export async function getTrip(tripId: string): Promise<Trip & { member_count: number }> {
   const { data, error } = await supabase
     .from('trips')
-    .select('*, trip_members(count)')
+    .select('*')
     .eq('id', tripId)
     .single();
 
@@ -54,7 +30,7 @@ export async function getTrip(tripId: string): Promise<Trip & { member_count: nu
     if (error.code === 'PGRST116') throw new TripNotFoundError();
     throw error;
   }
-  return toTripWithCount(data as unknown as TripRow);
+  return data as unknown as Trip & { member_count: number };
 }
 
 export async function createTrip(input: CreateTripInput): Promise<Trip> {

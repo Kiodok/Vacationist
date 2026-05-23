@@ -1,10 +1,12 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUnreadCount } from '../../src/features/notifications/hooks/useUnreadCount';
+import { useNotificationsRealtime } from '../../src/features/notifications/hooks/useNotifications';
 import { colors } from '@vacationist/ui';
 
 export default function TabLayout() {
   const { data: unreadCount = 0 } = useUnreadCount();
+  useNotificationsRealtime();
 
   return (
     <Tabs

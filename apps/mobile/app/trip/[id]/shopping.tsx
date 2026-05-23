@@ -3,7 +3,7 @@ import { View, Text, SectionList, ActivityIndicator, Pressable, RefreshControl }
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem } from '@vacationist/types';
-import { useShoppingLists, useShoppingListsRealtime, useCreateShoppingList, useDeleteShoppingList, useArchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
+import { useShoppingLists, useCreateShoppingList, useDeleteShoppingList, useArchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
 import { useAllTripShoppingItems, useUpdateShoppingItemGlobal } from '../../../src/features/shopping/hooks/useShoppingItems';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
@@ -24,8 +24,6 @@ export default function ShoppingTab() {
   const createList = useCreateShoppingList(tripId!);
   const deleteList = useDeleteShoppingList(tripId!);
   const archiveList = useArchiveShoppingList(tripId!);
-
-  useShoppingListsRealtime(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('lists');

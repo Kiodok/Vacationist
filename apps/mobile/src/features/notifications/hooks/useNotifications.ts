@@ -1,3 +1,5 @@
+import { useEffect, useRef, useCallback } from 'react';
+import { AppState } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getNotifications,
@@ -5,15 +7,20 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   deleteNotification,
+  subscribeToNotificationsRealtime,
+  unsubscribeFromNotifications,
 } from '@vacationist/api';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Notification } from '@vacationist/types';
+import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
+
+const BACKOFF_DELAYS = [2000, 5000, 10000, 30000];
 
 export function useNotifications() {
   return useQuery({
     queryKey: ['notifications'],
     queryFn: () => getNotifications(),
-    refetchInterval: 30_000,
     retry: 2,
   });
 }
@@ -22,10 +29,114 @@ export function useTripNotifications(tripId: string) {
   return useQuery({
     queryKey: ['trips', tripId, 'notifications'],
     queryFn: () => getTripNotifications(tripId),
-    refetchInterval: 30_000,
     retry: 2,
     enabled: !!tripId,
   });
+}
+
+export function useNotificationsRealtime() {
+  const user = useAuthStore((s) => s.user);
+  const userId = user?.id;
+  const queryClient = useQueryClient();
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backoffIndexRef = useRef(0);
+
+  const cleanup = useCallback(() => {
+    if (channelRef.current) {
+      unsubscribeFromNotifications(channelRef.current);
+      channelRef.current = null;
+    }
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+  }, []);
+
+  const invalidate = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+  }, [queryClient]);
+
+  const subscribe = useCallback(() => {
+    if (!userId) return;
+    cleanup();
+
+    const channel = subscribeToNotificationsRealtime(
+      userId,
+      {
+        onInsert: (notification) => {
+          queryClient.setQueryData<Notification[]>(['notifications'], (old) => {
+            if (!old) return [notification];
+            if (old.some((n) => n.id === notification.id)) return old;
+            return [notification, ...old];
+          });
+          if (notification.trip_id) {
+            queryClient.setQueryData<Notification[]>(
+              ['trips', notification.trip_id, 'notifications'],
+              (old) => {
+                if (!old) return [notification];
+                if (old.some((n) => n.id === notification.id)) return old;
+                return [notification, ...old];
+              },
+            );
+          }
+        },
+        onUpdate: (notification) => {
+          queryClient.setQueryData<Notification[]>(['notifications'], (old) =>
+            old?.map((n) => (n.id === notification.id ? notification : n)),
+          );
+          if (notification.trip_id) {
+            queryClient.setQueryData<Notification[]>(
+              ['trips', notification.trip_id, 'notifications'],
+              (old) => old?.map((n) => (n.id === notification.id ? notification : n)),
+            );
+          }
+        },
+        onDelete: (id) => {
+          queryClient.setQueryData<Notification[]>(['notifications'], (old) =>
+            old?.filter((n) => n.id !== id),
+          );
+          queryClient.invalidateQueries({ queryKey: ['trips'] });
+        },
+      },
+      (status) => {
+        if (status === 'SUBSCRIBED') {
+          backoffIndexRef.current = 0;
+          invalidate();
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          const delay = BACKOFF_DELAYS[Math.min(backoffIndexRef.current, BACKOFF_DELAYS.length - 1)];
+          backoffIndexRef.current++;
+          reconnectTimerRef.current = setTimeout(() => {
+            subscribe();
+            invalidate();
+          }, delay);
+        }
+      },
+    );
+
+    channelRef.current = channel;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, queryClient, cleanup, invalidate]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    subscribe();
+
+    const appStateSub = AppState.addEventListener('change', (next) => {
+      if (next === 'active') {
+        subscribe();
+        invalidate();
+      }
+    });
+
+    return () => {
+      cleanup();
+      appStateSub.remove();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, subscribe, cleanup, invalidate]);
 }
 
 export function useMarkNotificationRead() {

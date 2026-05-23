@@ -61,6 +61,7 @@ export {
 export type { AccommodationVotingRealtimeCallbacks } from './accommodations';
 
 export {
+  EXPENSE_PAGE_SIZE,
   getExpenses,
   createExpense,
   updateExpenseWithSplits,
@@ -88,7 +89,6 @@ export {
   updateShoppingItem,
   softDeleteShoppingItem,
   subscribeToShoppingItems,
-  subscribeToShoppingItemChanges,
   unsubscribeFromShoppingItems,
   subscribeToShoppingSync,
   broadcastShoppingItemsRemoved,
@@ -167,6 +167,9 @@ export {
 } from './transferRentals';
 export type { RentalRealtimeCallbacks } from './transferRentals';
 
+export { subscribeToTransferRealtime, unsubscribeFromTransfer } from './transferRealtime';
+export type { TransferRealtimeCallbacks } from './transferRealtime';
+
 export { getNotes, createNote, updateNote, deleteNote } from './notes';
 
 export {
@@ -179,7 +182,10 @@ export {
   getNotificationPreferences,
   updateNotificationPreferences,
   sendOrganizerNudge,
+  subscribeToNotificationsRealtime,
+  unsubscribeFromNotifications,
 } from './notifications';
+export type { NotificationRealtimeCallbacks } from './notifications';
 
 export { upsertPushToken, deletePushToken } from './pushTokens';
 

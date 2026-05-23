@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, SectionList, RefreshControl } from 'react-native';
+import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
@@ -23,7 +23,19 @@ export default function ExpensesTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
-  const { data: expenses, isLoading, isFetching, refetch } = useExpenses(tripId!);
+  const {
+    data: expensesData,
+    isLoading,
+    isFetching,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useExpenses(tripId!);
+  const expenses = useMemo(
+    () => expensesData?.pages.flatMap((p) => p.items) ?? [],
+    [expensesData],
+  );
   const { data: members = [] } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const { data: balances = [] } = useTripBalances(tripId!);
@@ -46,7 +58,7 @@ export default function ExpensesTab() {
     const completed: ExpenseWithSplits[] = [];
     const archived: ExpenseWithSplits[] = [];
     let total = 0;
-    for (const e of expenses ?? []) {
+    for (const e of expenses) {
       if (e.archived_at) {
         archived.push(e);
       } else if (isExpenseFullySettled(e.expense_splits, e.paid_by)) {
@@ -86,7 +98,7 @@ export default function ExpensesTab() {
   }
 
   const currency = trip?.base_currency ?? 'EUR';
-  const isEmpty = !expenses || expenses.length === 0;
+  const isEmpty = expenses.length === 0;
 
   return (
     <View className="flex-1">
@@ -162,6 +174,19 @@ export default function ExpensesTab() {
               tintColor={colors.primary}
               colors={[colors.primary]}
             />
+          }
+          ListFooterComponent={
+            hasNextPage ? (
+              <Pressable
+                onPress={() => fetchNextPage()}
+                className="py-md items-center"
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage
+                  ? <ActivityIndicator color={colors.primary} />
+                  : <Text className="text-primary text-body font-semibold">Load more</Text>}
+              </Pressable>
+            ) : null
           }
         />
       )}

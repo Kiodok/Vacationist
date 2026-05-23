@@ -80,7 +80,11 @@
       "Read(//c/Users/Gary/.config/supabase/**)",
       "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\" && npx tsc --noEmit 2>&1; Write-Host \"Exit code: $LASTEXITCODE\")",
       "Bash(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\\\\apps\\\\mobile\" -Directory)",
-      "mcp__plugin_supabase_supabase__get_publishable_keys"
+      "mcp__plugin_supabase_supabase__get_publishable_keys",
+      "Bash(grep -iE \"\\\\.\\(env|key|pem|p12|pfx|secret|credential|config\\\\.js\\)$|\\\\.env\\\\b\")",
+      "Bash(grep -iE \"\\\\.env$\")",
+      "Bash(find apps/mobile/src/features/transfers -name \"*.ts\" -o -name \"*.tsx\")",
+      "Bash(find apps/mobile/app -name \"transfer*\")"
     ]
   },
   "model": "opusplan",

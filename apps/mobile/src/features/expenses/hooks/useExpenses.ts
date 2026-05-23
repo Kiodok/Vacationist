@@ -1,5 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  EXPENSE_PAGE_SIZE,
   getExpenses,
   createExpense,
   updateExpenseWithSplits,
@@ -14,9 +15,12 @@ import type { CreateExpenseInput, UpdateExpenseWithSplitsInput, ExpenseWithSplit
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useExpenses(tripId: string) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['trips', tripId, 'expenses'],
-    queryFn: () => getExpenses(tripId),
+    queryFn: ({ pageParam }) => getExpenses(tripId, (pageParam as number) ?? 0),
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasMore ? allPages.length * EXPENSE_PAGE_SIZE : undefined,
+    initialPageParam: 0,
     retry: 2,
     enabled: !!tripId,
   });

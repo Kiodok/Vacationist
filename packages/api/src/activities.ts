@@ -7,9 +7,11 @@ export async function getActivities(tripId: string): Promise<Activity[]> {
     .from('activities')
     .select('*')
     .eq('trip_id', tripId)
+    .is('deleted_at', null)
     .order('activity_date', { ascending: true, nullsFirst: false })
     .order('start_time', { ascending: true, nullsFirst: false })
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(200);
 
   if (error) throw error;
   return data as unknown as Activity[];
