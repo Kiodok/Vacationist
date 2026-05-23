@@ -68,6 +68,7 @@ export default function TripsScreen() {
       <FlashList
         data={trips}
         keyExtractor={(item) => item.id}
+        estimatedItemSize={120}
         renderItem={({ item }) => (
           <TripCard
             trip={item as Trip & { member_count: number }}

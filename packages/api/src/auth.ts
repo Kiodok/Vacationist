@@ -66,6 +66,10 @@ export async function signInWithGoogleIdToken(idToken: string) {
 }
 
 export async function linkGuestWithGoogle(idToken: string) {
+  // signInWithIdToken while an anonymous session is active: Supabase server
+  // merges the anonymous identity into the Google-linked user when the Google
+  // account is new. If the Google account already exists the user is signed
+  // into that account instead (the anonymous session is superseded).
   const { data, error } = await supabase.auth.signInWithIdToken({
     provider: 'google',
     token: idToken,
@@ -75,11 +79,12 @@ export async function linkGuestWithGoogle(idToken: string) {
 }
 
 export async function linkGuestWithMagicLink(email: string, redirectTo: string) {
-  const { data, error } = await supabase.auth.signInWithOtp({
+  // updateUser adds an email identity to the currently signed-in anonymous
+  // user. The UUID is preserved so all existing trip data stays intact.
+  const { data, error } = await supabase.auth.updateUser({
     email,
     options: {
       emailRedirectTo: redirectTo,
-      shouldCreateUser: false,
     },
   });
   if (error) throw error;

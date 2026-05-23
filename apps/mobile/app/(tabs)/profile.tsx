@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, TouchableOpacity, ActivityIndicator, AppState } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../src/stores/authStore';
 import { useSignOut } from '../../src/features/auth/hooks/useSignOut';
@@ -48,6 +49,14 @@ export default function ProfileScreen() {
     });
     return () => sub.remove();
   }, []);
+
+  // Reset the inline sign-out confirmation when the tab loses focus so it
+  // doesn't persist stale UI state when the user switches tabs and comes back.
+  useFocusEffect(
+    useCallback(() => {
+      return () => setConfirmSignOut(false);
+    }, [])
+  );
 
   const { handleSignOut } = useSignOut();
   const updateProfile = useUpdateProfile();

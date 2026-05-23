@@ -7,10 +7,9 @@ import {
   TextInput,
   KeyboardAvoidingView,
   ActivityIndicator,
-  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors, GoogleSignInButton } from '@vacationist/ui';
 import { useGuestUpgrade } from '../../auth/hooks/useGuestUpgrade';
 
 interface GuestUpgradeSheetProps {
@@ -20,11 +19,12 @@ interface GuestUpgradeSheetProps {
 
 export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) {
   const [email, setEmail] = useState('');
-  const { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent } =
+  const { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError } =
     useGuestUpgrade();
 
   function handleClose() {
     setEmail('');
+    clearError();
     onClose();
   }
 
@@ -76,31 +76,11 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
             ) : (
               <View className="gap-md">
                 {/* Google Sign-In */}
-                <TouchableOpacity
+                <GoogleSignInButton
                   onPress={upgradeWithGoogle}
+                  loading={isPending}
                   disabled={isPending}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 10,
-                    minHeight: 48,
-                    borderRadius: 8,
-                    backgroundColor: '#131314',
-                    opacity: isPending ? 0.6 : 1,
-                  }}
-                >
-                  {isPending ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <>
-                      <Ionicons name="logo-google" size={18} color="#fff" />
-                      <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600' }}>
-                        Continue with Google
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
+                />
 
                 {/* Divider */}
                 <View className="flex-row items-center gap-md">

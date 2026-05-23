@@ -46,5 +46,7 @@ export function useGuestUpgrade() {
     }
   }, []);
 
-  return { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent };
+  const clearError = useCallback(() => setError(null), []);
+
+  return { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError };
 }

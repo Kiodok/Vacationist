@@ -285,6 +285,7 @@ export default function TransferTab() {
           <FlashList
             data={rentals}
             keyExtractor={(item) => item.id}
+            estimatedItemSize={150}
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
             renderItem={({ item }) => (
               <RentalCardExpanded
