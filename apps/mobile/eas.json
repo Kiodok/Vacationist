@@ -6,16 +6,58 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://aejywkbkcwyanhyzhrle.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_AW6wXviYNcRa_3n2syxTVw_T4_B8551",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://fsfsqghbejwvgxujoyne.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_NxseoNjGXujIBuZ5nejvaQ_hS8Geb3I",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://fsfsqghbejwvgxujoyne.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_NxseoNjGXujIBuZ5nejvaQ_hS8Geb3I",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com"
+      }
+    },
+    "development-simulator": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://aejywkbkcwyanhyzhrle.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_AW6wXviYNcRa_3n2syxTVw_T4_B8551",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./play-store-service-account.json",
+        "track": "internal"
+      }
+    }
   }
 }
