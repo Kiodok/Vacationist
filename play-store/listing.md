@@ -38,7 +38,7 @@ Keep all hotel and rental details in one place: booking reference, check-in time
 **✈️ Flight & transfer details**
 Log every flight and transfer so the group knows when and where to be. No more "what time does your flight land?"
 
-**🔒 Encrypted travel documents**
+**🔒 Encrypted travel documents (optional)**
 Store your passport or ID card details inside the app, protected by biometric authentication and end-to-end encryption. Grant temporary access to a travel companion when needed — revoke it any time.
 
 **🔔 Smart notifications**
