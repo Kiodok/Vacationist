@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found — Vacationist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0F0F0F; color: #F2F2F2;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .logo { margin-bottom: 2rem; }
+    .code { font-size: 5rem; font-weight: 800; letter-spacing: -0.05em; color: #2E2E2E; line-height: 1; margin-bottom: 1.5rem; }
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.75rem; }
+    p { font-size: 1rem; color: #A0A0A0; margin-bottom: 2rem; max-width: 380px; line-height: 1.6; }
+    a.btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #6C63FF; color: #fff;
+      padding: 0.75rem 1.6rem; border-radius: 10px;
+      text-decoration: none; font-weight: 600; font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    a.btn:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="g" cx="42%" cy="38%" r="72%">
+          <stop offset="0%" stop-color="#2D1B69"/>
+          <stop offset="100%" stop-color="#09060F"/>
+        </radialGradient>
+      </defs>
+      <rect width="512" height="512" fill="url(#g)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/>
+      <circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+  </div>
+  <div class="code">404</div>
+  <h1>Page not found</h1>
+  <p>The page you're looking for doesn't exist, or may have been moved.</p>
+  <a class="btn" href="./">← Back to Vacationist</a>
+</body>
+</html>

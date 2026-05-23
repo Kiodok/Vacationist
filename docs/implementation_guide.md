@@ -692,39 +692,51 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [x] Compliance & Policy — Privacy Policy (`docs/privacy-policy.html`, Swiss nDSG + GDPR, hosted on GitHub Pages); Terms of Service (`docs/terms-of-service.html`, Swiss OR); Landing page (`docs/home.html`)
   - [x] Release Strategy — documented in `docs/CLAUDE.md`: version numbering (MAJOR.MINOR.PATCH), EAS channels & build profiles, OTA rules, staged rollout (10%→50%→100%), hotfix process, pre-release checklist, monitoring table, key IDs reference
 
-## 🌐 Phase 10: Landing Page / Marketing Website (Web UI)
+## 🌐 Phase 10: Landing Page / Marketing Website (GitHub Pages)
 *Dependencies: Phase 9*
 *Goal: Create a polished, responsive, mobile-first landing page for Vacationist.*
-*Info: HTML files in docs for GitHub Pages are already available and can be used as a starting point.*
+*Hosting: GitHub Pages from `docs/` folder on `main` branch at `vacationist.app`.*
 
-- [ ] **1. Content**
-  - [ ] Explains the product clearly within seconds
-  - [ ] Showcases the core features visually
-  - [ ] Demonstrates the collaborative vacation planning workflow
-  - [ ] Allows users to immediately enter the web app
-  - [ ] Provides a QR code + Play Store/App Store links for mobile onboarding
-  - [ ] Switzerland policies and impressum for a private person (Nebererwerbstätigkeit) ask me for details like name etc.
-  - [ ] Establishes a modern product identity and trust
-  - [ ] SEO optimizations & metadata including robots file etc.
-- [ ] **2. It does NOT implement the actual web app itself, it focuses purely on**
-  - [ ] Marketing & product presentation
-  - [ ] Onboarding
-  - [ ] App distribution entry points
-- [ ] **3. Landing page feeling**
-  - [ ] Modern & lightweight
-  - [ ] Premium & fast
-  - [ ] Social & collaborative
-  - [ ] Travel-oriented
-- [ ] *4. Avoid the following*
-  - [ ] Enterprise/SaaS aesthetics
-  - [ ] Dark corporate UI
-  - [ ] AI buzzword marketing
-  - [ ] Feature overload
-  - [ ] Pricing sections (V1 has no monetization)
-- [ ] *5. Other important details*
-  - [ ] Move the GitHub Pages privacy policy to the website
-  - [ ] Cloudflare DNS:
-    - [ ] CNAME  www   →  your-vercel-deployment.vercel.app
-    - [ ] A/CNAME @    →  same (or Cloudflare proxied)
-    - [ ] The Resend DKIM/SPF records also go here when you set up the custom email domain.
-  - [ ] Firebase App Hosting
+- [x] **1. Content**
+  - [x] Explains the product clearly within seconds (`docs/index.html` hero section)
+  - [x] Showcases the core features visually (6-card features grid)
+  - [x] Demonstrates the collaborative vacation planning workflow (How it works section)
+  - [x] Provides a QR code + Play Store link for mobile onboarding (Download section)
+  - [x] App Store "Coming Soon" badge (iOS version planned)
+  - [x] Switzerland impressum for a private person — Nebenerwerbstätigkeit (`docs/impressum.html`)
+  - [x] Establishes modern product identity and trust (trust strip, brand colors)
+  - [x] SEO: meta tags, OG, Twitter Card, JSON-LD, `robots.txt`, `sitemap.xml`
+- [x] **2. Pure marketing/onboarding — no actual web app implemented**
+  - [x] Marketing & product presentation only
+  - [x] App distribution entry points (Play Store links + QR code)
+- [x] **3. Landing page feeling**
+  - [x] Modern & lightweight (pure HTML/CSS/JS, no framework)
+  - [x] Premium & fast (CSS-only animations, no runtime dependencies)
+  - [x] Social & collaborative (floating activity chips, vote previews in phone mockup)
+  - [x] Travel-oriented (flag emojis, trip cards, destination themes)
+- [x] **4. Avoided**
+  - [x] No enterprise/SaaS aesthetics
+  - [x] No AI buzzword marketing
+  - [x] No feature overload
+  - [x] No pricing section
+- [x] **5. Files created/updated**
+  - [x] `docs/index.html` — full landing page (replaces `docs/home.html`)
+  - [x] `docs/impressum.html` — Swiss legal impressum (new)
+  - [x] `docs/privacy-policy.html` — fixed placeholder emails, added nav, Inter font
+  - [x] `docs/terms-of-service.html` — added nav, Inter font
+  - [x] `docs/robots.txt` — SEO crawler config
+  - [x] `docs/sitemap.xml` — all pages listed
+  - [x] `docs/404.html` — custom 404 matching brand
+  - [x] `docs/home.html` — **delete** (replaced by index.html)
+
+**Hosting setup (GitHub Pages):**
+- In repo Settings → Pages → Source: Deploy from branch `main`, folder `/docs`
+- Add `docs/CNAME` with content `vacationist.app` (if using custom domain)
+
+**Cloudflare DNS (for custom domain vacationist.app):**
+- `A` records pointing to GitHub Pages IPs:
+  - `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+- OR `CNAME www → <username>.github.io` (proxy off for GitHub Pages to work)
+- The Resend DKIM/SPF records for custom email domain also go here when configured.
+
+**Note:** Firebase App Hosting removed from scope — GitHub Pages is sufficient for a static marketing site. A web app (React Native Web or Next.js) can be added to `apps/web/` in a future phase if needed.

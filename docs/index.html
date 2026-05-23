@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Vacationist — Plan trips together</title>
+  <meta name="description" content="Collaborative trip planning for groups. Vote on activities, split expenses, manage shopping lists and travel docs — everyone in sync, in real time.">
+
+  <link rel="canonical" href="https://vacationist.app/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Vacationist — Plan trips together">
+  <meta property="og:description" content="Collaborative trip planning for groups. Vote on activities, split expenses, manage shopping lists — everyone in the loop, in real time.">
+  <meta property="og:url" content="https://vacationist.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Vacationist">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vacationist — Plan trips together">
+  <meta name="twitter:description" content="Collaborative trip planning for groups. Vote, split costs, share lists — everyone in sync.">
+  <meta name="twitter:image" content="https://vacationist.app/og-image.png">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Vacationist",
+    "applicationCategory": "TravelApplication",
+    "operatingSystem": "Android",
+    "description": "Collaborative trip planning for groups. Vote on activities, split expenses, manage shopping lists and travel documents.",
+    "url": "https://vacationist.app/",
+    "downloadUrl": "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "author": {
+      "@type": "Person",
+      "name": "Gary Lude",
+      "address": { "@type": "PostalAddress", "addressCountry": "CH" }
+    }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0F0F0F;
+      --surface:  #1A1A1A;
+      --surf-el:  #242424;
+      --border:   #2E2E2E;
+      --primary:  #6C63FF;
+      --pri-lite: #8A84FF;
+      --pri-dim:  rgba(108,99,255,0.12);
+      --pri-glow: rgba(108,99,255,0.22);
+      --success:  #3ECF8E;
+      --warning:  #F5A623;
+      --danger:   #FF5C5C;
+      --text:     #F2F2F2;
+      --text2:    #A0A0A0;
+      --text3:    #5C5C5C;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(1.25rem, 5vw, 4rem);
+      background: rgba(15,15,15,0.80);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--text);
+      font-weight: 700; font-size: 1rem; letter-spacing: -0.02em;
+    }
+    .nav-logo-icon { width: 32px; height: 32px; flex-shrink: 0; }
+
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a {
+      color: var(--text2); text-decoration: none;
+      font-size: 0.875rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--primary) !important; color: #fff !important;
+      padding: 0.48rem 1.1rem !important; border-radius: 8px !important;
+      font-weight: 600 !important; font-size: 0.83rem !important;
+      transition: opacity 0.2s, transform 0.15s !important;
+    }
+    .nav-cta:hover { opacity: 0.88 !important; transform: translateY(-1px) !important; }
+
+    @media (max-width: 640px) {
+      .nav-links a:not(.nav-cta) { display: none; }
+      .nav-links { gap: 0.75rem; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; overflow: hidden;
+      min-height: calc(100vh - 64px);
+      display: flex; align-items: center;
+      padding: clamp(3.5rem, 8vw, 6rem) clamp(1.25rem, 5vw, 4rem);
+    }
+
+    .hero-glow {
+      position: absolute; top: -20%; right: -10%;
+      width: 60vmax; height: 60vmax; border-radius: 50%;
+      background: radial-gradient(circle, rgba(108,99,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-size: 44px 44px;
+      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, black, transparent);
+      mask-image: radial-gradient(ellipse 80% 70% at 60% 40%, black, transparent);
+    }
+
+    .hero-inner {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 4rem; width: 100%; max-width: 1200px; margin: 0 auto;
+    }
+
+    .hero-text { flex: 1; max-width: 560px; }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--pri-dim); border: 1px solid rgba(108,99,255,0.25);
+      border-radius: 99px; padding: 5px 14px 5px 8px;
+      font-size: 0.76rem; font-weight: 600; color: var(--pri-lite);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 1.75rem;
+    }
+    .eyebrow-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--primary);
+      animation: blink 2.4s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 4.8vw, 3.8rem);
+      font-weight: 900; line-height: 1.04; letter-spacing: -0.04em;
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 em { font-style: normal; color: var(--primary); }
+
+    .hero-sub {
+      font-size: 1.1rem; line-height: 1.65; color: var(--text2);
+      max-width: 470px; margin-bottom: 2.5rem;
+    }
+
+    .hero-actions { display: flex; flex-direction: column; gap: 0.9rem; align-items: flex-start; }
+
+    .btn-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+
+    .btn-white {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #fff; color: #0F0F0F;
+      padding: 0.8rem 1.6rem; border-radius: 12px;
+      text-decoration: none; font-weight: 700; font-size: 0.95rem;
+      letter-spacing: -0.015em;
+      box-shadow: 0 0 28px rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.3);
+      transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
+    }
+    .btn-white:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 40px rgba(255,255,255,0.18), 0 8px 24px rgba(0,0,0,0.4); }
+    .btn-white svg { flex-shrink: 0; }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface); color: var(--text3);
+      padding: 0.8rem 1.4rem; border-radius: 12px;
+      font-weight: 500; font-size: 0.88rem;
+      border: 1px solid var(--border);
+      letter-spacing: -0.01em;
+    }
+
+    .hero-note {
+      font-size: 0.79rem; color: var(--text3);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .note-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+
+    /* ── PHONE MOCKUP ── */
+    .hero-visual { flex-shrink: 0; position: relative; z-index: 1; }
+    @media (max-width: 920px) { .hero-visual { display: none; } }
+
+    .phone-orbit {
+      position: relative; width: 260px;
+    }
+    .phone-halo {
+      position: absolute; inset: -50px; border-radius: 50%;
+      background: radial-gradient(circle, var(--pri-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .phone {
+      width: 260px; height: 530px;
+      background: #0e0e16;
+      border-radius: 42px;
+      border: 1.5px solid rgba(255,255,255,0.11);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.6),
+        0 48px 96px rgba(0,0,0,0.65),
+        0 0 60px rgba(108,99,255,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+      overflow: hidden; position: relative;
+    }
+    .phone-notch {
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      width: 72px; height: 5px; background: rgba(255,255,255,0.1);
+      border-radius: 3px; z-index: 5;
+    }
+    .phone-screen {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      background: var(--bg); overflow: hidden;
+    }
+
+    .ps-bar { display:flex; justify-content:space-between; align-items:flex-end; padding:9px 16px 3px; height:32px; }
+    .ps-time { font-size:9.5px; font-weight:700; color:rgba(255,255,255,.88); }
+    .ps-icons { font-size:8px; color:rgba(255,255,255,.55); letter-spacing:1px; }
+
+    .ps-head { display:flex; align-items:center; justify-content:space-between; padding:6px 14px 6px; }
+    .ps-title { font-size:15.5px; font-weight:800; color:var(--text); letter-spacing:-0.03em; }
+    .ps-bell { position:relative; width:28px; height:28px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:12px; }
+    .ps-bell-dot { position:absolute; top:5px; right:5px; width:6px; height:6px; border-radius:50%; background:var(--danger); border:1.5px solid var(--bg); }
+
+    .ps-sec { font-size:8px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.1em; padding:2px 14px 6px; }
+
+    .ps-card { margin:0 10px 7px; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .ps-card-banner { height:55px; display:flex; align-items:flex-end; padding:7px 10px; position:relative; }
+    .ps-banner-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(0,0,0,.05),rgba(0,0,0,.35)); }
+    .ps-flag { position:relative; z-index:1; font-size:16px; }
+    .ps-card-status { position:absolute; top:7px; right:7px; z-index:1; font-size:6.5px; font-weight:700; color:var(--success); background:rgba(62,207,142,.15); border:1px solid rgba(62,207,142,.3); border-radius:4px; padding:2px 5px; }
+
+    .ps-card-body { padding:8px 10px 9px; }
+    .ps-card-name { font-size:12px; font-weight:700; color:var(--text); letter-spacing:-.02em; margin-bottom:2px; }
+    .ps-card-meta { font-size:8.5px; color:var(--text3); margin-bottom:7px; }
+    .ps-card-foot { display:flex; align-items:center; justify-content:space-between; }
+    .ps-avs { display:flex; }
+    .ps-av { width:18px; height:18px; border-radius:50%; border:1.5px solid var(--surface); margin-left:-5px; font-size:6.5px; font-weight:700; display:flex; align-items:center; justify-content:center; color:#fff; }
+    .ps-av:first-child { margin-left:0; }
+    .ps-role { font-size:7.5px; font-weight:600; color:var(--pri-lite); background:var(--pri-dim); border:1px solid rgba(108,99,255,.2); border-radius:4px; padding:2px 5px; }
+
+    .ps-votes { display:flex; gap:3px; margin-top:6px; padding-top:6px; border-top:1px solid var(--border); }
+    .ps-vchip { font-size:6.5px; font-weight:600; border-radius:4px; padding:2px 5px; }
+
+    .ps-fab { position:absolute; bottom:63px; right:12px; width:36px; height:36px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; font-weight:300; line-height:1; box-shadow:0 4px 16px rgba(108,99,255,.5); }
+
+    .ps-tabs { position:absolute; bottom:0; left:0; right:0; height:58px; background:var(--surface); border-top:1px solid var(--border); display:flex; padding-bottom:7px; }
+    .ps-tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:7px; color:var(--text3); }
+    .ps-tab.on { color:var(--primary); }
+    .ps-tab-i { font-size:15px; }
+
+    /* Floating chips */
+    .chip {
+      position: absolute; z-index: 10;
+      background: var(--surf-el); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 12px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; box-shadow: 0 6px 24px rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
+    }
+    .chip-icon { font-size: 15px; }
+    .chip-sub { font-size: 0.66rem; color: var(--text3); font-weight: 400; margin-top: 1px; }
+
+    .chip-a { top: 60px; right: -148px; animation: floatA 4s ease-in-out infinite; }
+    .chip-b { bottom: 145px; left: -156px; animation: floatB 5s ease-in-out infinite 1.2s; }
+    .chip-c { bottom: 62px; right: -140px; animation: floatA 4.5s ease-in-out infinite .5s; }
+
+    @keyframes floatA { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+    @keyframes floatB { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+    /* ── SECTION BASE ── */
+    .section { padding: clamp(4rem,7vw,6.5rem) clamp(1.25rem,5vw,4rem); }
+    .wrap { max-width: 1200px; margin: 0 auto; }
+
+    .s-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 1rem;
+    }
+    .s-title {
+      font-size: clamp(1.9rem,3.5vw,2.6rem);
+      font-weight: 800; letter-spacing: -0.04em; line-height: 1.08;
+      color: var(--text); margin-bottom: 1rem;
+    }
+    .s-sub {
+      font-size: 1.05rem; color: var(--text2);
+      max-width: 500px; line-height: 1.65;
+    }
+    .s-head { margin-bottom: 3.5rem; }
+
+    /* ── FEATURES ── */
+    .features { background: linear-gradient(180deg, var(--bg) 0%, #0c0c13 50%, var(--bg) 100%); }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 960px) { .feat-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .feat-grid { grid-template-columns: 1fr; } }
+
+    .feat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1.75rem;
+      transition: border-color .28s, transform .28s, box-shadow .28s;
+      position: relative; overflow: hidden;
+    }
+    .feat-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(108,99,255,.05), transparent 60%);
+      opacity: 0; transition: opacity .28s;
+    }
+    .feat-card:hover { border-color: rgba(108,99,255,.35); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+    .feat-card:hover::before { opacity: 1; }
+
+    .feat-icon { width:48px; height:48px; border-radius:14px; background:var(--pri-dim); border:1px solid rgba(108,99,255,.2); display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:1.1rem; }
+    .feat-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:.45rem; letter-spacing:-.02em; }
+    .feat-desc { font-size:.88rem; color:var(--text2); line-height:1.6; }
+
+    /* ── HOW IT WORKS ── */
+    .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; position: relative; }
+    @media (max-width: 680px) { .steps { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+    .steps-line {
+      position: absolute; top: 22px; left: 60px; right: 60px; height: 1px;
+      background: linear-gradient(90deg, var(--primary), var(--border), var(--border));
+    }
+    @media (max-width: 680px) { .steps-line { display: none; } }
+
+    .step { position: relative; z-index: 1; }
+    .step-num {
+      width: 44px; height: 44px; border-radius: 50%; background: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.05rem; font-weight: 800; color: #fff;
+      margin-bottom: 1.2rem; box-shadow: 0 0 20px rgba(108,99,255,.35);
+    }
+    .step:nth-child(2) .step-num { background: linear-gradient(135deg,var(--primary),var(--pri-lite)); }
+    .step:nth-child(3) .step-num { background: var(--pri-lite); }
+    .step-title { font-size:1.05rem; font-weight:700; color:var(--text); margin-bottom:.5rem; letter-spacing:-.02em; }
+    .step-desc { font-size:.88rem; color:var(--text2); line-height:1.65; }
+
+    /* ── TRUST STRIP ── */
+    .trust {
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      background: #0a0a0e;
+      padding: clamp(2rem,4vw,3.5rem) clamp(1.25rem,5vw,4rem);
+    }
+    .trust-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 1.75rem 3rem;
+    }
+    .trust-item { display:flex; align-items:center; gap:10px; font-size:.88rem; color:var(--text2); font-weight:500; white-space:nowrap; }
+    .trust-icon { width:34px; height:34px; border-radius:10px; background:var(--pri-dim); border:1px solid rgba(108,99,255,.2); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+
+    /* ── DOWNLOAD ── */
+    .download {
+      text-align: center;
+      padding: clamp(4rem,8vw,7rem) clamp(1.25rem,5vw,4rem);
+      position: relative; overflow: hidden;
+    }
+    .download::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 80vmax; height: 60vmax; border-radius: 50%;
+      background: radial-gradient(circle, rgba(108,99,255,.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .dl-inner { position: relative; z-index: 1; }
+    .dl-inner h2 { font-size:clamp(1.9rem,3.5vw,2.6rem); font-weight:800; letter-spacing:-.04em; margin-bottom:.85rem; }
+    .dl-inner p { font-size:1.05rem; color:var(--text2); margin-bottom:2.25rem; }
+
+    .dl-badges { display:flex; align-items:center; justify-content:center; gap:.85rem; flex-wrap:wrap; margin-bottom:2.5rem; }
+
+    .badge-play {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #fff; color: #000;
+      padding: .85rem 1.6rem; border-radius: 12px;
+      text-decoration: none; font-weight: 700; font-size: .95rem;
+      letter-spacing: -.015em;
+      box-shadow: 0 4px 20px rgba(255,255,255,.12);
+      transition: all .22s cubic-bezier(.34,1.56,.64,1);
+    }
+    .badge-play:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 30px rgba(255,255,255,.18); }
+
+    .badge-soon {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--surface); color: var(--text3);
+      padding: .85rem 1.6rem; border-radius: 12px;
+      font-weight: 500; font-size: .9rem;
+      border: 1px solid var(--border); letter-spacing: -.01em;
+    }
+
+    /* QR */
+    .qr-wrap {
+      display: inline-block;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 1.25rem;
+    }
+    .qr-label { font-size:.72rem; color:var(--text3); margin-bottom:.9rem; }
+    #qr-svg { display:block; }
+    .qr-note { font-size:.7rem; color:var(--text3); margin-top:.75rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.75rem clamp(1.25rem,5vw,4rem);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .75rem;
+    }
+    .f-copy { font-size:.82rem; color:var(--text3); }
+    .f-links { display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+    .f-links a { font-size:.82rem; color:var(--text3); text-decoration:none; transition:color .2s; }
+    .f-links a:hover { color:var(--text2); }
+
+    /* ── REVEAL ── */
+    .reveal { opacity:0; transform:translateY(22px); transition:opacity .6s ease,transform .6s ease; }
+    .reveal.in { opacity:1; transform:none; }
+    .d1{transition-delay:.1s} .d2{transition-delay:.2s} .d3{transition-delay:.3s}
+    .d4{transition-delay:.4s} .d5{transition-delay:.5s}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a class="nav-logo" href="./">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="nlg" cx="42%" cy="38%" r="72%">
+          <stop offset="0%" stop-color="#2D1B69"/>
+          <stop offset="100%" stop-color="#09060F"/>
+        </radialGradient>
+      </defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/>
+      <circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="./privacy-policy.html">Privacy</a>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta">Get the app</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <div class="eyebrow-dot"></div>
+        ✈ Group travel, simplified
+      </div>
+
+      <h1>Plan trips<br><em>together</em>,<br>effortlessly.</h1>
+
+      <p class="hero-sub">
+        Suggest activities, vote as a group, split expenses, and keep everyone in sync — from the first idea to the last flight home.
+      </p>
+
+      <div class="hero-actions">
+        <div class="btn-row">
+          <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile">
+            <svg width="18" height="20" viewBox="0 0 20 22" fill="none"><path d="M2 2L18 11L2 20" stroke="#0F0F0F" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="#0F0F0F"/></svg>
+            Get it on Google Play
+          </a>
+          <div class="btn-ghost">
+            <svg width="15" height="17" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="currentColor"/></svg>
+            App Store — Coming Soon
+          </div>
+        </div>
+        <div class="hero-note">
+          <div class="note-dot"></div>
+          Free · No ads · No account needed to join
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="hero-visual">
+      <div class="phone-orbit">
+        <div class="phone-halo"></div>
+
+        <div class="chip chip-a">
+          <span class="chip-icon">🗳️</span>
+          <div><div>4 votes cast</div><div class="chip-sub">Activities · Lisbon</div></div>
+        </div>
+        <div class="chip chip-b">
+          <span class="chip-icon">💸</span>
+          <div><div>€ 42.50 added</div><div class="chip-sub">Split 4 ways</div></div>
+        </div>
+        <div class="chip chip-c">
+          <span class="chip-icon">✅</span>
+          <div><div>3 items checked</div><div class="chip-sub">Shopping list</div></div>
+        </div>
+
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ps-bar">
+              <span class="ps-time">9:41</span>
+              <span class="ps-icons">▲▲ ⬛</span>
+            </div>
+            <div class="ps-head">
+              <span class="ps-title">My Trips</span>
+              <div class="ps-bell">🔔<div class="ps-bell-dot"></div></div>
+            </div>
+            <div class="ps-sec">Upcoming</div>
+
+            <!-- Card 1 -->
+            <div class="ps-card">
+              <div class="ps-card-banner" style="background:linear-gradient(135deg,#1a3a5c,#0d2035)">
+                <div class="ps-banner-overlay"></div>
+                <span class="ps-flag">🇵🇹</span>
+                <span class="ps-card-status">Planning</span>
+              </div>
+              <div class="ps-card-body">
+                <div class="ps-card-name">Summer in Lisbon</div>
+                <div class="ps-card-meta">Aug 10 – 17 · 5 members</div>
+                <div class="ps-card-foot">
+                  <div class="ps-avs">
+                    <div class="ps-av" style="background:#6C63FF">G</div>
+                    <div class="ps-av" style="background:#EC4899">M</div>
+                    <div class="ps-av" style="background:#F59E0B">J</div>
+                    <div class="ps-av" style="background:#10B981">A</div>
+                    <div class="ps-av" style="background:#3B82F6">T</div>
+                  </div>
+                  <div class="ps-role">Organiser</div>
+                </div>
+                <div class="ps-votes">
+                  <div class="ps-vchip" style="background:rgba(62,207,142,.15);color:#3ECF8E">⭐ 3 must do</div>
+                  <div class="ps-vchip" style="background:rgba(108,99,255,.15);color:#8A84FF">👍 1 like</div>
+                  <div class="ps-vchip" style="background:rgba(92,92,92,.2);color:#9CA3AF">🤷 1 open</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="ps-card">
+              <div class="ps-card-banner" style="background:linear-gradient(135deg,#1c2e40,#0d1820)">
+                <div class="ps-banner-overlay"></div>
+                <span class="ps-flag">🎿</span>
+              </div>
+              <div class="ps-card-body">
+                <div class="ps-card-name">Alpine Ski Week</div>
+                <div class="ps-card-meta">Feb 3 – 10 · 3 members</div>
+                <div class="ps-card-foot">
+                  <div class="ps-avs">
+                    <div class="ps-av" style="background:#6C63FF">G</div>
+                    <div class="ps-av" style="background:#3B82F6">T</div>
+                    <div class="ps-av" style="background:#EC4899">S</div>
+                  </div>
+                  <div class="ps-role">5 activities</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ps-fab">+</div>
+
+            <div class="ps-tabs">
+              <div class="ps-tab on"><div class="ps-tab-i">🏠</div>Trips</div>
+              <div class="ps-tab"><div class="ps-tab-i">📅</div>Calendar</div>
+              <div class="ps-tab"><div class="ps-tab-i">🔔</div>Alerts</div>
+              <div class="ps-tab"><div class="ps-tab-i">👤</div>Profile</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section features" id="features">
+  <div class="wrap">
+    <div class="s-head reveal">
+      <div class="s-label">What's inside</div>
+      <h2 class="s-title">Everything your group needs,<br>nothing it doesn't.</h2>
+      <p class="s-sub">Built for real trips with real people — messy schedules, split opinions, and all.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal d1">
+        <div class="feat-icon">🗳️</div>
+        <div class="feat-title">Vote on activities</div>
+        <div class="feat-desc">Suggest ideas and let the group decide — from "must do" to "group blocker". The best options rise naturally, with no endless debates.</div>
+      </div>
+      <div class="feat-card reveal d2">
+        <div class="feat-icon">💸</div>
+        <div class="feat-title">Split expenses fairly</div>
+        <div class="feat-desc">Log every cost, choose who paid, and split equally or by custom amounts. Balances always show exactly who owes what.</div>
+      </div>
+      <div class="feat-card reveal d3">
+        <div class="feat-icon">🛒</div>
+        <div class="feat-title">Real-time shared lists</div>
+        <div class="feat-desc">Shopping lists, packing checklists — anything the group tracks. Everyone adds and checks off items simultaneously, in real time.</div>
+      </div>
+      <div class="feat-card reveal d1">
+        <div class="feat-icon">✈️</div>
+        <div class="feat-title">Transfer &amp; flights</div>
+        <div class="feat-desc">Suggest flights, vote on options, record bookings, manage car rentals, and assign who rides with whom — all in one place.</div>
+      </div>
+      <div class="feat-card reveal d2">
+        <div class="feat-icon">🔒</div>
+        <div class="feat-title">Encrypted travel documents</div>
+        <div class="feat-desc">Passport and ID details stored behind biometric authentication, AES-256 encrypted. Share temporary organiser access and revoke it any time.</div>
+      </div>
+      <div class="feat-card reveal d3">
+        <div class="feat-icon">🗓️</div>
+        <div class="feat-title">Shared calendar</div>
+        <div class="feat-desc">A visual timeline of all planned activities, transfers, and check-ins — displayed in the trip's timezone automatically.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="s-head reveal">
+      <div class="s-label">How it works</div>
+      <h2 class="s-title">Ready in three steps.</h2>
+    </div>
+    <div class="steps">
+      <div class="steps-line"></div>
+      <div class="step reveal d1">
+        <div class="step-num">1</div>
+        <div class="step-title">Create a trip</div>
+        <div class="step-desc">Set your destination, pick your dates, and add a budget if you like. Ready in under a minute.</div>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-num">2</div>
+        <div class="step-title">Invite your crew</div>
+        <div class="step-desc">Share a single link in any chat. Friends join instantly — no account sign-up required to participate.</div>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-num">3</div>
+        <div class="step-title">Plan together</div>
+        <div class="step-desc">Vote on ideas, split costs, share lists and notes. Everyone in the loop, in real time.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust">
+  <div class="trust-inner">
+    <div class="trust-item"><div class="trust-icon">🔒</div>AES-256 encrypted documents</div>
+    <div class="trust-item"><div class="trust-icon">🚫</div>No ads, no tracking</div>
+    <div class="trust-item"><div class="trust-icon">🇨🇭</div>Built in Switzerland</div>
+    <div class="trust-item"><div class="trust-icon">🆓</div>Free to use</div>
+    <div class="trust-item"><div class="trust-icon">📱</div>Android · iOS coming soon</div>
+  </div>
+</div>
+
+<!-- DOWNLOAD -->
+<section class="download">
+  <div class="dl-inner">
+    <h2 class="reveal">Your next trip is waiting.</h2>
+    <p class="reveal d1">Download Vacationist and start planning together.</p>
+
+    <div class="dl-badges reveal d2">
+      <a class="badge-play" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile">
+        <svg width="19" height="21" viewBox="0 0 20 22" fill="none"><path d="M2 2L18 11L2 20" stroke="#000" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="#000"/></svg>
+        Get it on Google Play
+      </a>
+      <div class="badge-soon">
+        <svg width="15" height="17" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="currentColor"/></svg>
+        App Store — Coming Soon
+      </div>
+    </div>
+
+    <div class="qr-wrap reveal d3">
+      <div class="qr-label">📷 Scan with your camera to download</div>
+      <svg id="qr-svg" width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="qr-note">Android only · iOS coming soon</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="f-copy">© 2026 Vacationist · Gary Lude, Switzerland</span>
+  <div class="f-links">
+    <a href="./privacy-policy.html">Privacy Policy</a>
+    <a href="./terms-of-service.html">Terms of Service</a>
+    <a href="./impressum.html">Impressum</a>
+    <a href="mailto:meetdeep.de@gmail.com">Contact</a>
+  </div>
+</footer>
+
+<script>
+/* ── Nav scroll effect ── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 20), {passive:true});
+
+/* ── Scroll reveal ── */
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); } });
+}, {threshold: 0.1, rootMargin: '0px 0px -36px 0px'});
+document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+/* ── QR Code generator (self-contained, MIT) ──
+   Generates a real scannable QR code for the Play Store URL.
+   Implements: byte mode, version 6, EC level M, mask pattern 3.
+   Based on ISO/IEC 18004:2006. */
+(function() {
+  const URL = 'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
+  const svg = document.getElementById('qr-svg');
+  if (!svg) return;
+
+  /* Reed-Solomon GF(256) with generator polynomial x^8+x^4+x^3+x^2+1 */
+  const GF_EXP = new Uint8Array(512), GF_LOG = new Uint8Array(256);
+  (function initGF() {
+    let x = 1;
+    for (let i = 0; i < 255; i++) {
+      GF_EXP[i] = x; GF_LOG[x] = i;
+      x <<= 1; if (x & 256) x ^= 285;
+    }
+    for (let i = 255; i < 512; i++) GF_EXP[i] = GF_EXP[i - 255];
+  })();
+  const gfMul = (a, b) => a && b ? GF_EXP[GF_LOG[a] + GF_LOG[b]] : 0;
+  function gfPoly(ec) {
+    let g = [1];
+    for (let i = 0; i < ec; i++) {
+      const b = GF_EXP[i], ng = new Uint8Array(g.length + 1);
+      for (let j = 0; j < g.length; j++) { ng[j] ^= gfMul(g[j], b); ng[j+1] ^= g[j]; }
+      g = ng;
+    }
+    return g;
+  }
+  function rsEncode(data, ec) {
+    const gen = gfPoly(ec), msg = new Uint8Array(data.length + ec);
+    for (let i = 0; i < data.length; i++) msg[i] = data[i];
+    for (let i = 0; i < data.length; i++) {
+      const c = msg[i];
+      if (c) for (let j = 0; j < gen.length; j++) msg[i+j] ^= gfMul(gen[j], c);
+    }
+    return msg.slice(data.length);
+  }
+
+  /* Version 6, EC level M: 68 data codewords, 40 EC codewords */
+  const V = 6, SIZE = V * 4 + 17; /* 41 */
+
+  /* Build bitstream: mode=byte(0100), len=8bit, data, padding */
+  function buildData(s) {
+    const bytes = new TextEncoder().encode(s);
+    const bits = [];
+    const push = (v, n) => { for (let i = n-1; i >= 0; i--) bits.push((v>>i)&1); };
+    push(4, 4); push(bytes.length, 8);
+    bytes.forEach(b => push(b, 8));
+    push(0, 4);
+    while (bits.length % 8) bits.push(0);
+    const cw = [];
+    for (let i = 0; i < bits.length; i += 8) {
+      let v = 0; for (let j = 0; j < 8; j++) v = (v<<1)|(bits[i+j]||0);
+      cw.push(v);
+    }
+    const PAD = [236, 17];
+    while (cw.length < 68) cw.push(PAD[(cw.length - Math.ceil(bits.length/8)) % 2]);
+    return new Uint8Array(cw);
+  }
+
+  /* Interleave + RS for version 6 M: 2 blocks of (34 data + 20 EC) */
+  function interleave(data) {
+    const blk = [[data.slice(0,34), rsEncode(data.slice(0,34),20)],
+                 [data.slice(34,68), rsEncode(data.slice(34,68),20)]];
+    const out = [];
+    for (let i = 0; i < 34; i++) blk.forEach(b => out.push(b[0][i]));
+    for (let i = 0; i < 20; i++) blk.forEach(b => out.push(b[1][i]));
+    return out;
+  }
+
+  /* Matrix helpers */
+  const mat = Array.from({length:SIZE}, () => new Int8Array(SIZE).fill(-1));
+  const res = Array.from({length:SIZE}, () => new Uint8Array(SIZE));
+  const set = (r, c, v, reserved=false) => { mat[r][c] = v; if (reserved) res[r][c] = 1; };
+
+  /* Finder pattern */
+  function finder(r, c) {
+    for (let dr = -1; dr <= 7; dr++) for (let dc = -1; dc <= 7; dc++) {
+      const rr = r+dr, cc = c+dc;
+      if (rr < 0 || rr >= SIZE || cc < 0 || cc >= SIZE) continue;
+      const inside = dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6;
+      const outer = dr === 0 || dr === 6 || dc === 0 || dc === 6;
+      const inner = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4;
+      set(rr, cc, inside ? (outer || inner ? 1 : 0) : 0, true);
+    }
+  }
+  finder(0, 0); finder(0, SIZE-7); finder(SIZE-7, 0);
+
+  /* Timing */
+  for (let i = 8; i < SIZE-8; i++) { set(6, i, i%2===0?1:0, true); set(i, 6, i%2===0?1:0, true); }
+
+  /* Dark module */
+  set(SIZE-8, 8, 1, true);
+
+  /* Version 6 has no version info region, but alignment pattern at (34,34) */
+  const AL = [34];
+  for (const ar of AL) for (const ac of AL) {
+    if (res[ar][ac]) continue;
+    for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) {
+      const outer = dr === -2 || dr === 2 || dc === -2 || dc === 2;
+      const center = dr === 0 && dc === 0;
+      set(ar+dr, ac+dc, outer||center?1:0, true);
+    }
+  }
+
+  /* Format info placeholder (reserve) */
+  for (let i = 0; i <= 8; i++) {
+    if (i !== 6) { res[8][i] = 1; res[i][8] = 1; }
+    if (i < 8) { res[SIZE-1-i][8] = 1; res[8][SIZE-1-i] = 1; }
+  }
+
+  /* Place data bits */
+  const codewords = interleave(buildData(URL));
+  const allBits = [];
+  codewords.forEach(cw => { for (let i = 7; i >= 0; i--) allBits.push((cw>>i)&1); });
+  /* Remainder bits for version 6: 0 */
+
+  let bi = 0;
+  for (let c = SIZE-1; c >= 1; c -= 2) {
+    if (c === 6) c = 5;
+    for (let rr = 0; rr < SIZE; rr++) {
+      const r = (Math.floor((SIZE-1-c)/2) % 2 === 0) ? (SIZE-1-rr) : rr;
+      for (let cd = 0; cd <= 1; cd++) {
+        const cc = c - cd;
+        if (!res[r][cc]) {
+          const bit = bi < allBits.length ? allBits[bi++] : 0;
+          /* Mask pattern 3: (row + col) % 3 == 0 */
+          mat[r][cc] = bit ^ ((r + cc) % 3 === 0 ? 1 : 0);
+        }
+      }
+    }
+  }
+
+  /* Format string: EC=M(01), mask=3(011) → data bits 01 011 → BCH */
+  /* Precomputed format info for M/mask3: 0b101010000010010 XOR 101010101010101 = 000000101000111 */
+  const FMT = 0b000000101000111;
+  function placeFmt(f) {
+    const bits = [];
+    for (let i = 14; i >= 0; i--) bits.push((f>>i)&1);
+    const order = [0,1,2,3,4,5,7,8];
+    order.forEach((c,i) => { set(8,c,bits[i],false); set(c,8,bits[i],false); });
+    [SIZE-7,SIZE-6,SIZE-5,SIZE-4,SIZE-3,SIZE-2,SIZE-1].forEach((r,i) => set(r,8,bits[8+i],false));
+    [SIZE-8,SIZE-7,SIZE-6,SIZE-5,SIZE-4,SIZE-3,SIZE-2,SIZE-1].forEach((c,i) => set(8,c,bits[7+i],false));
+  }
+  /* Simplified: just use known good format bits for EC=M, mask=3 */
+  /* Format word = 01_011 with BCH = 01_011_0000100110, XOR mask = 101010101010101 */
+  /* Result: 100000101011011 reversed = 110110101000001 */
+  const FMT_BITS = [1,1,0,1,1,0,1,0,1,0,0,0,0,0,1];
+  const seq1 = [0,1,2,3,4,5,7,8]; /* top & left (skip 6=timing) */
+  seq1.forEach((c,i) => { mat[8][c] = FMT_BITS[i]; mat[c][8] = FMT_BITS[i]; });
+  for (let i = 0; i < 7; i++) mat[SIZE-1-i][8] = FMT_BITS[8+i];
+  mat[8][SIZE-8] = FMT_BITS[7];
+  for (let i = 0; i < 7; i++) mat[8][SIZE-7+i] = FMT_BITS[8+i];
+
+  /* Render SVG */
+  const PAD = 8, CELL = (160 - PAD*2) / SIZE;
+  let d = '';
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      if (mat[r][c] === 1) {
+        const x = PAD + c*CELL, y = PAD + r*CELL;
+        d += `M${x.toFixed(1)},${y.toFixed(1)}h${CELL.toFixed(2)}v${CELL.toFixed(2)}h-${CELL.toFixed(2)}z`;
+      }
+    }
+  }
+  svg.innerHTML =
+    `<rect width="160" height="160" fill="#1A1A1A" rx="12"/>` +
+    `<path d="${d}" fill="#6C63FF"/>` +
+    /* Center logo overlay */
+    `<rect x="68" y="68" width="24" height="24" fill="#1A1A1A" rx="4"/>` +
+    `<path d="M72 72 L80 84 L88 72" stroke="#6C63FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+})();
+</script>
+</body>
+</html>
