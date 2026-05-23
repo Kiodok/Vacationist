@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, GoogleSignInButton } from '@vacationist/ui';
+import { colors } from '@vacationist/ui';
+import { GoogleAuthButton } from '../../auth/components/GoogleAuthButton';
 import { useGuestUpgrade } from '../../auth/hooks/useGuestUpgrade';
 
 interface GuestUpgradeSheetProps {
@@ -76,11 +77,10 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
             ) : (
               <View className="gap-md">
                 {/* Google Sign-In */}
-                <GoogleSignInButton
+                <GoogleAuthButton
                   onPress={upgradeWithGoogle}
                   loading={isPending}
                   disabled={isPending}
-                  logo={require('../../../../assets/images/google-g-logo.png')}
                 />
 
                 {/* Divider */}

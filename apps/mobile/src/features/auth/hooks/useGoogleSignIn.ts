@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import { signInWithGoogleIdToken } from '@vacationist/api';
 
 type GoogleSigninType =
@@ -10,7 +10,10 @@ type StatusCodesType =
 let GoogleSignin: GoogleSigninType | null = null;
 let statusCodes: StatusCodesType | null = null;
 
-if (Platform.OS !== 'web') {
+// Only require the native module when it is actually linked.
+// The GoogleSignin singleton constructor throws in __DEV__ if RNGoogleSignin is absent
+// (e.g. Expo Go). Dev-client, preview, and production builds always have it linked.
+if (Platform.OS !== 'web' && !!NativeModules.RNGoogleSignin) {
   const mod = require('@react-native-google-signin/google-signin');
   GoogleSignin = mod.GoogleSignin;
   statusCodes = mod.statusCodes;

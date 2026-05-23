@@ -3,10 +3,11 @@ import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { makeRedirectUri } from 'expo-auth-session';
 import { useRouter } from 'expo-router';
-import { Button, GoogleSignInButton, Input } from '@vacationist/ui';
+import { Button, Input } from '@vacationist/ui';
 import { signInWithMagicLink } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useGoogleSignIn } from '../../src/features/auth/hooks/useGoogleSignIn';
+import { GoogleAuthButton } from '../../src/features/auth/components/GoogleAuthButton';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -56,11 +57,10 @@ export default function LoginScreen() {
         </View>
 
         <View className="gap-md">
-          <GoogleSignInButton
+          <GoogleAuthButton
             onPress={handleGoogleSignIn}
             loading={googleLoading}
             disabled={magicLinkLoading}
-            logo={require('../../assets/images/google-g-logo.png')}
           />
 
           <View className="flex-row items-center gap-md my-sm">
