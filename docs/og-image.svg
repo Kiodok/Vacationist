@@ -1,0 +1,116 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <radialGradient id="bg-glow" cx="72%" cy="38%" r="55%">
+      <stop offset="0%" stop-color="#2a1f6e" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0F0F0F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="logo-grad" cx="42%" cy="38%" r="72%">
+      <stop offset="0%" stop-color="#2D1B69"/>
+      <stop offset="100%" stop-color="#09060F"/>
+    </radialGradient>
+    <clipPath id="clip-card">
+      <rect x="0" y="0" width="1200" height="630" rx="0"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0F0F0F"/>
+  <rect width="1200" height="630" fill="url(#bg-glow)"/>
+
+  <!-- Subtle grid -->
+  <g opacity="0.03">
+    <line x1="0" y1="44" x2="1200" y2="44" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="88" x2="1200" y2="88" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="132" x2="1200" y2="132" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="176" x2="1200" y2="176" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="220" x2="1200" y2="220" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="264" x2="1200" y2="264" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="308" x2="1200" y2="308" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="352" x2="1200" y2="352" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="396" x2="1200" y2="396" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="440" x2="1200" y2="440" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="484" x2="1200" y2="484" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="528" x2="1200" y2="528" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="572" x2="1200" y2="572" stroke="#fff" stroke-width="1"/>
+    <line x1="44" y1="0" x2="44" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="88" y1="0" x2="88" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="132" y1="0" x2="132" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="176" y1="0" x2="176" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="220" y1="0" x2="220" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="264" y1="0" x2="264" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="308" y1="0" x2="308" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="352" y1="0" x2="352" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="396" y1="0" x2="396" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="440" y1="0" x2="440" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="484" y1="0" x2="484" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="528" y1="0" x2="528" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="572" y1="0" x2="572" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="616" y1="0" x2="616" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="660" y1="0" x2="660" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="704" y1="0" x2="704" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="748" y1="0" x2="748" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="792" y1="0" x2="792" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="836" y1="0" x2="836" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="880" y1="0" x2="880" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="924" y1="0" x2="924" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="968" y1="0" x2="968" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="1012" y1="0" x2="1012" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="1056" y1="0" x2="1056" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="1100" y1="0" x2="1100" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="1144" y1="0" x2="1144" y2="630" stroke="#fff" stroke-width="1"/>
+  </g>
+
+  <!-- Logo mark -->
+  <g transform="translate(100, 220)">
+    <rect width="88" height="88" fill="url(#logo-grad)" rx="18"/>
+    <path d="M 18 18 L 44 62 L 70 18" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="44" cy="62" r="9" fill="#6C63FF"/>
+    <circle cx="44" cy="62" r="4" fill="#fff"/>
+  </g>
+
+  <!-- App name -->
+  <text x="212" y="271" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="48" font-weight="800" letter-spacing="-2" fill="#F2F2F2">Vacationist</text>
+
+  <!-- Tagline -->
+  <text x="100" y="360" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="64" font-weight="900" letter-spacing="-3" fill="#F2F2F2">Plan trips</text>
+  <text x="100" y="440" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="64" font-weight="900" letter-spacing="-3" fill="#6C63FF">together.</text>
+
+  <!-- Description -->
+  <text x="100" y="510" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="26" font-weight="400" fill="#A0A0A0">Vote on activities · Split expenses · Share lists in real time</text>
+
+  <!-- Feature pills right side -->
+  <g transform="translate(700, 160)">
+    <!-- Pill 1 -->
+    <rect width="380" height="72" rx="14" fill="#1A1A1A" stroke="#2E2E2E" stroke-width="1"/>
+    <text x="24" y="30" font-family="system-ui, sans-serif" font-size="22" fill="#F2F2F2">🗳️</text>
+    <text x="58" y="26" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#F2F2F2">Vote on activities</text>
+    <text x="58" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#A0A0A0">The group decides together</text>
+
+    <!-- Pill 2 -->
+    <rect y="84" width="380" height="72" rx="14" fill="#1A1A1A" stroke="#2E2E2E" stroke-width="1"/>
+    <text x="24" y="114" font-family="system-ui, sans-serif" font-size="22" fill="#F2F2F2">💸</text>
+    <text x="58" y="110" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#F2F2F2">Split expenses fairly</text>
+    <text x="58" y="132" font-family="system-ui, sans-serif" font-size="13" fill="#A0A0A0">Balances always up to date</text>
+
+    <!-- Pill 3 -->
+    <rect y="168" width="380" height="72" rx="14" fill="#1A1A1A" stroke="#2E2E2E" stroke-width="1"/>
+    <text x="24" y="198" font-family="system-ui, sans-serif" font-size="22" fill="#F2F2F2">🛒</text>
+    <text x="58" y="194" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#F2F2F2">Real-time shared lists</text>
+    <text x="58" y="216" font-family="system-ui, sans-serif" font-size="13" fill="#A0A0A0">Everyone in sync</text>
+
+    <!-- Pill 4 -->
+    <rect y="252" width="380" height="72" rx="14" fill="#1A1A1A" stroke="#2E2E2E" stroke-width="1"/>
+    <text x="24" y="282" font-family="system-ui, sans-serif" font-size="22" fill="#F2F2F2">🔒</text>
+    <text x="58" y="278" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#F2F2F2">Encrypted travel docs</text>
+    <text x="58" y="300" font-family="system-ui, sans-serif" font-size="13" fill="#A0A0A0">AES-256, biometric unlock</text>
+
+    <!-- Pill 5 -->
+    <rect y="336" width="380" height="72" rx="14" fill="rgba(108,99,255,0.12)" stroke="rgba(108,99,255,0.3)" stroke-width="1"/>
+    <text x="24" y="366" font-family="system-ui, sans-serif" font-size="22" fill="#F2F2F2">📱</text>
+    <text x="58" y="362" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#8A84FF">Free on Android</text>
+    <text x="58" y="384" font-family="system-ui, sans-serif" font-size="13" fill="#A0A0A0">iOS coming soon · vacationist.app</text>
+  </g>
+
+  <!-- Bottom domain -->
+  <text x="100" y="580" font-family="system-ui, sans-serif" font-size="20" font-weight="500" fill="#5C5C5C">vacationist.app</text>
+</svg>

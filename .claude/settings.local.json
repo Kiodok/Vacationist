@@ -84,7 +84,8 @@
       "Bash(grep -iE \"\\\\.\\(env|key|pem|p12|pfx|secret|credential|config\\\\.js\\)$|\\\\.env\\\\b\")",
       "Bash(grep -iE \"\\\\.env$\")",
       "Bash(find apps/mobile/src/features/transfers -name \"*.ts\" -o -name \"*.tsx\")",
-      "Bash(find apps/mobile/app -name \"transfer*\")"
+      "Bash(find apps/mobile/app -name \"transfer*\")",
+      "Bash(npx sharp-cli *)"
     ]
   },
   "model": "opusplan",

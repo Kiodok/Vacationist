@@ -6,8 +6,8 @@
 
 ### 📚 Source Material & Context
 To ensure architectural consistency, you must cross-reference these files (provided in this chat):
-1. **`software_engineering_guide.md`**: Your source of truth for tech stack standards, directory structures, naming conventions, and business logic.
-2. **`claude_implementation_plan.md`**: Our step-by-step roadmap.
+1. **`engineering/software_engineering_guide.md`**: Your source of truth for tech stack standards, directory structures, naming conventions, and business logic.
+2. **`engineering/implementation_guide.md`**: Our step-by-step roadmap.
 
 ---
 
