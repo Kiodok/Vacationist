@@ -80,6 +80,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
                   onPress={upgradeWithGoogle}
                   loading={isPending}
                   disabled={isPending}
+                  logo={require('../../../../assets/images/google-g-logo.png')}
                 />
 
                 {/* Divider */}

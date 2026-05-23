@@ -1,13 +1,13 @@
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ActivityIndicator, Image, ImageSourcePropType, Pressable, Text, View } from 'react-native';
 
 interface GoogleSignInButtonProps {
   onPress: () => void;
+  logo?: ImageSourcePropType;
   loading?: boolean;
   disabled?: boolean;
 }
 
-export function GoogleSignInButton({ onPress, loading = false, disabled = false }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({ onPress, logo, loading = false, disabled = false }: GoogleSignInButtonProps) {
   const isDisabled = disabled || loading;
 
   return (
@@ -33,7 +33,13 @@ export function GoogleSignInButton({ onPress, loading = false, disabled = false 
       ) : (
         <>
           <View style={{ width: 20, height: 20, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="logo-google" size={20} color="#FFFFFF" />
+            {logo ? (
+              <Image source={logo} style={{ width: 20, height: 20 }} resizeMode="contain" />
+            ) : (
+              // Replace with: logo={require('path/to/google-g-logo.png')}
+              // Download the official white Google G from https://developers.google.com/identity/branding-guidelines
+              <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>G</Text>
+            )}
           </View>
           <Text
             style={{

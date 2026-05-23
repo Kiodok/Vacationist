@@ -197,7 +197,7 @@ export default function SettingsTab() {
             <View className="flex-row gap-sm">
               <View className="flex-1">
                 <Button
-                  label="Request Document Access"
+                  label="Request Documents"
                   variant="secondary"
                   onPress={() => setRequestDocVisible(true)}
                   loading={createAccessRequest.isPending}

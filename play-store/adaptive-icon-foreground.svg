@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="-20 -20 552 552" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#6C63FF" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#6C63FF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Soft purple glow behind the pin -->
+  <ellipse cx="256" cy="362" rx="110" ry="90" fill="url(#glow)"/>
+
+  <!-- V shape -->
+  <path d="M 108 108 L 256 366 L 404 108"
+        stroke="#FFFFFF"
+        stroke-width="64"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        fill="none"/>
+
+  <!-- Map-pin at V tip: outer ring -->
+  <circle cx="256" cy="366" r="48" fill="#6C63FF"/>
+  <!-- Map-pin: inner white dot -->
+  <circle cx="256" cy="366" r="22" fill="#FFFFFF"/>
+</svg>

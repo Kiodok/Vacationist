@@ -60,6 +60,7 @@ export default function LoginScreen() {
             onPress={handleGoogleSignIn}
             loading={googleLoading}
             disabled={magicLinkLoading}
+            logo={require('../../assets/images/google-g-logo.png')}
           />
 
           <View className="flex-row items-center gap-md my-sm">

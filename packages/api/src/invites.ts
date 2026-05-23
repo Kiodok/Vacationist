@@ -1,3 +1,4 @@
+import * as ExpoCrypto from 'expo-crypto';
 import { supabase } from './client';
 import type { InviteToken, CreateInviteInput, InviteExpiry } from '@vacationist/types';
 
@@ -19,7 +20,7 @@ export async function createInviteToken(
   if (!session?.user) throw new Error('Not authenticated');
   const user = session.user;
 
-  const token = crypto.randomUUID();
+  const token = ExpoCrypto.randomUUID();
 
   const { data, error } = await supabase
     .from('invite_tokens')
