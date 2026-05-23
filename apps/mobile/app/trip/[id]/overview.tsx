@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs, formatCurrency } from '@vacationist/utils';
@@ -8,6 +8,7 @@ import { useTrip, useUpdateTrip } from '../../../src/features/trips/hooks/useTri
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { MemberAvatarGroup } from '../../../src/features/trips/components/MemberAvatarGroup';
 import { EditTripSheet } from '../../../src/features/trips/components/EditTripSheet';
+import { colors } from '@vacationist/ui';
 
 export default function OverviewTab() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -54,26 +55,32 @@ export default function OverviewTab() {
 
         {/* Quick stats */}
         <View className="flex-row gap-sm">
-          <View className="flex-1 bg-surface border border-border rounded-md p-md items-center">
-            <Ionicons name="calendar-outline" size={20} color="#A0A0A0" />
-            <Text className="text-heading-m text-text-primary mt-xs">{duration}</Text>
+          <View className="flex-1 bg-surface border border-border rounded-md p-md items-center gap-xs">
+            <View style={styles.iconBadgeSuccess}>
+              <Ionicons name="calendar-outline" size={20} color={colors.success} />
+            </View>
+            <Text className="text-heading-m text-text-primary">{duration}</Text>
             <Text className="text-body-small text-text-secondary">
               {duration === 1 ? 'Day' : 'Days'}
             </Text>
           </View>
 
-          <View className="flex-1 bg-surface border border-border rounded-md p-md items-center">
-            <Ionicons name="people-outline" size={20} color="#A0A0A0" />
-            <Text className="text-heading-m text-text-primary mt-xs">
+          <View className="flex-1 bg-surface border border-border rounded-md p-md items-center gap-xs">
+            <View style={styles.iconBadgePrimary}>
+              <Ionicons name="people-outline" size={20} color={colors.primary} />
+            </View>
+            <Text className="text-heading-m text-text-primary">
               {trip.member_count}
             </Text>
             <Text className="text-body-small text-text-secondary">Members</Text>
           </View>
 
           {trip.budget_per_person != null && (
-            <View className="flex-1 bg-surface border border-border rounded-md p-md items-center">
-              <Ionicons name="wallet-outline" size={20} color="#A0A0A0" />
-              <Text className="text-heading-m text-text-primary mt-xs">
+            <View className="flex-1 bg-surface border border-border rounded-md p-md items-center gap-xs">
+              <View style={styles.iconBadgeWarning}>
+                <Ionicons name="wallet-outline" size={20} color={colors.warning} />
+              </View>
+              <Text className="text-heading-m text-text-primary">
                 {formatCurrency(trip.budget_per_person, trip.base_currency)}
               </Text>
               <Text className="text-body-small text-text-secondary">Budget/person</Text>
@@ -128,3 +135,24 @@ export default function OverviewTab() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  iconBadgePrimary: {
+    width: 40, height: 40, borderRadius: 10,
+    backgroundColor: 'rgba(108,99,255,0.1)',
+    borderWidth: 1, borderColor: 'rgba(108,99,255,0.2)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  iconBadgeSuccess: {
+    width: 40, height: 40, borderRadius: 10,
+    backgroundColor: 'rgba(62,207,142,0.1)',
+    borderWidth: 1, borderColor: 'rgba(62,207,142,0.2)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  iconBadgeWarning: {
+    width: 40, height: 40, borderRadius: 10,
+    backgroundColor: 'rgba(245,166,35,0.1)',
+    borderWidth: 1, borderColor: 'rgba(245,166,35,0.2)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+});

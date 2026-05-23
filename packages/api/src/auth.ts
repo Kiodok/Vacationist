@@ -81,12 +81,10 @@ export async function linkGuestWithGoogle(idToken: string) {
 export async function linkGuestWithMagicLink(email: string, redirectTo: string) {
   // updateUser adds an email identity to the currently signed-in anonymous
   // user. The UUID is preserved so all existing trip data stays intact.
-  const { data, error } = await supabase.auth.updateUser({
-    email,
-    options: {
-      emailRedirectTo: redirectTo,
-    },
-  });
+  const { data, error } = await supabase.auth.updateUser(
+    { email },
+    { emailRedirectTo: redirectTo },
+  );
   if (error) throw error;
   return data;
 }

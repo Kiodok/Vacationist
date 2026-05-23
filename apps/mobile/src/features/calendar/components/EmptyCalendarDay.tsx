@@ -12,7 +12,9 @@ interface EmptyCalendarDayProps {
 export function EmptyCalendarDay({ date, timezone }: EmptyCalendarDayProps) {
   return (
     <View className="flex-1 items-center justify-center px-xl gap-md py-xl">
-      <Ionicons name="calendar-clear-outline" size={48} color={colors.primary} />
+      <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
+        <Ionicons name="calendar-clear-outline" size={36} color={colors.success} />
+      </View>
       <Text className="text-heading-m text-text-primary text-center">No activities</Text>
       <Text className="text-body-small text-text-secondary text-center">
         Nothing planned for {dayjs.tz(date, timezone).format('dddd, D MMMM')}

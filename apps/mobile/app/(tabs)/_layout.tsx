@@ -4,6 +4,8 @@ import { useUnreadCount } from '../../src/features/notifications/hooks/useUnread
 import { useNotificationsRealtime } from '../../src/features/notifications/hooks/useNotifications';
 import { colors } from '@vacationist/ui';
 
+const INACTIVE = '#5C5C5C';
+
 export default function TabLayout() {
   const { data: unreadCount = 0 } = useUnreadCount();
   useNotificationsRealtime();
@@ -16,16 +18,20 @@ export default function TabLayout() {
           backgroundColor: '#0F0F0F',
           borderTopColor: '#2E2E2E',
         },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: '#5C5C5C',
+        tabBarInactiveTintColor: INACTIVE,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Trips',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="airplane-outline" size={size} color={color} />
+          tabBarActiveTintColor: colors.primary,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? 'airplane' : 'airplane-outline'}
+              size={24}
+              color={focused ? colors.primary : INACTIVE}
+            />
           ),
         }}
       />
@@ -33,17 +39,27 @@ export default function TabLayout() {
         name="calendar"
         options={{
           title: 'Calendar',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+          tabBarActiveTintColor: colors.success,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? 'calendar' : 'calendar-outline'}
+              size={24}
+              color={focused ? colors.success : INACTIVE}
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="notifications"
         options={{
-          title: 'Notifications',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="notifications-outline" size={size} color={color} />
+          title: 'Alerts',
+          tabBarActiveTintColor: colors.warning,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? 'notifications' : 'notifications-outline'}
+              size={24}
+              color={focused ? colors.warning : INACTIVE}
+            />
           ),
           tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
           tabBarBadgeStyle: { backgroundColor: colors.danger, fontSize: 10 },
@@ -53,8 +69,13 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+          tabBarActiveTintColor: colors.primaryLight,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? 'person' : 'person-outline'}
+              size={24}
+              color={focused ? colors.primaryLight : INACTIVE}
+            />
           ),
         }}
       />

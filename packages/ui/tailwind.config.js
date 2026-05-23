@@ -20,8 +20,14 @@ module.exports = {
           light: '#8A84FF',
           muted: 'rgba(108, 99, 255, 0.1)',
         },
-        success: '#3ECF8E',
-        warning: '#F5A623',
+        success: {
+          DEFAULT: '#3ECF8E',
+          muted: 'rgba(62, 207, 142, 0.1)',
+        },
+        warning: {
+          DEFAULT: '#F5A623',
+          muted: 'rgba(245, 166, 35, 0.1)',
+        },
         danger: '#FF5C5C',
         'text-primary': '#F2F2F2',
         'text-secondary': '#A0A0A0',

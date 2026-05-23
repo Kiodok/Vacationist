@@ -58,7 +58,6 @@ export default function AccommodationsTab() {
       <FlashList
         data={accommodations}
         keyExtractor={(item) => item.id}
-        estimatedItemSize={200}
         contentContainerStyle={
           accommodations?.length === 0
             ? { flex: 1, paddingHorizontal: 16, paddingVertical: 16 }

@@ -9,6 +9,6 @@
     "declaration": true,
     "jsx": "react-jsx"
   },
-  "exclude": ["**/dist", "**/node_modules"],
+  "exclude": ["**/dist", "**/node_modules", "supabase/functions"],
   "extends": "expo/tsconfig.base"
 }

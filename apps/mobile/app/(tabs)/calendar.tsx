@@ -143,7 +143,9 @@ export default function GlobalCalendarScreen() {
   if (!trips || trips.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-xl gap-md">
-        <Ionicons name="calendar-outline" size={48} color="#5C5C5C" />
+        <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
+          <Ionicons name="calendar-outline" size={36} color={colors.success} />
+        </View>
         <Text className="text-heading-m text-text-primary text-center">No trips yet</Text>
         <Text className="text-body-small text-text-secondary text-center">
           Create a trip to see your activities on the calendar.
@@ -176,7 +178,9 @@ export default function GlobalCalendarScreen() {
 
           {tripsForSelectedDate.length === 0 ? (
             <View className="flex-1 items-center justify-center px-xl gap-md py-xl">
-              <Ionicons name="calendar-clear-outline" size={48} color="#5C5C5C" />
+              <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
+                <Ionicons name="calendar-clear-outline" size={36} color={colors.success} />
+              </View>
               <Text className="text-heading-m text-text-primary text-center">No activities</Text>
               <Text className="text-body-small text-text-secondary text-center">
                 Nothing planned for {dayjs(selectedDate).format('dddd, D MMMM')}
