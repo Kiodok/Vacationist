@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vacationist — Plan trips together</title>
+  <meta name="description" content="The collaborative trip-planning app for groups. Vote on activities, split expenses, share notes and lists — all in one place.">
+  <meta property="og:title"       content="Vacationist — Plan trips together">
+  <meta property="og:description" content="Vote on activities, split expenses, share notes and lists — all in one place.">
+  <meta property="og:url"         content="https://kiodok.github.io/Vacationist/home.html">
+  <meta property="og:type"        content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0F0F0F;
+      --surface: #1A1A1A;
+      --border:  #2E2E2E;
+      --primary: #6C63FF;
+      --primary-dim: rgba(108,99,255,0.12);
+      --primary-glow: rgba(108,99,255,0.25);
+      --text:    #FFFFFF;
+      --text-2:  #C9C9C9;
+      --text-3:  #9CA3AF;
+      --text-4:  #6B7280;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Nav ─── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      height: 64px;
+      background: rgba(15,15,15,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--text);
+      font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em;
+    }
+
+    .nav-icon {
+      width: 30px; height: 30px;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+
+    .nav-links a {
+      text-decoration: none; color: var(--text-3);
+      font-size: 0.875rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--primary) !important;
+      color: #fff !important;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-weight: 600 !important;
+      font-size: 0.85rem !important;
+      transition: opacity 0.2s !important;
+    }
+    .nav-cta:hover { opacity: 0.85 !important; }
+
+    @media (max-width: 600px) {
+      .nav-links { gap: 1rem; }
+      .nav-links a:not(.nav-cta) { display: none; }
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 3rem;
+      padding: clamp(4rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+      min-height: 90vh;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute; top: -20%; right: -10%;
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(108,99,255,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-text { flex: 1; max-width: 540px; position: relative; z-index: 1; }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--primary-dim);
+      border: 1px solid rgba(108,99,255,0.3);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 0.78rem; font-weight: 600; color: var(--primary);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 span { color: var(--primary); }
+
+    .hero-sub {
+      font-size: 1.1rem; line-height: 1.65;
+      color: var(--text-2);
+      margin-bottom: 2.25rem;
+      max-width: 460px;
+    }
+
+    .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+    .btn-play {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #FFFFFF; color: #0F0F0F;
+      padding: 0.75rem 1.5rem; border-radius: 10px;
+      text-decoration: none; font-weight: 700; font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .btn-play:hover { opacity: 0.88; }
+
+    .btn-play svg { flex-shrink: 0; }
+
+    .hero-note {
+      font-size: 0.8rem; color: var(--text-4);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .hero-note::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #22C55E; flex-shrink: 0;
+    }
+
+    /* ─── Phone mockup ─── */
+    .hero-visual {
+      flex-shrink: 0; position: relative; z-index: 1;
+    }
+
+    @media (max-width: 900px) { .hero-visual { display: none; } }
+
+    .phone {
+      width: 240px; height: 490px;
+      background: #111118;
+      border-radius: 36px;
+      border: 2px solid #2A2A3A;
+      box-shadow:
+        0 0 0 1px rgba(108,99,255,0.15),
+        0 40px 80px rgba(0,0,0,0.6),
+        0 0 60px rgba(108,99,255,0.12);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone::before {
+      content: '';
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      width: 70px; height: 5px; background: #2A2A3A;
+      border-radius: 3px; z-index: 2;
+    }
+
+    .phone-screen {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      background: #0F0F0F;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .ps-statusbar {
+      height: 30px; padding: 0 16px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding-bottom: 4px;
+    }
+    .ps-time { font-size: 9px; font-weight: 600; color: white; }
+
+    .ps-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px 6px;
+    }
+    .ps-title { font-size: 14px; font-weight: 700; color: white; }
+    .ps-bell {
+      width: 24px; height: 24px; border-radius: 12px;
+      background: #1A1A1A; border: 1px solid #2E2E2E;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+    }
+
+    .ps-trip {
+      margin: 4px 12px 6px;
+      background: #1A1A1A; border: 1px solid #2E2E2E;
+      border-radius: 10px; overflow: hidden;
+    }
+    .ps-trip-banner {
+      height: 52px;
+      display: flex; align-items: flex-end; padding: 6px 10px;
+    }
+    .ps-trip-flag { font-size: 14px; }
+    .ps-trip-body { padding: 8px 10px 10px; }
+    .ps-trip-name { font-size: 11px; font-weight: 600; color: white; margin-bottom: 2px; }
+    .ps-trip-dates { font-size: 9px; color: #9CA3AF; margin-bottom: 7px; }
+    .ps-trip-meta { display: flex; align-items: center; justify-content: space-between; }
+    .ps-avatars { display: flex; }
+    .ps-av {
+      width: 16px; height: 16px; border-radius: 8px;
+      border: 1.5px solid #1A1A1A;
+      margin-left: -4px; font-size: 6px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+    }
+    .ps-av:first-child { margin-left: 0; }
+    .ps-badge {
+      font-size: 7px; font-weight: 600; color: var(--primary);
+      background: var(--primary-dim);
+      border-radius: 6px; padding: 2px 5px;
+    }
+
+    .ps-tabbar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 54px; background: #1A1A1A;
+      border-top: 1px solid #2E2E2E;
+      display: flex;
+    }
+    .ps-tab {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2px; padding-bottom: 10px;
+      font-size: 7px; color: #6B7280;
+    }
+    .ps-tab.active { color: var(--primary); }
+    .ps-tab-icon { font-size: 14px; }
+
+    /* ─── Section base ─── */
+    .section {
+      padding: clamp(4rem, 7vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+    }
+
+    .section-label {
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      font-weight: 800; letter-spacing: -0.03em;
+      color: var(--text); margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      font-size: 1.05rem; color: var(--text-2);
+      max-width: 520px; line-height: 1.65;
+    }
+
+    .section-head { margin-bottom: 3rem; }
+
+    /* ─── Features ─── */
+    .features { background: #080808; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .feature-card:hover {
+      border-color: rgba(108,99,255,0.4);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--primary-dim); border: 1px solid rgba(108,99,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 1rem;
+    }
+
+    .feature-title {
+      font-size: 1rem; font-weight: 700;
+      color: var(--text); margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+      font-size: 0.9rem; color: var(--text-3); line-height: 1.6;
+    }
+
+    /* ─── How it works ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute; top: 22px; left: 0; right: 0;
+      height: 1px; background: var(--border);
+      z-index: 0;
+    }
+
+    @media (max-width: 700px) { .steps::before { display: none; } }
+
+    .step {
+      position: relative; z-index: 1;
+      padding: 0 2rem 0 0;
+    }
+
+    @media (max-width: 700px) {
+      .step { padding: 0 0 2rem 0; }
+    }
+
+    .step-num {
+      width: 44px; height: 44px; border-radius: 22px;
+      background: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 800; color: white;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-title {
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--text); margin-bottom: 0.5rem;
+    }
+
+    .step-desc {
+      font-size: 0.9rem; color: var(--text-3); line-height: 1.6;
+    }
+
+    /* ─── Trust strip ─── */
+    .trust {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: #080808;
+    }
+
+    .trust-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 2.5rem;
+      padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 4rem);
+    }
+
+    .trust-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.9rem; color: var(--text-2); font-weight: 500;
+    }
+
+    .trust-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--primary-dim); border: 1px solid rgba(108,99,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+
+    /* ─── CTA band ─── */
+    .cta-band {
+      text-align: center;
+      padding: clamp(4rem, 7vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+    }
+
+    .cta-band h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      font-weight: 800; letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .cta-band p {
+      font-size: 1.05rem; color: var(--text-2);
+      margin-bottom: 2rem;
+    }
+
+    .cta-band .btn-play {
+      display: inline-flex;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem clamp(1.5rem, 5vw, 4rem);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+      font-size: 0.825rem; color: var(--text-4);
+    }
+
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { color: var(--text-4); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text-2); }
+
+    /* ─── Divider ─── */
+    .divider {
+      height: 1px; background: var(--border);
+      margin: 0 clamp(1.5rem, 5vw, 4rem);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Nav ─── -->
+<nav>
+  <a class="nav-logo" href="home.html">
+    <svg class="nav-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="nb" cx="42%" cy="38%" r="72%">
+          <stop offset="0%" stop-color="#2D1B69"/>
+          <stop offset="100%" stop-color="#09060F"/>
+        </radialGradient>
+      </defs>
+      <rect width="512" height="512" fill="url(#nb)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/>
+      <circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="privacy-policy.html">Privacy</a>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta">Get the app</a>
+  </div>
+</nav>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-eyebrow">✈ Group travel, simplified</div>
+    <h1>Plan trips<br><span>together</span>,<br>effortlessly.</h1>
+    <p class="hero-sub">
+      Suggest activities, vote as a group, split expenses fairly, and keep everyone in the loop — from the first idea to the last flight home.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-play" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile">
+        <svg width="20" height="22" viewBox="0 0 20 22" fill="none">
+          <path d="M1 1.5L11 11L1 20.5" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M1 1.5L18 11L1 20.5" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="black"/>
+        </svg>
+        Get it on Google Play
+      </a>
+      <span class="hero-note">Free · No ads · No account needed to join</span>
+    </div>
+  </div>
+
+  <!-- Phone mockup -->
+  <div class="hero-visual">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="ps-statusbar">
+          <span class="ps-time">9:41</span>
+          <span style="font-size:8px; color:white; opacity:0.7;">▲▲ ⬛</span>
+        </div>
+        <div class="ps-header">
+          <span class="ps-title">My Trips</span>
+          <div class="ps-bell">🔔</div>
+        </div>
+        <div style="font-size:8px; color:#6B7280; padding: 2px 14px 6px; text-transform:uppercase; letter-spacing:0.06em;">Upcoming</div>
+
+        <!-- Trip card 1 -->
+        <div class="ps-trip">
+          <div class="ps-trip-banner" style="background: linear-gradient(135deg,#1a3a5c,#0d2035);">
+            <span class="ps-trip-flag">🇵🇹</span>
+          </div>
+          <div class="ps-trip-body">
+            <div class="ps-trip-name">Summer in Portugal</div>
+            <div class="ps-trip-dates">Jul 12 – 19 · 4 members</div>
+            <div class="ps-trip-meta">
+              <div class="ps-avatars">
+                <div class="ps-av" style="background:#6C63FF;">G</div>
+                <div class="ps-av" style="background:#EC4899;">M</div>
+                <div class="ps-av" style="background:#F59E0B;">J</div>
+                <div class="ps-av" style="background:#10B981;">A</div>
+              </div>
+              <div class="ps-badge">Organiser</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trip card 2 -->
+        <div class="ps-trip">
+          <div class="ps-trip-banner" style="background: linear-gradient(135deg,#1c2e40,#0d1820);">
+            <span class="ps-trip-flag">🎿</span>
+          </div>
+          <div class="ps-trip-body">
+            <div class="ps-trip-name">Alpine Ski Week</div>
+            <div class="ps-trip-dates">Feb 3 – 10 · 3 members</div>
+            <div class="ps-trip-meta">
+              <div class="ps-avatars">
+                <div class="ps-av" style="background:#6C63FF;">G</div>
+                <div class="ps-av" style="background:#3B82F6;">T</div>
+                <div class="ps-av" style="background:#EC4899;">S</div>
+              </div>
+              <div class="ps-badge">5 activities</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAB -->
+        <div style="position:absolute; bottom:62px; right:12px; width:34px; height:34px; border-radius:17px; background:#6C63FF; display:flex; align-items:center; justify-content:center; font-size:18px; color:white; box-shadow:0 3px 12px rgba(108,99,255,0.5);">+</div>
+
+        <!-- Tab bar -->
+        <div class="ps-tabbar">
+          <div class="ps-tab active"><div class="ps-tab-icon">🏠</div>Trips</div>
+          <div class="ps-tab"><div class="ps-tab-icon">🌍</div>Explore</div>
+          <div class="ps-tab"><div class="ps-tab-icon">🔔</div>Alerts</div>
+          <div class="ps-tab"><div class="ps-tab-icon">👤</div>Profile</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Features ─── -->
+<section class="section features" id="features">
+  <div class="section-head">
+    <div class="section-label">What's inside</div>
+    <h2 class="section-title">Everything your group needs,<br>nothing it doesn't.</h2>
+    <p class="section-sub">Built for real trips with real people — messy schedules, split opinions, and all.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🗳️</div>
+      <div class="feature-title">Vote on activities</div>
+      <div class="feature-desc">Suggest what to do and let the group decide. Thumbs up, thumbs down, or block an idea entirely. The group's favourites rise to the top — no more endless polls.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💸</div>
+      <div class="feature-title">Split expenses fairly</div>
+      <div class="feature-desc">Log every cost, choose who paid, and split equally, by percentage, or as fixed amounts. Built-in balances always show exactly who owes what.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛒</div>
+      <div class="feature-title">Real-time shared lists</div>
+      <div class="feature-desc">Shopping lists, packing lists, whatever you need. Everyone can add and check off items simultaneously — great for groceries, gifts, and gear runs.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📝</div>
+      <div class="feature-title">Group notes</div>
+      <div class="feature-desc">A living notepad shared with the whole trip. Addresses, local tips, phone numbers — everything the group needs, always at hand.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <div class="feature-title">Encrypted travel documents</div>
+      <div class="feature-desc">Store your passport or ID card behind biometric authentication. End-to-end encrypted — we can't read it. Share temporary access to a travel companion, revoke any time.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <div class="feature-title">Invite by link</div>
+      <div class="feature-desc">Share one link and your crew is in. Guests can vote and view the trip right away — no account sign-up required to join.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── How it works ─── -->
+<section class="section" id="how">
+  <div class="section-head">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Ready in three steps.</h2>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Create a trip</div>
+      <div class="step-desc">Set the destination, pick your dates, and you're off. Takes about thirty seconds.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Invite your crew</div>
+      <div class="step-desc">Share a link in any chat. Friends join instantly — no account required to participate.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Plan together</div>
+      <div class="step-desc">Vote on ideas, split costs, share notes. Everyone stays in the loop, in real time.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── Trust strip ─── -->
+<div class="trust">
+  <div class="trust-inner">
+    <div class="trust-item">
+      <div class="trust-icon">🔒</div>
+      AES-256 encrypted documents
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🚫</div>
+      No ads, no tracking
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🇨🇭</div>
+      Built in Switzerland
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🆓</div>
+      Free to use
+    </div>
+  </div>
+</div>
+
+<!-- ─── CTA ─── -->
+<section class="cta-band">
+  <h2>Your next trip is waiting.</h2>
+  <p>Download Vacationist and start planning together.</p>
+  <a class="btn-play" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile">
+    <svg width="20" height="22" viewBox="0 0 20 22" fill="none">
+      <path d="M1 1.5L18 11L1 20.5" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="black"/>
+    </svg>
+    Get it on Google Play
+  </a>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+  <span>© 2026 Vacationist · Gary Lude, Switzerland</span>
+  <div class="footer-links">
+    <a href="privacy-policy.html">Privacy Policy</a>
+    <a href="terms-of-service.html">Terms of Service</a>
+    <a href="mailto:meetdeep.de@gmail.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
