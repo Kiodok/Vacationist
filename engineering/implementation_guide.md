@@ -740,3 +740,114 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 - The Resend DKIM/SPF records for custom email domain also go here when configured.
 
 **Note:** Firebase App Hosting removed from scope — GitHub Pages is sufficient for a static marketing site. A web app (React Native Web or Next.js) can be added to `apps/web/` in a future phase if needed.
+
+---
+
+## 💳 Phase 11: Monetization — Pro Organizer Subscription
+*Dependencies: Phase 9 (Polish & Hardening)*
+*Goal: Freemium model where trip organizers can subscribe to Pro for unlimited trips. Participants always join for free.*
+*Trigger: Ship when MAU reaches ~500. The entire phase is one day of work.*
+
+**Model:** Free tier = 2 active trips as organizer. Pro (~€3.99/mo or €29.99/yr) = unlimited trips as organizer. Participants joining via invite link are always free. No feature cuts — only a creation limit gate.
+
+**Payment stack:** RevenueCat (`react-native-purchases`) wraps Google Play Billing. You never handle card data. RevenueCat free tier covers up to $2,500 MRR. Google takes 15% (reduced rate, Developer Program). RevenueCat webhooks update Supabase when subscription status changes.
+
+- [ ] **1. DB/RLS & Types**
+
+  **Migration — `YYYYMMDDHHMMSS_add_pro_status_to_users.sql`**
+
+  - [ ] `ALTER TABLE public.users ADD COLUMN is_pro BOOLEAN NOT NULL DEFAULT FALSE`
+  - [ ] Index on `(id, is_pro)` for fast paywall checks
+  - [ ] `update_user_pro_status(p_user_id UUID, p_is_pro BOOLEAN)` SECURITY DEFINER RPC — called by the webhook Edge Function only; validates caller is `service_role`
+  - [ ] RLS: no change — `is_pro` is readable by the owner via existing users SELECT policy; write locked to the RPC
+
+  **Types (`packages/types/`)**
+
+  - [ ] Add `is_pro: boolean` to the `User` interface in `packages/types/src/database.ts`
+  - [ ] Add `PRO_TRIP_LIMIT = 2` constant to `packages/types/src/constants.ts` (free tier cap)
+
+- [ ] **2. Services & Hooks**
+
+  **Edge Function: `supabase/functions/revenue-cat-webhook/index.ts`**
+
+  - [ ] Validate RevenueCat webhook `Authorization` header (shared secret stored in Vault, same pattern as push-notification function)
+  - [ ] Handle events: `INITIAL_PURCHASE`, `RENEWAL`, `PRODUCT_CHANGE` → set `is_pro = TRUE`
+  - [ ] Handle events: `CANCELLATION`, `EXPIRATION`, `BILLING_ISSUE` → set `is_pro = FALSE`
+  - [ ] Call `update_user_pro_status(p_user_id, p_is_pro)` RPC
+  - [ ] Return `200` on success, `400` on unknown event (do not return `500` — RevenueCat retries on 5xx)
+  - [ ] Store RevenueCat webhook secret in Vault via `vault.create_secret()` (same pattern as push-notification keys)
+
+  **`packages/api/src/subscriptions.ts`** (new file)
+
+  - [ ] `getOrganizedTripsCount(userId)` — counts `trip_members` rows where `user_id = userId AND role = 'organizer'` and trip is not soft-deleted; used for free tier gate
+  - [ ] `initRevenueCat(userId)` — calls `Purchases.configure({ apiKey, appUserID: userId })`; call once after session is confirmed in `_layout.tsx`
+  - [ ] `getProEntitlement()` — returns current entitlement info from RevenueCat SDK (source of truth for paywall UI; do not rely solely on `is_pro` in DB for real-time gating)
+  - [ ] `purchasePro()` — calls `Purchases.purchasePackage()`; returns updated `CustomerInfo`
+  - [ ] `restorePurchases()` — calls `Purchases.restorePurchases()`; updates local state
+  - [ ] All exported from `packages/api/src/index.ts`
+
+  **Hooks (`apps/mobile/src/features/subscription/hooks/`)**
+
+  - [ ] `useProStatus.ts` — `useQuery` on `getProEntitlement()` from RevenueCat SDK; query key `['proStatus']`; `staleTime: 60_000` (1 min); returns `{ isPro: boolean, isLoading }`
+  - [ ] `useOrganizedTripsCount.ts` — `useQuery` on `getOrganizedTripsCount`; query key `['organizedTripsCount']`; used to decide whether to show paywall before trip creation
+  - [ ] `usePurchasePro.ts` — `useMutation` wrapping `purchasePro()`; on success: invalidates `['proStatus']` and `authStore.setUser({ is_pro: true })`; on error: shows toast with human-readable error (handle `PURCHASE_CANCELLED` silently — user dismissed, no toast)
+  - [ ] `useRestorePurchases.ts` — `useMutation` wrapping `restorePurchases()`; success toast "Purchases restored"; invalidates `['proStatus']`
+
+- [ ] **3. Components & Screens**
+
+  **`apps/mobile/src/features/subscription/components/PaywallSheet.tsx`**
+
+  - [ ] Bottom sheet (reuse existing `BottomSheet` primitive); triggered when free organizer hits the 2-trip limit
+  - [ ] Header: app icon + "Upgrade to Pro" title
+  - [ ] Value props list (3 bullets): "Unlimited trips", "Be the organizer for every adventure", "Support solo development"
+  - [ ] Price display: monthly + annual option (annual highlighted as "Best value"); fetched from RevenueCat `getOfferings()`
+  - [ ] "Continue with Annual" primary button → `usePurchasePro`
+  - [ ] "Monthly" secondary button → `usePurchasePro`
+  - [ ] "Restore Purchases" ghost button → `useRestorePurchases`
+  - [ ] Legal footnote: subscription auto-renews, cancel anytime via Play Store
+  - [ ] `isPending` guards on both purchase buttons
+
+  **`apps/mobile/src/features/subscription/components/ProBadge.tsx`**
+
+  - [ ] Small pill badge (`bg-primary/20 text-primary`) showing "Pro" — displayed next to the user's name on the profile screen when `isPro === true`
+
+  **`apps/mobile/src/features/subscription/components/ManageSubscriptionRow.tsx`**
+
+  - [ ] Tappable row on the profile screen (visible to Pro users only); opens Play Store subscription management via `Linking.openURL('https://play.google.com/store/account/subscriptions')`
+
+  **Trip creation gate (modify existing flow)**
+
+  - [ ] In the "Create Trip" handler (wherever `useCreateTrip` is called): before opening the create sheet, check `!isPro && organizedTripsCount >= PRO_TRIP_LIMIT`
+  - [ ] If limit reached: open `PaywallSheet` instead of `CreateTripSheet`
+  - [ ] If not reached: proceed as normal
+
+  **Profile screen (`apps/mobile/app/(tabs)/profile.tsx`) — additions**
+
+  - [ ] Show `<ProBadge />` next to the user's name when `isPro`
+  - [ ] Add "Upgrade to Pro" primary button when `!isPro` (opens `PaywallSheet`)
+  - [ ] Add `<ManageSubscriptionRow />` when `isPro`
+
+  **Root layout (`apps/mobile/app/_layout.tsx`) — additions**
+
+  - [ ] Call `initRevenueCat(userId)` after `hasSession && userId` confirmed (same location as push token registration)
+
+- [ ] **4. RevenueCat + Play Console Setup** *(manual steps, not code)*
+
+  - [ ] Create RevenueCat account → new project → link Google Play app (`com.vacationist.mobile`)
+  - [ ] Upload Play Store service account JSON to RevenueCat (same `play-store-service-account.json`)
+  - [ ] Create products in Play Console: `vacationist_pro_monthly` (€3.99/mo), `vacationist_pro_annual` (€29.99/yr)
+  - [ ] Create RevenueCat Offering named `"default"` with both products as packages
+  - [ ] Configure RevenueCat webhook → Supabase Edge Function URL (`https://fsfsqghbejwvgxujoyne.supabase.co/functions/v1/revenue-cat-webhook`) with shared secret
+  - [ ] Store RevenueCat public SDK key in `EXPO_PUBLIC_REVENUECAT_API_KEY` env var
+
+- [ ] **5. Legal & Privacy updates**
+
+  - [ ] Update `docs/privacy-policy.html` — add section on subscription data (RevenueCat processes purchase data; no card data stored by Vacationist)
+  - [ ] Update `docs/terms-of-service.html` — add subscription terms (auto-renewal, cancellation, refund policy per Google Play policy)
+  - [ ] Update Play Store listing — add subscription pricing to the description; ensure in-app purchases are declared in Play Console content rating
+
+**Key implementation rules:**
+- RevenueCat SDK is the source of truth for `isPro` in the UI. The `is_pro` DB column is updated by the webhook and used for server-side logic only.
+- Never block a participant from joining a trip based on `is_pro`. The gate is only on trip *creation* as organizer.
+- `PURCHASE_CANCELLED` errors must be swallowed silently — the user dismissed the payment sheet, no toast.
+- Do not add a `is_pro` check to any RLS policy — the trip limit is enforced at the application layer only (a determined attacker could bypass it, but this is acceptable for a soft limit on a planning app).
