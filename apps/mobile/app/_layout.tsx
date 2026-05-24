@@ -2,7 +2,7 @@ import '../global.css';
 import * as Sentry from '@sentry/react-native';
 import { initSentry } from '../src/utils/sentry';
 import { useEffect, useRef } from 'react';
-import { AppState, Platform } from 'react-native';
+import { Appearance, AppState, Platform, useColorScheme as useRNColorScheme } from 'react-native';
 import { checkForUpdate } from '../src/utils/updateChecker';
 
 initSentry();
@@ -25,7 +25,12 @@ import { usePushNotificationHandler } from '../src/features/notifications/hooks/
 import { useOnlineManager } from '../src/hooks/useOnlineManager';
 import { OfflineBanner } from '../src/components/OfflineBanner';
 import { useThemeStore } from '../src/stores/themeStore';
-import { useColorScheme } from 'nativewind';
+// Direct access to NativeWind's internal color scheme observable (react-native-css-interop@0.2.3).
+// Android's Appearance.setColorScheme does not reliably fire addChangeListener
+// (AppCompatDelegate.setDefaultNightMode doesn't always trigger a JS config-change event),
+// so we update the observable directly to guarantee immediate UI response.
+// If react-native-css-interop is upgraded and this import breaks, update the path in this one place.
+import { systemColorScheme } from 'react-native-css-interop/dist/runtime/native/appearance-observables';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -179,10 +184,21 @@ function AuthGate() {
 
 function ThemeController() {
   const theme = useThemeStore((s) => s.theme);
-  const { setColorScheme } = useColorScheme();
+  // React Native's own hook — reliably updates when OS theme changes
+  const rnScheme = useRNColorScheme();
+
   useEffect(() => {
-    setColorScheme(theme);
-  }, [theme, setColorScheme]);
+    const effective: 'light' | 'dark' = theme === 'system' ? (rnScheme === 'dark' ? 'dark' : 'light') : theme;
+    // Push the resolved scheme straight into NativeWind's observable so all dark: variants
+    // and CSS variable observers update synchronously, bypassing Android's unreliable
+    // Appearance.addChangeListener path.
+    systemColorScheme.set(effective);
+    // Also persist the preference at the OS level so StatusBar style="auto" and the
+    // AppState-active fallback listener in react-native-css-interop stay consistent.
+    // RN 0.83 uses 'unspecified' (not null) to mean "follow OS".
+    Appearance.setColorScheme(theme === 'system' ? 'unspecified' : theme);
+  }, [theme, rnScheme]);
+
   return null;
 }
 

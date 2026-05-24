@@ -15,7 +15,7 @@ function loadPersistedTheme(): ThemePreference {
     const stored = storage.getString(STORAGE_KEY);
     if (stored === 'dark' || stored === 'light' || stored === 'system') return stored;
   } catch {}
-  return 'dark';
+  return 'system';
 }
 
 export const useThemeStore = create<ThemeState>()((set) => ({
