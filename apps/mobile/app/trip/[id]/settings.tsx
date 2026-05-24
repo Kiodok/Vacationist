@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Platform, Share } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@vacationist/ui';
@@ -58,10 +59,15 @@ export default function SettingsTab() {
     try {
       const result = await createInvite.mutateAsync({ expires_in: '7d' });
       const link = `https://vacationist.app/join?token=${result.token}`;
-      await Share.share({
-        message: `Join my trip on Vacationist!\n${link}`,
-        url: link,
-      });
+      if (Platform.OS === 'web') {
+        await Clipboard.setStringAsync(link);
+        addToast('success', 'Invite link copied to clipboard');
+      } else {
+        await Share.share({
+          message: `Join my trip on Vacationist!\n${link}`,
+          url: link,
+        });
+      }
     } catch {
       // onError toast shown by useCreateInvite; share sheet dismissal is not an error
     }
