@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { Platform } from 'react-native';
 import { signOut, deletePushToken } from '@vacationist/api';
 import { useAuthStore } from '../../../stores/authStore';
+import { clearUserCache } from '../../../utils/userCache';
 
 type GoogleSigninType =
   typeof import('@react-native-google-signin/google-signin').GoogleSignin;
@@ -34,6 +35,7 @@ export function useSignOut(): SignOutResult {
     // Kick off server-side token revocation in the background, then clear
     // local state immediately so navigation to login happens right away.
     signOut().catch(() => {});
+    clearUserCache();
     reset();
   }, [pushToken, setPushToken, reset]);
 

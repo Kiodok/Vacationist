@@ -10,6 +10,9 @@
       "android": {
         "buildType": "apk"
       },
+      "ios": {
+        "simulator": false
+      },
       "channel": "development",
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://aejywkbkcwyanhyzhrle.supabase.co",
@@ -19,6 +22,12 @@
     },
     "preview": {
       "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "distribution": "internal"
+      },
       "channel": "preview",
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://fsfsqghbejwvgxujoyne.supabase.co",
@@ -30,6 +39,9 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "ios": {
+        "distribution": "store"
       },
       "channel": "production",
       "env": {
@@ -57,6 +69,11 @@
       "android": {
         "serviceAccountKeyPath": "./play-store-service-account.json",
         "track": "internal"
+      },
+      "ios": {
+        "appleId": "",
+        "ascAppId": "",
+        "appleTeamId": ""
       }
     }
   }

@@ -22,6 +22,10 @@ import { useAuthStore } from '../src/stores/authStore';
 import { useToastStore } from '../src/stores/toastStore';
 import { registerForPushNotificationsAsync } from '../src/features/notifications/utils/registerForPushNotifications';
 import { usePushNotificationHandler } from '../src/features/notifications/hooks/usePushNotificationHandler';
+import { useOnlineManager } from '../src/hooks/useOnlineManager';
+import { OfflineBanner } from '../src/components/OfflineBanner';
+import { useThemeStore } from '../src/stores/themeStore';
+import { useColorScheme } from 'nativewind';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -51,6 +55,7 @@ function AuthGate() {
 
   useAuthInit();
   usePushNotificationHandler();
+  useOnlineManager();
 
   const appState = useRef(AppState.currentState);
   const initialUrlHandled = useRef(false);
@@ -119,10 +124,20 @@ function AuthGate() {
   useEffect(() => {
     if (!hasSession || isLoading || !user) return;
 
+    function extractInviteToken(url: string): string | null {
+      try {
+        // Handle both vacationist://join?token=... and https://vacationist.app/join?token=...
+        const parsed = Linking.parse(url);
+        const token = parsed.queryParams?.token;
+        return typeof token === 'string' && token ? token : null;
+      } catch {
+        return null;
+      }
+    }
+
     function handleDeepLink(event: { url: string }) {
-      const parsed = Linking.parse(event.url);
-      const token = parsed.queryParams?.token;
-      if (typeof token === 'string' && token) {
+      const token = extractInviteToken(event.url);
+      if (token) {
         redeemInviteToken(token)
           .then((tripId) => {
             addToast('success', 'You joined the trip!');
@@ -144,8 +159,7 @@ function AuthGate() {
       initialUrlHandled.current = true;
       Linking.getInitialURL().then((url) => {
         if (!url) return;
-        const parsed = Linking.parse(url);
-        const urlToken = parsed.queryParams?.token;
+        const urlToken = extractInviteToken(url);
         if (urlToken && urlToken === pendingInviteToken) return;
         handleDeepLink({ url });
       });
@@ -163,11 +177,22 @@ function AuthGate() {
   return <Slot />;
 }
 
+function ThemeController() {
+  const theme = useThemeStore((s) => s.theme);
+  const { setColorScheme } = useColorScheme();
+  useEffect(() => {
+    setColorScheme(theme);
+  }, [theme, setColorScheme]);
+  return null;
+}
+
 function RootLayout() {
   return (
     <GlobalErrorBoundary>
       <QueryProvider>
-        <StatusBar style="light" />
+        <ThemeController />
+        <StatusBar style="auto" />
+        <OfflineBanner />
         <AuthGate />
         <ToastContainer />
       </QueryProvider>

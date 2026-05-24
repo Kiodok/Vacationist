@@ -1,11 +1,11 @@
-import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
+import { QueryClient, focusManager } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { AppState } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import type { ReactNode } from 'react';
+import { mmkvStorageAdapter } from '../utils/mmkvStorage';
 
-// Wire React Native's AppState into TanStack Query's focus manager so that
-// refetchOnWindowFocus actually triggers on Android/iOS when the app comes
-// back to the foreground (browser focus events don't fire on native).
 focusManager.setEventListener((handleFocus) => {
   const subscription = AppState.addEventListener('change', (state: AppStateStatus) => {
     handleFocus(state === 'active');
@@ -17,24 +17,48 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      // staleTime: 0 means data is always considered stale. Combined with
-      // refetchOnMount: 'stale' (the TanStack default), every component mount
-      // triggers a background refetch — the user sees cached data instantly
-      // while fresh server data loads silently behind it. This is essential
-      // for a collaborative app where another device may have changed the data.
       staleTime: 0,
       refetchOnWindowFocus: true,
+      networkMode: 'offlineFirst',
     },
     mutations: {
-      retry: 0,
+      retry: 3,
+      networkMode: 'offlineFirst',
     },
   },
 });
+
+const persister = createSyncStoragePersister({
+  storage: mmkvStorageAdapter,
+  key: 'REACT_QUERY_CACHE',
+});
+
+// Sensitive queries that must never be persisted to disk
+const EXCLUDED_QUERY_KEYS = ['travelDocuments'];
 
 interface Props {
   children: ReactNode;
 }
 
 export function QueryProvider({ children }: Props) {
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister,
+        maxAge: 24 * 60 * 60 * 1000,
+        dehydrateOptions: {
+          shouldDehydrateQuery: (query) => {
+            const key = query.queryKey[0];
+            if (typeof key === 'string' && EXCLUDED_QUERY_KEYS.includes(key)) {
+              return false;
+            }
+            return query.state.status === 'success';
+          },
+        },
+      }}
+    >
+      {children}
+    </PersistQueryClientProvider>
+  );
 }

@@ -24,6 +24,7 @@ import { isGuest } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
 import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestUpgradeBanner';
 import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
+import { useThemeStore } from '../../src/stores/themeStore';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
@@ -59,6 +60,8 @@ export default function ProfileScreen() {
   );
 
   const { handleSignOut } = useSignOut();
+  const theme = useThemeStore((s) => s.theme);
+  const setTheme = useThemeStore((s) => s.setTheme);
   const updateProfile = useUpdateProfile();
   const { data: documents = [], isLoading: docsLoading } = useTravelDocuments(docsUnlocked);
   const upsertDoc = useUpsertTravelDocument();
@@ -184,6 +187,40 @@ export default function ProfileScreen() {
             )}
           </BiometricGate>
         </View>
+        {/* Theme */}
+        <View>
+          <Text className="text-label text-text-muted uppercase mb-sm">Appearance</Text>
+          <View className="flex-row bg-surface border border-border rounded-md p-xs gap-xs">
+            {(['light', 'system', 'dark'] as const).map((option) => {
+              const labels = { light: 'Light', system: 'System', dark: 'Dark' };
+              const icons = { light: 'sunny-outline', system: 'phone-portrait-outline', dark: 'moon-outline' } as const;
+              const active = theme === option;
+              return (
+                <Pressable
+                  key={option}
+                  onPress={() => setTheme(option)}
+                  style={({ pressed }) => ({
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 4,
+                    paddingVertical: 8,
+                    borderRadius: 8,
+                    backgroundColor: active ? colors.primary : 'transparent',
+                    opacity: pressed ? 0.8 : 1,
+                  })}
+                >
+                  <Ionicons name={icons[option]} size={14} color={active ? '#fff' : colors.textSecondary} />
+                  <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? '#fff' : colors.textSecondary }}>
+                    {labels[option]}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
         {/* Sign out */}
         {confirmSignOut ? (
           <View className="flex-row gap-sm">

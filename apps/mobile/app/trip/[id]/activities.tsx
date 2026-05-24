@@ -18,6 +18,19 @@ import { EmptyActivities } from '../../../src/features/activities/components/Emp
 import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
 import { colors } from '@vacationist/ui';
 
+function isAutoCompleted(activity: Activity): boolean {
+  if (!activity.activity_date) return false;
+  const now = dayjs();
+  const date = activity.activity_date;
+  if (activity.end_time) {
+    return now.isAfter(dayjs(`${date}T${activity.end_time}`));
+  }
+  if (activity.start_time) {
+    return now.isAfter(dayjs(`${date}T${activity.start_time}`).add(2, 'hour'));
+  }
+  return now.isAfter(dayjs(date).endOf('day'));
+}
+
 function isOngoing(activity: Activity): boolean {
   if (!activity.activity_date) return false;
   const now = dayjs();
@@ -77,6 +90,8 @@ export default function ActivitiesTab() {
     const completed: Activity[] = [];
     for (const a of activities ?? []) {
       if (a.status === 'completed' || a.status === 'skipped') {
+        completed.push(a);
+      } else if (isAutoCompleted(a)) {
         completed.push(a);
       } else if (isOngoing(a)) {
         ongoing.push(a);

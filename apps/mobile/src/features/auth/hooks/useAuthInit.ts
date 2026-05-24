@@ -8,6 +8,7 @@ import {
   setSessionFromUrl,
 } from '@vacationist/api';
 import { useAuthStore } from '../../../stores/authStore';
+import { saveUserToCache, loadUserFromCache, clearUserCache } from '../../../utils/userCache';
 
 export function useAuthInit() {
   const setUser = useAuthStore((s) => s.setUser);
@@ -39,12 +40,32 @@ export function useAuthInit() {
         const session = await getSession();
         if (!mounted) return;
 
-        if (session) {
-          setHasSession(true);
+        if (!session) {
+          // No local session — must sign in
+          reset();
+          return;
+        }
+
+        // Restore immediately from cache so the app is usable offline
+        setHasSession(true);
+        const cached = loadUserFromCache();
+        if (cached && mounted) setUser(cached);
+
+        try {
+          // Fetch fresh profile; updates the cache on success
           const profile = await ensureUserProfile(session);
-          if (mounted) setUser(profile);
+          if (mounted) {
+            setUser(profile);
+            saveUserToCache(profile);
+          }
+        } catch {
+          // Network unavailable — cached profile already set above.
+          // Only sign the user out if we have NO cached profile
+          // (first install with no prior successful sign-in).
+          if (!cached && mounted) reset();
         }
       } catch {
+        // getSession() itself failed (shouldn't happen — reads local storage)
         if (mounted) reset();
       } finally {
         if (mounted) setLoading(false);
@@ -100,13 +121,32 @@ export function useAuthInit() {
       if (!mounted) return;
 
       if (event === 'SIGNED_OUT' || !session) {
-        reset();
+        // Only clear state on an explicit sign-out, not a transient token
+        // refresh failure (which Supabase also surfaces as SIGNED_OUT).
+        // We distinguish by checking whether we still have a locally
+        // stored session: getSession() reads SecureStore synchronously.
+        getSession().then((localSession) => {
+          if (!localSession && mounted) {
+            clearUserCache();
+            reset();
+          }
+        }).catch(() => {
+          if (mounted) {
+            clearUserCache();
+            reset();
+          }
+        });
         return;
       }
 
       setHasSession(true);
       ensureUserProfile(session)
-        .then((profile) => { if (mounted) setUser(profile); })
+        .then((profile) => {
+          if (mounted) {
+            setUser(profile);
+            saveUserToCache(profile);
+          }
+        })
         .catch(() => {});
     });
 

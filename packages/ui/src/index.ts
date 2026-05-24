@@ -1,8 +1,8 @@
 export { default as tailwindConfig } from '../tailwind.config';
 export { Button } from './components/Button';
 export { Input } from './components/Input';
-export { colors } from './theme';
-export type { ColorKey } from './theme';
+export { colors, darkColors, lightColors, useThemeColors } from './theme';
+export type { ColorKey, Colors } from './theme';
 export { Skeleton } from './components/Skeleton';
 export { LoadingScreen } from './components/LoadingScreen';
 export { FloatingActionButton } from './components/FloatingActionButton';

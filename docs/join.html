@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joining trip – Vacationist</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0F0F0F;
+      color: #F2F2F2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+      color: #6C63FF;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .tagline {
+      color: #A0A0A0;
+      font-size: 15px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: #1A1A1A;
+      border: 1px solid #2E2E2E;
+      border-radius: 20px;
+      padding: 32px 28px;
+      max-width: 380px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #A0A0A0;
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #2E2E2E;
+      border-top-color: #6C63FF;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn {
+      display: inline-block;
+      background: #6C63FF;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      width: 100%;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-secondary {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid #2E2E2E;
+      color: #A0A0A0;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      width: 100%;
+      margin-top: 10px;
+      transition: border-color 0.15s;
+    }
+    .btn-secondary:hover { border-color: #6C63FF; color: #6C63FF; }
+    #error-state { display: none; }
+  </style>
+</head>
+<body>
+  <div class="logo">Vacationist</div>
+  <div class="tagline">Collaborative travel planning</div>
+
+  <div class="card" id="loading-state">
+    <div class="spinner"></div>
+    <h1>Opening Vacationist…</h1>
+    <p>If the app doesn't open automatically, tap the button below to install it.</p>
+    <a id="store-link" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="btn">
+      Get Vacationist on Google Play
+    </a>
+    <a id="open-link" href="#" class="btn-secondary">Open in app</a>
+  </div>
+
+  <div class="card" id="error-state">
+    <h1>Invalid invite link</h1>
+    <p>This invite link is missing a token. Ask the trip organizer to generate a new one.</p>
+    <a href="https://vacationist.app" class="btn">Go to Vacationist</a>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+
+      if (!token) {
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('error-state').style.display = 'block';
+        return;
+      }
+
+      const deepLink = 'vacationist://join?token=' + encodeURIComponent(token);
+      const openLink = document.getElementById('open-link');
+      openLink.href = deepLink;
+
+      // Attempt to open the app immediately
+      window.location.href = deepLink;
+
+      // After 2.5s, if still on this page the app isn't installed —
+      // keep the Play Store button visible (already shown).
+    })();
+  </script>
+</body>
+</html>

@@ -9,12 +9,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#0F0F0F',
+        // Theme-aware colors via CSS variables (light/dark swap automatically)
+        background: 'rgb(var(--color-background) / <alpha-value>)',
         surface: {
-          DEFAULT: '#1A1A1A',
-          elevated: '#242424',
+          DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)',
+          elevated: 'rgb(var(--color-surface-elevated) / <alpha-value>)',
         },
-        border: '#2E2E2E',
+        border: 'rgb(var(--color-border) / <alpha-value>)',
+        'text-primary': 'rgb(var(--color-text-primary) / <alpha-value>)',
+        'text-secondary': 'rgb(var(--color-text-secondary) / <alpha-value>)',
+        'text-muted': 'rgb(var(--color-text-muted) / <alpha-value>)',
+        // Brand/status colors — same in both themes
         primary: {
           DEFAULT: '#6C63FF',
           light: '#8A84FF',
@@ -29,9 +34,6 @@ module.exports = {
           muted: 'rgba(245, 166, 35, 0.1)',
         },
         danger: '#FF5C5C',
-        'text-primary': '#F2F2F2',
-        'text-secondary': '#A0A0A0',
-        'text-muted': '#5C5C5C',
       },
       spacing: {
         xs: '4px',
