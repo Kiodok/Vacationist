@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, Alert, Image, RefreshControl } from 'react-native';
+import { View, Text, Pressable, Image, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -8,7 +8,6 @@ import { useTrips } from '../../src/features/trips/hooks/useTrips';
 import { TripCard } from '../../src/features/trips/components/TripCard';
 import { TripListSkeleton } from '../../src/features/trips/components/TripListSkeleton';
 import { EmptyTrips } from '../../src/features/trips/components/EmptyTrips';
-import { useSignOut } from '../../src/features/auth/hooks/useSignOut';
 import { useAuthStore } from '../../src/stores/authStore';
 import type { Trip } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
@@ -17,15 +16,7 @@ export default function TripsScreen() {
   const router = useRouter();
   const { data: trips, isLoading, isFetching, refetch } = useTrips();
   const user = useAuthStore((s) => s.user);
-  const { handleSignOut } = useSignOut();
   const [avatarError, setAvatarError] = useState(false);
-
-  function confirmSignOut() {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: handleSignOut },
-    ]);
-  }
 
   function handleCreateTrip() {
     router.push('/trip/create' as never);
@@ -54,7 +45,7 @@ export default function TripsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center justify-between px-md pt-md pb-sm">
-        <Pressable onPress={confirmSignOut} className="w-[40px] h-[40px] rounded-full bg-surface items-center justify-center overflow-hidden">
+        <Pressable onPress={() => router.navigate('/(tabs)/profile' as never)} className="w-[40px] h-[40px] rounded-full bg-surface items-center justify-center overflow-hidden">
           {user?.avatar_url && !avatarError ? (
             <Image source={{ uri: user.avatar_url }} className="w-full h-full" onError={() => setAvatarError(true)} />
           ) : (

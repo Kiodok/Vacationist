@@ -462,8 +462,8 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
   **Trip Settings integration: `apps/mobile/app/trip/[id]/settings.tsx`**
 
-  - [x] "Request Member Documents" section (organizer only) — opens `DocumentAccessRequestSheet`
-  - [x] "View Member Documents" button (visible when active grants exist) — opens `MemberDocumentsSheet`
+  - [x] "Request Documents" section (organizer only) — opens `DocumentAccessRequestSheet`
+  - [x] "View Documents" button (visible when active grants exist) — opens `MemberDocumentsSheet`
 
 ---
 

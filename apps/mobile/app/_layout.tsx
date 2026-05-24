@@ -53,6 +53,7 @@ function AuthGate() {
   usePushNotificationHandler();
 
   const appState = useRef(AppState.currentState);
+  const initialUrlHandled = useRef(false);
   useEffect(() => {
     const sub = AppState.addEventListener('change', (nextState) => {
       if (appState.current.match(/inactive|background/) && nextState === 'active') {
@@ -112,9 +113,11 @@ function AuthGate() {
       });
   }, [hasSession, isLoading, user, pendingInviteToken, setPendingInviteToken, router, addToast]);
 
-  // Handle invite deep links when user is already authenticated
+  // Handle invite deep links when user is already authenticated.
+  // Guards on `user` so redeemInviteToken is never called before the profile
+  // row exists — new accounts need ensureUserProfile to complete first.
   useEffect(() => {
-    if (!hasSession || isLoading) return;
+    if (!hasSession || isLoading || !user) return;
 
     function handleDeepLink(event: { url: string }) {
       const parsed = Linking.parse(event.url);
@@ -134,13 +137,22 @@ function AuthGate() {
 
     const subscription = Linking.addEventListener('url', handleDeepLink);
 
-    // Check if app was opened via deep link
-    Linking.getInitialURL().then((url) => {
-      if (url) handleDeepLink({ url });
-    });
+    // Process the launch URL only once. Skip if the token is already being
+    // handled by the pendingInviteToken effect (join → sign-in flow), which
+    // prevents double-redemption for new accounts arriving via an invite link.
+    if (!initialUrlHandled.current) {
+      initialUrlHandled.current = true;
+      Linking.getInitialURL().then((url) => {
+        if (!url) return;
+        const parsed = Linking.parse(url);
+        const urlToken = parsed.queryParams?.token;
+        if (urlToken && urlToken === pendingInviteToken) return;
+        handleDeepLink({ url });
+      });
+    }
 
     return () => subscription.remove();
-  }, [hasSession, isLoading, router, addToast]);
+  }, [hasSession, isLoading, user, pendingInviteToken, router, addToast]);
 
   useEffect(() => {
     if (!isLoading) {

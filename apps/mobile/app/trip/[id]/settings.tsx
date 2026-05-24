@@ -206,7 +206,7 @@ export default function SettingsTab() {
               </View>
               <View className="flex-1">
                 <Button
-                  label="View Member Documents"
+                  label="View Documents"
                   variant="secondary"
                   onPress={() => setViewDocsVisible(true)}
                   icon={<Ionicons name="document-text-outline" size={18} color={hasActiveDocs ? colors.success : colors.primary} />}

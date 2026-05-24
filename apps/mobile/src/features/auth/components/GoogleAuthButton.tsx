@@ -29,6 +29,8 @@ export function GoogleAuthButton({ onPress, loading = false, disabled = false }:
     return (
       <View
         style={{
+          alignSelf: 'center',
+          minWidth: 240,
           height: 48,
           borderRadius: 4,
           backgroundColor: '#131314',
@@ -51,11 +53,15 @@ export function GoogleAuthButton({ onPress, loading = false, disabled = false }:
         color={Btn.Color.Dark}
         onPress={onPress}
         disabled={disabled}
-        style={{ alignSelf: 'stretch', height: 48 }}
+        style={{ alignSelf: 'center', height: 48 }}
       />
     );
   }
 
   // Fallback when native module is unavailable (Expo Go / web)
-  return <GoogleSignInButton onPress={onPress} disabled={disabled} />;
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <GoogleSignInButton onPress={onPress} disabled={disabled} />
+    </View>
+  );
 }
