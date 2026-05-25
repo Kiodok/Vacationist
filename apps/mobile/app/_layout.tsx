@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/react-native';
 import { initSentry } from '../src/utils/sentry';
 import { useEffect, useRef } from 'react';
 import { Appearance, AppState, Platform, useColorScheme as useRNColorScheme } from 'react-native';
+import { useColorScheme as useNWColorScheme } from 'nativewind';
 import { checkForUpdate } from '../src/utils/updateChecker';
 
 initSentry();
@@ -25,11 +26,10 @@ import { usePushNotificationHandler } from '../src/features/notifications/hooks/
 import { useOnlineManager } from '../src/hooks/useOnlineManager';
 import { OfflineBanner } from '../src/components/OfflineBanner';
 import { useThemeStore } from '../src/stores/themeStore';
-// Direct access to NativeWind's internal color scheme observable (react-native-css-interop@0.2.3).
-// Android's Appearance.setColorScheme does not reliably fire addChangeListener
-// (AppCompatDelegate.setDefaultNightMode doesn't always trigger a JS config-change event),
-// so we update the observable directly to guarantee immediate UI response.
-// If react-native-css-interop is upgraded and this import breaks, update the path in this one place.
+// Private native observable — set synchronously so the very first render uses
+// the persisted theme without a light-flash before ThemeController's useEffect fires.
+// If react-native-css-interop is upgraded and this import breaks, update the path here.
+import { colorScheme as cssColorScheme } from 'react-native-css-interop';
 import { systemColorScheme } from 'react-native-css-interop/dist/runtime/native/appearance-observables';
 
 Notifications.setNotificationHandler({
@@ -46,7 +46,21 @@ export { ErrorBoundary } from 'expo-router';
 SplashScreen.preventAutoHideAsync();
 initDayjs();
 
+// Synchronously prime the NativeWind color-scheme observable before the first
+// render so components mount with the correct CSS variables already resolved.
+const _pt = useThemeStore.getState().theme;
+const _is: 'light' | 'dark' =
+  _pt === 'system' ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light') : _pt;
+systemColorScheme.set(_is);
+if (Platform.OS !== 'web' || typeof window !== 'undefined') {
+  cssColorScheme.set(_is);
+}
+
 function AuthGate() {
+  // Keeps AuthGate subscribed to systemColorScheme changes via useState (reliable on
+  // all architectures). Re-renders update systemColorScheme, which ThemeVarsProvider
+  // in the tab layout reads via useNWColorScheme() to push new CSS variables.
+  useNWColorScheme();
   const router = useRouter();
   const segments = useSegments();
   const hasSession = useAuthStore((s) => s.hasSession);
@@ -184,22 +198,37 @@ function AuthGate() {
 
 function ThemeController() {
   const theme = useThemeStore((s) => s.theme);
-  // React Native's own hook — reliably updates when OS theme changes
+  // React Native's own hook — reliably updates when OS theme changes (used for 'system' mode)
   const rnScheme = useRNColorScheme();
+  const effective: 'light' | 'dark' = theme === 'system' ? (rnScheme === 'dark' ? 'dark' : 'light') : theme;
 
+  // Keep systemColorScheme in sync when the effective scheme changes (covers the
+  // 'system' mode path where rnScheme changes without setTheme being called).
   useEffect(() => {
-    const effective: 'light' | 'dark' = theme === 'system' ? (rnScheme === 'dark' ? 'dark' : 'light') : theme;
-    // Push the resolved scheme straight into NativeWind's observable so all dark: variants
-    // and CSS variable observers update synchronously, bypassing Android's unreliable
-    // Appearance.addChangeListener path.
     systemColorScheme.set(effective);
-    // Also persist the preference at the OS level so StatusBar style="auto" and the
-    // AppState-active fallback listener in react-native-css-interop stay consistent.
-    // RN 0.83 uses 'unspecified' (not null) to mean "follow OS".
-    Appearance.setColorScheme(theme === 'system' ? 'unspecified' : theme);
-  }, [theme, rnScheme]);
+    if (Platform.OS !== 'web' || typeof window !== 'undefined') {
+      cssColorScheme.set(effective);
+    }
+  }, [effective]);
 
-  return null;
+  // css-interop's own AppState listener resets systemColorScheme to
+  // Appearance.getColorScheme() every time the app comes to foreground.
+  // Our listener is registered after css-interop's (component mount happens
+  // after module load), so we fire second and reliably override the reset.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next === 'active') {
+        systemColorScheme.set(effective);
+        if (Platform.OS !== 'web' || typeof window !== 'undefined') {
+          cssColorScheme.set(effective);
+        }
+      }
+    });
+    return () => sub.remove();
+  }, [effective]);
+
+  // 'light' = light-coloured icons (for dark backgrounds); 'dark' = dark icons (for light).
+  return <StatusBar style={effective === 'dark' ? 'light' : 'dark'} />;
 }
 
 function RootLayout() {
@@ -207,7 +236,6 @@ function RootLayout() {
     <GlobalErrorBoundary>
       <QueryProvider>
         <ThemeController />
-        <StatusBar style="auto" />
         <OfflineBanner />
         <AuthGate />
         <ToastContainer />

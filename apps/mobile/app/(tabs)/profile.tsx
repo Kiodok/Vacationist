@@ -21,7 +21,7 @@ import { ActiveGrantsBanner } from '../../src/features/profile/components/Active
 import { MemberAvatar } from '../../src/features/trips/components/MemberAvatar';
 import type { TravelDocument, UpsertTravelDocumentInput } from '@vacationist/types';
 import { isGuest } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors, useThemeColors } from '@vacationist/ui';
 import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestUpgradeBanner';
 import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
 import { useThemeStore } from '../../src/stores/themeStore';
@@ -60,6 +60,7 @@ export default function ProfileScreen() {
   );
 
   const { handleSignOut } = useSignOut();
+  const tc = useThemeColors();
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const updateProfile = useUpdateProfile();
@@ -226,7 +227,7 @@ export default function ProfileScreen() {
           <View className="flex-row gap-sm">
             <TouchableOpacity
               onPress={() => setConfirmSignOut(false)}
-              style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#2E2E2E', alignItems: 'center', justifyContent: 'center' }}
+              style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.border, alignItems: 'center', justifyContent: 'center' }}
             >
               <Text className="text-body text-text-secondary">Cancel</Text>
             </TouchableOpacity>

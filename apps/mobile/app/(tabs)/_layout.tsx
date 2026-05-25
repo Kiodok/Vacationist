@@ -2,23 +2,25 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUnreadCount } from '../../src/features/notifications/hooks/useUnreadCount';
 import { useNotificationsRealtime } from '../../src/features/notifications/hooks/useNotifications';
-import { colors } from '@vacationist/ui';
-
-const INACTIVE = '#5C5C5C';
+import { colors, useThemeColors } from '@vacationist/ui';
+import { ThemeVarsProvider } from '../../src/components/ThemeVarsProvider';
 
 export default function TabLayout() {
   const { data: unreadCount = 0 } = useUnreadCount();
   useNotificationsRealtime();
+  const tc = useThemeColors();
 
   return (
     <Tabs
+      screenLayout={({ children }) => <ThemeVarsProvider>{children}</ThemeVarsProvider>}
       screenOptions={{
         headerShown: false,
+        sceneStyle: { backgroundColor: tc.background },
         tabBarStyle: {
-          backgroundColor: '#0F0F0F',
-          borderTopColor: '#2E2E2E',
+          backgroundColor: tc.background,
+          borderTopColor: tc.border,
         },
-        tabBarInactiveTintColor: INACTIVE,
+        tabBarInactiveTintColor: tc.textMuted,
       }}
     >
       <Tabs.Screen
@@ -30,7 +32,7 @@ export default function TabLayout() {
             <Ionicons
               name={focused ? 'airplane' : 'airplane-outline'}
               size={24}
-              color={focused ? colors.primary : INACTIVE}
+              color={focused ? colors.primary : tc.textMuted}
             />
           ),
         }}
@@ -44,7 +46,7 @@ export default function TabLayout() {
             <Ionicons
               name={focused ? 'calendar' : 'calendar-outline'}
               size={24}
-              color={focused ? colors.success : INACTIVE}
+              color={focused ? colors.success : tc.textMuted}
             />
           ),
         }}
@@ -58,7 +60,7 @@ export default function TabLayout() {
             <Ionicons
               name={focused ? 'notifications' : 'notifications-outline'}
               size={24}
-              color={focused ? colors.warning : INACTIVE}
+              color={focused ? colors.warning : tc.textMuted}
             />
           ),
           tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
@@ -74,7 +76,7 @@ export default function TabLayout() {
             <Ionicons
               name={focused ? 'person' : 'person-outline'}
               size={24}
-              color={focused ? colors.primaryLight : INACTIVE}
+              color={focused ? colors.primaryLight : tc.textMuted}
             />
           ),
         }}

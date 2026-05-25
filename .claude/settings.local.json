@@ -87,7 +87,8 @@
       "Bash(find apps/mobile/app -name \"transfer*\")",
       "Bash(npx sharp-cli *)",
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in sorted\\(deps.items\\(\\)\\) if any\\(x in k for x in ['netinfo','nativewind','reanimated','expo']\\)]\")",
-      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(p.dependencies['react-native-mmkv'], p.dependencies['@tanstack/query-sync-storage-persister'], p.dependencies['@tanstack/react-query-persist-client']\\)\")"
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(p.dependencies['react-native-mmkv'], p.dependencies['@tanstack/query-sync-storage-persister'], p.dependencies['@tanstack/react-query-persist-client']\\)\")",
+      "PowerShell(node -e \"const s=require\\('sharp'\\);console.log\\(s.versions\\)\")"
     ]
   },
   "model": "opusplan",
