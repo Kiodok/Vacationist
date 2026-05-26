@@ -10,7 +10,7 @@ interface TripCardProps {
   onPress: () => void;
 }
 
-function getEffectiveStatus(trip: Trip): TripStatus {
+export function getEffectiveStatus(trip: Trip): TripStatus {
   if (trip.status === 'archived' || trip.status === 'completed') return trip.status;
   const today = dayjs().format('YYYY-MM-DD');
   if (trip.end_date < today) return 'completed';

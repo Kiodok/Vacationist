@@ -1,14 +1,19 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnreadCount } from '../../src/features/notifications/hooks/useUnreadCount';
 import { useNotificationsRealtime } from '../../src/features/notifications/hooks/useNotifications';
 import { colors, useThemeColors } from '@vacationist/ui';
 import { ThemeVarsProvider } from '../../src/components/ThemeVarsProvider';
+import { useNetworkStatus } from '../../src/hooks/useNetworkStatus';
+import { OFFLINE_BANNER_HEIGHT } from '../../src/components/OfflineBanner';
 
 export default function TabLayout() {
   const { data: unreadCount = 0 } = useUnreadCount();
   useNotificationsRealtime();
   const tc = useThemeColors();
+  const { isConnected } = useNetworkStatus();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -19,6 +24,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: tc.background,
           borderTopColor: tc.border,
+          bottom: isConnected ? 0 : OFFLINE_BANNER_HEIGHT + insets.bottom,
+          paddingBottom: isConnected ? undefined : 0,
         },
         tabBarInactiveTintColor: tc.textMuted,
       }}
