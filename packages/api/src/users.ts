@@ -39,6 +39,25 @@ export async function ensureUserProfile(session: Session): Promise<User> {
   return data as User;
 }
 
+export async function uploadAvatar(
+  userId: string,
+  fileData: Blob | ArrayBuffer,
+  contentType: string = 'image/jpeg',
+): Promise<string> {
+  // Fixed path (no extension) so every upload overwrites the same object
+  // and no stale files accumulate when the format changes between uploads.
+  const path = `${userId}/avatar`;
+
+  const { error } = await supabase.storage
+    .from('avatars')
+    .upload(path, fileData, { contentType, upsert: true });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+  return `${data.publicUrl}?t=${Date.now()}`;
+}
+
 export async function updateUserProfile(
   userId: string,
   updates: UpdateProfileInput

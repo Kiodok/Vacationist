@@ -1449,3 +1449,56 @@ Root cause fix for notifications not updating in real time.
 - Now the post-soft-delete row passes RLS (trip member check only), Supabase realtime delivers the UPDATE event, and the client-side `onUpdate` handler removes the item from the cache
 
 **Local migration file:** `supabase/migrations/20260522000008_transfer_realtime_softdelete_rls.sql`
+
+---
+
+## 2026-05-26 — Avatars storage bucket
+
+### Migration: `20260526175044_create_avatars_bucket`
+
+**Purpose:** Adds the `avatars` Supabase Storage bucket for user profile pictures, wired up with RLS.
+
+**Storage bucket:**
+- Name: `avatars`, public, 5 MB file size limit, MIME types restricted to `image/*`
+
+**RLS policies:**
+- `avatars_select` — public SELECT (anyone can read avatar URLs)
+- `avatars_insert` — authenticated users can INSERT into their own `{userId}/` folder
+- `avatars_update` — authenticated users can UPDATE objects in their own `{userId}/` folder
+- `avatars_delete` — authenticated users can DELETE objects in their own `{userId}/` folder
+
+**Upload path convention:** `${userId}/avatar` (no file extension). Fixed path means each upload overwrites the same Storage object — no stale files accumulate when image format changes between uploads.
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260526175044_create_avatars_bucket.sql`
+
+---
+
+## 2026-05-26 — Activity creation RPC (SETOF → UUID return type fix)
+
+### Migration: `20260526180000_create_activity_rpc`
+
+**Purpose:** Replaced the direct `INSERT INTO activities` (which required the caller to hold an authenticated session via RLS) with a `SECURITY DEFINER` RPC, fixing activity creation failures on the Android Preview build against prod Supabase.
+
+**Root cause of original failure:** RLS `WITH CHECK` on `public.activities` evaluated the full AND of all conditions; the session was present but `is_trip_member` returned false for the prod environment under the Android client's auth token delivery timing. The SECURITY DEFINER RPC bypasses RLS entirely and runs the member check internally.
+
+**Function:** `public.create_activity(p_trip_id, p_title, p_description, p_category, p_cost_estimate, p_activity_date, p_start_time, p_end_time, p_external_url, p_maps_url)` — original version returned `SETOF public.activities`.
+
+**Local migration file:** `supabase/migrations/20260526180000_create_activity_rpc.sql`
+
+---
+
+### Migration: `20260526190000_fix_create_activity_return_type`
+
+**Purpose:** Changed `create_activity` return type from `SETOF public.activities` to `RETURNS UUID`. The SETOF version worked on Web but caused a silent runtime failure on Android React Native — the fetch polyfill did not parse the SETOF JSON array the same way, so `(data as Activity[])?.[0]` returned `undefined`.
+
+**Fix pattern:** Matches `upsert_travel_document` — RPC returns the new row's UUID, caller then fetches the full row with `getActivity(id)`.
+
+**Migration approach:** `DROP FUNCTION` before `CREATE FUNCTION` — PostgreSQL forbids changing return type via `CREATE OR REPLACE`.
+
+**TypeScript side (`packages/api/src/activities.ts`):** `createActivity` now calls `supabase.rpc('create_activity', {...})` for the UUID, then `getActivity(activityId)` to return the full `Activity` object.
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260526190000_fix_create_activity_return_type.sql`

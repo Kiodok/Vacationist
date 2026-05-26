@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       accommodation_votes: {
@@ -20,6 +45,7 @@ export type Database = {
           created_at: string
           id: string
           trip_id: string | null
+          updated_at: string
           user_id: string
           vote: string
         }
@@ -28,6 +54,7 @@ export type Database = {
           created_at?: string
           id?: string
           trip_id?: string | null
+          updated_at?: string
           user_id: string
           vote: string
         }
@@ -36,6 +63,7 @@ export type Database = {
           created_at?: string
           id?: string
           trip_id?: string | null
+          updated_at?: string
           user_id?: string
           vote?: string
         }
@@ -207,6 +235,7 @@ export type Database = {
           created_at: string
           id: string
           trip_id: string | null
+          updated_at: string
           user_id: string
           vote: string
         }
@@ -215,6 +244,7 @@ export type Database = {
           created_at?: string
           id?: string
           trip_id?: string | null
+          updated_at?: string
           user_id: string
           vote: string
         }
@@ -223,6 +253,7 @@ export type Database = {
           created_at?: string
           id?: string
           trip_id?: string | null
+          updated_at?: string
           user_id?: string
           vote?: string
         }
@@ -983,6 +1014,7 @@ export type Database = {
           flight_id: string
           id: string
           trip_id: string | null
+          updated_at: string
           user_id: string
           vote: string
         }
@@ -991,6 +1023,7 @@ export type Database = {
           flight_id: string
           id?: string
           trip_id?: string | null
+          updated_at?: string
           user_id: string
           vote: string
         }
@@ -999,6 +1032,7 @@ export type Database = {
           flight_id?: string
           id?: string
           trip_id?: string | null
+          updated_at?: string
           user_id?: string
           vote?: string
         }
@@ -1391,6 +1425,7 @@ export type Database = {
           description: string | null
           end_date: string
           id: string
+          member_count: number
           start_date: string
           status: string
           timezone: string
@@ -1406,6 +1441,7 @@ export type Database = {
           description?: string | null
           end_date: string
           id?: string
+          member_count?: number
           start_date: string
           status?: string
           timezone?: string
@@ -1421,6 +1457,7 @@ export type Database = {
           description?: string | null
           end_date?: string
           id?: string
+          member_count?: number
           start_date?: string
           status?: string
           timezone?: string
@@ -1586,6 +1623,21 @@ export type Database = {
       close_transfer_flight_voting: {
         Args: { p_flight_id: string }
         Returns: undefined
+      }
+      create_activity: {
+        Args: {
+          p_activity_date?: string
+          p_category?: string
+          p_cost_estimate?: number
+          p_description?: string
+          p_end_time?: string
+          p_external_url?: string
+          p_maps_url?: string
+          p_start_time?: string
+          p_title: string
+          p_trip_id: string
+        }
+        Returns: string
       }
       create_document_access_request: {
         Args: { p_duration_minutes: number; p_trip_id: string }
@@ -1927,8 +1979,10 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
 } as const
-

@@ -76,9 +76,16 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
               </Pressable>
             )}
           </View>
-          <Text className="text-body-small text-text-muted">
-            {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
-          </Text>
+          {votes.length > 0 && (
+            <Pressable
+              onPress={onVotePress}
+              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            >
+              <Text className="text-body-small text-text-primary">
+                Show {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
+              </Text>
+            </Pressable>
+          )}
         </View>
       </Pressable>
       {detail}

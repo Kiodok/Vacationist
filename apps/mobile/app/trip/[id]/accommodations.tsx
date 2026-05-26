@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
@@ -8,7 +8,7 @@ import { useAccommodations, useCreateAccommodation, useUpdateAccommodation, useD
 import { useAccommodationVotes, useCastAccommodationVote, useRemoveAccommodationVote } from '../../../src/features/accommodations/hooks/useAccommodationVotes';
 import { useAccommodationVotesRealtime } from '../../../src/features/accommodations/hooks/useAccommodationVotesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
-import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
+import { useCurrentMemberRole, useTripMembers } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
 import { AccommodationCard } from '../../../src/features/accommodations/components/AccommodationCard';
 import { VoteSheet } from '../../../src/features/activities/components/VoteSheet';
@@ -140,9 +140,15 @@ function AccommodationCardWithVotes({
   onReopenVoting: () => void;
 }) {
   const { data: votes = [] } = useAccommodationVotes(accommodation.id);
+  const { data: members } = useTripMembers(tripId);
   const castVote = useCastAccommodationVote(tripId, accommodation.id);
   const removeVote = useRemoveAccommodationVote(tripId, accommodation.id);
   const [showVoteSheet, setShowVoteSheet] = useState(false);
+
+  const memberMap = useMemo(
+    () => new Map((members ?? []).map((m) => [m.user_id, m.user.name])),
+    [members],
+  );
   const [showDetail, setShowDetail] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingCloseVoting, setConfirmingCloseVoting] = useState(false);
@@ -291,6 +297,7 @@ function AccommodationCardWithVotes({
         onCastVote={handleCastVote}
         onRemoveVote={handleRemoveVote}
         isPending={castVote.isPending}
+        memberMap={memberMap}
       />
     </>
   );

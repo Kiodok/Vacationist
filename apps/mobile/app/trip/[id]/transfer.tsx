@@ -433,6 +433,11 @@ function FlightCardWithVotes({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingCloseVoting, setConfirmingCloseVoting] = useState(false);
 
+  const memberMap = useMemo(
+    () => new Map((members ?? []).map((m) => [m.user_id, m.user.name])),
+    [members],
+  );
+
   // Compute per-direction winner using only this flight's direction peers
   const votesByFlightId = useMemo(() => ({ [flight.id]: votes }), [flight.id, votes]);
   const directionFlightVotes = useMemo(() => {
@@ -635,6 +640,7 @@ function FlightCardWithVotes({
         onCastVote={handleCastVote}
         onRemoveVote={handleRemoveVote}
         isPending={castVote.isPending}
+        memberMap={memberMap}
       />
 
       <BookFlightSheet

@@ -61,6 +61,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-font',
     'expo-web-browser',
     [
+      'expo-image-picker',
+      {
+        photosPermission: 'Allow Vacationist to access your photos to set a profile picture.',
+        cameraPermission: 'Allow Vacationist to use your camera to take a profile picture.',
+      },
+    ],
+    [
       'expo-notifications',
       {
         icon: './assets/images/notification-icon.png',

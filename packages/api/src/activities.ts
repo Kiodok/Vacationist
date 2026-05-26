@@ -29,30 +29,22 @@ export async function getActivity(activityId: string): Promise<Activity> {
 }
 
 export async function createActivity(tripId: string, input: CreateActivityInput): Promise<Activity> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
-
-  const { data, error } = await supabase
-    .from('activities')
-    .insert({
-      trip_id: tripId,
-      title: input.title,
-      description: input.description ?? null,
-      category: input.category ?? null,
-      cost_estimate: input.cost_estimate ?? null,
-      activity_date: input.activity_date ?? null,
-      start_time: input.start_time ?? null,
-      end_time: input.end_time ?? null,
-      external_url: input.external_url ?? null,
-      maps_url: input.maps_url ?? null,
-      created_by: user.id,
-    })
-    .select()
-    .single();
+  const { data: activityId, error } = await supabase.rpc('create_activity', {
+    p_trip_id: tripId,
+    p_title: input.title,
+    p_description: input.description ?? undefined,
+    p_category: input.category ?? undefined,
+    p_cost_estimate: input.cost_estimate ?? undefined,
+    p_activity_date: input.activity_date ?? undefined,
+    p_start_time: input.start_time ?? undefined,
+    p_end_time: input.end_time ?? undefined,
+    p_external_url: input.external_url ?? undefined,
+    p_maps_url: input.maps_url ?? undefined,
+  });
 
   if (error) throw error;
-  return data as unknown as Activity;
+  if (!activityId) throw new Error('Activity creation returned no ID');
+  return getActivity(activityId as string);
 }
 
 export async function updateActivity(activityId: string, input: UpdateActivityInput): Promise<Activity> {

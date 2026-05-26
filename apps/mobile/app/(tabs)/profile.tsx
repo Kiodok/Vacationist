@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, Pressable, TouchableOpacity, ActivityIndicator, AppState } from 'react-native';
+import { View, Text, ScrollView, Pressable, TouchableOpacity, ActivityIndicator, AppState, Alert } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import { uploadAvatar, updateUserProfile } from '@vacationist/api';
 import { useAuthStore } from '../../src/stores/authStore';
 import { useSignOut } from '../../src/features/auth/hooks/useSignOut';
 import { useUpdateProfile } from '../../src/features/profile/hooks/useUpdateProfile';
@@ -28,6 +30,7 @@ import { useThemeStore } from '../../src/stores/themeStore';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const [docsUnlocked, setDocsUnlocked] = useState(false);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
@@ -35,6 +38,7 @@ export default function ProfileScreen() {
   const [editingDoc, setEditingDoc] = useState<TravelDocument | null>(null);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [upgradeSheetVisible, setUpgradeSheetVisible] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   // Lock documents when the app moves to the background.
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
@@ -74,6 +78,43 @@ export default function ProfileScreen() {
 
   if (!user) return null;
 
+  async function handleAvatarChange() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please allow access to your photo library to change your avatar.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    const asset = result.assets[0];
+    if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
+      Alert.alert('Image too large', 'Please choose an image under 5 MB.');
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const response = await fetch(asset.uri);
+      const arrayBuffer = await response.arrayBuffer();
+      const mimeType = asset.mimeType ?? 'image/jpeg';
+      const publicUrl = await uploadAvatar(user!.id, arrayBuffer, mimeType);
+      const updated = await updateUserProfile(user!.id, { avatar_url: publicUrl });
+      setUser(updated);
+    } catch {
+      Alert.alert('Upload failed', 'Could not update your avatar. Please try again.');
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
   const existingTypes = documents.map((d) => d.document_type);
   const canAddMore = existingTypes.length < 2;
 
@@ -95,7 +136,34 @@ export default function ProfileScreen() {
       >
         {/* Header */}
         <View className="items-center gap-sm pt-md">
-          <MemberAvatar name={user.name} avatarUrl={user.avatar_url} size="lg" />
+          <Pressable
+            onPress={handleAvatarChange}
+            disabled={avatarUploading}
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+          >
+            <View style={{ position: 'relative' }}>
+              <MemberAvatar name={user.name} avatarUrl={user.avatar_url} size="lg" />
+              <View
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  width: 22,
+                  height: 22,
+                  borderRadius: 11,
+                  backgroundColor: colors.primary,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {avatarUploading ? (
+                  <ActivityIndicator size={10} color="#fff" />
+                ) : (
+                  <Ionicons name="camera" size={12} color="#fff" />
+                )}
+              </View>
+            </View>
+          </Pressable>
           <Text className="text-heading-l text-text-primary font-semibold">{user.name}</Text>
           {user.email && (
             <Text className="text-body text-text-secondary">{user.email}</Text>

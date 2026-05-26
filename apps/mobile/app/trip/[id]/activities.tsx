@@ -8,7 +8,7 @@ import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity,
 import { useActivityVotes, useCastVote, useRemoveVote, useActivityVotesBatch } from '../../../src/features/activities/hooks/useVotes';
 import { useActivityVotesRealtime } from '../../../src/features/activities/hooks/useActivityVotesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
-import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
+import { useCurrentMemberRole, useTripMembers } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
 import { ActivityCard } from '../../../src/features/activities/components/ActivityCard';
 import { VoteSheet } from '../../../src/features/activities/components/VoteSheet';
@@ -288,12 +288,18 @@ function ActivityCardWithVotes({
   onReopenVoting: () => void;
 }) {
   const { data: votes = [] } = useActivityVotes(activity.id);
+  const { data: members } = useTripMembers(tripId);
   const castVote = useCastVote(tripId, activity.id);
   const removeVote = useRemoveVote(tripId, activity.id);
   const [showVoteSheet, setShowVoteSheet] = useState(false);
   const [showDetail, setShowDetail] = useState(initialExpanded ?? false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingCloseVoting, setConfirmingCloseVoting] = useState(false);
+
+  const memberMap = useMemo(
+    () => new Map((members ?? []).map((m) => [m.user_id, m.user.name])),
+    [members],
+  );
 
   const canEdit =
     role === 'organizer' ||
@@ -446,6 +452,7 @@ function ActivityCardWithVotes({
         onCastVote={handleCastVote}
         onRemoveVote={handleRemoveVote}
         isPending={castVote.isPending}
+        memberMap={memberMap}
       />
     </>
   );

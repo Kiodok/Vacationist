@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as Crypto from 'expo-crypto';
 import {
   getActivities,
   getActivity,
@@ -42,7 +43,7 @@ export function useCreateActivity(tripId: string) {
 
       const userId = useAuthStore.getState().user?.id ?? '';
       const optimistic: Activity = {
-        id: crypto.randomUUID(),
+        id: Crypto.randomUUID(),
         trip_id: tripId,
         title: input.title,
         description: input.description ?? null,
@@ -71,10 +72,11 @@ export function useCreateActivity(tripId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
       addToast('success', 'Activity created');
     },
-    onError: (_err, _input, context) => {
+    onError: (err, _input, context) => {
       if (context !== undefined) {
         queryClient.setQueryData<Activity[]>(['trips', tripId, 'activities'], context.previous);
       }
+      if (__DEV__) console.error('[createActivity]', err);
       addToast('error', 'Failed to create activity.');
     },
   });
