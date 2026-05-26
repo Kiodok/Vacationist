@@ -422,7 +422,7 @@ function FlightCardWithVotes({
 }) {
   const { data: votes = [] } = useTransferFlightVotes(flight.id);
   const { data: passengers = [] } = useTransferFlightPassengers(flight.id);
-  const castVote = useCastTransferFlightVote(tripId, flight.id);
+  const castVote = useCastTransferFlightVote();
   const removeVote = useRemoveTransferFlightVote(tripId, flight.id);
   const setPassengers = useSetTransferFlightPassengers(tripId, flight.id);
 
@@ -462,7 +462,7 @@ function FlightCardWithVotes({
   const canManagePassengers = role === 'organizer' && flight.status === 'booked';
 
   const handleCastVote = (vote: VoteType) => {
-    castVote.mutate(vote, { onSuccess: () => setShowVoteSheet(false) });
+    castVote.mutate({ vote, flightId: flight.id, tripId }, { onSuccess: () => setShowVoteSheet(false) });
   };
 
   const handleRemoveVote = () => {

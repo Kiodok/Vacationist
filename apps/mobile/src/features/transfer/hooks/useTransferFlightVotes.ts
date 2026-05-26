@@ -5,7 +5,8 @@ import {
   castTransferFlightVote,
   removeTransferFlightVote,
 } from '@vacationist/api';
-import type { VoteType, TransferFlightVote } from '@vacationist/types';
+import type { TransferFlightVote, CastTransferFlightVoteVariables } from '@vacationist/types';
+import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 
@@ -28,14 +29,15 @@ export function useTransferFlightVotesBatch(flightIds: string[]) {
   });
 }
 
-export function useCastTransferFlightVote(tripId: string, flightId: string) {
+export function useCastTransferFlightVote() {
   const currentUserId = useAuthStore((s) => s.user?.id);
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (vote: VoteType) => castTransferFlightVote(flightId, vote),
-    onMutate: async (vote) => {
+  return useMutation<TransferFlightVote, Error, CastTransferFlightVoteVariables, { previous: TransferFlightVote[] | undefined }>({
+    mutationKey: ['castTransferFlightVote'],
+    mutationFn: ({ vote, flightId }) => castTransferFlightVote(flightId, vote),
+    onMutate: async ({ vote, flightId, tripId }) => {
       await queryClient.cancelQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
       const previous = queryClient.getQueryData<TransferFlightVote[]>(['transfer-flights', flightId, 'votes']);
       if (previous) {
@@ -46,7 +48,7 @@ export function useCastTransferFlightVote(tripId: string, flightId: string) {
             : [
                 ...previous,
                 {
-                  id: `optimistic-${Date.now()}`,
+                  id: createOptimisticId(),
                   flight_id: flightId,
                   trip_id: tripId,
                   user_id: currentUserId!,
@@ -58,11 +60,11 @@ export function useCastTransferFlightVote(tripId: string, flightId: string) {
       }
       return { previous };
     },
-    onSuccess: () => {
+    onSuccess: (_data, { flightId, tripId }) => {
       queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
     },
-    onError: (_error, _vote, context) => {
+    onError: (_error, { flightId }, context) => {
       if (context?.previous) {
         queryClient.setQueryData(['transfer-flights', flightId, 'votes'], context.previous);
       }

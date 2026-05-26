@@ -72,7 +72,7 @@ export default function ActivitiesTab() {
     }
     return blocked;
   }, [allVotes]);
-  const createActivity = useCreateActivity(tripId!);
+  const createActivity = useCreateActivity();
   const updateActivityMutation = useUpdateActivity(tripId!);
   const deleteActivity = useDeleteActivity(tripId!);
   const closeVoting = useCloseVoting(tripId!);
@@ -149,7 +149,7 @@ export default function ActivitiesTab() {
 
   const handleCreate = (input: CreateActivityInput) => {
     setShowCreate(false);
-    createActivity.mutate(input);
+    createActivity.mutate({ tripId: tripId!, input });
   };
 
   const handleUpdate = (input: UpdateActivityInput) => {
@@ -289,7 +289,7 @@ function ActivityCardWithVotes({
 }) {
   const { data: votes = [] } = useActivityVotes(activity.id);
   const { data: members } = useTripMembers(tripId);
-  const castVote = useCastVote(tripId, activity.id);
+  const castVote = useCastVote();
   const removeVote = useRemoveVote(tripId, activity.id);
   const [showVoteSheet, setShowVoteSheet] = useState(false);
   const [showDetail, setShowDetail] = useState(initialExpanded ?? false);
@@ -311,7 +311,7 @@ function ActivityCardWithVotes({
   const canReopenVoting = role === 'organizer' && !activity.voting_open;
 
   const handleCastVote = (vote: VoteType) => {
-    castVote.mutate(vote, { onSuccess: () => setShowVoteSheet(false) });
+    castVote.mutate({ vote, activityId: activity.id, tripId }, { onSuccess: () => setShowVoteSheet(false) });
   };
 
   const handleRemoveVote = () => {

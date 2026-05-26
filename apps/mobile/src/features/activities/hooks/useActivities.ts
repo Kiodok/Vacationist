@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as Crypto from 'expo-crypto';
 import {
   getActivities,
   getActivity,
@@ -9,7 +8,8 @@ import {
   closeActivityVoting,
   reopenActivityVoting,
 } from '@vacationist/api';
-import type { Activity, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
+import type { Activity, CreateActivityInput, UpdateActivityInput, CreateActivityVariables } from '@vacationist/types';
+import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 
@@ -31,19 +31,20 @@ export function useActivity(activityId: string) {
   });
 }
 
-export function useCreateActivity(tripId: string) {
+export function useCreateActivity() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (input: CreateActivityInput) => createActivity(tripId, input),
-    onMutate: async (input) => {
+  return useMutation<Activity, Error, CreateActivityVariables, { previous: Activity[] | undefined }>({
+    mutationKey: ['createActivity'],
+    mutationFn: ({ tripId, input }) => createActivity(tripId, input),
+    onMutate: async ({ tripId, input }) => {
       await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
       const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
 
       const userId = useAuthStore.getState().user?.id ?? '';
       const optimistic: Activity = {
-        id: Crypto.randomUUID(),
+        id: createOptimisticId(),
         trip_id: tripId,
         title: input.title,
         description: input.description ?? null,
@@ -68,11 +69,11 @@ export function useCreateActivity(tripId: string) {
 
       return { previous };
     },
-    onSuccess: () => {
+    onSuccess: (_data, { tripId }) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
       addToast('success', 'Activity created');
     },
-    onError: (err, _input, context) => {
+    onError: (err, { tripId }, context) => {
       if (context !== undefined) {
         queryClient.setQueryData<Activity[]>(['trips', tripId, 'activities'], context.previous);
       }

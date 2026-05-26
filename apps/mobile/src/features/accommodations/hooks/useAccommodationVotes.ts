@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAccommodationVotes, castAccommodationVote, removeAccommodationVote } from '@vacationist/api';
-import type { VoteType, AccommodationVote } from '@vacationist/types';
+import type { AccommodationVote, CastAccommodationVoteVariables } from '@vacationist/types';
+import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 
@@ -13,14 +14,15 @@ export function useAccommodationVotes(accommodationId: string) {
   });
 }
 
-export function useCastAccommodationVote(tripId: string, accommodationId: string) {
+export function useCastAccommodationVote() {
   const currentUserId = useAuthStore((s) => s.user?.id);
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (vote: VoteType) => castAccommodationVote(accommodationId, vote),
-    onMutate: async (vote) => {
+  return useMutation<AccommodationVote, Error, CastAccommodationVoteVariables, { previous: AccommodationVote[] | undefined }>({
+    mutationKey: ['castAccommodationVote'],
+    mutationFn: ({ vote, accommodationId }) => castAccommodationVote(accommodationId, vote),
+    onMutate: async ({ vote, accommodationId, tripId }) => {
       await queryClient.cancelQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
       const previous = queryClient.getQueryData<AccommodationVote[]>(['accommodations', accommodationId, 'votes']);
       if (previous) {
@@ -28,16 +30,16 @@ export function useCastAccommodationVote(tripId: string, accommodationId: string
         const optimistic: AccommodationVote[] =
           exists >= 0
             ? previous.map((v) => (v.user_id === currentUserId ? { ...v, vote } : v))
-            : [...previous, { id: `optimistic-${Date.now()}`, accommodation_id: accommodationId, trip_id: tripId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
+            : [...previous, { id: createOptimisticId(), accommodation_id: accommodationId, trip_id: tripId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
         queryClient.setQueryData(['accommodations', accommodationId, 'votes'], optimistic);
       }
       return { previous };
     },
-    onSuccess: () => {
+    onSuccess: (_data, { accommodationId, tripId }) => {
       queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
     },
-    onError: (_error, _vote, context) => {
+    onError: (_error, { accommodationId }, context) => {
       if (context?.previous) {
         queryClient.setQueryData(['accommodations', accommodationId, 'votes'], context.previous);
       }

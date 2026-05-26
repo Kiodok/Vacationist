@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE } from './enums';
+import type { VOTE_TYPE } from './enums';
 
 export const userSchema = z.object({
   id: z.string().uuid(),
@@ -429,3 +430,11 @@ export const updateTripNoteSchema = z.object({
 
 export type CreateTripNoteInput = z.infer<typeof createTripNoteSchema>;
 export type UpdateTripNoteInput = z.infer<typeof updateTripNoteSchema>;
+
+// --- Mutation variable types ---
+// These carry all context needed for offline mutation replay (no closure dependencies).
+
+export type CreateActivityVariables = { tripId: string; input: CreateActivityInput };
+export type CastActivityVoteVariables = { vote: (typeof VOTE_TYPE)[number]; activityId: string; tripId: string };
+export type CastAccommodationVoteVariables = { vote: (typeof VOTE_TYPE)[number]; accommodationId: string; tripId: string };
+export type CastTransferFlightVoteVariables = { vote: (typeof VOTE_TYPE)[number]; flightId: string; tripId: string };

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getActivityVotes, getActivityVotesBatch, castActivityVote, removeActivityVote } from '@vacationist/api';
-import type { VoteType, ActivityVote } from '@vacationist/types';
+import type { ActivityVote, CastActivityVoteVariables } from '@vacationist/types';
+import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 
@@ -23,14 +24,15 @@ export function useActivityVotesBatch(activityIds: string[]) {
   });
 }
 
-export function useCastVote(tripId: string, activityId: string) {
+export function useCastVote() {
   const currentUserId = useAuthStore((s) => s.user?.id);
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (vote: VoteType) => castActivityVote(activityId, vote),
-    onMutate: async (vote) => {
+  return useMutation<ActivityVote, Error, CastActivityVoteVariables, { previous: ActivityVote[] | undefined }>({
+    mutationKey: ['castActivityVote'],
+    mutationFn: ({ vote, activityId }) => castActivityVote(activityId, vote),
+    onMutate: async ({ vote, activityId, tripId }) => {
       await queryClient.cancelQueries({ queryKey: ['activities', activityId, 'votes'] });
       const previous = queryClient.getQueryData<ActivityVote[]>(['activities', activityId, 'votes']);
       if (previous) {
@@ -38,16 +40,16 @@ export function useCastVote(tripId: string, activityId: string) {
         const optimistic: ActivityVote[] =
           exists >= 0
             ? previous.map((v) => (v.user_id === currentUserId ? { ...v, vote } : v))
-            : [...previous, { id: `optimistic-${Date.now()}`, activity_id: activityId, trip_id: tripId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
+            : [...previous, { id: createOptimisticId(), activity_id: activityId, trip_id: tripId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
         queryClient.setQueryData(['activities', activityId, 'votes'], optimistic);
       }
       return { previous };
     },
-    onSuccess: () => {
+    onSuccess: (_data, { activityId, tripId }) => {
       queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
     },
-    onError: (_error, _vote, context) => {
+    onError: (_error, { activityId }, context) => {
       if (context?.previous) {
         queryClient.setQueryData(['activities', activityId, 'votes'], context.previous);
       }

@@ -141,7 +141,7 @@ function AccommodationCardWithVotes({
 }) {
   const { data: votes = [] } = useAccommodationVotes(accommodation.id);
   const { data: members } = useTripMembers(tripId);
-  const castVote = useCastAccommodationVote(tripId, accommodation.id);
+  const castVote = useCastAccommodationVote();
   const removeVote = useRemoveAccommodationVote(tripId, accommodation.id);
   const [showVoteSheet, setShowVoteSheet] = useState(false);
 
@@ -163,7 +163,7 @@ function AccommodationCardWithVotes({
   const canReopenVoting = role === 'organizer' && !accommodation.voting_open;
 
   const handleCastVote = (vote: VoteType) => {
-    castVote.mutate(vote, { onSuccess: () => setShowVoteSheet(false) });
+    castVote.mutate({ vote, accommodationId: accommodation.id, tripId }, { onSuccess: () => setShowVoteSheet(false) });
   };
 
   const handleRemoveVote = () => {
