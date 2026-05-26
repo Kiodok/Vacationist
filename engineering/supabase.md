@@ -1502,3 +1502,79 @@ Root cause fix for notifications not updating in real time.
 **Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
 
 **Local migration file:** `supabase/migrations/20260526190000_fix_create_activity_return_type.sql`
+
+---
+
+## 2026-05-27 — Bug fix: push notifications not delivered for event-triggered notifications
+
+### Migration: `20260527000001_fix_push_dispatch_polling`
+
+**Problem:** Push notifications for `new_activity`, `new_expense`, `new_member`, `vote_finalized`, and `schedule_change` were never delivered to devices. Organizer nudges (type `reminder`) worked correctly.
+
+**Root cause:** `private.create_trip_notification()` calls `net.http_post()` at `pg_trigger_depth() >= 1` — it is invoked from within AFTER INSERT/UPDATE triggers on `activities`, `expenses`, `trip_members`, etc. Supabase's pg_net silently drops HTTP jobs queued from inside a trigger stack. Confirmed by `SELECT * FROM net.http_request_queue` returning 0 rows immediately after activity creation. Nudges worked because `send_organizer_nudge` is a plain RPC (depth 0) — `net.http_post()` ran at depth 0 and queued correctly.
+
+**Fix:**
+
+1. `private.create_trip_notification()` rewritten to detect `pg_trigger_depth() >= 1`. When inside a trigger, the function still INSERTs all notification rows but skips the `net.http_post()` call. At depth 0 (nudge RPC), behavior is unchanged — one immediate batch HTTP call.
+
+2. New `private.dispatch_pending_push_notifications()` SECURITY DEFINER function: queries `notifications WHERE push_sent_at IS NULL AND (push_queued_at IS NULL OR push_queued_at < NOW() - INTERVAL '5 minutes')`, stamps `push_queued_at = NOW()` per row to prevent duplicate dispatch within the retry window, then calls `net.http_post()` once per notification in single-mode payload. Always called at depth 0 by pg_cron, so pg_net queues correctly.
+
+3. `pg_cron` job `dispatch-pending-push-notifications` scheduled `* * * * *` (every minute) to drive the polling function.
+
+4. `push_queued_at TIMESTAMPTZ` column added to `notifications` — prevents re-queueing the same notification on consecutive cron ticks while the Edge Function is processing. `restrict_notification_update_fields` trigger updated to guard this column (only writeable by service role / SECURITY DEFINER, not authenticated users).
+
+5. Partial index `idx_notifications_push_pending ON notifications(created_at ASC) WHERE push_sent_at IS NULL` — makes the polling SELECT fast.
+
+**Latency impact:**
+- Nudges: unchanged (immediate, depth-0 batch HTTP call)
+- All event notifications: up to ~60 s (next cron tick)
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260527000001_fix_push_dispatch_polling.sql`
+
+---
+
+## 2026-05-27 — Bug fix: missing notification event triggers on prod
+
+### Migration: `20260527000002_fix_missing_event_notification_triggers_prod`
+
+**Problem:** All event-driven notification triggers were absent from prod. Creating an activity, expense, or new member on prod produced no rows in `public.notifications` even though the `create_trip_notification` function and migration history entry existed.
+
+**Root cause:** Migration `20260522213024` was applied to prod before the `CREATE TRIGGER` statements were added to the file (migration drift). The function definitions were present but none of the six triggers were ever created on prod. Only `trg_notify_document_access_request` (from a later migration `20260525000007`) existed.
+
+**Missing triggers restored:**
+| Trigger | Table | Event |
+|---|---|---|
+| `trg_notify_new_activity` | `activities` | AFTER INSERT |
+| `trg_notify_new_expense` | `expenses` | AFTER INSERT |
+| `trg_notify_new_member` | `trip_members` | AFTER INSERT |
+| `trg_notify_activity_vote_finalized` | `activities` | AFTER UPDATE |
+| `trg_notify_accommodation_vote_finalized` | `accommodations` | AFTER UPDATE |
+| `trg_notify_schedule_change` | `activities` | AFTER UPDATE |
+
+**Migration is idempotent:** uses `DROP TRIGGER IF EXISTS` before each `CREATE TRIGGER` — no-op drops on dev (triggers already existed), clean creates on prod.
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260527000002_fix_missing_event_notification_triggers_prod.sql`
+
+---
+
+## 2026-05-27 — Bug fix: check_vote_rate_limit functional drift on prod
+
+### Migration: `20260527000003_fix_check_vote_rate_limit_prod`
+
+**Problem:** `public.check_vote_rate_limit()` on prod was an older version missing two correctness improvements present on dev.
+
+**Missing improvements:**
+
+1. **False-positive rate limiting on UPDATE:** Prod counted UPDATE operations toward the 60-votes/hour quota even when `NEW.vote = OLD.vote` (no-op update). Dev added an early return: `IF TG_OP = 'UPDATE' AND NEW.vote = OLD.vote THEN RETURN NEW; END IF;`
+
+2. **Stale time window for updated votes:** Prod used `created_at` only when counting recent votes, so a vote updated multiple times in the same hour was counted only once. Dev uses `GREATEST(created_at, updated_at)` so each vote change within the hour is counted.
+
+**Root cause:** Same migration drift pattern — the function body was improved on dev after the originating migration had already been applied to prod. The `schema_migrations` version list showed parity; only a full function-body comparison revealed the difference.
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260527000003_fix_check_vote_rate_limit_prod.sql`

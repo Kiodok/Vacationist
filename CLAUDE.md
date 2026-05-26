@@ -36,7 +36,20 @@ We are moving to the next task in the Implementation Plan.
 3. **Strict Typing:** No `any` types. Use Zod for validation where applicable.
 4. **No UX Assumptions:** If a business rule or UI flow is not defined in the guide or this prompt, **STOP and ask me** for clarification.
 5. **Atomic Commits:** Provide code in a way that represents logical, mergeable units.
-6. **🔴 Realtime Subscription Review (CRITICAL):** Before writing or modifying ANY Supabase Realtime `postgres_changes` subscription, you MUST:
+6. **🔴 Migration Immutability & Schema Parity (CRITICAL):**
+   - **NEVER edit a migration file after it has been pushed to any environment.** Supabase CLI tracks only version numbers, not file content — a modified migration is silently skipped on re-push, creating invisible schema drift between environments. If a deployed migration needs a fix, always create a NEW migration file.
+   - **Never confirm dev/prod parity by comparing `schema_migrations` version lists alone.** Version parity only means the same migration *names* were recorded — it does not verify the actual database objects match. A migration can be recorded as applied while containing different SQL than what is on disk today.
+   - **After every prod push, verify schema parity with a dump diff:**
+     ```bash
+     npx supabase link --project-ref fsfsqghbejwvgxujoyne
+     npx supabase db dump --linked --schema-only -f prod_schema.sql
+     npx supabase link --project-ref aejywkbkcwyanhyzhrle
+     npx supabase db dump --linked --schema-only -f dev_schema.sql
+     diff dev_schema.sql prod_schema.sql
+     ```
+     If the diff is not empty, investigate before declaring environments in sync.
+
+7. **🔴 Realtime Subscription Review (CRITICAL):** Before writing or modifying ANY Supabase Realtime `postgres_changes` subscription, you MUST:
    - Confirm the `.on()` call includes a `filter: 'column=eq.value'` parameter
    - Confirm that filter column exists directly on the subscribed table (no joins)
    - If the table lacks the needed column, propose adding a denormalized column + BEFORE INSERT trigger (see `software_engineering_guide.md` Section 8 Realtime Subscription Rules)
