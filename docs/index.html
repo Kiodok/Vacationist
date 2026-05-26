@@ -374,6 +374,49 @@
     .step-title { font-size:1.05rem; font-weight:700; color:var(--text); margin-bottom:.5rem; letter-spacing:-.02em; }
     .step-desc { font-size:.88rem; color:var(--text2); line-height:1.65; }
 
+    /* ── ALTERNATIVE USES ── */
+    .alt-bg { background: linear-gradient(180deg, var(--bg) 0%, #0a0a10 50%, var(--bg) 100%); }
+
+    .alt-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 900px) { .alt-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .alt-grid { grid-template-columns: 1fr; } }
+
+    .alt-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem;
+      display: flex; flex-direction: column; gap: .75rem;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      position: relative; overflow: hidden;
+    }
+    .alt-card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--pri-lite) 60%, transparent 100%);
+      opacity: 0; transition: opacity .25s;
+    }
+    .alt-card:hover { border-color: rgba(108,99,255,.32); transform: translateY(-2px); box-shadow: 0 14px 32px rgba(0,0,0,.28); }
+    .alt-card:hover::after { opacity: 1; }
+
+    .alt-card--anchor {
+      background: linear-gradient(145deg, rgba(108,99,255,.11) 0%, var(--surface) 65%);
+      border-color: rgba(108,99,255,.28);
+    }
+    .alt-card--anchor::after { opacity: .75; }
+
+    .alt-icon { font-size: 1.75rem; line-height: 1; }
+    .alt-title { font-size: 1rem; font-weight: 700; color: var(--text); letter-spacing: -.02em; }
+    .alt-desc { font-size: .875rem; color: var(--text2); line-height: 1.65; flex: 1; }
+
+    .alt-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .25rem; }
+    .alt-tag {
+      font-size: .68rem; font-weight: 600; letter-spacing: .01em;
+      color: var(--pri-lite); background: var(--pri-dim);
+      border-radius: 999px; padding: .22rem .65rem;
+    }
+
     /* ── TRUST STRIP ── */
     .trust {
       border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
@@ -477,6 +520,7 @@
   <div class="nav-links">
     <a href="#features">Features</a>
     <a href="#how">How it works</a>
+    <a href="#use-cases">Use cases</a>
     <a href="./privacy-policy.html">Privacy</a>
     <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer">Get the app</a>
   </div>
@@ -678,6 +722,73 @@
         <div class="step-num">3</div>
         <div class="step-title">Plan together</div>
         <div class="step-desc">Vote on ideas, split costs, share lists and notes. Everyone in the loop, in real time.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALTERNATIVE USES -->
+<section class="section alt-bg" id="use-cases">
+  <div class="wrap">
+    <div class="s-head reveal">
+      <div class="s-label">More than vacations</div>
+      <h2 class="s-title">Built for any group.<br>Any plan.</h2>
+      <p class="s-sub">Vacationist works wherever a group needs to coordinate — whether it's a summer holiday or a Tuesday barbecue.</p>
+    </div>
+    <div class="alt-grid">
+      <div class="alt-card alt-card--anchor reveal d1">
+        <div class="alt-icon">✈️</div>
+        <div class="alt-title">Vacation trips</div>
+        <div class="alt-desc">The original use case — and still the best. Flights, accommodations, activities, expenses, travel documents, shopping lists. Everything for a group trip, in one app.</div>
+        <div class="alt-tags">
+          <span class="alt-tag">Made for this</span>
+          <span class="alt-tag">Full feature set</span>
+        </div>
+      </div>
+      <div class="alt-card reveal d2">
+        <div class="alt-icon">🏠</div>
+        <div class="alt-title">Shared apartments</div>
+        <div class="alt-desc">Track rent, utilities, and grocery costs without the spreadsheet juggling. Shared shopping lists keep flatmates in sync — even when you're at different stores.</div>
+        <div class="alt-tags">
+          <span class="alt-tag">Expense splitting</span>
+          <span class="alt-tag">Shopping lists</span>
+        </div>
+      </div>
+      <div class="alt-card reveal d3">
+        <div class="alt-icon">🍻</div>
+        <div class="alt-title">Bar &amp; dinner nights</div>
+        <div class="alt-desc">Vote on where to go, track who paid what during the evening, and settle up at the end — no more "I'll pay you back" that never happens.</div>
+        <div class="alt-tags">
+          <span class="alt-tag">Activity voting</span>
+          <span class="alt-tag">Live expense tracking</span>
+        </div>
+      </div>
+      <div class="alt-card reveal d1">
+        <div class="alt-icon">🎯</div>
+        <div class="alt-title">Hobby groups &amp; clubs</div>
+        <div class="alt-desc">Organise your monthly board game night, weekend BBQ, or hiking meetup. Plan activities, vote on the date, manage shared costs — all without the WhatsApp chaos.</div>
+        <div class="alt-tags">
+          <span class="alt-tag">Recurring meetups</span>
+          <span class="alt-tag">Group coordination</span>
+        </div>
+      </div>
+      <div class="alt-card reveal d2">
+        <div class="alt-icon">🌅</div>
+        <div class="alt-title">Day trips &amp; weekenders</div>
+        <div class="alt-desc">A Saturday at the lake, a day hike, a cabin weekend — Vacationist handles the coordination for anything that needs a plan but doesn't need a full travel agent.</div>
+        <div class="alt-tags">
+          <span class="alt-tag">Quick planning</span>
+          <span class="alt-tag">Shared calendar</span>
+        </div>
+      </div>
+      <div class="alt-card reveal d3">
+        <div class="alt-icon">📋</div>
+        <div class="alt-title">Personal event planning</div>
+        <div class="alt-desc">A birthday weekend, a sports tournament, a family reunion — use a trip as a planning board for any bounded event, with your own timeline, notes, and lists.</div>
+        <div class="alt-tags">
+          <span class="alt-tag">Personal calendar</span>
+          <span class="alt-tag">Activity timeline</span>
+        </div>
       </div>
     </div>
   </div>
