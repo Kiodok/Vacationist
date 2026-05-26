@@ -17,6 +17,8 @@
     "android": "npm run android --workspace=@vacationist/mobile",
     "ios": "npm run ios --workspace=@vacationist/mobile",
     "web": "npm run web --workspace=@vacationist/mobile",
+    "web:export": "cd apps/mobile && npx expo export --platform web",
+    "web:serve": "cd apps/mobile && npx serve dist",
     "typecheck": "tsc --noEmit --project apps/mobile/tsconfig.json",
     "supabase:start": "npx supabase start",
     "supabase:stop": "npx supabase stop",

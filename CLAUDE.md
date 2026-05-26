@@ -153,6 +153,39 @@ For PATCH releases (well-understood bug fixes): skip staging, go straight to 100
 2. `eas build --profile production --platform android`
 3. Submit → internal track → validate → promote to 100 % immediately (skip gradual rollout for confirmed hotfixes)
 
+### Web Deployment (Vercel)
+
+The web app is deployed to `web.vacationist.app` via Vercel. Every push to `main` triggers an automatic production deployment. Vercel also generates a unique preview URL for every PR.
+
+```bash
+# Export the web build locally to verify before pushing
+cd apps/mobile && npx expo export --platform web
+
+# Serve the export locally to test the production build
+npx serve apps/mobile/dist
+```
+
+**Vercel project settings:**
+- Root directory: `.` (repo root)
+- Framework preset: Other (none)
+- Build command / output directory / rewrites: all defined in `vercel.json` — do not override in the dashboard
+
+**Deploying a web-only fix:**
+1. Fix on `main`, verify with `npx tsc --noEmit`
+2. Push to `main` — Vercel deploys automatically (live in ~2 min, no review)
+
+**Environment variables (set in Vercel dashboard, not committed):**
+
+| Variable | Notes |
+|----------|-------|
+| `EXPO_PUBLIC_SUPABASE_URL` | Production Supabase instance |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Public anon key — not a secret |
+| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | Shared with native builds |
+
+**Web-specific auth configuration (external, one-time setup):**
+- Supabase Dashboard → Auth → Redirect URLs: `https://web.vacationist.app`, `http://localhost:8081`
+- Google Cloud Console → OAuth web client → Authorized JS Origins: same URLs
+
 ### Pre-Release Checklist
 
 Before every production build:
@@ -165,6 +198,8 @@ Before every production build:
 - [ ] Edge Function reachable: a POST to the function URL returns 401 (not 5xx)
 - [ ] `version` bumped in `app.config.ts` if this is a MINOR or MAJOR release
 - [ ] Play Store listing text and screenshots are current
+- [ ] Web build passes: `cd apps/mobile && npx expo export --platform web`
+- [ ] `web.vacationist.app` loads and Google OAuth completes end-to-end
 
 ### Monitoring
 
@@ -187,6 +222,7 @@ Target response time for a confirmed production crash: **same day**.
 | Supabase dev ref | `aejywkbkcwyanhyzhrle` |
 | Play Store service account key | `./play-store-service-account.json` |
 | OTA update URL | `https://u.expo.dev/a1dc4172-7c41-4aa9-a44d-afb1a0088278` |
+| Web app URL | `https://web.vacationist.app` |
 | Privacy policy | `https://vacationist.app/privacy-policy.html` |
 | Terms of service | `https://vacationist.app/terms-of-service.html` |
 
