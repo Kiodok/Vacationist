@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 
 export function initSentry() {
@@ -17,13 +18,13 @@ export function initSentry() {
     replaysSessionSampleRate: __DEV__ ? 0 : 0.1,
     replaysOnErrorSampleRate: 1,
 
-    integrations: [
+    integrations: Platform.OS !== 'web' ? [
       Sentry.mobileReplayIntegration({
         maskAllText: true,
         maskAllImages: true,
       }),
       Sentry.feedbackIntegration(),
-    ],
+    ] : [],
 
     // Only active in preview/production EAS builds — skipped in local dev
     enabled: !__DEV__,

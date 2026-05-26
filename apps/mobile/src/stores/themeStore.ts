@@ -1,11 +1,8 @@
 import { create } from 'zustand';
 import { Appearance, Platform } from 'react-native';
 import { storage } from '../utils/mmkvStorage';
-// NativeWind reads colorScheme from systemColorScheme (native) or colorSchemeObservable
-// (web). Both must be updated before Zustand triggers React re-renders, so that
-// ThemeRemountKey's forced remount runs initReducer with the already-correct value.
 import { colorScheme as cssColorScheme } from 'react-native-css-interop';
-import { systemColorScheme } from 'react-native-css-interop/dist/runtime/native/appearance-observables';
+import { syncSystemColorScheme } from '../utils/themeSync';
 
 type ThemePreference = 'dark' | 'light' | 'system';
 
@@ -36,7 +33,7 @@ export const useThemeStore = create<ThemeState>()((set) => ({
     // This guarantees that when ThemeRemountKey changes its key and React unmounts +
     // remounts screen content, initReducer reads the new colorScheme on first render
     // instead of relying on the unreliable useReducer dispatch on Android Fabric.
-    systemColorScheme.set(effective);
+    syncSystemColorScheme(effective);
 
     // Web: toggle the .dark CSS class on <html>. Guard avoids the SSR throw
     // ("Cannot manually set color scheme while not in a browser environment").

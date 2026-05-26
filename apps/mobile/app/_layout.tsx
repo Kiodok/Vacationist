@@ -26,20 +26,19 @@ import { usePushNotificationHandler } from '../src/features/notifications/hooks/
 import { useOnlineManager } from '../src/hooks/useOnlineManager';
 import { OfflineBanner } from '../src/components/OfflineBanner';
 import { useThemeStore } from '../src/stores/themeStore';
-// Private native observable — set synchronously so the very first render uses
-// the persisted theme without a light-flash before ThemeController's useEffect fires.
-// If react-native-css-interop is upgraded and this import breaks, update the path here.
 import { colorScheme as cssColorScheme } from 'react-native-css-interop';
-import { systemColorScheme } from 'react-native-css-interop/dist/runtime/native/appearance-observables';
+import { syncSystemColorScheme } from '../src/utils/themeSync';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -51,7 +50,7 @@ initDayjs();
 const _pt = useThemeStore.getState().theme;
 const _is: 'light' | 'dark' =
   _pt === 'system' ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light') : _pt;
-systemColorScheme.set(_is);
+syncSystemColorScheme(_is);
 if (Platform.OS !== 'web' || typeof window !== 'undefined') {
   cssColorScheme.set(_is);
 }
@@ -205,7 +204,7 @@ function ThemeController() {
   // Keep systemColorScheme in sync when the effective scheme changes (covers the
   // 'system' mode path where rnScheme changes without setTheme being called).
   useEffect(() => {
-    systemColorScheme.set(effective);
+    syncSystemColorScheme(effective);
     if (Platform.OS !== 'web' || typeof window !== 'undefined') {
       cssColorScheme.set(effective);
     }
@@ -218,7 +217,7 @@ function ThemeController() {
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next) => {
       if (next === 'active') {
-        systemColorScheme.set(effective);
+        syncSystemColorScheme(effective);
         if (Platform.OS !== 'web' || typeof window !== 'undefined') {
           cssColorScheme.set(effective);
         }

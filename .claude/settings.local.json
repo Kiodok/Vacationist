@@ -91,7 +91,9 @@
       "PowerShell(node -e \"const s=require\\('sharp'\\);console.log\\(s.versions\\)\")",
       "Bash(Get-ChildItem -Path \"F:\\\\Expo Projects\\\\Vacationist\" -Recurse -Directory -Name)",
       "Bash(Get-Date *)",
-      "Bash(echo \"Exit: $?\")"
+      "Bash(echo \"Exit: $?\")",
+      "PowerShell(try { $json = Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\node_modules\\\\@shopify\\\\flash-list\\\\package.json\" -ErrorAction Stop | ConvertFrom-Json; $json.version } catch { Write-Output \"Not found\" })",
+      "PowerShell(try { $json = Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\node_modules\\\\@react-native-community\\\\netinfo\\\\package.json\" -ErrorAction Stop | ConvertFrom-Json; $json.version } catch { Write-Output \"Not found\" })"
     ]
   },
   "model": "opusplan",

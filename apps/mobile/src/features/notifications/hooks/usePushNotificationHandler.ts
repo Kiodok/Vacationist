@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { resolveNotificationPath } from '../utils/resolveNotificationPath';
@@ -7,6 +8,8 @@ export function usePushNotificationHandler() {
   const router = useRouter();
 
   useEffect(() => {
+    if (Platform.OS === 'web') return;
+
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data as Record<string, unknown>;
       const type = data?.type as string | undefined;
