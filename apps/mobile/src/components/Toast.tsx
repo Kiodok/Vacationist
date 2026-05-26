@@ -1,7 +1,12 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useToastStore, type ToastType } from '../stores/toastStore';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { colors } from '@vacationist/ui';
+
+// Approximate height of the offline banner text row (paddingTop 6 + icon/text ~20px).
+// The safe area portion is already accounted for in the toast bottom calculation below.
+const OFFLINE_BANNER_TEXT_HEIGHT = 26;
 
 const TYPE_COLORS: Record<ToastType, { bg: string; text: string }> = {
   success: { bg: 'rgba(62, 207, 142, 0.15)', text: colors.success },
@@ -11,13 +16,17 @@ const TYPE_COLORS: Record<ToastType, { bg: string; text: string }> = {
 
 export function ToastContainer() {
   const insets = useSafeAreaInsets();
+  const { isConnected } = useNetworkStatus();
   const toasts = useToastStore((s) => s.toasts);
   const removeToast = useToastStore((s) => s.removeToast);
 
   if (toasts.length === 0) return null;
 
+  // Push toasts above the offline banner when it's visible so they never overlap.
+  const offlineClearance = isConnected ? 0 : OFFLINE_BANNER_TEXT_HEIGHT + Math.max(insets.bottom, 6);
+
   return (
-    <View style={[styles.container, { bottom: Math.max(insets.bottom, 16) + 8 }]}>
+    <View style={[styles.container, { bottom: Math.max(insets.bottom, 16) + 8 + offlineClearance }]}>
       {toasts.map((toast) => {
         const colors = TYPE_COLORS[toast.type];
         return (

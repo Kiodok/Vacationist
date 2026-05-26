@@ -148,7 +148,8 @@ export default function ActivitiesTab() {
   }, [activityId, sections]);
 
   const handleCreate = (input: CreateActivityInput) => {
-    createActivity.mutate(input, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createActivity.mutate(input);
   };
 
   const handleUpdate = (input: UpdateActivityInput) => {

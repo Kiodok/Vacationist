@@ -748,7 +748,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 *Goal: Freemium model where trip organizers can subscribe to Pro for unlimited trips. Participants always join for free.*
 *Trigger: Ship when MAU reaches ~500. The entire phase is one day of work.*
 
-**Model:** Free tier = 2 active trips as organizer. Pro (~€3.99/mo or €29.99/yr) = unlimited trips as organizer. Participants joining via invite link are always free. No feature cuts — only a creation limit gate.
+**Model:** Free tier = 2 active trips as organizer. Pro (~€2.99/mo or €24.99/yr) = unlimited trips as organizer. Participants joining via invite link are always free. No feature cuts — only a creation limit gate.
 
 **Payment stack:** RevenueCat (`react-native-purchases`) wraps Google Play Billing. You never handle card data. RevenueCat free tier covers up to $2,500 MRR. Google takes 15% (reduced rate, Developer Program). RevenueCat webhooks update Supabase when subscription status changes.
 

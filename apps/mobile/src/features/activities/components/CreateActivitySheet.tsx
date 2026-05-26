@@ -237,13 +237,11 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
               <Pressable
                 onPress={handleSubmit(onValid)}
                 disabled={isPending}
-                className={`items-center py-sm rounded-md mt-sm ${
-                  isPending ? 'bg-primary/50' : 'bg-primary'
-                }`}
-                style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
+                className="items-center py-sm rounded-md mt-sm bg-primary"
+                style={({ pressed }) => ({ minHeight: 48, opacity: isPending || pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold">
-                  {isPending ? 'Creating...' : 'Create Activity'}
+                  Create Activity
                 </Text>
               </Pressable>
             </View>

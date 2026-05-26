@@ -8,8 +8,9 @@ import {
   closeActivityVoting,
   reopenActivityVoting,
 } from '@vacationist/api';
-import type { CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
+import type { Activity, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 import { useToastStore } from '../../../stores/toastStore';
+import { useAuthStore } from '../../../stores/authStore';
 
 export function useActivities(tripId: string) {
   return useQuery({
@@ -35,11 +36,45 @@ export function useCreateActivity(tripId: string) {
 
   return useMutation({
     mutationFn: (input: CreateActivityInput) => createActivity(tripId, input),
+    onMutate: async (input) => {
+      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
+      const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
+
+      const userId = useAuthStore.getState().user?.id ?? '';
+      const optimistic: Activity = {
+        id: crypto.randomUUID(),
+        trip_id: tripId,
+        title: input.title,
+        description: input.description ?? null,
+        category: input.category ?? null,
+        cost_estimate: input.cost_estimate ?? null,
+        activity_date: input.activity_date ?? null,
+        start_time: input.start_time ?? null,
+        end_time: input.end_time ?? null,
+        external_url: input.external_url ?? null,
+        maps_url: null,
+        status: 'planned',
+        voting_open: true,
+        created_by: userId,
+        created_at: new Date().toISOString(),
+        deleted_at: null,
+      };
+
+      queryClient.setQueryData<Activity[]>(
+        ['trips', tripId, 'activities'],
+        (old) => [...(old ?? []), optimistic],
+      );
+
+      return { previous };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
       addToast('success', 'Activity created');
     },
-    onError: () => {
+    onError: (_err, _input, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData<Activity[]>(['trips', tripId, 'activities'], context.previous);
+      }
       addToast('error', 'Failed to create activity.');
     },
   });
