@@ -22,6 +22,7 @@ import { useTransferRentals, useCreateTransferRental, useUpdateTransferRental, u
 import { useTransferRealtime } from '../../../src/features/transfer/hooks/useTransferRealtime';
 import { computeFlightWinner } from '../../../src/features/transfer/utils/flightWinner';
 import { TransferSegmentedControl } from '../../../src/features/transfer/components/TransferSegmentedControl';
+import { AllTransfersView } from '../../../src/features/transfer/components/AllTransfersView';
 import { FlightCard } from '../../../src/features/transfer/components/FlightCard';
 import { VehicleCard } from '../../../src/features/transfer/components/VehicleCard';
 import { RentalCard } from '../../../src/features/transfer/components/RentalCard';
@@ -39,7 +40,7 @@ import { EmptyVehicles } from '../../../src/features/transfer/components/EmptyVe
 import { EmptyRentals } from '../../../src/features/transfer/components/EmptyRentals';
 import { colors } from '@vacationist/ui';
 
-type Segment = 'Flights' | 'Vehicles' | 'Rentals';
+type Segment = 'All' | 'Flights' | 'Vehicles' | 'Rentals';
 
 export default function TransferTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -49,7 +50,7 @@ export default function TransferTab() {
   const { data: members = [] } = useTripMembers(tripId!);
   const currency = trip?.base_currency ?? 'EUR';
 
-  const [activeSegment, setActiveSegment] = useState<Segment>('Flights');
+  const [activeSegment, setActiveSegment] = useState<Segment>('All');
 
   // Flights
   const { data: flights = [], isLoading: flightsLoading, isFetching: flightsFetching, refetch: refetchFlights } = useTransferFlights(tripId!);
@@ -108,6 +109,7 @@ export default function TransferTab() {
   }, [vehicles]);
 
   const isLoading =
+    (activeSegment === 'All' && (flightsLoading || vehiclesLoading || rentalsLoading)) ||
     (activeSegment === 'Flights' && flightsLoading) ||
     (activeSegment === 'Vehicles' && vehiclesLoading) ||
     (activeSegment === 'Rentals' && rentalsLoading);
@@ -180,6 +182,18 @@ export default function TransferTab() {
       <View className="px-md pt-md pb-sm">
         <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
       </View>
+
+      {/* All */}
+      {activeSegment === 'All' && (
+        <AllTransfersView
+          flights={flights}
+          vehicles={vehicles}
+          rentals={rentals}
+          currency={currency}
+          isRefreshing={(flightsFetching || vehiclesFetching || rentalsFetching) && !isLoading}
+          onRefresh={() => { refetchFlights(); refetchVehicles(); refetchRentals(); }}
+        />
+      )}
 
       {/* Flights */}
       {activeSegment === 'Flights' && (
@@ -304,18 +318,20 @@ export default function TransferTab() {
         )
       )}
 
-      {/* FAB */}
-      <Pressable
-        onPress={() => {
-          if (activeSegment === 'Flights') setShowCreateFlight(true);
-          else if (activeSegment === 'Vehicles') setShowCreateVehicle(true);
-          else setShowCreateRental(true);
-        }}
-        className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
-      >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
-      </Pressable>
+      {/* FAB — hidden on All overview */}
+      {activeSegment !== 'All' && (
+        <Pressable
+          onPress={() => {
+            if (activeSegment === 'Flights') setShowCreateFlight(true);
+            else if (activeSegment === 'Vehicles') setShowCreateVehicle(true);
+            else setShowCreateRental(true);
+          }}
+          className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
+          style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        >
+          <Ionicons name="add" size={28} color="#FFFFFF" />
+        </Pressable>
+      )}
 
       {/* Create sheets */}
       <CreateFlightSheet

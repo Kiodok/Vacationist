@@ -6,6 +6,7 @@ export function useUnreadCount() {
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => getUnreadCount(),
     retry: 2,
+    refetchInterval: 30_000,
   });
 }
 
@@ -15,5 +16,6 @@ export function useTripUnreadCount(tripId: string) {
     queryFn: () => getUnreadCount(tripId),
     retry: 2,
     enabled: !!tripId,
+    refetchInterval: 30_000,
   });
 }

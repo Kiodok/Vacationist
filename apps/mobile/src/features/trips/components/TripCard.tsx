@@ -1,13 +1,21 @@
 import { Pressable, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
-import type { Trip } from '@vacationist/types';
+import type { Trip, TripStatus } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
 import { StatusBadge } from './StatusBadge';
 
 interface TripCardProps {
   trip: Trip & { member_count: number };
   onPress: () => void;
+}
+
+function getEffectiveStatus(trip: Trip): TripStatus {
+  if (trip.status === 'archived' || trip.status === 'completed') return trip.status;
+  const today = dayjs().format('YYYY-MM-DD');
+  if (trip.end_date < today) return 'completed';
+  if (trip.start_date <= today) return 'active';
+  return trip.status;
 }
 
 function formatDateRange(startDate: string, endDate: string): string {
@@ -33,7 +41,7 @@ export function TripCard({ trip, onPress }: TripCardProps) {
         <Text className="text-heading-m text-text-primary flex-1 mr-sm" numberOfLines={1}>
           {trip.title}
         </Text>
-        <StatusBadge status={trip.status} />
+        <StatusBadge status={getEffectiveStatus(trip)} />
       </View>
 
       {trip.description ? (

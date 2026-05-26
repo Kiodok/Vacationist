@@ -13,7 +13,7 @@ export async function getTrips(): Promise<(Trip & { member_count: number })[]> {
   const { data, error } = await supabase
     .from('trips')
     .select('*')
-    .order('start_date', { ascending: false });
+    .order('start_date', { ascending: true });
 
   if (error) throw error;
   return data as unknown as (Trip & { member_count: number })[];

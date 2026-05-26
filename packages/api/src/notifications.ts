@@ -102,7 +102,7 @@ export async function sendOrganizerNudge(tripId: string, title: string, body: st
 export interface NotificationRealtimeCallbacks {
   onInsert: (notification: Notification) => void;
   onUpdate: (notification: Notification) => void;
-  onDelete: (id: string) => void;
+  onDelete: (notification: Notification) => void;
 }
 
 export function subscribeToNotificationsRealtime(
@@ -124,7 +124,7 @@ export function subscribeToNotificationsRealtime(
     .on(
       'postgres_changes',
       { event: 'DELETE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
-      (payload) => callbacks.onDelete((payload.old as { id: string }).id),
+      (payload) => callbacks.onDelete(payload.old as unknown as Notification),
     )
     .subscribe((status) => onStatus?.(status));
 }

@@ -1364,6 +1364,79 @@ Security hardening migration applying all CRITICAL and HIGH fixes found during s
 
 ---
 
+## 2026-05-26 — Bug fixes: notifications realtime, trip ordering, effective status
+
+### Migration: `20260526000001_scaling_indexes`
+
+Performance improvements for vote rate-limit and nudge rate-limit queries.
+
+**Indexes added:**
+- `idx_activity_votes_rate_limit ON activity_votes(user_id, trip_id, created_at DESC)` — turns O(trip_votes) scan into O(1) range scan for `check_vote_rate_limit`
+- `idx_accommodation_votes_rate_limit ON accommodation_votes(user_id, trip_id, created_at DESC)`
+- `idx_transfer_flight_votes_rate_limit ON transfer_flight_votes(user_id, trip_id, created_at DESC)`
+- `idx_notifications_nudge_rate_limit ON notifications(trip_id, created_at DESC) WHERE type = 'reminder'` — partial index for `send_organizer_nudge` rate-limit COUNT
+
+**Function updated:**
+- `public.check_vote_rate_limit()` — rewrote 3 sequential `COUNT(*)` calls to a single `COUNT(*) FROM (... UNION ALL ...)` to share one execution plan and short-circuit at the 60-vote limit
+
+---
+
+### Migration: `20260526000002_batch_push_dispatch`
+
+Rewrote push notification dispatch from O(M) vault reads + HTTP calls to O(1) per event.
+
+**Problem:** `private.create_trip_notification` looped over M trip members, and each `notifications` INSERT fired the per-row `trg_dispatch_push_notification` trigger — 2 vault reads + 1 `net.http_post` per row. A 9-member trip triggered 18 blocking vault reads and 9 Edge Function invocations per activity creation.
+
+**Fix:**
+- `private.dispatch_push_notification()` updated: returns immediately when `current_setting('app.batch_push_pending', true) = 'true'`
+- `private.create_trip_notification()` rewritten: sets the transaction-local flag before the loop, collects `(user_id, notification_id)` pairs, resets the flag after the loop, then reads vault once and calls `net.http_post` once with `batch=true` + UUID arrays
+
+**Edge Function** (`push-notification/index.ts`) already handles the `batch: true` payload — one preference/token query + one Expo API call for all recipients.
+
+---
+
+### Migration: `20260526000003_denormalize_trip_member_count`
+
+Denormalized `member_count` onto `trips` to eliminate the per-row subquery in `getTrips()`.
+
+**Schema change:**
+- Added `member_count INTEGER NOT NULL DEFAULT 0` to `public.trips`
+- Backfilled from `COUNT(*) per trip_id` in `trip_members`
+
+**Trigger:** `trg_maintain_trip_member_count` (AFTER INSERT OR DELETE on `trip_members`) — `private.maintain_trip_member_count()` SECURITY DEFINER; increments on INSERT, decrements on DELETE (floor at 0)
+
+---
+
+### Migration: `20260526000004_enable_notifications_realtime`
+
+Root cause fix for notifications not updating in real time.
+
+**Problem:** The `notifications` table was never added to the `supabase_realtime` publication. `useNotificationsRealtime` subscribed to `postgres_changes` on `notifications` but received no events — new notifications only appeared after a manual pull-to-refresh.
+
+**Changes:**
+- `ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications`
+- `ALTER TABLE public.notifications REPLICA IDENTITY FULL` — required so DELETE events include all columns (enabling the `user_id=eq.{userId}` filter) and UPDATE events include old values
+
+### Code changes (2026-05-26 bug fixes)
+
+**`packages/api/src/trips.ts`:**
+- `getTrips()` sort order changed from `ascending: false` to `ascending: true` — trips now display earliest start date first
+
+**`apps/mobile/src/features/trips/components/TripCard.tsx`:**
+- Added `getEffectiveStatus(trip: Trip): TripStatus` — returns `'completed'` for any trip whose `end_date` is in the past (unless already `'archived'` or `'completed'` in DB); returns `'active'` for ongoing trips; falls back to DB status otherwise
+- `<StatusBadge>` now receives `getEffectiveStatus(trip)` instead of `trip.status`
+
+**`apps/mobile/src/features/notifications/hooks/useNotifications.ts`:**
+- `useNotifications`: added `refetchInterval: 30_000` (30 s polling fallback)
+- `useNotificationsRealtime` `onInsert`: added `queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] })` and trip-scoped unread count invalidation — badge now updates immediately when a new notification arrives
+- `useNotificationsRealtime` `onUpdate`: added same unread count invalidations — badge updates when a notification is marked read on another device
+
+**`apps/mobile/src/features/notifications/hooks/useUnreadCount.ts`:**
+- `useUnreadCount`: added `refetchInterval: 30_000`
+- `useTripUnreadCount`: added `refetchInterval: 30_000`
+
+---
+
 ## 2026-05-22 — Transfer: Fix soft-delete realtime propagation (RLS)
 
 ### Migration: `20260522000008_transfer_realtime_softdelete_rls`

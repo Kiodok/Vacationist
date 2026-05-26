@@ -22,6 +22,7 @@ export function useNotifications() {
     queryKey: ['notifications'],
     queryFn: () => getNotifications(),
     retry: 2,
+    refetchInterval: 30_000,
   });
 }
 
@@ -71,6 +72,7 @@ export function useNotificationsRealtime() {
             if (old.some((n) => n.id === notification.id)) return old;
             return [notification, ...old];
           });
+          queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
           if (notification.trip_id) {
             queryClient.setQueryData<Notification[]>(
               ['trips', notification.trip_id, 'notifications'],
@@ -80,24 +82,38 @@ export function useNotificationsRealtime() {
                 return [notification, ...old];
               },
             );
+            queryClient.invalidateQueries({ queryKey: ['trips', notification.trip_id, 'notifications', 'unread-count'] });
           }
         },
         onUpdate: (notification) => {
           queryClient.setQueryData<Notification[]>(['notifications'], (old) =>
             old?.map((n) => (n.id === notification.id ? notification : n)),
           );
+          queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
           if (notification.trip_id) {
             queryClient.setQueryData<Notification[]>(
               ['trips', notification.trip_id, 'notifications'],
               (old) => old?.map((n) => (n.id === notification.id ? notification : n)),
             );
+            queryClient.invalidateQueries({ queryKey: ['trips', notification.trip_id, 'notifications', 'unread-count'] });
           }
         },
-        onDelete: (id) => {
+        onDelete: (notification) => {
           queryClient.setQueryData<Notification[]>(['notifications'], (old) =>
-            old?.filter((n) => n.id !== id),
+            old?.filter((n) => n.id !== notification.id),
           );
-          queryClient.invalidateQueries({ queryKey: ['trips'] });
+          if (notification.trip_id) {
+            queryClient.setQueryData<Notification[]>(
+              ['trips', notification.trip_id, 'notifications'],
+              (old) => old?.filter((n) => n.id !== notification.id),
+            );
+          }
+          if (!notification.is_read) {
+            queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+            if (notification.trip_id) {
+              queryClient.invalidateQueries({ queryKey: ['trips', notification.trip_id, 'notifications', 'unread-count'] });
+            }
+          }
         },
       },
       (status) => {

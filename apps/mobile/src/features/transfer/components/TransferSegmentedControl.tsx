@@ -1,7 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 
-export type TransferSegment = 'Flights' | 'Vehicles' | 'Rentals';
-const SEGMENTS: TransferSegment[] = ['Flights', 'Vehicles', 'Rentals'];
+export type TransferSegment = 'All' | 'Flights' | 'Vehicles' | 'Rentals';
+const SEGMENTS: TransferSegment[] = ['All', 'Flights', 'Vehicles', 'Rentals'];
 
 interface TransferSegmentedControlProps {
   activeSegment: TransferSegment;
