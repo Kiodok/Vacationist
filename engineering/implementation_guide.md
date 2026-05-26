@@ -743,111 +743,217 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
 ---
 
-## 💳 Phase 11: Monetization — Pro Organizer Subscription
+## 💳 Phase 11: Monetization — Trip-Day Model
 *Dependencies: Phase 9 (Polish & Hardening)*
-*Goal: Freemium model where trip organizers can subscribe to Pro for unlimited trips. Participants always join for free.*
-*Trigger: Ship when MAU reaches ~500. The entire phase is one day of work.*
+*Goal: Freemium model gated on trip-days, feature depth, and member count. Participants always join for free.*
+*Trigger: Ship when MAU reaches ~500. Estimated 2 days of work.*
 
-**Model:** Free tier = 2 active trips as organizer. Pro (~€2.99/mo or €24.99/yr) = unlimited trips as organizer. Participants joining via invite link are always free. No feature cuts — only a creation limit gate.
+---
+
+### Business Rules
+
+#### Free Tier
+- **Day quota:** 15 trip-days per calendar year (resets 1 January). Each trip created by the organizer consumes `end_date − start_date + 1` days at creation time.
+- **Trip duration:** Max 14 days per trip.
+- **Date shifting:** A free trip's start date may only move ±7 days from `original_start_date` (stored at creation, never mutated). Prevents cycling a short trip through the entire year.
+- **Members:** Max 4 per trip (organizer + 3 participants). Enforced at join time; existing members are never removed when Pro expires.
+- **Features locked on free trips:**
+  - Expenses tab: hidden, replaced by "Get Pro to unlock" prompt
+  - Prework tab: hidden, replaced by "Get Pro to unlock" prompt
+  - Transfers — Flights: not available, replaced by "Get Pro to unlock" prompt
+  - Transfers — Vehicles & Rentals: max 1 vehicle AND max 1 rental per trip (earliest by `created_at`; extras hidden)
+
+#### Pro Tier (€2.99/mo or €24.99/yr)
+- Unlimited trip-days (day quota not tracked for Pro users)
+- Unlimited trip duration
+- Unlimited members per trip — no enforced cap (PostgreSQL imposes no row limit; FlashList handles large member lists via virtualization)
+- All features unlocked
+- Trips created while Pro is active are marked `created_with_pro = TRUE`
+
+#### Pro Expiry Behaviour
+When a Pro subscription expires (`is_pro` becomes `FALSE`):
+- **Pro-created trips** (`created_with_pro = TRUE`) become inaccessible — shown with a "Get Pro to unlock your trip" placeholder. Data is fully preserved; reactivating Pro instantly restores access.
+- **All free trips** (`created_with_pro = FALSE`) remain visible and editable — these were created under free tier rules and are unaffected by Pro expiry. Only trips with `created_with_pro = TRUE` become inaccessible.
+- Feature scope reverts to Free tier:
+  - Expenses tab hidden (data preserved)
+  - Prework tab hidden (data preserved)
+  - Flights hidden in Transfers tab (data preserved, reappears on reactivation)
+  - Vehicles: only the first created vehicle visible per trip; extras hidden (reappear on reactivation)
+  - Rentals: same pattern as vehicles
+- **No data is ever deleted.** All Pro content is restored exactly as-left upon reactivation.
+
+#### Anti-Gaming Rules
+These rules make day-based gating abuse-resistant:
+- Day consumption is **permanent**. Soft-deleting or archiving a trip does **not** return its days.
+- Extending a free trip's end date consumes additional days from the annual quota; shortening does not return days.
+- Free trip duration is hard-capped at 14 days regardless of remaining annual quota — prevents the "one giant trip" workaround.
+- The ±7 day shift limit on free trips prevents the "create short trip, slide it through the whole year" workaround.
+
+---
 
 **Payment stack:** RevenueCat (`react-native-purchases`) wraps Google Play Billing. You never handle card data. RevenueCat free tier covers up to $2,500 MRR. Google takes 15% (reduced rate, Developer Program). RevenueCat webhooks update Supabase when subscription status changes.
 
+---
+
 - [ ] **1. DB/RLS & Types**
 
-  **Migration — `YYYYMMDDHHMMSS_add_pro_status_to_users.sql`**
+  **Migration — `YYYYMMDDHHMMSS_add_monetization_to_users.sql`**
 
   - [ ] `ALTER TABLE public.users ADD COLUMN is_pro BOOLEAN NOT NULL DEFAULT FALSE`
+  - [ ] `ALTER TABLE public.users ADD COLUMN pro_expires_at TIMESTAMPTZ DEFAULT NULL` — set when subscription lapses; used by client to detect expiry state
+  - [ ] `ALTER TABLE public.users ADD COLUMN annual_days_used INT NOT NULL DEFAULT 0` — resets on calendar year boundary (checked on read, reset lazily)
+  - [ ] `ALTER TABLE public.users ADD COLUMN annual_days_year INT NOT NULL DEFAULT EXTRACT(YEAR FROM NOW())::INT`
   - [ ] Index on `(id, is_pro)` for fast paywall checks
-  - [ ] `update_user_pro_status(p_user_id UUID, p_is_pro BOOLEAN)` SECURITY DEFINER RPC — called by the webhook Edge Function only; validates caller is `service_role`
-  - [ ] RLS: no change — `is_pro` is readable by the owner via existing users SELECT policy; write locked to the RPC
+  - [ ] `update_user_pro_status(p_user_id UUID, p_is_pro BOOLEAN, p_expires_at TIMESTAMPTZ)` SECURITY DEFINER RPC — called by webhook Edge Function only; validates caller is `service_role`
+  - [ ] `check_and_consume_trip_days(p_user_id UUID, p_days INT) RETURNS BOOLEAN` SECURITY DEFINER RPC — atomically resets annual counter if `annual_days_year != current year`, checks `(15 - annual_days_used) >= p_days`, deducts if sufficient and returns TRUE; returns FALSE if insufficient (caller opens PaywallSheet)
+
+  **Migration — `YYYYMMDDHHMMSS_add_monetization_to_trips.sql`**
+
+  - [ ] `ALTER TABLE public.trips ADD COLUMN created_with_pro BOOLEAN NOT NULL DEFAULT TRUE`
+  - [ ] `ALTER TABLE public.trips ADD COLUMN original_start_date DATE DEFAULT NULL` — set at creation, never mutated; enforces ±7 day shift limit for free trips
+  - [ ] `ALTER TABLE public.trips ADD COLUMN max_members INT DEFAULT NULL` — NULL for Pro trips, 4 for free trips
+  - [ ] Index on `(created_by, created_with_pro, deleted_at)`
 
   **Types (`packages/types/`)**
 
-  - [ ] Add `is_pro: boolean` to the `User` interface in `packages/types/src/database.ts`
-  - [ ] Add `PRO_TRIP_LIMIT = 2` constant to `packages/types/src/constants.ts` (free tier cap)
+  - [ ] Add `is_pro: boolean`, `pro_expires_at: string | null`, `annual_days_used: number`, `annual_days_year: number` to `User` interface in `packages/types/src/database.ts`
+  - [ ] Add `created_with_pro: boolean`, `original_start_date: string | null`, `max_members: number | null` to `Trip` interface
+  - [ ] Add constants to `packages/types/src/constants.ts`:
+    - `FREE_TRIP_MAX_DAYS = 14`
+    - `FREE_TRIP_MAX_MEMBERS = 4`
+    - `FREE_TRIP_DATE_SHIFT_DAYS = 7`
+    - `FREE_ANNUAL_DAYS = 15`
 
 - [ ] **2. Services & Hooks**
 
   **Edge Function: `supabase/functions/revenue-cat-webhook/index.ts`**
 
-  - [ ] Validate RevenueCat webhook `Authorization` header (shared secret stored in Vault, same pattern as push-notification function)
-  - [ ] Handle events: `INITIAL_PURCHASE`, `RENEWAL`, `PRODUCT_CHANGE` → set `is_pro = TRUE`
-  - [ ] Handle events: `CANCELLATION`, `EXPIRATION`, `BILLING_ISSUE` → set `is_pro = FALSE`
-  - [ ] Call `update_user_pro_status(p_user_id, p_is_pro)` RPC
-  - [ ] Return `200` on success, `400` on unknown event (do not return `500` — RevenueCat retries on 5xx)
-  - [ ] Store RevenueCat webhook secret in Vault via `vault.create_secret()` (same pattern as push-notification keys)
+  - [ ] Validate RevenueCat webhook `Authorization` header (shared secret in Vault, same pattern as push-notification function)
+  - [ ] Handle `INITIAL_PURCHASE`, `RENEWAL`, `PRODUCT_CHANGE` → call `update_user_pro_status(userId, TRUE, NULL)`
+  - [ ] Handle `CANCELLATION`, `EXPIRATION`, `BILLING_ISSUE` → call `update_user_pro_status(userId, FALSE, NOW())`; then insert a row into `public.notifications` with `type: 'pro_expired'` and body "Your Pro subscription has expired. Trips created with Pro are now locked — reactivate to restore access." (triggers the existing push notification pipeline)
+  - [ ] Return `200` on success, `400` on unknown event (never `500` — RevenueCat retries on 5xx)
+  - [ ] Store RevenueCat webhook secret in Vault via `vault.create_secret()`
 
   **`packages/api/src/subscriptions.ts`** (new file)
 
-  - [ ] `getOrganizedTripsCount(userId)` — counts `trip_members` rows where `user_id = userId AND role = 'organizer'` and trip is not soft-deleted; used for free tier gate
-  - [ ] `initRevenueCat(userId)` — calls `Purchases.configure({ apiKey, appUserID: userId })`; call once after session is confirmed in `_layout.tsx`
-  - [ ] `getProEntitlement()` — returns current entitlement info from RevenueCat SDK (source of truth for paywall UI; do not rely solely on `is_pro` in DB for real-time gating)
-  - [ ] `purchasePro()` — calls `Purchases.purchasePackage()`; returns updated `CustomerInfo`
-  - [ ] `restorePurchases()` — calls `Purchases.restorePurchases()`; updates local state
+  - [ ] `getAnnualDayStatus(userId)` — fetches `annual_days_used` and `annual_days_year` from users; returns `{ daysUsed, daysRemaining: max(0, 15 - daysUsed) }`. If `annual_days_year != current year` the display value treats `daysUsed` as 0 (full quota available) — the actual DB counter reset is performed atomically by `check_and_consume_trip_days`, not client-side
+  - [ ] `initRevenueCat(userId)` — `Purchases.configure({ apiKey: EXPO_PUBLIC_REVENUECAT_API_KEY, appUserID: userId })`; call once after session confirmed
+  - [ ] `getProEntitlement()` — current entitlement from RevenueCat SDK (source of truth for UI gating)
+  - [ ] `getOfferings()` — fetches RevenueCat offerings (monthly + annual subscription packages)
+  - [ ] `purchasePro(pkg)` — `Purchases.purchasePackage(pkg)`; returns updated `CustomerInfo`
+  - [ ] `restorePurchases()` — `Purchases.restorePurchases()`
   - [ ] All exported from `packages/api/src/index.ts`
 
   **Hooks (`apps/mobile/src/features/subscription/hooks/`)**
 
-  - [ ] `useProStatus.ts` — `useQuery` on `getProEntitlement()` from RevenueCat SDK; query key `['proStatus']`; `staleTime: 60_000` (1 min); returns `{ isPro: boolean, isLoading }`
-  - [ ] `useOrganizedTripsCount.ts` — `useQuery` on `getOrganizedTripsCount`; query key `['organizedTripsCount']`; used to decide whether to show paywall before trip creation
-  - [ ] `usePurchasePro.ts` — `useMutation` wrapping `purchasePro()`; on success: invalidates `['proStatus']` and `authStore.setUser({ is_pro: true })`; on error: shows toast with human-readable error (handle `PURCHASE_CANCELLED` silently — user dismissed, no toast)
-  - [ ] `useRestorePurchases.ts` — `useMutation` wrapping `restorePurchases()`; success toast "Purchases restored"; invalidates `['proStatus']`
+  - [ ] `useProStatus.ts` — `useQuery` on `getProEntitlement()`; query key `['proStatus']`; `staleTime: 60_000`; returns `{ isPro, isLoading }`
+  - [ ] `useAnnualDayStatus.ts` — `useQuery` on `getAnnualDayStatus`; query key `['annualDayStatus']`; returns `{ daysUsed, daysRemaining }`
+  - [ ] `usePurchasePro.ts` — `useMutation` wrapping `purchasePro(pkg)`; on success: invalidates `['proStatus']`, calls `authStore.setUser({ is_pro: true })`; `PURCHASE_CANCELLED` swallowed silently — no toast
+  - [ ] `useRestorePurchases.ts` — `useMutation`; success toast "Purchases restored"; invalidates `['proStatus']`
+
+  **Trip creation gate (modify existing `useCreateTrip` flow)**
+
+  - [ ] Before opening `CreateTripSheet`, resolve `daysNeeded = end_date − start_date + 1` and check:
+    ```
+    if isPro                              → allowed, proceed
+    elif daysNeeded <= daysRemaining      → call check_and_consume_trip_days RPC, proceed
+    else                                  → open PaywallSheet with { context: 'trip_creation' }
+    ```
+  - [ ] After successful trip creation on the free tier, invalidate `['annualDayStatus']` query so the profile screen and date picker reflect the updated remaining days immediately
+  - [ ] In `CreateTripSheet` form: if `!isPro`, clamp max duration picker to `FREE_TRIP_MAX_DAYS` (14 days) and show "X days remaining this year" below the date picker
+  - [ ] Set `created_with_pro = isPro` and `original_start_date = start_date` on trip creation payload
+  - [ ] Set `max_members = isPro ? null : FREE_TRIP_MAX_MEMBERS` on trip creation payload
+
+  **Trip date-edit gate (modify `updateTrip` flow)**
+
+  - [ ] For free trips (`created_with_pro = false`):
+    - Validate `|new_start_date − original_start_date| ≤ FREE_TRIP_DATE_SHIFT_DAYS` — block with toast if violated
+    - Validate `new_duration ≤ FREE_TRIP_MAX_DAYS` — block with toast if violated
+    - If `new_duration > old_duration`: call `check_and_consume_trip_days(extra_days)` — if RPC returns FALSE, block with toast "Not enough days remaining this year" + "Upgrade to Pro" action
+
+  **Member join gate (modify invite acceptance flow)**
+
+  - [ ] Before adding member to trip: if `trip.max_members != null && currentMemberCount >= trip.max_members` → block with message "This trip is full (free tier limit: 4 members). Ask the organizer to upgrade to Pro."
+
+  **Pro expiry visibility (modify existing query hooks — client-side only, no RLS changes)**
+
+  - [ ] `useExpenses`, `usePreworkPreferences`: when `!isPro` → skip fetch, return locked state
+  - [ ] `useTransferFlights`: when `!isPro` → skip fetch, return `[]` with `isLocked: true`
+  - [ ] `useTransferVehicles`: when `!isPro` → fetch all ordered by `created_at ASC`, return only `[data[0]]` with `lockedCount = data.length - 1`
+  - [ ] `useTransferRentals`: same pattern as vehicles (ordered by `created_at ASC`)
+  - [ ] All locked states pass `isLocked: true` and `lockedCount: number` for UI rendering
 
 - [ ] **3. Components & Screens**
 
   **`apps/mobile/src/features/subscription/components/PaywallSheet.tsx`**
 
-  - [ ] Bottom sheet (reuse existing `BottomSheet` primitive); triggered when free organizer hits the 2-trip limit
-  - [ ] Header: app icon + "Upgrade to Pro" title
-  - [ ] Value props list (3 bullets): "Unlimited trips", "Be the organizer for every adventure", "Support solo development"
-  - [ ] Price display: monthly + annual option (annual highlighted as "Best value"); fetched from RevenueCat `getOfferings()`
-  - [ ] "Continue with Annual" primary button → `usePurchasePro`
-  - [ ] "Monthly" secondary button → `usePurchasePro`
-  - [ ] "Restore Purchases" ghost button → `useRestorePurchases`
-  - [ ] Legal footnote: subscription auto-renews, cancel anytime via Play Store
-  - [ ] `isPending` guards on both purchase buttons
+  - [ ] Bottom sheet (reuse existing `BottomSheet`); opened from: trip creation limit, locked tab tap, locked Pro trip, member join block
+  - [ ] Context-aware header driven by `context` prop: `'trip_creation'` → "Unlock More Trips", `'locked_trip'` → "Unlock Your Trip", `'locked_feature'` → "Unlock [feature name]"
+  - [ ] Value props (4 bullets): "Unlimited trip length", "Expenses, transfers & prework", "Up to unlimited group members", "Support solo development"
+  - [ ] Price section: annual option (highlighted "Best value · €24.99/yr") + monthly option (€2.99/mo); fetched from `getOfferings()`
+  - [ ] Primary CTA: "Continue with Annual · €24.99/yr"; secondary: "Monthly · €2.99/mo"
+  - [ ] "Restore Purchases" ghost button at bottom
+  - [ ] Legal footnote: subscription auto-renews, cancel via Play Store
+  - [ ] `isPending` guard on both purchase buttons
 
   **`apps/mobile/src/features/subscription/components/ProBadge.tsx`**
-
-  - [ ] Small pill badge (`bg-primary/20 text-primary`) showing "Pro" — displayed next to the user's name on the profile screen when `isPro === true`
+  - [ ] Small pill `bg-primary/20 text-primary` showing "Pro" — next to user name on profile screen when `isPro`
 
   **`apps/mobile/src/features/subscription/components/ManageSubscriptionRow.tsx`**
+  - [ ] Visible to Pro users only; opens `Linking.openURL('https://play.google.com/store/account/subscriptions')`
 
-  - [ ] Tappable row on the profile screen (visible to Pro users only); opens Play Store subscription management via `Linking.openURL('https://play.google.com/store/account/subscriptions')`
+  **`apps/mobile/src/features/subscription/components/LockedFeaturePlaceholder.tsx`** (new)
+  - [ ] Used inside Expenses, Prework, and Transfers (flights segment) when feature is locked
+  - [ ] Props: `feature: string`, `variant: 'upgrade' | 'reactivate'`, `onUpgrade: () => void`
+  - [ ] `'upgrade'` variant: user never had Pro → button label "Upgrade to Pro"
+  - [ ] `'reactivate'` variant: Pro expired, feature was previously accessible → button label "Reactivate Pro"
+  - [ ] Shows lock icon, one-line feature description, context-appropriate CTA button
+  - [ ] Consistent with the existing `EmptyState` component's layout
 
-  **Trip creation gate (modify existing flow)**
+  **`apps/mobile/src/features/subscription/components/LockedTripCard.tsx`** (new)
+  - [ ] Shown in the trip list for Pro-created trips when `!isPro`
+  - [ ] Displays trip title + date range (data still readable for display purposes) with a lock overlay
+  - [ ] "Get Pro to unlock" label; tapping opens `PaywallSheet` with `context: 'locked_trip'`
 
-  - [ ] In the "Create Trip" handler (wherever `useCreateTrip` is called): before opening the create sheet, check `!isPro && organizedTripsCount >= PRO_TRIP_LIMIT`
-  - [ ] If limit reached: open `PaywallSheet` instead of `CreateTripSheet`
-  - [ ] If not reached: proceed as normal
+  **Expenses and Prework tab modifications**
+  - [ ] If `!isPro`: render `<LockedFeaturePlaceholder feature="Expenses" />` full-screen
+  - [ ] Same for Prework tab
+
+  **Transfers tab modifications**
+  - [ ] Flights segment: if `!isPro`, render `<LockedFeaturePlaceholder feature="Flights" />` in place of flight list
+  - [ ] Vehicles segment: if `!isPro && lockedCount > 0`: render first vehicle normally + a `<LockedFeaturePlaceholder feature={`${lockedCount} more vehicles`} />` at bottom
+  - [ ] Rentals segment: same pattern as vehicles
 
   **Profile screen (`apps/mobile/app/(tabs)/profile.tsx`) — additions**
-
-  - [ ] Show `<ProBadge />` next to the user's name when `isPro`
-  - [ ] Add "Upgrade to Pro" primary button when `!isPro` (opens `PaywallSheet`)
-  - [ ] Add `<ManageSubscriptionRow />` when `isPro`
+  - [ ] `<ProBadge />` next to name when `isPro`
+  - [ ] Day status row when `!isPro`: "X of 15 free days used this year" (from `useAnnualDayStatus`)
+  - [ ] "Upgrade to Pro" primary button when `!isPro`; opens `PaywallSheet` with `context: 'locked_feature'`
+  - [ ] `<ManageSubscriptionRow />` when `isPro`
 
   **Root layout (`apps/mobile/app/_layout.tsx`) — additions**
-
-  - [ ] Call `initRevenueCat(userId)` after `hasSession && userId` confirmed (same location as push token registration)
+  - [ ] `initRevenueCat(userId)` after `hasSession && userId` confirmed (same location as push token registration)
 
 - [ ] **4. RevenueCat + Play Console Setup** *(manual steps, not code)*
 
   - [ ] Create RevenueCat account → new project → link Google Play app (`com.vacationist.mobile`)
-  - [ ] Upload Play Store service account JSON to RevenueCat (same `play-store-service-account.json`)
-  - [ ] Create products in Play Console: `vacationist_pro_monthly` (€3.99/mo), `vacationist_pro_annual` (€29.99/yr)
-  - [ ] Create RevenueCat Offering named `"default"` with both products as packages
-  - [ ] Configure RevenueCat webhook → Supabase Edge Function URL (`https://fsfsqghbejwvgxujoyne.supabase.co/functions/v1/revenue-cat-webhook`) with shared secret
-  - [ ] Store RevenueCat public SDK key in `EXPO_PUBLIC_REVENUECAT_API_KEY` env var
+  - [ ] Upload `play-store-service-account.json` to RevenueCat
+  - [ ] Create subscription products in Play Console: `vacationist_pro_monthly` (€2.99/mo), `vacationist_pro_annual` (€24.99/yr)
+  - [ ] Create RevenueCat Offering `"default"` with monthly and annual packages
+  - [ ] Configure RevenueCat webhook → `https://fsfsqghbejwvgxujoyne.supabase.co/functions/v1/revenue-cat-webhook` with shared secret
+  - [ ] Store RevenueCat public SDK key in `EXPO_PUBLIC_REVENUECAT_API_KEY`
 
 - [ ] **5. Legal & Privacy updates**
 
-  - [ ] Update `docs/privacy-policy.html` — add section on subscription data (RevenueCat processes purchase data; no card data stored by Vacationist)
-  - [ ] Update `docs/terms-of-service.html` — add subscription terms (auto-renewal, cancellation, refund policy per Google Play policy)
-  - [ ] Update Play Store listing — add subscription pricing to the description; ensure in-app purchases are declared in Play Console content rating
+  - [ ] Update `docs/privacy-policy.html` — add subscription data section (RevenueCat processes purchase data; no card data stored by Vacationist)
+  - [ ] Update `docs/terms-of-service.html` — subscription auto-renewal, cancellation, refund policy per Google Play; free tier limits; data preservation on expiry
+  - [ ] Update Play Store listing — subscription pricing; in-app purchases declared in Play Console content rating
+
+---
 
 **Key implementation rules:**
 - RevenueCat SDK is the source of truth for `isPro` in the UI. The `is_pro` DB column is updated by the webhook and used for server-side logic only.
-- Never block a participant from joining a trip based on `is_pro`. The gate is only on trip *creation* as organizer.
+- **No data is ever deleted** when Pro expires. All Pro content is hidden client-side and fully restored on reactivation.
+- Feature locks are enforced at the application layer (query hook return values + UI gates) only. Do not add `is_pro` checks to any RLS policy.
+- Day consumption from the annual quota is permanent — soft-deleted/archived trips do not return their days. This is the primary anti-gaming mechanism.
+- Never block a participant from joining a trip based on the organizer's Pro status. The `max_members` gate applies at join time based on the trip's creation tier.
 - `PURCHASE_CANCELLED` errors must be swallowed silently — the user dismissed the payment sheet, no toast.
-- Do not add a `is_pro` check to any RLS policy — the trip limit is enforced at the application layer only (a determined attacker could bypass it, but this is acceptable for a soft limit on a planning app).

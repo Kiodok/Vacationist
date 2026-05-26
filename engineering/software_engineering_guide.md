@@ -22,16 +22,27 @@ Vacationist
 
 ## Product Description
 
-Vacationist is a mobile-first collaborative travel and leisure planning platform.
+Vacationist is a mobile-first collaborative planning platform for groups.
 
-The app enables groups to:
-- plan trips together
-- compare accommodations
-- organize activities
-- split expenses
-- create day plans
-- manage shared calendars
-- organize shopping lists and recipes
+The core use case is travel planning, but the app is deliberately generic enough to serve any group coordination need:
+
+**Primary use case — Vacation trips:**
+- Plan trips together
+- Compare accommodations
+- Organize activities
+- Split expenses
+- Create day plans
+- Manage shared calendars
+- Organize shopping lists and recipes
+
+**Alternative use cases (same feature set, different context):**
+- **Shared apartment (WG) management:** Household shopping lists, shared expenses (rent, utilities, groceries), chore planning
+- **Bar & dinner nights:** Expense splitting among friends after an evening out, activity voting ("where do we go next?")
+- **Hobby group coordination:** Regular meetups (board game nights, BBQ evenings, sports), shared costs, attendance planning
+- **Day trips & weekend excursions:** Shorter non-vacation outings that don't justify a full travel app but need coordination
+- **Personal event calendar:** Using a trip as a personal planning board for any bounded time-period event
+
+This breadth of use cases is a deliberate product positioning choice — do not restrict the UI to travel-only language. Use neutral terms like "event", "group", and "plan" alongside travel-specific terms where appropriate.
 
 Vacationist is:
 - NOT a booking platform
@@ -42,7 +53,7 @@ Vacationist is:
 
 Instead, it is:
 
-> The collaborative operating system for group travel and activities.
+> The collaborative operating system for groups — whether they're crossing continents or splitting a dinner bill.
 
 ---
 
@@ -51,16 +62,86 @@ Instead, it is:
 Vacationist is designed for:
 
 - **Age range:** Mid 20s to late 30s
-- **Profile:** Young professionals and friend groups who travel together regularly
+- **Profile:** Young professionals and friend groups who travel together, share apartments, or coordinate regular social activities
 - **Behavior:** Mobile-native, comfortable with collaborative apps, expect fast and intuitive UX
-- **Pain points:** Coordination chaos in WhatsApp groups, scattered spreadsheets, back-and-forth decision making
-- **Context of use:** Primarily used while planning from home, also referenced during the trip itself
+- **Pain points:** Coordination chaos in WhatsApp groups, scattered spreadsheets, back-and-forth decision making, Splitwise for expenses + a separate notes app + a group chat = too many tools
+- **Context of use:** Primarily used while planning from home, also referenced during the event itself
+
+**User segments by use case:**
+- **Travel organizer:** Plans 2–5 trips/year, coordinates groups of 4–12 people, high engagement
+- **Social coordinator:** Organizes recurring group events (monthly BBQ, weekly sports), lower intensity but year-round usage
+- **WG resident:** Lives with 2–4 people, uses the app for shared household finances and shopping — high retention, daily low-intensity use
 
 This demographic expects:
 - Clean, modern UI (not enterprise-like)
 - Low friction interactions
 - Fast feedback
 - Collaborative features that feel natural, not forced
+
+---
+
+# 1b. Monetization Model & Business Rules
+
+## Tiers
+
+| | Free | Pro |
+|---|---|---|
+| Price | Free | €2.99/mo or €24.99/yr |
+| Trip-days/year | 15 (resets 1 Jan) | Unlimited |
+| Max trip duration | 14 days | Unlimited |
+| Date shift limit | ±7 days from original start | Unlimited |
+| Members per trip | 4 (organizer + 3) | Unlimited (no enforced cap) |
+| Expenses tab | Locked | ✓ |
+| Prework tab | Locked | ✓ |
+| Flights (Transfers) | Locked | ✓ |
+| Vehicles & Rentals | Max 1 vehicle AND 1 rental per trip | Unlimited |
+
+## Trip-Day Quota
+
+Each organizer has a free annual allowance:
+- **Free allowance:** 15 days per calendar year, lazily reset when `annual_days_year != current_year`
+- **Gate formula:** `check_and_consume_trip_days(days_needed)` — deducts from free allowance; returns FALSE if insufficient (caller opens PaywallSheet)
+
+Day consumption is **permanent**:
+- Soft-deleting or archiving a trip does NOT return days
+- Shortening a trip's dates does NOT return days
+- Extending a trip consumes the additional days
+
+## Free Trip Constraints
+
+Fields stored on the `trips` table and enforced at the application layer:
+- `created_with_pro BOOLEAN` — TRUE if organizer held active Pro at creation time
+- `original_start_date DATE` — set at creation, never mutated; enforces the ±7 day shift rule
+- `max_members INT` — 4 for free trips, NULL for Pro trips
+
+The ±7 day shift rule and 14-day duration cap are enforced in the `updateTrip` service and the edit form. They are NOT enforced by RLS — this is an application-layer soft limit.
+
+## Pro Expiry Behaviour
+
+When Pro expires:
+- Pro-created trips become inaccessible ("Get Pro to unlock"). Data is preserved in full and restored on reactivation.
+- All free trips (`created_with_pro = FALSE`) remain accessible — unaffected by Pro expiry. Only Pro-created trips (`created_with_pro = TRUE`) become inaccessible.
+- Locked features (expenses, prework, extra flights/vehicles/rentals) are hidden client-side — not deleted from the database.
+- **No data is ever deleted on Pro expiry.**
+
+## Anti-Gaming Design
+
+The trip-day model defeats common workarounds:
+- **Delete + recreate:** days consumed at creation, not freed on deletion
+- **Edit dates for a new trip:** extending dates costs more days from the annual quota; shortening returns nothing
+- **Hard 14-day cap on free trips:** regardless of remaining annual quota, a single free trip cannot exceed 14 days
+- **±7 day shift limit:** a free trip's start date cannot move more than ±7 days from its original value
+
+## Payment Stack
+
+RevenueCat (`react-native-purchases`) wraps Google Play Billing. RevenueCat webhooks update Supabase when subscription status changes. RevenueCat SDK is the real-time source of truth for `isPro` in the UI; the `is_pro` DB column is the server-side record updated by the webhook.
+
+## Rules for Engineers
+
+1. Never add `is_pro` checks to RLS policies — all gating is at the application layer
+2. Never delete data when Pro expires — hide it, never destroy it
+3. `PURCHASE_CANCELLED` from RevenueCat must be swallowed silently — no toast
+4. Never block a participant from joining based on the organizer's Pro status — `max_members` is the only join gate, set at trip creation
 
 ---
 
