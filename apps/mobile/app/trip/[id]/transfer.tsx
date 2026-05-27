@@ -115,7 +115,7 @@ export default function TransferTab() {
 
   useEffect(() => {
     if (!highlightId) return;
-    const timer = setTimeout(() => {
+    const scrollTimer = setTimeout(() => {
       if (activeSegment === 'Flights') {
         for (let si = 0; si < flightSections.length; si++) {
           const ii = flightSections[si].data.findIndex((f) => f.id === highlightId);
@@ -135,11 +135,12 @@ export default function TransferTab() {
       } else if (activeSegment === 'Rentals') {
         const idx = rentals.findIndex((r) => r.id === highlightId);
         if (idx >= 0) {
-          rentalListRef.current?.scrollToIndex({ index: idx, animated: true });
+          rentalListRef.current?.scrollToIndex({ index: idx, animated: true, viewOffset: 80 });
         }
       }
     }, 200);
-    return () => clearTimeout(timer);
+    const clearTimer = setTimeout(() => setHighlightId(null), 5000);
+    return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer); };
   }, [highlightId, activeSegment, flightSections, vehicleSections, rentals]);
 
   const isLoading =

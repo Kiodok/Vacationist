@@ -1,9 +1,9 @@
-import { useRef, useEffect } from 'react';
 import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { TransferRental } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
+import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface RentalCardProps {
   rental: TransferRental;
@@ -17,30 +17,7 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
 
   const borderColor = '#555555';
-  const highlightAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (highlight) {
-      const timer = setTimeout(() => {
-        Animated.sequence([
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 600, useNativeDriver: false }),
-        ]).start();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [highlight]);
-
-  const animatedBorderColor = highlight
-    ? highlightAnim.interpolate({ inputRange: [0, 1], outputRange: [borderColor, colors.primary] })
-    : borderColor;
+  const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
 
   return (
     <Animated.View

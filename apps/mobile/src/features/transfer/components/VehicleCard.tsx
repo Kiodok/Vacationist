@@ -1,9 +1,9 @@
-import { useRef, useEffect } from 'react';
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { TransferVehicle, TransferVehiclePassenger } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { colors } from '@vacationist/ui';
+import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface VehicleCardProps {
   vehicle: TransferVehicle;
@@ -21,30 +21,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
   });
 
   const borderColor = '#555555';
-  const highlightAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (highlight) {
-      const timer = setTimeout(() => {
-        Animated.sequence([
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 600, useNativeDriver: false }),
-        ]).start();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [highlight]);
-
-  const animatedBorderColor = highlight
-    ? highlightAnim.interpolate({ inputRange: [0, 1], outputRange: [borderColor, colors.primary] })
-    : borderColor;
+  const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
 
   return (
     <Animated.View
