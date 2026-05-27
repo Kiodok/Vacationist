@@ -1,7 +1,7 @@
 import '../global.css';
 import * as Sentry from '@sentry/react-native';
 import { initSentry } from '../src/utils/sentry';
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Appearance, AppState, Platform, useColorScheme as useRNColorScheme } from 'react-native';
 import { useColorScheme as useNWColorScheme } from 'nativewind';
 import { checkForUpdate } from '../src/utils/updateChecker';
@@ -202,10 +202,16 @@ function ThemeController() {
   const rnScheme = useRNColorScheme();
   const effective: 'light' | 'dark' = theme === 'system' ? (rnScheme === 'dark' ? 'dark' : 'light') : theme;
 
-  // Keep systemColorScheme in sync when the effective scheme changes (covers the
-  // 'system' mode path where rnScheme changes without setTheme being called).
-  useEffect(() => {
+  // useLayoutEffect fires synchronously before the browser paints and — critically —
+  // before MutationObserver microtasks flush. This ensures .dark is on <html> and
+  // the css-interop observable is set to the stored preference before the
+  // NativeWind stylesheet injection triggers the MutationObserver, which would
+  // otherwise reset the scheme to the system preference on every page load.
+  useLayoutEffect(() => {
     syncSystemColorScheme(effective);
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', effective === 'dark');
+    }
     if (Platform.OS !== 'web' || typeof window !== 'undefined') {
       cssColorScheme.set(effective);
     }

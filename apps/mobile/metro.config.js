@@ -16,6 +16,9 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
+// Required for sub-path package exports (e.g. @vercel/analytics/react)
+config.resolver.unstable_enablePackageExports = true;
+
 module.exports = withNativeWind(config, {
   input: './global.css',
   configPath: './tailwind.config.js',
