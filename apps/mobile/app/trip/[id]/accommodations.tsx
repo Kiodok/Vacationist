@@ -172,6 +172,12 @@ function AccommodationCardWithVotes({
 
   const detailContent = showDetail ? (
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
+      {accommodation.description && (
+        <View className="gap-xs">
+          <Text className="text-label text-text-muted uppercase">Description</Text>
+          <Text className="text-body-small text-text-secondary">{accommodation.description}</Text>
+        </View>
+      )}
       {accommodation.notes && (
         <View className="gap-xs">
           <Text className="text-label text-text-muted uppercase">Notes</Text>

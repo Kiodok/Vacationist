@@ -103,7 +103,7 @@ export function CalendarActivitySheet({
 
           {/* Description */}
           {activity.description ? (
-            <Text className="text-body-small text-text-secondary mb-sm" numberOfLines={3}>
+            <Text className="text-body-small text-text-secondary mb-sm">
               {activity.description}
             </Text>
           ) : null}

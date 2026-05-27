@@ -320,6 +320,12 @@ function ActivityCardWithVotes({
 
   const detailContent = showDetail ? (
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
+      {activity.description && (
+        <View className="gap-xs">
+          <Text className="text-label text-text-muted uppercase">Description</Text>
+          <Text className="text-body-small text-text-secondary">{activity.description}</Text>
+        </View>
+      )}
       {activity.external_url && (
         <TouchableOpacity
           activeOpacity={0.7}

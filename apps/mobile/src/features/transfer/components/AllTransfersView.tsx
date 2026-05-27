@@ -181,7 +181,7 @@ function VehicleSummaryCard({ vehicle }: { vehicle: TransferVehicle }) {
         <DirectionBadge direction={vehicle.direction} />
       </View>
       {vehicle.notes ? (
-        <Text className="text-body-small text-text-secondary" numberOfLines={2}>
+        <Text className="text-body-small text-text-secondary">
           {vehicle.notes}
         </Text>
       ) : null}

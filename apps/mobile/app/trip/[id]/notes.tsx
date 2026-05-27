@@ -11,6 +11,7 @@ import { NoteCard } from '../../../src/features/notes/components/NoteCard';
 import { EmptyNotes } from '../../../src/features/notes/components/EmptyNotes';
 import { CreateNoteSheet } from '../../../src/features/notes/components/CreateNoteSheet';
 import { EditNoteSheet } from '../../../src/features/notes/components/EditNoteSheet';
+import { ViewNoteSheet } from '../../../src/features/notes/components/ViewNoteSheet';
 import { colors } from '@vacationist/ui';
 
 export default function NotesTab() {
@@ -26,6 +27,7 @@ export default function NotesTab() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingNote, setEditingNote] = useState<TripNote | null>(null);
+  const [viewingNote, setViewingNote] = useState<TripNote | null>(null);
 
   const isOrganizer = role === 'organizer';
 
@@ -75,7 +77,14 @@ export default function NotesTab() {
             <NoteCard
               note={item}
               authorName={memberNameMap.get(item.created_by) ?? 'Member'}
-              onPress={() => setEditingNote(item)}
+              onPress={() => {
+                const canEdit = isOrganizer || item.created_by === currentUser?.id;
+                if (canEdit) {
+                  setEditingNote(item);
+                } else {
+                  setViewingNote(item);
+                }
+              }}
             />
           )}
           refreshControl={
@@ -114,6 +123,14 @@ export default function NotesTab() {
           onDelete={handleDelete}
           isUpdatePending={updateNote.isPending}
           isDeletePending={deleteNote.isPending}
+        />
+      )}
+
+      {viewingNote && (
+        <ViewNoteSheet
+          visible={!!viewingNote}
+          note={viewingNote}
+          onClose={() => setViewingNote(null)}
         />
       )}
     </View>
