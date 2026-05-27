@@ -28,6 +28,7 @@ import { OfflineBanner } from '../src/components/OfflineBanner';
 import { useThemeStore } from '../src/stores/themeStore';
 import { colorScheme as cssColorScheme } from 'react-native-css-interop';
 import { syncSystemColorScheme } from '../src/utils/themeSync';
+import VercelWebTools from '../src/components/VercelWebTools';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -238,6 +239,7 @@ function RootLayout() {
         <OfflineBanner />
         <AuthGate />
         <ToastContainer />
+        <VercelWebTools />
       </QueryProvider>
     </GlobalErrorBoundary>
   );

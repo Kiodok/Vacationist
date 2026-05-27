@@ -23,6 +23,8 @@
     "@vacationist/types": "*",
     "@vacationist/ui": "*",
     "@vacationist/utils": "*",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "babel-preset-expo": "~55.0.8",
     "expo": "^55.0.24",
     "expo-auth-session": "~55.0.16",

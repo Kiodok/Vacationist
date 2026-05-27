@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, Pressable, TouchableOpacity, ActivityIndicator, AppState, Alert } from 'react-native';
+import { Platform, View, Text, ScrollView, Pressable, TouchableOpacity, ActivityIndicator, AppState, Alert } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadAvatar, updateUserProfile } from '@vacationist/api';
 import { useAuthStore } from '../../src/stores/authStore';
@@ -27,6 +28,14 @@ import { colors, useThemeColors } from '@vacationist/ui';
 import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestUpgradeBanner';
 import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
 import { useThemeStore } from '../../src/stores/themeStore';
+
+function openUrl(url: string) {
+  if (Platform.OS === 'web') {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  } else {
+    Linking.openURL(url);
+  }
+}
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
@@ -315,6 +324,20 @@ export default function ProfileScreen() {
             <Text className="text-body text-danger font-semibold">Sign Out</Text>
           </TouchableOpacity>
         )}
+        {/* Legal */}
+        <View className="flex-row justify-center flex-wrap gap-xs pb-xs">
+          <Pressable onPress={() => openUrl('https://vacationist.app/privacy-policy.html')}>
+            <Text className="text-body-small text-text-muted">Privacy Policy</Text>
+          </Pressable>
+          <Text className="text-body-small text-text-muted">·</Text>
+          <Pressable onPress={() => openUrl('https://vacationist.app/terms-of-service.html')}>
+            <Text className="text-body-small text-text-muted">Terms of Service</Text>
+          </Pressable>
+          <Text className="text-body-small text-text-muted">·</Text>
+          <Pressable onPress={() => openUrl('https://vacationist.app/impressum.html')}>
+            <Text className="text-body-small text-text-muted">Impressum</Text>
+          </Pressable>
+        </View>
       </ScrollView>
 
       <EditProfileSheet
