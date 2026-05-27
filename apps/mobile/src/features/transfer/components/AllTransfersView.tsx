@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { TransferFlight, TransferVehicle, TransferRental } from '@vacationist/types';
@@ -11,6 +11,9 @@ export interface AllTransfersViewProps {
   currency: string;
   isRefreshing: boolean;
   onRefresh: () => void;
+  onFlightPress?: (id: string) => void;
+  onVehiclePress?: (id: string) => void;
+  onRentalPress?: (id: string) => void;
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -244,6 +247,9 @@ export function AllTransfersView({
   currency,
   isRefreshing,
   onRefresh,
+  onFlightPress,
+  onVehiclePress,
+  onRentalPress,
 }: AllTransfersViewProps) {
   const allEmpty = flights.length === 0 && vehicles.length === 0 && rentals.length === 0;
 
@@ -286,7 +292,9 @@ export function AllTransfersView({
             isWinner={bookedFlights.length > 0}
           />
           {displayFlights.map((f) => (
-            <FlightSummaryCard key={f.id} flight={f} currency={currency} />
+            <Pressable key={f.id} onPress={() => onFlightPress?.(f.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+              <FlightSummaryCard flight={f} currency={currency} />
+            </Pressable>
           ))}
         </>
       )}
@@ -294,7 +302,9 @@ export function AllTransfersView({
         <>
           <SectionHeader icon="car-outline" title="Vehicles" count={vehicles.length} />
           {vehicles.map((v) => (
-            <VehicleSummaryCard key={v.id} vehicle={v} />
+            <Pressable key={v.id} onPress={() => onVehiclePress?.(v.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+              <VehicleSummaryCard vehicle={v} />
+            </Pressable>
           ))}
         </>
       )}
@@ -302,7 +312,9 @@ export function AllTransfersView({
         <>
           <SectionHeader icon="car-sport-outline" title="Rentals" count={rentals.length} />
           {rentals.map((r) => (
-            <RentalSummaryCard key={r.id} rental={r} currency={currency} />
+            <Pressable key={r.id} onPress={() => onRentalPress?.(r.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+              <RentalSummaryCard rental={r} currency={currency} />
+            </Pressable>
           ))}
         </>
       )}

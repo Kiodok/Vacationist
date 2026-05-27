@@ -1,4 +1,5 @@
-import { View, Text, Pressable, TouchableOpacity, Linking } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { TransferRental } from '@vacationist/types';
@@ -9,13 +10,43 @@ interface RentalCardProps {
   currency: string;
   onPress: () => void;
   detail?: React.ReactNode;
+  highlight?: boolean;
 }
 
-export function RentalCard({ rental, currency, onPress, detail }: RentalCardProps) {
+export function RentalCard({ rental, currency, onPress, detail, highlight }: RentalCardProps) {
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
 
+  const borderColor = '#555555';
+  const highlightAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (highlight) {
+      const timer = setTimeout(() => {
+        Animated.sequence([
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 600, useNativeDriver: false }),
+        ]).start();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [highlight]);
+
+  const animatedBorderColor = highlight
+    ? highlightAnim.interpolate({ inputRange: [0, 1], outputRange: [borderColor, colors.primary] })
+    : borderColor;
+
   return (
-    <View className={`bg-surface border border-border ${detail ? 'rounded-t-md' : 'rounded-md'}`}>
+    <Animated.View
+      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+    >
       <Pressable
         onPress={onPress}
         className="p-md gap-sm"
@@ -80,6 +111,6 @@ export function RentalCard({ rental, currency, onPress, detail }: RentalCardProp
         )}
       </Pressable>
       {detail}
-    </View>
+    </Animated.View>
   );
 }

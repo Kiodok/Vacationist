@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator, Linking, RefreshControl } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type {
@@ -51,6 +51,11 @@ export default function TransferTab() {
   const currency = trip?.base_currency ?? 'EUR';
 
   const [activeSegment, setActiveSegment] = useState<Segment>('All');
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  const flightListRef = useRef<SectionList<TransferFlight>>(null);
+  const vehicleListRef = useRef<SectionList<TransferVehicle>>(null);
+  const rentalListRef = useRef<FlashListRef<TransferRental>>(null);
 
   // Flights
   const { data: flights = [], isLoading: flightsLoading, isFetching: flightsFetching, refetch: refetchFlights } = useTransferFlights(tripId!);
@@ -107,6 +112,35 @@ export default function TransferTab() {
     if (ret.length > 0) sections.push({ key: 'return', title: 'Return', data: ret });
     return sections;
   }, [vehicles]);
+
+  useEffect(() => {
+    if (!highlightId) return;
+    const timer = setTimeout(() => {
+      if (activeSegment === 'Flights') {
+        for (let si = 0; si < flightSections.length; si++) {
+          const ii = flightSections[si].data.findIndex((f) => f.id === highlightId);
+          if (ii >= 0) {
+            flightListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii, animated: true, viewOffset: 80 });
+            break;
+          }
+        }
+      } else if (activeSegment === 'Vehicles') {
+        for (let si = 0; si < vehicleSections.length; si++) {
+          const ii = vehicleSections[si].data.findIndex((v) => v.id === highlightId);
+          if (ii >= 0) {
+            vehicleListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii, animated: true, viewOffset: 80 });
+            break;
+          }
+        }
+      } else if (activeSegment === 'Rentals') {
+        const idx = rentals.findIndex((r) => r.id === highlightId);
+        if (idx >= 0) {
+          rentalListRef.current?.scrollToIndex({ index: idx, animated: true });
+        }
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [highlightId, activeSegment, flightSections, vehicleSections, rentals]);
 
   const isLoading =
     (activeSegment === 'All' && (flightsLoading || vehiclesLoading || rentalsLoading)) ||
@@ -192,6 +226,9 @@ export default function TransferTab() {
           currency={currency}
           isRefreshing={(flightsFetching || vehiclesFetching || rentalsFetching) && !isLoading}
           onRefresh={() => { refetchFlights(); refetchVehicles(); refetchRentals(); }}
+          onFlightPress={(id) => { setHighlightId(id); setActiveSegment('Flights'); }}
+          onVehiclePress={(id) => { setHighlightId(id); setActiveSegment('Vehicles'); }}
+          onRentalPress={(id) => { setHighlightId(id); setActiveSegment('Rentals'); }}
         />
       )}
 
@@ -203,6 +240,7 @@ export default function TransferTab() {
           </View>
         ) : (
           <SectionList
+            ref={flightListRef}
             sections={flightSections}
             keyExtractor={(item) => item.id}
             removeClippedSubviews={false}
@@ -223,6 +261,7 @@ export default function TransferTab() {
                   members={members}
                   allFlightIds={allFlightIds}
                   flightsInDirection={flights.filter((f) => f.direction === item.direction)}
+                  highlight={item.id === highlightId}
                   onEdit={() => setEditingFlight(item)}
                   onDelete={() => deleteFlight.mutate(item.id)}
                   onCloseVoting={() => closeFlightVoting.mutate(item.id)}
@@ -251,6 +290,7 @@ export default function TransferTab() {
           </View>
         ) : (
           <SectionList
+            ref={vehicleListRef}
             sections={vehicleSections}
             keyExtractor={(item) => item.id}
             removeClippedSubviews={false}
@@ -268,6 +308,7 @@ export default function TransferTab() {
                   currentUserId={user?.id}
                   role={role}
                   members={members}
+                  highlight={item.id === highlightId}
                   onEdit={() => setEditingVehicle(item)}
                   onDelete={() => deleteVehicle.mutate(item.id)}
                 />
@@ -293,6 +334,7 @@ export default function TransferTab() {
           </View>
         ) : (
           <FlashList
+            ref={rentalListRef}
             data={rentals}
             keyExtractor={(item) => item.id}
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
@@ -302,6 +344,7 @@ export default function TransferTab() {
                 currency={currency}
                 role={role}
                 currentUserId={user?.id}
+                highlight={item.id === highlightId}
                 onEdit={() => setEditingRental(item)}
                 onDelete={() => deleteRental.mutate(item.id)}
               />
@@ -400,6 +443,7 @@ function FlightCardWithVotes({
   members,
   allFlightIds,
   flightsInDirection,
+  highlight,
   onEdit,
   onDelete,
   onCloseVoting,
@@ -414,6 +458,7 @@ function FlightCardWithVotes({
   members: ReturnType<typeof useTripMembers>['data'] & {};
   allFlightIds: string[];
   flightsInDirection: TransferFlight[];
+  highlight?: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onCloseVoting: () => void;
@@ -427,7 +472,7 @@ function FlightCardWithVotes({
   const setPassengers = useSetTransferFlightPassengers(tripId, flight.id);
 
   const [showVoteSheet, setShowVoteSheet] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
+  const [showDetail, setShowDetail] = useState(highlight ?? false);
   const [showBookSheet, setShowBookSheet] = useState(false);
   const [showPassengerSheet, setShowPassengerSheet] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -629,6 +674,7 @@ function FlightCardWithVotes({
         onPress={() => setShowDetail(!showDetail)}
         onVotePress={() => setShowVoteSheet(true)}
         detail={detailContent}
+        highlight={highlight}
       />
 
       <VoteSheet
@@ -672,6 +718,7 @@ function VehicleCardWithPassengers({
   currentUserId,
   role,
   members,
+  highlight,
   onEdit,
   onDelete,
 }: {
@@ -680,6 +727,7 @@ function VehicleCardWithPassengers({
   currentUserId: string | undefined;
   role: string | null | undefined;
   members: ReturnType<typeof useTripMembers>['data'] & {};
+  highlight?: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }) {
@@ -688,7 +736,7 @@ function VehicleCardWithPassengers({
   const removePassenger = useRemoveTransferVehiclePassenger(tripId, vehicle.id);
   const updatePassenger = useUpdateTransferVehiclePassenger(tripId, vehicle.id);
 
-  const [showDetail, setShowDetail] = useState(false);
+  const [showDetail, setShowDetail] = useState(highlight ?? false);
   const [showPassengerSheet, setShowPassengerSheet] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -787,6 +835,7 @@ function VehicleCardWithPassengers({
         members={members ?? []}
         onPress={() => setShowDetail(!showDetail)}
         detail={detailContent}
+        highlight={highlight}
       />
 
       <PassengerSelectSheet
@@ -811,6 +860,7 @@ function RentalCardExpanded({
   currency,
   role,
   currentUserId,
+  highlight,
   onEdit,
   onDelete,
 }: {
@@ -818,10 +868,11 @@ function RentalCardExpanded({
   currency: string;
   role: string | null | undefined;
   currentUserId: string | undefined;
+  highlight?: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const [showDetail, setShowDetail] = useState(false);
+  const [showDetail, setShowDetail] = useState(highlight ?? false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const canEdit = role === 'organizer' || (role === 'participant' && rental.created_by === currentUserId);
@@ -889,6 +940,7 @@ function RentalCardExpanded({
       currency={currency}
       onPress={() => setShowDetail(!showDetail)}
       detail={detailContent}
+      highlight={highlight}
     />
   );
 }

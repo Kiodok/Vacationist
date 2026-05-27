@@ -1,4 +1,5 @@
-import { View, Text, Pressable } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { TransferFlight, TransferFlightVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
@@ -39,13 +40,39 @@ interface FlightCardProps {
   onPress: () => void;
   onVotePress: () => void;
   detail?: React.ReactNode;
+  highlight?: boolean;
 }
 
-export function FlightCard({ flight, votes, currentUserId, currency, isWinner, onPress, onVotePress, detail }: FlightCardProps) {
+export function FlightCard({ flight, votes, currentUserId, currency, isWinner, onPress, onVotePress, detail, highlight }: FlightCardProps) {
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !flight.voting_open;
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
   const borderColor = isWinner && !flight.voting_open ? colors.success : getVoteBorderColor(votes);
+
+  const highlightAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (highlight) {
+      const timer = setTimeout(() => {
+        Animated.sequence([
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 600, useNativeDriver: false }),
+        ]).start();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [highlight]);
+
+  const animatedBorderColor = highlight
+    ? highlightAnim.interpolate({ inputRange: [0, 1], outputRange: [borderColor, colors.primary] })
+    : borderColor;
 
   const departureFormatted = formatDatetime(flight.departure_time);
   const arrivalFormatted = formatDatetime(flight.arrival_time);
@@ -54,9 +81,9 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
   const isRoundTrip = flight.direction === 'outbound-return';
 
   return (
-    <View
-      className={`bg-surface border border-border ${detail ? 'rounded-t-md' : 'rounded-md'}`}
-      style={{ borderColor }}
+    <Animated.View
+      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
     >
       <Pressable
         onPress={onPress}
@@ -174,7 +201,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         </View>
       </Pressable>
       {detail}
-    </View>
+    </Animated.View>
   );
 }
 
