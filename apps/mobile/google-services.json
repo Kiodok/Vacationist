@@ -14,11 +14,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "632483929424-7s8dc6rcntsm8gjeqv2h84r2gsaeeouq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vacationist.mobile",
+            "certificate_hash": "78d1c2949e2d1d16e6a67f4191b177abd0e00295"
+          }
+        },
+        {
           "client_id": "632483929424-dk2ti4ltjh5vf4288e2p5acoh6cb2j3c.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.vacationist.mobile",
             "certificate_hash": "cff11fa5fa5138f2409a25b693a5cb87aa4a803a"
+          }
+        },
+        {
+          "client_id": "632483929424-s8arqr4aavrqcbac2dhq4grlnu2pc6fb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vacationist.mobile",
+            "certificate_hash": "d0b7ac51ef9822552eb5c1e8dddb949f66758173"
           }
         },
         {

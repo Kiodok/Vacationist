@@ -93,7 +93,8 @@
       "Bash(Get-Date *)",
       "Bash(echo \"Exit: $?\")",
       "PowerShell(try { $json = Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\node_modules\\\\@shopify\\\\flash-list\\\\package.json\" -ErrorAction Stop | ConvertFrom-Json; $json.version } catch { Write-Output \"Not found\" })",
-      "PowerShell(try { $json = Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\node_modules\\\\@react-native-community\\\\netinfo\\\\package.json\" -ErrorAction Stop | ConvertFrom-Json; $json.version } catch { Write-Output \"Not found\" })"
+      "PowerShell(try { $json = Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\node_modules\\\\@react-native-community\\\\netinfo\\\\package.json\" -ErrorAction Stop | ConvertFrom-Json; $json.version } catch { Write-Output \"Not found\" })",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(c\\) for client in d['client'] for c in [client.get\\('oauth_client', []\\)]]\")"
     ]
   },
   "model": "opusplan",

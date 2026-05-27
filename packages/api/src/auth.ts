@@ -34,6 +34,16 @@ export async function signInAnonymously(metadata?: Record<string, string>) {
 
 export async function setSessionFromUrl(url: string) {
   const parsedUrl = new URL(url);
+
+  // PKCE flow (Supabase default): URL contains ?code=...
+  const code = parsedUrl.searchParams.get('code');
+  if (code) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) throw error;
+    return data;
+  }
+
+  // Implicit flow fallback: tokens in URL hash or query string
   const fragment = parsedUrl.hash ? parsedUrl.hash.substring(1) : '';
   const params = new URLSearchParams(fragment || parsedUrl.search);
 

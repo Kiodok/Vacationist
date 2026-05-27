@@ -90,7 +90,7 @@ export function useAuthInit() {
       if (Platform.OS !== 'web') {
         Linking.getInitialURL().then(async (url) => {
           if (!url || !mounted) return;
-          if (url.includes('access_token') || url.includes('refresh_token')) {
+          if (url.includes('access_token') || url.includes('refresh_token') || url.includes('code=')) {
             try {
               await setSessionFromUrl(url);
             } catch {
@@ -103,7 +103,7 @@ export function useAuthInit() {
 
     const linkSub = Linking.addEventListener('url', async ({ url }) => {
       if (!url || !mounted) return;
-      if (url.includes('access_token') || url.includes('refresh_token')) {
+      if (url.includes('access_token') || url.includes('refresh_token') || url.includes('code=')) {
         try {
           await setSessionFromUrl(url);
         } catch {
