@@ -25,13 +25,12 @@ export function useAuthInit() {
     let webAuthUrl: string | null = null;
     if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       const href = window.location.href;
-      if (href.includes('access_token') || href.includes('refresh_token')) {
+      if (href.includes('access_token') || href.includes('refresh_token') || href.includes('code=')) {
         webAuthUrl = href;
-        window.history.replaceState(
-          null,
-          '',
-          window.location.pathname + window.location.search,
-        );
+        // Strip auth params from the visible URL — remove hash (implicit) and code param (PKCE)
+        const cleanUrl = new URL(href);
+        cleanUrl.searchParams.delete('code');
+        window.history.replaceState(null, '', cleanUrl.pathname + cleanUrl.search);
       }
     }
 
