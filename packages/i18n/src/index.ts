@@ -19,6 +19,17 @@ export const LOCALE_BCP47: Record<SupportedLocale, string> = {
 
 const MMKV_LOCALE_KEY = 'locale_preference';
 
+type StorageAdapter = { getString: (key: string) => string | undefined; set: (key: string, value: string) => void };
+// Captured by initI18n so callers don't need to thread storage through every call.
+let _storage: StorageAdapter | null = null;
+// Single app-level callback invoked on every locale change (covers initI18n + persistLocale).
+// Registered by _layout.tsx to keep dayjs and formatCurrency in sync.
+let _onLocaleChange: ((locale: SupportedLocale) => void) | null = null;
+
+export function onLocaleChange(cb: (locale: SupportedLocale) => void): void {
+  _onLocaleChange = cb;
+}
+
 function detectDeviceLocale(): SupportedLocale {
   try {
     const locales = getLocales();
@@ -36,18 +47,21 @@ function detectDeviceLocale(): SupportedLocale {
  * Reads MMKV synchronously; falls back to expo-localization on first launch.
  * The storage adapter is passed in so this package has no direct MMKV dependency.
  */
-export function initI18n(storage: { getString: (key: string) => string | undefined; set: (key: string, value: string) => void }): SupportedLocale {
-  let locale: SupportedLocale;
+export function initI18n(storage: StorageAdapter): SupportedLocale {
+  _storage = storage;
 
   const persisted = storage.getString(MMKV_LOCALE_KEY);
-  if (persisted && (SUPPORTED_LOCALES as readonly string[]).includes(persisted)) {
-    locale = persisted as SupportedLocale;
-  } else {
-    locale = detectDeviceLocale();
-    storage.set(MMKV_LOCALE_KEY, locale);
-  }
+  const persistedIsValid = !!persisted && (SUPPORTED_LOCALES as readonly string[]).includes(persisted);
+  const locale: SupportedLocale = persistedIsValid
+    ? persisted as SupportedLocale
+    : detectDeviceLocale();
 
-  i18n.changeLanguage(locale);
+  // Write whenever the stored value is missing or not a recognized locale —
+  // this self-heals corrupted/invalid MMKV entries as well as fresh installs.
+  if (!persistedIsValid) storage.set(MMKV_LOCALE_KEY, locale);
+
+  // Apply to i18next and fire the registered callback (updates dayjs, formatCurrency, etc.)
+  _applyLocale(locale);
   return locale;
 }
 
@@ -57,10 +71,16 @@ export function initI18n(storage: { getString: (key: string) => string | undefin
  */
 export function persistLocale(
   locale: SupportedLocale,
-  storage: { set: (key: string, value: string) => void },
+  storage?: { set: (key: string, value: string) => void },
 ): void {
-  storage.set(MMKV_LOCALE_KEY, locale);
+  const s = storage ?? _storage;
+  if (s) s.set(MMKV_LOCALE_KEY, locale);
+  _applyLocale(locale);
+}
+
+function _applyLocale(locale: SupportedLocale): void {
   i18n.changeLanguage(locale);
+  _onLocaleChange?.(locale);
 }
 
 export { default as i18n } from './instance';

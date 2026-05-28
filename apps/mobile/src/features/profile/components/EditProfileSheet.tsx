@@ -5,8 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { updateProfileSchema, type UpdateProfileInput, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { User } from '@vacationist/types';
 import { useTranslation } from 'react-i18next';
-import { persistLocale, LOCALE_LABELS, SUPPORTED_LOCALES } from '@vacationist/i18n';
-import { storage } from '../../../utils/mmkvStorage';
+import { LOCALE_LABELS, SUPPORTED_LOCALES, getCurrentLocale } from '@vacationist/i18n';
 
 interface EditProfileSheetProps {
   visible: boolean;
@@ -25,13 +24,12 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
 
   useEffect(() => {
     if (visible) {
-      reset({ name: user.name, locale: user.locale as 'en' | 'de', timezone: user.timezone as typeof SUPPORTED_TIMEZONES[number] });
+      reset({ name: user.name, locale: (user.locale ?? getCurrentLocale()) as 'en' | 'de', timezone: user.timezone as typeof SUPPORTED_TIMEZONES[number] });
     }
   }, [visible, user]);
 
   const onValid = (data: UpdateProfileInput) => {
     Keyboard.dismiss();
-    if (data.locale) persistLocale(data.locale, storage);
     onSubmit(data);
   };
 

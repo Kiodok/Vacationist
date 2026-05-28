@@ -5,8 +5,16 @@ const CURRENCY_SYMBOLS: Record<Currency, string> = {
   CHF: 'CHF',
 };
 
+// Set once at app startup (and on locale change) via setDefaultFormatLocale.
+// Kept as a module-level variable so call sites don't need to pass locale on every call.
+let _defaultFormatLocale = 'en-US';
+
+export function setDefaultFormatLocale(bcp47Locale: string): void {
+  _defaultFormatLocale = bcp47Locale;
+}
+
 export function formatCurrency(amount: number, currency: Currency, locale?: string): string {
-  const resolvedLocale = locale ?? 'en-US';
+  const resolvedLocale = locale ?? _defaultFormatLocale;
   try {
     return new Intl.NumberFormat(resolvedLocale, { style: 'currency', currency }).format(amount);
   } catch {

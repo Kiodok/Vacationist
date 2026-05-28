@@ -22,7 +22,7 @@ export interface User {
   name: string;
   email: string | null;
   avatar_url: string | null;
-  locale: string;
+  locale: string | null;
   timezone: string;
   is_guest: boolean;
   created_at: string;

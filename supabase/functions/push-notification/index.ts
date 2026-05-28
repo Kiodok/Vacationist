@@ -32,11 +32,8 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Schedule changed', body: 'An activity time on your trip has changed.' },
     de: { title: 'Zeitplan geändert', body: 'Die Zeit einer Aktivität auf deiner Reise hat sich geändert.' },
   },
+  // 'reminder' is also used for organizer nudges (send_organizer_nudge inserts type='reminder').
   reminder: {
-    en: { title: 'Reminder', body: "Don't forget to check your trip updates." },
-    de: { title: 'Erinnerung', body: 'Vergiss nicht, deine Reise-Updates zu prüfen.' },
-  },
-  nudge: {
     en: { title: 'Friendly nudge 👋', body: 'Your organizer wants you to check the open votes.' },
     de: { title: 'Freundliche Erinnerung 👋', body: 'Dein Organisator möchte, dass du die offenen Abstimmungen prüfst.' },
   },
@@ -119,6 +116,18 @@ function preferenceColumn(type: string): string | null {
     case 'reminder':        return 'reminder';
     default:                return null;
   }
+}
+
+// Constant-time string comparison — prevents timing oracle attacks on the
+// service-role key, which bypasses all RLS policies if leaked.
+function constantTimeEqual(a: string, b: string): boolean {
+  const enc = new TextEncoder();
+  const ab = enc.encode(a);
+  const bb = enc.encode(b);
+  if (ab.length !== bb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
+  return diff === 0;
 }
 
 function jsonResponse(data: unknown, status = 200): Response {
@@ -329,7 +338,7 @@ Deno.serve(async (req: Request) => {
 
   const authHeader = req.headers.get('Authorization');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!authHeader || !serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
+  if (!authHeader || !serviceRoleKey || !constantTimeEqual(authHeader, `Bearer ${serviceRoleKey}`)) {
     return new Response('Unauthorized', { status: 401 });
   }
 

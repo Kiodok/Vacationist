@@ -9,6 +9,8 @@ import {
 } from '@vacationist/api';
 import { useAuthStore } from '../../../stores/authStore';
 import { saveUserToCache, loadUserFromCache, clearUserCache } from '../../../utils/userCache';
+import { persistLocale, SUPPORTED_LOCALES } from '@vacationist/i18n';
+import type { SupportedLocale } from '@vacationist/types';
 
 export function useAuthInit() {
   const setUser = useAuthStore((s) => s.setUser);
@@ -56,6 +58,12 @@ export function useAuthInit() {
           if (mounted) {
             setUser(profile);
             saveUserToCache(profile);
+            // Sync all locale singletons from the server-saved preference.
+            // Only fires when profile.locale is non-null (null = new user, use device locale).
+            // persistLocale propagates to dayjs + formatCurrency via the registered callback.
+            if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
+              persistLocale(profile.locale as SupportedLocale);
+            }
           }
         } catch {
           // Network unavailable — cached profile already set above.
@@ -144,6 +152,9 @@ export function useAuthInit() {
           if (mounted) {
             setUser(profile);
             saveUserToCache(profile);
+            if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
+              persistLocale(profile.locale as SupportedLocale);
+            }
           }
         })
         .catch(() => {});

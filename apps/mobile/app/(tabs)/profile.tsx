@@ -182,7 +182,7 @@ export default function ProfileScreen() {
           )}
           <View className="flex-row gap-xs">
             <View className="bg-surface border border-border rounded-full px-sm py-xs">
-              <Text className="text-label text-text-muted">{user.locale}</Text>
+              <Text className="text-label text-text-muted">{user.locale ?? '—'}</Text>
             </View>
             <View className="bg-surface border border-border rounded-full px-sm py-xs">
               <Text className="text-label text-text-muted">

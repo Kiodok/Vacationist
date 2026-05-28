@@ -5,8 +5,8 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Appearance, AppState, Platform, useColorScheme as useRNColorScheme } from 'react-native';
 import { useColorScheme as useNWColorScheme } from 'nativewind';
 import { checkForUpdate } from '../src/utils/updateChecker';
-import { initI18n, I18nProvider, i18n } from '@vacationist/i18n';
-import { setDayjsLocale } from '@vacationist/utils';
+import { initI18n, I18nProvider, i18n, LOCALE_BCP47, onLocaleChange } from '@vacationist/i18n';
+import { setDayjsLocale, setDefaultFormatLocale } from '@vacationist/utils';
 import { storage } from '../src/utils/mmkvStorage';
 
 initSentry();
@@ -47,8 +47,12 @@ if (Platform.OS !== 'web') {
 export { ErrorBoundary } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
-const _locale = initI18n(storage);
-setDayjsLocale(_locale ?? 'de');
+// Keep dayjs and formatCurrency in sync on every locale change (initI18n + persistLocale).
+onLocaleChange((loc) => {
+  setDayjsLocale(loc);
+  setDefaultFormatLocale(LOCALE_BCP47[loc] ?? 'en-US');
+});
+initI18n(storage); // fires the callback above with the startup locale
 initDayjs();
 
 // Synchronously prime the NativeWind color-scheme observable before the first

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SupportedLocale } from '@vacationist/types';
 import { SUPPORTED_LOCALES } from '@vacationist/types';
-import { LOCALE_LABELS, LOCALE_BCP47 } from './index';
+import { LOCALE_LABELS, LOCALE_BCP47, persistLocale } from './index';
 import i18n from './instance';
 
 export function useLocale() {
@@ -11,9 +11,9 @@ export function useLocale() {
 
   const setLocale = useCallback(
     (newLocale: SupportedLocale) => {
-      i18nInstance.changeLanguage(newLocale);
+      persistLocale(newLocale);
     },
-    [i18nInstance],
+    [],
   );
 
   return { locale, setLocale, supportedLocales: SUPPORTED_LOCALES, localeLabels: LOCALE_LABELS, localeBCP47: LOCALE_BCP47 };

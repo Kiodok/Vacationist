@@ -109,7 +109,9 @@
       "Bash(sed -i \"s/i18nInstance.t\\(\\\\`notifications:nudge.\\\\${key}.body\\\\`\\)/i18nInstance.t\\(\\\\`notifications:nudge.\\\\${key}.body\\\\`\\) as string/g\" \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
       "Bash(sed -i 's/const title = i18nInstance.t\\(`notifications:nudge.\\\\${key}.title`\\) as string as string;/const title = \\(i18nInstance.t as \\(k: string\\) => string\\)\\(`notifications:nudge.\\\\${key}.title`\\);/' \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
       "Bash(sed -i 's/const body = i18nInstance.t\\(`notifications:nudge.\\\\${key}.body`\\) as string as string;/const body = \\(i18nInstance.t as \\(k: string\\) => string\\)\\(`notifications:nudge.\\\\${key}.body`\\);/' \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(dir \"F:\\\\Expo Projects\\\\Vacationist\\\\packages\\\\i18n\\\\src\" /s /b)",
+      "Bash(dir F:\\\\Expo Projects\\\\Vacationist\\\\packages\\\\i18n *)"
     ]
   },
   "model": "opusplan",
