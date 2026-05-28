@@ -94,7 +94,7 @@ This demographic expects:
 | Expenses tab | Locked | ✓ |
 | Prework tab | Locked | ✓ |
 | Flights (Transfers) | Locked | ✓ |
-| Vehicles & Rentals | Max 1 vehicle AND 1 rental per trip | Unlimited |
+| Vehicles & Rentals | Max 1 vehicle OR 1 rental per trip | Unlimited |
 
 ## Trip-Day Quota
 

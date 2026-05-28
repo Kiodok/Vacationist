@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { View, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { View, ScrollView, KeyboardAvoidingView, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import type { PreworkFilter } from '@vacationist/types';
 import { useAuthStore } from '../../../src/stores/authStore';
@@ -72,12 +72,41 @@ export default function PreworkTab() {
 
   if (!hasAnyPreferences && myFilters.length === 0) {
     return (
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="px-md py-md gap-lg"
+          contentContainerStyle={webStyle}
+          keyboardShouldPersistTaps="handled"
+        >
+          <EmptyPrework />
+          <MyPreferencesSection
+            initialFilters={myFilters}
+            recommendedLabels={recommendedLabels}
+            onSave={handleSave}
+            onClear={handleClear}
+            isSaving={upsertMutation.isPending}
+            isClearing={deleteMutation.isPending}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
+  }
+
+  return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <ScrollView
         className="flex-1"
-        contentContainerClassName="px-md py-md gap-lg"
+        contentContainerClassName="px-md py-md gap-xl"
         contentContainerStyle={webStyle}
+        keyboardShouldPersistTaps="handled"
       >
-        <EmptyPrework />
         <MyPreferencesSection
           initialFilters={myFilters}
           recommendedLabels={recommendedLabels}
@@ -86,30 +115,13 @@ export default function PreworkTab() {
           isSaving={upsertMutation.isPending}
           isClearing={deleteMutation.isPending}
         />
+
+        <GroupSummarySection
+          aggregated={aggregated}
+          totalMembers={totalMembers}
+          memberNames={memberNames}
+        />
       </ScrollView>
-    );
-  }
-
-  return (
-    <ScrollView
-      className="flex-1"
-      contentContainerClassName="px-md py-md gap-xl"
-      contentContainerStyle={webStyle}
-    >
-      <MyPreferencesSection
-        initialFilters={myFilters}
-        recommendedLabels={recommendedLabels}
-        onSave={handleSave}
-        onClear={handleClear}
-        isSaving={upsertMutation.isPending}
-        isClearing={deleteMutation.isPending}
-      />
-
-      <GroupSummarySection
-        aggregated={aggregated}
-        totalMembers={totalMembers}
-        memberNames={memberNames}
-      />
-    </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
