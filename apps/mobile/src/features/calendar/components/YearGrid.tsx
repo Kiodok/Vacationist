@@ -1,10 +1,9 @@
 import { View, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import { YearHeader } from './YearHeader';
 import { YearMonthCell } from './YearMonthCell';
 
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const HORIZONTAL_PADDING = 16;
 const ROWS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]];
 const MAX_CALENDAR_WIDTH = 600;
@@ -29,6 +28,12 @@ export function YearGrid({
   onNextYear,
   onSelectMonth,
 }: YearGridProps) {
+  // Locale-aware month abbreviations — recompute when language changes
+  useTranslation(); // subscribe to language changes
+  const MONTH_LABELS = Array.from({ length: 12 }, (_, i) =>
+    dayjs().month(i).format('MMM'),
+  );
+
   const now = dayjs();
   const currentYear = now.year();
   const currentMonth = now.month();

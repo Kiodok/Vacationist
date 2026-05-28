@@ -1,11 +1,12 @@
 import { View, Text } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { TripStatus } from '@vacationist/types';
 
-const statusConfig: Record<TripStatus, { bg: string; text: string; label: string }> = {
-  planning: { bg: 'bg-primary/10', text: 'text-primary', label: 'Planning' },
-  active: { bg: 'bg-success/10', text: 'text-success', label: 'Active' },
-  completed: { bg: 'bg-border/50', text: 'text-text-muted', label: 'Completed' },
-  archived: { bg: 'bg-border/20', text: 'text-text-muted', label: 'Archived' },
+const statusStyle: Record<TripStatus, { bg: string; text: string }> = {
+  planning: { bg: 'bg-primary/10', text: 'text-primary' },
+  active: { bg: 'bg-success/10', text: 'text-success' },
+  completed: { bg: 'bg-border/50', text: 'text-text-muted' },
+  archived: { bg: 'bg-border/20', text: 'text-text-muted' },
 };
 
 interface StatusBadgeProps {
@@ -13,11 +14,13 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  const config = statusConfig[status];
+  const { t } = useTranslation('trips');
+  const style = statusStyle[status];
+  const labelKey = `status.${status}` as const;
 
   return (
-    <View className={`px-sm py-xs rounded-full ${config.bg}`}>
-      <Text className={`text-label ${config.text}`}>{config.label}</Text>
+    <View className={`px-sm py-xs rounded-full ${style.bg}`}>
+      <Text className={`text-label ${style.text}`}>{t(labelKey)}</Text>
     </View>
   );
 }

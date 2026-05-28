@@ -1,0 +1,17 @@
+{
+  "empty.title": "Noch keine Notizen",
+  "empty.subtitle": "Schreib alles auf, was vor, während oder nach der Reise nützlich ist.",
+  "create.title": "Neue Notiz",
+  "edit.title": "Notiz bearbeiten",
+  "field.title": "Titel",
+  "field.description": "Beschreibung",
+  "placeholder.title": "z.B. Packliste",
+  "placeholder.editTitle": "Notiztitel",
+  "placeholder.description": "Details, Links oder sonstige nützliche Infos...",
+  "toast.created": "Notiz erstellt",
+  "toast.updated": "Notiz aktualisiert",
+  "toast.deleted": "Notiz gelöscht",
+  "toast.createFailed": "Notiz konnte nicht erstellt werden.",
+  "toast.updateFailed": "Notiz konnte nicht aktualisiert werden.",
+  "toast.deleteFailed": "Notiz konnte nicht gelöscht werden."
+}

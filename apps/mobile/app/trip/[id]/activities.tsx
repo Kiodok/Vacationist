@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
@@ -57,6 +58,8 @@ function sortByDate(a: Activity, b: Activity): number {
 }
 
 export default function ActivitiesTab() {
+  const { t } = useTranslation('activities');
+  const { t: tCommon } = useTranslation("common");
   const { id: tripId, activityId } = useLocalSearchParams<{ id: string; activityId?: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
@@ -114,19 +117,19 @@ export default function ActivitiesTab() {
   const sections = useMemo(() => {
     const result: { key: string; title: string; data: Activity[] }[] = [];
     if (ongoingList.length > 0) {
-      result.push({ key: 'ongoing', title: 'Ongoing', data: ongoingList });
+      result.push({ key: 'ongoing', title: t('section.ongoing'), data: ongoingList });
     }
     if (inPlanningList.length > 0) {
-      result.push({ key: 'in_planning', title: 'In Planning', data: inPlanningList });
+      result.push({ key: 'in_planning', title: t('section.inPlanning'), data: inPlanningList });
     }
     if (plannedList.length > 0) {
-      result.push({ key: 'planned', title: 'Planned', data: plannedList });
+      result.push({ key: 'planned', title: t('section.planned'), data: plannedList });
     }
     if (blockedList.length > 0) {
-      result.push({ key: 'blocked', title: 'Blocked', data: blockedList });
+      result.push({ key: 'blocked', title: t('section.blocked'), data: blockedList });
     }
     if (completedList.length > 0) {
-      result.push({ key: 'completed', title: 'Completed', data: completedList });
+      result.push({ key: 'completed', title: t('section.completed'), data: completedList });
     }
     return result;
   }, [ongoingList, inPlanningList, plannedList, blockedList, completedList]);
@@ -182,7 +185,7 @@ export default function ActivitiesTab() {
           windowSize={5}
           maxToRenderPerBatch={10}
           initialNumToRender={10}
-          contentContainerClassName="px-md py-md"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
           renderSectionHeader={({ section }) => {
             const config: Record<string, { icon: keyof typeof Ionicons.glyphMap; color: string; textClass: string }> = {
               ongoing: { icon: 'play-circle-outline', color: colors.warning, textClass: 'text-warning' },
@@ -287,6 +290,8 @@ function ActivityCardWithVotes({
   onCloseVoting: () => void;
   onReopenVoting: () => void;
 }) {
+  const { t } = useTranslation("activities");
+  const { t: tCommon } = useTranslation("common");
   const { data: votes = [] } = useActivityVotes(activity.id);
   const { data: members } = useTripMembers(tripId);
   const castVote = useCastVote();
@@ -322,7 +327,7 @@ function ActivityCardWithVotes({
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
       {activity.description && (
         <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">Description</Text>
+          <Text className="text-label text-text-muted uppercase">{tCommon('label.description')}</Text>
           <Text className="text-body-small text-text-secondary">{activity.description}</Text>
         </View>
       )}
@@ -354,38 +359,38 @@ function ActivityCardWithVotes({
       <View className="gap-sm mt-xs">
         {confirmingCloseVoting ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text className="text-text-secondary text-body-small">Close voting?</Text>
+            <Text className="text-text-secondary text-body-small">{t('confirm.closeVoting')}</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onCloseVoting(); setConfirmingCloseVoting(false); }}
               style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: 'rgba(245, 166, 35, 0.2)' }}
             >
-              <Text className="text-warning text-body-small font-semibold">Yes</Text>
+              <Text className="text-warning text-body-small font-semibold">{tCommon('button.yes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setConfirmingCloseVoting(false)}
               style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
         ) : confirmingDelete ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text className="text-text-secondary text-body-small">Delete this activity?</Text>
+            <Text className="text-text-secondary text-body-small">{t('confirm.delete')}</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onDelete(); setConfirmingDelete(false); }}
               style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.2)' }}
             >
-              <Text className="text-danger text-body-small font-semibold">Yes, delete</Text>
+              <Text className="text-danger text-body-small font-semibold">{tCommon('button.yes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setConfirmingDelete(false)}
               style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -397,7 +402,7 @@ function ActivityCardWithVotes({
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(108, 99, 255, 0.1)' }}
               >
                 <Ionicons name="create-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Edit</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
             {canCloseVoting && votes.length > 0 && (
@@ -407,7 +412,7 @@ function ActivityCardWithVotes({
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(245, 166, 35, 0.1)' }}
               >
                 <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
-                <Text className="text-warning text-body-small font-medium">End voting</Text>
+                <Text className="text-warning text-body-small font-medium">{t('action.endVoting')}</Text>
               </TouchableOpacity>
             )}
             {canReopenVoting && (
@@ -417,7 +422,7 @@ function ActivityCardWithVotes({
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(108, 99, 255, 0.1)' }}
               >
                 <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Re-open voting</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.reopenVoting')}</Text>
               </TouchableOpacity>
             )}
             {canDelete && (
@@ -427,7 +432,7 @@ function ActivityCardWithVotes({
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.1)' }}
               >
                 <Ionicons name="trash-outline" size={14} color={colors.danger} />
-                <Text className="text-danger text-body-small font-medium">Delete activity</Text>
+                <Text className="text-danger text-body-small font-medium">{t('action.delete')}</Text>
               </TouchableOpacity>
             )}
           </View>

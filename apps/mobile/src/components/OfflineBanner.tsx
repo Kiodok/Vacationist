@@ -1,11 +1,13 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { colors } from '@vacationist/ui';
 
 export const OFFLINE_BANNER_HEIGHT = 28;
 
 export function OfflineBanner() {
+  const { t } = useTranslation('common');
   const { isConnected } = useNetworkStatus();
 
   if (isConnected) return null;
@@ -14,7 +16,7 @@ export function OfflineBanner() {
     <View style={styles.banner}>
       <Ionicons name="cloud-offline-outline" size={14} color="#000" />
       <Text style={styles.text}>
-        You're offline – changes will sync on reconnect
+        {t('offline.banner')}
       </Text>
     </View>
   );

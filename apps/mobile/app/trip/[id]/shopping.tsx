@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Text, SectionList, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem } from '@vacationist/types';
 import { useShoppingLists, useCreateShoppingList, useDeleteShoppingList, useArchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
 import { useAllTripShoppingItems, useUpdateShoppingItemGlobal } from '../../../src/features/shopping/hooks/useShoppingItems';
@@ -16,6 +17,8 @@ import { colors } from '@vacationist/ui';
 type ViewMode = 'lists' | 'all';
 
 export default function ShoppingTab() {
+  const { t } = useTranslation('shopping');
+  const { t: tCommon } = useTranslation("common");
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
@@ -47,13 +50,13 @@ export default function ShoppingTab() {
   const sections = useMemo(() => {
     const result: { key: string; title: string; data: ShoppingListWithCounts[] }[] = [];
     if (activeLists.length > 0) {
-      result.push({ key: 'active', title: 'Active', data: activeLists });
+      result.push({ key: 'active', title: t('section.active'), data: activeLists });
     }
     if (completedLists.length > 0) {
-      result.push({ key: 'completed', title: 'Completed', data: completedLists });
+      result.push({ key: 'completed', title: t('section.completed'), data: completedLists });
     }
     if (archivedLists.length > 0) {
-      result.push({ key: 'archived', title: 'Archived', data: archivedLists });
+      result.push({ key: 'archived', title: t('section.archived'), data: archivedLists });
     }
     return result;
   }, [activeLists, completedLists, archivedLists]);
@@ -82,7 +85,7 @@ export default function ShoppingTab() {
             className={`px-md py-sm rounded-full ${viewMode === 'lists' ? 'bg-primary' : 'bg-surface'}`}
           >
             <Text className={`text-body-small font-semibold ${viewMode === 'lists' ? 'text-white' : 'text-text-secondary'}`}>
-              Lists
+              {t('toggle.lists')}
             </Text>
           </Pressable>
           <Pressable
@@ -90,7 +93,7 @@ export default function ShoppingTab() {
             className={`px-md py-sm rounded-full ${viewMode === 'all' ? 'bg-primary' : 'bg-surface'}`}
           >
             <Text className={`text-body-small font-semibold ${viewMode === 'all' ? 'text-white' : 'text-text-secondary'}`}>
-              All Items
+              {t('toggle.allItems')}
             </Text>
           </Pressable>
         </View>
@@ -110,7 +113,7 @@ export default function ShoppingTab() {
           windowSize={5}
           maxToRenderPerBatch={10}
           initialNumToRender={10}
-          contentContainerClassName="px-md py-md"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
           renderSectionHeader={({ section }) => {
             const icon = section.key === 'active'
               ? 'cart-outline' as const
@@ -174,6 +177,7 @@ export default function ShoppingTab() {
 }
 
 function AllItemsView({ tripId }: { tripId: string }) {
+  const { t } = useTranslation("shopping");
   const { data: allItems, isLoading } = useAllTripShoppingItems(tripId);
   const updateItem = useUpdateShoppingItemGlobal(tripId);
 
@@ -210,7 +214,7 @@ function AllItemsView({ tripId }: { tripId: string }) {
       <View className="flex-1 items-center justify-center px-xl gap-sm">
         <Ionicons name="basket-outline" size={40} color="#5C5C5C" />
         <Text className="text-body text-text-secondary text-center">
-          No items across any list yet.
+          {t('noItems')}
         </Text>
       </View>
     );
@@ -224,7 +228,7 @@ function AllItemsView({ tripId }: { tripId: string }) {
       windowSize={5}
       maxToRenderPerBatch={10}
       initialNumToRender={10}
-      contentContainerClassName="pb-xl"
+      contentContainerStyle={{ paddingBottom: 32 }}
       renderSectionHeader={({ section }) => (
         <View className="flex-row items-center gap-xs pt-md pb-sm px-md bg-background">
           <Ionicons name="list-outline" size={16} color={colors.primary} />
@@ -265,6 +269,8 @@ function ShoppingListCardWrapper({
   onDelete: () => void;
   onArchive: () => void;
 }) {
+  const { t } = useTranslation("shopping");
+  const { t: tCommon } = useTranslation("common");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const canDelete = role === 'organizer' || list.created_by === currentUserId;
@@ -285,7 +291,7 @@ function ShoppingListCardWrapper({
       />
       {confirmingDelete && (
         <View className="flex-row items-center justify-center gap-sm py-sm">
-          <Text className="text-text-secondary text-body-small">Delete this list?</Text>
+          <Text className="text-text-secondary text-body-small">{t('confirm.deleteList')}</Text>
           <Pressable
             onPress={() => { onDelete(); setConfirmingDelete(false); }}
             style={({ pressed }) => ({
@@ -296,7 +302,7 @@ function ShoppingListCardWrapper({
               backgroundColor: 'rgba(255, 92, 92, 0.2)',
             })}
           >
-            <Text className="text-danger text-body-small font-semibold">Yes, delete</Text>
+            <Text className="text-danger text-body-small font-semibold">{t('confirm.deleteYes')}</Text>
           </Pressable>
           {canArchive && (
             <Pressable
@@ -309,7 +315,7 @@ function ShoppingListCardWrapper({
                 backgroundColor: 'rgba(160, 160, 160, 0.15)',
               })}
             >
-              <Text className="text-text-secondary text-body-small font-semibold">Archive instead</Text>
+              <Text className="text-text-secondary text-body-small font-semibold">{t('confirm.archiveInstead')}</Text>
             </Pressable>
           )}
           <Pressable
@@ -321,7 +327,7 @@ function ShoppingListCardWrapper({
               borderRadius: 6,
             })}
           >
-            <Text className="text-text-secondary text-body-small">Cancel</Text>
+            <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
           </Pressable>
         </View>
       )}

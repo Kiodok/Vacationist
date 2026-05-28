@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getNotes, createNote, updateNote, deleteNote } from '@vacationist/api';
 import type { CreateTripNoteInput, UpdateTripNoteInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useNotes(tripId: string) {
@@ -20,10 +21,10 @@ export function useCreateNote(tripId: string) {
     mutationFn: (input: CreateTripNoteInput) => createNote(tripId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notes'] });
-      addToast('success', 'Note created');
+      addToast('success', i18n.t('notes:toast.created'));
     },
     onError: () => {
-      addToast('error', 'Failed to create note.');
+      addToast('error', i18n.t('notes:toast.createFailed'));
     },
   });
 }
@@ -37,10 +38,10 @@ export function useUpdateNote(tripId: string) {
       updateNote(noteId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notes'] });
-      addToast('success', 'Note updated');
+      addToast('success', i18n.t('notes:toast.updated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update note.');
+      addToast('error', i18n.t('notes:toast.updateFailed'));
     },
   });
 }
@@ -53,10 +54,10 @@ export function useDeleteNote(tripId: string) {
     mutationFn: (noteId: string) => deleteNote(noteId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notes'] });
-      addToast('success', 'Note deleted');
+      addToast('success', i18n.t('notes:toast.deleted'));
     },
     onError: () => {
-      addToast('error', 'Failed to delete note.');
+      addToast('error', i18n.t('notes:toast.deleteFailed'));
     },
   });
 }

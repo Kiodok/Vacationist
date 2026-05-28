@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator, Platform, Share }
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@vacationist/ui';
 import { useTrip, useDeleteTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers, useRemoveMember, useLeaveTrip, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -17,12 +18,6 @@ import { MemberDocumentsSheet } from '../../../src/features/profile/components/M
 import { NotificationPreferencesSection } from '../../../src/features/notifications/components/NotificationPreferencesSection';
 import { NudgeSheet } from '../../../src/features/notifications/components/NudgeSheet';
 import { colors } from '@vacationist/ui';
-
-const ROLE_LABELS: Record<string, string> = {
-  organizer: 'Organizer',
-  participant: 'Participant',
-  guest: 'Guest',
-};
 
 export default function SettingsTab() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -40,8 +35,17 @@ export default function SettingsTab() {
   const createInvite = useCreateInvite(tripId);
   const revokeInvite = useRevokeInvite(tripId);
 
+  const { t } = useTranslation('trips');
+  const { t: tCommon } = useTranslation("common");
+  const { t: tProfile } = useTranslation("profile");
   const isOrganizer = role === 'organizer';
   const addToast = useToastStore((s) => s.addToast);
+
+  const ROLE_LABELS: Record<string, string> = {
+    organizer: t('role.organizer'),
+    participant: t('role.participant'),
+    guest: t('role.guest'),
+  };
 
   const [pendingRemovalId, setPendingRemovalId] = useState<string | null>(null);
   const [pendingLeave, setPendingLeave] = useState(false);
@@ -80,7 +84,7 @@ export default function SettingsTab() {
     <ScrollView style={{ flex: 1 }} contentContainerClassName="px-md py-md gap-lg">
       {/* Members section */}
       <View>
-        <Text className="text-label text-text-muted uppercase mb-sm">Members</Text>
+        <Text className="text-label text-text-muted uppercase mb-sm">{t('settings.members')}</Text>
         <View className="bg-surface border border-border rounded-md">
           {members?.map((member, index) => {
             const canRemove = isOrganizer && member.user_id !== currentUser?.id;
@@ -127,7 +131,7 @@ export default function SettingsTab() {
                           hitSlop={8}
                           className="px-sm py-xs rounded-sm bg-surface-elevated"
                         >
-                          <Text className="text-body-small text-text-secondary">Cancel</Text>
+                          <Text className="text-body-small text-text-secondary">{tCommon('button.cancel')}</Text>
                         </Pressable>
                         <Pressable
                           onPress={() => {
@@ -138,7 +142,7 @@ export default function SettingsTab() {
                           hitSlop={8}
                           className="px-sm py-xs rounded-sm bg-danger"
                         >
-                          <Text className="text-body-small text-white font-semibold">Remove</Text>
+                          <Text className="text-body-small text-white font-semibold">{tCommon('button.remove')}</Text>
                         </Pressable>
                       </>
                     )}
@@ -153,10 +157,10 @@ export default function SettingsTab() {
       {/* Invite section */}
       {isOrganizer && (
         <View>
-          <Text className="text-label text-text-muted uppercase mb-sm">Invite Link</Text>
+          <Text className="text-label text-text-muted uppercase mb-sm">{t('settings.inviteLink')}</Text>
           <View className="bg-surface border border-border rounded-md p-md gap-md">
             <Button
-              label="Generate Invite Link"
+              label={t('settings.generateInvite')}
               variant="secondary"
               onPress={handleCreateInvite}
               loading={createInvite.isPending}
@@ -165,7 +169,7 @@ export default function SettingsTab() {
 
             {invites && invites.length > 0 && (
               <View className="gap-sm">
-                <Text className="text-body-small text-text-secondary">Active invites</Text>
+                <Text className="text-body-small text-text-secondary">{t('settings.activeInvites')}</Text>
                 {invites.map((invite) => (
                   <View
                     key={invite.id}
@@ -176,7 +180,7 @@ export default function SettingsTab() {
                         ...{invite.token.slice(-8)}
                       </Text>
                       <Text className="text-label text-text-muted">
-                        Uses: {invite.use_count}{invite.max_uses != null ? `/${invite.max_uses}` : ''}
+                        {t('settings.inviteUses', { useCount: invite.use_count, maxUses: invite.max_uses != null ? `/${invite.max_uses}` : '' })}
                       </Text>
                     </View>
                     <Pressable
@@ -196,15 +200,15 @@ export default function SettingsTab() {
       {/* Member documents (organizer only) */}
       {isOrganizer && (
         <View>
-          <Text className="text-label text-text-muted uppercase mb-sm">Member Documents</Text>
+          <Text className="text-label text-text-muted uppercase mb-sm">{t('settings.memberDocuments')}</Text>
           <View className="bg-surface border border-border rounded-md p-md gap-md">
             <Text className="text-body-small text-text-secondary">
-              Request members to share their travel documents for a limited time. Each member must individually grant access.
+              {tProfile('accessRequest.howItWorksBody')}
             </Text>
             <View className="flex-row gap-sm">
               <View className="flex-1">
                 <Button
-                  label="Request Documents"
+                  label={t('settings.requestDocuments')}
                   variant="secondary"
                   onPress={() => setRequestDocVisible(true)}
                   loading={createAccessRequest.isPending}
@@ -213,7 +217,7 @@ export default function SettingsTab() {
               </View>
               <View className="flex-1">
                 <Button
-                  label="View Documents"
+                  label={t('settings.viewDocuments')}
                   variant="secondary"
                   onPress={() => setViewDocsVisible(true)}
                   icon={<Ionicons name="document-text-outline" size={18} color={hasActiveDocs ? colors.success : colors.primary} />}
@@ -233,13 +237,13 @@ export default function SettingsTab() {
       {/* Organizer nudge */}
       {isOrganizer && Platform.OS !== 'web' && (
         <View>
-          <Text className="text-label text-text-muted uppercase mb-sm">Nudge Members</Text>
+          <Text className="text-label text-text-muted uppercase mb-sm">{t('settings.nudge')}</Text>
           <View className="bg-surface border border-border rounded-md p-md">
             <Text className="text-body-small text-text-secondary mb-md">
-              Send a playful reminder to your group to check open votes.
+              {t('settings.nudgeDescription')}
             </Text>
             <Button
-              label="Send a Nudge"
+              label={t('settings.sendNudge')}
               variant="secondary"
               onPress={() => setNudgeVisible(true)}
               icon={<Ionicons name="megaphone-outline" size={18} color={colors.primary} />}
@@ -250,13 +254,13 @@ export default function SettingsTab() {
 
       {/* Danger zone */}
       <View>
-        <Text className="text-label text-text-muted uppercase mb-sm">Danger Zone</Text>
+        <Text className="text-label text-text-muted uppercase mb-sm">{t('settings.dangerZone')}</Text>
         <View className="gap-sm">
 
           {/* Leave Trip */}
           {!isOrganizer && !pendingLeave && (
             <Button
-              label="Leave Trip"
+              label={t('settings.leaveTrip')}
               variant="secondary"
               onPress={() => setPendingLeave(true)}
               icon={<Ionicons name="exit-outline" size={18} color={colors.primary} />}
@@ -265,7 +269,7 @@ export default function SettingsTab() {
           {!isOrganizer && pendingLeave && (
             <View className="rounded-md border border-danger p-md gap-sm">
               <Text className="text-body-small text-text-secondary">
-                Are you sure you want to leave this trip?
+                {t('settings.leaveConfirm')}
               </Text>
               <View className="flex-row gap-sm">
                 <Pressable
@@ -273,7 +277,7 @@ export default function SettingsTab() {
                   className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
                   disabled={leaveTrip.isPending}
                 >
-                  <Text className="text-body text-text-secondary">Cancel</Text>
+                  <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={async () => {
@@ -291,7 +295,7 @@ export default function SettingsTab() {
                   {leaveTrip.isPending ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
-                    <Text className="text-body text-white font-semibold">Leave</Text>
+                    <Text className="text-body text-white font-semibold">{t('settings.leaveTrip')}</Text>
                   )}
                 </Pressable>
               </View>
@@ -305,13 +309,13 @@ export default function SettingsTab() {
               className="min-h-[48px] rounded-md border border-danger items-center justify-center flex-row gap-sm"
             >
               <Ionicons name="trash-outline" size={18} color={colors.danger} />
-              <Text className="text-body text-danger font-semibold">Delete Trip</Text>
+              <Text className="text-body text-danger font-semibold">{t('settings.deleteTrip')}</Text>
             </Pressable>
           )}
           {isOrganizer && pendingDelete && (
             <View className="rounded-md border border-danger p-md gap-sm">
               <Text className="text-body-small text-text-secondary">
-                This will archive the trip for all members. This cannot be undone.
+                {t('settings.deleteConfirm')}
               </Text>
               <View className="flex-row gap-sm">
                 <Pressable
@@ -319,7 +323,7 @@ export default function SettingsTab() {
                   className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
                   disabled={deleteTrip.isPending}
                 >
-                  <Text className="text-body text-text-secondary">Cancel</Text>
+                  <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={async () => {
@@ -337,7 +341,7 @@ export default function SettingsTab() {
                   {deleteTrip.isPending ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
-                    <Text className="text-body text-white font-semibold">Delete</Text>
+                    <Text className="text-body text-white font-semibold">{tCommon('button.delete')}</Text>
                   )}
                 </Pressable>
               </View>

@@ -9,6 +9,7 @@ import {
   reopenActivityVoting,
 } from '@vacationist/api';
 import type { Activity, CreateActivityInput, UpdateActivityInput, CreateActivityVariables } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -71,14 +72,14 @@ export function useCreateActivity() {
     },
     onSuccess: (_data, { tripId }) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      addToast('success', 'Activity created');
+      addToast('success', i18n.t('activities:toast.created'));
     },
     onError: (err, { tripId }, context) => {
       if (context !== undefined) {
         queryClient.setQueryData<Activity[]>(['trips', tripId, 'activities'], context.previous);
       }
       if (__DEV__) console.error('[createActivity]', err);
-      addToast('error', 'Failed to create activity.');
+      addToast('error', i18n.t('activities:toast.createFailed'));
     },
   });
 }
@@ -94,10 +95,10 @@ export function useUpdateActivity(tripId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
       queryClient.invalidateQueries({ queryKey: ['global-calendar-activities'] });
       queryClient.invalidateQueries({ queryKey: ['activities', activityId] });
-      addToast('success', 'Activity updated');
+      addToast('success', i18n.t('activities:toast.updated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update activity.');
+      addToast('error', i18n.t('activities:toast.updateFailed'));
     },
   });
 }
@@ -110,10 +111,10 @@ export function useDeleteActivity(tripId: string) {
     mutationFn: (activityId: string) => softDeleteActivity(activityId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      addToast('success', 'Activity deleted');
+      addToast('success', i18n.t('activities:toast.deleted'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to delete activity.');
+      addToast('error', error.message || i18n.t('activities:toast.deleteFailed'));
     },
   });
 }
@@ -127,10 +128,10 @@ export function useCloseVoting(tripId: string) {
     onSuccess: (_data, activityId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
       queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
-      addToast('success', 'Voting closed');
+      addToast('success', i18n.t('activities:toast.votingClosed'));
     },
     onError: () => {
-      addToast('error', 'Failed to close voting.');
+      addToast('error', i18n.t('activities:toast.closeVotingFailed'));
     },
   });
 }
@@ -144,10 +145,10 @@ export function useReopenVoting(tripId: string) {
     onSuccess: (_data, activityId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
       queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
-      addToast('success', 'Voting re-opened');
+      addToast('success', i18n.t('activities:toast.votingReopened'));
     },
     onError: () => {
-      addToast('error', 'Failed to re-open voting.');
+      addToast('error', i18n.t('activities:toast.reopenVotingFailed'));
     },
   });
 }

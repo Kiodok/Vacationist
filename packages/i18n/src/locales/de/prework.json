@@ -1,0 +1,20 @@
+{
+  "empty.title": "Noch keine Präferenzen",
+  "empty.subtitle": "Füge Filter hinzu, um dem Organisator zu helfen, den perfekten Übernachtungsort zu finden.",
+  "my.title": "Meine Präferenzen",
+  "my.emptyHint": "Füge hinzu, was dir bei der Auswahl einer Unterkunft wichtig ist. Du hast 100 Credits zu vergeben.",
+  "my.placeholder": "z.B. Pool, Strandnähe, Grill...",
+  "my.fromOthers": "Von anderen Mitgliedern",
+  "my.creditsUsed": "Verwendete Credits",
+  "my.exceedsMax": "Gesamte Credits übersteigen 100. Entferne Credits zum Speichern.",
+  "my.zeroCredit": "Jeder Filter benötigt mindestens 1 Credit.",
+  "my.weightPlaceholder": "0",
+  "toast.saved": "Präferenzen gespeichert",
+  "toast.cleared": "Präferenzen gelöscht",
+  "toast.saveFailed": "Präferenzen konnten nicht gespeichert werden.",
+  "toast.clearFailed": "Präferenzen konnten nicht gelöscht werden.",
+  "group.title": "Gruppenübersicht",
+  "group.empty": "Noch keine Gruppenpräferenzen. Wartet darauf, dass Mitglieder ihre Filter hinzufügen.",
+  "group.memberCount": "{{count}} Mitglied",
+  "group.memberCount_other": "{{count}} Mitglieder"
+}

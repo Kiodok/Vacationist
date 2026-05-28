@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { NativeModules, Platform } from 'react-native';
 import { signInWithGoogleIdToken } from '@vacationist/api';
+import { i18n } from '@vacationist/i18n';
 
 type GoogleSigninType =
   typeof import('@react-native-google-signin/google-signin').GoogleSignin;
@@ -58,7 +59,7 @@ export function useGoogleSignIn(
       }
 
       if (!GoogleSignin) {
-        throw new Error('Google Sign-In is not available');
+        throw new Error(i18n.t('auth:login.googleUnavailable'));
       }
 
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -74,9 +75,7 @@ export function useGoogleSignIn(
       }
 
       if (!response.idToken) {
-        throw new Error(
-          'No ID token received from Google. Verify your Google Web Client ID is configured correctly.',
-        );
+        throw new Error(i18n.t('auth:login.googleNoToken'));
       }
 
       await signInWithGoogleIdToken(response.idToken);
@@ -96,7 +95,7 @@ export function useGoogleSignIn(
       ) {
         return;
       }
-      onError('Google sign-in failed. Please try again.');
+      onError(i18n.t('auth:login.googleFailed'));
     } finally {
       setLoading(false);
     }

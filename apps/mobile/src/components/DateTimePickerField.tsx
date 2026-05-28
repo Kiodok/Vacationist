@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, Text, Pressable, Platform, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { i18n } from '@vacationist/i18n';
 
 type RNDateTimePickerType =
   typeof import('@react-native-community/datetimepicker').default;
@@ -21,10 +22,16 @@ interface DateTimePickerFieldProps {
   maximumDate?: Date;
 }
 
+const LOCALE_MAP: Record<string, string> = {
+  en: 'en-US',
+  de: 'de-DE',
+};
+
 function formatDateDisplay(dateStr: string): string {
   const [y, m, d] = dateStr.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString('en-US', {
+  const locale = LOCALE_MAP[i18n.language] ?? 'en-US';
+  return date.toLocaleDateString(locale, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

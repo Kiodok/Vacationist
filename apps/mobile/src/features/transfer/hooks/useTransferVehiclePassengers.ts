@@ -5,6 +5,7 @@ import {
   removeTransferVehiclePassenger,
   updateTransferVehiclePassenger,
 } from '@vacationist/api';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useTransferVehiclePassengers(vehicleId: string) {
@@ -28,7 +29,7 @@ export function useAddTransferVehiclePassenger(tripId: string, vehicleId: string
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-vehicles'] });
     },
     onError: () => {
-      addToast('error', 'Failed to add passenger.');
+      addToast('error', i18n.t('transfer:toast.addPassengerFailed'));
     },
   });
 }
@@ -44,7 +45,7 @@ export function useRemoveTransferVehiclePassenger(tripId: string, vehicleId: str
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-vehicles'] });
     },
     onError: () => {
-      addToast('error', 'Failed to remove passenger.');
+      addToast('error', i18n.t('transfer:toast.removePassengerFailed'));
     },
   });
 }
@@ -61,7 +62,7 @@ export function useUpdateTransferVehiclePassenger(tripId: string, vehicleId: str
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-vehicles'] });
     },
     onError: () => {
-      addToast('error', 'Failed to update passenger.');
+      addToast('error', i18n.t('transfer:toast.passengersFailed'));
     },
   });
 }

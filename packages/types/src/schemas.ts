@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE } from './enums';
+import { SUPPORTED_TIMEZONES, SUPPORTED_LOCALES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE } from './enums';
 import type { VOTE_TYPE } from './enums';
 
 export const userSchema = z.object({
@@ -7,7 +7,7 @@ export const userSchema = z.object({
   name: z.string().min(1).max(100),
   email: z.string().email().nullable(),
   avatar_url: z.string().url().nullable(),
-  locale: z.string(),
+  locale: z.enum(SUPPORTED_LOCALES),
   timezone: z.enum(SUPPORTED_TIMEZONES),
   is_guest: z.boolean(),
   created_at: z.string(),
@@ -16,7 +16,7 @@ export const userSchema = z.object({
 export const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   avatar_url: z.string().url().max(2048).nullable().optional(),
-  locale: z.string().optional(),
+  locale: z.enum(SUPPORTED_LOCALES).optional(),
   timezone: z.enum(SUPPORTED_TIMEZONES).optional(),
 });
 

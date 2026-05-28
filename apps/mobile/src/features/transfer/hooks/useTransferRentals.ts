@@ -6,6 +6,7 @@ import {
   softDeleteTransferRental,
 } from '@vacationist/api';
 import type { CreateTransferRentalInput, UpdateTransferRentalInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useTransferRentals(tripId: string) {
@@ -25,10 +26,10 @@ export function useCreateTransferRental(tripId: string) {
     mutationFn: (input: CreateTransferRentalInput) => createTransferRental(tripId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-rentals'] });
-      addToast('success', 'Rental car added');
+      addToast('success', i18n.t('transfer:toast.rentalAdded'));
     },
     onError: () => {
-      addToast('error', 'Failed to add rental car.');
+      addToast('error', i18n.t('transfer:toast.rentalAddFailed'));
     },
   });
 }
@@ -42,10 +43,10 @@ export function useUpdateTransferRental(tripId: string) {
       updateTransferRental(rentalId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-rentals'] });
-      addToast('success', 'Rental car updated');
+      addToast('success', i18n.t('transfer:toast.rentalUpdated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update rental car.');
+      addToast('error', i18n.t('transfer:toast.rentalUpdateFailed'));
     },
   });
 }
@@ -58,10 +59,10 @@ export function useDeleteTransferRental(tripId: string) {
     mutationFn: (rentalId: string) => softDeleteTransferRental(rentalId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-rentals'] });
-      addToast('success', 'Rental car removed');
+      addToast('success', i18n.t('transfer:toast.rentalRemoved'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to remove rental car.');
+      addToast('error', error.message || i18n.t('transfer:toast.rentalRemoveFailed'));
     },
   });
 }

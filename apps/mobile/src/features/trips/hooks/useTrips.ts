@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip, TripNotFoundError } from '@vacationist/api';
 import type { CreateTripInput, UpdateTripInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 
@@ -36,10 +37,10 @@ export function useCreateTrip() {
     onSuccess: (data) => {
       queryClient.setQueryData(['trips', data.id], { ...data, member_count: 1 });
       queryClient.invalidateQueries({ queryKey: ['trips'], exact: true });
-      addToast('success', 'Trip created!');
+      addToast('success', i18n.t('trips:toast.created'));
     },
     onError: () => {
-      addToast('error', 'Failed to create trip. Please try again.');
+      addToast('error', i18n.t('trips:toast.createFailed'));
     },
   });
 }
@@ -54,10 +55,10 @@ export function useUpdateTrip() {
     onSuccess: (_data, { tripId }) => {
       queryClient.invalidateQueries({ queryKey: ['trips'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId] });
-      addToast('success', 'Trip updated');
+      addToast('success', i18n.t('trips:toast.updated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update trip.');
+      addToast('error', i18n.t('trips:toast.updateFailed'));
     },
   });
 }
@@ -70,10 +71,10 @@ export function useDeleteTrip() {
     mutationFn: (tripId: string) => softDeleteTrip(tripId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips'] });
-      addToast('success', 'Trip deleted');
+      addToast('success', i18n.t('trips:toast.deleted'));
     },
     onError: () => {
-      addToast('error', 'Failed to delete trip.');
+      addToast('error', i18n.t('trips:toast.deleteFailed'));
     },
   });
 }

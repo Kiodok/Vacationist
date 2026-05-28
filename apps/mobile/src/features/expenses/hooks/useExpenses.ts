@@ -12,6 +12,7 @@ import {
   unsettleExpenseSplit,
 } from '@vacationist/api';
 import type { CreateExpenseInput, UpdateExpenseWithSplitsInput, ExpenseWithSplits } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useExpenses(tripId: string) {
@@ -45,10 +46,10 @@ export function useCreateExpense(tripId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
-      addToast('success', 'Expense added');
+      addToast('success', i18n.t('expenses:toast.added'));
     },
     onError: () => {
-      addToast('error', 'Failed to add expense.');
+      addToast('error', i18n.t('expenses:toast.addFailed'));
     },
   });
 }
@@ -64,10 +65,10 @@ export function useUpdateExpenseWithSplits(tripId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
       queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
-      addToast('success', 'Expense updated');
+      addToast('success', i18n.t('expenses:toast.updated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update expense.');
+      addToast('error', i18n.t('expenses:toast.updateFailed'));
     },
   });
 }
@@ -81,10 +82,10 @@ export function useArchiveExpense(tripId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
-      addToast('success', 'Expense archived');
+      addToast('success', i18n.t('expenses:toast.archived'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to archive expense.');
+      addToast('error', error.message || i18n.t('expenses:toast.archiveFailed'));
     },
   });
 }
@@ -98,10 +99,10 @@ export function useUnarchiveExpense(tripId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
-      addToast('success', 'Expense restored');
+      addToast('success', i18n.t('expenses:toast.restored'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to restore expense.');
+      addToast('error', error.message || i18n.t('expenses:toast.restoreFailed'));
     },
   });
 }
@@ -125,10 +126,10 @@ export function useSettleExpenseSplit(tripId: string, expenseId: string) {
       queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
-      addToast('success', 'Marked as settled');
+      addToast('success', i18n.t('expenses:toast.settled'));
     },
     onError: () => {
-      addToast('error', 'Failed to settle split.');
+      addToast('error', i18n.t('expenses:toast.settleFailed'));
     },
   });
 }
@@ -143,10 +144,10 @@ export function useUnsettleExpenseSplit(tripId: string, expenseId: string) {
       queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
-      addToast('success', 'Marked as open');
+      addToast('success', i18n.t('expenses:toast.reopened'));
     },
     onError: () => {
-      addToast('error', 'Failed to reopen split.');
+      addToast('error', i18n.t('expenses:toast.reopenFailed'));
     },
   });
 }

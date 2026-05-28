@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { TransferFlight, TransferVehicle, TransferRental } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
@@ -16,13 +17,11 @@ export interface AllTransfersViewProps {
   onRentalPress?: (id: string) => void;
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 function formatDatetime(value: string | null): string | null {
   if (!value) return null;
-  const match = value.replace(' ', 'T').match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-  if (!match) return null;
-  return `${parseInt(match[3])} ${MONTHS[parseInt(match[2]) - 1]}, ${match[4]}:${match[5]}`;
+  const d = dayjs(value.replace(' ', 'T'));
+  if (!d.isValid()) return null;
+  return d.format('D MMM, HH:mm');
 }
 
 function SectionHeader({
@@ -43,7 +42,7 @@ function SectionHeader({
       <Text className="text-body-small text-text-muted">({count})</Text>
       {isWinner && (
         <View className="px-xs py-[2px] rounded-full bg-success/20 ml-xs">
-          <Text className="text-success text-label font-semibold">Winner</Text>
+          <Text className="text-success text-label font-semibold">✓</Text>
         </View>
       )}
     </View>
@@ -51,51 +50,56 @@ function SectionHeader({
 }
 
 function DirectionBadge({ direction }: { direction: string }) {
+  const { t } = useTranslation('transfer');
   if (direction === 'outbound-return') {
     return (
       <View className="px-sm py-xs rounded-full bg-success/10">
-        <Text className="text-label font-medium text-success">Both</Text>
+        <Text className="text-label font-medium text-success">{t('direction.both')}</Text>
       </View>
     );
   }
   return (
     <View className={`px-sm py-xs rounded-full ${direction === 'outbound' ? 'bg-primary/10' : 'bg-warning/10'}`}>
       <Text className={`text-label font-medium ${direction === 'outbound' ? 'text-primary' : 'text-warning'}`}>
-        {direction === 'outbound' ? 'Outbound' : 'Return'}
+        {direction === 'outbound' ? t('direction.outbound') : t('direction.return')}
       </Text>
     </View>
   );
 }
 
 function FlightStatusBadge({ status, votingOpen }: { status: string; votingOpen: boolean }) {
+  const { t } = useTranslation('transfer');
   if (votingOpen) {
     return (
       <View className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10">
         <View className="w-[6px] h-[6px] rounded-full bg-primary" />
-        <Text className="text-primary text-label font-medium">Voting</Text>
+        <Text className="text-primary text-label font-medium">{t('all.status.voting')}</Text>
       </View>
     );
   }
-  const cfg: Record<string, { bg: string; text: string; label: string }> = {
-    suggested: { bg: 'bg-primary/10', text: 'text-primary', label: 'Suggested' },
-    booked: { bg: 'bg-success/10', text: 'text-success', label: 'Booked' },
-    completed: { bg: 'bg-border/50', text: 'text-text-muted', label: 'Done' },
+  const cfg: Record<string, { bg: string; text: string; key: 'all.status.suggested' | 'all.status.booked' | 'all.status.done' }> = {
+    suggested: { bg: 'bg-primary/10', text: 'text-primary', key: 'all.status.suggested' },
+    booked: { bg: 'bg-success/10', text: 'text-success', key: 'all.status.booked' },
+    completed: { bg: 'bg-border/50', text: 'text-text-muted', key: 'all.status.done' },
   };
   const c = cfg[status] ?? cfg.suggested;
   return (
     <View className={`px-sm py-xs rounded-full ${c.bg}`}>
-      <Text className={`${c.text} text-label font-medium`}>{c.label}</Text>
+      <Text className={`${c.text} text-label font-medium`}>{t(c.key)}</Text>
     </View>
   );
 }
 
 function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; currency: string }) {
+  const { t } = useTranslation('transfer');
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
   const departureFormatted = formatDatetime(flight.departure_time);
   const arrivalFormatted = formatDatetime(flight.arrival_time);
   const returnDepartureFormatted = formatDatetime(flight.return_departure_time);
   const returnArrivalFormatted = formatDatetime(flight.return_arrival_time);
   const isRoundTrip = flight.direction === 'outbound-return';
+  const outPrefix = isRoundTrip ? `${t('all.direction.outPrefix')} ` : '';
+  const retPrefix = `${t('all.direction.retPrefix')} `;
 
   return (
     <View className="bg-surface border border-border rounded-md p-md gap-sm mb-sm">
@@ -115,7 +119,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
         <View className="flex-row items-center gap-xs">
           <Ionicons name="airplane-outline" size={14} color="#A0A0A0" />
           <Text className="text-body-small text-text-secondary">
-            {isRoundTrip ? 'Out: ' : ''}{[flight.departure_airport, flight.arrival_airport].filter(Boolean).join(' → ')}
+            {outPrefix}{[flight.departure_airport, flight.arrival_airport].filter(Boolean).join(' → ')}
           </Text>
         </View>
       )}
@@ -123,7 +127,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
         <View className="flex-row items-center gap-xs">
           <Ionicons name="time-outline" size={14} color="#A0A0A0" />
           <Text className="text-body-small text-text-secondary">
-            {isRoundTrip ? 'Out: ' : ''}{[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
+            {outPrefix}{[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
           </Text>
         </View>
       )}
@@ -132,7 +136,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
         <View className="flex-row items-center gap-xs">
           <Ionicons name="return-up-back-outline" size={14} color="#A0A0A0" />
           <Text className="text-body-small text-text-secondary">
-            {'Ret: '}{[flight.return_departure_airport, flight.return_arrival_airport].filter(Boolean).join(' → ')}
+            {retPrefix}{[flight.return_departure_airport, flight.return_arrival_airport].filter(Boolean).join(' → ')}
           </Text>
         </View>
       )}
@@ -140,7 +144,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
         <View className="flex-row items-center gap-xs">
           <Ionicons name="time-outline" size={14} color="#A0A0A0" />
           <Text className="text-body-small text-text-secondary">
-            {'Ret: '}{[returnDepartureFormatted, returnArrivalFormatted].filter(Boolean).join(' → ')}
+            {retPrefix}{[returnDepartureFormatted, returnArrivalFormatted].filter(Boolean).join(' → ')}
           </Text>
         </View>
       )}
@@ -165,7 +169,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
       <View className="flex-row items-center justify-between">
         {flight.price_per_person != null ? (
           <Text className="text-body-small text-text-secondary">
-            {currencySymbol}{Number(flight.price_per_person).toFixed(2)} / person
+            {currencySymbol}{Number(flight.price_per_person).toFixed(2)} {t('all.perPerson')}
           </Text>
         ) : <View />}
         <DirectionBadge direction={flight.direction} />
@@ -251,23 +255,19 @@ export function AllTransfersView({
   onVehiclePress,
   onRentalPress,
 }: AllTransfersViewProps) {
+  const { t } = useTranslation('transfer');
   const allEmpty = flights.length === 0 && vehicles.length === 0 && rentals.length === 0;
 
   if (allEmpty) {
     return (
       <View className="flex-1 items-center justify-center px-xl gap-sm">
         <Ionicons name="airplane-outline" size={40} color="#5C5C5C" />
-        <Text className="text-body text-text-secondary text-center">No transfers planned yet.</Text>
-        <Text className="text-body-small text-text-muted text-center">
-          Switch to Flights, Vehicles or Rentals to get started.
-        </Text>
+        <Text className="text-body text-text-secondary text-center">{t('all.empty.title')}</Text>
+        <Text className="text-body-small text-text-muted text-center">{t('all.empty.sub')}</Text>
       </View>
     );
   }
 
-  // A booked flight is the confirmed winner for its direction. If any flight is
-  // booked, show only booked flights; otherwise show everything (voting in progress
-  // or no winner determined yet). Vehicles and rentals have no voting, always show all.
   const bookedFlights = flights.filter((f) => f.status === 'booked');
   const displayFlights = bookedFlights.length > 0 ? bookedFlights : flights;
 
@@ -287,7 +287,7 @@ export function AllTransfersView({
         <>
           <SectionHeader
             icon="airplane-outline"
-            title="Flights"
+            title={t('segment.flights')}
             count={displayFlights.length}
             isWinner={bookedFlights.length > 0}
           />
@@ -300,7 +300,7 @@ export function AllTransfersView({
       )}
       {vehicles.length > 0 && (
         <>
-          <SectionHeader icon="car-outline" title="Vehicles" count={vehicles.length} />
+          <SectionHeader icon="car-outline" title={t('segment.vehicles')} count={vehicles.length} />
           {vehicles.map((v) => (
             <Pressable key={v.id} onPress={() => onVehiclePress?.(v.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
               <VehicleSummaryCard vehicle={v} />
@@ -310,7 +310,7 @@ export function AllTransfersView({
       )}
       {rentals.length > 0 && (
         <>
-          <SectionHeader icon="car-sport-outline" title="Rentals" count={rentals.length} />
+          <SectionHeader icon="car-sport-outline" title={t('segment.rentals')} count={rentals.length} />
           {rentals.map((r) => (
             <Pressable key={r.id} onPress={() => onRentalPress?.(r.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
               <RentalSummaryCard rental={r} currency={currency} />

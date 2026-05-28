@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Button, colors } from '@vacationist/ui';
 
 interface EmptyTripsProps {
@@ -7,18 +8,19 @@ interface EmptyTripsProps {
 }
 
 export function EmptyTrips({ onCreateTrip }: EmptyTripsProps) {
+  const { t } = useTranslation('trips');
   return (
     <View className="flex-1 items-center justify-center px-xl">
       <View className="w-[80px] h-[80px] rounded-full bg-primary-muted items-center justify-center mb-lg">
         <Ionicons name="airplane-outline" size={36} color={colors.primary} />
       </View>
       <Text className="text-heading-l text-text-primary text-center mb-sm">
-        No trips yet
+        {t('empty.title')}
       </Text>
       <Text className="text-body text-text-secondary text-center mb-xl">
-        Create your first trip and start planning with your group.
+        {t('empty.subtitle')}
       </Text>
-      <Button label="Create a Trip" onPress={onCreateTrip} />
+      <Button label={t('empty.action')} onPress={onCreateTrip} />
     </View>
   );
 }

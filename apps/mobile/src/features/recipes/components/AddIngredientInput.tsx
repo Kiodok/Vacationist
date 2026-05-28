@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 interface AddIngredientInputProps {
   onAdd: (title: string, quantity: number | null, unit: string | null) => void;
@@ -8,6 +9,7 @@ interface AddIngredientInputProps {
 }
 
 export function AddIngredientInput({ onAdd, isPending }: AddIngredientInputProps) {
+  const { t } = useTranslation('recipes');
   const [title, setTitle] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [unit, setUnit] = useState('');
@@ -34,7 +36,7 @@ export function AddIngredientInput({ onAdd, isPending }: AddIngredientInputProps
           ref={titleRef}
           className="flex-1 bg-surface-elevated border border-border rounded-sm px-md py-sm text-text-primary text-body"
           placeholderTextColor="#5C5C5C"
-          placeholder="Ingredient name..."
+          placeholder={t('placeholder.ingredientName')}
           value={title}
           onChangeText={setTitle}
           onSubmitEditing={handleSubmit}
@@ -61,7 +63,7 @@ export function AddIngredientInput({ onAdd, isPending }: AddIngredientInputProps
         <TextInput
           className="w-[80px] bg-surface-elevated border border-border rounded-sm px-md py-xs text-text-primary text-body-small"
           placeholderTextColor="#5C5C5C"
-          placeholder="Qty"
+          placeholder={t('placeholder.quantity')}
           value={quantity}
           onChangeText={setQuantity}
           keyboardType="decimal-pad"
@@ -70,7 +72,7 @@ export function AddIngredientInput({ onAdd, isPending }: AddIngredientInputProps
         <TextInput
           className="w-[80px] bg-surface-elevated border border-border rounded-sm px-md py-xs text-text-primary text-body-small"
           placeholderTextColor="#5C5C5C"
-          placeholder="Unit"
+          placeholder={t('placeholder.unit')}
           value={unit}
           onChangeText={setUnit}
           maxLength={50}

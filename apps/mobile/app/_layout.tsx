@@ -5,6 +5,9 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Appearance, AppState, Platform, useColorScheme as useRNColorScheme } from 'react-native';
 import { useColorScheme as useNWColorScheme } from 'nativewind';
 import { checkForUpdate } from '../src/utils/updateChecker';
+import { initI18n, I18nProvider, i18n } from '@vacationist/i18n';
+import { setDayjsLocale } from '@vacationist/utils';
+import { storage } from '../src/utils/mmkvStorage';
 
 initSentry();
 import { Slot, useRouter, useSegments } from 'expo-router';
@@ -44,6 +47,8 @@ if (Platform.OS !== 'web') {
 export { ErrorBoundary } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
+const _locale = initI18n(storage);
+setDayjsLocale(_locale ?? 'de');
 initDayjs();
 
 // Synchronously prime the NativeWind color-scheme observable before the first
@@ -128,7 +133,7 @@ function AuthGate() {
 
     redeemInviteToken(token)
       .then((tripId) => {
-        addToast('success', 'You joined the trip!');
+        addToast('success', i18n.t('auth:invite.joined'));
         router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never);
       })
       .catch((err) => {
@@ -159,7 +164,7 @@ function AuthGate() {
       if (token) {
         redeemInviteToken(token)
           .then((tripId) => {
-            addToast('success', 'You joined the trip!');
+            addToast('success', i18n.t('auth:invite.joined'));
             router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never);
           })
           .catch((err) => {
@@ -240,13 +245,15 @@ function ThemeController() {
 function RootLayout() {
   return (
     <GlobalErrorBoundary>
-      <QueryProvider>
-        <ThemeController />
-        <OfflineBanner />
-        <AuthGate />
-        <ToastContainer />
-        <VercelWebTools />
-      </QueryProvider>
+      <I18nProvider>
+        <QueryProvider>
+          <ThemeController />
+          <OfflineBanner />
+          <AuthGate />
+          <ToastContainer />
+          <VercelWebTools />
+        </QueryProvider>
+      </I18nProvider>
     </GlobalErrorBoundary>
   );
 }

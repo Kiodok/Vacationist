@@ -2,6 +2,59 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
+// ── i18n translation map for push notification types ─────────────────────────
+// Maps notification_type → locale → { title, body }
+// When a type is not found the caller-supplied title/body is used as fallback.
+type NotifTranslation = { title: string; body: string };
+type LocaleTranslations = Record<string, NotifTranslation>;
+const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
+  new_activity: {
+    en: { title: 'New activity added', body: 'A new activity was added to your trip.' },
+    de: { title: 'Neue Aktivität', body: 'Eine neue Aktivität wurde zu deiner Reise hinzugefügt.' },
+  },
+  vote_finalized: {
+    en: { title: 'Vote finalized', body: 'The vote on an activity has been finalized.' },
+    de: { title: 'Abstimmung abgeschlossen', body: 'Die Abstimmung über eine Aktivität wurde abgeschlossen.' },
+  },
+  vote_update: {
+    en: { title: 'Vote result', body: 'The group has voted on an activity.' },
+    de: { title: 'Abstimmungsergebnis', body: 'Die Gruppe hat über eine Aktivität abgestimmt.' },
+  },
+  expense_change: {
+    en: { title: 'Expense update', body: 'An expense has been updated on your trip.' },
+    de: { title: 'Ausgabe aktualisiert', body: 'Eine Ausgabe auf deiner Reise wurde aktualisiert.' },
+  },
+  new_member: {
+    en: { title: 'New member joined', body: 'Someone new has joined your trip.' },
+    de: { title: 'Neues Mitglied', body: 'Jemand Neues ist deiner Reise beigetreten.' },
+  },
+  schedule_change: {
+    en: { title: 'Schedule changed', body: 'An activity time on your trip has changed.' },
+    de: { title: 'Zeitplan geändert', body: 'Die Zeit einer Aktivität auf deiner Reise hat sich geändert.' },
+  },
+  reminder: {
+    en: { title: 'Reminder', body: "Don't forget to check your trip updates." },
+    de: { title: 'Erinnerung', body: 'Vergiss nicht, deine Reise-Updates zu prüfen.' },
+  },
+  nudge: {
+    en: { title: 'Friendly nudge 👋', body: 'Your organizer wants you to check the open votes.' },
+    de: { title: 'Freundliche Erinnerung 👋', body: 'Dein Organisator möchte, dass du die offenen Abstimmungen prüfst.' },
+  },
+};
+
+function translateNotification(
+  type: string,
+  locale: string,
+  fallbackTitle: string,
+  fallbackBody: string,
+): { title: string; body: string } {
+  const lang = locale?.split('-')[0] ?? 'en';
+  const map = NOTIFICATION_TRANSLATIONS[type];
+  if (!map) return { title: fallbackTitle, body: fallbackBody };
+  return map[lang] ?? map['en'] ?? { title: fallbackTitle, body: fallbackBody };
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Single client reused across all invocations — created once on cold start.
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -121,6 +174,20 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
     }
   }
 
+  // Fetch the recipient's locale for translation
+  const { data: userRow } = await supabase
+    .from('users')
+    .select('locale')
+    .eq('id', payload.user_id)
+    .single();
+  const locale = (userRow as { locale?: string } | null)?.locale ?? 'en';
+  const { title, body: translatedBody } = translateNotification(
+    payload.type,
+    locale,
+    payload.title,
+    payload.body ?? '',
+  );
+
   const { data: tokens } = await supabase
     .from('user_push_tokens')
     .select('push_token')
@@ -133,8 +200,8 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
   const rawTokens = (tokens as TokenRow[]).map((t) => t.push_token);
   const messages: ExpoPushMessage[] = rawTokens.map((token) => ({
     to: token,
-    title: payload.title,
-    body: payload.body ?? '',
+    title,
+    body: translatedBody,
     sound: 'default',
     channelId: 'default',
     data: {
@@ -189,33 +256,48 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
 
   if (eligibleUserIds.length === 0) return jsonResponse({ sent: 0, reason: 'all_preferences_off' });
 
-  // Fetch tokens for all eligible users in one query.
-  const { data: allTokens } = await supabase
-    .from('user_push_tokens')
-    .select('user_id, push_token')
-    .in('user_id', eligibleUserIds);
+  // Fetch tokens and user locales for all eligible users in parallel.
+  const [{ data: allTokens }, { data: userLocales }] = await Promise.all([
+    supabase
+      .from('user_push_tokens')
+      .select('user_id, push_token')
+      .in('user_id', eligibleUserIds),
+    supabase
+      .from('users')
+      .select('id, locale')
+      .in('id', eligibleUserIds),
+  ]);
 
   if (!allTokens || allTokens.length === 0) return jsonResponse({ sent: 0, reason: 'no_tokens' });
+
+  // Build locale lookup map
+  const localeMap = new Map<string, string>(
+    ((userLocales ?? []) as { id: string; locale: string }[]).map((u) => [u.id, u.locale ?? 'en'])
+  );
 
   // user_ids[i] and notification_ids[i] are positionally aligned.
   const userToNotificationId = new Map(user_ids.map((uid, i) => [uid, notification_ids[i]]));
 
   const typedTokens = allTokens as TokenRow[];
   const rawTokens = typedTokens.map((t) => t.push_token);
-  const messages: ExpoPushMessage[] = typedTokens.map(({ push_token, user_id }, idx) => ({
-    to: rawTokens[idx],
-    title,
-    body: body ?? '',
-    sound: 'default',
-    channelId: 'default',
-    data: {
-      notificationId: userToNotificationId.get(user_id as string),
-      tripId: trip_id,
-      type,
-      relatedType: related_type,
-      relatedId: related_id,
-    },
-  }));
+  const messages: ExpoPushMessage[] = typedTokens.map(({ push_token, user_id }, idx) => {
+    const locale = localeMap.get(user_id) ?? 'en';
+    const translated = translateNotification(type, locale, title, body ?? '');
+    return {
+      to: rawTokens[idx],
+      title: translated.title,
+      body: translated.body,
+      sound: 'default',
+      channelId: 'default',
+      data: {
+        notificationId: userToNotificationId.get(user_id as string),
+        tripId: trip_id,
+        type,
+        relatedType: related_type,
+        relatedId: related_id,
+      },
+    };
+  });
 
   const { sent, staleTokens } = await sendToExpo(messages, rawTokens);
 

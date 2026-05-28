@@ -1,0 +1,15 @@
+{
+  "noTrips.title": "No trips yet",
+  "noTrips.subtitle": "Create a trip to see your activities on the calendar.",
+  "noActivities.title": "No activities",
+  "noActivities.subtitle": "Nothing planned for {{date}}",
+  "scheduled": "Scheduled",
+  "allDay": "All day",
+  "attendeeCount": "{{count}} attendee",
+  "attendeeCount_other": "{{count}} attendees",
+  "voteCount": "{{count}} vote",
+  "voteCount_other": "{{count}} votes",
+  "noVotes": "No votes yet",
+  "viewFullDetails": "View full details",
+  "today": "Today"
+}

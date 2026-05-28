@@ -1,24 +1,26 @@
 import { View, Text, Switch, ActivityIndicator } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useNotificationPreferences, useUpdateNotificationPreferences } from '../hooks/useNotificationPreferences';
 import type { UpdateNotificationPreferencesInput } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
-
-const PREFERENCE_ROWS: { key: keyof UpdateNotificationPreferencesInput; label: string }[] = [
-  { key: 'new_activity',    label: 'New activities' },
-  { key: 'vote_update',     label: 'Vote results' },
-  { key: 'expense_change',  label: 'Expense updates' },
-  { key: 'new_member',      label: 'New members' },
-  { key: 'schedule_change', label: 'Schedule changes' },
-  { key: 'reminder',        label: 'Reminders & nudges' },
-];
 
 interface NotificationPreferencesSectionProps {
   tripId: string;
 }
 
 export function NotificationPreferencesSection({ tripId }: NotificationPreferencesSectionProps) {
+  const { t } = useTranslation('notifications');
   const { data: prefs, isLoading } = useNotificationPreferences(tripId);
   const { mutate: updatePrefs } = useUpdateNotificationPreferences(tripId);
+
+  const PREFERENCE_ROWS: { key: keyof UpdateNotificationPreferencesInput; label: string }[] = [
+    { key: 'new_activity',    label: t('preferences.newActivities') },
+    { key: 'vote_update',     label: t('preferences.voteResults') },
+    { key: 'expense_change',  label: t('preferences.expenseUpdates') },
+    { key: 'new_member',      label: t('preferences.newMembers') },
+    { key: 'schedule_change', label: t('preferences.scheduleChanges') },
+    { key: 'reminder',        label: t('preferences.reminders') },
+  ];
 
   if (isLoading) {
     return (
@@ -33,7 +35,7 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
   return (
     <View className="gap-sm">
       <Text className="text-label-m text-text-secondary uppercase tracking-widest px-xs">
-        Push Notifications
+        {t('preferences.title')}
       </Text>
       <View className="bg-surface border border-border rounded-md overflow-hidden">
         {PREFERENCE_ROWS.map(({ key, label }, idx) => (

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,6 +15,8 @@ interface CreateRentalSheetProps {
 }
 
 export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, currency }: CreateRentalSheetProps) {
+  const { t } = useTranslation('transfer');
+  const { t: tCommon } = useTranslation('common');
   const [priceText, setPriceText] = useState('');
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
 
@@ -48,7 +51,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">New Rental Car</Text>
               <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-                <Text className="text-text-secondary text-body">Cancel</Text>
+                <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 

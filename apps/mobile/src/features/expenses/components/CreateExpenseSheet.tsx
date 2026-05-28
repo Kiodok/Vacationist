@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,21 +18,23 @@ interface CreateExpenseSheetProps {
   currency: Currency;
 }
 
-const RELATED_TYPE_LABELS: Record<string, string> = {
-  manual: 'General',
-  accommodation: 'Accommodation',
-  activity: 'Activity',
-  transport: 'Transport',
-  shopping: 'Shopping',
-};
-
-const SPLIT_METHOD_LABELS: Record<ExpenseSplitMethod, string> = {
-  even: 'Even',
-  exact: 'Exact',
-  shares: 'Shares',
-};
-
 export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, members, currentUserId, currency }: CreateExpenseSheetProps) {
+  const { t } = useTranslation('expenses');
+  const { t: tCommon } = useTranslation('common');
+
+  const RELATED_TYPE_LABELS: Record<string, string> = {
+    manual: t('category.manual'),
+    accommodation: t('category.accommodation'),
+    activity: t('category.activity'),
+    transport: t('category.transport'),
+    shopping: t('category.shopping'),
+  };
+
+  const SPLIT_METHOD_LABELS: Record<ExpenseSplitMethod, string> = {
+    even: t('split.even'),
+    exact: t('split.exact'),
+    shares: t('split.shares'),
+  };
   const allMemberIds = members.map((m) => m.user_id);
 
   const [amountText, setAmountText] = useState('');
@@ -137,9 +140,9 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary">New Expense</Text>
+            <Text className="text-heading-m text-text-primary">{t('create.title')}</Text>
             <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">Cancel</Text>
+              <Text className="text-text-secondary text-body">{tCommon("button.cancel")}</Text>
             </Pressable>
           </View>
 
@@ -147,7 +150,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
             <View className="gap-md">
               {/* Title */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Title *</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.titleLabel')} *</Text>
                 <Controller
                   control={control}
                   name="title"
@@ -168,7 +171,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
               {/* Amount */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Amount ({currency}) *</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.amountLabel', { currency })} *</Text>
                 <Controller
                   control={control}
                   name="amount"
@@ -193,7 +196,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
               {/* Category */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Category</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.categoryLabel')}</Text>
                 <Controller
                   control={control}
                   name="related_type"
@@ -218,7 +221,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
               {/* Paid by */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Paid by</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.paidByLabel')}</Text>
                 <Controller
                   control={control}
                   name="paid_by"
@@ -243,7 +246,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
               {/* Split method */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Split method</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.splitMethodLabel')}</Text>
                 <View className="flex-row gap-xs">
                   {EXPENSE_SPLIT_METHOD.map((method) => (
                     <Pressable
@@ -263,7 +266,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
               {/* Split among */}
               <View className="gap-xs">
                 <Text className="text-label text-text-muted uppercase">
-                  Split among ({selectedMembers.size} of {members.length})
+                  {t('field.splitAmong', { selected: selectedMembers.size, total: members.length })}
                 </Text>
                 <View className="gap-sm">
                   {members.map((m) => {
@@ -350,8 +353,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                 <View className={`flex-row items-center justify-between px-sm py-xs rounded-sm ${isNegligible(exactTotal - totalAmount) ? 'bg-success/10' : 'bg-warning/10'}`}>
                   <Text className={`text-body-small ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
                     {isNegligible(exactTotal - totalAmount)
-                      ? 'Amounts match total'
-                      : `Remaining: ${formatCurrency(totalAmount - exactTotal, currency)}`}
+                      ? t('field.amountsMatch')
+                      : t('field.remaining', { amount: formatCurrency(totalAmount - exactTotal, currency) })}
                   </Text>
                   <Text className={`text-body-small font-medium ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
                     {formatCurrency(exactTotal, currency)} / {formatCurrency(totalAmount, currency)}
@@ -367,7 +370,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold">
-                  {isPending ? 'Adding...' : 'Add Expense'}
+                  {isPending ? t('create.adding') : t('create.submit')}
                 </Text>
               </Pressable>
             </View>

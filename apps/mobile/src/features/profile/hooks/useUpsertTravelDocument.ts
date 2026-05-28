@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { upsertTravelDocument } from '@vacationist/api';
 import type { UpsertTravelDocumentInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useUpsertTravelDocument() {
@@ -11,10 +12,10 @@ export function useUpsertTravelDocument() {
     mutationFn: (input: UpsertTravelDocumentInput) => upsertTravelDocument(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['travelDocuments'] });
-      addToast('success', 'Document saved');
+      addToast('success', i18n.t('profile:toast.docSaved'));
     },
     onError: () => {
-      addToast('error', 'Failed to save document.');
+      addToast('error', i18n.t('profile:toast.docSaveFailed'));
     },
   });
 }

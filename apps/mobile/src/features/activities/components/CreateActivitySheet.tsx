@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { createActivitySchemaForTrip, type CreateActivityInput, ACTIVITY_CATEGORIES } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 
@@ -15,6 +16,8 @@ interface CreateActivitySheetProps {
 }
 
 export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tripStartDate, tripEndDate }: CreateActivitySheetProps) {
+  const { t } = useTranslation('activities');
+  const { t: tCommon } = useTranslation("common");
   const schema = useMemo(
     () => createActivitySchemaForTrip(tripStartDate, tripEndDate),
     [tripStartDate, tripEndDate],
@@ -49,9 +52,9 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary">New Activity</Text>
+            <Text className="text-heading-m text-text-primary">{tCommon('button.add')}</Text>
             <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">Cancel</Text>
+              <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
 
@@ -59,7 +62,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
             <View className="gap-md">
               {/* Title */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Title *</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.title')} *</Text>
                 <Controller
                   control={control}
                   name="title"
@@ -67,7 +70,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="e.g. Visit Colosseum"
+                      placeholder={t('placeholder.title')}
                       value={value}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -82,7 +85,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
 
               {/* Description */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Description</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.description')}</Text>
                 <Controller
                   control={control}
                   name="description"
@@ -90,7 +93,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="What's the plan?"
+                      placeholder={t('placeholder.description')}
                       value={value ?? ''}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -105,7 +108,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
 
               {/* Category */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Category</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.category')}</Text>
                 <Controller
                   control={control}
                   name="category"
@@ -144,7 +147,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
                 name="activity_date"
                 render={({ field: { onChange, value } }) => (
                   <DateTimePickerField
-                    label="Date"
+                    label={t('field.date')}
                     mode="date"
                     value={value}
                     onChange={onChange}
@@ -163,7 +166,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
                     name="start_time"
                     render={({ field: { onChange, value } }) => (
                       <DateTimePickerField
-                        label="Start Time"
+                        label={t('field.startTime')}
                         mode="time"
                         value={value}
                         onChange={onChange}
@@ -177,7 +180,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
                     name="end_time"
                     render={({ field: { onChange, value } }) => (
                       <DateTimePickerField
-                        label="End Time"
+                        label={t('field.endTime')}
                         mode="time"
                         value={value}
                         onChange={onChange}
@@ -189,7 +192,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
 
               {/* Cost Estimate */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Cost Estimate (€)</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.cost')}</Text>
                 <Controller
                   control={control}
                   name="cost_estimate"
@@ -211,7 +214,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
 
               {/* External URL */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Link</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.url')}</Text>
                 <Controller
                   control={control}
                   name="external_url"
@@ -241,7 +244,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
                 style={({ pressed }) => ({ minHeight: 48, opacity: isPending || pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold">
-                  Create Activity
+                  {tCommon('button.save')}
                 </Text>
               </Pressable>
             </View>

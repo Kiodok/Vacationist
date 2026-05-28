@@ -1,0 +1,17 @@
+{
+  "empty.title": "No notes yet",
+  "empty.subtitle": "Jot down anything useful before, during, or after the trip.",
+  "create.title": "New Note",
+  "edit.title": "Edit Note",
+  "field.title": "Title",
+  "field.description": "Description",
+  "placeholder.title": "e.g. Packing checklist",
+  "placeholder.editTitle": "Note title",
+  "placeholder.description": "Add details, links, or anything useful...",
+  "toast.created": "Note created",
+  "toast.updated": "Note updated",
+  "toast.deleted": "Note deleted",
+  "toast.createFailed": "Failed to create note.",
+  "toast.updateFailed": "Failed to update note.",
+  "toast.deleteFailed": "Failed to delete note."
+}

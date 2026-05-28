@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,13 +19,15 @@ interface EditExpenseSheetProps {
   currency: Currency;
 }
 
-const SPLIT_METHOD_LABELS: Record<ExpenseSplitMethod, string> = {
-  even: 'Even',
-  exact: 'Exact',
-  shares: 'Shares',
-};
-
 export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expense, splits, members, currency }: EditExpenseSheetProps) {
+  const { t } = useTranslation('expenses');
+  const { t: tCommon } = useTranslation('common');
+
+  const SPLIT_METHOD_LABELS: Record<ExpenseSplitMethod, string> = {
+    even: t('split.even'),
+    exact: t('split.exact'),
+    shares: t('split.shares'),
+  };
 
   const initialSelectedIds = useMemo(() => new Set(splits.map((s) => s.user_id)), [splits]);
   const initialExact = useMemo(() => {
@@ -145,18 +148,18 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
           </View>
 
           <View className="flex-row items-center justify-between mb-xs">
-            <Text className="text-heading-m text-text-primary">Edit Expense</Text>
+            <Text className="text-heading-m text-text-primary">{t('edit.title')}</Text>
             <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">Cancel</Text>
+              <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
-          <Text className="text-body-small text-warning mb-md">Editing resets settlement status for changed splits</Text>
+          <Text className="text-body-small text-warning mb-md">{t('edit.warning')}</Text>
 
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <View className="gap-md">
               {/* Title */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Title *</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.titleLabel')} *</Text>
                 <Controller
                   control={control}
                   name="title"
@@ -177,7 +180,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
 
               {/* Amount */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Amount ({currency}) *</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.amountLabel', { currency })} *</Text>
                 <Controller
                   control={control}
                   name="amount"
@@ -202,7 +205,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
 
               {/* Paid by */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Paid by</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.paidByLabel')}</Text>
                 <Controller
                   control={control}
                   name="paid_by"
@@ -227,7 +230,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
 
               {/* Split method */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Split method</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.splitMethodLabel')}</Text>
                 <View className="flex-row gap-xs">
                   {EXPENSE_SPLIT_METHOD.map((method) => (
                     <Pressable
@@ -247,7 +250,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
               {/* Split among */}
               <View className="gap-xs">
                 <Text className="text-label text-text-muted uppercase">
-                  Split among ({selectedMembers.size} of {members.length})
+                  {t('field.splitAmong', { selected: selectedMembers.size, total: members.length })}
                 </Text>
                 <View className="gap-sm">
                   {members.map((m) => {
@@ -334,8 +337,8 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                 <View className={`flex-row items-center justify-between px-sm py-xs rounded-sm ${isNegligible(exactTotal - totalAmount) ? 'bg-success/10' : 'bg-warning/10'}`}>
                   <Text className={`text-body-small ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
                     {isNegligible(exactTotal - totalAmount)
-                      ? 'Amounts match total'
-                      : `Remaining: ${formatCurrency(totalAmount - exactTotal, currency)}`}
+                      ? t('field.amountsMatch')
+                      : t('field.remaining', { amount: formatCurrency(totalAmount - exactTotal, currency) })}
                   </Text>
                   <Text className={`text-body-small font-medium ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
                     {formatCurrency(exactTotal, currency)} / {formatCurrency(totalAmount, currency)}
@@ -351,7 +354,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold">
-                  {isPending ? 'Saving...' : 'Save Changes'}
+                  {isPending ? tCommon('label.saving') : tCommon('button.save')}
                 </Text>
               </Pressable>
             </View>

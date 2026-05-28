@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { updateTripSchema, type UpdateTripInput, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { Trip } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
@@ -15,6 +16,8 @@ interface EditTripSheetProps {
 }
 
 export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: EditTripSheetProps) {
+  const { t } = useTranslation('trips');
+  const { t: tCommon } = useTranslation("common");
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTripInput>({
     resolver: zodResolver(updateTripSchema),
   });
@@ -45,9 +48,9 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
             </View>
 
             <View className="flex-row items-center justify-between mb-md">
-              <Text className="text-heading-m text-text-primary">Edit Trip</Text>
+              <Text className="text-heading-m text-text-primary">{t('overview.editTrip')}</Text>
               <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-                <Text className="text-text-secondary text-body">Cancel</Text>
+                <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 
@@ -55,7 +58,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
               <View className="gap-md">
                 {/* Title */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Trip name *</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('field.tripName')} *</Text>
                   <Controller
                     control={control}
                     name="title"
@@ -79,7 +82,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
 
                 {/* Description */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Description</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('field.description')}</Text>
                   <Controller
                     control={control}
                     name="description"
@@ -108,7 +111,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                       name="start_date"
                       render={({ field: { onChange, value } }) => (
                         <DateTimePickerField
-                          label="Start date"
+                          label={t('field.startDate')}
                           mode="date"
                           value={value}
                           onChange={(v) => onChange(v ?? '')}
@@ -123,7 +126,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                       name="end_date"
                       render={({ field: { onChange, value } }) => (
                         <DateTimePickerField
-                          label="End date"
+                          label={t('field.endDate')}
                           mode="date"
                           value={value}
                           onChange={(v) => onChange(v ?? '')}
@@ -138,7 +141,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                 <View className="flex-row gap-md">
                   <View className="flex-1">
                     <View className="gap-xs">
-                      <Text className="text-label text-text-muted uppercase">Budget/person</Text>
+                      <Text className="text-label text-text-muted uppercase">{t('field.budget')}</Text>
                       <Controller
                         control={control}
                         name="budget_per_person"
@@ -168,7 +171,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                       name="base_currency"
                       render={({ field: { value, onChange } }) => (
                         <View className="gap-xs">
-                          <Text className="text-label text-text-muted uppercase">Currency</Text>
+                          <Text className="text-label text-text-muted uppercase">{t('field.currency')}</Text>
                           <View className="flex-row gap-sm">
                             {CURRENCY.map((c) => (
                               <Pressable
@@ -200,7 +203,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                   name="timezone"
                   render={({ field: { value, onChange } }) => (
                     <View className="gap-xs">
-                      <Text className="text-label text-text-muted uppercase">Timezone</Text>
+                      <Text className="text-label text-text-muted uppercase">{t('field.timezone')}</Text>
                       <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
@@ -242,7 +245,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
                   <Text className="text-white text-body font-semibold">
-                    {isPending ? 'Saving...' : 'Save Changes'}
+                    {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>
               </View>

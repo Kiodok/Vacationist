@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTransferFlightPassengers, setTransferFlightPassengers } from '@vacationist/api';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useTransferFlightPassengers(flightId: string) {
@@ -20,10 +21,10 @@ export function useSetTransferFlightPassengers(tripId: string, flightId: string)
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId, 'passengers'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
-      addToast('success', 'Passengers updated');
+      addToast('success', i18n.t('transfer:toast.passengersUpdated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update passengers.');
+      addToast('error', i18n.t('transfer:toast.passengersFailed'));
     },
   });
 }

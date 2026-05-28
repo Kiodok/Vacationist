@@ -3,6 +3,7 @@ import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { makeRedirectUri } from 'expo-auth-session';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@vacationist/ui';
 import { signInWithMagicLink } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
@@ -10,6 +11,7 @@ import { useGoogleSignIn } from '../../src/features/auth/hooks/useGoogleSignIn';
 import { GoogleAuthButton } from '../../src/features/auth/components/GoogleAuthButton';
 
 export default function LoginScreen() {
+  const { t } = useTranslation('auth');
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
   const [email, setEmail] = useState('');
@@ -24,7 +26,7 @@ export default function LoginScreen() {
     const trimmed = email.trim().toLowerCase();
 
     if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setEmailError('Please enter a valid email address');
+      setEmailError(t('login.invalidEmail'));
       return;
     }
 
@@ -37,7 +39,7 @@ export default function LoginScreen() {
         params: { email: trimmed },
       });
     } catch {
-      addToast('error', 'Failed to send magic link. Please try again.');
+      addToast('error', t('login.magicLinkFailed'));
     } finally {
       setMagicLinkLoading(false);
     }
@@ -52,7 +54,7 @@ export default function LoginScreen() {
         <View className="items-center mb-3xl">
           <Text className="text-heading-xl text-text-primary">Vacationist</Text>
           <Text className="text-body text-text-secondary mt-sm">
-            Plan trips together
+            {t('login.tagline')}
           </Text>
         </View>
 
@@ -66,13 +68,13 @@ export default function LoginScreen() {
           <View className="flex-row items-center gap-md my-sm">
             <View className="flex-1 h-[1px] bg-border" />
             <Text className="text-body-small text-text-muted">
-              or continue with email
+              {t('login.orContinueWith')}
             </Text>
             <View className="flex-1 h-[1px] bg-border" />
           </View>
 
           <Input
-            placeholder="you@example.com"
+            placeholder={t('login.emailPlaceholder')}
             value={email}
             onChangeText={(text) => {
               setEmail(text);
@@ -87,7 +89,7 @@ export default function LoginScreen() {
           />
 
           <Button
-            label="Send Magic Link"
+            label={t('login.sendMagicLink')}
             variant="secondary"
             onPress={handleMagicLink}
             loading={magicLinkLoading}

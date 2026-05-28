@@ -1,6 +1,8 @@
 import { View, Text, Pressable, Modal, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { NUDGE_MESSAGES } from '@vacationist/types';
+import { useTranslation } from "react-i18next";
+import { i18n as i18nInstance } from "@vacationist/i18n";
+import { NUDGE_KEYS } from '@vacationist/types';
 import { useSendNudge } from '../hooks/useSendNudge';
 import { colors } from '@vacationist/ui';
 
@@ -11,9 +13,12 @@ interface NudgeSheetProps {
 }
 
 export function NudgeSheet({ tripId, visible, onClose }: NudgeSheetProps) {
+  const { t } = useTranslation('notifications');
   const { mutate: sendNudge, isPending } = useSendNudge(tripId);
 
-  const handleSelect = (title: string, body: string) => {
+  const handleSelect = (key: string) => {
+    const title = (i18nInstance.t as (k: string) => string)(`notifications:nudge.${key}.title`);
+    const body = (i18nInstance.t as (k: string) => string)(`notifications:nudge.${key}.body`);
     sendNudge(
       { title, body },
       { onSuccess: onClose },
@@ -25,24 +30,24 @@ export function NudgeSheet({ tripId, visible, onClose }: NudgeSheetProps) {
       <View className="flex-1 justify-end bg-black/50">
         <View className="bg-surface rounded-t-2xl">
           <View className="flex-row items-center justify-between px-lg pt-lg pb-md border-b border-border">
-            <Text className="text-heading-s text-text-primary">Send a nudge</Text>
+            <Text className="text-heading-s text-text-primary">{t('nudge.sheetTitle')}</Text>
             <Pressable onPress={onClose} hitSlop={8}>
               <Ionicons name="close" size={22} color="#5C5C5C" />
             </Pressable>
           </View>
 
           <FlatList
-            data={NUDGE_MESSAGES}
-            keyExtractor={(item) => item.key}
+            data={NUDGE_KEYS}
+            keyExtractor={(key) => key}
             contentContainerStyle={{ padding: 12, gap: 8 }}
-            renderItem={({ item }) => (
+            renderItem={({ item: key }) => (
               <Pressable
-                onPress={() => handleSelect(item.title, item.body)}
+                onPress={() => handleSelect(key)}
                 disabled={isPending}
                 className="bg-background border border-border rounded-md p-md gap-xs active:opacity-70"
               >
-                <Text className="text-body-default font-semibold text-text-primary">{item.title}</Text>
-                <Text className="text-body-small text-text-secondary">{item.body}</Text>
+                <Text className="text-body-default font-semibold text-text-primary">{i18nInstance.t(`notifications:nudge.${key}.title`) as string}</Text>
+                <Text className="text-body-small text-text-secondary">{i18nInstance.t(`notifications:nudge.${key}.body`) as string}</Text>
               </Pressable>
             )}
             ListFooterComponent={

@@ -3,6 +3,7 @@ import { View, Text, Pressable, Image, RefreshControl, SectionList } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTrips } from '../../src/features/trips/hooks/useTrips';
 import { TripCard, getEffectiveStatus } from '../../src/features/trips/components/TripCard';
 import { TripListSkeleton } from '../../src/features/trips/components/TripListSkeleton';
@@ -13,35 +14,36 @@ import { colors } from '@vacationist/ui';
 
 type TripWithCount = Trip & { member_count: number };
 
-const SECTIONS = [
-  {
-    key: 'planning' as const,
-    title: 'In Planning',
-    icon: 'calendar-outline' as const,
-    iconColor: colors.primary,
-    textClass: 'text-primary',
-  },
-  {
-    key: 'active' as const,
-    title: 'Ongoing',
-    icon: 'airplane-outline' as const,
-    iconColor: colors.success,
-    textClass: 'text-success',
-  },
-  {
-    key: 'completed' as const,
-    title: 'Completed',
-    icon: 'checkmark-done-outline' as const,
-    iconColor: colors.textMuted,
-    textClass: 'text-text-muted',
-  },
-] as const;
-
 export default function TripsScreen() {
+  const { t } = useTranslation('trips');
   const router = useRouter();
   const { data: trips, isLoading, isFetching, refetch } = useTrips();
   const user = useAuthStore((s) => s.user);
   const [avatarError, setAvatarError] = useState(false);
+
+  const SECTIONS = useMemo(() => [
+    {
+      key: 'planning' as const,
+      title: t('section.inPlanning'),
+      icon: 'calendar-outline' as const,
+      iconColor: colors.primary,
+      textClass: 'text-primary',
+    },
+    {
+      key: 'active' as const,
+      title: t('section.ongoing'),
+      icon: 'airplane-outline' as const,
+      iconColor: colors.success,
+      textClass: 'text-success',
+    },
+    {
+      key: 'completed' as const,
+      title: t('section.completed'),
+      icon: 'checkmark-done-outline' as const,
+      iconColor: colors.textMuted,
+      textClass: 'text-text-muted',
+    },
+  ] as const, [t]);
 
   const sections = useMemo(() => {
     if (!trips) return [];
@@ -63,7 +65,7 @@ export default function TripsScreen() {
     return SECTIONS
       .filter((cfg) => buckets[cfg.key].length > 0)
       .map((cfg) => ({ ...cfg, data: buckets[cfg.key] }));
-  }, [trips]);
+  }, [trips, SECTIONS]);
 
   function handleCreateTrip() {
     router.push('/trip/create' as never);
@@ -115,7 +117,7 @@ export default function TripsScreen() {
                 <Ionicons name="person" size={20} color="#FFFFFF" />
               )}
             </Pressable>
-            <Text className="text-heading-xl text-text-primary">Trips</Text>
+            <Text className="text-heading-xl text-text-primary">{t('screen.title')}</Text>
             <View className="w-[40px]" />
           </View>
         }

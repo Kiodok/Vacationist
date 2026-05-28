@@ -3,6 +3,7 @@ import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Notification } from '@vacationist/types';
 import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from '../../../src/features/notifications/hooks/useNotifications';
 import { NotificationItem } from '../../../src/features/notifications/components/NotificationItem';
@@ -11,6 +12,7 @@ import { resolveNotificationPath } from '../../../src/features/notifications/uti
 import { colors } from '@vacationist/ui';
 
 export default function TripNotificationsScreen() {
+  const { t } = useTranslation('notifications');
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
@@ -33,12 +35,12 @@ export default function TripNotificationsScreen() {
           <Pressable onPress={() => router.back()} hitSlop={8}>
             <Ionicons name="arrow-back" size={22} color="#F2F2F2" />
           </Pressable>
-          <Text className="text-heading-s text-text-primary">Notifications</Text>
+          <Text className="text-heading-s text-text-primary">{t('screen.title')}</Text>
         </View>
         {notifications.some((n) => !n.is_read) && (
           <Pressable onPress={() => markAllRead()} disabled={isMarkingAll} hitSlop={8}>
             <Text className="text-body-small text-primary">
-              {isMarkingAll ? 'Marking...' : 'Mark all read'}
+              {isMarkingAll ? t('marking') : t('markAllRead')}
             </Text>
           </Pressable>
         )}

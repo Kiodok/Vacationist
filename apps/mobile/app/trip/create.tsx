@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@vacationist/ui';
 import { createTripSchema, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { CreateTripInput } from '@vacationist/types';
@@ -11,6 +12,8 @@ import { useCreateTrip } from '../../src/features/trips/hooks/useTrips';
 import { DateTimePickerField } from '../../src/components/DateTimePickerField';
 
 export default function CreateTripScreen() {
+  const { t } = useTranslation('trips');
+  const { t: tCommon } = useTranslation("common");
   const router = useRouter();
   const createTrip = useCreateTrip();
 
@@ -42,7 +45,7 @@ export default function CreateTripScreen() {
         <Pressable onPress={() => router.back()} className="p-xs">
           <Ionicons name="arrow-back" size={24} color="#F2F2F2" />
         </Pressable>
-        <Text className="text-heading-l text-text-primary flex-1">New Trip</Text>
+        <Text className="text-heading-l text-text-primary flex-1">{t('create.title')}</Text>
       </View>
 
       <ScrollView contentContainerClassName="px-md pb-3xl gap-md">
@@ -51,8 +54,8 @@ export default function CreateTripScreen() {
           name="title"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label="Trip name"
-              placeholder="e.g. Summer in Portugal"
+              label={t('field.tripName')}
+              placeholder={t('create.namePlaceholder')}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -67,8 +70,8 @@ export default function CreateTripScreen() {
           name="description"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label="Description (optional)"
-              placeholder="What's this trip about?"
+              label={`${t('field.description')} ${tCommon('label.optional')}`}
+              placeholder={t('create.descriptionPlaceholder')}
               value={value ?? ''}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -86,7 +89,7 @@ export default function CreateTripScreen() {
               name="start_date"
               render={({ field: { onChange, value } }) => (
                 <DateTimePickerField
-                  label="Start date"
+                  label={t('field.startDate')}
                   mode="date"
                   value={value}
                   onChange={(v) => onChange(v ?? '')}
@@ -101,7 +104,7 @@ export default function CreateTripScreen() {
               name="end_date"
               render={({ field: { onChange, value } }) => (
                 <DateTimePickerField
-                  label="End date"
+                  label={t('field.endDate')}
                   mode="date"
                   value={value}
                   onChange={(v) => onChange(v ?? '')}
@@ -119,8 +122,8 @@ export default function CreateTripScreen() {
               name="budget_per_person"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  label="Budget per person (optional)"
-                  placeholder="0.00"
+                  label={`${t('field.budget')} ${tCommon('label.optional')}`}
+                  placeholder={t('create.budgetPlaceholder')}
                   value={value != null ? String(value) : ''}
                   onChangeText={(text) => {
                     const num = parseFloat(text);
@@ -139,7 +142,7 @@ export default function CreateTripScreen() {
               name="base_currency"
               render={({ field: { value, onChange } }) => (
                 <View>
-                  <Text className="text-label text-text-muted uppercase mb-xs">Currency</Text>
+                  <Text className="text-label text-text-muted uppercase mb-xs">{t('field.currency')}</Text>
                   <View className="flex-row gap-sm">
                     {CURRENCY.map((c) => (
                       <Pressable
@@ -172,7 +175,7 @@ export default function CreateTripScreen() {
           name="timezone"
           render={({ field: { value, onChange } }) => (
             <View>
-              <Text className="text-label text-text-muted uppercase mb-xs">Timezone</Text>
+              <Text className="text-label text-text-muted uppercase mb-xs">{t('field.timezone')}</Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -207,7 +210,7 @@ export default function CreateTripScreen() {
 
         <View className="mt-md">
           <Button
-            label="Create Trip"
+            label={t('create.submit')}
             onPress={handleSubmit(onSubmit)}
             loading={createTrip.isPending}
           />

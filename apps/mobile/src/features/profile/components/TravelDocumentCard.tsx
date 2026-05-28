@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Pressable, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { TravelDocument } from '@vacationist/types';
 import dayjs from 'dayjs';
 import { colors } from '@vacationist/ui';
@@ -11,11 +12,6 @@ interface TravelDocumentCardProps {
   onDelete: () => void;
   isDeleting?: boolean;
 }
-
-const DOCUMENT_LABELS: Record<string, string> = {
-  passport: 'Passport',
-  id_card: 'ID Card',
-};
 
 const DOCUMENT_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   passport: 'book-outline',
@@ -36,7 +32,14 @@ function expiryColor(expiryDate: string | null): string {
 }
 
 export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: TravelDocumentCardProps) {
+  const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation("common");
   const [revealed, setRevealed] = useState(false);
+
+  const DOCUMENT_LABELS: Record<string, string> = {
+    passport: t('docType.passport'),
+    id_card: t('docType.idCard'),
+  };
 
   // Auto-hide the document number after 30 seconds to limit exposure on an unattended screen.
   useEffect(() => {
@@ -47,11 +50,11 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
 
   function handleDelete() {
     Alert.alert(
-      'Delete document',
-      `Remove your ${DOCUMENT_LABELS[document.document_type]}?`,
+      t('doc.delete.title'),
+      t('doc.delete.confirm', { type: DOCUMENT_LABELS[document.document_type] }),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: onDelete },
+        { text: tCommon('button.cancel'), style: 'cancel' },
+        { text: tCommon('button.delete'), style: 'destructive', onPress: onDelete },
       ]
     );
   }
@@ -84,12 +87,12 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
 
       <View className="gap-xs">
         <View className="flex-row justify-between">
-          <Text className="text-body-small text-text-secondary">Legal name</Text>
+          <Text className="text-body-small text-text-secondary">{t('docField.legalName')}</Text>
           <Text className="text-body-small text-text-primary">{document.full_legal_name}</Text>
         </View>
 
         <View className="flex-row justify-between items-center">
-          <Text className="text-body-small text-text-secondary">Document no.</Text>
+          <Text className="text-body-small text-text-secondary">{t('docField.documentNo')}</Text>
           <View className="flex-row items-center gap-xs">
             <Text className="text-body-small text-text-primary font-mono">{docNumber}</Text>
             <Pressable onPress={() => setRevealed((v) => !v)} hitSlop={8}>
@@ -104,14 +107,14 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
 
         {document.date_of_birth && (
           <View className="flex-row justify-between">
-            <Text className="text-body-small text-text-secondary">Date of birth</Text>
+            <Text className="text-body-small text-text-secondary">{t('docField.dateOfBirth')}</Text>
             <Text className="text-body-small text-text-primary">{document.date_of_birth}</Text>
           </View>
         )}
 
         {(document.nationality || document.issuing_country) && (
           <View className="flex-row justify-between">
-            <Text className="text-body-small text-text-secondary">Nationality / Issued by</Text>
+            <Text className="text-body-small text-text-secondary">{t('docField.nationality')}</Text>
             <Text className="text-body-small text-text-primary">
               {[document.nationality, document.issuing_country].filter(Boolean).join(' / ')}
             </Text>
@@ -120,7 +123,7 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
 
         {document.expiry_date && (
           <View className="flex-row justify-between">
-            <Text className="text-body-small text-text-secondary">Expires</Text>
+            <Text className="text-body-small text-text-secondary">{t('docField.expires')}</Text>
             <Text className="text-body-small font-medium" style={{ color: expColor }}>
               {document.expiry_date}
             </Text>

@@ -1,6 +1,7 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import * as Sentry from '@sentry/react-native';
+import { i18n } from '@vacationist/i18n';
 import { colors } from '@vacationist/ui';
 
 interface Props {
@@ -35,12 +36,12 @@ export class GlobalErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <Text style={styles.title}>Something went wrong</Text>
+          <Text style={styles.title}>{i18n.t('common:errorBoundary.global.title')}</Text>
           <Text style={styles.subtitle}>
-            The app encountered an unexpected error. Please try again.
+            {i18n.t('common:errorBoundary.global.subtitle')}
           </Text>
           <Pressable style={styles.button} onPress={this.handleReset}>
-            <Text style={styles.buttonText}>Reload App</Text>
+            <Text style={styles.buttonText}>{i18n.t('common:errorBoundary.global.reload')}</Text>
           </Pressable>
         </View>
       );

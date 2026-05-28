@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@vacationist/ui';
 import { GoogleAuthButton } from '../../auth/components/GoogleAuthButton';
 import { useGuestUpgrade } from '../../auth/hooks/useGuestUpgrade';
@@ -19,6 +20,8 @@ interface GuestUpgradeSheetProps {
 }
 
 export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) {
+  const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation("common");
   const [email, setEmail] = useState('');
   const { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError } =
     useGuestUpgrade();
@@ -49,29 +52,29 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
             {/* Header */}
             <View className="flex-row items-center justify-between mb-lg">
               <Text className="text-heading-m text-text-primary font-semibold">
-                Create your account
+                {t('guest.sheet.title')}
               </Text>
               <Pressable onPress={handleClose} hitSlop={12}>
-                <Text className="text-body text-text-secondary">Cancel</Text>
+                <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 
             {/* Subtitle */}
             <Text className="text-body-small text-text-muted mb-lg">
-              Link your guest session to a permanent account. Your trips and data will be preserved.
+              {t('guest.sheet.subtitle')}
             </Text>
 
             {magicLinkSent ? (
               <View className="items-center gap-md py-lg">
                 <Ionicons name="mail-outline" size={40} color={colors.primary} />
                 <Text className="text-body text-text-primary font-semibold text-center">
-                  Magic link sent!
+                  {t('guest.sheet.sent')}
                 </Text>
                 <Text className="text-body-small text-text-muted text-center">
-                  Check your email and tap the link to complete sign-in.
+                  {t('guest.sheet.sentInstruction')}
                 </Text>
                 <Pressable onPress={handleClose} className="mt-sm">
-                  <Text className="text-body text-text-secondary">Close</Text>
+                  <Text className="text-body text-text-secondary">{t('guest.sheet.close')}</Text>
                 </Pressable>
               </View>
             ) : (
@@ -86,7 +89,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
                 {/* Divider */}
                 <View className="flex-row items-center gap-md">
                   <View className="flex-1 h-[1px] bg-border" />
-                  <Text className="text-body-small text-text-muted">or</Text>
+                  <Text className="text-body-small text-text-muted">{t('guest.sheet.or')}</Text>
                   <View className="flex-1 h-[1px] bg-border" />
                 </View>
 
@@ -95,7 +98,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
                   className="bg-surface border border-border rounded-sm px-md min-h-[44px] text-body text-text-primary"
                   value={email}
                   onChangeText={setEmail}
-                  placeholder="you@example.com"
+                  placeholder={t('guest.sheet.emailPlaceholder')}
                   placeholderTextColor={colors.textMuted}
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -116,7 +119,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
                     <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
                     <Text className="text-body text-text-primary font-semibold">
-                      Send Magic Link
+                      {t('guest.sheet.sendLink')}
                     </Text>
                   )}
                 </Pressable>

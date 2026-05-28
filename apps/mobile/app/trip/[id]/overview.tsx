@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import { i18n as i18nInstance } from '@vacationist/i18n';
 import { dayjs, formatCurrency } from '@vacationist/utils';
 import type { UpdateTripInput } from '@vacationist/types';
 import { useTrip, useUpdateTrip } from '../../../src/features/trips/hooks/useTrips';
@@ -11,6 +13,8 @@ import { EditTripSheet } from '../../../src/features/trips/components/EditTripSh
 import { colors } from '@vacationist/ui';
 
 export default function OverviewTab() {
+  const { t } = useTranslation('trips');
+  const { t: tCommon } = useTranslation("common");
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: trip } = useTrip(id!);
   const { data: members } = useTripMembers(id!);
@@ -43,7 +47,7 @@ export default function OverviewTab() {
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
             <Ionicons name="pencil-outline" size={16} color="#A0A0A0" />
-            <Text className="text-body-small text-text-secondary">Edit trip</Text>
+            <Text className="text-body-small text-text-secondary">{t('overview.editTrip')}</Text>
           </Pressable>
         )}
 
@@ -61,7 +65,7 @@ export default function OverviewTab() {
             </View>
             <Text className="text-heading-m text-text-primary">{duration}</Text>
             <Text className="text-body-small text-text-secondary">
-              {duration === 1 ? 'Day' : 'Days'}
+              {t('overview.days')}
             </Text>
           </View>
 
@@ -72,7 +76,7 @@ export default function OverviewTab() {
             <Text className="text-heading-m text-text-primary">
               {trip.member_count}
             </Text>
-            <Text className="text-body-small text-text-secondary">Members</Text>
+            <Text className="text-body-small text-text-secondary">{t('overview.members')}</Text>
           </View>
 
           {trip.budget_per_person != null && (
@@ -81,9 +85,9 @@ export default function OverviewTab() {
                 <Ionicons name="wallet-outline" size={20} color={colors.warning} />
               </View>
               <Text className="text-heading-m text-text-primary">
-                {formatCurrency(trip.budget_per_person, trip.base_currency)}
+                {formatCurrency(trip.budget_per_person, trip.base_currency, i18nInstance.language === 'de' ? 'de-DE' : 'en-US')}
               </Text>
-              <Text className="text-body-small text-text-secondary">Budget/person</Text>
+              <Text className="text-body-small text-text-secondary">{t('overview.budget')}</Text>
             </View>
           )}
         </View>
@@ -91,7 +95,7 @@ export default function OverviewTab() {
         {/* Members preview */}
         {members && members.length > 0 && (
           <View className="bg-surface border border-border rounded-md p-md">
-            <Text className="text-label text-text-muted uppercase mb-sm">Members</Text>
+            <Text className="text-label text-text-muted uppercase mb-sm">{t('overview.members')}</Text>
             <View className="flex-row items-center gap-md">
               <MemberAvatarGroup
                 members={members.map((m) => ({
@@ -101,7 +105,7 @@ export default function OverviewTab() {
                 }))}
               />
               <Text className="text-body-small text-text-secondary">
-                {members.length} {members.length === 1 ? 'member' : 'members'}
+                {tCommon('label.membersCount', { count: members.length })}
               </Text>
             </View>
           </View>
@@ -109,13 +113,13 @@ export default function OverviewTab() {
 
         {/* Info */}
         <View className="bg-surface border border-border rounded-md p-md gap-sm">
-          <Text className="text-label text-text-muted uppercase">Details</Text>
+          <Text className="text-label text-text-muted uppercase">{t('overview.details')}</Text>
           <View className="flex-row justify-between">
-            <Text className="text-body-small text-text-secondary">Currency</Text>
+            <Text className="text-body-small text-text-secondary">{t('overview.currency')}</Text>
             <Text className="text-body-small text-text-primary">{trip.base_currency}</Text>
           </View>
           <View className="flex-row justify-between">
-            <Text className="text-body-small text-text-secondary">Timezone</Text>
+            <Text className="text-body-small text-text-secondary">{t('overview.timezone')}</Text>
             <Text className="text-body-small text-text-primary">
               {trip.timezone.replace('Europe/', '')}
             </Text>

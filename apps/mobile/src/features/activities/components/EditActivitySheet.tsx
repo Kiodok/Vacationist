@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, ACTIVITY_CATEGORIES } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 
@@ -16,6 +17,8 @@ interface EditActivitySheetProps {
 }
 
 export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activity, tripStartDate, tripEndDate }: EditActivitySheetProps) {
+  const { t } = useTranslation('activities');
+  const { t: tCommon } = useTranslation("common");
   const schema = useMemo(
     () => updateActivitySchemaForTrip(tripStartDate, tripEndDate),
     [tripStartDate, tripEndDate],
@@ -59,9 +62,9 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary">Edit Activity</Text>
+            <Text className="text-heading-m text-text-primary">{t('action.edit')}</Text>
             <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">Cancel</Text>
+              <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
 
@@ -69,7 +72,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
             <View className="gap-md">
               {/* Title */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Title *</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.title')} *</Text>
                 <Controller
                   control={control}
                   name="title"
@@ -77,7 +80,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="e.g. Visit Colosseum"
+                      placeholder={t('placeholder.title')}
                       value={value ?? ''}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -92,7 +95,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
 
               {/* Description */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Description</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.description')}</Text>
                 <Controller
                   control={control}
                   name="description"
@@ -100,7 +103,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="What's the plan?"
+                      placeholder={t('placeholder.description')}
                       value={value ?? ''}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -115,7 +118,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
 
               {/* Category */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Category</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.category')}</Text>
                 <Controller
                   control={control}
                   name="category"
@@ -154,7 +157,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                 name="activity_date"
                 render={({ field: { onChange, value } }) => (
                   <DateTimePickerField
-                    label="Date"
+                    label={t('field.date')}
                     mode="date"
                     value={value}
                     onChange={onChange}
@@ -173,7 +176,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                     name="start_time"
                     render={({ field: { onChange, value } }) => (
                       <DateTimePickerField
-                        label="Start Time"
+                        label={t('field.startTime')}
                         mode="time"
                         value={value}
                         onChange={onChange}
@@ -187,7 +190,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                     name="end_time"
                     render={({ field: { onChange, value } }) => (
                       <DateTimePickerField
-                        label="End Time"
+                        label={t('field.endTime')}
                         mode="time"
                         value={value}
                         onChange={onChange}
@@ -199,7 +202,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
 
               {/* Cost Estimate */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Cost Estimate (€)</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.cost')}</Text>
                 <Controller
                   control={control}
                   name="cost_estimate"
@@ -221,7 +224,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
 
               {/* External URL */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Link</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.url')}</Text>
                 <Controller
                   control={control}
                   name="external_url"
@@ -253,7 +256,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold">
-                  {isPending ? 'Saving...' : 'Save Changes'}
+                  {isPending ? tCommon('label.saving') : tCommon('button.save')}
                 </Text>
               </Pressable>
             </View>

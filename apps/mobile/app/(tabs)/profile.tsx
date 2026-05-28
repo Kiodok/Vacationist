@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Platform, View, Text, ScrollView, Pressable, TouchableOpacity, ActivityIndicator, AppState, Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { AppStateStatus } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
@@ -38,6 +39,8 @@ function openUrl(url: string) {
 }
 
 export default function ProfileScreen() {
+  const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation("common");
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
 
@@ -90,7 +93,7 @@ export default function ProfileScreen() {
   async function handleAvatarChange() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please allow access to your photo library to change your avatar.');
+      Alert.alert(t('avatar.permissionTitle'), t('avatar.permissionBody'));
       return;
     }
 
@@ -105,7 +108,7 @@ export default function ProfileScreen() {
 
     const asset = result.assets[0];
     if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
-      Alert.alert('Image too large', 'Please choose an image under 5 MB.');
+      Alert.alert(t('avatar.tooLargeTitle'), t('avatar.tooLargeBody'));
       return;
     }
 
@@ -118,7 +121,7 @@ export default function ProfileScreen() {
       const updated = await updateUserProfile(user!.id, { avatar_url: publicUrl });
       setUser(updated);
     } catch {
-      Alert.alert('Upload failed', 'Could not update your avatar. Please try again.');
+      Alert.alert(t('avatar.uploadFailedTitle'), t('avatar.uploadFailedBody'));
     } finally {
       setAvatarUploading(false);
     }
@@ -199,7 +202,7 @@ export default function ProfileScreen() {
           onPress={() => setEditProfileVisible(true)}
           className="flex-row items-center justify-between bg-surface border border-border rounded-md px-md min-h-[48px]"
         >
-          <Text className="text-body text-text-primary">Edit Profile</Text>
+          <Text className="text-body text-text-primary">{t('edit.title')}</Text>
           <Ionicons name="chevron-forward" size={18} color="#5C5C5C" />
         </Pressable>
 
@@ -222,9 +225,9 @@ export default function ProfileScreen() {
 
         {/* Travel documents */}
         <View className="gap-sm">
-          <Text className="text-label text-text-muted uppercase">Travel Documents</Text>
+          <Text className="text-label text-text-muted uppercase">{t('section.travelDocuments')}</Text>
           <Text className="text-body-small text-text-muted">
-            Stored securely with end-to-end encryption. Only visible to you unless you grant access.
+            {t('section.travelDocsSubtitle')}
           </Text>
 
           <BiometricGate onUnlocked={() => setDocsUnlocked(true)} unlocked={docsUnlocked}>
@@ -251,14 +254,14 @@ export default function ProfileScreen() {
                   >
                     <Ionicons name="add" size={18} color={colors.primary} />
                     <Text className="text-body text-primary font-medium">
-                      Add {existingTypes.includes('passport') ? 'ID Card' : 'Document'}
+                      {existingTypes.includes('passport') ? t('section.addIdCard') : t('section.addPassport')}
                     </Text>
                   </Pressable>
                 )}
 
                 {documents.length === 0 && (
                   <Text className="text-body-small text-text-muted text-center py-sm">
-                    No documents added yet
+                    {t('section.noDocuments')}
                   </Text>
                 )}
               </View>
@@ -267,10 +270,10 @@ export default function ProfileScreen() {
         </View>
         {/* Theme */}
         <View>
-          <Text className="text-label text-text-muted uppercase mb-sm">Appearance</Text>
+          <Text className="text-label text-text-muted uppercase mb-sm">{t('section.appearance')}</Text>
           <View className="flex-row bg-surface border border-border rounded-md p-xs gap-xs">
             {(['light', 'system', 'dark'] as const).map((option) => {
-              const labels = { light: 'Light', system: 'System', dark: 'Dark' };
+              const labels = { light: t('appearance.light'), system: t('appearance.system'), dark: t('appearance.dark') };
               const icons = { light: 'sunny-outline', system: 'phone-portrait-outline', dark: 'moon-outline' } as const;
               const active = theme === option;
               return (
@@ -306,13 +309,13 @@ export default function ProfileScreen() {
               onPress={() => setConfirmSignOut(false)}
               style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.border, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text className="text-body text-text-secondary">Cancel</Text>
+              <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSignOut}
               style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#FF5C5C', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,92,92,0.1)' }}
             >
-              <Text className="text-body text-danger font-semibold">Confirm</Text>
+              <Text className="text-body text-danger font-semibold">{tCommon('button.confirm')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -321,21 +324,21 @@ export default function ProfileScreen() {
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#FF5C5C' }}
           >
             <Ionicons name="log-out-outline" size={18} color={colors.danger} />
-            <Text className="text-body text-danger font-semibold">Sign Out</Text>
+            <Text className="text-body text-danger font-semibold">{t('signOut')}</Text>
           </TouchableOpacity>
         )}
         {/* Legal */}
         <View className="flex-row justify-center flex-wrap gap-xs pb-xs">
           <Pressable onPress={() => openUrl('https://vacationist.app/privacy-policy.html')}>
-            <Text className="text-body-small text-text-muted">Privacy Policy</Text>
+            <Text className="text-body-small text-text-muted">{t('footer.privacy')}</Text>
           </Pressable>
           <Text className="text-body-small text-text-muted">·</Text>
           <Pressable onPress={() => openUrl('https://vacationist.app/terms-of-service.html')}>
-            <Text className="text-body-small text-text-muted">Terms of Service</Text>
+            <Text className="text-body-small text-text-muted">{t('footer.terms')}</Text>
           </Pressable>
           <Text className="text-body-small text-text-muted">·</Text>
           <Pressable onPress={() => openUrl('https://vacationist.app/impressum.html')}>
-            <Text className="text-body-small text-text-muted">Impressum</Text>
+            <Text className="text-body-small text-text-muted">{t('footer.impressum')}</Text>
           </Pressable>
         </View>
       </ScrollView>

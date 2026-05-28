@@ -9,6 +9,7 @@ import {
   reopenAccommodationVoting,
 } from '@vacationist/api';
 import type { CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useAccommodations(tripId: string) {
@@ -37,10 +38,10 @@ export function useCreateAccommodation(tripId: string) {
     mutationFn: (input: CreateAccommodationInput) => createAccommodation(tripId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      addToast('success', 'Accommodation added');
+      addToast('success', i18n.t('accommodations:toast.added'));
     },
     onError: () => {
-      addToast('error', 'Failed to add accommodation.');
+      addToast('error', i18n.t('accommodations:toast.addFailed'));
     },
   });
 }
@@ -55,10 +56,10 @@ export function useUpdateAccommodation(tripId: string) {
     onSuccess: (_data, { accommodationId }) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
       queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId] });
-      addToast('success', 'Accommodation updated');
+      addToast('success', i18n.t('accommodations:toast.updated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update accommodation.');
+      addToast('error', i18n.t('accommodations:toast.updateFailed'));
     },
   });
 }
@@ -71,10 +72,10 @@ export function useDeleteAccommodation(tripId: string) {
     mutationFn: (accommodationId: string) => softDeleteAccommodation(accommodationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      addToast('success', 'Accommodation removed');
+      addToast('success', i18n.t('accommodations:toast.removed'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to remove accommodation.');
+      addToast('error', error.message || i18n.t('accommodations:toast.removeFailed'));
     },
   });
 }
@@ -88,10 +89,10 @@ export function useCloseAccommodationVoting(tripId: string) {
     onSuccess: (_data, accommodationId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
       queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
-      addToast('success', 'Voting closed');
+      addToast('success', i18n.t('accommodations:toast.votingClosed'));
     },
     onError: () => {
-      addToast('error', 'Failed to close voting.');
+      addToast('error', i18n.t('accommodations:toast.closeVotingFailed'));
     },
   });
 }
@@ -105,10 +106,10 @@ export function useReopenAccommodationVoting(tripId: string) {
     onSuccess: (_data, accommodationId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
       queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
-      addToast('success', 'Voting re-opened');
+      addToast('success', i18n.t('accommodations:toast.votingReopened'));
     },
     onError: () => {
-      addToast('error', 'Failed to re-open voting.');
+      addToast('error', i18n.t('accommodations:toast.reopenVotingFailed'));
     },
   });
 }

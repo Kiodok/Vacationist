@@ -1,0 +1,19 @@
+{
+  "name": "@vacationist/i18n",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "i18next": "^24.2.3",
+    "react-i18next": "^15.5.1",
+    "@vacationist/types": "*"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "expo-localization": "*"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  }
+}

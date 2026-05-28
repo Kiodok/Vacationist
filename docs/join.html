@@ -93,28 +93,29 @@
 </head>
 <body>
   <div class="logo">Vacationist</div>
-  <div class="tagline">Collaborative travel planning</div>
+  <div class="tagline" data-i18n="join.tagline">Collaborative travel planning</div>
 
   <div class="card" id="loading-state">
     <div class="spinner"></div>
-    <h1>Opening Vacationist…</h1>
-    <p>If the app doesn't open automatically, tap the button below to install it.</p>
-    <a id="store-link" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="btn">
+    <h1 data-i18n="join.loading.title">Opening Vacationist…</h1>
+    <p data-i18n="join.loading.sub">If the app doesn't open automatically, tap the button below to install it.</p>
+    <a id="store-link" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="btn" data-i18n="join.loading.getPlay">
       Get Vacationist on Google Play
     </a>
-    <a id="open-link" href="#" class="btn-secondary">Open in app</a>
+    <a id="open-link" href="#" class="btn-secondary" data-i18n="join.loading.openApp">Open in app</a>
   </div>
 
   <div class="card" id="error-state">
-    <h1>Invalid invite link</h1>
-    <p>This invite link is missing a token. Ask the trip organizer to generate a new one.</p>
-    <a href="https://vacationist.app" class="btn">Go to Vacationist</a>
+    <h1 data-i18n="join.error.title">Invalid invite link</h1>
+    <p data-i18n="join.error.sub">This invite link is missing a token. Ask the trip organizer to generate a new one.</p>
+    <a href="https://vacationist.app" class="btn" data-i18n="join.error.cta">Go to Vacationist</a>
   </div>
 
+  <script src="./i18n.js"></script>
   <script>
     (function () {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get('token');
+      var params = new URLSearchParams(window.location.search);
+      var token = params.get('token');
 
       if (!token) {
         document.getElementById('loading-state').style.display = 'none';
@@ -122,8 +123,8 @@
         return;
       }
 
-      const deepLink = 'vacationist://join?token=' + encodeURIComponent(token);
-      const openLink = document.getElementById('open-link');
+      var deepLink = 'vacationist://join?token=' + encodeURIComponent(token);
+      var openLink = document.getElementById('open-link');
       openLink.href = deepLink;
 
       // Attempt to open the app immediately

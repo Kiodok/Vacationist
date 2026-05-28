@@ -1,0 +1,139 @@
+window.VACATIONIST_I18N = {
+  __lang: 'en',
+
+  'meta.title': 'Vacationist — Plan trips together',
+  'meta.description': 'Collaborative trip planning for groups. Vote on activities, split expenses, manage shopping lists and travel docs — everyone in sync, in real time.',
+  'meta.og_title': 'Vacationist — Plan trips together',
+  'meta.og_description': 'Collaborative trip planning for groups. Vote on activities, split expenses, manage shopping lists — everyone in the loop, in real time.',
+  'meta.twitter_title': 'Vacationist — Plan trips together',
+  'meta.twitter_description': 'Collaborative trip planning for groups. Vote, split costs, share lists — everyone in sync.',
+
+  // Nav
+  'nav.features': 'Features',
+  'nav.how': 'How it works',
+  'nav.useCases': 'Use cases',
+  'nav.privacy': 'Privacy',
+  'nav.webApp': '🌐 Web app',
+  'nav.getApp': 'Get the app',
+
+  // Hero
+  'hero.eyebrow': '✈ Group travel, simplified',
+  'hero.h1': 'Plan trips<br><em>together</em>,<br>effortlessly.',
+  'hero.sub': 'Suggest activities, vote as a group, split expenses, and keep everyone in sync — from the first idea to the last flight home.',
+  'hero.getPlay': 'Get it on Google Play',
+  'hero.openWeb': 'Open Web App',
+  'hero.appSoon': 'App Store — Coming Soon',
+  'hero.note': 'Free · No ads · No account needed to join',
+
+  // Floating chips
+  'chip.a.main': '4 votes cast',
+  'chip.a.sub': 'Activities · Lisbon',
+  'chip.b.main': '€ 42.50 added',
+  'chip.b.sub': 'Split 4 ways',
+  'chip.c.main': '3 items checked',
+  'chip.c.sub': 'Shopping list',
+
+  // Phone mockup
+  'phone.myTrips': 'My Trips',
+  'phone.upcoming': 'Upcoming',
+  'phone.planning': 'Planning',
+  'phone.organiser': 'Organiser',
+  'phone.activities': '5 activities',
+  'phone.tab.trips': 'Trips',
+  'phone.tab.calendar': 'Calendar',
+  'phone.tab.alerts': 'Alerts',
+  'phone.tab.profile': 'Profile',
+
+  // Features section
+  'feat.label': "What's inside",
+  'feat.title': "Everything your group needs,<br>nothing it doesn't.",
+  'feat.sub': 'Built for real trips with real people — messy schedules, split opinions, and all.',
+  'feat.1.title': 'Vote on activities',
+  'feat.1.desc': 'Suggest ideas and let the group decide — from "must do" to "group blocker". The best options rise naturally, with no endless debates.',
+  'feat.2.title': 'Split expenses fairly',
+  'feat.2.desc': 'Log every cost, choose who paid, and split equally or by custom amounts. Balances always show exactly who owes what.',
+  'feat.3.title': 'Real-time shared lists',
+  'feat.3.desc': 'Shopping lists, packing checklists — anything the group tracks. Everyone adds and checks off items simultaneously, in real time.',
+  'feat.4.title': 'Transfer & flights',
+  'feat.4.desc': 'Suggest flights, vote on options, record bookings, manage car rentals, and assign who rides with whom — all in one place.',
+  'feat.5.title': 'Encrypted travel documents',
+  'feat.5.desc': 'Passport and ID details stored behind biometric authentication, AES-256 encrypted. Share temporary organiser access and revoke it any time.',
+  'feat.6.title': 'Shared calendar',
+  'feat.6.desc': 'A visual timeline of all planned activities, transfers, and check-ins — displayed in the trip\'s timezone automatically.',
+
+  // How it works
+  'how.label': 'How it works',
+  'how.title': 'Ready in three steps.',
+  'how.1.title': 'Create a trip',
+  'how.1.desc': 'Set your destination, pick your dates, and add a budget if you like. Ready in under a minute.',
+  'how.2.title': 'Invite your crew',
+  'how.2.desc': 'Share a single link in any chat. Friends join instantly — no account sign-up required to participate.',
+  'how.3.title': 'Plan together',
+  'how.3.desc': 'Vote on ideas, split costs, share lists and notes. Everyone in the loop, in real time.',
+
+  // Use cases
+  'use.label': 'More than vacations',
+  'use.title': 'Built for any group.<br>Any plan.',
+  'use.sub': 'Vacationist works wherever a group needs to coordinate — whether it\'s a summer holiday or a Tuesday barbecue.',
+  'use.1.title': 'Vacation trips',
+  'use.1.desc': 'The original use case — and still the best. Flights, accommodations, activities, expenses, travel documents, shopping lists. Everything for a group trip, in one app.',
+  'use.1.tag1': 'Made for this',
+  'use.1.tag2': 'Full feature set',
+  'use.2.title': 'Shared apartments',
+  'use.2.desc': 'Track rent, utilities, and grocery costs without the spreadsheet juggling. Shared shopping lists keep flatmates in sync — even when you\'re at different stores.',
+  'use.2.tag1': 'Expense splitting',
+  'use.2.tag2': 'Shopping lists',
+  'use.3.title': 'Bar & dinner nights',
+  'use.3.desc': 'Vote on where to go, track who paid what during the evening, and settle up at the end — no more "I\'ll pay you back" that never happens.',
+  'use.3.tag1': 'Activity voting',
+  'use.3.tag2': 'Live expense tracking',
+  'use.4.title': 'Hobby groups & clubs',
+  'use.4.desc': 'Organise your monthly board game night, weekend BBQ, or hiking meetup. Plan activities, vote on the date, manage shared costs — all without the WhatsApp chaos.',
+  'use.4.tag1': 'Recurring meetups',
+  'use.4.tag2': 'Group coordination',
+  'use.5.title': 'Day trips & weekenders',
+  'use.5.desc': 'A Saturday at the lake, a day hike, a cabin weekend — Vacationist handles the coordination for anything that needs a plan but doesn\'t need a full travel agent.',
+  'use.5.tag1': 'Quick planning',
+  'use.5.tag2': 'Shared calendar',
+  'use.6.title': 'Personal event planning',
+  'use.6.desc': 'A birthday weekend, a sports tournament, a family reunion — use a trip as a planning board for any bounded event, with your own timeline, notes, and lists.',
+  'use.6.tag1': 'Personal calendar',
+  'use.6.tag2': 'Activity timeline',
+
+  // Trust strip
+  'trust.aes': 'AES-256 encrypted documents',
+  'trust.noAds': 'No ads, no tracking',
+  'trust.swiss': 'Built in Switzerland',
+  'trust.free': 'Free to use',
+  'trust.platform': 'Android · iOS coming soon',
+
+  // Download
+  'dl.title': 'Your next trip is waiting.',
+  'dl.sub': 'Download Vacationist and start planning together.',
+  'dl.getPlay': 'Get it on Google Play',
+  'dl.appSoon': 'App Store — Coming Soon',
+  'dl.qrLabel': '📷 Scan with your camera to download',
+  'dl.qrNote': 'Android only · iOS coming soon',
+
+  // Footer
+  'footer.copy': '© 2026 Vacationist · Gary Lude, Switzerland',
+  'footer.privacy': 'Privacy Policy',
+  'footer.terms': 'Terms of Service',
+  'footer.impressum': 'Impressum',
+  'footer.contact': 'Contact',
+
+  // join.html (invite deep-link page)
+  'join.tagline': 'Collaborative travel planning',
+  'join.loading.title': 'Opening Vacationist…',
+  'join.loading.sub': "If the app doesn't open automatically, tap the button below to install it.",
+  'join.loading.getPlay': 'Get Vacationist on Google Play',
+  'join.loading.openApp': 'Open in app',
+  'join.error.title': 'Invalid invite link',
+  'join.error.sub': 'This invite link is missing a token. Ask the trip organizer to generate a new one.',
+  'join.error.cta': 'Go to Vacationist',
+
+  // 404 page
+  '404.title': 'Page not found',
+  '404.sub': 'The page you\'re looking for doesn\'t exist, or may have been moved.',
+  '404.link': '← Back to home',
+};

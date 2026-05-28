@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone, VoteType } from '@vacationist/types';
 import { formatActivityTime, dayjs } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
@@ -26,6 +27,7 @@ export function CalendarActivitySheet({
   onViewFullDetails,
   onEdit,
 }: CalendarActivitySheetProps) {
+  const { t } = useTranslation('calendar');
   const { data: votes, isLoading: votesLoading } = useActivityVotes(activity?.id ?? '');
   const { data: members } = useTripMembers(activity?.trip_id ?? '');
   const [showVotes, setShowVotes] = useState(false);
@@ -52,7 +54,7 @@ export function CalendarActivitySheet({
 
   if (!activity) return null;
 
-  const timeLabel = formatActivityTime(activity.start_time, activity.end_time);
+  const timeLabel = formatActivityTime(activity.start_time, activity.end_time, t('allDay'));
 
   return (
     <Modal
@@ -114,7 +116,7 @@ export function CalendarActivitySheet({
               <View className="flex-row items-center gap-xs mb-sm">
                 <Ionicons name="people" size={16} color={colors.primary} />
                 <Text className="text-primary text-body-small font-semibold">
-                  {attendees.length} {attendees.length === 1 ? 'attendee' : 'attendees'}
+                  {t('attendeeCount', { count: attendees.length })}
                 </Text>
               </View>
               <View className="flex-row flex-wrap gap-xs">
@@ -140,7 +142,7 @@ export function CalendarActivitySheet({
                 >
                   <VoteSummary votes={votes} />
                   <Text className="text-body-small text-text-muted ml-xs">
-                    {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
+                    {t('voteCount', { count: votes.length })}
                   </Text>
                   <Ionicons
                     name={showVotes ? 'chevron-up' : 'chevron-down'}
@@ -160,7 +162,7 @@ export function CalendarActivitySheet({
                 )}
               </View>
             ) : (
-              <Text className="text-body-small text-text-muted">No votes yet</Text>
+              <Text className="text-body-small text-text-muted">{t('noVotes')}</Text>
             )}
           </View>
 
@@ -180,7 +182,7 @@ export function CalendarActivitySheet({
               className="bg-primary rounded-md py-md items-center flex-1"
               style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
             >
-              <Text className="text-white text-body font-semibold">View full details</Text>
+              <Text className="text-white text-body font-semibold">{t('viewFullDetails')}</Text>
             </Pressable>
           </View>
         </View>

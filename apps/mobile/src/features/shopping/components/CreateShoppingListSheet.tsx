@@ -1,6 +1,7 @@
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { createShoppingListSchema, type CreateShoppingListInput } from '@vacationist/types';
 
 interface CreateShoppingListSheetProps {
@@ -11,6 +12,8 @@ interface CreateShoppingListSheetProps {
 }
 
 export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending }: CreateShoppingListSheetProps) {
+  const { t } = useTranslation('shopping');
+  const { t: tCommon } = useTranslation("common");
   const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateShoppingListInput>({
     resolver: zodResolver(createShoppingListSchema),
     defaultValues: { title: '' },
@@ -40,15 +43,15 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary">New Shopping List</Text>
+            <Text className="text-heading-m text-text-primary">{tCommon('button.add')}</Text>
             <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">Cancel</Text>
+              <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
 
           <View className="gap-md">
             <View className="gap-xs">
-              <Text className="text-label text-text-muted uppercase">Title *</Text>
+              <Text className="text-label text-text-muted uppercase">{t('field.item')} *</Text>
               <Controller
                 control={control}
                 name="title"
@@ -56,7 +59,7 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
                   <TextInput
                     className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                     placeholderTextColor="#5C5C5C"
-                    placeholder="e.g. Groceries, Beach Day"
+                    placeholder={t('placeholder.listName')}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -77,7 +80,7 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
               style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
             >
               <Text className="text-white text-body font-semibold">
-                {isPending ? 'Creating...' : 'Create List'}
+                {isPending ? tCommon('label.saving') : tCommon('button.save')}
               </Text>
             </Pressable>
           </View>

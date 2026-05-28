@@ -12,6 +12,7 @@ import {
 } from '@vacationist/api';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Notification } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 
@@ -210,7 +211,7 @@ export function useDeleteNotification(tripId?: string) {
     onError: (_err, _id, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(['notifications'], ctx.prev);
       if (ctx?.prevTrip && tripId) queryClient.setQueryData(['trips', tripId, 'notifications'], ctx.prevTrip);
-      addToast('error', 'Failed to delete notification.');
+      addToast('error', i18n.t('notifications:toast.deleteFailed'));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });

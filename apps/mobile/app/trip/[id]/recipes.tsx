@@ -3,6 +3,7 @@ import { View, Text, ActivityIndicator, Pressable, RefreshControl } from 'react-
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { CreateRecipeInput, Recipe } from '@vacationist/types';
 import { useRecipes, useCreateRecipe, useDeleteRecipe } from '../../../src/features/recipes/hooks/useRecipes';
 import { useRecipesRealtime } from '../../../src/features/recipes/hooks/useRecipesRealtime';
@@ -114,6 +115,8 @@ function RecipeCardWrapper({
   onPress: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation('recipes');
+  const { t: tCommon } = useTranslation("common");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const canDelete = role === 'organizer' || recipe.created_by === currentUserId;
@@ -135,7 +138,7 @@ function RecipeCardWrapper({
       />
       {confirmingDelete && (
         <View className="flex-row items-center justify-center gap-sm py-sm">
-          <Text className="text-text-secondary text-body-small">Delete this recipe?</Text>
+          <Text className="text-text-secondary text-body-small">{t('confirm.delete')}</Text>
           <Pressable
             onPress={() => { onDelete(); setConfirmingDelete(false); }}
             style={({ pressed }) => ({
@@ -146,7 +149,7 @@ function RecipeCardWrapper({
               backgroundColor: 'rgba(255, 92, 92, 0.2)',
             })}
           >
-            <Text className="text-danger text-body-small font-semibold">Yes, delete</Text>
+            <Text className="text-danger text-body-small font-semibold">{t('confirm.deleteYes')}</Text>
           </Pressable>
           <Pressable
             onPress={() => setConfirmingDelete(false)}
@@ -157,7 +160,7 @@ function RecipeCardWrapper({
               borderRadius: 6,
             })}
           >
-            <Text className="text-text-secondary text-body-small">Cancel</Text>
+            <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
           </Pressable>
         </View>
       )}

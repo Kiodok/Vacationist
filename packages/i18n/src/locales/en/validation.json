@@ -1,0 +1,14 @@
+{
+  "endDateAfterStart": "End date must be on or after start date",
+  "dateWithinTrip": "Date must be within the trip dates ({{startDate}} – {{endDate}})",
+  "urlHttps": "URL must start with https://",
+  "totalCredits": "Total credits must not exceed 100",
+  "filterMinCredit": "Every filter must have at least 1 credit",
+  "arrivalAfterDeparture": "Arrival cannot be before departure",
+  "returnDepartureAfterOutbound": "Return departure cannot be before outbound arrival",
+  "returnArrivalAfterDeparture": "Return arrival cannot be before return departure",
+  "accessDuration": "Duration must be 15, 30, or 60 minutes",
+  "required": "Required",
+  "nameRequired": "Name is required",
+  "titleRequired": "Title is required"
+}

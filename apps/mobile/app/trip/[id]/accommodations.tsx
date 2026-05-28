@@ -3,6 +3,7 @@ import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking, Re
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Accommodation, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
 import { useAccommodations, useCreateAccommodation, useUpdateAccommodation, useDeleteAccommodation, useCloseAccommodationVoting, useReopenAccommodationVoting } from '../../../src/features/accommodations/hooks/useAccommodations';
 import { useAccommodationVotes, useCastAccommodationVote, useRemoveAccommodationVote } from '../../../src/features/accommodations/hooks/useAccommodationVotes';
@@ -139,6 +140,8 @@ function AccommodationCardWithVotes({
   onCloseVoting: () => void;
   onReopenVoting: () => void;
 }) {
+  const { t } = useTranslation('accommodations');
+  const { t: tCommon } = useTranslation("common");
   const { data: votes = [] } = useAccommodationVotes(accommodation.id);
   const { data: members } = useTripMembers(tripId);
   const castVote = useCastAccommodationVote();
@@ -174,13 +177,13 @@ function AccommodationCardWithVotes({
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
       {accommodation.description && (
         <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">Description</Text>
+          <Text className="text-label text-text-muted uppercase">{tCommon('label.description')}</Text>
           <Text className="text-body-small text-text-secondary">{accommodation.description}</Text>
         </View>
       )}
       {accommodation.notes && (
         <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">Notes</Text>
+          <Text className="text-label text-text-muted uppercase">{tCommon('label.notes')}</Text>
           <Text className="text-body-small text-text-secondary">{accommodation.notes}</Text>
         </View>
       )}
@@ -200,38 +203,38 @@ function AccommodationCardWithVotes({
       <View className="gap-sm mt-xs">
         {confirmingCloseVoting ? (
           <View className="flex-row items-center gap-sm">
-            <Text className="text-text-secondary text-body-small">Close voting permanently?</Text>
+            <Text className="text-text-secondary text-body-small">{t('confirm.closeVoting')}</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onCloseVoting(); setConfirmingCloseVoting(false); }}
               className="px-sm py-xs rounded-sm bg-warning/20"
             >
-              <Text className="text-warning text-body-small font-semibold">Yes</Text>
+              <Text className="text-warning text-body-small font-semibold">{tCommon('button.yes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setConfirmingCloseVoting(false)}
               className="px-sm py-xs rounded-sm"
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
         ) : confirmingDelete ? (
           <View className="flex-row items-center gap-sm">
-            <Text className="text-text-secondary text-body-small">Remove this accommodation?</Text>
+            <Text className="text-text-secondary text-body-small">{t('confirm.remove')}</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onDelete(); setConfirmingDelete(false); }}
               className="px-sm py-xs rounded-sm bg-danger/20"
             >
-              <Text className="text-danger text-body-small font-semibold">Yes, remove</Text>
+              <Text className="text-danger text-body-small font-semibold">{t('confirm.removeYes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setConfirmingDelete(false)}
               className="px-sm py-xs rounded-sm"
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -243,7 +246,7 @@ function AccommodationCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="create-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Edit</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
             {canCloseVoting && votes.length > 0 && (
@@ -253,7 +256,7 @@ function AccommodationCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               >
                 <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
-                <Text className="text-warning text-body-small font-medium">End voting</Text>
+                <Text className="text-warning text-body-small font-medium">{t('action.endVoting')}</Text>
               </TouchableOpacity>
             )}
             {canReopenVoting && (
@@ -263,7 +266,7 @@ function AccommodationCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Re-open voting</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.reopenVoting')}</Text>
               </TouchableOpacity>
             )}
             {canDelete && (
@@ -273,7 +276,7 @@ function AccommodationCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
                 <Ionicons name="trash-outline" size={14} color={colors.danger} />
-                <Text className="text-danger text-body-small font-medium">Remove</Text>
+                <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
               </TouchableOpacity>
             )}
           </View>

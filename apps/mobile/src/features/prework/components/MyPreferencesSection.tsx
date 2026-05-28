@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { PreworkFilter } from '@vacationist/types';
 import { upsertPreworkPreferencesSchema } from '@vacationist/types';
 import { PreworkFilterRow } from './PreworkFilterRow';
@@ -23,6 +24,8 @@ export function MyPreferencesSection({
   isSaving,
   isClearing,
 }: MyPreferencesSectionProps) {
+  const { t } = useTranslation('prework');
+  const { t: tCommon } = useTranslation("common");
   const [filters, setFilters] = useState<PreworkFilter[]>(initialFilters);
   const [newLabel, setNewLabel] = useState('');
   const [isDirty, setIsDirty] = useState(false);
@@ -89,11 +92,11 @@ export function MyPreferencesSection({
 
   return (
     <View className="gap-md">
-      <Text className="text-heading-m text-text-primary">My Preferences</Text>
+      <Text className="text-heading-m text-text-primary">{t('my.title')}</Text>
 
       {filters.length === 0 ? (
         <Text className="text-body-small text-text-secondary">
-          Add what matters to you when choosing a base. You have 100 credits to distribute.
+          {t('my.emptyHint')}
         </Text>
       ) : (
         <View className="gap-sm">
@@ -111,7 +114,7 @@ export function MyPreferencesSection({
 
           {/* Credit sum indicator */}
           <View className="flex-row items-center justify-between px-xs">
-            <Text className="text-body-small text-text-secondary">Credits used</Text>
+            <Text className="text-body-small text-text-secondary">{t('my.creditsUsed')}</Text>
             <Text
               className={`text-body font-semibold ${
                 exceedsMax
@@ -126,12 +129,12 @@ export function MyPreferencesSection({
           </View>
           {exceedsMax && (
             <Text className="text-label text-danger px-xs">
-              Total credits exceed 100. Remove credits to save.
+              {t('my.exceedsMax')}
             </Text>
           )}
           {hasZeroCredit && !exceedsMax && (
             <Text className="text-label text-warning px-xs">
-              Every filter needs at least 1 credit.
+              {t('my.zeroCredit')}
             </Text>
           )}
         </View>
@@ -140,7 +143,7 @@ export function MyPreferencesSection({
       {/* Recommended filters from other members */}
       {visibleRecommendations.length > 0 && (
         <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">From other members</Text>
+          <Text className="text-label text-text-muted uppercase">{t('my.fromOthers')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-xs">
             {visibleRecommendations.map((label) => (
               <Pressable
@@ -161,7 +164,7 @@ export function MyPreferencesSection({
         <TextInput
           value={newLabel}
           onChangeText={setNewLabel}
-          placeholder="e.g. Pool, Near beach, Grill..."
+          placeholder={t('my.placeholder')}
           placeholderTextColor="#5C5C5C"
           maxLength={100}
           onSubmitEditing={handleAddFilter}
@@ -206,7 +209,7 @@ export function MyPreferencesSection({
                   canSave ? 'text-white' : 'text-text-muted'
                 }`}
               >
-                Save
+                {tCommon('button.save')}
               </Text>
             </>
           )}
@@ -221,7 +224,7 @@ export function MyPreferencesSection({
             {isClearing ? (
               <ActivityIndicator size="small" color={colors.danger} />
             ) : (
-              <Text className="text-danger text-body font-medium">Clear all</Text>
+              <Text className="text-danger text-body font-medium">{tCommon('button.remove')}</Text>
             )}
           </Pressable>
         )}

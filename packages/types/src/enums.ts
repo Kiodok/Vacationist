@@ -52,6 +52,9 @@ export type DocumentType = (typeof DOCUMENT_TYPE)[number];
 export const ACCESS_REQUEST_DURATION = [15, 30, 60] as const;
 export type AccessRequestDuration = (typeof ACCESS_REQUEST_DURATION)[number];
 
+export const SUPPORTED_LOCALES = ['en', 'de'] as const;
+export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+
 export const SUPPORTED_TIMEZONES = [
   'Europe/Berlin',
   'Europe/London',

@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../src/features/notifications/hooks/useUnreadCount';
 import { useNotificationsRealtime } from '../../src/features/notifications/hooks/useNotifications';
 import { colors, useThemeColors } from '@vacationist/ui';
@@ -9,6 +10,7 @@ import { useNetworkStatus } from '../../src/hooks/useNetworkStatus';
 import { OFFLINE_BANNER_HEIGHT } from '../../src/components/OfflineBanner';
 
 export default function TabLayout() {
+  const { t } = useTranslation('common');
   const { data: unreadCount = 0 } = useUnreadCount();
   useNotificationsRealtime();
   const tc = useThemeColors();
@@ -33,7 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Trips',
+          title: t('tab.trips'),
           tabBarActiveTintColor: colors.primary,
           tabBarIcon: ({ focused }) => (
             <Ionicons
@@ -47,7 +49,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="calendar"
         options={{
-          title: 'Calendar',
+          title: t('tab.calendar'),
           tabBarActiveTintColor: colors.success,
           tabBarIcon: ({ focused }) => (
             <Ionicons
@@ -61,7 +63,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="notifications"
         options={{
-          title: 'Alerts',
+          title: t('tab.notifications'),
           tabBarActiveTintColor: colors.warning,
           tabBarIcon: ({ focused }) => (
             <Ionicons
@@ -77,7 +79,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tab.profile'),
           tabBarActiveTintColor: colors.primaryLight,
           tabBarIcon: ({ focused }) => (
             <Ionicons

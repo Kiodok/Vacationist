@@ -127,8 +127,23 @@
     }
     .nav-cta-web:hover { border-color: var(--primary) !important; color: var(--text) !important; }
 
+    /* Language switcher */
+    .lang-switcher {
+      display: flex; align-items: center; gap: 2px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 2px; flex-shrink: 0;
+    }
+    .lang-switcher button {
+      background: none; border: none; cursor: pointer;
+      color: var(--text3); font-size: 0.75rem; font-weight: 600;
+      font-family: inherit; padding: 0.22rem 0.55rem; border-radius: 6px;
+      transition: color 0.15s, background 0.15s; line-height: 1;
+    }
+    .lang-switcher button:hover { color: var(--text2); }
+    .lang-switcher button.lang-active { background: var(--primary); color: #fff; }
+
     @media (max-width: 640px) {
-      .nav-links a:not(.nav-cta):not(.nav-cta-web) { display: none; }
+      .nav-links a:not(.nav-cta):not(.nav-cta-web):not(.lang-btn-wrap) { display: none; }
       .nav-links { gap: 0.75rem; }
     }
 
@@ -538,12 +553,17 @@
     Vacationist
   </a>
   <div class="nav-links">
-    <a href="#features">Features</a>
-    <a href="#how">How it works</a>
-    <a href="#use-cases">Use cases</a>
-    <a href="./privacy-policy.html">Privacy</a>
-    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web app</a>
-    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer">Get the app</a>
+    <a href="#features" data-i18n="nav.features">Features</a>
+    <a href="#how" data-i18n="nav.how">How it works</a>
+    <a href="#use-cases" data-i18n="nav.useCases">Use cases</a>
+    <a href="./privacy-policy.html" data-i18n="nav.privacy">Privacy</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer" data-i18n="nav.webApp">🌐 Web app</a>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer" data-i18n="nav.getApp">Get the app</a>
+    <!-- Language switcher -->
+    <div class="lang-switcher" aria-label="Language">
+      <button data-lang="en" class="lang-active">EN</button>
+      <button data-lang="de">DE</button>
+    </div>
   </div>
 </nav>
 
@@ -556,12 +576,12 @@
     <div class="hero-text">
       <div class="hero-eyebrow">
         <div class="eyebrow-dot"></div>
-        ✈ Group travel, simplified
+        <span data-i18n="hero.eyebrow">✈ Group travel, simplified</span>
       </div>
 
-      <h1>Plan trips<br><em>together</em>,<br>effortlessly.</h1>
+      <h1 data-i18n-html="hero.h1">Plan trips<br><em>together</em>,<br>effortlessly.</h1>
 
-      <p class="hero-sub">
+      <p class="hero-sub" data-i18n="hero.sub">
         Suggest activities, vote as a group, split expenses, and keep everyone in sync — from the first idea to the last flight home.
       </p>
 
@@ -569,20 +589,20 @@
         <div class="btn-row">
           <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">
             <svg width="18" height="20" viewBox="0 0 20 22" fill="none"><path d="M2 2L18 11L2 20" stroke="#0F0F0F" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="#0F0F0F"/></svg>
-            Get it on Google Play
+            <span data-i18n="hero.getPlay">Get it on Google Play</span>
           </a>
           <a class="btn-primary" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="2"/><path d="M2 12h20M12 2c-2.5 3-4 6.3-4 10s1.5 7 4 10M12 2c2.5 3 4 6.3 4 10s-1.5 7-4 10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
-            Open Web App
+            <span data-i18n="hero.openWeb">Open Web App</span>
           </a>
           <div class="btn-ghost">
             <svg width="15" height="17" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="currentColor"/></svg>
-            App Store — Coming Soon
+            <span data-i18n="hero.appSoon">App Store — Coming Soon</span>
           </div>
         </div>
         <div class="hero-note">
           <div class="note-dot"></div>
-          Free · No ads · No account needed to join
+          <span data-i18n="hero.note">Free · No ads · No account needed to join</span>
         </div>
       </div>
     </div>
@@ -594,15 +614,15 @@
 
         <div class="chip chip-a">
           <span class="chip-icon">🗳️</span>
-          <div><div>4 votes cast</div><div class="chip-sub">Activities · Lisbon</div></div>
+          <div><div data-i18n="chip.a.main">4 votes cast</div><div class="chip-sub" data-i18n="chip.a.sub">Activities · Lisbon</div></div>
         </div>
         <div class="chip chip-b">
           <span class="chip-icon">💸</span>
-          <div><div>€ 42.50 added</div><div class="chip-sub">Split 4 ways</div></div>
+          <div><div data-i18n="chip.b.main">€ 42.50 added</div><div class="chip-sub" data-i18n="chip.b.sub">Split 4 ways</div></div>
         </div>
         <div class="chip chip-c">
           <span class="chip-icon">✅</span>
-          <div><div>3 items checked</div><div class="chip-sub">Shopping list</div></div>
+          <div><div data-i18n="chip.c.main">3 items checked</div><div class="chip-sub" data-i18n="chip.c.sub">Shopping list</div></div>
         </div>
 
         <div class="phone">
@@ -613,17 +633,17 @@
               <span class="ps-icons">▲▲ ⬛</span>
             </div>
             <div class="ps-head">
-              <span class="ps-title">My Trips</span>
+              <span class="ps-title" data-i18n="phone.myTrips">My Trips</span>
               <div class="ps-bell">🔔<div class="ps-bell-dot"></div></div>
             </div>
-            <div class="ps-sec">Upcoming</div>
+            <div class="ps-sec" data-i18n="phone.upcoming">Upcoming</div>
 
             <!-- Card 1 -->
             <div class="ps-card">
               <div class="ps-card-banner" style="background:linear-gradient(135deg,#1a3a5c,#0d2035)">
                 <div class="ps-banner-overlay"></div>
                 <span class="ps-flag">🇵🇹</span>
-                <span class="ps-card-status">Planning</span>
+                <span class="ps-card-status" data-i18n="phone.planning">Planning</span>
               </div>
               <div class="ps-card-body">
                 <div class="ps-card-name">Summer in Lisbon</div>
@@ -636,7 +656,7 @@
                     <div class="ps-av" style="background:#10B981">A</div>
                     <div class="ps-av" style="background:#3B82F6">T</div>
                   </div>
-                  <div class="ps-role">Organiser</div>
+                  <div class="ps-role" data-i18n="phone.organiser">Organiser</div>
                 </div>
                 <div class="ps-votes">
                   <div class="ps-vchip" style="background:rgba(62,207,142,.15);color:#3ECF8E">⭐ 3 must do</div>
@@ -661,7 +681,7 @@
                     <div class="ps-av" style="background:#3B82F6">T</div>
                     <div class="ps-av" style="background:#EC4899">S</div>
                   </div>
-                  <div class="ps-role">5 activities</div>
+                  <div class="ps-role" data-i18n="phone.activities">5 activities</div>
                 </div>
               </div>
             </div>
@@ -669,10 +689,10 @@
             <div class="ps-fab">+</div>
 
             <div class="ps-tabs">
-              <div class="ps-tab on"><div class="ps-tab-i">🏠</div>Trips</div>
-              <div class="ps-tab"><div class="ps-tab-i">📅</div>Calendar</div>
-              <div class="ps-tab"><div class="ps-tab-i">🔔</div>Alerts</div>
-              <div class="ps-tab"><div class="ps-tab-i">👤</div>Profile</div>
+              <div class="ps-tab on"><div class="ps-tab-i">🏠</div><span data-i18n="phone.tab.trips">Trips</span></div>
+              <div class="ps-tab"><div class="ps-tab-i">📅</div><span data-i18n="phone.tab.calendar">Calendar</span></div>
+              <div class="ps-tab"><div class="ps-tab-i">🔔</div><span data-i18n="phone.tab.alerts">Alerts</span></div>
+              <div class="ps-tab"><div class="ps-tab-i">👤</div><span data-i18n="phone.tab.profile">Profile</span></div>
             </div>
           </div>
         </div>
@@ -685,40 +705,40 @@
 <section class="section features" id="features">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-label">What's inside</div>
-      <h2 class="s-title">Everything your group needs,<br>nothing it doesn't.</h2>
-      <p class="s-sub">Built for real trips with real people — messy schedules, split opinions, and all.</p>
+      <div class="s-label" data-i18n="feat.label">What's inside</div>
+      <h2 class="s-title" data-i18n-html="feat.title">Everything your group needs,<br>nothing it doesn't.</h2>
+      <p class="s-sub" data-i18n="feat.sub">Built for real trips with real people — messy schedules, split opinions, and all.</p>
     </div>
     <div class="feat-grid">
       <div class="feat-card reveal d1">
         <div class="feat-icon">🗳️</div>
-        <div class="feat-title">Vote on activities</div>
-        <div class="feat-desc">Suggest ideas and let the group decide — from "must do" to "group blocker". The best options rise naturally, with no endless debates.</div>
+        <div class="feat-title" data-i18n="feat.1.title">Vote on activities</div>
+        <div class="feat-desc" data-i18n="feat.1.desc">Suggest ideas and let the group decide — from "must do" to "group blocker". The best options rise naturally, with no endless debates.</div>
       </div>
       <div class="feat-card reveal d2">
         <div class="feat-icon">💸</div>
-        <div class="feat-title">Split expenses fairly</div>
-        <div class="feat-desc">Log every cost, choose who paid, and split equally or by custom amounts. Balances always show exactly who owes what.</div>
+        <div class="feat-title" data-i18n="feat.2.title">Split expenses fairly</div>
+        <div class="feat-desc" data-i18n="feat.2.desc">Log every cost, choose who paid, and split equally or by custom amounts. Balances always show exactly who owes what.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🛒</div>
-        <div class="feat-title">Real-time shared lists</div>
-        <div class="feat-desc">Shopping lists, packing checklists — anything the group tracks. Everyone adds and checks off items simultaneously, in real time.</div>
+        <div class="feat-title" data-i18n="feat.3.title">Real-time shared lists</div>
+        <div class="feat-desc" data-i18n="feat.3.desc">Shopping lists, packing checklists — anything the group tracks. Everyone adds and checks off items simultaneously, in real time.</div>
       </div>
       <div class="feat-card reveal d1">
         <div class="feat-icon">✈️</div>
-        <div class="feat-title">Transfer &amp; flights</div>
-        <div class="feat-desc">Suggest flights, vote on options, record bookings, manage car rentals, and assign who rides with whom — all in one place.</div>
+        <div class="feat-title" data-i18n="feat.4.title">Transfer &amp; flights</div>
+        <div class="feat-desc" data-i18n="feat.4.desc">Suggest flights, vote on options, record bookings, manage car rentals, and assign who rides with whom — all in one place.</div>
       </div>
       <div class="feat-card reveal d2">
         <div class="feat-icon">🔒</div>
-        <div class="feat-title">Encrypted travel documents</div>
-        <div class="feat-desc">Passport and ID details stored behind biometric authentication, AES-256 encrypted. Share temporary organiser access and revoke it any time.</div>
+        <div class="feat-title" data-i18n="feat.5.title">Encrypted travel documents</div>
+        <div class="feat-desc" data-i18n="feat.5.desc">Passport and ID details stored behind biometric authentication, AES-256 encrypted. Share temporary organiser access and revoke it any time.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🗓️</div>
-        <div class="feat-title">Shared calendar</div>
-        <div class="feat-desc">A visual timeline of all planned activities, transfers, and check-ins — displayed in the trip's timezone automatically.</div>
+        <div class="feat-title" data-i18n="feat.6.title">Shared calendar</div>
+        <div class="feat-desc" data-i18n="feat.6.desc">A visual timeline of all planned activities, transfers, and check-ins — displayed in the trip's timezone automatically.</div>
       </div>
     </div>
   </div>
@@ -728,25 +748,25 @@
 <section class="section" id="how">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-label">How it works</div>
-      <h2 class="s-title">Ready in three steps.</h2>
+      <div class="s-label" data-i18n="how.label">How it works</div>
+      <h2 class="s-title" data-i18n="how.title">Ready in three steps.</h2>
     </div>
     <div class="steps">
       <div class="steps-line"></div>
       <div class="step reveal d1">
         <div class="step-num">1</div>
-        <div class="step-title">Create a trip</div>
-        <div class="step-desc">Set your destination, pick your dates, and add a budget if you like. Ready in under a minute.</div>
+        <div class="step-title" data-i18n="how.1.title">Create a trip</div>
+        <div class="step-desc" data-i18n="how.1.desc">Set your destination, pick your dates, and add a budget if you like. Ready in under a minute.</div>
       </div>
       <div class="step reveal d2">
         <div class="step-num">2</div>
-        <div class="step-title">Invite your crew</div>
-        <div class="step-desc">Share a single link in any chat. Friends join instantly — no account sign-up required to participate.</div>
+        <div class="step-title" data-i18n="how.2.title">Invite your crew</div>
+        <div class="step-desc" data-i18n="how.2.desc">Share a single link in any chat. Friends join instantly — no account sign-up required to participate.</div>
       </div>
       <div class="step reveal d3">
         <div class="step-num">3</div>
-        <div class="step-title">Plan together</div>
-        <div class="step-desc">Vote on ideas, split costs, share lists and notes. Everyone in the loop, in real time.</div>
+        <div class="step-title" data-i18n="how.3.title">Plan together</div>
+        <div class="step-desc" data-i18n="how.3.desc">Vote on ideas, split costs, share lists and notes. Everyone in the loop, in real time.</div>
       </div>
     </div>
   </div>
@@ -756,63 +776,63 @@
 <section class="section alt-bg" id="use-cases">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-label">More than vacations</div>
-      <h2 class="s-title">Built for any group.<br>Any plan.</h2>
-      <p class="s-sub">Vacationist works wherever a group needs to coordinate — whether it's a summer holiday or a Tuesday barbecue.</p>
+      <div class="s-label" data-i18n="use.label">More than vacations</div>
+      <h2 class="s-title" data-i18n-html="use.title">Built for any group.<br>Any plan.</h2>
+      <p class="s-sub" data-i18n="use.sub">Vacationist works wherever a group needs to coordinate — whether it's a summer holiday or a Tuesday barbecue.</p>
     </div>
     <div class="alt-grid">
       <div class="alt-card alt-card--anchor reveal d1">
         <div class="alt-icon">✈️</div>
-        <div class="alt-title">Vacation trips</div>
-        <div class="alt-desc">The original use case — and still the best. Flights, accommodations, activities, expenses, travel documents, shopping lists. Everything for a group trip, in one app.</div>
+        <div class="alt-title" data-i18n="use.1.title">Vacation trips</div>
+        <div class="alt-desc" data-i18n="use.1.desc">The original use case — and still the best. Flights, accommodations, activities, expenses, travel documents, shopping lists. Everything for a group trip, in one app.</div>
         <div class="alt-tags">
-          <span class="alt-tag">Made for this</span>
-          <span class="alt-tag">Full feature set</span>
+          <span class="alt-tag" data-i18n="use.1.tag1">Made for this</span>
+          <span class="alt-tag" data-i18n="use.1.tag2">Full feature set</span>
         </div>
       </div>
       <div class="alt-card reveal d2">
         <div class="alt-icon">🏠</div>
-        <div class="alt-title">Shared apartments</div>
-        <div class="alt-desc">Track rent, utilities, and grocery costs without the spreadsheet juggling. Shared shopping lists keep flatmates in sync — even when you're at different stores.</div>
+        <div class="alt-title" data-i18n="use.2.title">Shared apartments</div>
+        <div class="alt-desc" data-i18n="use.2.desc">Track rent, utilities, and grocery costs without the spreadsheet juggling. Shared shopping lists keep flatmates in sync — even when you're at different stores.</div>
         <div class="alt-tags">
-          <span class="alt-tag">Expense splitting</span>
-          <span class="alt-tag">Shopping lists</span>
+          <span class="alt-tag" data-i18n="use.2.tag1">Expense splitting</span>
+          <span class="alt-tag" data-i18n="use.2.tag2">Shopping lists</span>
         </div>
       </div>
       <div class="alt-card reveal d3">
         <div class="alt-icon">🍻</div>
-        <div class="alt-title">Bar &amp; dinner nights</div>
-        <div class="alt-desc">Vote on where to go, track who paid what during the evening, and settle up at the end — no more "I'll pay you back" that never happens.</div>
+        <div class="alt-title" data-i18n="use.3.title">Bar &amp; dinner nights</div>
+        <div class="alt-desc" data-i18n="use.3.desc">Vote on where to go, track who paid what during the evening, and settle up at the end — no more "I'll pay you back" that never happens.</div>
         <div class="alt-tags">
-          <span class="alt-tag">Activity voting</span>
-          <span class="alt-tag">Live expense tracking</span>
+          <span class="alt-tag" data-i18n="use.3.tag1">Activity voting</span>
+          <span class="alt-tag" data-i18n="use.3.tag2">Live expense tracking</span>
         </div>
       </div>
       <div class="alt-card reveal d1">
         <div class="alt-icon">🎯</div>
-        <div class="alt-title">Hobby groups &amp; clubs</div>
-        <div class="alt-desc">Organise your monthly board game night, weekend BBQ, or hiking meetup. Plan activities, vote on the date, manage shared costs — all without the WhatsApp chaos.</div>
+        <div class="alt-title" data-i18n="use.4.title">Hobby groups &amp; clubs</div>
+        <div class="alt-desc" data-i18n="use.4.desc">Organise your monthly board game night, weekend BBQ, or hiking meetup. Plan activities, vote on the date, manage shared costs — all without the WhatsApp chaos.</div>
         <div class="alt-tags">
-          <span class="alt-tag">Recurring meetups</span>
-          <span class="alt-tag">Group coordination</span>
+          <span class="alt-tag" data-i18n="use.4.tag1">Recurring meetups</span>
+          <span class="alt-tag" data-i18n="use.4.tag2">Group coordination</span>
         </div>
       </div>
       <div class="alt-card reveal d2">
         <div class="alt-icon">🌅</div>
-        <div class="alt-title">Day trips &amp; weekenders</div>
-        <div class="alt-desc">A Saturday at the lake, a day hike, a cabin weekend — Vacationist handles the coordination for anything that needs a plan but doesn't need a full travel agent.</div>
+        <div class="alt-title" data-i18n="use.5.title">Day trips &amp; weekenders</div>
+        <div class="alt-desc" data-i18n="use.5.desc">A Saturday at the lake, a day hike, a cabin weekend — Vacationist handles the coordination for anything that needs a plan but doesn't need a full travel agent.</div>
         <div class="alt-tags">
-          <span class="alt-tag">Quick planning</span>
-          <span class="alt-tag">Shared calendar</span>
+          <span class="alt-tag" data-i18n="use.5.tag1">Quick planning</span>
+          <span class="alt-tag" data-i18n="use.5.tag2">Shared calendar</span>
         </div>
       </div>
       <div class="alt-card reveal d3">
         <div class="alt-icon">📋</div>
-        <div class="alt-title">Personal event planning</div>
-        <div class="alt-desc">A birthday weekend, a sports tournament, a family reunion — use a trip as a planning board for any bounded event, with your own timeline, notes, and lists.</div>
+        <div class="alt-title" data-i18n="use.6.title">Personal event planning</div>
+        <div class="alt-desc" data-i18n="use.6.desc">A birthday weekend, a sports tournament, a family reunion — use a trip as a planning board for any bounded event, with your own timeline, notes, and lists.</div>
         <div class="alt-tags">
-          <span class="alt-tag">Personal calendar</span>
-          <span class="alt-tag">Activity timeline</span>
+          <span class="alt-tag" data-i18n="use.6.tag1">Personal calendar</span>
+          <span class="alt-tag" data-i18n="use.6.tag2">Activity timeline</span>
         </div>
       </div>
     </div>
@@ -822,51 +842,52 @@
 <!-- TRUST STRIP -->
 <div class="trust">
   <div class="trust-inner">
-    <div class="trust-item"><div class="trust-icon">🔒</div>AES-256 encrypted documents</div>
-    <div class="trust-item"><div class="trust-icon">🚫</div>No ads, no tracking</div>
-    <div class="trust-item"><div class="trust-icon">🇨🇭</div>Built in Switzerland</div>
-    <div class="trust-item"><div class="trust-icon">🆓</div>Free to use</div>
-    <div class="trust-item"><div class="trust-icon">📱</div>Android · iOS coming soon</div>
+    <div class="trust-item"><div class="trust-icon">🔒</div><span data-i18n="trust.aes">AES-256 encrypted documents</span></div>
+    <div class="trust-item"><div class="trust-icon">🚫</div><span data-i18n="trust.noAds">No ads, no tracking</span></div>
+    <div class="trust-item"><div class="trust-icon">🇨🇭</div><span data-i18n="trust.swiss">Built in Switzerland</span></div>
+    <div class="trust-item"><div class="trust-icon">🆓</div><span data-i18n="trust.free">Free to use</span></div>
+    <div class="trust-item"><div class="trust-icon">📱</div><span data-i18n="trust.platform">Android · iOS coming soon</span></div>
   </div>
 </div>
 
 <!-- DOWNLOAD -->
 <section class="download">
   <div class="dl-inner">
-    <h2 class="reveal">Your next trip is waiting.</h2>
-    <p class="reveal d1">Download Vacationist and start planning together.</p>
+    <h2 class="reveal" data-i18n="dl.title">Your next trip is waiting.</h2>
+    <p class="reveal d1" data-i18n="dl.sub">Download Vacationist and start planning together.</p>
 
     <div class="dl-badges reveal d2">
       <a class="badge-play" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">
         <svg width="19" height="21" viewBox="0 0 20 22" fill="none"><path d="M2 2L18 11L2 20" stroke="#000" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="#000"/></svg>
-        Get it on Google Play
+        <span data-i18n="dl.getPlay">Get it on Google Play</span>
       </a>
       <div class="badge-soon">
         <svg width="15" height="17" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="currentColor"/></svg>
-        App Store — Coming Soon
+        <span data-i18n="dl.appSoon">App Store — Coming Soon</span>
       </div>
     </div>
 
     <div class="qr-wrap reveal d3">
-      <div class="qr-label">📷 Scan with your camera to download</div>
+      <div class="qr-label" data-i18n="dl.qrLabel">📷 Scan with your camera to download</div>
       <svg id="qr-svg" width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"></svg>
-      <div class="qr-note">Android only · iOS coming soon</div>
+      <div class="qr-note" data-i18n="dl.qrNote">Android only · iOS coming soon</div>
     </div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <span class="f-copy">© 2026 Vacationist · Gary Lude, Switzerland</span>
+  <span class="f-copy" data-i18n="footer.copy">© 2026 Vacationist · Gary Lude, Switzerland</span>
   <div class="f-links">
-    <a href="./privacy-policy.html">Privacy Policy</a>
-    <a href="./terms-of-service.html">Terms of Service</a>
-    <a href="./impressum.html">Impressum</a>
-    <a href="mailto:meetdeep.de@gmail.com">Contact</a>
+    <a href="./privacy-policy.html" data-i18n="footer.privacy">Privacy Policy</a>
+    <a href="./terms-of-service.html" data-i18n="footer.terms">Terms of Service</a>
+    <a href="./impressum.html" data-i18n="footer.impressum">Impressum</a>
+    <a href="mailto:meetdeep.de@gmail.com" data-i18n="footer.contact">Contact</a>
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="./i18n.js"></script>
 <script>
 /* ── Nav scroll effect ── */
 const nav = document.getElementById('nav');

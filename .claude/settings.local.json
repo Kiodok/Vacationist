@@ -94,7 +94,22 @@
       "Bash(echo \"Exit: $?\")",
       "PowerShell(try { $json = Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\node_modules\\\\@shopify\\\\flash-list\\\\package.json\" -ErrorAction Stop | ConvertFrom-Json; $json.version } catch { Write-Output \"Not found\" })",
       "PowerShell(try { $json = Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\node_modules\\\\@react-native-community\\\\netinfo\\\\package.json\" -ErrorAction Stop | ConvertFrom-Json; $json.version } catch { Write-Output \"Not found\" })",
-      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(c\\) for client in d['client'] for c in [client.get\\('oauth_client', []\\)]]\")"
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(c\\) for client in d['client'] for c in [client.get\\('oauth_client', []\\)]]\")",
+      "Bash(grep -rn \", { ns: 'common' }\" apps/mobile --include=\"*.tsx\")",
+      "Bash(grep -rn \", { ns: \" apps/mobile --include=\"*.tsx\" --include=\"*.ts\")",
+      "Bash(sed -i \"s/, { ns: 'profile' }//g\" \"apps/mobile/app/trip/[id]/settings.tsx\")",
+      "Bash(sed -i \"s/, { ns: 'transfer' }//g\" \"apps/mobile/src/features/activities/components/VoteSheet.tsx\")",
+      "Bash(sed -i '738s/const { t } = useTranslation.*$/const { t } = useTranslation\\(\"transfer\"\\);\\\\n  const { t: tCommon } = useTranslation\\(\"common\"\\);/' \"apps/mobile/app/trip/[id]/transfer.tsx\")",
+      "Bash(sed -i '881s/const { t } = useTranslation.*$/const { t } = useTranslation\\(\"transfer\"\\);\\\\n  const { t: tCommon } = useTranslation\\(\"common\"\\);/' \"apps/mobile/app/trip/[id]/transfer.tsx\")",
+      "Bash(sed -i \"s/t\\(\\\\`nudge.\\\\${key}.title\\\\`\\)/i18nInstance.t\\(\\\\`notifications:nudge.\\\\${key}.title\\\\`\\)/g\" \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
+      "Bash(sed -i \"s/t\\(\\\\`nudge.\\\\${key}.body\\\\`\\)/i18nInstance.t\\(\\\\`notifications:nudge.\\\\${key}.body\\\\`\\)/g\" \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
+      "Bash(sed -i 's/const title = i18nInstance.t\\(`notifications:nudge.\\\\${key}.title`\\);/const title = i18nInstance.t\\(`notifications:nudge.\\\\${key}.title`\\) as string;/' \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
+      "Bash(sed -i 's/const body = i18nInstance.t\\(`notifications:nudge.\\\\${key}.body`\\);/const body = i18nInstance.t\\(`notifications:nudge.\\\\${key}.body`\\) as string;/' \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
+      "Bash(sed -i \"s/i18nInstance.t\\(\\\\`notifications:nudge.\\\\${key}.title\\\\`\\)/i18nInstance.t\\(\\\\`notifications:nudge.\\\\${key}.title\\\\`\\) as string/g\" \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
+      "Bash(sed -i \"s/i18nInstance.t\\(\\\\`notifications:nudge.\\\\${key}.body\\\\`\\)/i18nInstance.t\\(\\\\`notifications:nudge.\\\\${key}.body\\\\`\\) as string/g\" \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
+      "Bash(sed -i 's/const title = i18nInstance.t\\(`notifications:nudge.\\\\${key}.title`\\) as string as string;/const title = \\(i18nInstance.t as \\(k: string\\) => string\\)\\(`notifications:nudge.\\\\${key}.title`\\);/' \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
+      "Bash(sed -i 's/const body = i18nInstance.t\\(`notifications:nudge.\\\\${key}.body`\\) as string as string;/const body = \\(i18nInstance.t as \\(k: string\\) => string\\)\\(`notifications:nudge.\\\\${key}.body`\\);/' \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
+      "Bash(node -e ' *)"
     ]
   },
   "model": "opusplan",

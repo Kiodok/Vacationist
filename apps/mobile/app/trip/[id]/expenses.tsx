@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
 import { formatCurrency, isExpenseFullySettled } from '@vacationist/utils';
 import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useTripBalances, useUpdateExpenseWithSplits } from '../../../src/features/expenses/hooks/useExpenses';
@@ -20,6 +21,8 @@ import { SettlementsModal } from '../../../src/features/expenses/components/Sett
 import { colors } from '@vacationist/ui';
 
 export default function ExpensesTab() {
+  const { t } = useTranslation('expenses');
+  const { t: tCommon } = useTranslation("common");
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
@@ -78,13 +81,13 @@ export default function ExpensesTab() {
   const sections = useMemo(() => {
     const result: { key: string; title: string; data: ExpenseWithSplits[] }[] = [];
     if (activeExpenses.length > 0) {
-      result.push({ key: 'active', title: 'Active', data: activeExpenses });
+      result.push({ key: 'active', title: t('section.active'), data: activeExpenses });
     }
     if (completedExpenses.length > 0) {
-      result.push({ key: 'completed', title: 'Completed', data: completedExpenses });
+      result.push({ key: 'completed', title: t('section.completed'), data: completedExpenses });
     }
     if (archivedExpenses.length > 0) {
-      result.push({ key: 'archived', title: 'Archived', data: archivedExpenses });
+      result.push({ key: 'archived', title: t('section.archived'), data: archivedExpenses });
     }
     return result;
   }, [activeExpenses, completedExpenses, archivedExpenses]);
@@ -115,7 +118,7 @@ export default function ExpensesTab() {
           windowSize={5}
           maxToRenderPerBatch={10}
           initialNumToRender={10}
-          contentContainerClassName="px-md py-md"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
           ListHeaderComponent={
             <View className="gap-sm mb-xs">
               <SettlementsCard
@@ -124,10 +127,10 @@ export default function ExpensesTab() {
               />
               <View className="flex-row items-center justify-between py-sm px-sm">
                 <Text className="text-body-small text-text-secondary">
-                  {activeExpenses.length} active · {completedExpenses.length} completed
+                  {t('summary.stats', { active: activeExpenses.length, completed: completedExpenses.length })}
                 </Text>
                 <Text className="text-body text-text-primary font-semibold">
-                  Open: {formatCurrency(activeTotal, currency)}
+                  {t('summary.open')} {formatCurrency(activeTotal, currency)}
                 </Text>
               </View>
             </View>
@@ -184,7 +187,7 @@ export default function ExpensesTab() {
               >
                 {isFetchingNextPage
                   ? <ActivityIndicator color={colors.primary} />
-                  : <Text className="text-primary text-body font-semibold">Load more</Text>}
+                  : <Text className="text-primary text-body font-semibold">{t('loadMore')}</Text>}
               </Pressable>
             ) : null
           }
@@ -246,6 +249,8 @@ function ExpenseCardWithSplits({
   onArchive: () => void;
   onUnarchive: () => void;
 }) {
+  const { t } = useTranslation("expenses");
+  const { t: tCommon } = useTranslation("common");
   const splits = expense.expense_splits;
   const updateExpense = useUpdateExpenseWithSplits(tripId);
   const settleSplit = useSettleExpenseSplit(tripId, expense.id);
@@ -270,14 +275,14 @@ function ExpenseCardWithSplits({
         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
       >
         <Ionicons name="people-outline" size={14} color={colors.primary} />
-        <Text className="text-primary text-body-small font-medium">View splits ({splits.length})</Text>
+        <Text className="text-primary text-body-small font-medium">{t('action.viewSplits', { count: splits.length })}</Text>
       </Pressable>
 
       <View className="gap-sm mt-xs">
         {confirmingArchive ? (
           <View className="flex-row items-center gap-sm">
             <Text className="text-text-secondary text-body-small">
-              {isArchived ? 'Restore this expense?' : 'Archive this expense?'}
+              {isArchived ? t('confirm.restore') : t('confirm.archive')}
             </Text>
             <Pressable
               onPress={() => {
@@ -287,14 +292,14 @@ function ExpenseCardWithSplits({
               className={`px-sm py-xs rounded-sm ${isArchived ? 'bg-success/20' : 'bg-danger/20'}`}
             >
               <Text className={`text-body-small font-semibold ${isArchived ? 'text-success' : 'text-danger'}`}>
-                {isArchived ? 'Yes, restore' : 'Yes, archive'}
+                {isArchived ? t('confirm.restoreYes') : t('confirm.archiveYes')}
               </Text>
             </Pressable>
             <Pressable
               onPress={() => setConfirmingArchive(false)}
               className="px-sm py-xs rounded-sm"
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
         ) : (
@@ -305,7 +310,7 @@ function ExpenseCardWithSplits({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="create-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Edit</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </Pressable>
             )}
             {canArchiveOrRestore && (
@@ -319,7 +324,7 @@ function ExpenseCardWithSplits({
                   color={isArchived ? colors.success : colors.danger}
                 />
                 <Text className={`text-body-small font-medium ${isArchived ? 'text-success' : 'text-danger'}`}>
-                  {isArchived ? 'Restore' : 'Archive'}
+                  {isArchived ? t('action.restore') : t('action.archive')}
                 </Text>
               </Pressable>
             )}

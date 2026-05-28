@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +27,8 @@ export function EditTravelDocumentSheet({
   isPending,
   document,
 }: EditTravelDocumentSheetProps) {
+  const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation('common');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpsertTravelDocumentInput>({
     resolver: zodResolver(upsertTravelDocumentSchema),
   });
@@ -72,7 +75,7 @@ export function EditTravelDocumentSheet({
                 Edit {DOCUMENT_LABELS[document.document_type]}
               </Text>
               <Pressable onPress={handleClose} hitSlop={12}>
-                <Text className="text-body text-text-secondary">Cancel</Text>
+                <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 

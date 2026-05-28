@@ -1,5 +1,6 @@
 import { SectionList, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { splitDayActivities } from '@vacationist/utils';
 import { AgendaItem } from './AgendaItem';
@@ -20,6 +21,8 @@ interface AgendaSection {
 }
 
 export function AgendaList({ activities, timezone, selectedDate, onActivityPress, attendeesByActivity }: AgendaListProps) {
+  const { t } = useTranslation('calendar');
+
   if (activities.length === 0) {
     return <EmptyCalendarDay date={selectedDate} timezone={timezone} />;
   }
@@ -28,10 +31,10 @@ export function AgendaList({ activities, timezone, selectedDate, onActivityPress
 
   const sections: AgendaSection[] = [];
   if (timed.length > 0) {
-    sections.push({ title: 'Scheduled', icon: 'time-outline', data: timed });
+    sections.push({ title: t('scheduled'), icon: 'time-outline', data: timed });
   }
   if (allDay.length > 0) {
-    sections.push({ title: 'All day', icon: 'sunny-outline', data: allDay });
+    sections.push({ title: t('allDay'), icon: 'sunny-outline', data: allDay });
   }
 
   return (

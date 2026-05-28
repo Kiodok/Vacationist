@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { upsertTravelDocumentSchema, type UpsertTravelDocumentInput, DOCUMENT_TYPE } from '@vacationist/types';
@@ -24,6 +25,8 @@ export function AddTravelDocumentSheet({
   isPending,
   existingTypes,
 }: AddTravelDocumentSheetProps) {
+  const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation('common');
   const availableTypes = DOCUMENT_TYPE.filter((t) => !existingTypes.includes(t));
   const defaultType = availableTypes[0] ?? 'passport';
 
@@ -56,7 +59,7 @@ export function AddTravelDocumentSheet({
             <View className="flex-row items-center justify-between mb-lg">
               <Text className="text-heading-m text-text-primary font-semibold">Add Document</Text>
               <Pressable onPress={handleClose} hitSlop={12}>
-                <Text className="text-body text-text-secondary">Cancel</Text>
+                <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 

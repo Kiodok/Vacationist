@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { formatActivityTime } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
@@ -14,7 +15,8 @@ interface AgendaItemProps {
 }
 
 export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
-  const timeLabel = formatActivityTime(activity.start_time, activity.end_time);
+  const { t } = useTranslation('calendar');
+  const timeLabel = formatActivityTime(activity.start_time, activity.end_time, t('allDay'));
   const [showAttendees, setShowAttendees] = useState(false);
 
   return (
@@ -54,7 +56,7 @@ export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
           >
             <Ionicons name="people" size={14} color={colors.primary} />
             <Text className="text-primary text-body-small font-medium">
-              {attendees.length} {attendees.length === 1 ? 'attendee' : 'attendees'}
+              {t('attendeeCount', { count: attendees.length })}
             </Text>
             <Ionicons
               name={showAttendees ? 'chevron-up' : 'chevron-down'}

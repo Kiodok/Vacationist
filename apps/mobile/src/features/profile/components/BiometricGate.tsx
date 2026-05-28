@@ -1,6 +1,7 @@
 import { Platform, View, Text, Pressable, Alert } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@vacationist/ui';
 
 interface BiometricGateProps {
@@ -10,6 +11,7 @@ interface BiometricGateProps {
 }
 
 export function BiometricGate({ children, unlocked, onUnlocked }: BiometricGateProps) {
+  const { t } = useTranslation('profile');
   async function handleUnlock() {
     // expo-local-authentication is not available on web — bypass the gate directly.
     if (Platform.OS === 'web') {
@@ -18,9 +20,9 @@ export function BiometricGate({ children, unlocked, onUnlocked }: BiometricGateP
     }
 
     const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Verify your identity to view documents',
+      promptMessage: t('biometric.prompt'),
       disableDeviceFallback: false,
-      cancelLabel: 'Cancel',
+      cancelLabel: t('biometric.cancel'),
     });
 
     if (result.success) {
@@ -32,8 +34,8 @@ export function BiometricGate({ children, unlocked, onUnlocked }: BiometricGateP
     // since there is no credential to check against.
     if (result.error === 'not_enrolled' || result.error === 'not_available') {
       Alert.alert(
-        'No device lock set',
-        'Your device has no PIN, password, or biometrics configured. Set up a device lock in Settings for better security.',
+        t('biometric.noLockAlert.title'),
+        t('biometric.noLockAlert.body'),
         [{ text: 'OK', onPress: onUnlocked }]
       );
     }
@@ -50,16 +52,16 @@ export function BiometricGate({ children, unlocked, onUnlocked }: BiometricGateP
         <Ionicons name="lock-closed-outline" size={24} color={colors.primary} />
       </View>
       <View className="items-center gap-xs">
-        <Text className="text-body text-text-primary font-semibold">Documents locked</Text>
+        <Text className="text-body text-text-primary font-semibold">{t('biometric.locked')}</Text>
         <Text className="text-body-small text-text-secondary text-center">
-          Verify your identity to view travel document details
+          {t('biometric.subtitle')}
         </Text>
       </View>
       <Pressable
         onPress={handleUnlock}
         className="min-h-[44px] px-lg rounded-sm bg-primary items-center justify-center"
       >
-        <Text className="text-body text-white font-semibold">Verify Identity</Text>
+        <Text className="text-body text-white font-semibold">{t('biometric.verify')}</Text>
       </Pressable>
     </View>
   );

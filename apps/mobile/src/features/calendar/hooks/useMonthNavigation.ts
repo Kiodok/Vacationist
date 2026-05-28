@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { dayjs, generateMonthGrid, getActiveMonths } from '@vacationist/utils';
 import type { MonthGridData, CalendarView } from '@vacationist/types';
 
@@ -6,6 +7,7 @@ export function useMonthNavigation(
   activityCountByDate: Record<string, number>,
   tripDateSet?: Set<string>,
 ) {
+  const { i18n } = useTranslation();
   const today = dayjs();
   const [year, setYear] = useState(today.year());
   const [month, setMonth] = useState(today.month());
@@ -81,7 +83,9 @@ export function useMonthNavigation(
 
   const monthGrid: MonthGridData = useMemo(
     () => generateMonthGrid(year, month, activityCountByDate, tripDateSet),
-    [year, month, activityCountByDate, tripDateSet],
+    // i18n.language is included so the grid recomputes (and re-formats month names) on language switch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [year, month, activityCountByDate, tripDateSet, i18n.language],
   );
 
   return {

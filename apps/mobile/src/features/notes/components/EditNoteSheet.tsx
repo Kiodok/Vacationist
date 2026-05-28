@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, ActivityIndicator } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +28,8 @@ export function EditNoteSheet({
   isUpdatePending,
   isDeletePending,
 }: EditNoteSheetProps) {
+  const { t } = useTranslation('notes');
+  const { t: tCommon } = useTranslation('common');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTripNoteInput>({
@@ -61,7 +64,7 @@ export function EditNoteSheet({
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">Edit Note</Text>
               <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-                <Text className="text-text-secondary text-body">Cancel</Text>
+                <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 
@@ -145,7 +148,7 @@ export function EditNoteSheet({
                         className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
                         disabled={isDeletePending}
                       >
-                        <Text className="text-body text-text-secondary">Cancel</Text>
+                        <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
                       </Pressable>
                       <Pressable
                         onPress={onDelete}

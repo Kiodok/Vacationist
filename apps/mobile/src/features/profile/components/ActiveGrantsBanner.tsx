@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { ActiveGrant } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
 import dayjs from 'dayjs';
@@ -15,6 +16,7 @@ interface ActiveGrantsBannerProps {
 }
 
 export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrantsBannerProps) {
+  const { t } = useTranslation('profile');
   const [expanded, setExpanded] = useState(false);
 
   if (grants.length === 0) return null;
@@ -28,9 +30,7 @@ export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrant
         <View className="flex-row items-center gap-sm">
           <Ionicons name="eye-outline" size={18} color={colors.primary} />
           <Text className="text-body-small text-primary font-semibold">
-            {grants.length === 1
-              ? '1 active document share'
-              : `${grants.length} active document shares`}
+            {t('activeGrants.title', { count: grants.length })}
           </Text>
         </View>
         <Ionicons
@@ -53,9 +53,9 @@ export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrant
                 <Text className="text-body-small text-text-primary font-medium">
                   {grant.requester_name}
                 </Text>
-                <Text className="text-label text-text-secondary">Trip: {grant.trip_title}</Text>
+                <Text className="text-label text-text-secondary">{t('activeGrants.trip')} {grant.trip_title}</Text>
                 <Text className="text-label text-text-muted">
-                  Expires {dayjs(grant.expires_at).fromNow()}
+                  {t('activeGrants.expires', { time: dayjs(grant.expires_at).fromNow() })}
                 </Text>
               </View>
               <Pressable
@@ -66,7 +66,7 @@ export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrant
                 {isRevoking ? (
                   <ActivityIndicator size="small" color={colors.danger} />
                 ) : (
-                  <Text className="text-body-small text-danger font-medium">Revoke</Text>
+                  <Text className="text-body-small text-danger font-medium">{t('activeGrants.revoke')}</Text>
                 )}
               </Pressable>
             </View>

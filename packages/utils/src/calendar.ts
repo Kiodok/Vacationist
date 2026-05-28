@@ -46,8 +46,12 @@ export function splitDayActivities(activities: Activity[]): { allDay: Activity[]
   return { allDay, timed };
 }
 
-export function formatActivityTime(startTime: string | null, endTime: string | null): string {
-  if (!startTime) return 'All day';
+export function formatActivityTime(
+  startTime: string | null,
+  endTime: string | null,
+  allDayLabel = 'All day',
+): string {
+  if (!startTime) return allDayLabel;
   const start = startTime.slice(0, 5);
   if (!endTime) return start;
   return `${start} – ${endTime.slice(0, 5)}`;

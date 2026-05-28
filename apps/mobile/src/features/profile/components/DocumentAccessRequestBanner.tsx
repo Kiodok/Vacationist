@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { DocumentAccessRequest } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
 import dayjs from 'dayjs';
@@ -21,6 +22,7 @@ export function DocumentAccessRequestBanner({
   onDeny,
   isPending,
 }: DocumentAccessRequestBannerProps) {
+  const { t } = useTranslation('profile');
   const [expanded, setExpanded] = useState(false);
 
   if (requests.length === 0) return null;
@@ -34,9 +36,7 @@ export function DocumentAccessRequestBanner({
         <View className="flex-row items-center gap-sm">
           <Ionicons name="shield-outline" size={18} color={colors.warning} />
           <Text className="text-body-small text-warning font-semibold">
-            {requests.length === 1
-              ? '1 document access request'
-              : `${requests.length} document access requests`}
+            {t('accessRequest.title', { count: requests.length })}
           </Text>
         </View>
         <Ionicons
@@ -61,10 +61,10 @@ export function DocumentAccessRequestBanner({
                     {req.requester_name}
                   </Text>
                   <Text className="text-label text-text-secondary">
-                    Trip: {req.trip_title}
+                    {t('accessRequest.trip')} {req.trip_title}
                   </Text>
                   <Text className="text-label text-text-muted">
-                    Access for {req.duration_minutes} min · {dayjs(req.created_at).fromNow()}
+                    {t('accessRequest.duration', { minutes: req.duration_minutes })} · {dayjs(req.created_at).fromNow()}
                   </Text>
                 </View>
               </View>
@@ -75,7 +75,7 @@ export function DocumentAccessRequestBanner({
                   disabled={isPending}
                   className="flex-1 min-h-[40px] rounded-sm border border-border items-center justify-center"
                 >
-                  <Text className="text-body-small text-text-secondary font-medium">Deny</Text>
+                  <Text className="text-body-small text-text-secondary font-medium">{t('accessRequest.deny')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => onGrant(req.request_id)}
@@ -85,7 +85,7 @@ export function DocumentAccessRequestBanner({
                   {isPending ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
-                    <Text className="text-body-small text-white font-semibold">Grant</Text>
+                    <Text className="text-body-small text-white font-semibold">{t('accessRequest.grant')}</Text>
                   )}
                 </Pressable>
               </View>

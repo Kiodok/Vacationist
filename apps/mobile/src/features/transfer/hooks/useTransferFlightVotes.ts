@@ -6,6 +6,7 @@ import {
   removeTransferFlightVote,
 } from '@vacationist/api';
 import type { TransferFlightVote, CastTransferFlightVoteVariables } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -68,7 +69,7 @@ export function useCastTransferFlightVote() {
       if (context?.previous) {
         queryClient.setQueryData(['transfer-flights', flightId, 'votes'], context.previous);
       }
-      addToast('error', 'Failed to cast vote.');
+      addToast('error', i18n.t('transfer:toast.voteFailed'));
     },
   });
 }
@@ -84,7 +85,7 @@ export function useRemoveTransferFlightVote(tripId: string, flightId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
     },
     onError: () => {
-      addToast('error', 'Failed to remove vote.');
+      addToast('error', i18n.t('transfer:toast.removeVoteFailed'));
     },
   });
 }

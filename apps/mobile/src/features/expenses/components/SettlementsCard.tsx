@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { MemberBalance } from '@vacationist/types';
 import { isNegligible } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
@@ -10,6 +11,7 @@ interface SettlementsCardProps {
 }
 
 export function SettlementsCard({ balances, onPress }: SettlementsCardProps) {
+  const { t } = useTranslation('expenses');
   const debtors = balances.filter((b) => !isNegligible(b.net_balance) && b.net_balance < 0);
   const allSettled = debtors.length === 0;
 
@@ -29,11 +31,11 @@ export function SettlementsCard({ balances, onPress }: SettlementsCardProps) {
             />
           </View>
           <View>
-            <Text className="text-body text-text-primary font-semibold">Balances & Settlements</Text>
+            <Text className="text-body text-text-primary font-semibold">{t('summary.title')}</Text>
             <Text className="text-body-small text-text-secondary">
               {allSettled
-                ? 'All settled up!'
-                : `${debtors.length} unsettled debt${debtors.length === 1 ? '' : 's'}`}
+                ? t('summary.allSettled')
+                : t('summary.unsettled', { count: debtors.length })}
             </Text>
           </View>
         </View>

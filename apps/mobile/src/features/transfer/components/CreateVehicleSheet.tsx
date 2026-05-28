@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +17,8 @@ interface CreateVehicleSheetProps {
 }
 
 export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: CreateVehicleSheetProps) {
+  const { t } = useTranslation('transfer');
+  const { t: tCommon } = useTranslation('common');
   const [directionMode, setDirectionMode] = useState<DirectionMode>('both');
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<Omit<CreateTransferVehicleInput, 'direction'>>({
@@ -50,7 +53,7 @@ export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: Cr
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">New Vehicle</Text>
               <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-                <Text className="text-text-secondary text-body">Cancel</Text>
+                <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 

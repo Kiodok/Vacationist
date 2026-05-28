@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { sendOrganizerNudge } from '@vacationist/api';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useSendNudge(tripId: string) {
@@ -9,11 +10,11 @@ export function useSendNudge(tripId: string) {
     mutationFn: ({ title, body }: { title: string; body: string }) =>
       sendOrganizerNudge(tripId, title, body),
     onSuccess: () => {
-      addToast('success', 'Nudge sent!');
+      addToast('success', i18n.t('notifications:toast.nudgeSent'));
     },
     onError: (error: Error) => {
       const isRateLimit = error.message?.includes('Rate limit');
-      addToast('error', isRateLimit ? 'Too many nudges — max 3 per hour.' : 'Failed to send nudge.');
+      addToast('error', isRateLimit ? i18n.t('notifications:toast.nudgeRateLimited') : i18n.t('notifications:toast.nudgeFailed'));
     },
   });
 }

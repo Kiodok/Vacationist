@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, ActivityIndicator, Platform } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import { TripNotFoundError } from '@vacationist/api';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
@@ -27,6 +28,7 @@ import NotesTab from './notes';
 const TABS = ['Overview', 'Prework', 'Base', 'Transfer', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Notes', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
 
+
 function getInitialTab(paramTab?: string): Tab {
   if (TABS.includes(paramTab as Tab)) return paramTab as Tab;
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -37,6 +39,23 @@ function getInitialTab(paramTab?: string): Tab {
 }
 
 export default function TripDetailScreen() {
+  const { t } = useTranslation('trips');
+
+  const getTabLabel = (tabKey: Tab): string => {
+    switch (tabKey) {
+      case 'Overview':    return t('tab.overview');
+      case 'Prework':     return t('tab.prework');
+      case 'Base':        return t('tab.base');
+      case 'Transfer':    return t('tab.transfer');
+      case 'Activities':  return t('tab.activities');
+      case 'Calendar':    return t('tab.calendar');
+      case 'Expenses':    return t('tab.expenses');
+      case 'Shopping':    return t('tab.shopping');
+      case 'Recipes':     return t('tab.recipes');
+      case 'Notes':       return t('tab.notes');
+      case 'Settings':    return t('tab.settings');
+    }
+  };
   const { id, tab } = useLocalSearchParams<{ id: string; tab?: string }>();
   const router = useRouter();
   const { data: trip, isLoading, isError, error } = useTrip(id!);
@@ -67,16 +86,14 @@ export default function TripDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-md gap-md">
         <Text className="text-text-secondary text-body text-center">
-          {isNotMember
-            ? "This trip doesn't exist or you don't have access to it."
-            : 'Failed to load trip.'}
+          {isNotMember ? t('error.notFound') : t('error.loadFailed')}
         </Text>
         <Pressable
           onPress={() => isNotMember ? router.replace('/(tabs)') : router.back()}
           className="px-lg py-sm rounded-md bg-surface border border-border"
         >
           <Text className="text-text-primary text-body">
-            {isNotMember ? 'Go to home' : 'Go back'}
+            {isNotMember ? t('error.goHome') : t('error.goBack')}
           </Text>
         </Pressable>
       </SafeAreaView>
@@ -136,20 +153,20 @@ export default function TripDetailScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerClassName="gap-xs"
         >
-          {TABS.map((t) => (
+          {TABS.map((tabKey) => (
             <Pressable
-              key={t}
-              onPress={() => handleTabChange(t)}
+              key={tabKey}
+              onPress={() => handleTabChange(tabKey)}
               className={`px-md py-sm rounded-full ${
-                activeTab === t ? 'bg-primary' : 'bg-surface'
+                activeTab === tabKey ? 'bg-primary' : 'bg-surface'
               }`}
             >
               <Text
                 className={`text-body-small font-semibold ${
-                  activeTab === t ? 'text-white' : 'text-text-secondary'
+                  activeTab === tabKey ? 'text-white' : 'text-text-secondary'
                 }`}
               >
-                {t}
+                {getTabLabel(tabKey)}
               </Text>
             </Pressable>
           ))}

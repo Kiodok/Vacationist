@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { VOTE_TYPE, type VoteType } from '@vacationist/types';
 import { VoteChip } from './VoteChip';
 
@@ -31,6 +32,7 @@ export function VoteSheet({
   isPending,
   memberMap,
 }: VoteSheetProps) {
+  const { t } = useTranslation('activities');
   const myVote = votes.find((v) => v.user_id === currentUserId);
 
   return (
@@ -54,7 +56,7 @@ export function VoteSheet({
           {/* Casting controls — only shown while voting is open */}
           {votingOpen && (
             <>
-              <Text className="text-heading-m text-text-primary mb-md">Cast your vote</Text>
+              <Text className="text-heading-m text-text-primary mb-md">{t('vote.castTitle')}</Text>
               <View className="gap-sm mb-md">
                 {myVote && (
                   <Pressable
@@ -63,7 +65,7 @@ export function VoteSheet({
                     className="mb-xs items-center py-sm"
                     style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   >
-                    <Text className="text-danger text-body-small">Remove my vote</Text>
+                    <Text className="text-danger text-body-small">{t('vote.removeVote')}</Text>
                   </Pressable>
                 )}
 
@@ -95,12 +97,12 @@ export function VoteSheet({
           {votes.length > 0 ? (
             <>
               <Text className="text-heading-m text-text-primary mb-md">
-                {votingOpen ? "Who's voted so far" : 'Vote breakdown'}
+                {votingOpen ? t('vote.whoVoted') : t('vote.breakdown')}
               </Text>
               <VoteBreakdown votes={votes} memberMap={memberMap} />
             </>
           ) : !votingOpen ? (
-            <Text className="text-body text-text-muted text-center py-md">No votes cast</Text>
+            <Text className="text-body text-text-muted text-center py-md">{t('vote.noVotes')}</Text>
           ) : null}
         </View>
       </View>
@@ -117,6 +119,7 @@ function VoteBreakdown({
   votes: VoteRecord[];
   memberMap?: Map<string, string>;
 }) {
+  const { t } = useTranslation('activities');
   if (memberMap && memberMap.size > 0) {
     return (
       <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 280 }}>
@@ -135,7 +138,7 @@ function VoteBreakdown({
           )}
           <View className="border-t border-border pt-sm mt-xs">
             <Text className="text-text-secondary text-body-small text-center">
-              {votes.length} total {votes.length === 1 ? 'vote' : 'votes'}
+              {t('vote.totalCount', { count: votes.length })}
             </Text>
           </View>
         </View>
@@ -162,7 +165,7 @@ function VoteBreakdown({
       })}
       <View className="border-t border-border pt-sm mt-xs">
         <Text className="text-text-secondary text-body-small text-center">
-          {votes.length} total {votes.length === 1 ? 'vote' : 'votes'}
+          {t('vote.totalCount', { count: votes.length })}
         </Text>
       </View>
     </View>

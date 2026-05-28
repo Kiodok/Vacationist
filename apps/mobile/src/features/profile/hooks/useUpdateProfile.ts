@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { updateUserProfile } from '@vacationist/api';
 import type { UpdateProfileInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 
@@ -16,10 +17,10 @@ export function useUpdateProfile() {
     },
     onSuccess: (updatedUser) => {
       setUser(updatedUser);
-      addToast('success', 'Profile updated');
+      addToast('success', i18n.t('profile:toast.updated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update profile.');
+      addToast('error', i18n.t('profile:toast.updateFailed'));
     },
   });
 }

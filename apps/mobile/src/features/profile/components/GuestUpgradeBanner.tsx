@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@vacationist/ui';
 
 interface Props {
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function GuestUpgradeBanner({ onPress }: Props) {
+  const { t } = useTranslation('profile');
   return (
     <Pressable
       onPress={onPress}
@@ -14,8 +16,8 @@ export function GuestUpgradeBanner({ onPress }: Props) {
     >
       <Ionicons name="person-add-outline" size={20} color={colors.primary} />
       <View className="flex-1">
-        <Text className="text-body text-text-primary font-semibold">You're browsing as a guest</Text>
-        <Text className="text-body-small text-text-muted">Save your account to keep your data</Text>
+        <Text className="text-body text-text-primary font-semibold">{t('guest.banner')}</Text>
+        <Text className="text-body-small text-text-muted">{t('guest.bannerSubtitle')}</Text>
       </View>
       <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
     </Pressable>

@@ -3,6 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator, Platform } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, SupportedTimezone, UpdateActivityInput } from '@vacationist/types';
 import { useUpdateActivity } from '../../src/features/activities/hooks/useActivities';
@@ -18,6 +19,7 @@ import { GlobalCalendarTripSection } from '../../src/features/calendar/component
 import { colors } from '@vacationist/ui';
 
 export default function GlobalCalendarScreen() {
+  const { t } = useTranslation('calendar');
   const router = useRouter();
   const { data: trips, isLoading: tripsLoading } = useTrips();
   const { data: globalData, isLoading: activitiesLoading } = useGlobalCalendarActivities();
@@ -146,9 +148,9 @@ export default function GlobalCalendarScreen() {
         <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
           <Ionicons name="calendar-outline" size={36} color={colors.success} />
         </View>
-        <Text className="text-heading-m text-text-primary text-center">No trips yet</Text>
+        <Text className="text-heading-m text-text-primary text-center">{t('noTrips.title')}</Text>
         <Text className="text-body-small text-text-secondary text-center">
-          Create a trip to see your activities on the calendar.
+          {t('noTrips.subtitle')}
         </Text>
       </SafeAreaView>
     );
@@ -181,9 +183,9 @@ export default function GlobalCalendarScreen() {
               <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
                 <Ionicons name="calendar-clear-outline" size={36} color={colors.success} />
               </View>
-              <Text className="text-heading-m text-text-primary text-center">No activities</Text>
+              <Text className="text-heading-m text-text-primary text-center">{t('noActivities.title')}</Text>
               <Text className="text-body-small text-text-secondary text-center">
-                Nothing planned for {dayjs(selectedDate).format('dddd, D MMMM')}
+                {t('noActivities.subtitle', { date: dayjs(selectedDate).format('dddd, D MMMM') })}
               </Text>
             </View>
           ) : (

@@ -1,5 +1,6 @@
 import { View, Text, Pressable, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
@@ -29,6 +30,7 @@ export function ExpenseSplitBreakdown({
   onUnsettle,
   canManage,
 }: ExpenseSplitBreakdownProps) {
+  const { t } = useTranslation('expenses');
   const payer = members.get(expense.paid_by);
 
   return (
@@ -51,7 +53,7 @@ export function ExpenseSplitBreakdown({
 
           <Text className="text-heading-m text-text-primary mb-xs">{expense.title}</Text>
           <Text className="text-body-small text-text-secondary mb-md">
-            {formatCurrency(Number(expense.amount), currency)} paid by {payer?.name ?? 'Unknown'}
+            {t('split.paidBy', { amount: formatCurrency(Number(expense.amount), currency), name: payer?.name ?? 'Unknown' })}
           </Text>
 
           <View className="gap-sm">
@@ -81,7 +83,7 @@ export function ExpenseSplitBreakdown({
                       </Text>
                       <Text className={`text-body-small ${isSettled ? 'text-success' : 'text-text-secondary'}`}>
                         {formatCurrency(Number(split.amount_owed), currency)}
-                        {isSettled ? ' · Settled' : ' · Open'}
+                        {isSettled ? ` · ${t('split.settled')}` : ` · ${t('split.open')}`}
                       </Text>
                     </View>
                   </View>
@@ -93,7 +95,7 @@ export function ExpenseSplitBreakdown({
                       style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                     >
                       <Text className={`text-body-small font-medium ${isSettled ? 'text-text-secondary' : 'text-success'}`}>
-                        {isSettled ? 'Reopen' : 'Settle'}
+                        {isSettled ? t('split.reopen') : t('split.settle')}
                       </Text>
                     </Pressable>
                   )}
@@ -104,7 +106,10 @@ export function ExpenseSplitBreakdown({
 
           <View className="border-t border-border pt-sm mt-md">
             <Text className="text-text-secondary text-body-small text-center">
-              {splits.filter((s) => s.user_id !== expense.paid_by && s.status === 'settled').length} of {splits.filter((s) => s.user_id !== expense.paid_by).length} settled
+              {t('split.settledOf', {
+                settled: splits.filter((s) => s.user_id !== expense.paid_by && s.status === 'settled').length,
+                total: splits.filter((s) => s.user_id !== expense.paid_by).length,
+              })}
             </Text>
           </View>
         </View>

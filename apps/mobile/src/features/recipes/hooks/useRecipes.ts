@@ -7,6 +7,7 @@ import {
   deleteRecipe,
 } from '@vacationist/api';
 import type { CreateRecipeInput, UpdateRecipeInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useRecipes(tripId: string) {
@@ -35,10 +36,10 @@ export function useCreateRecipe(tripId: string) {
     mutationFn: (input: CreateRecipeInput) => createRecipe(tripId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'recipes'] });
-      addToast('success', 'Recipe created');
+      addToast('success', i18n.t('recipes:toast.created'));
     },
     onError: () => {
-      addToast('error', 'Failed to create recipe.');
+      addToast('error', i18n.t('recipes:toast.createFailed'));
     },
   });
 }
@@ -53,10 +54,10 @@ export function useUpdateRecipe(tripId: string) {
     onSuccess: (_data, { recipeId }) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'recipes'] });
       queryClient.invalidateQueries({ queryKey: ['recipes', recipeId] });
-      addToast('success', 'Recipe updated');
+      addToast('success', i18n.t('recipes:toast.updated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update recipe.');
+      addToast('error', i18n.t('recipes:toast.updateFailed'));
     },
   });
 }
@@ -69,10 +70,10 @@ export function useDeleteRecipe(tripId: string) {
     mutationFn: (recipeId: string) => deleteRecipe(recipeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'recipes'] });
-      addToast('success', 'Recipe deleted');
+      addToast('success', i18n.t('recipes:toast.deleted'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to delete recipe.');
+      addToast('error', error.message || i18n.t('recipes:toast.deleteFailed'));
     },
   });
 }

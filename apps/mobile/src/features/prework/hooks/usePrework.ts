@@ -6,6 +6,7 @@ import {
   deletePreworkPreferences,
 } from '@vacationist/api';
 import type { UpsertPreworkPreferencesInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function usePreworkPreferences(tripId: string) {
@@ -36,10 +37,10 @@ export function useUpsertPreworkPreferences(tripId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'prework-preferences'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'my-prework-preferences'] });
-      addToast('success', 'Preferences saved');
+      addToast('success', i18n.t('prework:toast.saved'));
     },
     onError: () => {
-      addToast('error', 'Failed to save preferences');
+      addToast('error', i18n.t('prework:toast.saveFailed'));
     },
   });
 }
@@ -53,10 +54,10 @@ export function useDeletePreworkPreferences(tripId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'prework-preferences'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'my-prework-preferences'] });
-      addToast('success', 'Preferences cleared');
+      addToast('success', i18n.t('prework:toast.cleared'));
     },
     onError: () => {
-      addToast('error', 'Failed to clear preferences');
+      addToast('error', i18n.t('prework:toast.clearFailed'));
     },
   });
 }

@@ -3,6 +3,7 @@ import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator
 import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type {
   TransferFlight, TransferFlightVote, TransferVehicle, TransferRental,
   VoteType, CreateTransferFlightInput, UpdateTransferFlightInput,
@@ -90,28 +91,30 @@ export default function TransferTab() {
   // Compute all votes for winner detection (we get votes per flight inside each card)
   const allFlightIds = useMemo(() => flights.map((f) => f.id), [flights]);
 
+  const { t } = useTranslation('transfer');
+
   // SectionList data
   const flightSections = useMemo(() => {
     const both = flights.filter((f) => f.direction === 'outbound-return');
     const outbound = flights.filter((f) => f.direction === 'outbound');
     const ret = flights.filter((f) => f.direction === 'return');
     const sections: { key: string; title: string; data: TransferFlight[] }[] = [];
-    if (both.length > 0) sections.push({ key: 'outbound-return', title: 'Outbound + Return', data: both });
-    if (outbound.length > 0) sections.push({ key: 'outbound', title: 'Outbound', data: outbound });
-    if (ret.length > 0) sections.push({ key: 'return', title: 'Return', data: ret });
+    if (both.length > 0) sections.push({ key: 'outbound-return', title: t('direction.both'), data: both });
+    if (outbound.length > 0) sections.push({ key: 'outbound', title: t('direction.outbound'), data: outbound });
+    if (ret.length > 0) sections.push({ key: 'return', title: t('direction.return'), data: ret });
     return sections;
-  }, [flights]);
+  }, [flights, t]);
 
   const vehicleSections = useMemo(() => {
     const both = vehicles.filter((v) => v.direction === 'outbound-return');
     const outbound = vehicles.filter((v) => v.direction === 'outbound');
     const ret = vehicles.filter((v) => v.direction === 'return');
     const sections: { key: string; title: string; data: TransferVehicle[] }[] = [];
-    if (both.length > 0) sections.push({ key: 'outbound-return', title: 'Outbound + Return', data: both });
-    if (outbound.length > 0) sections.push({ key: 'outbound', title: 'Outbound', data: outbound });
-    if (ret.length > 0) sections.push({ key: 'return', title: 'Return', data: ret });
+    if (both.length > 0) sections.push({ key: 'outbound-return', title: t('direction.both'), data: both });
+    if (outbound.length > 0) sections.push({ key: 'outbound', title: t('direction.outbound'), data: outbound });
+    if (ret.length > 0) sections.push({ key: 'return', title: t('direction.return'), data: ret });
     return sections;
-  }, [vehicles]);
+  }, [vehicles, t]);
 
   useEffect(() => {
     if (!highlightId) return;
@@ -185,9 +188,9 @@ export default function TransferTab() {
     );
   };
 
-  const renderDirectionHeader = (title: string) => {
-    const isBoth = title === 'Outbound + Return';
-    const isReturn = title === 'Return';
+  const renderDirectionHeader = (title: string, sectionKey: string) => {
+    const isBoth = sectionKey === 'outbound-return';
+    const isReturn = sectionKey === 'return';
     const iconName = isBoth ? 'swap-horizontal-outline' : isReturn ? 'return-up-back-outline' : 'airplane-outline';
     const iconColor = isBoth ? colors.success : isReturn ? colors.warning : colors.primary;
     const textClass = isBoth ? 'text-success' : isReturn ? 'text-warning' : 'text-primary';
@@ -249,8 +252,8 @@ export default function TransferTab() {
             windowSize={5}
             maxToRenderPerBatch={10}
             initialNumToRender={10}
-            contentContainerClassName="px-md pb-md"
-            renderSectionHeader={({ section }) => renderDirectionHeader(section.title)}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+            renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
             renderItem={({ item }) => (
               <View className="mb-sm">
                 <FlightCardWithVotes
@@ -299,8 +302,8 @@ export default function TransferTab() {
             windowSize={5}
             maxToRenderPerBatch={10}
             initialNumToRender={10}
-            contentContainerClassName="px-md pb-md"
-            renderSectionHeader={({ section }) => renderDirectionHeader(section.title)}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+            renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
             renderItem={({ item }) => (
               <View className="mb-sm">
                 <VehicleCardWithPassengers
@@ -466,6 +469,8 @@ function FlightCardWithVotes({
   onReopenVoting: () => void;
   onBook: (input: BookTransferFlightInput) => void;
 }) {
+  const { t } = useTranslation('transfer');
+  const { t: tCommon } = useTranslation("common");
   const { data: votes = [] } = useTransferFlightVotes(flight.id);
   const { data: passengers = [] } = useTransferFlightPassengers(flight.id);
   const castVote = useCastTransferFlightVote();
@@ -526,7 +531,7 @@ function FlightCardWithVotes({
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
       {flight.notes && (
         <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">Notes</Text>
+          <Text className="text-label text-text-muted uppercase">{tCommon('label.notes')}</Text>
           <Text className="text-body-small text-text-secondary">{flight.notes}</Text>
         </View>
       )}
@@ -545,13 +550,13 @@ function FlightCardWithVotes({
 
       {flight.status === 'booked' && passengers.length > 0 && (
         <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">Passengers</Text>
+          <Text className="text-label text-text-muted uppercase">{t('action.passengers')}</Text>
           <View className="flex-row flex-wrap gap-xs">
             {passengers.map((p) => {
               const member = (members ?? []).find((m) => m.user_id === p.user_id);
               return (
                 <View key={p.user_id} className="px-sm py-xs rounded-full bg-surface border border-border">
-                  <Text className="text-body-small text-text-secondary">{member?.user?.name ?? 'Unknown'}</Text>
+                  <Text className="text-body-small text-text-secondary">{member?.user?.name ?? t('label.unknown')}</Text>
                 </View>
               );
             })}
@@ -562,38 +567,38 @@ function FlightCardWithVotes({
       <View className="gap-sm mt-xs">
         {confirmingCloseVoting ? (
           <View className="flex-row items-center gap-sm">
-            <Text className="text-text-secondary text-body-small">Close voting permanently?</Text>
+            <Text className="text-text-secondary text-body-small">{t('confirm.closeVoting')}</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onCloseVoting(); setConfirmingCloseVoting(false); }}
               className="px-sm py-xs rounded-sm bg-warning/20"
             >
-              <Text className="text-warning text-body-small font-semibold">Yes</Text>
+              <Text className="text-warning text-body-small font-semibold">{tCommon('button.yes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setConfirmingCloseVoting(false)}
               className="px-sm py-xs rounded-sm"
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
         ) : confirmingDelete ? (
           <View className="flex-row items-center gap-sm">
-            <Text className="text-text-secondary text-body-small">Remove this flight?</Text>
+            <Text className="text-text-secondary text-body-small">{t('confirm.removeFlight')}</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onDelete(); setConfirmingDelete(false); }}
               className="px-sm py-xs rounded-sm bg-danger/20"
             >
-              <Text className="text-danger text-body-small font-semibold">Yes, remove</Text>
+              <Text className="text-danger text-body-small font-semibold">{t('confirm.removeYes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setConfirmingDelete(false)}
               className="px-sm py-xs rounded-sm"
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -605,7 +610,7 @@ function FlightCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="create-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Edit</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
             {canCloseVoting && votes.length > 0 && (
@@ -615,7 +620,7 @@ function FlightCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               >
                 <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
-                <Text className="text-warning text-body-small font-medium">End voting</Text>
+                <Text className="text-warning text-body-small font-medium">{t('action.endVoting')}</Text>
               </TouchableOpacity>
             )}
             {canReopenVoting && (
@@ -625,7 +630,7 @@ function FlightCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Re-open voting</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.reopenVoting')}</Text>
               </TouchableOpacity>
             )}
             {canBook && (
@@ -635,7 +640,7 @@ function FlightCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
               >
                 <Ionicons name="checkmark-circle-outline" size={14} color={colors.success} />
-                <Text className="text-success text-body-small font-medium">Book</Text>
+                <Text className="text-success text-body-small font-medium">{t('action.book')}</Text>
               </TouchableOpacity>
             )}
             {canManagePassengers && (
@@ -645,7 +650,7 @@ function FlightCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="people-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Passengers</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.passengers')}</Text>
               </TouchableOpacity>
             )}
             {canDelete && (
@@ -655,7 +660,7 @@ function FlightCardWithVotes({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
                 <Ionicons name="trash-outline" size={14} color={colors.danger} />
-                <Text className="text-danger text-body-small font-medium">Remove</Text>
+                <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -732,6 +737,8 @@ function VehicleCardWithPassengers({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation("transfer");
+  const { t: tCommon } = useTranslation("common");
   const { data: passengers = [] } = useTransferVehiclePassengers(vehicle.id);
   const addPassenger = useAddTransferVehiclePassenger(tripId, vehicle.id);
   const removePassenger = useRemoveTransferVehiclePassenger(tripId, vehicle.id);
@@ -766,7 +773,7 @@ function VehicleCardWithPassengers({
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
       {vehicle.notes && (
         <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">Notes</Text>
+          <Text className="text-label text-text-muted uppercase">{tCommon('label.notes')}</Text>
           <Text className="text-body-small text-text-secondary">{vehicle.notes}</Text>
         </View>
       )}
@@ -774,20 +781,20 @@ function VehicleCardWithPassengers({
       <View className="gap-sm mt-xs">
         {confirmingDelete ? (
           <View className="flex-row items-center gap-sm">
-            <Text className="text-text-secondary text-body-small">Remove this vehicle?</Text>
+            <Text className="text-text-secondary text-body-small">{t('confirm.removeVehicle')}</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onDelete(); setConfirmingDelete(false); }}
               className="px-sm py-xs rounded-sm bg-danger/20"
             >
-              <Text className="text-danger text-body-small font-semibold">Yes, remove</Text>
+              <Text className="text-danger text-body-small font-semibold">{t('confirm.removeYes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setConfirmingDelete(false)}
               className="px-sm py-xs rounded-sm"
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -799,7 +806,7 @@ function VehicleCardWithPassengers({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="create-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Edit</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
             {canManagePassengers && (
@@ -809,7 +816,7 @@ function VehicleCardWithPassengers({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="people-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Passengers</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.passengers')}</Text>
               </TouchableOpacity>
             )}
             {canDelete && (
@@ -819,7 +826,7 @@ function VehicleCardWithPassengers({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
                 <Ionicons name="trash-outline" size={14} color={colors.danger} />
-                <Text className="text-danger text-body-small font-medium">Remove</Text>
+                <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -873,6 +880,8 @@ function RentalCardExpanded({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation("transfer");
+  const { t: tCommon } = useTranslation("common");
   const [showDetail, setShowDetail] = useState(highlight ?? false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -883,7 +892,7 @@ function RentalCardExpanded({
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
       {rental.notes && (
         <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">Notes</Text>
+          <Text className="text-label text-text-muted uppercase">{tCommon('label.notes')}</Text>
           <Text className="text-body-small text-text-secondary">{rental.notes}</Text>
         </View>
       )}
@@ -891,20 +900,20 @@ function RentalCardExpanded({
       <View className="gap-sm mt-xs">
         {confirmingDelete ? (
           <View className="flex-row items-center gap-sm">
-            <Text className="text-text-secondary text-body-small">Remove this rental?</Text>
+            <Text className="text-text-secondary text-body-small">{t('confirm.removeRental')}</Text>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => { onDelete(); setConfirmingDelete(false); }}
               className="px-sm py-xs rounded-sm bg-danger/20"
             >
-              <Text className="text-danger text-body-small font-semibold">Yes, remove</Text>
+              <Text className="text-danger text-body-small font-semibold">{t('confirm.removeYes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => setConfirmingDelete(false)}
               className="px-sm py-xs rounded-sm"
             >
-              <Text className="text-text-secondary text-body-small">Cancel</Text>
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -916,7 +925,7 @@ function RentalCardExpanded({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
                 <Ionicons name="create-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Edit</Text>
+                <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
             {canDelete && (
@@ -926,7 +935,7 @@ function RentalCardExpanded({
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
                 <Ionicons name="trash-outline" size={14} color={colors.danger} />
-                <Text className="text-danger text-body-small font-medium">Remove</Text>
+                <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
               </TouchableOpacity>
             )}
           </View>

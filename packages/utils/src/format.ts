@@ -5,10 +5,16 @@ const CURRENCY_SYMBOLS: Record<Currency, string> = {
   CHF: 'CHF',
 };
 
-export function formatCurrency(amount: number, currency: Currency): string {
-  const symbol = CURRENCY_SYMBOLS[currency];
-  const formatted = amount.toFixed(2);
-  return currency === 'CHF' ? `${symbol} ${formatted}` : `${symbol}${formatted}`;
+export function formatCurrency(amount: number, currency: Currency, locale?: string): string {
+  const resolvedLocale = locale ?? 'en-US';
+  try {
+    return new Intl.NumberFormat(resolvedLocale, { style: 'currency', currency }).format(amount);
+  } catch {
+    // Fallback for environments that don't support Intl
+    const symbol = CURRENCY_SYMBOLS[currency];
+    const formatted = amount.toFixed(2);
+    return currency === 'CHF' ? `${symbol} ${formatted}` : `${symbol}${formatted}`;
+  }
 }
 
 export const BALANCE_THRESHOLD = 0.01;

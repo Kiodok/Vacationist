@@ -1,0 +1,20 @@
+{
+  "empty.title": "No preferences yet",
+  "empty.subtitle": "Add filters to help the organizer find the perfect place to stay.",
+  "my.title": "My Preferences",
+  "my.emptyHint": "Add what matters to you when choosing a base. You have 100 credits to distribute.",
+  "my.placeholder": "e.g. Pool, Near beach, Grill...",
+  "my.fromOthers": "From other members",
+  "my.creditsUsed": "Credits used",
+  "my.exceedsMax": "Total credits exceed 100. Remove credits to save.",
+  "my.zeroCredit": "Every filter needs at least 1 credit.",
+  "my.weightPlaceholder": "0",
+  "toast.saved": "Preferences saved",
+  "toast.cleared": "Preferences cleared",
+  "toast.saveFailed": "Failed to save preferences.",
+  "toast.clearFailed": "Failed to clear preferences.",
+  "group.title": "Group Summary",
+  "group.empty": "No group preferences yet. Waiting for members to add their filters.",
+  "group.memberCount": "{{count}} member",
+  "group.memberCount_other": "{{count}} members"
+}

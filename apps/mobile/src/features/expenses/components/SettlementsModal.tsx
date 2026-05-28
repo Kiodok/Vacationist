@@ -1,5 +1,6 @@
 import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { MemberBalance, User, Currency } from '@vacationist/types';
 import { formatCurrency, isNegligible, computeSettlements } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
@@ -13,6 +14,7 @@ interface SettlementsModalProps {
 }
 
 export function SettlementsModal({ visible, onClose, balances, members, currency }: SettlementsModalProps) {
+  const { t } = useTranslation('expenses');
   const settlements = computeSettlements(balances);
   const allSettled = settlements.length === 0;
 
@@ -25,11 +27,11 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
-          <Text className="text-heading-m text-text-primary mb-md">Balances & Settlements</Text>
+          <Text className="text-heading-m text-text-primary mb-md">{t('modal.title')}</Text>
 
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Per-member balances */}
-            <Text className="text-body text-text-secondary font-semibold mb-sm">Member Balances</Text>
+            <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.memberBalances')}</Text>
             <View className="gap-xs mb-lg">
               {balances.map((b) => {
                 const user = members.get(b.user_id);
@@ -52,7 +54,7 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
                         {isPositive ? '+' : ''}{formatCurrency(b.net_balance, currency)}
                       </Text>
                       <Text className="text-label text-text-muted">
-                        paid {formatCurrency(b.total_paid, currency)} · owes {formatCurrency(b.total_owed, currency)}
+                        {t('modal.balanceLine', { paid: formatCurrency(b.total_paid, currency), owed: formatCurrency(b.total_owed, currency) })}
                       </Text>
                     </View>
                   </View>
@@ -61,12 +63,12 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
             </View>
 
             {/* Simplified settlements */}
-            <Text className="text-body text-text-secondary font-semibold mb-sm">Simplified Settlements</Text>
+            <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.simplifiedSettlements')}</Text>
             {allSettled ? (
               <View className="items-center py-lg gap-sm">
                 <Ionicons name="checkmark-done-circle-outline" size={40} color={colors.success} />
-                <Text className="text-body text-success font-medium">All settled up!</Text>
-                <Text className="text-body-small text-text-muted">No payments needed</Text>
+                <Text className="text-body text-success font-medium">{t('modal.allSettled')}</Text>
+                <Text className="text-body-small text-text-muted">{t('modal.noPayments')}</Text>
               </View>
             ) : (
               <View className="gap-sm">
@@ -91,7 +93,7 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
                   );
                 })}
                 <Text className="text-label text-text-muted text-center mt-xs">
-                  {settlements.length} payment{settlements.length === 1 ? '' : 's'} to settle all debts
+                  {t('modal.paymentsCount', { count: settlements.length })}
                 </Text>
               </View>
             )}

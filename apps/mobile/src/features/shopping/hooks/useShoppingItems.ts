@@ -7,6 +7,7 @@ import {
   softDeleteShoppingItem,
 } from '@vacationist/api';
 import type { ShoppingItem, CreateShoppingItemInput, UpdateShoppingItemInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useShoppingItems(listId: string) {
@@ -45,7 +46,7 @@ export function useCreateShoppingItem(tripId: string, listId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
     },
     onError: () => {
-      addToast('error', 'Failed to add item.');
+      addToast('error', i18n.t('shopping:toast.itemAddFailed'));
     },
   });
 }
@@ -76,7 +77,7 @@ export function useUpdateShoppingItem(tripId: string, listId: string) {
       if (context?.previous) {
         queryClient.setQueryData(['shopping-lists', listId, 'items'], context.previous);
       }
-      addToast('error', 'Failed to update item.');
+      addToast('error', i18n.t('shopping:toast.itemUpdateFailed'));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
@@ -96,7 +97,7 @@ export function useUpdateShoppingItemGlobal(tripId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
     },
     onError: () => {
-      addToast('error', 'Failed to update item.');
+      addToast('error', i18n.t('shopping:toast.itemUpdateFailed'));
     },
   });
 }
@@ -123,11 +124,11 @@ export function useDeleteShoppingItem(tripId: string, listId: string) {
       if (context?.previous) {
         queryClient.setQueryData(['shopping-lists', listId, 'items'], context.previous);
       }
-      addToast('error', 'Failed to delete item.');
+      addToast('error', i18n.t('shopping:toast.itemDeleteFailed'));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', 'Item removed');
+      addToast('success', i18n.t('shopping:toast.itemRemoved'));
     },
   });
 }

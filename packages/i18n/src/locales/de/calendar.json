@@ -1,0 +1,15 @@
+{
+  "noTrips.title": "Noch keine Reisen",
+  "noTrips.subtitle": "Erstelle eine Reise, um deine Aktivitäten im Kalender zu sehen.",
+  "noActivities.title": "Keine Aktivitäten",
+  "noActivities.subtitle": "Nichts geplant für {{date}}",
+  "scheduled": "Geplant",
+  "allDay": "Ganztägig",
+  "attendeeCount": "{{count}} Teilnehmer",
+  "attendeeCount_other": "{{count}} Teilnehmer",
+  "voteCount": "{{count}} Stimme",
+  "voteCount_other": "{{count}} Stimmen",
+  "noVotes": "Noch keine Stimmen",
+  "viewFullDetails": "Vollständige Details anzeigen",
+  "today": "Heute"
+}

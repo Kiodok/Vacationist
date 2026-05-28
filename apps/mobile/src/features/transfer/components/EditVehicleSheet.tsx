@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +14,8 @@ interface EditVehicleSheetProps {
 }
 
 export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicle }: EditVehicleSheetProps) {
+  const { t } = useTranslation('transfer');
+  const { t: tCommon } = useTranslation('common');
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateTransferVehicleInput>({
     resolver: zodResolver(updateTransferVehicleSchema),
   });
@@ -47,7 +50,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">Edit Vehicle</Text>
               <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-                <Text className="text-text-secondary text-body">Cancel</Text>
+                <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 
@@ -127,7 +130,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
                   <Text className="text-white text-body font-semibold">
-                    {isPending ? 'Saving...' : 'Save Changes'}
+                    {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>
               </View>

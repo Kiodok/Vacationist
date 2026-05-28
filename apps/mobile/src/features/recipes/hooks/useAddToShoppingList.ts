@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addRecipeToShoppingList } from '@vacationist/api';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useAddRecipeToShoppingList(tripId: string) {
@@ -22,14 +23,10 @@ export function useAddRecipeToShoppingList(tripId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'recipe-shopping-status'] });
 
-      const parts: string[] = [];
-      if (added > 0) parts.push(`${added} item${added > 1 ? 's' : ''} added`);
-      if (merged > 0) parts.push(`${merged} merged with existing`);
-
-      addToast('success', parts.length > 0 ? parts.join(', ') : 'No items to add');
+      addToast('success', i18n.t('recipes:toast.addedToList'));
     },
     onError: () => {
-      addToast('error', 'Failed to add ingredients to shopping list.');
+      addToast('error', i18n.t('recipes:toast.addToListFailed'));
     },
   });
 }

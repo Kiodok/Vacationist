@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,6 +26,8 @@ export function EditShoppingItemSheet({
   canEdit,
   canDelete,
 }: EditShoppingItemSheetProps) {
+  const { t } = useTranslation('shopping');
+  const { t: tCommon } = useTranslation('common');
   const [quantityText, setQuantityText] = useState(
     item.quantity != null ? String(item.quantity) : '',
   );
@@ -171,7 +174,7 @@ export function EditShoppingItemSheet({
                     style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                   >
                     <Text className="text-white text-body font-semibold">
-                      {isPending ? 'Saving...' : 'Save Changes'}
+                      {isPending ? tCommon('label.saving') : tCommon('button.save')}
                     </Text>
                   </Pressable>
                 )}
@@ -190,7 +193,7 @@ export function EditShoppingItemSheet({
                         onPress={() => setConfirmingDelete(false)}
                         className="px-md py-xs rounded-sm"
                       >
-                        <Text className="text-text-secondary text-body-small">Cancel</Text>
+                        <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
                       </Pressable>
                     </View>
                   ) : (

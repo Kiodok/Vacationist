@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getActivityVotes, getActivityVotesBatch, castActivityVote, removeActivityVote } from '@vacationist/api';
 import type { ActivityVote, CastActivityVoteVariables } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -53,7 +54,7 @@ export function useCastVote() {
       if (context?.previous) {
         queryClient.setQueryData(['activities', activityId, 'votes'], context.previous);
       }
-      addToast('error', 'Failed to cast vote.');
+      addToast('error', i18n.t('activities:toast.voteFailed'));
     },
   });
 }
@@ -69,7 +70,7 @@ export function useRemoveVote(tripId: string, activityId: string) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
     },
     onError: () => {
-      addToast('error', 'Failed to remove vote.');
+      addToast('error', i18n.t('activities:toast.removeVoteFailed'));
     },
   });
 }

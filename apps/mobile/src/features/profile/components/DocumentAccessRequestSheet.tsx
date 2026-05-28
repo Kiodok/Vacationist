@@ -1,12 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-const DURATION_OPTIONS = [
-  { value: 15, label: '15 min' },
-  { value: 30, label: '30 min' },
-  { value: 60, label: '1 hour' },
-] as const;
+import { useTranslation } from 'react-i18next';
 
 interface DocumentAccessRequestSheetProps {
   visible: boolean;
@@ -21,7 +16,15 @@ export function DocumentAccessRequestSheet({
   onSubmit,
   isPending,
 }: DocumentAccessRequestSheetProps) {
+  const { t } = useTranslation('profile');
+  const { t: tCommon } = useTranslation("common");
   const [selected, setSelected] = useState<number>(30);
+
+  const DURATION_OPTIONS = [
+    { value: 15, label: t('accessRequest.duration.15min') },
+    { value: 30, label: t('accessRequest.duration.30min') },
+    { value: 60, label: t('accessRequest.duration.1hour') },
+  ] as const;
 
   const handleSubmit = () => {
     onSubmit(selected);
@@ -37,25 +40,23 @@ export function DocumentAccessRequestSheet({
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary font-semibold">Request Documents</Text>
+            <Text className="text-heading-m text-text-primary font-semibold">{t('accessRequest.sheetTitle')}</Text>
             <Pressable onPress={onClose} hitSlop={12}>
-              <Text className="text-body text-text-secondary">Cancel</Text>
+              <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
 
           <View className="bg-surface border border-border rounded-md p-md mb-lg gap-xs">
             <View className="flex-row items-center gap-xs">
               <Ionicons name="information-circle-outline" size={16} color="#A0A0A0" />
-              <Text className="text-body-small text-text-secondary font-medium">How it works</Text>
+              <Text className="text-body-small text-text-secondary font-medium">{t('accessRequest.howItWorks')}</Text>
             </View>
             <Text className="text-body-small text-text-muted">
-              Each member will receive a request to share their travel documents. They can choose
-              to grant or deny. You will only see documents from members who grant access, and only
-              within the time window you choose.
+              {t('accessRequest.howItWorksBody')}
             </Text>
           </View>
 
-          <Text className="text-label text-text-muted uppercase mb-sm">Access Duration</Text>
+          <Text className="text-label text-text-muted uppercase mb-sm">{t('accessRequest.duration.label')}</Text>
           <View className="flex-row gap-sm mb-lg">
             {DURATION_OPTIONS.map(({ value, label }) => (
               <Pressable
@@ -88,7 +89,7 @@ export function DocumentAccessRequestSheet({
             {isPending ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text className="text-body text-white font-semibold">Send Request</Text>
+              <Text className="text-body text-white font-semibold">{t('accessRequest.send')}</Text>
             )}
           </Pressable>
         </View>

@@ -10,6 +10,7 @@ import {
   bookTransferFlight,
 } from '@vacationist/api';
 import type { CreateTransferFlightInput, UpdateTransferFlightInput, BookTransferFlightInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useTransferFlights(tripId: string) {
@@ -38,10 +39,10 @@ export function useCreateTransferFlight(tripId: string) {
     mutationFn: (input: CreateTransferFlightInput) => createTransferFlight(tripId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
-      addToast('success', 'Flight added');
+      addToast('success', i18n.t('transfer:toast.flightAdded'));
     },
     onError: () => {
-      addToast('error', 'Failed to add flight.');
+      addToast('error', i18n.t('transfer:toast.flightAddFailed'));
     },
   });
 }
@@ -56,10 +57,10 @@ export function useUpdateTransferFlight(tripId: string) {
     onSuccess: (_data, { flightId }) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
       queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId] });
-      addToast('success', 'Flight updated');
+      addToast('success', i18n.t('transfer:toast.flightUpdated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update flight.');
+      addToast('error', i18n.t('transfer:toast.flightUpdateFailed'));
     },
   });
 }
@@ -72,10 +73,10 @@ export function useDeleteTransferFlight(tripId: string) {
     mutationFn: (flightId: string) => softDeleteTransferFlight(flightId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
-      addToast('success', 'Flight removed');
+      addToast('success', i18n.t('transfer:toast.flightRemoved'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to remove flight.');
+      addToast('error', error.message || i18n.t('transfer:toast.flightRemoveFailed'));
     },
   });
 }
@@ -89,10 +90,10 @@ export function useCloseTransferFlightVoting(tripId: string) {
     onSuccess: (_data, flightId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
       queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
-      addToast('success', 'Voting closed');
+      addToast('success', i18n.t('transfer:toast.votingClosed'));
     },
     onError: () => {
-      addToast('error', 'Failed to close voting.');
+      addToast('error', i18n.t('transfer:toast.closeVotingFailed'));
     },
   });
 }
@@ -106,10 +107,10 @@ export function useReopenTransferFlightVoting(tripId: string) {
     onSuccess: (_data, flightId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
       queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
-      addToast('success', 'Voting re-opened');
+      addToast('success', i18n.t('transfer:toast.votingReopened'));
     },
     onError: () => {
-      addToast('error', 'Failed to re-open voting.');
+      addToast('error', i18n.t('transfer:toast.reopenVotingFailed'));
     },
   });
 }
@@ -123,10 +124,10 @@ export function useBookTransferFlight(tripId: string) {
       bookTransferFlight(flightId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
-      addToast('success', 'Flight booked');
+      addToast('success', i18n.t('transfer:toast.flightBooked'));
     },
     onError: () => {
-      addToast('error', 'Failed to book flight.');
+      addToast('error', i18n.t('transfer:toast.flightBookFailed'));
     },
   });
 }

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +14,8 @@ interface EditShoppingListSheetProps {
 }
 
 export function EditShoppingListSheet({ visible, onClose, onSubmit, isPending, currentTitle }: EditShoppingListSheetProps) {
+  const { t } = useTranslation('shopping');
+  const { t: tCommon } = useTranslation('common');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateShoppingListInput>({
     resolver: zodResolver(updateShoppingListSchema),
     defaultValues: { title: currentTitle },
@@ -50,7 +53,7 @@ export function EditShoppingListSheet({ visible, onClose, onSubmit, isPending, c
           <View className="flex-row items-center justify-between mb-md">
             <Text className="text-heading-m text-text-primary">Rename List</Text>
             <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">Cancel</Text>
+              <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
 
@@ -85,7 +88,7 @@ export function EditShoppingListSheet({ visible, onClose, onSubmit, isPending, c
               style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
             >
               <Text className="text-white text-body font-semibold">
-                {isPending ? 'Saving...' : 'Save'}
+                {isPending ? tCommon('label.saving') : tCommon('button.save')}
               </Text>
             </Pressable>
           </View>

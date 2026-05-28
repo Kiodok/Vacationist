@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateAccommodationSchema, type UpdateAccommodationInput, type Accommodation } from '@vacationist/types';
@@ -14,6 +15,8 @@ interface EditAccommodationSheetProps {
 }
 
 export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, accommodation, currency }: EditAccommodationSheetProps) {
+  const { t } = useTranslation('accommodations');
+  const { t: tCommon } = useTranslation('common');
   const [priceText, setPriceText] = useState('');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateAccommodationInput>({
     resolver: zodResolver(updateAccommodationSchema),
@@ -56,7 +59,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
           <View className="flex-row items-center justify-between mb-md">
             <Text className="text-heading-m text-text-primary">Edit Accommodation</Text>
             <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">Cancel</Text>
+              <Text className="text-text-secondary text-body">{tCommon("button.cancel")}</Text>
             </Pressable>
           </View>
 
@@ -189,7 +192,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold">
-                  {isPending ? 'Saving...' : 'Save Changes'}
+                  {isPending ? tCommon('label.saving') : tCommon('button.save')}
                 </Text>
               </Pressable>
             </View>

@@ -1,0 +1,14 @@
+{
+  "endDateAfterStart": "Enddatum muss auf oder nach dem Startdatum liegen",
+  "dateWithinTrip": "Datum muss innerhalb der Reisedaten liegen ({{startDate}} – {{endDate}})",
+  "urlHttps": "URL muss mit https:// beginnen",
+  "totalCredits": "Gesamte Credits dürfen 100 nicht überschreiten",
+  "filterMinCredit": "Jeder Filter benötigt mindestens 1 Credit",
+  "arrivalAfterDeparture": "Ankunft kann nicht vor der Abfahrt liegen",
+  "returnDepartureAfterOutbound": "Rückabflug kann nicht vor der Hinflug-Ankunft liegen",
+  "returnArrivalAfterDeparture": "Rückankunft kann nicht vor dem Rückabflug liegen",
+  "accessDuration": "Dauer muss 15, 30 oder 60 Minuten sein",
+  "required": "Erforderlich",
+  "nameRequired": "Name ist erforderlich",
+  "titleRequired": "Titel ist erforderlich"
+}

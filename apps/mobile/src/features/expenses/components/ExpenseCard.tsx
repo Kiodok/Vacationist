@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
@@ -15,6 +16,7 @@ interface ExpenseCardProps {
 }
 
 export function ExpenseCard({ expense, splits, members, currentUserId, currency, onPress, detail }: ExpenseCardProps) {
+  const { t } = useTranslation('expenses');
   const payer = members.get(expense.paid_by);
   const owerSplits = splits.filter((s) => s.user_id !== expense.paid_by);
   const settledCount = owerSplits.filter((s) => s.status === 'settled').length;
@@ -38,7 +40,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
             <View className="flex-row items-center gap-xs">
               <Ionicons name="person-outline" size={13} color="#A0A0A0" />
               <Text className="text-body-small text-text-secondary">
-                Paid by {payer?.name ?? 'Unknown'}
+                {t('card.paidBy', { name: payer?.name ?? 'Unknown' })}
               </Text>
             </View>
           </View>
@@ -54,7 +56,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
           <View className="flex-row items-center gap-xs px-sm py-xs rounded-sm bg-warning/10 self-start">
             <Ionicons name="alert-circle-outline" size={14} color={colors.warning} />
             <Text className="text-warning text-body-small font-medium">
-              You owe {formatCurrency(Number(mySplit.amount_owed), currency)}
+              {t('card.youOwe', { amount: formatCurrency(Number(mySplit.amount_owed), currency) })}
             </Text>
           </View>
         )}
@@ -84,12 +86,13 @@ function getRelatedIcon(relatedType: string): keyof typeof Ionicons.glyphMap {
 }
 
 function SettlementBadge({ allSettled, settledCount, totalCount }: { allSettled: boolean; settledCount: number; totalCount: number }) {
+  const { t } = useTranslation('expenses');
   if (totalCount === 0) return null;
 
   if (allSettled) {
     return (
       <View className="px-sm py-xs rounded-full bg-success/10">
-        <Text className="text-success text-label font-medium">Settled</Text>
+        <Text className="text-success text-label font-medium">{t('card.settled')}</Text>
       </View>
     );
   }

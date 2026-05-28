@@ -2,6 +2,7 @@ import { View, Text, Pressable, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import type { Notification } from '@vacationist/types';
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from '../../src/features/notifications/hooks/useNotifications';
 import { NotificationItem } from '../../src/features/notifications/components/NotificationItem';
@@ -11,6 +12,7 @@ import { resolveNotificationPath } from '../../src/features/notifications/utils/
 import { colors } from '@vacationist/ui';
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation('notifications');
   const router = useRouter();
   const { data: notifications = [], isLoading, refetch, isRefetching } = useNotifications();
   const { mutate: markRead } = useMarkNotificationRead();
@@ -27,11 +29,11 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="flex-row items-center justify-between px-lg py-md">
-        <Text className="text-heading-l text-text-primary">Notifications</Text>
+        <Text className="text-heading-l text-text-primary">{t('screen.title')}</Text>
         {notifications.some((n) => !n.is_read) && (
           <Pressable onPress={() => markAllRead()} disabled={isMarkingAll} hitSlop={8}>
             <Text className="text-body-small text-primary">
-              {isMarkingAll ? 'Marking...' : 'Mark all read'}
+              {isMarkingAll ? t('marking') : t('markAllRead')}
             </Text>
           </Pressable>
         )}

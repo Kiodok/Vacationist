@@ -6,6 +6,7 @@ import {
   getMyActiveGrants,
   revokeDocumentAccess,
 } from '@vacationist/api';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function usePendingAccessRequests() {
@@ -29,10 +30,10 @@ export function useCreateDocumentAccessRequest() {
       durationMinutes: number;
     }) => createDocumentAccessRequest(tripId, durationMinutes),
     onSuccess: () => {
-      addToast('success', 'Document access requested');
+      addToast('success', i18n.t('profile:toast.accessRequested'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to create access request.');
+      addToast('error', error.message || i18n.t('profile:toast.accessRequestFailed'));
     },
   });
 }
@@ -52,10 +53,10 @@ export function useRespondToAccessRequest() {
     onSuccess: (_data, { granted }) => {
       queryClient.invalidateQueries({ queryKey: ['pendingAccessRequests'] });
       if (granted) queryClient.invalidateQueries({ queryKey: ['activeGrants'] });
-      addToast('success', granted ? 'Access granted' : 'Access denied');
+      addToast('success', granted ? i18n.t('profile:toast.accessGranted') : i18n.t('profile:toast.accessDenied'));
     },
     onError: () => {
-      addToast('error', 'Failed to respond to request.');
+      addToast('error', i18n.t('profile:toast.accessRespondFailed'));
     },
   });
 }
@@ -76,10 +77,10 @@ export function useRevokeDocumentAccess() {
     mutationFn: (requestId: string) => revokeDocumentAccess(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activeGrants'] });
-      addToast('success', 'Access revoked');
+      addToast('success', i18n.t('profile:toast.accessRevoked'));
     },
     onError: () => {
-      addToast('error', 'Failed to revoke access');
+      addToast('error', i18n.t('profile:toast.accessRevokeFailed'));
     },
   });
 }

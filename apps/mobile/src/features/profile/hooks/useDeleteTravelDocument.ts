@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteTravelDocument } from '@vacationist/api';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useDeleteTravelDocument() {
@@ -10,10 +11,10 @@ export function useDeleteTravelDocument() {
     mutationFn: (documentId: string) => deleteTravelDocument(documentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['travelDocuments'] });
-      addToast('success', 'Document deleted');
+      addToast('success', i18n.t('profile:toast.docDeleted'));
     },
     onError: () => {
-      addToast('error', 'Failed to delete document.');
+      addToast('error', i18n.t('profile:toast.docDeleteFailed'));
     },
   });
 }

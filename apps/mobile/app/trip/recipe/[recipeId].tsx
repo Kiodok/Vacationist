@@ -4,6 +4,7 @@ import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { RecipeIngredient, UpdateRecipeIngredientInput } from '@vacationist/types';
 import { useRecipe, useUpdateRecipe, useDeleteRecipe } from '../../../src/features/recipes/hooks/useRecipes';
 import { useAddIngredient, useUpdateIngredient, useDeleteIngredient } from '../../../src/features/recipes/hooks/useRecipeIngredients';
@@ -19,6 +20,8 @@ import { AddToShoppingListSheet } from '../../../src/features/recipes/components
 import { colors } from '@vacationist/ui';
 
 export default function RecipeDetail() {
+  const { t } = useTranslation('recipes');
+  const { t: tCommon } = useTranslation("common");
   const { recipeId, tripId } = useLocalSearchParams<{ recipeId: string; tripId: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
@@ -138,7 +141,7 @@ export default function RecipeDetail() {
       {/* Delete confirmation */}
       {confirmDelete && (
         <View className="flex-row items-center justify-center gap-sm px-md py-sm bg-surface border-b border-border">
-          <Text className="text-text-secondary text-body-small">Delete this recipe?</Text>
+          <Text className="text-text-secondary text-body-small">{t('confirm.delete')}</Text>
           <Pressable
             onPress={() => {
               deleteRecipeMut.mutate(recipeId!, { onSuccess: goBackToTrip });
@@ -146,10 +149,10 @@ export default function RecipeDetail() {
             }}
             className="px-md py-xs rounded-sm bg-danger/20"
           >
-            <Text className="text-danger text-body-small font-semibold">Yes, delete</Text>
+            <Text className="text-danger text-body-small font-semibold">{t('confirm.deleteYes')}</Text>
           </Pressable>
           <Pressable onPress={() => setConfirmDelete(false)} className="px-md py-xs rounded-sm">
-            <Text className="text-text-secondary text-body-small">Cancel</Text>
+            <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
           </Pressable>
         </View>
       )}
@@ -176,7 +179,7 @@ export default function RecipeDetail() {
         keyboardVerticalOffset={Platform.OS === 'android' ? 80 : 0}
       >
         <View className="px-md pt-sm pb-xs">
-          <Text className="text-label text-text-muted uppercase">Ingredients</Text>
+          <Text className="text-label text-text-muted uppercase">{t('field.ingredientName')}</Text>
         </View>
 
         <FlashList
@@ -187,7 +190,7 @@ export default function RecipeDetail() {
             <View className="flex-1 items-center justify-center px-xl gap-sm">
               <Ionicons name="nutrition-outline" size={40} color="#5C5C5C" />
               <Text className="text-body text-text-secondary text-center">
-                No ingredients yet. Add some below.
+                {t('noItemsToAdd')}
               </Text>
             </View>
           }
@@ -258,6 +261,8 @@ function EditIngredientInline({
   onCancel: () => void;
   isPending: boolean;
 }) {
+  const { t } = useTranslation("recipes");
+  const { t: tCommon } = useTranslation("common");
   const [title, setTitle] = useState(ingredient.title);
   const [quantity, setQuantity] = useState(ingredient.quantity?.toString() ?? '');
   const [unit, setUnit] = useState(ingredient.unit ?? '');
@@ -274,14 +279,14 @@ function EditIngredientInline({
   return (
     <View className="px-md py-sm bg-surface border-b border-border gap-sm">
       <View className="flex-row items-center justify-between">
-        <Text className="text-body-small text-text-secondary">Editing ingredient</Text>
+        <Text className="text-body-small text-text-secondary">{t('field.ingredientName')}</Text>
         <View className="flex-row gap-sm">
           <Pressable onPress={onCancel}>
-            <Text className="text-text-secondary text-body-small">Cancel</Text>
+            <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
           </Pressable>
           <Pressable onPress={handleSave} disabled={isPending}>
             <Text className="text-primary text-body-small font-semibold">
-              {isPending ? 'Saving...' : 'Save'}
+              {isPending ? tCommon('label.saving') : tCommon('button.save')}
             </Text>
           </Pressable>
         </View>
@@ -291,7 +296,7 @@ function EditIngredientInline({
           className="flex-1 bg-surface-elevated border border-border rounded-sm px-md py-xs text-text-primary text-body-small"
           value={title}
           onChangeText={setTitle}
-          placeholder="Name"
+          placeholder={t('field.ingredientName')}
           placeholderTextColor="#5C5C5C"
           maxLength={100}
           autoFocus
@@ -300,7 +305,7 @@ function EditIngredientInline({
           className="w-[70px] bg-surface-elevated border border-border rounded-sm px-sm py-xs text-text-primary text-body-small"
           value={quantity}
           onChangeText={setQuantity}
-          placeholder="Qty"
+          placeholder={t('field.quantity')}
           placeholderTextColor="#5C5C5C"
           keyboardType="decimal-pad"
         />
@@ -308,7 +313,7 @@ function EditIngredientInline({
           className="w-[70px] bg-surface-elevated border border-border rounded-sm px-sm py-xs text-text-primary text-body-small"
           value={unit}
           onChangeText={setUnit}
-          placeholder="Unit"
+          placeholder={t('field.unit')}
           placeholderTextColor="#5C5C5C"
           maxLength={50}
         />

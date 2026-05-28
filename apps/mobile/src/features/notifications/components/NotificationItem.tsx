@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Notification, NotificationType } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
@@ -24,6 +25,9 @@ interface NotificationItemProps {
 }
 
 export function NotificationItem({ notification, onPress }: NotificationItemProps) {
+  const { t } = useTranslation('notifications');
+  const typeKey = `type.${notification.type}` as const;
+
   return (
     <Pressable
       onPress={() => onPress(notification)}
@@ -42,7 +46,7 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
           className={`text-body-default ${notification.is_read ? 'text-text-secondary' : 'text-text-primary font-semibold'}`}
           numberOfLines={2}
         >
-          {notification.title}
+          {t(typeKey, { defaultValue: notification.title })}
         </Text>
         {notification.body ? (
           <Text className="text-body-small text-text-secondary" numberOfLines={2}>

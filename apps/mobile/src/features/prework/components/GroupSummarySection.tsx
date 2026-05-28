@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { AggregatedFilter } from '../utils/aggregateFilters';
 
 interface MemberNameMap {
@@ -14,15 +15,14 @@ interface GroupSummarySectionProps {
 }
 
 export function GroupSummarySection({ aggregated, totalMembers, memberNames }: GroupSummarySectionProps) {
+  const { t } = useTranslation('prework');
   const [expandedLabel, setExpandedLabel] = useState<string | null>(null);
 
   if (aggregated.length === 0) {
     return (
       <View className="gap-md">
-        <Text className="text-heading-m text-text-primary">Group Summary</Text>
-        <Text className="text-body-small text-text-secondary">
-          No group preferences yet. Waiting for members to add their filters.
-        </Text>
+        <Text className="text-heading-m text-text-primary">{t('group.title')}</Text>
+        <Text className="text-body-small text-text-secondary">{t('group.empty')}</Text>
       </View>
     );
   }
@@ -32,9 +32,9 @@ export function GroupSummarySection({ aggregated, totalMembers, memberNames }: G
   return (
     <View className="gap-md">
       <View className="flex-row items-center justify-between">
-        <Text className="text-heading-m text-text-primary">Group Summary</Text>
+        <Text className="text-heading-m text-text-primary">{t('group.title')}</Text>
         <Text className="text-body-small text-text-secondary">
-          {totalMembers} member{totalMembers !== 1 ? 's' : ''}
+          {t('group.memberCount', { count: totalMembers })}
         </Text>
       </View>
 

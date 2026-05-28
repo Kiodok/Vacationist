@@ -3,12 +3,14 @@ import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Button, Input, colors } from '@vacationist/ui';
 import { signInAnonymously, redeemInviteToken } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useAuthStore } from '../../src/stores/authStore';
 
 export default function JoinScreen() {
+  const { t } = useTranslation('auth');
   const { token } = useLocalSearchParams<{ token: string }>();
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
@@ -22,12 +24,12 @@ export default function JoinScreen() {
     const trimmed = name.trim();
 
     if (!trimmed) {
-      setNameError('Please enter your name');
+      setNameError(t('join.nameRequired'));
       return;
     }
 
     if (trimmed.length > 100) {
-      setNameError('Name is too long');
+      setNameError(t('join.nameTooLong'));
       return;
     }
 
@@ -41,14 +43,14 @@ export default function JoinScreen() {
           router.replace({ pathname: '/trip/[id]', params: { id: tripId } } as never);
           return;
         } catch (err) {
-          const message = err instanceof Error ? err.message : 'Invalid invite link';
+          const message = err instanceof Error ? err.message : t('invite.invalid');
           addToast('error', message);
           setLoading(false);
           return;
         }
       }
     } catch {
-      addToast('error', 'Failed to join. Please try again.');
+      addToast('error', t('join.failed'));
       setLoading(false);
     }
   }
@@ -71,18 +73,17 @@ export default function JoinScreen() {
         </View>
 
         <Text className="text-heading-l text-text-primary text-center">
-          You've been invited!
+          {t('join.title')}
         </Text>
 
         <Text className="text-body text-text-secondary text-center">
-          Enter your name to join as a guest.{'\n'}
-          You can create a full account later.
+          {t('join.subtitle')}
         </Text>
 
         <View className="w-full gap-md mt-md">
           <Input
-            label="Your name"
-            placeholder="e.g. Marco"
+            label={t('join.nameLabel')}
+            placeholder={t('join.namePlaceholder')}
             value={name}
             onChangeText={(text) => {
               setName(text);
@@ -96,13 +97,13 @@ export default function JoinScreen() {
           />
 
           <Button
-            label="Join as Guest"
+            label={t('join.submit')}
             onPress={handleJoinAsGuest}
             loading={loading}
           />
 
           <Button
-            label="Sign in with an account instead"
+            label={t('join.signInInstead')}
             variant="ghost"
             onPress={handleSignInInstead}
           />

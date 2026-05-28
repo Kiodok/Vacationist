@@ -6,6 +6,7 @@ import type {
   CreateRecipeIngredientInput,
   UpdateRecipeIngredientInput,
 } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 function useInvalidateShoppingQueries(tripId: string) {
@@ -39,7 +40,7 @@ export function useAddIngredient(recipeId: string, tripId: string) {
       invalidateShopping();
     },
     onError: () => {
-      addToast('error', 'Failed to add ingredient.');
+      addToast('error', i18n.t('recipes:toast.ingredientAddFailed'));
     },
   });
 }
@@ -81,7 +82,7 @@ export function useUpdateIngredient(recipeId: string, tripId: string) {
       if (context?.previous) {
         queryClient.setQueryData(['recipes', recipeId], context.previous);
       }
-      addToast('error', 'Failed to update ingredient.');
+      addToast('error', i18n.t('recipes:toast.ingredientUpdateFailed'));
     },
     onSuccess: () => {
       invalidateShopping();
@@ -120,12 +121,12 @@ export function useDeleteIngredient(recipeId: string, tripId: string) {
       if (context?.previous) {
         queryClient.setQueryData(['recipes', recipeId], context.previous);
       }
-      addToast('error', 'Failed to delete ingredient.');
+      addToast('error', i18n.t('recipes:toast.ingredientDeleteFailed'));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipes', recipeId] });
       invalidateShopping();
-      addToast('success', 'Ingredient removed');
+      addToast('success', i18n.t('recipes:toast.ingredientRemoved'));
     },
   });
 }

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 interface AddShoppingItemInputProps {
   onAdd: (title: string) => void;
@@ -8,6 +9,7 @@ interface AddShoppingItemInputProps {
 }
 
 export function AddShoppingItemInput({ onAdd, isPending }: AddShoppingItemInputProps) {
+  const { t } = useTranslation('shopping');
   const [title, setTitle] = useState('');
   const inputRef = useRef<TextInput>(null);
 
@@ -25,7 +27,7 @@ export function AddShoppingItemInput({ onAdd, isPending }: AddShoppingItemInputP
         ref={inputRef}
         className="flex-1 bg-surface-elevated border border-border rounded-sm px-md py-sm text-text-primary text-body"
         placeholderTextColor="#5C5C5C"
-        placeholder="Add item..."
+        placeholder={t('placeholder.item')}
         value={title}
         onChangeText={setTitle}
         onSubmitEditing={handleSubmit}

@@ -1,9 +1,24 @@
+/** @deprecated Use NUDGE_KEYS instead and look up translations via i18n */
 export interface NudgeMessage {
   key: string;
   title: string;
   body: string;
 }
 
+export const NUDGE_KEYS = [
+  'democracy',
+  'nearby',
+  'waiting',
+  'fomo',
+  'quick',
+  'captain',
+  'team',
+  'nudge',
+] as const;
+
+export type NudgeKey = typeof NUDGE_KEYS[number];
+
+/** @deprecated Use NUDGE_KEYS with i18n translations instead */
 export const NUDGE_MESSAGES: NudgeMessage[] = [
   {
     key: 'democracy',

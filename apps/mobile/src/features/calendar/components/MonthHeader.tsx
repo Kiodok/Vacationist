@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 interface MonthHeaderProps {
   label: string;
@@ -20,6 +21,8 @@ export function MonthHeader({
   showBackButton,
   onBackPress,
 }: MonthHeaderProps) {
+  const { t } = useTranslation('calendar');
+
   return (
     <View className="flex-row items-center justify-between px-md py-sm">
       <View className="flex-row items-center gap-xs">
@@ -58,7 +61,7 @@ export function MonthHeader({
             className="bg-primary/10 rounded-full px-sm py-xs"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
-            <Text className="text-label text-primary font-medium">Today</Text>
+            <Text className="text-label text-primary font-medium">{t('today')}</Text>
           </Pressable>
         ) : null}
       </View>

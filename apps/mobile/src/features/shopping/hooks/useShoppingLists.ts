@@ -8,6 +8,7 @@ import {
   deleteShoppingList,
 } from '@vacationist/api';
 import type { CreateShoppingListInput, UpdateShoppingListInput } from '@vacationist/types';
+import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
 export function useShoppingLists(tripId: string) {
@@ -28,10 +29,10 @@ export function useCreateShoppingList(tripId: string) {
     mutationFn: (input: CreateShoppingListInput) => createShoppingList(tripId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', 'List created');
+      addToast('success', i18n.t('shopping:toast.listUpdated'));
     },
     onError: () => {
-      addToast('error', 'Failed to create list.');
+      addToast('error', i18n.t('shopping:toast.listUpdateFailed'));
     },
   });
 }
@@ -45,10 +46,10 @@ export function useUpdateShoppingList(tripId: string) {
       updateShoppingList(listId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', 'List updated');
+      addToast('success', i18n.t('shopping:toast.listUpdated'));
     },
     onError: () => {
-      addToast('error', 'Failed to update list.');
+      addToast('error', i18n.t('shopping:toast.listUpdateFailed'));
     },
   });
 }
@@ -61,10 +62,10 @@ export function useArchiveShoppingList(tripId: string) {
     mutationFn: (listId: string) => archiveShoppingList(listId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', 'List archived');
+      addToast('success', i18n.t('shopping:toast.listArchived'));
     },
     onError: () => {
-      addToast('error', 'Failed to archive list.');
+      addToast('error', i18n.t('shopping:toast.listArchiveFailed'));
     },
   });
 }
@@ -77,10 +78,10 @@ export function useUnarchiveShoppingList(tripId: string) {
     mutationFn: (listId: string) => unarchiveShoppingList(listId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', 'List restored');
+      addToast('success', i18n.t('shopping:toast.listRestored'));
     },
     onError: () => {
-      addToast('error', 'Failed to restore list.');
+      addToast('error', i18n.t('shopping:toast.listRestoreFailed'));
     },
   });
 }
@@ -93,10 +94,10 @@ export function useDeleteShoppingList(tripId: string) {
     mutationFn: (listId: string) => deleteShoppingList(listId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', 'List deleted');
+      addToast('success', i18n.t('shopping:toast.listDeleted'));
     },
     onError: (error: Error) => {
-      addToast('error', error.message || 'Failed to delete list.');
+      addToast('error', error.message || i18n.t('shopping:toast.listDeleteFailed'));
     },
   });
 }

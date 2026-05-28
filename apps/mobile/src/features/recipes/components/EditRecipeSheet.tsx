@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateRecipeSchema, type UpdateRecipeInput } from '@vacationist/types';
@@ -13,6 +14,8 @@ interface EditRecipeSheetProps {
 }
 
 export function EditRecipeSheet({ visible, recipe, onClose, onSubmit, isPending }: EditRecipeSheetProps) {
+  const { t } = useTranslation('recipes');
+  const { t: tCommon } = useTranslation('common');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateRecipeInput>({
     resolver: zodResolver(updateRecipeSchema),
     defaultValues: {
@@ -46,16 +49,16 @@ export function EditRecipeSheet({ visible, recipe, onClose, onSubmit, isPending 
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary">Edit Recipe</Text>
+            <Text className="text-heading-m text-text-primary">{t('edit.title')}</Text>
             <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">Cancel</Text>
+              <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View className="gap-md">
             <View className="gap-xs">
-              <Text className="text-label text-text-muted uppercase">Title *</Text>
+              <Text className="text-label text-text-muted uppercase">{t('field.titleLabel')} *</Text>
               <Controller
                 control={control}
                 name="title"
@@ -78,7 +81,7 @@ export function EditRecipeSheet({ visible, recipe, onClose, onSubmit, isPending 
             </View>
 
             <View className="gap-xs">
-              <Text className="text-label text-text-muted uppercase">Description</Text>
+              <Text className="text-label text-text-muted uppercase">{t('field.descriptionLabel')}</Text>
               <Controller
                 control={control}
                 name="description"
@@ -100,7 +103,7 @@ export function EditRecipeSheet({ visible, recipe, onClose, onSubmit, isPending 
             </View>
 
             <View className="gap-xs">
-              <Text className="text-label text-text-muted uppercase">Servings</Text>
+              <Text className="text-label text-text-muted uppercase">{t('field.servingsLabel')}</Text>
               <Controller
                 control={control}
                 name="servings"
@@ -135,7 +138,7 @@ export function EditRecipeSheet({ visible, recipe, onClose, onSubmit, isPending 
               style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
             >
               <Text className="text-white text-body font-semibold">
-                {isPending ? 'Saving...' : 'Save Changes'}
+                {isPending ? tCommon('label.saving') : tCommon('button.save')}
               </Text>
             </Pressable>
           </View>

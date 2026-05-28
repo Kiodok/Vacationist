@@ -1,6 +1,7 @@
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { createTripNoteSchema, type CreateTripNoteInput } from '@vacationist/types';
 
 interface CreateNoteSheetProps {
@@ -11,6 +12,8 @@ interface CreateNoteSheetProps {
 }
 
 export function CreateNoteSheet({ visible, onClose, onSubmit, isPending }: CreateNoteSheetProps) {
+  const { t } = useTranslation('notes');
+  const { t: tCommon } = useTranslation("common");
   const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateTripNoteInput>({
     resolver: zodResolver(createTripNoteSchema),
     defaultValues: { title: '', description: null },
@@ -37,16 +40,16 @@ export function CreateNoteSheet({ visible, onClose, onSubmit, isPending }: Creat
             </View>
 
             <View className="flex-row items-center justify-between mb-md">
-              <Text className="text-heading-m text-text-primary">New Note</Text>
+              <Text className="text-heading-m text-text-primary">{t('create.title')}</Text>
               <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-                <Text className="text-text-secondary text-body">Cancel</Text>
+                <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <View className="gap-md">
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Title *</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('field.title')} *</Text>
                   <Controller
                     control={control}
                     name="title"
@@ -54,7 +57,7 @@ export function CreateNoteSheet({ visible, onClose, onSubmit, isPending }: Creat
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="e.g. Packing checklist"
+                        placeholder={t('placeholder.title')}
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -69,7 +72,7 @@ export function CreateNoteSheet({ visible, onClose, onSubmit, isPending }: Creat
                 </View>
 
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Description</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('field.description')}</Text>
                   <Controller
                     control={control}
                     name="description"
@@ -77,7 +80,7 @@ export function CreateNoteSheet({ visible, onClose, onSubmit, isPending }: Creat
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="Add details, links, or anything useful…"
+                        placeholder={t('placeholder.description')}
                         value={value ?? ''}
                         onChangeText={(v) => onChange(v || null)}
                         onBlur={onBlur}
@@ -97,7 +100,7 @@ export function CreateNoteSheet({ visible, onClose, onSubmit, isPending }: Creat
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
                   <Text className="text-white text-body font-semibold">
-                    {isPending ? 'Creating...' : 'Create Note'}
+                    {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>
               </View>
