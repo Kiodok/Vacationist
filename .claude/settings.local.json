@@ -111,7 +111,8 @@
       "Bash(sed -i 's/const body = i18nInstance.t\\(`notifications:nudge.\\\\${key}.body`\\) as string as string;/const body = \\(i18nInstance.t as \\(k: string\\) => string\\)\\(`notifications:nudge.\\\\${key}.body`\\);/' \"apps/mobile/src/features/notifications/components/NudgeSheet.tsx\")",
       "Bash(node -e ' *)",
       "Bash(dir \"F:\\\\Expo Projects\\\\Vacationist\\\\packages\\\\i18n\\\\src\" /s /b)",
-      "Bash(dir F:\\\\Expo Projects\\\\Vacationist\\\\packages\\\\i18n *)"
+      "Bash(dir F:\\\\Expo Projects\\\\Vacationist\\\\packages\\\\i18n *)",
+      "Bash(npm test *)"
     ]
   },
   "model": "opusplan",

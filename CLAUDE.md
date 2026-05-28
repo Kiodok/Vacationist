@@ -49,7 +49,9 @@ We are moving to the next task in the Implementation Plan.
      ```
      If the diff is not empty, investigate before declaring environments in sync.
 
-7. **🔴 Realtime Subscription Review (CRITICAL):** Before writing or modifying ANY Supabase Realtime `postgres_changes` subscription, you MUST:
+7. **🟡 Tests Must Pass:** After completing any task that touches code covered by tests (utilities, business logic, services), run `npm test` from the repo root and confirm all tests pass before declaring the task done. If a change breaks an existing test, fix the test (or the code) before finishing — never leave the test suite red.
+
+8. **🔴 Realtime Subscription Review (CRITICAL):** Before writing or modifying ANY Supabase Realtime `postgres_changes` subscription, you MUST:
    - Confirm the `.on()` call includes a `filter: 'column=eq.value'` parameter
    - Confirm that filter column exists directly on the subscribed table (no joins)
    - If the table lacks the needed column, propose adding a denormalized column + BEFORE INSERT trigger (see `software_engineering_guide.md` Section 8 Realtime Subscription Rules)
