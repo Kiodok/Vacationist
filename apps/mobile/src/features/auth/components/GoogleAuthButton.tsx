@@ -1,4 +1,5 @@
 import { ActivityIndicator, NativeModules, Platform, View } from 'react-native';
+import { useColorScheme } from 'nativewind';
 import { GoogleSignInButton } from '@vacationist/ui';
 
 // Guard: only load the native module when RNGoogleSignin is present.
@@ -25,6 +26,9 @@ interface GoogleAuthButtonProps {
 }
 
 export function GoogleAuthButton({ onPress, loading = false, disabled = false }: GoogleAuthButtonProps) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   if (loading) {
     return (
       <View
@@ -33,24 +37,25 @@ export function GoogleAuthButton({ onPress, loading = false, disabled = false }:
           minWidth: 240,
           height: 48,
           borderRadius: 4,
-          backgroundColor: '#131314',
+          backgroundColor: isDark ? '#131314' : '#FFFFFF',
           borderWidth: 1,
-          borderColor: '#8E918F',
+          borderColor: isDark ? '#8E918F' : '#747775',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <ActivityIndicator color="#E3E3E3" />
+        <ActivityIndicator color={isDark ? '#E3E3E3' : '#1F1F1F'} />
       </View>
     );
   }
 
   if (NativeButton) {
     const Btn = NativeButton;
+    const btnColor = isDark ? Btn.Color.Dark : Btn.Color.Light;
     return (
       <Btn
         size={Btn.Size.Wide}
-        color={Btn.Color.Dark}
+        color={btnColor}
         onPress={onPress}
         disabled={disabled}
         style={{ alignSelf: 'center', height: 48 }}

@@ -2,7 +2,8 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SupportedLocale } from '@vacationist/types';
 import { SUPPORTED_LOCALES } from '@vacationist/types';
-import { LOCALE_LABELS, LOCALE_BCP47, persistLocale } from './index';
+import { LOCALE_LABELS, LOCALE_BCP47 } from './constants';
+import { persistLocale } from './persist';
 import i18n from './instance';
 
 export function useLocale() {

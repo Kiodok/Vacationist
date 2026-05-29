@@ -1,61 +1,34 @@
-import { ActivityIndicator, Image, ImageSourcePropType, Pressable, Text, View } from 'react-native';
+import { Image, Pressable } from 'react-native';
+import { useColorScheme } from 'nativewind';
+
+// Official Google Sign-In button assets (rounded, "Sign in with Google")
+// Source: developers.google.com/identity/branding-guidelines
+// Copied to flat paths to avoid Metro's @-in-directory-name resolution issue
+const darkAsset = require('../assets/google-btn-dark.png');
+const lightAsset = require('../assets/google-btn-light.png');
 
 interface GoogleSignInButtonProps {
   onPress: () => void;
-  logo?: ImageSourcePropType;
-  loading?: boolean;
   disabled?: boolean;
 }
 
-export function GoogleSignInButton({ onPress, logo, loading = false, disabled = false }: GoogleSignInButtonProps) {
-  const isDisabled = disabled || loading;
+export function GoogleSignInButton({ onPress, disabled = false }: GoogleSignInButtonProps) {
+  const { colorScheme } = useColorScheme();
+  const source = colorScheme === 'dark' ? darkAsset : lightAsset;
 
   return (
     <Pressable
       onPress={onPress}
-      disabled={isDisabled}
-      style={[
-        {
-          height: 48,
-          borderRadius: 4,
-          backgroundColor: '#131314',
-          borderWidth: 1,
-          borderColor: '#8E918F',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingLeft: 16,
-          paddingRight: 16,
-          gap: 12,
-        },
-        isDisabled && { opacity: 0.6 },
-      ]}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel="Sign in with Google"
+      style={({ pressed }) => ({
+        opacity: disabled ? 0.6 : pressed ? 0.8 : 1,
+        alignSelf: 'stretch',
+        height: 48,
+      })}
     >
-      {loading ? (
-        <ActivityIndicator color="#E3E3E3" />
-      ) : (
-        <>
-          <View style={{ width: 20, height: 20, alignItems: 'center', justifyContent: 'center' }}>
-            {logo ? (
-              <Image source={logo} style={{ width: 20, height: 20 }} resizeMode="contain" />
-            ) : (
-              // Provide logo={require('./path/to/google-g.png')} — download from
-              // https://developers.google.com/identity/branding-guidelines
-              <Text style={{ color: '#E3E3E3', fontSize: 14, fontWeight: '700' }}>G</Text>
-            )}
-          </View>
-          <Text
-            style={{
-              color: '#E3E3E3',
-              fontSize: 14,
-              fontWeight: '500',
-              letterSpacing: 0.25,
-            }}
-          >
-            Continue with Google
-          </Text>
-        </>
-      )}
+      <Image source={source} style={{ width: '100%', height: 48 }} resizeMode="stretch" />
     </Pressable>
   );
 }
