@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAppForeground } from '../../../hooks/useAppForeground';
 import { subscribeToTripRealtime, unsubscribeFromTrip } from '@vacationist/api';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Trip } from '@vacationist/types';
@@ -64,22 +64,15 @@ export function useTripRealtime(tripId: string) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId, queryClient, cleanup, reconcile]);
 
+  useAppForeground(() => {
+    subscribe();
+    reconcile();
+  }, !!tripId);
+
   useEffect(() => {
     if (!tripId) return;
-
     subscribe();
-
-    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState === 'active') {
-        subscribe();
-        reconcile();
-      }
-    });
-
-    return () => {
-      cleanup();
-      appStateSubscription.remove();
-    };
+    return cleanup;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripId, subscribe, cleanup, reconcile]);
+  }, [tripId, subscribe, cleanup]);
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { AppState } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAppForeground } from '../../../hooks/useAppForeground';
 import {
   getNotifications,
   getTripNotifications,
@@ -136,24 +136,17 @@ export function useNotificationsRealtime() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, queryClient, cleanup, invalidate]);
 
+  useAppForeground(() => {
+    subscribe();
+    invalidate();
+  }, !!userId);
+
   useEffect(() => {
     if (!userId) return;
-
     subscribe();
-
-    const appStateSub = AppState.addEventListener('change', (next) => {
-      if (next === 'active') {
-        subscribe();
-        invalidate();
-      }
-    });
-
-    return () => {
-      cleanup();
-      appStateSub.remove();
-    };
+    return cleanup;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, subscribe, cleanup, invalidate]);
+  }, [userId, subscribe, cleanup]);
 }
 
 export function useMarkNotificationRead() {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAppForeground } from '../../../hooks/useAppForeground';
 import {
   subscribeToShoppingItems,
   subscribeToShoppingSync,
@@ -74,22 +74,15 @@ export function useShoppingRealtime(listId: string) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listId, queryClient, cleanup]);
 
+  useAppForeground(() => {
+    subscribe();
+    queryClient.invalidateQueries({ queryKey });
+  }, !!listId);
+
   useEffect(() => {
     if (!listId) return;
-
     subscribe();
-
-    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState === 'active') {
-        subscribe();
-        queryClient.invalidateQueries({ queryKey });
-      }
-    });
-
-    return () => {
-      cleanup();
-      appStateSubscription.remove();
-    };
+    return cleanup;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listId, subscribe, cleanup]);
 }

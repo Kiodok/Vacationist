@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAppForeground } from '../../../hooks/useAppForeground';
 import { subscribeToIngredientsRealtime, unsubscribeFromIngredients } from '@vacationist/api';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { RecipeWithIngredients, RecipeIngredient, Recipe } from '@vacationist/types';
@@ -73,22 +73,15 @@ export function useIngredientsRealtime(recipeId: string, tripId: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipeId, tripId, queryClient, cleanup, updateIngredientCount]);
 
+  useAppForeground(() => {
+    subscribe();
+    queryClient.invalidateQueries({ queryKey: recipeKey });
+  }, !!recipeId);
+
   useEffect(() => {
     if (!recipeId) return;
-
     subscribe();
-
-    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState === 'active') {
-        subscribe();
-        queryClient.invalidateQueries({ queryKey: recipeKey });
-      }
-    });
-
-    return () => {
-      cleanup();
-      appStateSubscription.remove();
-    };
+    return cleanup;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipeId, subscribe, cleanup]);
 }
