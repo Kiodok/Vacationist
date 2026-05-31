@@ -34,7 +34,9 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     even: t('split.even'),
     exact: t('split.exact'),
     shares: t('split.shares'),
+    cover: t('split.cover'),
   };
+
   const allMemberIds = members.map((m) => m.user_id);
 
   const [amountText, setAmountText] = useState('');
@@ -42,6 +44,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   const [splitMethod, setSplitMethod] = useState<ExpenseSplitMethod>('even');
   const [exactAmounts, setExactAmounts] = useState<Record<string, string>>({});
   const [shareValues, setShareValues] = useState<Record<string, number>>({});
+  // coveredFor: the person being covered — stored as the form's paid_by
+  const [coveredFor, setCoveredFor] = useState<string | null>(null);
 
   const { control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<CreateExpenseInput>({
     resolver: zodResolver(createExpenseSchema),
@@ -57,6 +61,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   });
 
   const totalAmount = watch('amount') ?? 0;
+  const paidBy = watch('paid_by');
 
   const toggleMember = (userId: string) => {
     setSelectedMembers((prev) => {
@@ -71,18 +76,34 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   };
 
   const handleSplitMethodChange = (method: ExpenseSplitMethod) => {
+    const prev = splitMethod;
     setSplitMethod(method);
     setValue('split_method', method);
+
+    if (method === 'cover') {
+      // Auto-select first member who is not the current user
+      const first = members.find((m) => m.user_id !== currentUserId);
+      setCoveredFor(first?.user_id ?? null);
+      setValue('paid_by', first?.user_id ?? currentUserId);
+    } else {
+      if (prev === 'cover') {
+        // Restore normal defaults when leaving cover
+        setCoveredFor(null);
+        setValue('paid_by', currentUserId);
+        setSelectedMembers(new Set(allMemberIds));
+      }
+    }
   };
 
   const exactTotal = useMemo(() => {
+    if (selectedMembers.size === 1) return roundCurrency(totalAmount);
     let sum = 0;
     for (const uid of selectedMembers) {
       const val = parseFloat(exactAmounts[uid] ?? '');
       if (!isNaN(val)) sum += val;
     }
     return roundCurrency(sum);
-  }, [exactAmounts, selectedMembers]);
+  }, [exactAmounts, selectedMembers, totalAmount]);
 
   const totalShares = useMemo(() => {
     let sum = 0;
@@ -94,10 +115,17 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const buildSplits = () => {
     const memberIds = Array.from(selectedMembers);
+    if (splitMethod === 'cover') {
+      // Actual payer (currentUser) is the split consumer; covered person is paid_by
+      return [{ user_id: currentUserId, amount: totalAmount }];
+    }
     if (splitMethod === 'even') {
       return memberIds.map((user_id) => ({ user_id }));
     }
     if (splitMethod === 'exact') {
+      if (memberIds.length === 1) {
+        return [{ user_id: memberIds[0], amount: totalAmount }];
+      }
       return memberIds.map((user_id) => ({
         user_id,
         amount: parseFloat(exactAmounts[user_id] ?? '0') || 0,
@@ -122,12 +150,16 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     setSplitMethod('even');
     setExactAmounts({});
     setShareValues({});
+    setCoveredFor(null);
   };
 
   const handleClose = () => {
     resetForm();
     onClose();
   };
+
+  const othersForCover = members.filter((m) => m.user_id !== currentUserId);
+  const canSubmit = !isPending && (splitMethod !== 'cover' || !!coveredFor);
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
@@ -142,7 +174,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
           <View className="flex-row items-center justify-between mb-md">
             <Text className="text-heading-m text-text-primary">{t('create.title')}</Text>
             <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-              <Text className="text-text-secondary text-body">{tCommon("button.cancel")}</Text>
+              <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
 
@@ -158,7 +190,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="e.g. Dinner at Trattoria"
+                      placeholder={t('placeholder.title')}
                       value={value}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -181,8 +213,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                       placeholderTextColor="#5C5C5C"
                       placeholder="0.00"
                       value={amountText}
-                      onChangeText={(t) => {
-                        const cleaned = t.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                      onChangeText={(text) => {
+                        const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
                         setAmountText(cleaned);
                         const num = parseFloat(cleaned);
                         onChange(isNaN(num) ? undefined : num);
@@ -219,30 +251,32 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                 />
               </View>
 
-              {/* Paid by */}
-              <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">{t('field.paidByLabel')}</Text>
-                <Controller
-                  control={control}
-                  name="paid_by"
-                  render={({ field: { onChange, value } }) => (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-xs">
-                      {members.map((m) => (
-                        <Pressable
-                          key={m.user_id}
-                          onPress={() => onChange(m.user_id)}
-                          className={`px-md py-sm rounded-full ${value === m.user_id ? 'bg-primary' : 'bg-surface border border-border'}`}
-                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                        >
-                          <Text className={`text-body-small ${value === m.user_id ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
-                            {m.user.name}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
-                  )}
-                />
-              </View>
+              {/* Paid by — hidden in cover mode */}
+              {splitMethod !== 'cover' && (
+                <View className="gap-xs">
+                  <Text className="text-label text-text-muted uppercase">{t('field.paidByLabel')}</Text>
+                  <Controller
+                    control={control}
+                    name="paid_by"
+                    render={({ field: { onChange, value } }) => (
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-xs">
+                        {members.map((m) => (
+                          <Pressable
+                            key={m.user_id}
+                            onPress={() => onChange(m.user_id)}
+                            className={`px-md py-sm rounded-full ${value === m.user_id ? 'bg-primary' : 'bg-surface border border-border'}`}
+                            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                          >
+                            <Text className={`text-body-small ${value === m.user_id ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
+                              {m.user.name}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </ScrollView>
+                    )}
+                  />
+                </View>
+              )}
 
               {/* Split method */}
               <View className="gap-xs">
@@ -263,27 +297,21 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                 </View>
               </View>
 
-              {/* Split among */}
-              <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">
-                  {t('field.splitAmong', { selected: selectedMembers.size, total: members.length })}
-                </Text>
-                <View className="gap-sm">
-                  {members.map((m) => {
-                    const isSelected = selectedMembers.has(m.user_id);
-                    const perPerson = splitMethod === 'even' && totalAmount > 0 && selectedMembers.size > 0
-                      ? roundCurrency(totalAmount / selectedMembers.size)
-                      : 0;
-                    const memberShares = shareValues[m.user_id] ?? 1;
-                    const shareAmount = splitMethod === 'shares' && totalAmount > 0 && totalShares > 0
-                      ? roundCurrency((memberShares / totalShares) * totalAmount)
-                      : 0;
-
-                    return (
-                      <View key={m.user_id} className="gap-xs">
+              {/* Cover mode: single "Covered for" picker */}
+              {splitMethod === 'cover' ? (
+                <View className="gap-xs">
+                  <Text className="text-label text-text-muted uppercase">{t('field.coveredFor')}</Text>
+                  <View className="gap-sm">
+                    {othersForCover.map((m) => {
+                      const isSelected = coveredFor === m.user_id;
+                      return (
                         <Pressable
-                          onPress={() => toggleMember(m.user_id)}
-                          className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
+                          key={m.user_id}
+                          onPress={() => {
+                            setCoveredFor(m.user_id);
+                            setValue('paid_by', m.user_id);
+                          }}
+                          className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary border-primary' : 'bg-surface border border-border'}`}
                           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                         >
                           <Ionicons
@@ -294,62 +322,106 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                           <Text className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
                             {m.user.name}
                           </Text>
-                          {isSelected && splitMethod === 'even' && totalAmount > 0 && (
-                            <Text className="text-white/70 text-body-small">{formatCurrency(perPerson, currency)}</Text>
+                          {isSelected && totalAmount > 0 && (
+                            <Text className="text-white/70 text-body-small">{formatCurrency(totalAmount, currency)}</Text>
                           )}
                         </Pressable>
-
-                        {isSelected && splitMethod === 'exact' && (
-                          <View className="flex-row items-center gap-xs ml-lg">
-                            <Text className="text-text-muted text-body-small">{currency}</Text>
-                            <TextInput
-                              className="flex-1 bg-surface border border-border rounded-sm px-md py-xs text-text-primary text-body-small"
-                              placeholderTextColor="#5C5C5C"
-                              placeholder="0.00"
-                              value={exactAmounts[m.user_id] ?? ''}
-                              onChangeText={(t) => {
-                                const cleaned = t.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
-                                setExactAmounts((prev) => ({ ...prev, [m.user_id]: cleaned }));
-                              }}
-                              keyboardType="decimal-pad"
-                            />
-                          </View>
-                        )}
-
-                        {isSelected && splitMethod === 'shares' && (
-                          <View className="flex-row items-center gap-sm ml-lg">
-                            <Pressable
-                              onPress={() => setShareValues((prev) => ({ ...prev, [m.user_id]: Math.max(1, (prev[m.user_id] ?? 1) - 1) }))}
-                              className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
-                              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                            >
-                              <Ionicons name="remove" size={16} color="#A0A0A0" />
-                            </Pressable>
-                            <Text className="text-text-primary text-body font-semibold w-[24px] text-center">
-                              {memberShares}
-                            </Text>
-                            <Pressable
-                              onPress={() => setShareValues((prev) => ({ ...prev, [m.user_id]: (prev[m.user_id] ?? 1) + 1 }))}
-                              className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
-                              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                            >
-                              <Ionicons name="add" size={16} color="#A0A0A0" />
-                            </Pressable>
-                            {totalAmount > 0 && (
-                              <Text className="text-text-muted text-body-small ml-xs">
-                                = {formatCurrency(shareAmount, currency)}
-                              </Text>
-                            )}
-                          </View>
-                        )}
-                      </View>
-                    );
-                  })}
+                      );
+                    })}
+                  </View>
                 </View>
-              </View>
+              ) : (
+                /* Normal split among section */
+                <View className="gap-xs">
+                  <Text className="text-label text-text-muted uppercase">
+                    {t('field.splitAmong', { selected: selectedMembers.size, total: members.length })}
+                  </Text>
+                  <View className="gap-sm">
+                    {members.map((m) => {
+                      const isSelected = selectedMembers.has(m.user_id);
+                      const perPerson = splitMethod === 'even' && totalAmount > 0 && selectedMembers.size > 0
+                        ? roundCurrency(totalAmount / selectedMembers.size)
+                        : 0;
+                      const memberShares = shareValues[m.user_id] ?? 1;
+                      const shareAmount = splitMethod === 'shares' && totalAmount > 0 && totalShares > 0
+                        ? roundCurrency((memberShares / totalShares) * totalAmount)
+                        : 0;
+
+                      return (
+                        <View key={m.user_id} className="gap-xs">
+                          <Pressable
+                            onPress={() => toggleMember(m.user_id)}
+                            className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
+                            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                          >
+                            <Ionicons
+                              name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
+                              size={16}
+                              color={isSelected ? '#FFFFFF' : '#A0A0A0'}
+                            />
+                            <Text className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
+                              {m.user.name}
+                            </Text>
+                            {isSelected && splitMethod === 'even' && totalAmount > 0 && (
+                              <Text className="text-white/70 text-body-small">{formatCurrency(perPerson, currency)}</Text>
+                            )}
+                            {isSelected && splitMethod === 'exact' && selectedMembers.size === 1 && totalAmount > 0 && (
+                              <Text className="text-white/70 text-body-small">{formatCurrency(totalAmount, currency)}</Text>
+                            )}
+                          </Pressable>
+
+                          {isSelected && splitMethod === 'exact' && selectedMembers.size > 1 && (
+                            <View className="flex-row items-center gap-xs ml-lg">
+                              <Text className="text-text-muted text-body-small">{currency}</Text>
+                              <TextInput
+                                className="flex-1 bg-surface border border-border rounded-sm px-md py-xs text-text-primary text-body-small"
+                                placeholderTextColor="#5C5C5C"
+                                placeholder="0.00"
+                                value={exactAmounts[m.user_id] ?? ''}
+                                onChangeText={(text) => {
+                                  const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                                  setExactAmounts((prev) => ({ ...prev, [m.user_id]: cleaned }));
+                                }}
+                                keyboardType="decimal-pad"
+                              />
+                            </View>
+                          )}
+
+                          {isSelected && splitMethod === 'shares' && (
+                            <View className="flex-row items-center gap-sm ml-lg">
+                              <Pressable
+                                onPress={() => setShareValues((prev) => ({ ...prev, [m.user_id]: Math.max(1, (prev[m.user_id] ?? 1) - 1) }))}
+                                className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
+                                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                              >
+                                <Ionicons name="remove" size={16} color="#A0A0A0" />
+                              </Pressable>
+                              <Text className="text-text-primary text-body font-semibold w-[24px] text-center">
+                                {memberShares}
+                              </Text>
+                              <Pressable
+                                onPress={() => setShareValues((prev) => ({ ...prev, [m.user_id]: (prev[m.user_id] ?? 1) + 1 }))}
+                                className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
+                                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                              >
+                                <Ionicons name="add" size={16} color="#A0A0A0" />
+                              </Pressable>
+                              {totalAmount > 0 && (
+                                <Text className="text-text-muted text-body-small ml-xs">
+                                  = {formatCurrency(shareAmount, currency)}
+                                </Text>
+                              )}
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
 
               {/* Exact sum indicator */}
-              {splitMethod === 'exact' && totalAmount > 0 && (
+              {splitMethod === 'exact' && totalAmount > 0 && selectedMembers.size > 1 && (
                 <View className={`flex-row items-center justify-between px-sm py-xs rounded-sm ${isNegligible(exactTotal - totalAmount) ? 'bg-success/10' : 'bg-warning/10'}`}>
                   <Text className={`text-body-small ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
                     {isNegligible(exactTotal - totalAmount)
@@ -365,8 +437,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
               {/* Submit */}
               <Pressable
                 onPress={handleSubmit(onValid)}
-                disabled={isPending}
-                className={`items-center py-sm rounded-md mt-sm ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
+                disabled={!canSubmit}
+                className={`items-center py-sm rounded-md mt-sm ${!canSubmit ? 'bg-primary/50' : 'bg-primary'}`}
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold">

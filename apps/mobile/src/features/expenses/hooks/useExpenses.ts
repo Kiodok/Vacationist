@@ -10,6 +10,9 @@ import {
   getTripBalances,
   settleExpenseSplit,
   unsettleExpenseSplit,
+  coverSplit,
+  uncoverSplit,
+  settleAllForPair,
 } from '@vacationist/api';
 import type { CreateExpenseInput, UpdateExpenseWithSplitsInput, ExpenseWithSplits } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
@@ -148,6 +151,60 @@ export function useUnsettleExpenseSplit(tripId: string, expenseId: string) {
     },
     onError: () => {
       addToast('error', i18n.t('expenses:toast.reopenFailed'));
+    },
+  });
+}
+
+export function useCoverSplit(tripId: string, expenseId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (splitId: string) => coverSplit(splitId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+      addToast('success', i18n.t('expenses:toast.covered'));
+    },
+    onError: () => {
+      addToast('error', i18n.t('expenses:toast.coverFailed'));
+    },
+  });
+}
+
+export function useUncoverSplit(tripId: string, expenseId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (splitId: string) => uncoverSplit(splitId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+      addToast('success', i18n.t('expenses:toast.uncovered'));
+    },
+    onError: () => {
+      addToast('error', i18n.t('expenses:toast.uncoverFailed'));
+    },
+  });
+}
+
+export function useSettleAllForPair(tripId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: ({ debtor, creditor }: { debtor: string; creditor: string }) =>
+      settleAllForPair(tripId, debtor, creditor),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+      addToast('success', i18n.t('expenses:toast.settleAllDone'));
+    },
+    onError: () => {
+      addToast('error', i18n.t('expenses:toast.settleAllFailed'));
     },
   });
 }

@@ -92,6 +92,26 @@ export async function unsettleExpenseSplit(splitId: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function coverSplit(splitId: string): Promise<void> {
+  const { error } = await (supabase.rpc as Function)('cover_split', { p_split_id: splitId });
+  if (error) throw error;
+}
+
+export async function uncoverSplit(splitId: string): Promise<void> {
+  const { error } = await (supabase.rpc as Function)('uncover_split', { p_split_id: splitId });
+  if (error) throw error;
+}
+
+export async function settleAllForPair(tripId: string, debtor: string, creditor: string): Promise<number> {
+  const { data, error } = await (supabase.rpc as Function)('settle_all_for_pair', {
+    p_trip_id: tripId,
+    p_debtor: debtor,
+    p_creditor: creditor,
+  });
+  if (error) throw error;
+  return data as number;
+}
+
 export interface ExpenseRealtimeCallbacks {
   onExpenseChange: () => void;
   onSplitChange: (expenseId: string | null) => void;

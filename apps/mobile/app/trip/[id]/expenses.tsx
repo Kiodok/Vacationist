@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
 import { formatCurrency, isExpenseFullySettled } from '@vacationist/utils';
-import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useTripBalances, useUpdateExpenseWithSplits } from '../../../src/features/expenses/hooks/useExpenses';
+import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllForPair } from '../../../src/features/expenses/hooks/useExpenses';
 import { useExpensesRealtime } from '../../../src/features/expenses/hooks/useExpensesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -45,6 +45,8 @@ export default function ExpensesTab() {
   const createExpense = useCreateExpense(tripId!);
   const archiveExpenseMutation = useArchiveExpense(tripId!);
   const unarchiveExpenseMutation = useUnarchiveExpense(tripId!);
+  const settleAllForPairMutation = useSettleAllForPair(tripId!);
+  const settlingPairRef = useRef(false);
   useExpensesRealtime(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
@@ -213,6 +215,15 @@ export default function ExpensesTab() {
           balances={balances}
           members={memberMap}
           currency={currency}
+          onSettleAll={(debtor, creditor) => {
+            if (settlingPairRef.current) return;
+            settlingPairRef.current = true;
+            settleAllForPairMutation.mutate(
+              { debtor, creditor },
+              { onSettled: () => { settlingPairRef.current = false; } },
+            );
+          }}
+          isSettlingAll={settleAllForPairMutation.isPending}
         />
       )}
 
@@ -255,6 +266,8 @@ function ExpenseCardWithSplits({
   const updateExpense = useUpdateExpenseWithSplits(tripId);
   const settleSplit = useSettleExpenseSplit(tripId, expense.id);
   const unsettleSplit = useUnsettleExpenseSplit(tripId, expense.id);
+  const coverSplitMutation = useCoverSplit(tripId, expense.id);
+  const uncoverSplitMutation = useUncoverSplit(tripId, expense.id);
   const [showSplits, setShowSplits] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -356,6 +369,8 @@ function ExpenseCardWithSplits({
         currency={currency}
         onSettle={(splitId) => settleSplit.mutate(splitId)}
         onUnsettle={(splitId) => unsettleSplit.mutate(splitId)}
+        onCover={(splitId) => coverSplitMutation.mutate(splitId)}
+        onUncover={(splitId) => uncoverSplitMutation.mutate(splitId)}
         canManage={canManage}
       />
 
@@ -371,6 +386,7 @@ function ExpenseCardWithSplits({
           splits={splits}
           members={members}
           currency={currency}
+          currentUserId={currentUserId}
         />
       )}
     </>

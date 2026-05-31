@@ -158,6 +158,8 @@ export interface ExpenseSplit {
   user_id: string;
   amount_owed: number;
   status: ExpenseSplitStatus;
+  covered_by: string | null;
+  original_amount: number | null;
 }
 
 export interface ExpenseWithSplits extends Expense {

@@ -40,7 +40,9 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
             <View className="flex-row items-center gap-xs">
               <Ionicons name="person-outline" size={13} color="#A0A0A0" />
               <Text className="text-body-small text-text-secondary">
-                {t('card.paidBy', { name: payer?.name ?? 'Unknown' })}
+                {expense.split_method === 'cover'
+                  ? t('card.coveredFor', { name: members.get(expense.paid_by)?.name ?? 'Unknown' })
+                  : t('card.paidBy', { name: payer?.name ?? 'Unknown' })}
               </Text>
             </View>
           </View>

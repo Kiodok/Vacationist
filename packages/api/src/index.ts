@@ -71,6 +71,9 @@ export {
   getTripBalances,
   settleExpenseSplit,
   unsettleExpenseSplit,
+  coverSplit,
+  uncoverSplit,
+  settleAllForPair,
   subscribeToExpensesRealtime,
   unsubscribeFromExpenses,
 } from './expenses';

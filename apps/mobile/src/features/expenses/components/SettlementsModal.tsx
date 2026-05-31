@@ -11,9 +11,11 @@ interface SettlementsModalProps {
   balances: MemberBalance[];
   members: Map<string, User>;
   currency: Currency;
+  onSettleAll?: (debtor: string, creditor: string) => void;
+  isSettlingAll?: boolean;
 }
 
-export function SettlementsModal({ visible, onClose, balances, members, currency }: SettlementsModalProps) {
+export function SettlementsModal({ visible, onClose, balances, members, currency, onSettleAll, isSettlingAll }: SettlementsModalProps) {
   const { t } = useTranslation('expenses');
   const settlements = computeSettlements(balances);
   const allSettled = settlements.length === 0;
@@ -77,7 +79,7 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
                   const toUser = members.get(s.to);
                   return (
                     <View key={i} className="flex-row items-center py-sm px-sm rounded-md bg-surface gap-sm">
-                      <View className="flex-1 flex-row items-center gap-xs">
+                      <View className="flex-1 flex-row items-center gap-xs flex-wrap">
                         <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
                           {fromUser?.name ?? 'Unknown'}
                         </Text>
@@ -85,10 +87,22 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
                         <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
                           {toUser?.name ?? 'Unknown'}
                         </Text>
+                        <Text className="text-body text-primary font-semibold">
+                          {formatCurrency(s.amount, currency)}
+                        </Text>
                       </View>
-                      <Text className="text-body text-primary font-semibold">
-                        {formatCurrency(s.amount, currency)}
-                      </Text>
+                      {onSettleAll && (
+                        <Pressable
+                          onPress={() => onSettleAll(s.from, s.to)}
+                          disabled={isSettlingAll}
+                          className="px-md py-sm rounded-sm bg-success/10"
+                          style={({ pressed }) => ({ opacity: pressed || isSettlingAll ? 0.6 : 1 })}
+                        >
+                          <Text className="text-success text-body-small font-semibold">
+                            {t('modal.settleAll')}
+                          </Text>
+                        </Pressable>
+                      )}
                     </View>
                   );
                 })}
