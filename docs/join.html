@@ -105,6 +105,13 @@
     <a id="open-link" href="#" class="btn-secondary" data-i18n="join.loading.openApp">Open in app</a>
   </div>
 
+  <div class="card" id="web-fallback-state" style="display:none">
+    <h1 data-i18n="join.fallback.title">App not installed?</h1>
+    <p data-i18n="join.fallback.sub">Continue accepting your invite in the browser, or grab the app for the full experience.</p>
+    <a id="web-link" href="#" class="btn" data-i18n="join.fallback.continueBrowser">Continue in browser</a>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="btn-secondary" data-i18n="join.fallback.getApp">Get the app</a>
+  </div>
+
   <div class="card" id="error-state">
     <h1 data-i18n="join.error.title">Invalid invite link</h1>
     <p data-i18n="join.error.sub">This invite link is missing a token. Ask the trip organizer to generate a new one.</p>
@@ -123,15 +130,25 @@
         return;
       }
 
+      var webUrl = 'https://web.vacationist.app/join?token=' + encodeURIComponent(token);
       var deepLink = 'vacationist://join?token=' + encodeURIComponent(token);
-      var openLink = document.getElementById('open-link');
-      openLink.href = deepLink;
 
-      // Attempt to open the app immediately
+      document.getElementById('open-link').href = deepLink;
+      document.getElementById('web-link').href = webUrl;
+
+      // If the OS hands off to the app the page becomes hidden — cancel the fallback.
+      var appOpened = false;
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) appOpened = true;
+      });
+
       window.location.href = deepLink;
 
-      // After 2.5s, if still on this page the app isn't installed —
-      // keep the Play Store button visible (already shown).
+      setTimeout(function () {
+        if (appOpened) return;
+        // App isn't installed — redirect straight to the web app.
+        window.location.replace(webUrl);
+      }, 2500);
     })();
   </script>
 </body>

@@ -131,6 +131,10 @@ window.VACATIONIST_I18N = {
   'join.error.title': 'Invalid invite link',
   'join.error.sub': 'This invite link is missing a token. Ask the trip organizer to generate a new one.',
   'join.error.cta': 'Go to Vacationist',
+  'join.fallback.title': 'App not installed?',
+  'join.fallback.sub': 'Continue accepting your invite in the browser, or grab the app for the full experience.',
+  'join.fallback.continueBrowser': 'Continue in browser',
+  'join.fallback.getApp': 'Get the app',
 
   // 404 page
   '404.title': 'Page not found',

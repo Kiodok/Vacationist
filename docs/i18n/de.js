@@ -131,6 +131,10 @@ window.VACATIONIST_I18N = {
   'join.error.title': 'Ungültiger Einladungslink',
   'join.error.sub': 'Diesem Einladungslink fehlt ein Token. Bitte den Reiseorganisator, einen neuen zu erstellen.',
   'join.error.cta': 'Zu Vacationist',
+  'join.fallback.title': 'App nicht installiert?',
+  'join.fallback.sub': 'Nimm deine Einladung im Browser an oder hol dir die App für das volle Erlebnis.',
+  'join.fallback.continueBrowser': 'Im Browser fortfahren',
+  'join.fallback.getApp': 'App holen',
 
   // 404 page
   '404.title': 'Seite nicht gefunden',
