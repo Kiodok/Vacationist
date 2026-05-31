@@ -14,3 +14,18 @@ export async function fetchOnlineStatus(): Promise<boolean> {
   const state = await NetInfo.fetch();
   return resolveOnline(state);
 }
+
+// Cached so both QueryProvider.onSuccess and NetworkProvider share a single
+// NetInfo.fetch() call at startup instead of issuing two back-to-back requests.
+let _initialStatusPromise: Promise<boolean> | null = null;
+
+export function getInitialOnlineStatus(): Promise<boolean> {
+  if (!_initialStatusPromise) {
+    _initialStatusPromise = fetchOnlineStatus().catch((err) => {
+      // Allow a retry on the next call if the native bridge wasn't ready yet.
+      _initialStatusPromise = null;
+      throw err;
+    });
+  }
+  return _initialStatusPromise;
+}

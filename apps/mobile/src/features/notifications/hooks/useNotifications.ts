@@ -11,7 +11,12 @@ import {
   unsubscribeFromNotifications,
 } from '@vacationist/api';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import type { Notification } from '@vacationist/types';
+import type {
+  Notification,
+  MarkNotificationReadVariables,
+  MarkAllNotificationsReadVariables,
+  DeleteNotificationVariables,
+} from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
@@ -150,43 +155,32 @@ export function useNotificationsRealtime() {
 }
 
 export function useMarkNotificationRead() {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: (notificationId: string) => markNotificationRead(notificationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
-    },
+    mutationKey: ['markNotificationRead'],
+    mutationFn: ({ notificationId }: MarkNotificationReadVariables) => markNotificationRead(notificationId),
   });
 }
 
-export function useMarkAllNotificationsRead(tripId?: string) {
-  const queryClient = useQueryClient();
-
+export function useMarkAllNotificationsRead() {
   return useMutation({
-    mutationFn: () => markAllNotificationsRead(tripId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
-      if (tripId) {
-        queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notifications'] });
-        queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notifications', 'unread-count'] });
-      }
-    },
+    mutationKey: ['markAllNotificationsRead'],
+    mutationFn: ({ tripId }: MarkAllNotificationsReadVariables) => markAllNotificationsRead(tripId),
   });
 }
 
-export function useDeleteNotification(tripId?: string) {
+export function useDeleteNotification() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: (notificationId: string) => deleteNotification(notificationId),
-    onMutate: async (notificationId: string) => {
+    mutationKey: ['deleteNotification'],
+    mutationFn: ({ notificationId }: DeleteNotificationVariables) => deleteNotification(notificationId),
+    onMutate: async ({ notificationId, tripId }: DeleteNotificationVariables) => {
       await queryClient.cancelQueries({ queryKey: ['notifications'] });
+      await queryClient.cancelQueries({ queryKey: ['notifications', 'unread-count'] });
       if (tripId) {
         await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'notifications'] });
+        await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'notifications', 'unread-count'] });
       }
       const prev = queryClient.getQueryData<Notification[]>(['notifications']);
       queryClient.setQueryData<Notification[]>(['notifications'], (old) =>
@@ -201,16 +195,15 @@ export function useDeleteNotification(tripId?: string) {
       }
       return { prev };
     },
-    onError: (_err, _id, ctx) => {
+    onError: (_err, vars, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(['notifications'], ctx.prev);
-      if (ctx?.prevTrip && tripId) queryClient.setQueryData(['trips', tripId, 'notifications'], ctx.prevTrip);
-      addToast('error', i18n.t('notifications:toast.deleteFailed'));
-    },
-    onSettled: () => {
+      if (ctx?.prevTrip && vars.tripId) queryClient.setQueryData(['trips', vars.tripId, 'notifications'], ctx.prevTrip);
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      if (tripId) {
-        queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notifications', 'unread-count'] });
+      if (vars.tripId) {
+        queryClient.invalidateQueries({ queryKey: ['trips', vars.tripId, 'notifications'] });
+        queryClient.invalidateQueries({ queryKey: ['trips', vars.tripId, 'notifications', 'unread-count'] });
       }
+      addToast('error', i18n.t('notifications:toast.deleteFailed'));
     },
   });
 }

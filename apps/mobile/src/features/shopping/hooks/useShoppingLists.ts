@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   getShoppingLists,
   createShoppingList,
@@ -7,7 +7,13 @@ import {
   unarchiveShoppingList,
   deleteShoppingList,
 } from '@vacationist/api';
-import type { CreateShoppingListInput, UpdateShoppingListInput } from '@vacationist/types';
+import type {
+  CreateShoppingListVariables,
+  UpdateShoppingListVariables,
+  ArchiveShoppingListVariables,
+  UnarchiveShoppingListVariables,
+  DeleteShoppingListVariables,
+} from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
@@ -21,84 +27,62 @@ export function useShoppingLists(tripId: string) {
   });
 }
 
-export function useCreateShoppingList(tripId: string) {
-  const queryClient = useQueryClient();
+export function useCreateShoppingList() {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: (input: CreateShoppingListInput) => createShoppingList(tripId, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', i18n.t('shopping:toast.listUpdated'));
-    },
+    mutationKey: ['createShoppingList'],
+    mutationFn: ({ tripId, input }: CreateShoppingListVariables) => createShoppingList(tripId, input),
     onError: () => {
       addToast('error', i18n.t('shopping:toast.listUpdateFailed'));
     },
   });
 }
 
-export function useUpdateShoppingList(tripId: string) {
-  const queryClient = useQueryClient();
+export function useUpdateShoppingList() {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: ({ listId, input }: { listId: string; input: UpdateShoppingListInput }) =>
-      updateShoppingList(listId, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', i18n.t('shopping:toast.listUpdated'));
-    },
+    mutationKey: ['updateShoppingList'],
+    mutationFn: ({ listId, input }: UpdateShoppingListVariables) => updateShoppingList(listId, input),
     onError: () => {
       addToast('error', i18n.t('shopping:toast.listUpdateFailed'));
     },
   });
 }
 
-export function useArchiveShoppingList(tripId: string) {
-  const queryClient = useQueryClient();
+export function useArchiveShoppingList() {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: (listId: string) => archiveShoppingList(listId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', i18n.t('shopping:toast.listArchived'));
-    },
+    mutationKey: ['archiveShoppingList'],
+    mutationFn: ({ listId }: ArchiveShoppingListVariables) => archiveShoppingList(listId),
     onError: () => {
       addToast('error', i18n.t('shopping:toast.listArchiveFailed'));
     },
   });
 }
 
-export function useUnarchiveShoppingList(tripId: string) {
-  const queryClient = useQueryClient();
+export function useUnarchiveShoppingList() {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: (listId: string) => unarchiveShoppingList(listId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', i18n.t('shopping:toast.listRestored'));
-    },
+    mutationKey: ['unarchiveShoppingList'],
+    mutationFn: ({ listId }: UnarchiveShoppingListVariables) => unarchiveShoppingList(listId),
     onError: () => {
       addToast('error', i18n.t('shopping:toast.listRestoreFailed'));
     },
   });
 }
 
-export function useDeleteShoppingList(tripId: string) {
-  const queryClient = useQueryClient();
+export function useDeleteShoppingList() {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: (listId: string) => deleteShoppingList(listId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', i18n.t('shopping:toast.listDeleted'));
-    },
+    mutationKey: ['deleteShoppingList'],
+    mutationFn: ({ listId }: DeleteShoppingListVariables) => deleteShoppingList(listId),
     onError: (error: Error) => {
       addToast('error', error.message || i18n.t('shopping:toast.listDeleteFailed'));
     },
   });
 }
-

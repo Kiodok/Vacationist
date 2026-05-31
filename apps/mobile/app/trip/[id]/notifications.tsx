@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@vacationist/types';
-import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from '../../../src/features/notifications/hooks/useNotifications';
+import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification } from '../../../src/features/notifications/hooks/useNotifications';
 import { NotificationItem } from '../../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../../src/features/notifications/components/EmptyNotifications';
 import { resolveNotificationPath } from '../../../src/features/notifications/utils/resolveNotificationPath';
@@ -18,11 +18,12 @@ export default function TripNotificationsScreen() {
 
   const { data: notifications = [], isLoading, refetch, isRefetching } = useTripNotifications(tripId!);
   const { mutate: markRead } = useMarkNotificationRead();
-  const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsRead(tripId!);
+  const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsRead();
+  const { mutate: deleteNotification } = useDeleteNotification();
 
   const handlePress = (notification: Notification) => {
     if (!notification.is_read) {
-      markRead(notification.id);
+      markRead({ notificationId: notification.id });
     }
     const path = resolveNotificationPath(notification);
     if (path) router.push(path as never);
@@ -38,7 +39,7 @@ export default function TripNotificationsScreen() {
           <Text className="text-heading-s text-text-primary">{t('screen.title')}</Text>
         </View>
         {notifications.some((n) => !n.is_read) && (
-          <Pressable onPress={() => markAllRead()} disabled={isMarkingAll} hitSlop={8}>
+          <Pressable onPress={() => markAllRead({ tripId })} disabled={isMarkingAll} hitSlop={8}>
             <Text className="text-body-small text-primary">
               {isMarkingAll ? t('marking') : t('markAllRead')}
             </Text>
@@ -56,7 +57,11 @@ export default function TripNotificationsScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, gap: 8, flexGrow: 1 }}
           renderItem={({ item }) => (
-            <NotificationItem notification={item} onPress={handlePress} />
+            <NotificationItem
+              notification={item}
+              onPress={handlePress}
+              onDelete={(n) => deleteNotification({ notificationId: n.id, tripId })}
+            />
           )}
           ListEmptyComponent={<EmptyNotifications />}
           refreshControl={

@@ -26,7 +26,7 @@ import { useAuthStore } from '../src/stores/authStore';
 import { useToastStore } from '../src/stores/toastStore';
 import { registerForPushNotificationsAsync } from '../src/features/notifications/utils/registerForPushNotifications';
 import { usePushNotificationHandler } from '../src/features/notifications/hooks/usePushNotificationHandler';
-import { useOnlineManager } from '../src/hooks/useOnlineManager';
+import { NetworkProvider } from '../src/providers/NetworkProvider';
 import { OfflineBanner } from '../src/components/OfflineBanner';
 import { useThemeStore } from '../src/stores/themeStore';
 import { colorScheme as cssColorScheme } from 'react-native-css-interop';
@@ -83,7 +83,6 @@ function AuthGate() {
 
   useAuthInit();
   usePushNotificationHandler();
-  useOnlineManager();
 
   const appState = useRef(AppState.currentState);
   const initialUrlHandled = useRef(false);
@@ -250,13 +249,15 @@ function RootLayout() {
   return (
     <GlobalErrorBoundary>
       <I18nProvider>
-        <QueryProvider>
-          <ThemeController />
-          <OfflineBanner />
-          <AuthGate />
-          <ToastContainer />
-          <VercelWebTools />
-        </QueryProvider>
+        <NetworkProvider>
+          <QueryProvider>
+            <ThemeController />
+            <OfflineBanner />
+            <AuthGate />
+            <ToastContainer />
+            <VercelWebTools />
+          </QueryProvider>
+        </NetworkProvider>
       </I18nProvider>
     </GlobalErrorBoundary>
   );

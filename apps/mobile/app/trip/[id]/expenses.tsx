@@ -42,10 +42,10 @@ export default function ExpensesTab() {
   const { data: members = [] } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const { data: balances = [] } = useTripBalances(tripId!);
-  const createExpense = useCreateExpense(tripId!);
-  const archiveExpenseMutation = useArchiveExpense(tripId!);
-  const unarchiveExpenseMutation = useUnarchiveExpense(tripId!);
-  const settleAllForPairMutation = useSettleAllForPair(tripId!);
+  const createExpense = useCreateExpense();
+  const archiveExpenseMutation = useArchiveExpense();
+  const unarchiveExpenseMutation = useUnarchiveExpense();
+  const settleAllForPairMutation = useSettleAllForPair();
   const settlingPairRef = useRef(false);
   useExpensesRealtime(tripId!);
 
@@ -95,7 +95,7 @@ export default function ExpensesTab() {
   }, [activeExpenses, completedExpenses, archivedExpenses]);
 
   const handleCreate = (input: CreateExpenseInput) => {
-    createExpense.mutate(input, { onSuccess: () => setShowCreate(false) });
+    createExpense.mutate({ tripId: tripId!, input }, { onSuccess: () => setShowCreate(false) });
   };
 
   if (isLoading) {
@@ -167,8 +167,8 @@ export default function ExpensesTab() {
                 currentUserId={user?.id}
                 role={role}
                 currency={currency}
-                onArchive={() => archiveExpenseMutation.mutate(item.id)}
-                onUnarchive={() => unarchiveExpenseMutation.mutate(item.id)}
+                onArchive={() => archiveExpenseMutation.mutate({ expenseId: item.id, tripId: tripId! })}
+                onUnarchive={() => unarchiveExpenseMutation.mutate({ expenseId: item.id, tripId: tripId! })}
               />
             </View>
           )}
@@ -219,7 +219,7 @@ export default function ExpensesTab() {
             if (settlingPairRef.current) return;
             settlingPairRef.current = true;
             settleAllForPairMutation.mutate(
-              { debtor, creditor },
+              { tripId: tripId!, debtor, creditor },
               { onSettled: () => { settlingPairRef.current = false; } },
             );
           }}
@@ -263,11 +263,11 @@ function ExpenseCardWithSplits({
   const { t } = useTranslation("expenses");
   const { t: tCommon } = useTranslation("common");
   const splits = expense.expense_splits;
-  const updateExpense = useUpdateExpenseWithSplits(tripId);
-  const settleSplit = useSettleExpenseSplit(tripId, expense.id);
-  const unsettleSplit = useUnsettleExpenseSplit(tripId, expense.id);
-  const coverSplitMutation = useCoverSplit(tripId, expense.id);
-  const uncoverSplitMutation = useUncoverSplit(tripId, expense.id);
+  const updateExpense = useUpdateExpenseWithSplits();
+  const settleSplit = useSettleExpenseSplit();
+  const unsettleSplit = useUnsettleExpenseSplit();
+  const coverSplitMutation = useCoverSplit();
+  const uncoverSplitMutation = useUncoverSplit();
   const [showSplits, setShowSplits] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -367,10 +367,10 @@ function ExpenseCardWithSplits({
         members={memberMap}
         currentUserId={currentUserId}
         currency={currency}
-        onSettle={(splitId) => settleSplit.mutate(splitId)}
-        onUnsettle={(splitId) => unsettleSplit.mutate(splitId)}
-        onCover={(splitId) => coverSplitMutation.mutate(splitId)}
-        onUncover={(splitId) => uncoverSplitMutation.mutate(splitId)}
+        onSettle={(splitId) => settleSplit.mutate({ splitId, expenseId: expense.id, tripId })}
+        onUnsettle={(splitId) => unsettleSplit.mutate({ splitId, expenseId: expense.id, tripId })}
+        onCover={(splitId) => coverSplitMutation.mutate({ splitId, expenseId: expense.id, tripId })}
+        onUncover={(splitId) => uncoverSplitMutation.mutate({ splitId, expenseId: expense.id, tripId })}
         canManage={canManage}
       />
 
@@ -379,7 +379,7 @@ function ExpenseCardWithSplits({
           visible={showEdit}
           onClose={() => setShowEdit(false)}
           onSubmit={(input) => {
-            updateExpense.mutate({ expenseId: expense.id, input }, { onSuccess: () => setShowEdit(false) });
+            updateExpense.mutate({ expenseId: expense.id, tripId, input }, { onSuccess: () => setShowEdit(false) });
           }}
           isPending={updateExpense.isPending}
           expense={expense}

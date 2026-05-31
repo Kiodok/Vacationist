@@ -22,6 +22,7 @@
   "label.daysCount": "{{count}} day",
   "label.daysCount_other": "{{count}} days",
   "offline.banner": "You're offline — changes will sync on reconnect",
+  "offline.mutationFailed": "You're offline — this change could not be saved",
   "errorBoundary.global.title": "Something went wrong",
   "errorBoundary.global.subtitle": "The app encountered an unexpected error. Please try again.",
   "errorBoundary.global.reload": "Reload App",

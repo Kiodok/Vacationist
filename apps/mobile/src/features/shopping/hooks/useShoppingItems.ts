@@ -6,7 +6,13 @@ import {
   updateShoppingItem,
   softDeleteShoppingItem,
 } from '@vacationist/api';
-import type { ShoppingItem, CreateShoppingItemInput, UpdateShoppingItemInput } from '@vacationist/types';
+import type {
+  ShoppingItem,
+  CreateShoppingItemVariables,
+  UpdateShoppingItemVariables,
+  UpdateShoppingItemGlobalVariables,
+  DeleteShoppingItemVariables,
+} from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
@@ -28,87 +34,66 @@ export function useAllTripShoppingItems(tripId: string) {
   });
 }
 
-export function useCreateShoppingItem(tripId: string, listId: string) {
-  const queryClient = useQueryClient();
+export function useCreateShoppingItem() {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: (input: CreateShoppingItemInput) => createShoppingItem(listId, input),
-    onSuccess: (newItem) => {
-      queryClient.setQueryData<ShoppingItem[]>(
-        ['shopping-lists', listId, 'items'],
-        (old) => {
-          if (!old) return [newItem];
-          if (old.some((i) => i.id === newItem.id)) return old;
-          return [...old, newItem];
-        },
-      );
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-    },
+    mutationKey: ['createShoppingItem'],
+    mutationFn: ({ listId, input }: CreateShoppingItemVariables) => createShoppingItem(listId, input),
     onError: () => {
       addToast('error', i18n.t('shopping:toast.itemAddFailed'));
     },
   });
 }
 
-export function useUpdateShoppingItem(tripId: string, listId: string) {
+export function useUpdateShoppingItem() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: ({ itemId, input }: { itemId: string; input: UpdateShoppingItemInput }) =>
-      updateShoppingItem(itemId, input),
-    onMutate: async ({ itemId, input }) => {
+    mutationKey: ['updateShoppingItem'],
+    mutationFn: ({ itemId, input }: UpdateShoppingItemVariables) => updateShoppingItem(itemId, input),
+    onMutate: async ({ itemId, listId, input }: UpdateShoppingItemVariables) => {
       await queryClient.cancelQueries({ queryKey: ['shopping-lists', listId, 'items'] });
 
       const previous = queryClient.getQueryData<ShoppingItem[]>(['shopping-lists', listId, 'items']);
 
       queryClient.setQueryData<ShoppingItem[]>(
         ['shopping-lists', listId, 'items'],
-        (old) =>
-          old?.map((item) =>
-            item.id === itemId ? { ...item, ...input } : item,
-          ),
+        (old) => old?.map((item) => item.id === itemId ? { ...item, ...input } : item),
       );
 
       return { previous };
     },
-    onError: (_err, _vars, context) => {
+    onError: (_err, vars, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(['shopping-lists', listId, 'items'], context.previous);
+        queryClient.setQueryData(['shopping-lists', vars.listId, 'items'], context.previous);
       }
       addToast('error', i18n.t('shopping:toast.itemUpdateFailed'));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
     },
   });
 }
 
-export function useUpdateShoppingItemGlobal(tripId: string) {
-  const queryClient = useQueryClient();
+export function useUpdateShoppingItemGlobal() {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: ({ itemId, input }: { itemId: string; input: UpdateShoppingItemInput }) =>
-      updateShoppingItem(itemId, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-    },
+    mutationKey: ['updateShoppingItemGlobal'],
+    mutationFn: ({ itemId, input }: UpdateShoppingItemGlobalVariables) => updateShoppingItem(itemId, input),
     onError: () => {
       addToast('error', i18n.t('shopping:toast.itemUpdateFailed'));
     },
   });
 }
 
-export function useDeleteShoppingItem(tripId: string, listId: string) {
+export function useDeleteShoppingItem() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: (itemId: string) => softDeleteShoppingItem(itemId),
-    onMutate: async (itemId) => {
+    mutationKey: ['deleteShoppingItem'],
+    mutationFn: ({ itemId }: DeleteShoppingItemVariables) => softDeleteShoppingItem(itemId),
+    onMutate: async ({ itemId, listId }: DeleteShoppingItemVariables) => {
       await queryClient.cancelQueries({ queryKey: ['shopping-lists', listId, 'items'] });
 
       const previous = queryClient.getQueryData<ShoppingItem[]>(['shopping-lists', listId, 'items']);
@@ -120,15 +105,11 @@ export function useDeleteShoppingItem(tripId: string, listId: string) {
 
       return { previous };
     },
-    onError: (_err, _itemId, context) => {
+    onError: (_err, vars, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(['shopping-lists', listId, 'items'], context.previous);
+        queryClient.setQueryData(['shopping-lists', vars.listId, 'items'], context.previous);
       }
       addToast('error', i18n.t('shopping:toast.itemDeleteFailed'));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-      addToast('success', i18n.t('shopping:toast.itemRemoved'));
     },
   });
 }

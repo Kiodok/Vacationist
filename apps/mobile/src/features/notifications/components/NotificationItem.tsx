@@ -8,9 +8,10 @@ import { colors, NOTIFICATION_ICON_COLORS } from '@vacationist/ui';
 interface NotificationItemProps {
   notification: Notification;
   onPress: (notification: Notification) => void;
+  onDelete?: (notification: Notification) => void;
 }
 
-export function NotificationItem({ notification, onPress }: NotificationItemProps) {
+export function NotificationItem({ notification, onPress, onDelete }: NotificationItemProps) {
   const { t } = useTranslation('notifications');
   const typeKey = `type.${notification.type}` as const;
   const iconConfig = NOTIFICATION_ICON_COLORS[notification.type] ?? { icon: 'notifications-outline', color: colors.primary };
@@ -49,9 +50,20 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
         </Text>
       </View>
 
-      {!notification.is_read && (
-        <View className="w-2 h-2 rounded-full bg-primary mt-xs" />
-      )}
+      <View className="items-center gap-sm">
+        {!notification.is_read && (
+          <View className="w-2 h-2 rounded-full bg-primary" />
+        )}
+        {onDelete && (
+          <Pressable
+            onPress={() => onDelete(notification)}
+            hitSlop={8}
+            className="p-xs"
+          >
+            <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
+          </Pressable>
+        )}
+      </View>
     </Pressable>
   );
 }

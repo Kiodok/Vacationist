@@ -46,10 +46,6 @@ export function useCastVote() {
       }
       return { previous };
     },
-    onSuccess: (_data, { activityId, tripId }) => {
-      queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-    },
     onError: (_error, { activityId }, context) => {
       if (context?.previous) {
         queryClient.setQueryData(['activities', activityId, 'votes'], context.previous);

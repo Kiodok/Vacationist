@@ -1,4 +1,5 @@
-import { focusManager } from '@tanstack/react-query';
+import { focusManager, onlineManager } from '@tanstack/react-query';
+import { getInitialOnlineStatus } from '../hooks/netInfoUtils';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
@@ -7,7 +8,7 @@ import type { AppStateStatus } from 'react-native';
 import type { ReactNode } from 'react';
 import { mmkvStorageAdapter } from '../utils/mmkvStorage';
 import { isOptimisticId } from '../utils/optimisticId';
-import { queryClient } from '../utils/queryClient';
+import { queryClient, isPersistedMutationKey } from '../utils/queryClient';
 import '../utils/mutationDefaults';
 
 focusManager.setEventListener((handleFocus) => {
@@ -19,14 +20,6 @@ focusManager.setEventListener((handleFocus) => {
 
 // Sensitive queries that must never be persisted to disk
 const EXCLUDED_QUERY_KEYS = ['travelDocuments'];
-
-// Mutation keys for which defaults are registered and offline persistence is enabled
-const PERSISTED_MUTATION_KEYS = [
-  'createActivity',
-  'castActivityVote',
-  'castAccommodationVote',
-  'castTransferFlightVote',
-];
 
 function serializeWithoutOptimisticEntries(client: PersistedClient): string {
   const cleaned: PersistedClient = {
@@ -87,16 +80,26 @@ export function QueryProvider({ children }: Props) {
           shouldDehydrateMutation: (mutation) => {
             return (
               mutation.state.isPaused &&
-              PERSISTED_MUTATION_KEYS.some(
-                (key) => mutation.options.mutationKey?.[0] === key,
-              )
+              isPersistedMutationKey(mutation.options.mutationKey?.[0])
             );
           },
         },
       }}
       onSuccess={async () => {
-        await queryClient.resumePausedMutations();
-        queryClient.invalidateQueries();
+        // NetworkProvider.useEffect has NOT yet run at this point — child
+        // effects fire before parent effects in React, so onlineManager may
+        // still hold its default (online=true). getInitialOnlineStatus()
+        // returns the same cached promise that NetworkProvider will consume,
+        // so only one NetInfo.fetch() occurs across the two call sites.
+        const online = await getInitialOnlineStatus().catch(() => true);
+        onlineManager.setOnline(online);
+
+        // Only resume and invalidate when online — when offline the hydrated
+        // cache is the source of truth and triggering network work causes churn.
+        if (onlineManager.isOnline()) {
+          await queryClient.resumePausedMutations();
+          queryClient.invalidateQueries();
+        }
       }}
     >
       {children}

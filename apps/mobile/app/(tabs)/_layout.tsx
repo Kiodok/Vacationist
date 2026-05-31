@@ -26,8 +26,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: tc.background,
           borderTopColor: tc.border,
-          bottom: isConnected ? 0 : OFFLINE_BANNER_HEIGHT + insets.bottom,
-          paddingBottom: isConnected ? undefined : 0,
+          bottom: isConnected === false ? OFFLINE_BANNER_HEIGHT + insets.bottom : 0,
+          paddingBottom: isConnected === false ? 0 : undefined,
         },
         tabBarInactiveTintColor: tc.textMuted,
       }}

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@vacationist/types';
-import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from '../../src/features/notifications/hooks/useNotifications';
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification } from '../../src/features/notifications/hooks/useNotifications';
 import { NotificationItem } from '../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../src/features/notifications/components/EmptyNotifications';
 import { NotificationListSkeleton } from '../../src/features/notifications/components/NotificationListSkeleton';
@@ -17,10 +17,11 @@ export default function NotificationsScreen() {
   const { data: notifications = [], isLoading, refetch, isRefetching } = useNotifications();
   const { mutate: markRead } = useMarkNotificationRead();
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsRead();
+  const { mutate: deleteNotification } = useDeleteNotification();
 
   const handlePress = (notification: Notification) => {
     if (!notification.is_read) {
-      markRead(notification.id);
+      markRead({ notificationId: notification.id });
     }
     const path = resolveNotificationPath(notification);
     if (path) router.push(path as never);
@@ -31,7 +32,7 @@ export default function NotificationsScreen() {
       <View className="flex-row items-center justify-between px-lg py-md">
         <Text className="text-heading-l text-text-primary">{t('screen.title')}</Text>
         {notifications.some((n) => !n.is_read) && (
-          <Pressable onPress={() => markAllRead()} disabled={isMarkingAll} hitSlop={8}>
+          <Pressable onPress={() => markAllRead({})} disabled={isMarkingAll} hitSlop={8}>
             <Text className="text-body-small text-primary">
               {isMarkingAll ? t('marking') : t('markAllRead')}
             </Text>
@@ -47,7 +48,11 @@ export default function NotificationsScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, gap: 8, flexGrow: 1 }}
           renderItem={({ item }) => (
-            <NotificationItem notification={item} onPress={handlePress} />
+            <NotificationItem
+              notification={item}
+              onPress={handlePress}
+              onDelete={(n) => deleteNotification({ notificationId: n.id })}
+            />
           )}
           ListEmptyComponent={<EmptyNotifications />}
           refreshControl={

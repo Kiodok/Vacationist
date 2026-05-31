@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
 import { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip, TripNotFoundError } from '@vacationist/api';
 import type { CreateTripInput, UpdateTripInput } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
@@ -17,7 +18,8 @@ export function useTrips() {
 
 export function useTrip(tripId: string) {
   const hasSession = useAuthStore((s) => s.hasSession);
-  return useQuery({
+  const qc = useQueryClient();
+  const query = useQuery({
     queryKey: ['trips', tripId],
     queryFn: () => getTrip(tripId),
     retry: (failureCount, error) => {
@@ -26,6 +28,25 @@ export function useTrip(tripId: string) {
     },
     enabled: hasSession && !!tripId,
   });
+
+  // TripNotFoundError means RLS has revoked access (user removed from trip).
+  // Purge all cached data for this trip subtree so the user sees a proper error
+  // screen instead of stale activities / expenses / members.
+  // purgedForTrip tracks which tripId has already been purged to prevent the
+  // loop: removeQueries resets state → triggers refetch → same error → repeat.
+  const purgedForTrip = useRef<string | null>(null);
+  useEffect(() => {
+    if (query.error instanceof TripNotFoundError && purgedForTrip.current !== tripId) {
+      purgedForTrip.current = tripId;
+      // Cancel any in-flight fetch first so it can't re-insert a stale error
+      // entry after the cache is purged.
+      void qc.cancelQueries({ queryKey: ['trips', tripId] }).then(() => {
+        qc.removeQueries({ queryKey: ['trips', tripId] });
+      });
+    }
+  }, [query.error, tripId, qc]);
+
+  return query;
 }
 
 export function useCreateTrip() {

@@ -116,7 +116,8 @@
       "Bash(node -e \"const p = require\\('./node_modules/vitest/package.json'\\); console.log\\(p.version\\)\")",
       "Bash(node -e \"const lock = require\\('./package-lock.json'\\); const wVitest = lock.packages['apps/mobile/node_modules/vitest']; const rVitest = lock.packages['node_modules/vitest']; console.log\\('workspace-specific vitest:', wVitest ? wVitest.version : 'none \\(hoisted to root\\)'\\); console.log\\('root vitest:', rVitest ? rVitest.version : 'not found'\\);\")",
       "Bash(node -e \"const lock = require\\('./package-lock.json'\\); const keys = Object.keys\\(lock.packages\\).filter\\(k => k.includes\\('vitest'\\)\\); console.log\\(keys.slice\\(0,20\\)\\);\")",
-      "PowerShell(Copy-Item *)"
+      "PowerShell(Copy-Item *)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts|js\\)$|^d.*app\")"
     ]
   },
   "model": "opusplan",

@@ -443,3 +443,32 @@ export type CreateActivityVariables = { tripId: string; input: CreateActivityInp
 export type CastActivityVoteVariables = { vote: (typeof VOTE_TYPE)[number]; activityId: string; tripId: string };
 export type CastAccommodationVoteVariables = { vote: (typeof VOTE_TYPE)[number]; accommodationId: string; tripId: string };
 export type CastTransferFlightVoteVariables = { vote: (typeof VOTE_TYPE)[number]; flightId: string; tripId: string };
+
+// --- Expense mutation variables ---
+export type CreateExpenseVariables = { tripId: string; input: CreateExpenseInput };
+export type UpdateExpenseWithSplitsVariables = { expenseId: string; tripId: string; input: UpdateExpenseWithSplitsInput };
+export type ArchiveExpenseVariables = { expenseId: string; tripId: string };
+export type UnarchiveExpenseVariables = { expenseId: string; tripId: string };
+export type SettleExpenseSplitVariables = { splitId: string; expenseId: string; tripId: string };
+export type UnsettleExpenseSplitVariables = { splitId: string; expenseId: string; tripId: string };
+export type CoverSplitVariables = { splitId: string; expenseId: string; tripId: string };
+export type UncoverSplitVariables = { splitId: string; expenseId: string; tripId: string };
+export type SettleAllForPairVariables = { debtor: string; creditor: string; tripId: string };
+
+// --- Shopping list mutation variables ---
+export type CreateShoppingListVariables = { tripId: string; input: CreateShoppingListInput };
+export type UpdateShoppingListVariables = { listId: string; tripId: string; input: UpdateShoppingListInput };
+export type ArchiveShoppingListVariables = { listId: string; tripId: string };
+export type UnarchiveShoppingListVariables = { listId: string; tripId: string };
+export type DeleteShoppingListVariables = { listId: string; tripId: string };
+
+// --- Shopping item mutation variables ---
+export type CreateShoppingItemVariables = { listId: string; tripId: string; input: CreateShoppingItemInput };
+export type UpdateShoppingItemVariables = { itemId: string; listId: string; tripId: string; input: UpdateShoppingItemInput };
+export type UpdateShoppingItemGlobalVariables = { itemId: string; tripId: string; input: UpdateShoppingItemInput };
+export type DeleteShoppingItemVariables = { itemId: string; listId: string; tripId: string };
+
+// --- Notification mutation variables ---
+export type MarkNotificationReadVariables = { notificationId: string };
+export type MarkAllNotificationsReadVariables = { tripId?: string };
+export type DeleteNotificationVariables = { notificationId: string; tripId?: string };

@@ -72,10 +72,6 @@ export function useCreateActivity() {
 
       return { previous };
     },
-    onSuccess: (_data, { tripId }) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      addToast('success', i18n.t('activities:toast.created'));
-    },
     onError: (err, { tripId }, context) => {
       if (context !== undefined) {
         queryClient.setQueryData<Activity[]>(['trips', tripId, 'activities'], context.previous);

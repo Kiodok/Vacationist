@@ -24,9 +24,9 @@ export default function ShoppingTab() {
   const user = useAuthStore((s) => s.user);
   const { data: lists, isLoading, isFetching, refetch } = useShoppingLists(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
-  const createList = useCreateShoppingList(tripId!);
-  const deleteList = useDeleteShoppingList(tripId!);
-  const archiveList = useArchiveShoppingList(tripId!);
+  const createList = useCreateShoppingList();
+  const deleteList = useDeleteShoppingList();
+  const archiveList = useArchiveShoppingList();
 
   const [showCreate, setShowCreate] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('lists');
@@ -62,7 +62,7 @@ export default function ShoppingTab() {
   }, [activeLists, completedLists, archivedLists]);
 
   const handleCreate = (input: CreateShoppingListInput) => {
-    createList.mutate(input, { onSuccess: () => setShowCreate(false) });
+    createList.mutate({ tripId: tripId!, input }, { onSuccess: () => setShowCreate(false) });
   };
 
   if (isLoading) {
@@ -142,8 +142,8 @@ export default function ShoppingTab() {
               role={role}
               isArchived={section.key === 'archived'}
               onPress={() => router.push(`/trip/shopping-list/${item.id}?tripId=${tripId}`)}
-              onDelete={() => deleteList.mutate(item.id)}
-              onArchive={() => archiveList.mutate(item.id)}
+              onDelete={() => deleteList.mutate({ listId: item.id, tripId: tripId! })}
+              onArchive={() => archiveList.mutate({ listId: item.id, tripId: tripId! })}
             />
           )}
           ItemSeparatorComponent={() => <View className="h-sm" />}
@@ -179,7 +179,7 @@ export default function ShoppingTab() {
 function AllItemsView({ tripId }: { tripId: string }) {
   const { t } = useTranslation("shopping");
   const { data: allItems, isLoading } = useAllTripShoppingItems(tripId);
-  const updateItem = useUpdateShoppingItemGlobal(tripId);
+  const updateItem = useUpdateShoppingItemGlobal();
 
   const sections = useMemo(() => {
     if (!allItems) return [];
@@ -198,7 +198,7 @@ function AllItemsView({ tripId }: { tripId: string }) {
 
   const handleToggle = (item: ShoppingItem) => {
     const newStatus = item.status === 'open' ? 'bought' : 'open';
-    updateItem.mutate({ itemId: item.id, input: { status: newStatus } });
+    updateItem.mutate({ itemId: item.id, tripId, input: { status: newStatus } });
   };
 
   if (isLoading) {

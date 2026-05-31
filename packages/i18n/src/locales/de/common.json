@@ -22,6 +22,7 @@
   "label.daysCount": "{{count}} Tag",
   "label.daysCount_other": "{{count}} Tage",
   "offline.banner": "Kein Internet — Änderungen werden nach Verbindungswiederherstellung synchronisiert",
+  "offline.mutationFailed": "Kein Internet — diese Änderung konnte nicht gespeichert werden",
   "errorBoundary.global.title": "Etwas ist schiefgelaufen",
   "errorBoundary.global.subtitle": "Die App ist auf einen unerwarteten Fehler gestoßen. Bitte versuche es erneut.",
   "errorBoundary.global.reload": "App neu laden",

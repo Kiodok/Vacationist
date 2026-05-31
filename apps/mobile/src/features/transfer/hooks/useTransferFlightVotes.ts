@@ -61,10 +61,6 @@ export function useCastTransferFlightVote() {
       }
       return { previous };
     },
-    onSuccess: (_data, { flightId, tripId }) => {
-      queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
-    },
     onError: (_error, { flightId }, context) => {
       if (context?.previous) {
         queryClient.setQueryData(['transfer-flights', flightId, 'votes'], context.previous);

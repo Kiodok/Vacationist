@@ -19,6 +19,7 @@
   "confirm.deleteList": "Delete this list?",
   "confirm.deleteYes": "Yes, delete",
   "confirm.archiveInstead": "Archive instead",
+  "toast.listCreated": "List created",
   "toast.listUpdated": "List updated",
   "toast.listArchived": "List archived",
   "toast.listRestored": "List restored",

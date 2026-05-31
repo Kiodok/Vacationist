@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
@@ -9,11 +10,13 @@ export const OFFLINE_BANNER_HEIGHT = 28;
 export function OfflineBanner() {
   const { t } = useTranslation('common');
   const { isConnected } = useNetworkStatus();
+  const insets = useSafeAreaInsets();
 
-  if (isConnected) return null;
+  // null = status not yet determined → keep banner hidden until we know for sure
+  if (isConnected !== false) return null;
 
   return (
-    <View style={styles.banner}>
+    <View style={[styles.banner, { bottom: insets.bottom }]}>
       <Ionicons name="cloud-offline-outline" size={14} color="#000" />
       <Text style={styles.text}>
         {t('offline.banner')}
@@ -25,7 +28,6 @@ export function OfflineBanner() {
 const styles = StyleSheet.create({
   banner: {
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
     height: OFFLINE_BANNER_HEIGHT,

@@ -34,16 +34,16 @@ export default function ShoppingListDetail() {
 
   const { data: items, isLoading, isFetching, refetch } = useShoppingItems(listId!);
   const { data: role } = useCurrentMemberRole(tripId!);
-  const createItem = useCreateShoppingItem(tripId!, listId!);
-  const updateItem = useUpdateShoppingItem(tripId!, listId!);
-  const deleteItem = useDeleteShoppingItem(tripId!, listId!);
-  const deleteList = useDeleteShoppingList(tripId!);
-  const archiveList = useArchiveShoppingList(tripId!);
-  const unarchiveList = useUnarchiveShoppingList(tripId!);
+  const createItem = useCreateShoppingItem();
+  const updateItem = useUpdateShoppingItem();
+  const deleteItem = useDeleteShoppingItem();
+  const deleteList = useDeleteShoppingList();
+  const archiveList = useArchiveShoppingList();
+  const unarchiveList = useUnarchiveShoppingList();
 
   useShoppingRealtime(listId!);
 
-  const updateList = useUpdateShoppingList(tripId!);
+  const updateList = useUpdateShoppingList();
   const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
   const [showEditList, setShowEditList] = useState(false);
   const [confirmDeleteList, setConfirmDeleteList] = useState(false);
@@ -58,24 +58,27 @@ export default function ShoppingListDetail() {
 
   const handleToggle = (item: ShoppingItem) => {
     const newStatus = item.status === 'open' ? 'bought' : 'open';
-    updateItem.mutate({ itemId: item.id, input: { status: newStatus } });
+    updateItem.mutate({ itemId: item.id, listId: listId!, tripId: tripId!, input: { status: newStatus } });
   };
 
   const handleAdd = (title: string) => {
-    createItem.mutate({ title });
+    createItem.mutate({ listId: listId!, tripId: tripId!, input: { title } });
   };
 
   const handleEditSubmit = (input: UpdateShoppingItemInput) => {
     if (!editingItem) return;
     updateItem.mutate(
-      { itemId: editingItem.id, input },
+      { itemId: editingItem.id, listId: listId!, tripId: tripId!, input },
       { onSuccess: () => setEditingItem(null) },
     );
   };
 
   const handleDelete = () => {
     if (!editingItem) return;
-    deleteItem.mutate(editingItem.id, { onSuccess: () => setEditingItem(null) });
+    deleteItem.mutate(
+      { itemId: editingItem.id, listId: listId!, tripId: tripId! },
+      { onSuccess: () => setEditingItem(null) },
+    );
   };
 
   return (
@@ -108,7 +111,7 @@ export default function ShoppingListDetail() {
             </Pressable>
             {isArchived ? (
               <Pressable
-                onPress={() => unarchiveList.mutate(listId!)}
+                onPress={() => unarchiveList.mutate({ listId: listId!, tripId: tripId! })}
                 className="p-xs"
                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
               >
@@ -116,7 +119,7 @@ export default function ShoppingListDetail() {
               </Pressable>
             ) : (
               <Pressable
-                onPress={() => archiveList.mutate(listId!, { onSuccess: () => goBackToTrip() })}
+                onPress={() => archiveList.mutate({ listId: listId!, tripId: tripId! }, { onSuccess: () => goBackToTrip() })}
                 className="p-xs"
                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
               >
@@ -139,7 +142,7 @@ export default function ShoppingListDetail() {
           <Text className="text-text-secondary text-body-small">Delete this entire list?</Text>
           <Pressable
             onPress={() => {
-              deleteList.mutate(listId!, { onSuccess: () => goBackToTrip() });
+              deleteList.mutate({ listId: listId!, tripId: tripId! }, { onSuccess: () => goBackToTrip() });
               setConfirmDeleteList(false);
             }}
             className="px-md py-xs rounded-sm bg-danger/20"
@@ -181,7 +184,7 @@ export default function ShoppingListDetail() {
               <ShoppingItemRow
                 item={item}
                 onToggle={() => handleToggle(item)}
-                onDelete={canDeleteItem(item) ? () => deleteItem.mutate(item.id) : undefined}
+                onDelete={canDeleteItem(item) ? () => deleteItem.mutate({ itemId: item.id, listId: listId!, tripId: tripId! }) : undefined}
                 onLongPress={() => setEditingItem(item)}
               />
             )}
@@ -220,7 +223,7 @@ export default function ShoppingListDetail() {
         onClose={() => setShowEditList(false)}
         onSubmit={(input) => {
           updateList.mutate(
-            { listId: listId!, input },
+            { listId: listId!, tripId: tripId!, input },
             { onSuccess: () => setShowEditList(false) },
           );
         }}
