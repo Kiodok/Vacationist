@@ -11,6 +11,7 @@
   "toast.created": "Note created",
   "toast.updated": "Note updated",
   "toast.deleted": "Note deleted",
+  "create.locked": "New notes can't be added more than 2 weeks after the trip ended.",
   "toast.createFailed": "Failed to create note.",
   "toast.updateFailed": "Failed to update note.",
   "toast.deleteFailed": "Failed to delete note."

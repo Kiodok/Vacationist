@@ -58,7 +58,7 @@ export default function LoginScreen() {
           </Text>
         </View>
 
-        <View className="gap-md">
+        <View className="gap-md" style={{ alignSelf: 'center', width: 240 }}>
           <GoogleAuthButton
             onPress={handleGoogleSignIn}
             loading={googleLoading}

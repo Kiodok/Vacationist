@@ -24,11 +24,12 @@ export function GoogleSignInButton({ onPress, disabled = false }: GoogleSignInBu
       accessibilityLabel="Sign in with Google"
       style={({ pressed }) => ({
         opacity: disabled ? 0.6 : pressed ? 0.8 : 1,
-        alignSelf: 'stretch',
+        alignSelf: 'center',
+        width: 240,
         height: 48,
       })}
     >
-      <Image source={source} style={{ width: '100%', height: 48 }} resizeMode="stretch" />
+      <Image source={source} style={{ width: 240, height: 48 }} resizeMode="contain" />
     </Pressable>
   );
 }

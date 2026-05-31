@@ -11,6 +11,7 @@
   "toast.created": "Notiz erstellt",
   "toast.updated": "Notiz aktualisiert",
   "toast.deleted": "Notiz gelöscht",
+  "create.locked": "Neue Notizen können nicht mehr hinzugefügt werden, da die Reise vor mehr als 2 Wochen beendet wurde.",
   "toast.createFailed": "Notiz konnte nicht erstellt werden.",
   "toast.updateFailed": "Notiz konnte nicht aktualisiert werden.",
   "toast.deleteFailed": "Notiz konnte nicht gelöscht werden."
