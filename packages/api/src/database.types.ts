@@ -167,6 +167,7 @@ export type Database = {
           external_url: string | null
           id: string
           maps_url: string | null
+          reservation_required: boolean
           start_time: string | null
           status: string
           title: string
@@ -186,6 +187,7 @@ export type Database = {
           external_url?: string | null
           id?: string
           maps_url?: string | null
+          reservation_required?: boolean
           start_time?: string | null
           status?: string
           title: string
@@ -205,6 +207,7 @@ export type Database = {
           external_url?: string | null
           id?: string
           maps_url?: string | null
+          reservation_required?: boolean
           start_time?: string | null
           status?: string
           title?: string

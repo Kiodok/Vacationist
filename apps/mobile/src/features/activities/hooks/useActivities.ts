@@ -58,6 +58,7 @@ export function useCreateActivity() {
         maps_url: null,
         status: 'planned',
         voting_open: true,
+        reservation_required: input.reservation_required ?? false,
         created_by: userId,
         created_at: new Date().toISOString(),
         deleted_at: null,

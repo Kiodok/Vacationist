@@ -13,6 +13,7 @@
   "field.date": "Datum",
   "field.startTime": "Startzeit",
   "field.endTime": "Endzeit",
+  "field.reservationRequired": "Reservierung erforderlich",
   "field.url": "Link (optional)",
   "field.mapsUrl": "Maps-Link (optional)",
   "placeholder.title": "z.B. Kolosseum besuchen",

@@ -90,6 +90,7 @@ export const createActivitySchema = z.object({
   end_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/).nullable().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
   maps_url: httpsUrlSchema.nullable().optional(),
+  reservation_required: z.boolean().optional(),
 });
 
 export const updateActivitySchema = createActivitySchema.partial().extend({

@@ -40,6 +40,7 @@ export async function createActivity(tripId: string, input: CreateActivityInput)
     p_end_time: input.end_time ?? undefined,
     p_external_url: input.external_url ?? undefined,
     p_maps_url: input.maps_url ?? undefined,
+    p_reservation_required: input.reservation_required ?? false,
   });
 
   if (error) throw error;

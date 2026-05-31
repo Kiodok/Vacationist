@@ -81,6 +81,7 @@ export interface Activity {
   maps_url: string | null;
   status: ActivityStatus;
   voting_open: boolean;
+  reservation_required: boolean;
   created_by: string;
   created_at: string;
   deleted_at: string | null;

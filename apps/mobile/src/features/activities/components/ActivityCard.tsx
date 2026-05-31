@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, ActivityVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
@@ -19,6 +20,7 @@ interface ActivityCardProps {
 }
 
 export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePress, detail, displayStatus, highlight }: ActivityCardProps) {
+  const { t } = useTranslation('activities');
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !activity.voting_open;
   const borderColor = getVoteBorderColor(votes);
@@ -104,6 +106,14 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
             <Ionicons name="wallet-outline" size={14} color="#A0A0A0" />
             <Text className="text-body-small text-text-secondary">
               €{activity.cost_estimate}
+            </Text>
+          </View>
+        )}
+        {activity.reservation_required && (
+          <View className="flex-row items-center gap-xs">
+            <Ionicons name="ticket-outline" size={14} color={colors.warning} />
+            <Text className="text-body-small" style={{ color: colors.warning }}>
+              {t('field.reservationRequired')}
             </Text>
           </View>
         )}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Switch } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +39,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
         start_time: activity.start_time ? activity.start_time.slice(0, 5) : undefined,
         end_time: activity.end_time ? activity.end_time.slice(0, 5) : undefined,
         external_url: activity.external_url ?? undefined,
+        reservation_required: activity.reservation_required,
       });
     }
   }, [visible, activity]);
@@ -245,6 +246,24 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                   <Text className="text-danger text-body-small">{errors.external_url.message}</Text>
                 )}
               </View>
+
+              {/* Reservation Required */}
+              <Controller
+                control={control}
+                name="reservation_required"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.reservationRequired')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
+                      thumbColor="#FFFFFF"
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
 
               {/* Submit */}
               <Pressable
