@@ -16,8 +16,8 @@
   "flight.field.airline": "Fluggesellschaft",
   "flight.field.departure": "Von",
   "flight.field.arrival": "Nach",
-  "flight.field.departureTime": "Abflugzeit",
-  "flight.field.arrivalTime": "Ankunftszeit",
+  "flight.field.departureTime": "Abflug",
+  "flight.field.arrivalTime": "Ankunft",
   "flight.field.price": "Preis pro Person",
   "flight.field.url": "Buchungslink",
   "flight.field.notes": "Notizen",
@@ -123,5 +123,9 @@
   "all.status.done": "Fertig",
   "all.direction.outPrefix": "Hin:",
   "all.direction.retPrefix": "Rück:",
-  "all.perPerson": "/Person"
+  "all.perPerson": "/Person",
+  "flight.field.returnDeparture": "Rückabreise",
+  "flight.field.returnArrival": "Rückankunft",
+  "flight.field.combinedPrice": "Kombinierter Preis / Person",
+  "vehicle.placeholder.title": "z.B. Garys Auto"
 }

@@ -87,7 +87,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
             </View>
 
             <View className="flex-row items-center justify-between mb-md">
-              <Text className="text-heading-m text-text-primary">Edit Flight</Text>
+              <Text className="text-heading-m text-text-primary">{t('flight.edit.title')}</Text>
               <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
@@ -97,7 +97,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
               <View className="gap-md">
                 {/* Title */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Title *</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('flight.field.title')} *</Text>
                   <Controller
                     control={control}
                     name="title"
@@ -105,7 +105,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="e.g. Swiss Air LX1234"
+                        placeholder={t('flight.placeholder.title')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -120,7 +120,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                 {/* Direction */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Direction *</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('flight.field.direction')} *</Text>
                   <View className="flex-row gap-sm">
                     {DIRECTION_ORDER.map((dir) => (
                       <Pressable
@@ -132,7 +132,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                       >
                         <Text className={`text-body-small font-medium ${direction === dir ? 'text-white' : 'text-text-secondary'}`}>
-                          {dir === 'outbound-return' ? 'Both' : dir === 'outbound' ? 'Outbound' : 'Return'}
+                          {dir === 'outbound-return' ? t('direction.both') : dir === 'outbound' ? t('direction.outbound') : t('direction.return')}
                         </Text>
                       </Pressable>
                     ))}
@@ -141,7 +141,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                 {/* Airline */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Airline</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('flight.field.airline')}</Text>
                   <Controller
                     control={control}
                     name="airline"
@@ -149,7 +149,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="e.g. Swiss International Air Lines"
+                        placeholder={t('flight.placeholder.airline')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -161,13 +161,13 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                 {/* ── Outbound leg ── */}
                 {direction === 'outbound-return' && (
-                  <Text className="text-label text-primary uppercase font-semibold">Outbound Leg</Text>
+                  <Text className="text-label text-primary uppercase font-semibold">{t('flight.section.outboundLeg')}</Text>
                 )}
 
                 {/* Airports */}
                 <View className="flex-row gap-sm">
                   <View className="flex-1 gap-xs">
-                    <Text className="text-label text-text-muted uppercase">From</Text>
+                    <Text className="text-label text-text-muted uppercase">{t('flight.field.departure')}</Text>
                     <Controller
                       control={control}
                       name="departure_airport"
@@ -175,7 +175,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                         <TextInput
                           className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                           placeholderTextColor="#5C5C5C"
-                          placeholder="ZRH"
+                          placeholder={t('flight.placeholder.departure')}
                           value={value ?? ''}
                           onChangeText={onChange}
                           onBlur={onBlur}
@@ -186,7 +186,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                     />
                   </View>
                   <View className="flex-1 gap-xs">
-                    <Text className="text-label text-text-muted uppercase">To</Text>
+                    <Text className="text-label text-text-muted uppercase">{t('flight.field.arrival')}</Text>
                     <Controller
                       control={control}
                       name="arrival_airport"
@@ -194,7 +194,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                         <TextInput
                           className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                           placeholderTextColor="#5C5C5C"
-                          placeholder="BCN"
+                          placeholder={t('flight.placeholder.arrival')}
                           value={value ?? ''}
                           onChangeText={onChange}
                           onBlur={onBlur}
@@ -208,7 +208,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                 {/* Departure */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Departure</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('flight.field.departureTime')}</Text>
                   <View className="flex-row gap-sm">
                     <View className="flex-1">
                       <Controller
@@ -252,7 +252,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                 {/* Arrival */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Arrival</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('flight.field.arrivalTime')}</Text>
                   <View className="flex-row gap-sm">
                     <View className="flex-1">
                       <Controller
@@ -298,12 +298,12 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                 {/* ── Return leg (outbound-return only) ── */}
                 {direction === 'outbound-return' && (
                   <>
-                    <Text className="text-label text-warning uppercase font-semibold">Return Leg</Text>
+                    <Text className="text-label text-warning uppercase font-semibold">{t('flight.section.returnLeg')}</Text>
 
                     {/* Return airports */}
                     <View className="flex-row gap-sm">
                       <View className="flex-1 gap-xs">
-                        <Text className="text-label text-text-muted uppercase">From</Text>
+                        <Text className="text-label text-text-muted uppercase">{t('flight.field.departure')}</Text>
                         <Controller
                           control={control}
                           name="return_departure_airport"
@@ -311,7 +311,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                             <TextInput
                               className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                               placeholderTextColor="#5C5C5C"
-                              placeholder="BCN"
+                              placeholder={t('flight.placeholder.arrival')}
                               value={value ?? ''}
                               onChangeText={onChange}
                               onBlur={onBlur}
@@ -322,7 +322,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                         />
                       </View>
                       <View className="flex-1 gap-xs">
-                        <Text className="text-label text-text-muted uppercase">To</Text>
+                        <Text className="text-label text-text-muted uppercase">{t('flight.field.arrival')}</Text>
                         <Controller
                           control={control}
                           name="return_arrival_airport"
@@ -330,7 +330,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                             <TextInput
                               className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                               placeholderTextColor="#5C5C5C"
-                              placeholder="ZRH"
+                              placeholder={t('flight.placeholder.departure')}
                               value={value ?? ''}
                               onChangeText={onChange}
                               onBlur={onBlur}
@@ -344,7 +344,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                     {/* Return departure */}
                     <View className="gap-xs">
-                      <Text className="text-label text-text-muted uppercase">Return Departure</Text>
+                      <Text className="text-label text-text-muted uppercase">{t('flight.field.returnDeparture')}</Text>
                       <View className="flex-row gap-sm">
                         <View className="flex-1">
                           <Controller
@@ -392,7 +392,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                     {/* Return arrival */}
                     <View className="gap-xs">
-                      <Text className="text-label text-text-muted uppercase">Return Arrival</Text>
+                      <Text className="text-label text-text-muted uppercase">{t('flight.field.returnArrival')}</Text>
                       <View className="flex-row gap-sm">
                         <View className="flex-1">
                           <Controller
@@ -440,7 +440,9 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                 {/* Price per person */}
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">
-                    {direction === 'outbound-return' ? `Combined Price / Person (${currencySymbol})` : `Price / Person (${currencySymbol})`}
+                    {direction === 'outbound-return'
+                      ? `${t('flight.field.combinedPrice')} (${currencySymbol})`
+                      : `${t('flight.field.price')} (${currencySymbol})`}
                   </Text>
                   <Controller
                     control={control}
@@ -449,10 +451,10 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="0.00"
+                        placeholder={t('flight.placeholder.price')}
                         value={priceText}
-                        onChangeText={(t) => {
-                          const cleaned = t.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                        onChangeText={(text) => {
+                          const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
                           setPriceText(cleaned);
                           const num = parseFloat(cleaned);
                           onChange(isNaN(num) ? null : num);
@@ -465,7 +467,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                 {/* External URL */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Link</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('flight.field.url')}</Text>
                   <Controller
                     control={control}
                     name="external_url"
@@ -473,9 +475,9 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="https://..."
+                        placeholder={t('flight.placeholder.url')}
                         value={value ?? ''}
-                        onChangeText={(t) => onChange(t || null)}
+                        onChangeText={(text) => onChange(text || null)}
                         autoCapitalize="none"
                         keyboardType="url"
                         maxLength={2048}
@@ -489,7 +491,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
 
                 {/* Notes */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Notes</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('flight.field.notes')}</Text>
                   <Controller
                     control={control}
                     name="notes"
@@ -497,7 +499,7 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="Luggage allowance, seat class, etc."
+                        placeholder={t('flight.placeholder.notes')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}

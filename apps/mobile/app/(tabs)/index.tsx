@@ -23,18 +23,18 @@ export default function TripsScreen() {
 
   const SECTIONS = useMemo(() => [
     {
-      key: 'planning' as const,
-      title: t('section.inPlanning'),
-      icon: 'calendar-outline' as const,
-      iconColor: colors.primary,
-      textClass: 'text-primary',
-    },
-    {
       key: 'active' as const,
       title: t('section.ongoing'),
       icon: 'airplane-outline' as const,
       iconColor: colors.success,
       textClass: 'text-success',
+    },
+    {
+      key: 'planning' as const,
+      title: t('section.inPlanning'),
+      icon: 'calendar-outline' as const,
+      iconColor: colors.primary,
+      textClass: 'text-primary',
     },
     {
       key: 'completed' as const,

@@ -49,7 +49,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
             </View>
 
             <View className="flex-row items-center justify-between mb-md">
-              <Text className="text-heading-m text-text-primary">New Rental Car</Text>
+              <Text className="text-heading-m text-text-primary">{t('rental.create.title')}</Text>
               <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
@@ -59,7 +59,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
               <View className="gap-md">
                 {/* Title */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Title *</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.title')} *</Text>
                   <Controller
                     control={control}
                     name="title"
@@ -67,7 +67,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="e.g. Hertz VW Golf"
+                        placeholder={t('rental.placeholder.title')}
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -82,7 +82,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
 
                 {/* Company */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Company</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.company')}</Text>
                   <Controller
                     control={control}
                     name="company"
@@ -90,7 +90,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="e.g. Hertz, Europcar, Sixt"
+                        placeholder={t('rental.placeholder.company')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -102,7 +102,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
 
                 {/* Locations */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Pickup Location</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.pickup')}</Text>
                   <Controller
                     control={control}
                     name="pickup_location"
@@ -110,7 +110,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="e.g. Barcelona Airport T1"
+                        placeholder={t('rental.placeholder.pickup')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -121,7 +121,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                 </View>
 
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Dropoff Location</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.dropoff')}</Text>
                   <Controller
                     control={control}
                     name="dropoff_location"
@@ -129,7 +129,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="Same as pickup or different location"
+                        placeholder={t('rental.placeholder.dropoff')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -142,7 +142,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                 {/* Dates */}
                 <View className="flex-row gap-sm">
                   <View className="flex-1 gap-xs">
-                    <Text className="text-label text-text-muted uppercase">Pickup Date</Text>
+                    <Text className="text-label text-text-muted uppercase">{t('rental.field.pickupDate')}</Text>
                     <Controller
                       control={control}
                       name="pickup_date"
@@ -157,7 +157,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                     />
                   </View>
                   <View className="flex-1 gap-xs">
-                    <Text className="text-label text-text-muted uppercase">Dropoff Date</Text>
+                    <Text className="text-label text-text-muted uppercase">{t('rental.field.dropoffDate')}</Text>
                     <Controller
                       control={control}
                       name="dropoff_date"
@@ -175,7 +175,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
 
                 {/* Booking Reference */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Booking Reference</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.bookingRef')}</Text>
                   <Controller
                     control={control}
                     name="booking_reference"
@@ -183,7 +183,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="e.g. HZ-ABC123456"
+                        placeholder={t('rental.placeholder.bookingRef')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -196,7 +196,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
 
                 {/* Price */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Total Price ({currencySymbol})</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.price')} ({currencySymbol})</Text>
                   <Controller
                     control={control}
                     name="price_total"
@@ -204,10 +204,10 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="0.00"
+                        placeholder={t('rental.placeholder.price')}
                         value={priceText}
-                        onChangeText={(t) => {
-                          const cleaned = t.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                        onChangeText={(text) => {
+                          const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
                           setPriceText(cleaned);
                           const num = parseFloat(cleaned);
                           onChange(isNaN(num) ? null : num);
@@ -220,7 +220,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
 
                 {/* External URL */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Link</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.url')}</Text>
                   <Controller
                     control={control}
                     name="external_url"
@@ -228,9 +228,9 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="https://..."
+                        placeholder={t('rental.placeholder.url')}
                         value={value ?? ''}
-                        onChangeText={(t) => onChange(t || null)}
+                        onChangeText={(text) => onChange(text || null)}
                         autoCapitalize="none"
                         keyboardType="url"
                         maxLength={2048}
@@ -244,7 +244,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
 
                 {/* Notes */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Notes</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.notes')}</Text>
                   <Controller
                     control={control}
                     name="notes"
@@ -252,7 +252,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="Insurance, GPS, additional drivers, etc."
+                        placeholder={t('rental.placeholder.notes')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -272,7 +272,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
                   <Text className="text-white text-body font-semibold">
-                    {isPending ? 'Adding...' : 'Add Rental Car'}
+                    {isPending ? t('rental.create.adding') : t('rental.create.submit')}
                   </Text>
                 </Pressable>
               </View>

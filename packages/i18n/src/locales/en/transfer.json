@@ -16,8 +16,8 @@
   "flight.field.airline": "Airline",
   "flight.field.departure": "From",
   "flight.field.arrival": "To",
-  "flight.field.departureTime": "Departure time",
-  "flight.field.arrivalTime": "Arrival time",
+  "flight.field.departureTime": "Departure",
+  "flight.field.arrivalTime": "Arrival",
   "flight.field.price": "Price per person",
   "flight.field.url": "Booking link",
   "flight.field.notes": "Notes",
@@ -123,5 +123,9 @@
   "all.status.done": "Done",
   "all.direction.outPrefix": "Out:",
   "all.direction.retPrefix": "Ret:",
-  "all.perPerson": "/person"
+  "all.perPerson": "/person",
+  "flight.field.returnDeparture": "Return Departure",
+  "flight.field.returnArrival": "Return Arrival",
+  "flight.field.combinedPrice": "Combined Price / Person",
+  "vehicle.placeholder.title": "e.g. Gary's car"
 }

@@ -48,7 +48,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
             </View>
 
             <View className="flex-row items-center justify-between mb-md">
-              <Text className="text-heading-m text-text-primary">Edit Vehicle</Text>
+              <Text className="text-heading-m text-text-primary">{t('vehicle.edit.title')}</Text>
               <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
@@ -58,7 +58,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
               <View className="gap-md">
                 {/* Title */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Title *</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('vehicle.field.title')} *</Text>
                   <Controller
                     control={control}
                     name="title"
@@ -66,7 +66,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="e.g. Gary's car"
+                        placeholder={t('vehicle.placeholder.title')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
@@ -81,7 +81,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
 
                 {/* Direction */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Direction *</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('vehicle.field.direction')} *</Text>
                   <View className="flex-row gap-sm">
                     {(['outbound-return', 'outbound', 'return'] as const).map((dir) => (
                       <Pressable
@@ -93,7 +93,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
                         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                       >
                         <Text className={`text-body-small font-medium ${direction === dir ? 'text-white' : 'text-text-secondary'}`}>
-                          {dir === 'outbound-return' ? 'Both' : dir === 'outbound' ? 'Outbound' : 'Return'}
+                          {dir === 'outbound-return' ? t('direction.both') : dir === 'outbound' ? t('direction.outbound') : t('direction.return')}
                         </Text>
                       </Pressable>
                     ))}
@@ -102,7 +102,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
 
                 {/* Notes */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">Notes</Text>
+                  <Text className="text-label text-text-muted uppercase">{t('vehicle.field.notes')}</Text>
                   <Controller
                     control={control}
                     name="notes"
@@ -110,7 +110,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
                       <TextInput
                         className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                         placeholderTextColor="#5C5C5C"
-                        placeholder="Meeting point, departure time, etc."
+                        placeholder={t('vehicle.placeholder.notes')}
                         value={value ?? ''}
                         onChangeText={onChange}
                         onBlur={onBlur}
