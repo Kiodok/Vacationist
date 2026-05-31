@@ -2,22 +2,8 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
-import type { Notification, NotificationType } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
-
-function iconForType(type: NotificationType): keyof typeof Ionicons.glyphMap {
-  switch (type) {
-    case 'new_activity':     return 'add-circle-outline';
-    case 'vote_finalized':
-    case 'vote_update':      return 'checkmark-circle-outline';
-    case 'expense_change':   return 'wallet-outline';
-    case 'new_member':       return 'person-add-outline';
-    case 'schedule_change':  return 'calendar-outline';
-    case 'reminder':         return 'megaphone-outline';
-    case 'document_access_request': return 'document-text-outline';
-    default:                 return 'notifications-outline';
-  }
-}
+import type { Notification } from '@vacationist/types';
+import { colors, NOTIFICATION_ICON_COLORS } from '@vacationist/ui';
 
 interface NotificationItemProps {
   notification: Notification;
@@ -27,17 +13,22 @@ interface NotificationItemProps {
 export function NotificationItem({ notification, onPress }: NotificationItemProps) {
   const { t } = useTranslation('notifications');
   const typeKey = `type.${notification.type}` as const;
+  const iconConfig = NOTIFICATION_ICON_COLORS[notification.type] ?? { icon: 'notifications-outline', color: colors.primary };
+  const iconColor = notification.is_read ? colors.textMuted : iconConfig.color;
 
   return (
     <Pressable
       onPress={() => onPress(notification)}
       className="flex-row items-start gap-md p-md bg-surface border border-border rounded-md"
     >
-      <View className="mt-xs">
+      <View
+        className="mt-xs w-[32px] h-[32px] rounded-full items-center justify-center"
+        style={{ backgroundColor: notification.is_read ? 'transparent' : iconConfig.color + '1A' }}
+      >
         <Ionicons
-          name={iconForType(notification.type)}
-          size={22}
-          color={notification.is_read ? colors.textMuted : colors.primary}
+          name={iconConfig.icon}
+          size={18}
+          color={iconColor}
         />
       </View>
 

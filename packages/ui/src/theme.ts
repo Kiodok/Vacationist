@@ -18,6 +18,42 @@ export interface Colors {
   textMuted: string;
 }
 
+// Accent colors — theme-invariant (same in dark and light mode)
+export interface AccentColors {
+  teal: string;
+  pink: string;
+  amber: string;
+  sky: string;
+  emerald: string;
+  rose: string;
+  indigo: string;
+  orange: string;
+}
+
+export const accentColors: AccentColors = {
+  teal:    '#14B8A6',
+  pink:    '#EC4899',
+  amber:   '#F59E0B',
+  sky:     '#0EA5E9',
+  emerald: '#10B981',
+  rose:    '#F43F5E',
+  indigo:  '#6366F1',
+  orange:  '#F97316',
+};
+
+// Deterministic avatar color palette — covers a wide hue range for group member differentiation.
+// #3B82F6 (blue-500) is intentionally not in accentColors; it fills the blue slot the sky accent doesn't cover.
+export const AVATAR_COLORS = [
+  '#6C63FF', // primary
+  '#EC4899', // pink
+  '#F59E0B', // amber
+  '#10B981', // emerald
+  '#3B82F6', // blue-500 (landing page mockup)
+  '#14B8A6', // teal
+  '#F43F5E', // rose
+  '#F97316', // orange
+] as const;
+
 export type ColorKey = keyof Colors;
 
 export const darkColors: Colors = {

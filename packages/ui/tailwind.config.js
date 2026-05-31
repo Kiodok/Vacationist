@@ -35,6 +35,39 @@ module.exports = {
           muted: 'rgba(245, 166, 35, 0.1)',
         },
         danger: '#FF5C5C',
+        // Accent colors — theme-invariant
+        teal: {
+          DEFAULT: '#14B8A6',
+          muted: 'rgba(20, 184, 166, 0.1)',
+        },
+        pink: {
+          DEFAULT: '#EC4899',
+          muted: 'rgba(236, 72, 153, 0.1)',
+        },
+        amber: {
+          DEFAULT: '#F59E0B',
+          muted: 'rgba(245, 158, 11, 0.1)',
+        },
+        sky: {
+          DEFAULT: '#0EA5E9',
+          muted: 'rgba(14, 165, 233, 0.1)',
+        },
+        emerald: {
+          DEFAULT: '#10B981',
+          muted: 'rgba(16, 185, 129, 0.1)',
+        },
+        rose: {
+          DEFAULT: '#F43F5E',
+          muted: 'rgba(244, 63, 94, 0.1)',
+        },
+        indigo: {
+          DEFAULT: '#6366F1',
+          muted: 'rgba(99, 102, 241, 0.1)',
+        },
+        orange: {
+          DEFAULT: '#F97316',
+          muted: 'rgba(249, 115, 22, 0.1)',
+        },
       },
       spacing: {
         xs: '4px',

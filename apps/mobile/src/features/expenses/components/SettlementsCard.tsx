@@ -39,7 +39,7 @@ export function SettlementsCard({ balances, onPress }: SettlementsCardProps) {
             </Text>
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={18} color="#5C5C5C" />
+        <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
       </View>
     </Pressable>
   );

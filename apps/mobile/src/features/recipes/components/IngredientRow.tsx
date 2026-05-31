@@ -39,7 +39,7 @@ export function IngredientRow({ ingredient, canEdit, onEdit, onDelete }: Ingredi
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.6 })}
         >
-          <Ionicons name="pencil-outline" size={16} color="#A0A0A0" />
+          <Ionicons name="pencil-outline" size={16} color={colors.textSecondary} />
         </Pressable>
       )}
 

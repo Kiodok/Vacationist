@@ -1,8 +1,10 @@
 export { default as tailwindConfig } from '../tailwind.config';
 export { Button } from './components/Button';
 export { Input } from './components/Input';
-export { colors, darkColors, lightColors, useThemeColors } from './theme';
-export type { ColorKey, Colors } from './theme';
+export { colors, darkColors, lightColors, useThemeColors, accentColors, AVATAR_COLORS } from './theme';
+export type { ColorKey, Colors, AccentColors } from './theme';
+export { CATEGORY_ICON_COLORS, FEATURE_ICON_COLORS, NOTIFICATION_ICON_COLORS, METADATA_ICON_COLORS } from './iconColors';
+export type { IconColorConfig } from './iconColors';
 export { Skeleton } from './components/Skeleton';
 export { LoadingScreen } from './components/LoadingScreen';
 export { FloatingActionButton } from './components/FloatingActionButton';

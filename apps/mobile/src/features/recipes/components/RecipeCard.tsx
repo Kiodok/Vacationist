@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
 
 interface RecipeCardProps {
   title: string;
@@ -40,13 +40,13 @@ export function RecipeCard({
           ) : null}
           <View className="flex-row items-center gap-md mt-xs">
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="people-outline" size={14} color="#A0A0A0" />
+              <Ionicons name="people-outline" size={14} color={METADATA_ICON_COLORS.people.color} />
               <Text className="text-body-small text-text-secondary">
                 {servings} serving{servings !== 1 ? 's' : ''}
               </Text>
             </View>
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="list-outline" size={14} color="#A0A0A0" />
+              <Ionicons name="list-outline" size={14} color={METADATA_ICON_COLORS.list.color} />
               <Text className="text-body-small text-text-secondary">
                 {ingredientCount} ingredient{ingredientCount !== 1 ? 's' : ''}
               </Text>
@@ -61,7 +61,7 @@ export function RecipeCard({
             )}
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={18} color="#A0A0A0" />
+        <Ionicons name="chevron-forward" size={18} color={METADATA_ICON_COLORS.chevron.color} />
       </View>
     </Pressable>
   );

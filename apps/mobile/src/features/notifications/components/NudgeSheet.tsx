@@ -32,7 +32,7 @@ export function NudgeSheet({ tripId, visible, onClose }: NudgeSheetProps) {
           <View className="flex-row items-center justify-between px-lg pt-lg pb-md border-b border-border">
             <Text className="text-heading-s text-text-primary">{t('nudge.sheetTitle')}</Text>
             <Pressable onPress={onClose} hitSlop={8}>
-              <Ionicons name="close" size={22} color="#5C5C5C" />
+              <Ionicons name="close" size={22} color={colors.textMuted} />
             </Pressable>
           </View>
 

@@ -2,7 +2,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Accommodation, AccommodationVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
-import { colors } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
 
 interface AccommodationCardProps {
   accommodation: Accommodation;
@@ -52,7 +52,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
 
         {accommodation.external_url && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="link-outline" size={14} color="#A0A0A0" />
+            <Ionicons name="link-outline" size={14} color={METADATA_ICON_COLORS.link.color} />
             <Text className="text-body-small text-text-secondary" numberOfLines={1}>
               External link
             </Text>
@@ -102,12 +102,12 @@ const VOTE_SCORE: Record<VoteType, number> = {
 };
 
 function getVoteBorderColor(votes: { vote: VoteType }[]): string {
-  if (votes.length === 0) return '#555555';
+  if (votes.length === 0) return colors.border;
   if (votes.some((v) => v.vote === 'group_blocker')) return colors.danger;
 
   const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
   if (avg >= 4.0) return colors.success;
-  if (avg >= 3.0) return '#555555';
+  if (avg >= 3.0) return colors.border;
   return colors.warning;
 }
 

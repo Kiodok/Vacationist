@@ -8,7 +8,7 @@ import { StatusIndicator } from '../../activities/components/StatusIndicator';
 import { VoteSummary } from '../../activities/components/VoteChip';
 import { useActivityVotes } from '../../activities/hooks/useVotes';
 import { useTripMembers } from '../../trips/hooks/useMembers';
-import { colors } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
 
 interface CalendarActivitySheetProps {
   visible: boolean;
@@ -77,7 +77,7 @@ export function CalendarActivitySheet({
           {/* Time and status */}
           <View className="flex-row items-center justify-between mb-sm">
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="time-outline" size={16} color="#A0A0A0" />
+              <Ionicons name="time-outline" size={16} color={METADATA_ICON_COLORS.time.color} />
               <Text className="text-body text-text-secondary">{timeLabel}</Text>
             </View>
             <StatusIndicator status={displayStatus ?? activity.status} votingOpen={activity.voting_open} />
@@ -96,7 +96,7 @@ export function CalendarActivitySheet({
           {/* Date */}
           {activity.activity_date ? (
             <View className="flex-row items-center gap-xs mb-sm">
-              <Ionicons name="calendar-outline" size={14} color="#A0A0A0" />
+              <Ionicons name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
               <Text className="text-body-small text-text-secondary">
                 {dayjs.tz(activity.activity_date, timezone).format('dddd, D MMMM YYYY')}
               </Text>
@@ -147,7 +147,7 @@ export function CalendarActivitySheet({
                   <Ionicons
                     name={showVotes ? 'chevron-up' : 'chevron-down'}
                     size={14}
-                    color="#A0A0A0"
+                    color={METADATA_ICON_COLORS.chevron.color}
                   />
                 </Pressable>
                 {showVotes && (
@@ -194,7 +194,7 @@ export function CalendarActivitySheet({
 const VOTE_ICONS: Record<VoteType, { name: keyof typeof Ionicons.glyphMap; color: string }> = {
   must_do: { name: 'heart', color: colors.danger },
   like: { name: 'thumbs-up', color: colors.success },
-  open: { name: 'remove-outline', color: '#A0A0A0' },
+  open: { name: 'remove-outline', color: colors.textSecondary },
   skip: { name: 'thumbs-down', color: colors.warning },
   group_blocker: { name: 'ban', color: colors.danger },
 };

@@ -25,7 +25,7 @@ export function MemberAvatarGroup({ members, max = 4 }: MemberAvatarGroupProps) 
           style={{ zIndex: visible.length - index }}
         >
           <View className="rounded-full border-2 border-background">
-            <MemberAvatar name={member.name} avatarUrl={member.avatar_url} size="sm" />
+            <MemberAvatar name={member.name} avatarUrl={member.avatar_url} size="sm" colorSeed={member.id} />
           </View>
         </View>
       ))}

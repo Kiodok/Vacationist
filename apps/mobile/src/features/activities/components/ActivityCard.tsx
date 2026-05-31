@@ -6,7 +6,7 @@ import { dayjs } from '@vacationist/utils';
 import type { Activity, ActivityVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
 import { StatusIndicator } from './StatusIndicator';
-import { colors } from '@vacationist/ui';
+import { colors, CATEGORY_ICON_COLORS, METADATA_ICON_COLORS } from '@vacationist/ui';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -52,6 +52,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
         outputRange: [borderColor, colors.primary],
       })
     : borderColor;
+  const categoryIcon = activity.category ? CATEGORY_ICON_COLORS[activity.category] : null;
 
   return (
     <Animated.View
@@ -69,9 +70,12 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
             {activity.title}
           </Text>
           {activity.category ? (
-            <Text className="text-body-small text-text-secondary capitalize">
-              {activity.category}
-            </Text>
+            <View className="flex-row items-center gap-xs">
+              {categoryIcon ? <Ionicons name={categoryIcon.icon} size={12} color={categoryIcon.color} /> : null}
+              <Text className="text-body-small text-text-secondary capitalize">
+                {activity.category}
+              </Text>
+            </View>
           ) : null}
         </View>
         <StatusIndicator status={displayStatus ?? activity.status} votingOpen={activity.voting_open} />
@@ -86,7 +90,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
       <View className="flex-row flex-wrap items-center gap-sm">
         {activity.activity_date ? (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="calendar-outline" size={14} color="#A0A0A0" />
+            <Ionicons name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
             <Text className="text-body-small text-text-secondary">
               {dayjs(activity.activity_date).format('ddd, D MMM')}
             </Text>
@@ -94,7 +98,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
         ) : null}
         {activity.start_time ? (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="time-outline" size={14} color="#A0A0A0" />
+            <Ionicons name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
             <Text className="text-body-small text-text-secondary">
               {activity.start_time.slice(0, 5)}
               {activity.end_time ? ` – ${activity.end_time.slice(0, 5)}` : ''}
@@ -103,7 +107,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
         ) : null}
         {activity.cost_estimate != null && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="wallet-outline" size={14} color="#A0A0A0" />
+            <Ionicons name="wallet-outline" size={14} color={METADATA_ICON_COLORS.cost.color} />
             <Text className="text-body-small text-text-secondary">
               €{activity.cost_estimate}
             </Text>
@@ -162,12 +166,12 @@ const VOTE_SCORE: Record<VoteType, number> = {
 };
 
 function getVoteBorderColor(votes: { vote: VoteType }[]): string {
-  if (votes.length === 0) return '#555555';
+  if (votes.length === 0) return colors.border;
   if (votes.some((v) => v.vote === 'group_blocker')) return colors.danger;
 
   const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
   if (avg >= 4.0) return colors.success;
-  if (avg >= 3.0) return '#555555';
+  if (avg >= 3.0) return colors.border;
   return colors.warning;
 }
 

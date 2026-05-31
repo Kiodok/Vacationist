@@ -1,18 +1,22 @@
 import { useState } from 'react';
 import { View, Text, Image } from 'react-native';
+import { AVATAR_COLORS } from '@vacationist/ui';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
 
-const sizeConfig: Record<AvatarSize, { container: string; text: string }> = {
-  sm: { container: 'w-[32px] h-[32px]', text: 'text-[12px]' },
-  md: { container: 'w-[40px] h-[40px]', text: 'text-[14px]' },
-  lg: { container: 'w-[56px] h-[56px]', text: 'text-[18px]' },
+const sizeConfig: Record<AvatarSize, { sizePx: number; text: string }> = {
+  sm: { sizePx: 32, text: 'text-[12px]' },
+  md: { sizePx: 40, text: 'text-[14px]' },
+  lg: { sizePx: 56, text: 'text-[18px]' },
 };
 
-interface MemberAvatarProps {
-  name: string;
-  avatarUrl: string | null;
-  size?: AvatarSize;
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
 }
 
 function getInitials(name: string): string {
@@ -24,7 +28,14 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-export function MemberAvatar({ name, avatarUrl, size = 'md' }: MemberAvatarProps) {
+interface MemberAvatarProps {
+  name: string;
+  avatarUrl: string | null;
+  size?: AvatarSize;
+  colorSeed?: string;
+}
+
+export function MemberAvatar({ name, avatarUrl, size = 'md', colorSeed }: MemberAvatarProps) {
   const config = sizeConfig[size];
   const [imgError, setImgError] = useState(false);
 
@@ -32,15 +43,27 @@ export function MemberAvatar({ name, avatarUrl, size = 'md' }: MemberAvatarProps
     return (
       <Image
         source={{ uri: avatarUrl }}
-        className={`${config.container} rounded-full`}
+        style={{ width: config.sizePx, height: config.sizePx, borderRadius: config.sizePx / 2 }}
         onError={() => setImgError(true)}
       />
     );
   }
 
+  const seed = colorSeed ?? name;
+  const color = AVATAR_COLORS[hashCode(seed) % AVATAR_COLORS.length];
+
   return (
-    <View className={`${config.container} rounded-full bg-primary-muted items-center justify-center`}>
-      <Text className={`${config.text} font-semibold text-primary`}>
+    <View
+      style={{
+        width: config.sizePx,
+        height: config.sizePx,
+        borderRadius: config.sizePx / 2,
+        backgroundColor: color + '26',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Text className={`${config.text} font-semibold`} style={{ color }}>
         {getInitials(name)}
       </Text>
     </View>

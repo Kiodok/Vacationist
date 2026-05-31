@@ -51,7 +51,7 @@ export function MemberDocumentsSheet({ visible, onClose, documents, isLoading }:
           <View className="flex-row items-center justify-between mb-sm">
             <Text className="text-heading-m text-text-primary font-semibold">Member Documents</Text>
             <Pressable onPress={onClose} hitSlop={12}>
-              <Ionicons name="close" size={22} color="#A0A0A0" />
+              <Ionicons name="close" size={22} color={colors.textSecondary} />
             </Pressable>
           </View>
 
@@ -70,7 +70,7 @@ export function MemberDocumentsSheet({ visible, onClose, documents, isLoading }:
             </View>
           ) : groups.length === 0 ? (
             <View className="py-xl items-center gap-sm">
-              <Ionicons name="lock-closed-outline" size={32} color="#5C5C5C" />
+              <Ionicons name="lock-closed-outline" size={32} color={colors.textMuted} />
               <Text className="text-body text-text-muted text-center">
                 No members have granted access yet
               </Text>

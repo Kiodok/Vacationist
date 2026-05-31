@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { View, Text, Pressable, Platform, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { i18n } from '@vacationist/i18n';
+import { colors } from '@vacationist/ui';
 
 type RNDateTimePickerType =
   typeof import('@react-native-community/datetimepicker').default;
@@ -120,7 +121,7 @@ export function DateTimePickerField({
               backgroundColor: 'transparent',
               border: 'none',
               outline: 'none',
-              color: value ? '#F2F2F2' : '#5C5C5C',
+              color: value ? '#F2F2F2' : colors.textMuted,
               fontSize: 16,
               fontFamily: 'inherit',
               height: 48,
@@ -148,7 +149,7 @@ export function DateTimePickerField({
                 padding: 0,
               }}
             >
-              <Ionicons name="time-outline" size={20} color="#A0A0A0" />
+              <Ionicons name="time-outline" size={20} color={colors.textSecondary} />
             </button>
           )}
         </div>
@@ -173,14 +174,14 @@ export function DateTimePickerField({
         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
       >
         <Text
-          className={`text-body flex-1 ${value ? 'text-text-primary' : 'text-[#5C5C5C]'}`}
+          className={`text-body flex-1 ${value ? 'text-text-primary' : 'text-text-muted'}`}
         >
           {displayText}
         </Text>
         <Ionicons
           name={mode === 'date' ? 'calendar-outline' : 'time-outline'}
           size={20}
-          color="#5C5C5C"
+          color={colors.textMuted}
         />
       </Pressable>
 

@@ -77,7 +77,7 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
         </View>
         <View className="flex-row gap-sm">
           <Pressable onPress={onEdit} hitSlop={8}>
-            <Ionicons name="pencil-outline" size={18} color="#A0A0A0" />
+            <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
           </Pressable>
           <Pressable onPress={handleDelete} disabled={isDeleting} hitSlop={8}>
             <Ionicons name="trash-outline" size={18} color={colors.danger} />
@@ -99,7 +99,7 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
               <Ionicons
                 name={revealed ? 'eye-off-outline' : 'eye-outline'}
                 size={16}
-                color="#A0A0A0"
+                color={colors.textSecondary}
               />
             </Pressable>
           </View>

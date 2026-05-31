@@ -20,7 +20,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
     return { ...p, name: member?.user?.name ?? 'Unknown' };
   });
 
-  const borderColor = '#555555';
+  const borderColor = colors.border;
   const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
 
   return (

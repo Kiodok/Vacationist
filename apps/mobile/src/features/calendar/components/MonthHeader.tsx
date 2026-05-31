@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { colors } from '@vacationist/ui';
 
 interface MonthHeaderProps {
   label: string;
@@ -32,7 +33,7 @@ export function MonthHeader({
             className="p-xs"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
-            <Ionicons name="arrow-back" size={22} color="#A0A0A0" />
+            <Ionicons name="arrow-back" size={22} color={colors.textSecondary} />
           </Pressable>
         ) : null}
         <Pressable
@@ -40,7 +41,7 @@ export function MonthHeader({
           className="p-xs"
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
         >
-          <Ionicons name="chevron-back" size={24} color="#A0A0A0" />
+          <Ionicons name="chevron-back" size={24} color={colors.textSecondary} />
         </Pressable>
       </View>
 
@@ -52,7 +53,7 @@ export function MonthHeader({
           className="p-xs"
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
         >
-          <Ionicons name="chevron-forward" size={24} color="#A0A0A0" />
+          <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
         </Pressable>
 
         {showTodayButton ? (

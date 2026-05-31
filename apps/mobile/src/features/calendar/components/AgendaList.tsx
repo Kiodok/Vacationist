@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { splitDayActivities } from '@vacationist/utils';
+import { colors } from '@vacationist/ui';
 import { AgendaItem } from './AgendaItem';
 import { EmptyCalendarDay } from './EmptyCalendarDay';
 
@@ -51,7 +52,7 @@ export function AgendaList({ activities, timezone, selectedDate, onActivityPress
       )}
       renderSectionHeader={({ section }) => (
         <View className="flex-row items-center gap-sm px-md pt-md pb-sm">
-          <Ionicons name={section.icon} size={16} color="#A0A0A0" />
+          <Ionicons name={section.icon} size={16} color={colors.textSecondary} />
           <Text className="text-body-small text-text-secondary font-semibold">
             {section.title}
           </Text>

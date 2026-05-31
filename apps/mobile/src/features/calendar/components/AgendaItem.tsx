@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { formatActivityTime } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
-import { colors } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, CATEGORY_ICON_COLORS } from '@vacationist/ui';
 
 interface AgendaItemProps {
   activity: Activity;
@@ -18,6 +18,7 @@ export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
   const { t } = useTranslation('calendar');
   const timeLabel = formatActivityTime(activity.start_time, activity.end_time, t('allDay'));
   const [showAttendees, setShowAttendees] = useState(false);
+  const categoryIcon = activity.category ? CATEGORY_ICON_COLORS[activity.category] : null;
 
   return (
     <View className="bg-surface border border-border rounded-md overflow-hidden">
@@ -27,7 +28,7 @@ export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
         <View className="bg-surface-elevated rounded-sm px-sm py-xs min-w-[64px] items-center">
-          <Ionicons name="time-outline" size={12} color="#A0A0A0" />
+          <Ionicons name="time-outline" size={12} color={METADATA_ICON_COLORS.time.color} />
           <Text className="text-body-small text-text-secondary font-medium mt-xs">
             {timeLabel}
           </Text>
@@ -38,9 +39,12 @@ export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
             {activity.title}
           </Text>
           {activity.category && (
-            <Text className="text-body-small text-text-secondary capitalize" numberOfLines={1}>
-              {activity.category}
-            </Text>
+            <View className="flex-row items-center gap-xs">
+              {categoryIcon ? <Ionicons name={categoryIcon.icon} size={12} color={categoryIcon.color} /> : null}
+              <Text className="text-body-small text-text-secondary capitalize" numberOfLines={1}>
+                {activity.category}
+              </Text>
+            </View>
           )}
         </View>
 

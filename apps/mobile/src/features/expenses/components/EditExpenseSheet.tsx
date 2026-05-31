@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { updateExpenseWithSplitsSchema, type UpdateExpenseWithSplitsInput, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency, type Expense, type ExpenseSplit } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { formatCurrency, roundCurrency, isNegligible } from '@vacationist/utils';
+import { colors } from '@vacationist/ui';
 
 interface EditExpenseSheetProps {
   visible: boolean;
@@ -302,7 +303,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                           <Ionicons
                             name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                             size={16}
-                            color={isSelected ? '#FFFFFF' : '#A0A0A0'}
+                            color={isSelected ? '#FFFFFF' : colors.textSecondary}
                           />
                           <Text className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
                             {m.user.name}
@@ -342,7 +343,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                             <Ionicons
                               name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                               size={16}
-                              color={isSelected ? '#FFFFFF' : '#A0A0A0'}
+                              color={isSelected ? '#FFFFFF' : colors.textSecondary}
                             />
                             <Text className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
                               {m.user.name}
@@ -379,7 +380,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                                 className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
                                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                               >
-                                <Ionicons name="remove" size={16} color="#A0A0A0" />
+                                <Ionicons name="remove" size={16} color={colors.textSecondary} />
                               </Pressable>
                               <Text className="text-text-primary text-body font-semibold w-[24px] text-center">
                                 {memberShares}
@@ -389,7 +390,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                                 className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
                                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                               >
-                                <Ionicons name="add" size={16} color="#A0A0A0" />
+                                <Ionicons name="add" size={16} color={colors.textSecondary} />
                               </Pressable>
                               {totalAmount > 0 && (
                                 <Text className="text-text-muted text-body-small ml-xs">
