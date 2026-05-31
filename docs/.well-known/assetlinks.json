@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.vacationist.mobile",
+      "sha256_cert_fingerprints": [
+        "14:E8:B3:C1:F2:71:D2:A2:87:F3:67:0F:89:C6:6D:ED:6A:2D:58:82:7B:6F:1F:F7:ED:F0:BD:E8:7F:53:B4:89"
+      ]
+    }
+  }
+]
