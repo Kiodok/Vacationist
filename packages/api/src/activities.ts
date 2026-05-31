@@ -41,6 +41,7 @@ export async function createActivity(tripId: string, input: CreateActivityInput)
     p_external_url: input.external_url ?? undefined,
     p_maps_url: input.maps_url ?? undefined,
     p_reservation_required: input.reservation_required ?? false,
+    p_auto_close: input.auto_close ?? false,
   });
 
   if (error) throw error;
@@ -51,7 +52,9 @@ export async function createActivity(tripId: string, input: CreateActivityInput)
 export async function updateActivity(activityId: string, input: UpdateActivityInput): Promise<Activity> {
   const { data, error } = await supabase
     .from('activities')
-    .update(input)
+    // TODO: remove cast after running `supabase gen types` — auto_close not in generated schema yet
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .update(input as any)
     .eq('id', activityId)
     .select()
     .single();

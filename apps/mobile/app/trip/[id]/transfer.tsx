@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator, Linking, RefreshControl } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator, Linking, RefreshControl, Switch } from 'react-native';
 import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -270,6 +270,7 @@ export default function TransferTab() {
                   onDelete={() => deleteFlight.mutate(item.id)}
                   onCloseVoting={() => closeFlightVoting.mutate(item.id)}
                   onReopenVoting={() => reopenFlightVoting.mutate(item.id)}
+                  onToggleAutoClose={(val) => updateFlightMutation.mutate({ flightId: item.id, input: { auto_close: val } })}
                   onBook={(input) => bookFlight.mutate({ flightId: item.id, input })}
                 />
               </View>
@@ -452,6 +453,7 @@ function FlightCardWithVotes({
   onDelete,
   onCloseVoting,
   onReopenVoting,
+  onToggleAutoClose,
   onBook,
 }: {
   flight: TransferFlight;
@@ -467,6 +469,7 @@ function FlightCardWithVotes({
   onDelete: () => void;
   onCloseVoting: () => void;
   onReopenVoting: () => void;
+  onToggleAutoClose: (autoClose: boolean) => void;
   onBook: (input: BookTransferFlightInput) => void;
 }) {
   const { t } = useTranslation('transfer');
@@ -561,6 +564,19 @@ function FlightCardWithVotes({
               );
             })}
           </View>
+        </View>
+      )}
+
+      {role === 'organizer' && flight.voting_open && (
+        <View className="flex-row items-center justify-between py-xs border-t border-border mt-xs">
+          <Text className="text-body-small text-text-secondary">{t('flight.field.autoClose')}</Text>
+          <Switch
+            value={flight.auto_close}
+            onValueChange={onToggleAutoClose}
+            trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
+            thumbColor="#FFFFFF"
+            ios_backgroundColor="#3E3E3E"
+          />
         </View>
       )}
 

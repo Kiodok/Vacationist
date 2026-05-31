@@ -21,6 +21,7 @@
   "flight.field.price": "Price per person",
   "flight.field.url": "Booking link",
   "flight.field.notes": "Notes",
+  "flight.field.autoClose": "Auto-close when all have voted",
   "flight.field.flightNumber": "Flight number",
   "flight.field.bookingRef": "Booking reference",
   "flight.placeholder.title": "e.g. Swiss Air LX1234",

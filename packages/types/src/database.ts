@@ -81,6 +81,7 @@ export interface Activity {
   maps_url: string | null;
   status: ActivityStatus;
   voting_open: boolean;
+  auto_close: boolean;
   reservation_required: boolean;
   created_by: string;
   created_at: string;
@@ -106,6 +107,7 @@ export interface Accommodation {
   notes: string | null;
   status: AccommodationStatus;
   voting_open: boolean;
+  auto_close: boolean;
   created_by: string;
   created_at: string;
   deleted_at: string | null;
@@ -267,6 +269,7 @@ export interface TransferFlight {
   notes: string | null;
   status: TransferFlightStatus;
   voting_open: boolean;
+  auto_close: boolean;
   created_by: string;
   created_at: string;
   updated_at: string;

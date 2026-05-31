@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking, RefreshControl } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking, RefreshControl, Switch } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -76,6 +76,7 @@ export default function AccommodationsTab() {
             onDelete={() => deleteAccommodation.mutate(item.id)}
             onCloseVoting={() => closeVoting.mutate(item.id)}
             onReopenVoting={() => reopenVoting.mutate(item.id)}
+            onToggleAutoClose={(val) => updateAccommodationMutation.mutate({ accommodationId: item.id, input: { auto_close: val } })}
           />
         )}
         refreshControl={
@@ -129,6 +130,7 @@ function AccommodationCardWithVotes({
   onDelete,
   onCloseVoting,
   onReopenVoting,
+  onToggleAutoClose,
 }: {
   accommodation: Accommodation;
   tripId: string;
@@ -139,6 +141,7 @@ function AccommodationCardWithVotes({
   onDelete: () => void;
   onCloseVoting: () => void;
   onReopenVoting: () => void;
+  onToggleAutoClose: (autoClose: boolean) => void;
 }) {
   const { t } = useTranslation('accommodations');
   const { t: tCommon } = useTranslation("common");
@@ -198,6 +201,19 @@ function AccommodationCardWithVotes({
             {accommodation.external_url}
           </Text>
         </TouchableOpacity>
+      )}
+
+      {role === 'organizer' && accommodation.voting_open && (
+        <View className="flex-row items-center justify-between py-xs border-t border-border mt-xs">
+          <Text className="text-body-small text-text-secondary">{t('field.autoClose')}</Text>
+          <Switch
+            value={accommodation.auto_close}
+            onValueChange={onToggleAutoClose}
+            trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
+            thumbColor="#FFFFFF"
+            ios_backgroundColor="#3E3E3E"
+          />
+        </View>
       )}
 
       <View className="gap-sm mt-xs">

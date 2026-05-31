@@ -14,6 +14,7 @@
   "field.startTime": "Startzeit",
   "field.endTime": "Endzeit",
   "field.reservationRequired": "Reservierung erforderlich",
+  "field.autoClose": "Automatisch schließen wenn alle abgestimmt haben",
   "field.url": "Link (optional)",
   "field.mapsUrl": "Maps-Link (optional)",
   "placeholder.title": "z.B. Kolosseum besuchen",

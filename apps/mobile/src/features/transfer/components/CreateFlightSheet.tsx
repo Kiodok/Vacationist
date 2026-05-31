@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createTransferFlightSchema, type CreateTransferFlightInput, TRANSFER_DIRECTION } from '@vacationist/types';
@@ -33,7 +33,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateTransferFlightInput>({
     resolver: zodResolver(createTransferFlightSchema),
-    defaultValues: { title: '', direction: 'outbound-return' },
+    defaultValues: { title: '', direction: 'outbound-return', auto_close: false },
   });
 
   const direction = watch('direction');
@@ -44,12 +44,12 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
   const onValid = (data: CreateTransferFlightInput) => {
     Keyboard.dismiss();
     onSubmit(data);
-    reset({ title: '', direction: 'outbound-return' });
+    reset({ title: '', direction: 'outbound-return', auto_close: false });
     setPriceText('');
   };
 
   const handleClose = () => {
-    reset({ title: '', direction: 'outbound-return' });
+    reset({ title: '', direction: 'outbound-return', auto_close: false });
     setPriceText('');
     onClose();
   };
@@ -494,6 +494,24 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                     )}
                   />
                 </View>
+
+                {/* Auto Close */}
+                <Controller
+                  control={control}
+                  name="auto_close"
+                  render={({ field: { onChange, value } }) => (
+                    <View className="flex-row items-center justify-between py-xs">
+                      <Text className="text-body text-text-primary">{t('flight.field.autoClose')}</Text>
+                      <Switch
+                        value={value ?? false}
+                        onValueChange={onChange}
+                        trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
+                        thumbColor="#FFFFFF"
+                        ios_backgroundColor="#3E3E3E"
+                      />
+                    </View>
+                  )}
+                />
 
                 <Pressable
                   onPress={handleSubmit(onValid)}

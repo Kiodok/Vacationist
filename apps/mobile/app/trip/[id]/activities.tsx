@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl, Switch } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -220,6 +220,7 @@ export default function ActivitiesTab() {
                 onDelete={() => deleteActivity.mutate(item.id)}
                 onCloseVoting={() => closeVoting.mutate(item.id)}
                 onReopenVoting={() => reopenVoting.mutate(item.id)}
+                onToggleAutoClose={(val) => updateActivityMutation.mutate({ activityId: item.id, input: { auto_close: val } })}
               />
             </View>
           )}
@@ -278,6 +279,7 @@ function ActivityCardWithVotes({
   onDelete,
   onCloseVoting,
   onReopenVoting,
+  onToggleAutoClose,
 }: {
   activity: Activity;
   tripId: string;
@@ -289,6 +291,7 @@ function ActivityCardWithVotes({
   onDelete: () => void;
   onCloseVoting: () => void;
   onReopenVoting: () => void;
+  onToggleAutoClose: (autoClose: boolean) => void;
 }) {
   const { t } = useTranslation("activities");
   const { t: tCommon } = useTranslation("common");
@@ -354,6 +357,19 @@ function ActivityCardWithVotes({
             {activity.maps_url}
           </Text>
         </TouchableOpacity>
+      )}
+
+      {role === 'organizer' && activity.voting_open && (
+        <View className="flex-row items-center justify-between py-xs border-t border-border mt-xs">
+          <Text className="text-body-small text-text-secondary">{t('field.autoClose')}</Text>
+          <Switch
+            value={activity.auto_close}
+            onValueChange={onToggleAutoClose}
+            trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
+            thumbColor="#FFFFFF"
+            ios_backgroundColor="#3E3E3E"
+          />
+        </View>
       )}
 
       <View className="gap-sm mt-xs">

@@ -91,6 +91,7 @@ export const createActivitySchema = z.object({
   external_url: httpsUrlSchema.nullable().optional(),
   maps_url: httpsUrlSchema.nullable().optional(),
   reservation_required: z.boolean().optional(),
+  auto_close: z.boolean().optional(),
 });
 
 export const updateActivitySchema = createActivitySchema.partial().extend({
@@ -134,6 +135,7 @@ export const createAccommodationSchema = z.object({
   price_total: z.number().nonnegative().nullable().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
+  auto_close: z.boolean().optional(),
 });
 
 export const updateAccommodationSchema = createAccommodationSchema.partial().extend({
@@ -278,6 +280,7 @@ const flightBaseSchema = z.object({
   price_per_person: z.number().nonnegative().nullable().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
+  auto_close: z.boolean().optional(),
 });
 
 export const createTransferFlightSchema = flightBaseSchema.superRefine((data, ctx) => {

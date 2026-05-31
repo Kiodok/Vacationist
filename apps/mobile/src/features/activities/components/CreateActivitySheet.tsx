@@ -24,7 +24,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
   );
   const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateActivityInput>({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', reservation_required: false },
+    defaultValues: { title: '', reservation_required: false, auto_close: false },
   });
 
   const onValid = (data: CreateActivityInput) => {
@@ -243,6 +243,24 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
                 render={({ field: { onChange, value } }) => (
                   <View className="flex-row items-center justify-between py-xs">
                     <Text className="text-body text-text-primary">{t('field.reservationRequired')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
+                      thumbColor="#FFFFFF"
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
+
+              {/* Auto Close */}
+              <Controller
+                control={control}
+                name="auto_close"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.autoClose')}</Text>
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}

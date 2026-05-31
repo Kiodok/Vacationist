@@ -29,6 +29,7 @@ function flight(
     notes: null,
     status: 'suggested',
     voting_open: false,
+    auto_close: false,
     created_by: 'user-1',
     created_at: '2026-01-01T10:00:00Z',
     updated_at: '2026-01-01T10:00:00Z',

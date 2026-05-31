@@ -6,6 +6,7 @@
   "field.price": "Total price",
   "field.url": "Booking link",
   "field.notes": "Notes",
+  "field.autoClose": "Auto-close when all have voted",
   "placeholder.title": "e.g. Airbnb near city center",
   "placeholder.description": "Details about the base",
   "placeholder.price": "0.00",

@@ -14,6 +14,7 @@
   "field.startTime": "Start time",
   "field.endTime": "End time",
   "field.reservationRequired": "Reservation required",
+  "field.autoClose": "Auto-close when all have voted",
   "field.url": "Link (optional)",
   "field.mapsUrl": "Maps link (optional)",
   "placeholder.title": "e.g. Visit Colosseum",

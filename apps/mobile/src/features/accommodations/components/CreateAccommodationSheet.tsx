@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,7 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
   const [priceText, setPriceText] = useState('');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateAccommodationInput>({
     resolver: zodResolver(createAccommodationSchema),
-    defaultValues: { title: '' },
+    defaultValues: { title: '', auto_close: false },
   });
 
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
@@ -176,6 +176,24 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
                   )}
                 />
               </View>
+
+              {/* Auto Close */}
+              <Controller
+                control={control}
+                name="auto_close"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.autoClose')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
+                      thumbColor="#FFFFFF"
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
 
               {/* Submit */}
               <Pressable

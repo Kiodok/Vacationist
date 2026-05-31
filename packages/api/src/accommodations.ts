@@ -31,6 +31,8 @@ export async function createAccommodation(tripId: string, input: CreateAccommoda
 
   const { data, error } = await supabase
     .from('accommodations')
+    // TODO: remove cast after running `supabase gen types` — auto_close not in generated schema yet
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .insert({
       trip_id: tripId,
       title: input.title,
@@ -38,8 +40,9 @@ export async function createAccommodation(tripId: string, input: CreateAccommoda
       price_total: input.price_total ?? null,
       external_url: input.external_url ?? null,
       notes: input.notes ?? null,
+      auto_close: input.auto_close ?? false,
       created_by: user.id,
-    })
+    } as any)
     .select()
     .single();
 
@@ -50,7 +53,9 @@ export async function createAccommodation(tripId: string, input: CreateAccommoda
 export async function updateAccommodation(accommodationId: string, input: UpdateAccommodationInput): Promise<Accommodation> {
   const { data, error } = await supabase
     .from('accommodations')
-    .update(input)
+    // TODO: remove cast after running `supabase gen types` — auto_close not in generated schema yet
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .update(input as any)
     .eq('id', accommodationId)
     .select()
     .single();
