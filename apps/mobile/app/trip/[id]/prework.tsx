@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
-import { View, ScrollView, KeyboardAvoidingView, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, ScrollView, KeyboardAvoidingView, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import type { PreworkFilter } from '@vacationist/types';
 import { useAuthStore } from '../../../src/stores/authStore';
-import { useTripMembers } from '../../../src/features/trips/hooks/useMembers';
+import { useCurrentMemberRole, useTripMembers } from '../../../src/features/trips/hooks/useMembers';
 import {
   usePreworkPreferences,
   useMyPreworkPreferences,
@@ -18,9 +19,11 @@ import { EmptyPrework } from '../../../src/features/prework/components/EmptyPrew
 import { colors } from '@vacationist/ui';
 
 export default function PreworkTab() {
+  const { t } = useTranslation('prework');
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: members } = useTripMembers(tripId!);
+  const { data: role } = useCurrentMemberRole(tripId!);
   const { data: allPreferences, isLoading: isLoadingAll } = usePreworkPreferences(tripId!);
   const { data: myPreferences, isLoading: isLoadingMy } = useMyPreworkPreferences(tripId!);
   const upsertMutation = useUpsertPreworkPreferences(tripId!);
@@ -52,8 +55,23 @@ export default function PreworkTab() {
     return getRecommendedLabels(allPreferences, user?.id, myFilters.map((f) => f.label));
   }, [allPreferences, user?.id, myFilters]);
 
-  const handleSave = (filters: PreworkFilter[]) => {
-    upsertMutation.mutate({ filters });
+  const organizerDescription = useMemo(() => {
+    if (!members || !allPreferences) return null;
+    const organizerIds = new Set(
+      members.filter((m) => m.role === 'organizer').map((m) => m.user_id)
+    );
+    for (const pref of allPreferences) {
+      if (organizerIds.has(pref.user_id) && pref.description?.trim()) {
+        return pref.description.trim();
+      }
+    }
+    return null;
+  }, [members, allPreferences]);
+
+  const isOrganizer = role === 'organizer';
+
+  const handleSave = (filters: PreworkFilter[], description: string) => {
+    upsertMutation.mutate({ filters, description });
   };
 
   const handleClear = () => {
@@ -70,11 +88,13 @@ export default function PreworkTab() {
 
   const webStyle = Platform.OS === 'web' ? { maxWidth: 600, width: '100%' as const, alignSelf: 'center' as const } : undefined;
 
+  const myDescription = myPreferences?.description ?? '';
+
   if (!hasAnyPreferences && myFilters.length === 0) {
     return (
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior="padding"
       >
         <ScrollView
           className="flex-1"
@@ -85,6 +105,8 @@ export default function PreworkTab() {
           <EmptyPrework />
           <MyPreferencesSection
             initialFilters={myFilters}
+            initialDescription={myDescription}
+            showDescription={isOrganizer}
             recommendedLabels={recommendedLabels}
             onSave={handleSave}
             onClear={handleClear}
@@ -99,7 +121,7 @@ export default function PreworkTab() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior="padding"
     >
       <ScrollView
         className="flex-1"
@@ -107,8 +129,17 @@ export default function PreworkTab() {
         contentContainerStyle={webStyle}
         keyboardShouldPersistTaps="handled"
       >
+        {organizerDescription && !isOrganizer && (
+          <View className="bg-surface-elevated rounded-md px-md py-sm gap-xs border border-border">
+            <Text className="text-label text-text-muted uppercase">{t('group.contextLabel')}</Text>
+            <Text className="text-body text-text-primary">{organizerDescription}</Text>
+          </View>
+        )}
+
         <MyPreferencesSection
           initialFilters={myFilters}
+          initialDescription={myDescription}
+          showDescription={isOrganizer}
           recommendedLabels={recommendedLabels}
           onSave={handleSave}
           onClear={handleClear}

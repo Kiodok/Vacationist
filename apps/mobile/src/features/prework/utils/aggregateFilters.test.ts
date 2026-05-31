@@ -11,6 +11,7 @@ function prefs(
     trip_id: 'trip-1',
     user_id: userId,
     filters,
+    description: null,
     updated_at: '2026-01-01T00:00:00Z',
   };
 }

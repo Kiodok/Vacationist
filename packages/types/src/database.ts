@@ -244,6 +244,7 @@ export interface PreworkPreferences {
   trip_id: string;
   user_id: string;
   filters: PreworkFilter[];
+  description: string | null;
   updated_at: string;
 }
 

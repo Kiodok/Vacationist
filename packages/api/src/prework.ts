@@ -39,12 +39,15 @@ export async function upsertPreworkPreferences(
 
   const { data, error } = await supabase
     .from('prework_preferences')
+    // TODO: remove cast after running `supabase gen types` — description not in generated schema yet
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .upsert(
       {
         trip_id: tripId,
         user_id: user.id,
         filters: input.filters,
-      },
+        description: input.description?.trim() || null,
+      } as any,
       { onConflict: 'trip_id,user_id' }
     )
     .select()

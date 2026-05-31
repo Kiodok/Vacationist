@@ -257,6 +257,7 @@ export const upsertPreworkPreferencesSchema = z.object({
     (filters) => filters.every((f) => f.weight >= 1),
     { message: 'Every filter must have at least 1 credit' }
   ),
+  description: z.string().max(500).optional(),
 });
 
 export type PreworkFilterInput = z.infer<typeof preworkFilterSchema>;
