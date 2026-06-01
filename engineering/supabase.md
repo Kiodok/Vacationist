@@ -1578,3 +1578,535 @@ Root cause fix for notifications not updating in real time.
 **Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
 
 **Local migration file:** `supabase/migrations/20260527000003_fix_check_vote_rate_limit_prod.sql`
+
+---
+
+## 2026-05-11 — Phase 1: Users Table
+
+### Migration: `20260511000001_create_users_table`
+
+**Why:** Extends Supabase `auth.users` with app-specific profile data (name, avatar, locale, timezone, guest flag). Auto-creates a profile row on every new auth sign-up.
+
+**Table created:** `public.users`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | FK → `auth.users(id)` CASCADE |
+| `name` | TEXT | |
+| `email` | TEXT UNIQUE nullable | |
+| `avatar_url` | TEXT nullable | |
+| `locale` | TEXT | `DEFAULT 'de-DE'` (see later locale migrations) |
+| `timezone` | TEXT | `DEFAULT 'Europe/Berlin'` |
+| `is_guest` | BOOLEAN | `DEFAULT FALSE` |
+| `created_at` | TIMESTAMPTZ | `DEFAULT NOW()` |
+
+**RLS:**
+- SELECT: any `authenticated` user (needed for trip member display)
+- UPDATE: own row only (`auth.uid() = id`)
+- INSERT: own row only (`auth.uid() = id`)
+
+**Trigger:**
+- `on_auth_user_created` AFTER INSERT on `auth.users` → `public.handle_new_user()` SECURITY DEFINER — upserts a profile row using `raw_user_meta_data` (full_name/name/avatar_url/is_anonymous).
+
+**Local migration file:** `supabase/migrations/20260511000001_create_users_table.sql`
+
+---
+
+## 2026-05-12 — Fix: redeem_invite_token missing used_at
+
+### Migration: `20260512000002_fix_redeem_invite_token_used_at`
+
+**Problem:** `redeem_invite_token` incremented `use_count` but never set `used_at`, so the column stayed NULL even after successful redemptions.
+
+**Fix:** Updated the `UPDATE invite_tokens SET ...` statement to also set `used_at = NOW()`.
+
+**Local migration file:** `supabase/migrations/20260512000002_fix_redeem_invite_token_used_at.sql`
+
+---
+
+## 2026-05-12 — Add updated_at to core tables
+
+### Migration: `20260512180319_add_updated_at`
+
+**Why:** `public.users`, `public.trips`, and `public.invite_tokens` were missing `updated_at` columns. Also introduces the shared `public.set_updated_at()` trigger function reused across all tables.
+
+**Changes:**
+- `ALTER TABLE public.users ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+- `ALTER TABLE public.trips ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+- `ALTER TABLE public.invite_tokens ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
+- Created `public.set_updated_at()` RETURNS TRIGGER — sets `NEW.updated_at = NOW()`
+- Created `users_updated_at`, `trips_updated_at`, `invite_tokens_updated_at` BEFORE UPDATE triggers
+
+**Local migration file:** `supabase/migrations/20260512180319_add_updated_at.sql`
+
+---
+
+## 2026-05-13 — Fix: auto-finalize activity voting blocked by permission trigger
+
+### Migration: `20260513000001_fix_auto_finalize_voting_permissions`
+
+**Problem:** When a non-organizer cast the last vote on an activity, the `auto_finalize_activity_voting` AFTER INSERT trigger tried to set `voting_open = FALSE`. This fired `check_activity_update_permissions`, which blocked non-organizers from changing `voting_open`.
+
+**Fix:** Added `pg_trigger_depth() > 1` early return to `check_activity_update_permissions()`. Nested trigger updates skip the organizer check; direct client UPDATEs (depth = 1) still get full validation.
+
+**Local migration file:** `supabase/migrations/20260513000001_fix_auto_finalize_voting_permissions.sql`
+
+---
+
+## 2026-05-19 — Unarchive expense
+
+### Migration: `20260519000002_unarchive_expense`
+
+**Why:** Organizers and expense creators need to restore accidentally archived expenses.
+
+**Function:**
+- `public.unarchive_expense(p_expense_id UUID)` — SECURITY DEFINER; validates auth, checks `archived_at IS NOT NULL`, verifies caller is organizer or creator, sets `archived_at = NULL`.
+
+**Local migration file:** `supabase/migrations/20260519000002_unarchive_expense.sql`
+
+---
+
+## 2026-05-23 — Fix: trip_id nullable for trigger-populated columns
+
+### Migration: `20260523000002_trip_id_nullable_for_trigger_insert`
+
+**Why:** After `20260523000001` added denormalized `trip_id NOT NULL` columns to 7 child tables, Supabase's generated TypeScript Insert types required callers to supply `trip_id` even though the BEFORE INSERT trigger always populates it. Making the column nullable removes that false requirement from generated types — data integrity is still enforced by the trigger.
+
+**Tables modified:** `activity_votes`, `accommodation_votes`, `transfer_flight_votes`, `transfer_flight_passengers`, `transfer_vehicle_passengers`, `expense_splits`, `shopping_items` — `trip_id` column changed from `NOT NULL` to nullable.
+
+**Local migration file:** `supabase/migrations/20260523000002_trip_id_nullable_for_trigger_insert.sql`
+
+---
+
+## 2026-05-23 — Phase 9 Security: Vote rate limiting
+
+### Migration: `20260523120000_vote_rate_limit`
+
+**Why:** Prevents automated vote spam. Limits to max 60 votes per user per trip per hour, aggregated across all three vote tables.
+
+**Function:** `public.check_vote_rate_limit()` — SECURITY DEFINER; counts rows in `activity_votes`, `accommodation_votes`, `transfer_flight_votes` for the caller in the last hour; raises exception if ≥ 60.
+
+**Triggers (BEFORE INSERT):**
+- `on_activity_vote_rate_limit` on `activity_votes`
+- `on_accommodation_vote_rate_limit` on `accommodation_votes`
+- `on_transfer_flight_vote_rate_limit` on `transfer_flight_votes`
+
+**Note:** This initial version was later hardened by `20260523200051` (UPDATE support, ex-member RLS fix) and again by `20260526000001` (index optimization) and `20260527000003` (prod drift fix).
+
+**Local migration file:** `supabase/migrations/20260523120000_vote_rate_limit.sql`
+
+---
+
+## 2026-05-23 — Security hardening batch
+
+### Migration: `20260523195339_fix_is_guest_self_elevation`
+
+**Problem:** The `users_update_own` RLS policy allowed users to UPDATE any column, including `is_guest`. A guest user could set `is_guest = false` to elevate their own privileges.
+
+**Fix:** Added BEFORE UPDATE trigger `trg_restrict_user_self_update` → `public.restrict_user_self_update()` SECURITY DEFINER — raises exception if `NEW.is_guest IS DISTINCT FROM OLD.is_guest`.
+
+**Local migration file:** `supabase/migrations/20260523195339_fix_is_guest_self_elevation.sql`
+
+---
+
+### Migration: `20260523195712_fix_expense_guest_bypass`
+
+**Problem:** `archive_expense` and `unarchive_expense` both allow the expense creator to act, but guests should have read-only access. A guest who created an expense could archive/unarchive it.
+
+**Fix:** Both functions updated with an explicit `IF v_role = 'guest' THEN RAISE EXCEPTION` check before the creator check.
+
+**Local migration file:** `supabase/migrations/20260523195712_fix_expense_guest_bypass.sql`
+
+---
+
+### Migration: `20260523195815_fix_nudge_rate_limit`
+
+**Problem:** The nudge rate limit counted individual `notifications` rows (N rows per nudge for N−1 members). A trip with 4+ members could only send 1 nudge before the 3-row threshold was hit.
+
+**Fix:** Each nudge now generates a shared `related_id = gen_random_uuid()` stored on all its notification rows. The rate limit counts `COUNT(DISTINCT related_id)` instead of raw rows. Also added input length guards: title ≤ 100 chars, body ≤ 300 chars.
+
+**Index update:** `idx_notifications_nudge_rate_limit` rebuilt as `(trip_id, related_id, created_at DESC) WHERE type = 'reminder' AND related_type = 'nudge'` for efficient distinct-count queries.
+
+**Local migration file:** `supabase/migrations/20260523195815_fix_nudge_rate_limit.sql`
+
+---
+
+### Migration: `20260523195846_fix_expense_splits_direct_insert`
+
+**Problem:** The `expense_splits_insert_creator` RLS policy allowed direct INSERT into `expense_splits`, bypassing trip-member validation enforced inside the RPCs. A caller could insert splits with arbitrary non-member `user_id`s.
+
+**Fix:** Replaced the policy with `expense_splits_insert_rpc_only` — `WITH CHECK (false)`. All writes must go through the SECURITY DEFINER RPCs (`create_expense_with_splits`, `update_expense_with_splits`) which validate every split `user_id` against trip membership.
+
+**Local migration file:** `supabase/migrations/20260523195846_fix_expense_splits_direct_insert.sql`
+
+---
+
+### Migration: `20260523200051_fix_vote_rate_limit_and_rls`
+
+**Two findings fixed:**
+
+**Finding 5 — Rate limit bypassed via UPDATE:** The original rate limit only fired on INSERT. A user could cycle a vote value via UPDATE repeatedly without hitting the cap. Fix:
+- Added `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()` to `activity_votes`, `accommodation_votes`, `transfer_flight_votes`
+- Added `stamp_vote_updated_at()` BEFORE UPDATE triggers on all three tables
+- Rewrote `check_vote_rate_limit()`: no-op return when `TG_OP = 'UPDATE' AND NEW.vote = OLD.vote`; counts via `GREATEST(created_at, updated_at)` so each change cycle is counted
+- Extended rate-limit triggers to fire on INSERT OR UPDATE
+
+**Finding 6 — Ex-member vote update:** `activity_votes` and `transfer_flight_votes` UPDATE USING clause only checked `user_id = auth.uid()`, allowing a removed member to update their lingering vote row. Fix: added `AND private.is_trip_member(trip_id, auth.uid())` to the USING clause on both tables.
+
+**Index updates:** Composite rate-limit indexes rebuilt to include `updated_at DESC`.
+
+**Local migration file:** `supabase/migrations/20260523200051_fix_vote_rate_limit_and_rls.sql`
+
+---
+
+### Migration: `20260523200134_fix_prework_filters_size_cap`
+
+**Problem:** `prework_preferences.filters` only checked `jsonb_typeof(filters) = 'array'` with no element count limit. An attacker could store an unbounded array causing large row sizes and slow reads for all trip members.
+
+**Fix:** Added CHECK constraint `prework_filters_max_elements` capping the array at 20 elements (`jsonb_array_length(filters) <= 20`).
+
+**Local migration file:** `supabase/migrations/20260523200134_fix_prework_filters_size_cap.sql`
+
+---
+
+### Migration: `20260523200233_fix_push_sent_at_user_writable`
+
+**Problem:** `restrict_notification_update_fields` excluded `push_sent_at` from its immutable-field check, meaning authenticated users could write this internal system timestamp directly.
+
+**Fix:** Added a block: `IF NEW.push_sent_at IS DISTINCT FROM OLD.push_sent_at AND auth.uid() IS NOT NULL THEN RAISE EXCEPTION`. Service-role calls (Edge Function) have `auth.uid() = NULL` and are still permitted; authenticated users are blocked.
+
+**Local migration file:** `supabase/migrations/20260523200233_fix_push_sent_at_user_writable.sql`
+
+---
+
+## 2026-05-25 — Fix: document access concurrent guard
+
+### Migration: `20260525000006_fix_document_access_concurrent_guard`
+
+**Why:** The original `create_document_access_request` had a 24-hour per-organizer-per-trip rate limit, which was too coarse. Replaced with a concurrent-request guard: at most **one active request per trip** at any point in time.
+
+**Active request definition:**
+- Created within its own `duration_minutes` window (still pending), OR
+- At least one grant tied to it is still non-expired (`granted = true AND expires_at > NOW()`)
+
+**Updated RPC:** `public.create_document_access_request(p_trip_id, p_duration_minutes)` — replaced `COUNT` rate-limit check with `EXISTS` check for any active request matching either condition above.
+
+**Local migration file:** `supabase/migrations/20260525000006_fix_document_access_concurrent_guard.sql`
+
+---
+
+## 2026-05-25 — Document access request notification trigger
+
+### Migration: `20260525000007_notify_document_access_request_trigger`
+
+**Why:** Separated from `20260522213024_create_notification_event_triggers` because `document_access_requests` is created in a later migration (`20260525000003`). The trigger must be created after the table exists.
+
+**Trigger function:** `private.notify_document_access_request()` SECURITY DEFINER — on AFTER INSERT on `document_access_requests`, calls `private.create_trip_notification` with type `'document_access_request'`, excluding the requester.
+
+**Trigger:** `trg_notify_document_access_request` (uses `DROP TRIGGER IF EXISTS` for idempotency).
+
+**Local migration file:** `supabase/migrations/20260525000007_notify_document_access_request_trigger.sql`
+
+---
+
+## 2026-05-28 — User locale normalization
+
+### Migration: `20260528000001_constrain_users_locale`
+
+**Why:** The `locale` column defaulted to `'de-DE'` (a BCP-47 locale tag). The app switched to short codes (`'en'`, `'de'`). This migration normalizes existing values and constrains future ones.
+
+**Changes:**
+- Backfills: `'de-DE'` → `'de'`; anything else → `'en'`
+- Adds CHECK constraint: `locale IN ('en', 'de')`
+- Updates default to `'de'`
+
+**Local migration file:** `supabase/migrations/20260528000001_constrain_users_locale.sql`
+
+---
+
+## 2026-05-29 — Make users.locale nullable
+
+### Migration: `20260529000001_make_users_locale_nullable`
+
+**Why:** Newly registered users should get `locale = NULL` ("preference not yet saved") rather than the forced default `'de'`. The app uses the device locale until the user explicitly sets one in Profile Settings.
+
+**Changes:**
+- `ALTER TABLE public.users ALTER COLUMN locale DROP DEFAULT`
+- `ALTER TABLE public.users ALTER COLUMN locale DROP NOT NULL`
+
+**Note:** The `CHECK (locale IN ('en', 'de'))` constraint from the previous migration still applies; PostgreSQL evaluates CHECK as NULL (passing) for NULL inputs, so NULL is allowed.
+
+**Local migration file:** `supabase/migrations/20260529000001_make_users_locale_nullable.sql`
+
+---
+
+## 2026-05-31 — Cover split method
+
+### Migration: `20260531000001_add_cover_split_method`
+
+**Why:** Adds a `'cover'` split method where the payer covers the full expense for exactly one other person. Useful for "I'll pay for you" scenarios.
+
+**Schema change:** `expenses.split_method` CHECK constraint extended to include `'cover'`.
+
+**Business rules enforced in RPCs:**
+- `cover` requires exactly one split entry
+- Cannot cover yourself (`split user_id ≠ paid_by`)
+- The covered person is the only ower; the full `p_amount` is their `amount_owed`
+
+Both `create_expense_with_splits` and `update_expense_with_splits` updated to handle `'cover'`.
+
+**Local migration file:** `supabase/migrations/20260531000001_add_cover_split_method.sql`
+
+---
+
+### Migration: `20260531000002_fix_cover_rpc`
+
+**Why:** Repair migration ensuring `create_expense_with_splits` and `update_expense_with_splits` function bodies are up to date after the cover method was added (function drift repair).
+
+**Local migration file:** `supabase/migrations/20260531000002_fix_cover_rpc.sql`
+
+---
+
+### Migration: `20260531000003_fix_cover_expense_model`
+
+**Why:** The initial cover model had the wrong direction — `paid_by = Gary, split user = Gabriel` meant Gabriel owed Gary (debt increases). The correct model is: `paid_by = Gabriel` (their `total_paid` increases, reducing their debt), `split user = Gary, status = 'open'` (Gary owes that amount).
+
+**Fix:** For all existing cover expenses: swaps `paid_by` and the split `user_id` and sets split `status = 'open'`.
+
+**Local migration file:** `supabase/migrations/20260531000003_fix_cover_expense_model.sql`
+
+---
+
+### Migration: `20260531000004_cover_split_cascade_settle`
+
+**Why:** Cover splits must settle atomically with their related non-cover splits to prevent balance formula reversion.
+
+**Rules:**
+1. Settling a non-cover split auto-settles any linked cover splits (where `cover.paid_by = ower AND cover split consumer = payer`)
+2. Unsettling a non-cover split auto-unsettles those cover splits
+3. Settling a cover split directly is blocked
+
+Updated `settle_expense_split` and `unsettle_expense_split` with this cascade logic.
+
+**Local migration file:** `supabase/migrations/20260531000004_cover_split_cascade_settle.sql`
+
+---
+
+### Migration: `20260531000005_cover_existing_split`
+
+**Why:** Adds a way to cover an existing split in-place (e.g., "I'll cover your €10 share"). The covered person's split amount becomes 0 (settled as a gift); the covering person's split grows or is inserted.
+
+**Schema changes:**
+- `expense_splits.covered_by UUID REFERENCES public.users(id)` — who covered this split
+- `expense_splits.original_amount NUMERIC(10,2)` — saved for uncover reversal
+
+**Functions:**
+- `public.cover_split(p_split_id UUID)` — SECURITY DEFINER; validates open+uncovered split, zeros covered split with `covered_by/original_amount/status=settled`, increases or inserts covering user's split
+- `public.uncover_split(p_split_id UUID)` — SECURITY DEFINER; organizer or `covered_by` only; restores original amount, removes or reduces covering split
+
+**Local migration file:** `supabase/migrations/20260531000005_cover_existing_split.sql`
+
+---
+
+### Migration: `20260531000006_settle_all_for_pair`
+
+**Why:** Powers the "Settle all" button in the Simplified Settlements view — settles every open split for a debtor→creditor pair in a single atomic call.
+
+**Function:** `public.settle_all_for_pair(p_trip_id UUID, p_debtor UUID, p_creditor UUID) RETURNS INT` — SECURITY DEFINER; loops over open non-cover splits where `paid_by = creditor AND user_id = debtor`; includes the same cover-split cascade as `settle_expense_split`; returns count of settled splits.
+
+**Local migration file:** `supabase/migrations/20260531000006_settle_all_for_pair.sql`
+
+---
+
+### Migration: `20260531000007_remove_cover_cascade`
+
+**Why:** The cover-split cascade in `settle_expense_split` and `unsettle_expense_split` matched by pair (any cover between the same two people), not by specific expense. When multiple covers exist between the same pair, the cascade was unreliable. Cover splits are now settled manually (or via `settle_all_for_pair`).
+
+**Fix:** Removed the cascade UPDATE block from both `settle_expense_split` and `unsettle_expense_split`.
+
+**Local migration file:** `supabase/migrations/20260531000007_remove_cover_cascade.sql`
+
+---
+
+## 2026-05-31 — Add reservation_required to activities
+
+### Migration: `20260531000008_add_reservation_required_to_activities`
+
+**Why:** Allows trip members to mark activities that require advance booking.
+
+**Schema change:** `activities.reservation_required BOOLEAN NOT NULL DEFAULT FALSE`
+
+**RPC update:** `create_activity` signature extended with `p_reservation_required BOOLEAN DEFAULT FALSE` parameter. Function was DROPped and recreated (PostgreSQL forbids changing signature via `CREATE OR REPLACE`).
+
+**Local migration file:** `supabase/migrations/20260531000008_add_reservation_required_to_activities.sql`
+
+---
+
+## 2026-05-31 — Add auto_close to voting entities
+
+### Migration: `20260531100000_add_auto_close_to_voting_entities`
+
+**Why:** Previously, voting always closed automatically once all trip members voted. Organizers needed a way to keep voting open for deliberation. `auto_close = FALSE` (the new default) prevents auto-closure; `auto_close = TRUE` preserves the old behavior.
+
+**Schema changes:**
+- `activities.auto_close BOOLEAN NOT NULL DEFAULT FALSE`
+- `accommodations.auto_close BOOLEAN NOT NULL DEFAULT FALSE`
+- `transfer_flights.auto_close BOOLEAN NOT NULL DEFAULT FALSE`
+
+**Functions updated:**
+- `auto_finalize_activity_voting()` — returns early if `auto_close = FALSE`
+- `auto_finalize_accommodation_voting()` — same
+- `auto_finalize_transfer_flight_voting()` — same
+- `check_activity_update_permissions()` — extended to guard `auto_close` changes (organizer only)
+- `create_activity` RPC — extended with `p_auto_close BOOLEAN DEFAULT FALSE`
+
+**Local migration file:** `supabase/migrations/20260531100000_add_auto_close_to_voting_entities.sql`
+
+---
+
+### Migration: `20260531100001_guard_auto_close_accommodations_flights`
+
+**Why:** `20260531100000` added `auto_close` guard to activities via `check_activity_update_permissions`. Accommodations and transfer flights needed equivalent guards.
+
+**Triggers added:**
+- `on_accommodation_auto_close_check` BEFORE UPDATE on `accommodations` → `check_accommodation_auto_close_permissions()` — raises exception if non-organizer changes `auto_close`
+- `on_transfer_flight_auto_close_check` BEFORE UPDATE on `transfer_flights` → `check_transfer_flight_auto_close_permissions()` — same
+
+**Local migration file:** `supabase/migrations/20260531100001_guard_auto_close_accommodations_flights.sql`
+
+---
+
+## 2026-05-31 — Add description to prework preferences
+
+### Migration: `20260531110000_add_description_to_prework`
+
+**Why:** Allows users to write a short free-text note at the top of their preference entry (e.g., "The first base is already decided, let's focus on the second one.").
+
+**Schema change:** `prework_preferences.description TEXT NULL`
+
+**Local migration file:** `supabase/migrations/20260531110000_add_description_to_prework.sql`
+
+---
+
+## 2026-06-01 — Stuff Feature: Packing Lists, Shared Packing, Lost & Found
+
+### Migration: `20260601000001_create_stuff_tables`
+
+**Why:** Introduces three new trip-scoped features — private per-user packing lists, shared packing coordination, and a Lost & Found bulletin.
+
+**Tables created:**
+
+**`public.packing_categories`** (seed/reference table)
+- `id`, `name`, `icon`, `sort_order`, `is_default`
+- RLS: authenticated SELECT only (no writes from clients)
+- Seeded with 8 default categories: Clothes, Cosmetics, Documents, Electronics, Outdoor, Medicine, Shared, Other
+
+**`public.packing_items`** (private per-user)
+- `id`, `trip_id` (FK → trips CASCADE), `user_id` (FK → users CASCADE), `category TEXT`, `title TEXT`, `is_packed BOOLEAN DEFAULT FALSE`, `notes TEXT nullable`, `sort_order INT DEFAULT 0`, `source_shared_item_id UUID DEFAULT NULL`, `created_at`, `updated_at`, `deleted_at`
+- RLS: SELECT own non-deleted rows + trip membership; INSERT own + trip membership; UPDATE own only
+- Triggers: `packing_items_updated_at`, `trg_restrict_packing_item_update` (blocks `trip_id`, `user_id`, `created_at` changes)
+- Indexes: `idx_packing_items_trip_user`, `idx_packing_items_category`
+
+**`public.shared_packing_items`** (trip-visible)
+- `id`, `trip_id`, `title`, `item_type TEXT CHECK ('i_got_it', 'who_has', 'everyone')`, `notes TEXT nullable`, `created_by`, `claimed_by UUID nullable`, `is_resolved BOOLEAN DEFAULT FALSE`, `created_at`, `updated_at`, `deleted_at`
+- RLS: SELECT all trip members (non-deleted); INSERT creator + trip member; UPDATE any trip member (for claiming)
+- Triggers: `shared_packing_items_updated_at`, `trg_restrict_shared_packing_item_update` (blocks `trip_id`, `created_by`, `item_type` changes)
+- Index: `idx_shared_packing_items_trip`
+
+**`public.lost_found_cases`**
+- `id`, `trip_id`, `case_type TEXT CHECK ('lost_unknown', 'lost_known', 'found_unknown', 'found_owner_known')`, `title`, `description TEXT nullable`, `created_by`, `target_user UUID nullable`, `is_resolved BOOLEAN DEFAULT FALSE`, `resolved_at TIMESTAMPTZ nullable`, `created_at`, `updated_at`
+- RLS: SELECT trip members where `created_by = me OR target_user = me OR target_user IS NULL`; INSERT creator + trip member; UPDATE any trip member
+- Triggers: `lost_found_cases_updated_at`, `trg_restrict_lost_found_case_update` (blocks `trip_id`, `created_by`, `case_type` changes)
+- Indexes: `idx_lost_found_cases_trip`, `idx_lost_found_cases_target_user` (partial: `is_resolved = FALSE`)
+
+**Local migration file:** `supabase/migrations/20260601000001_create_stuff_tables.sql`
+
+---
+
+### Migration: `20260601000002_stuff_notification_types`
+
+**Why:** Adds notification types and preference columns for the Stuff feature.
+
+**Changes:**
+- `notifications.type` CHECK constraint extended with `'lost_found'` and `'shared_packing'`
+- `notification_preferences` table: added `lost_found BOOLEAN NOT NULL DEFAULT TRUE`, `shared_packing BOOLEAN NOT NULL DEFAULT TRUE`
+
+**Local migration file:** `supabase/migrations/20260601000002_stuff_notification_types.sql`
+
+---
+
+### Migration: `20260601000003_stuff_rpcs_and_triggers`
+
+**Why:** Business logic RPCs and notification triggers for the Stuff feature.
+
+**Functions:**
+- `public.soft_delete_packing_item(p_item_id UUID)` — SECURITY DEFINER; owner only (checks `user_id = caller`)
+- `public.soft_delete_shared_packing_item(p_item_id UUID)` — SECURITY DEFINER; organizer or creator
+- `public.claim_shared_packing_item(p_item_id UUID)` — SECURITY DEFINER; any trip member; validates `who_has` type + unclaimed; marks `claimed_by/is_resolved`; auto-inserts a packing_item for claimer under "Shared" category
+- `public.copy_packing_list_to_trip(p_source_trip_id UUID, p_target_trip_id UUID) RETURNS INT` — SECURITY DEFINER; copies caller's non-deleted packing items from source trip to target (target must be `planning` or `active`)
+- `public.resolve_lost_found_case(p_case_id UUID)` — SECURITY DEFINER; any trip member; sets `is_resolved = TRUE, resolved_at = NOW()`
+- `public.delete_lost_found_case(p_case_id UUID)` — SECURITY DEFINER; organizer or creator; hard delete
+
+**Triggers:**
+- `trg_notify_new_lost_found_case` AFTER INSERT on `lost_found_cases` → `private.notify_new_lost_found_case()`: broadcasts to all members (type `'lost_found'`) if `target_user IS NULL`; notifies only `target_user` otherwise
+- `trg_handle_shared_packing_item_insert` AFTER INSERT on `shared_packing_items` → `private.handle_shared_packing_item_insert()`: for `'everyone'` — auto-inserts packing_item for all members + broadcasts notification; for `'i_got_it'` — auto-inserts for creator + notifies others; for `'who_has'` — no auto-insert, no immediate notification
+- `trg_notify_shared_packing_item_claimed` AFTER UPDATE on `shared_packing_items` → `private.notify_shared_packing_item_claimed()`: notifies original creator when `claimed_by` changes from NULL to non-NULL
+
+**Local migration file:** `supabase/migrations/20260601000003_stuff_rpcs_and_triggers.sql`
+
+---
+
+### Migration: `20260601000004_packing_items_unique_source`
+
+**Problem:** `ON CONFLICT DO NOTHING` in `handle_shared_packing_item_insert` was a no-op because no unique constraint existed on `(trip_id, user_id, source_shared_item_id)`. Trigger replays or multiple `'everyone'` items could create duplicate packing rows.
+
+**Fix:** Created partial unique index `idx_packing_items_unique_source ON packing_items(trip_id, user_id, source_shared_item_id) WHERE source_shared_item_id IS NOT NULL AND deleted_at IS NULL`.
+
+**Local migration file:** `supabase/migrations/20260601000004_packing_items_unique_source.sql`
+
+---
+
+### Migration: `20260601000005_packing_dynamic_shared_category`
+
+**Problem:** `claim_shared_packing_item` and `handle_shared_packing_item_insert` hardcoded the string `'Shared'` as the category. If the seeded category is renamed, auto-inserted items silently end up under an orphaned category.
+
+**Fix:** Both functions rewritten to look up the category name via `SELECT name FROM packing_categories WHERE is_default = TRUE AND name = 'Shared' LIMIT 1`, falling back to the literal `'Shared'` only if absent.
+
+Also updated `ON CONFLICT` syntax to use the explicit `ON CONFLICT ON CONSTRAINT idx_packing_items_unique_source DO NOTHING`.
+
+**Local migration file:** `supabase/migrations/20260601000005_packing_dynamic_shared_category.sql`
+
+---
+
+### Migration: `20260601000006_fix_packing_conflict_syntax`
+
+**Problem:** `ON CONFLICT ON CONSTRAINT` only works with named constraints created via `ADD CONSTRAINT`. The unique index from `20260601000004` was created via `CREATE UNIQUE INDEX`, not a named constraint, so PostgreSQL rejected the syntax.
+
+**Fix:**
+1. Drop and recreate `idx_packing_items_unique_source` without the `deleted_at IS NULL` predicate (simpler partial index)
+2. Rewrite both `claim_shared_packing_item` and `handle_shared_packing_item_insert` to use column-based conflict syntax: `ON CONFLICT (trip_id, user_id, source_shared_item_id) WHERE source_shared_item_id IS NOT NULL DO NOTHING`
+
+**Local migration file:** `supabase/migrations/20260601000006_fix_packing_conflict_syntax.sql`
+
+---
+
+### Migration: `20260601000007_unresolve_lost_found`
+
+**Why:** Allows trip members to revert a mistakenly resolved Lost & Found case back to unresolved.
+
+**Function:** `public.unresolve_lost_found_case(p_case_id UUID)` — SECURITY DEFINER; any trip member; sets `is_resolved = FALSE, resolved_at = NULL`.
+
+**Local migration file:** `supabase/migrations/20260601000007_unresolve_lost_found.sql`
+
+---
+
+### Migration: `20260601000008_unclaim_shared_packing`
+
+**Why:** Allows reversing a packing item claim or an `i_got_it` declaration.
+
+**Function:** `public.unclaim_shared_packing_item(p_item_id UUID)` — SECURITY DEFINER
+- `i_got_it`: creator only — sets `is_resolved = FALSE` (item goes back to open state)
+- `who_has`: claimer or creator — sets `claimed_by = NULL, is_resolved = FALSE`
+- `everyone`: blocked (cannot unclaim)
+
+**Local migration file:** `supabase/migrations/20260601000008_unclaim_shared_packing.sql`
