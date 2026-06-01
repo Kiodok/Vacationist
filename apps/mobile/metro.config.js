@@ -7,8 +7,11 @@ const workspaceRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Watch all workspace packages so Metro hot-reloads when they change
-config.watchFolders = [workspaceRoot];
+// Watch workspace packages for hot-reload in dev only — in CI the watchers
+// prevent the process from exiting after `expo export`, causing Vercel timeouts.
+if (!process.env.CI) {
+  config.watchFolders = [workspaceRoot];
+}
 
 // Resolve modules from both the app and the workspace root
 config.resolver.nodeModulesPaths = [
