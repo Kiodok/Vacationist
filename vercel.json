@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd apps/mobile && npx expo export --platform web",
+  "buildCommand": "node scripts/build-web.cjs",
   "outputDirectory": "apps/mobile/dist",
   "framework": null,
   "rewrites": [
