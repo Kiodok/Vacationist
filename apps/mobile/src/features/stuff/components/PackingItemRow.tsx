@@ -1,0 +1,55 @@
+import { View, Text, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import { colors } from '@vacationist/ui';
+import type { PackingItem } from '@vacationist/types';
+import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
+
+interface PackingItemRowProps {
+  item: PackingItem;
+  onToggle: () => void;
+  onLongPress: () => void;
+}
+
+export function PackingItemRow({ item, onToggle, onLongPress }: PackingItemRowProps) {
+  const { t } = useTranslation('stuff');
+  const isPacked = item.is_packed;
+  const categoryKey = SEEDED_CATEGORY_I18N[item.category];
+  const categoryLabel = categoryKey ? t(categoryKey) : item.category;
+
+  return (
+    <Pressable
+      onPress={onToggle}
+      onLongPress={onLongPress}
+      className="flex-row items-center gap-md px-md py-sm"
+      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+    >
+      {/* Checkbox */}
+      <View
+        className={`w-[24px] h-[24px] rounded-sm border-2 items-center justify-center ${
+          isPacked ? 'bg-success border-success' : 'border-border'
+        }`}
+      >
+        {isPacked && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
+      </View>
+
+      {/* Text */}
+      <View className="flex-1">
+        <Text
+          className={`text-body ${isPacked ? 'line-through text-text-muted' : 'text-text-primary'}`}
+          numberOfLines={2}
+        >
+          {item.title}
+        </Text>
+        <Text className="text-label text-text-muted" numberOfLines={1}>
+          {categoryLabel}
+        </Text>
+        {item.notes ? (
+          <Text className="text-body-small text-text-muted" numberOfLines={1}>
+            {item.notes}
+          </Text>
+        ) : null}
+      </View>
+    </Pressable>
+  );
+}

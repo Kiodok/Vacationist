@@ -20,12 +20,12 @@ import AccommodationsTab from './accommodations';
 import TransferTab from './transfer';
 import ExpensesTab from './expenses';
 import ShoppingTab from './shopping';
-import RecipesTab from './recipes';
+import StuffTab from './stuff';
 import SettingsTab from './settings';
 import CalendarTab from './calendar';
 import NotesTab from './notes';
 
-const TABS = ['Overview', 'Prework', 'Base', 'Transfer', 'Activities', 'Calendar', 'Expenses', 'Shopping', 'Recipes', 'Notes', 'Settings'] as const;
+const TABS = ['Overview', 'Prework', 'Base', 'Transfer', 'Expenses', 'Activities', 'Calendar', 'Stuff', 'Shopping', 'Notes', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
 
 
@@ -47,11 +47,11 @@ export default function TripDetailScreen() {
       case 'Prework':     return t('tab.prework');
       case 'Base':        return t('tab.base');
       case 'Transfer':    return t('tab.transfer');
+      case 'Expenses':    return t('tab.expenses');
       case 'Activities':  return t('tab.activities');
       case 'Calendar':    return t('tab.calendar');
-      case 'Expenses':    return t('tab.expenses');
+      case 'Stuff':       return t('tab.stuff');
       case 'Shopping':    return t('tab.shopping');
-      case 'Recipes':     return t('tab.recipes');
       case 'Notes':       return t('tab.notes');
       case 'Settings':    return t('tab.settings');
     }
@@ -116,10 +116,10 @@ export default function TripDetailScreen() {
         return <TransferTab />;
       case 'Expenses':
         return <ExpensesTab />;
+      case 'Stuff':
+        return <StuffTab />;
       case 'Shopping':
         return <ShoppingTab />;
-      case 'Recipes':
-        return <RecipesTab />;
       case 'Notes':
         return <NotesTab />;
       case 'Settings':

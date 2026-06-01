@@ -37,8 +37,16 @@ export const NOTIFICATION_TYPE = [
   'reminder',
   'vote_finalized',
   'document_access_request',
+  'lost_found',
+  'shared_packing',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPE)[number];
+
+export const SHARED_PACKING_ITEM_TYPE = ['i_got_it', 'who_has', 'everyone'] as const;
+export type SharedPackingItemType = (typeof SHARED_PACKING_ITEM_TYPE)[number];
+
+export const LOST_FOUND_CASE_TYPE = ['lost_unknown', 'lost_known', 'found_unknown', 'found_owner_known'] as const;
+export type LostFoundCaseType = (typeof LOST_FOUND_CASE_TYPE)[number];
 
 export const TRANSFER_FLIGHT_STATUS = ['suggested', 'booked', 'completed'] as const;
 export type TransferFlightStatus = (typeof TRANSFER_FLIGHT_STATUS)[number];

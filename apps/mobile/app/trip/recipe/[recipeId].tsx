@@ -27,11 +27,7 @@ export default function RecipeDetail() {
   const user = useAuthStore((s) => s.user);
 
   const goBackToTrip = () => {
-    if (Platform.OS === 'web') {
-      router.replace(`/trip/${tripId}?tab=Recipes`);
-    } else {
-      router.back();
-    }
+    router.replace(`/trip/${tripId}?tab=Shopping&view=recipes`);
   };
 
   const { data: recipe, isLoading, isFetching, refetch } = useRecipe(recipeId!);

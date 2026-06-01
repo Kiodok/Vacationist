@@ -205,9 +205,7 @@ export default function TransferTab() {
   if (isLoading) {
     return (
       <View className="flex-1">
-        <View className="px-md pt-md pb-sm">
-          <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
-        </View>
+        <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color={colors.primary} />
         </View>
@@ -217,9 +215,7 @@ export default function TransferTab() {
 
   return (
     <View className="flex-1">
-      <View className="px-md pt-md pb-sm">
-        <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
-      </View>
+      <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
 
       {/* All */}
       {activeSegment === 'All' && (

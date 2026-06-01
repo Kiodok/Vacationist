@@ -1,35 +1,52 @@
 import { useState, useMemo } from 'react';
 import { View, Text, SectionList, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem } from '@vacationist/types';
+import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem, CreateRecipeInput, Recipe } from '@vacationist/types';
 import { useShoppingLists, useCreateShoppingList, useDeleteShoppingList, useArchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
 import { useAllTripShoppingItems, useUpdateShoppingItemGlobal } from '../../../src/features/shopping/hooks/useShoppingItems';
+import { useRecipes, useCreateRecipe, useDeleteRecipe } from '../../../src/features/recipes/hooks/useRecipes';
+import { useRecipeShoppingStatus } from '../../../src/features/recipes/hooks/useRecipeShoppingStatus';
+import { useRecipesRealtime } from '../../../src/features/recipes/hooks/useRecipesRealtime';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
 import { ShoppingListCard } from '../../../src/features/shopping/components/ShoppingListCard';
 import { ShoppingItemRow } from '../../../src/features/shopping/components/ShoppingItemRow';
+import { RecipeCardWrapper } from '../../../src/features/recipes/components/RecipeCardWrapper';
 import { CreateShoppingListSheet } from '../../../src/features/shopping/components/CreateShoppingListSheet';
+import { CreateRecipeSheet } from '../../../src/features/recipes/components/CreateRecipeSheet';
 import { EmptyShopping } from '../../../src/features/shopping/components/EmptyShopping';
+import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyRecipes';
 import { colors } from '@vacationist/ui';
 
-type ViewMode = 'lists' | 'all';
+type ViewMode = 'lists' | 'all' | 'recipes';
 
 export default function ShoppingTab() {
   const { t } = useTranslation('shopping');
   const { t: tCommon } = useTranslation("common");
-  const { id: tripId } = useLocalSearchParams<{ id: string }>();
+  const { id: tripId, view } = useLocalSearchParams<{ id: string; view?: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const [showCreate, setShowCreate] = useState(false);
+  const [showCreateRecipe, setShowCreateRecipe] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    view === 'recipes' ? 'recipes' : 'lists'
+  );
+
   const { data: lists, isLoading, isFetching, refetch } = useShoppingLists(tripId!);
+  const { data: recipes, isLoading: recipesLoading, isFetching: recipesFetching, refetch: refetchRecipes } = useRecipes(tripId!, viewMode === 'recipes');
+  const { data: shoppingStatus } = useRecipeShoppingStatus(tripId!, viewMode === 'recipes');
+  useRecipesRealtime(viewMode === 'recipes' ? tripId! : '');
   const { data: role } = useCurrentMemberRole(tripId!);
   const createList = useCreateShoppingList();
   const deleteList = useDeleteShoppingList();
   const archiveList = useArchiveShoppingList();
+  const createRecipe = useCreateRecipe(tripId!);
+  const deleteRecipeMut = useDeleteRecipe(tripId!);
 
-  const [showCreate, setShowCreate] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('lists');
+  const canCreateRecipe = role !== 'guest';
 
   const { activeLists, completedLists, archivedLists } = useMemo(() => {
     const active: ShoppingListWithCounts[] = [];
@@ -65,7 +82,7 @@ export default function ShoppingTab() {
     createList.mutate({ tripId: tripId!, input }, { onSuccess: () => setShowCreate(false) });
   };
 
-  if (isLoading) {
+  if (isLoading || (viewMode === 'recipes' && recipesLoading)) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
@@ -78,16 +95,16 @@ export default function ShoppingTab() {
   return (
     <View className="flex-1">
       {/* View mode toggle */}
-      {!isEmpty && (
-        <View className="flex-row gap-xs px-md pt-sm pb-xs">
-          <Pressable
-            onPress={() => setViewMode('lists')}
-            className={`px-md py-sm rounded-full ${viewMode === 'lists' ? 'bg-primary' : 'bg-surface'}`}
-          >
-            <Text className={`text-body-small font-semibold ${viewMode === 'lists' ? 'text-white' : 'text-text-secondary'}`}>
-              {t('toggle.lists')}
-            </Text>
-          </Pressable>
+      <View className="flex-row gap-xs px-md pt-sm pb-xs">
+        <Pressable
+          onPress={() => setViewMode('lists')}
+          className={`px-md py-sm rounded-full ${viewMode === 'lists' ? 'bg-primary' : 'bg-surface'}`}
+        >
+          <Text className={`text-body-small font-semibold ${viewMode === 'lists' ? 'text-white' : 'text-text-secondary'}`}>
+            {t('toggle.lists')}
+          </Text>
+        </Pressable>
+        {!isEmpty && (
           <Pressable
             onPress={() => setViewMode('all')}
             className={`px-md py-sm rounded-full ${viewMode === 'all' ? 'bg-primary' : 'bg-surface'}`}
@@ -96,10 +113,30 @@ export default function ShoppingTab() {
               {t('toggle.allItems')}
             </Text>
           </Pressable>
-        </View>
-      )}
+        )}
+        <Pressable
+          onPress={() => setViewMode('recipes')}
+          className={`px-md py-sm rounded-full ${viewMode === 'recipes' ? 'bg-primary' : 'bg-surface'}`}
+        >
+          <Text className={`text-body-small font-semibold ${viewMode === 'recipes' ? 'text-white' : 'text-text-secondary'}`}>
+            {t('toggle.recipes')}
+          </Text>
+        </Pressable>
+      </View>
 
-      {isEmpty ? (
+      {viewMode === 'recipes' ? (
+        <RecipesView
+          tripId={tripId!}
+          recipes={recipes}
+          shoppingStatus={shoppingStatus}
+          role={role}
+          currentUserId={user?.id}
+          isFetching={recipesFetching && !recipesLoading}
+          onRefresh={refetchRecipes}
+          onPress={(id) => router.push(`/trip/recipe/${id}?tripId=${tripId}`)}
+          onDelete={(id) => deleteRecipeMut.mutate(id)}
+        />
+      ) : isEmpty ? (
         <View className="flex-1 px-md py-md">
           <EmptyShopping />
         </View>
@@ -158,13 +195,15 @@ export default function ShoppingTab() {
         />
       )}
 
-      <Pressable
-        onPress={() => setShowCreate(true)}
-        className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
-      >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
-      </Pressable>
+      {(viewMode !== 'recipes' || canCreateRecipe) && (
+        <Pressable
+          onPress={() => viewMode === 'recipes' ? setShowCreateRecipe(true) : setShowCreate(true)}
+          className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
+          style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        >
+          <Ionicons name="add" size={28} color="#FFFFFF" />
+        </Pressable>
+      )}
 
       <CreateShoppingListSheet
         visible={showCreate}
@@ -172,7 +211,71 @@ export default function ShoppingTab() {
         onSubmit={handleCreate}
         isPending={createList.isPending}
       />
+
+      <CreateRecipeSheet
+        visible={showCreateRecipe}
+        onClose={() => setShowCreateRecipe(false)}
+        onSubmit={(input: CreateRecipeInput) => createRecipe.mutate(input, { onSuccess: () => setShowCreateRecipe(false) })}
+        isPending={createRecipe.isPending}
+      />
     </View>
+  );
+}
+
+function RecipesView({
+  tripId,
+  recipes,
+  shoppingStatus,
+  role,
+  currentUserId,
+  isFetching,
+  onRefresh,
+  onPress,
+  onDelete,
+}: {
+  tripId: string;
+  recipes: (Recipe & { ingredient_count: number })[] | undefined;
+  shoppingStatus: Record<string, { title: string }[]> | undefined;
+  role: string | null | undefined;
+  currentUserId: string | undefined;
+  isFetching: boolean;
+  onRefresh: () => void;
+  onPress: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const isEmpty = !recipes || recipes.length === 0;
+  if (isEmpty) {
+    return (
+      <View className="flex-1 px-md py-md">
+        <EmptyRecipes />
+      </View>
+    );
+  }
+  return (
+    <FlashList
+      data={recipes}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
+      renderItem={({ item }) => (
+        <RecipeCardWrapper
+          recipe={item}
+          tripId={tripId}
+          currentUserId={currentUserId}
+          role={role}
+          shoppingListNames={(shoppingStatus?.[item.id] ?? []).map((l) => l.title)}
+          onPress={() => onPress(item.id)}
+          onDelete={() => onDelete(item.id)}
+        />
+      )}
+      refreshControl={
+        <RefreshControl
+          refreshing={isFetching}
+          onRefresh={onRefresh}
+          tintColor={colors.primary}
+          colors={[colors.primary]}
+        />
+      }
+    />
   );
 }
 

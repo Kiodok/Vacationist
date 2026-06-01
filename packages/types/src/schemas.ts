@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, SUPPORTED_LOCALES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE } from './enums';
+import { SUPPORTED_TIMEZONES, SUPPORTED_LOCALES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE, SHARED_PACKING_ITEM_TYPE, LOST_FOUND_CASE_TYPE } from './enums';
 import type { VOTE_TYPE } from './enums';
 
 export const userSchema = z.object({
@@ -417,6 +417,8 @@ export const updateNotificationPreferencesSchema = z.object({
   new_member:      z.boolean().optional(),
   schedule_change: z.boolean().optional(),
   reminder:        z.boolean().optional(),
+  lost_found:      z.boolean().optional(),
+  shared_packing:  z.boolean().optional(),
 });
 
 export type UpdateNotificationPreferencesInput = z.infer<typeof updateNotificationPreferencesSchema>;
@@ -435,6 +437,75 @@ export const updateTripNoteSchema = z.object({
 
 export type CreateTripNoteInput = z.infer<typeof createTripNoteSchema>;
 export type UpdateTripNoteInput = z.infer<typeof updateTripNoteSchema>;
+
+// --- Packing item schemas (private) ---
+
+export const createPackingItemSchema = z.object({
+  category: z.string().min(1).max(100),
+  title: z.string().min(1).max(100),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export const updatePackingItemSchema = z.object({
+  category: z.string().min(1).max(100).optional(),
+  title: z.string().min(1).max(100).optional(),
+  is_packed: z.boolean().optional(),
+  notes: z.string().max(500).nullable().optional(),
+  sort_order: z.number().int().nonnegative().optional(),
+});
+
+export type CreatePackingItemInput = z.infer<typeof createPackingItemSchema>;
+export type UpdatePackingItemInput = z.infer<typeof updatePackingItemSchema>;
+
+export type CreatePackingItemVariables = { tripId: string; input: CreatePackingItemInput };
+export type UpdatePackingItemVariables = { itemId: string; tripId: string; input: UpdatePackingItemInput };
+export type DeletePackingItemVariables = { itemId: string; tripId: string };
+export type CopyPackingListVariables = { sourceTripId: string; targetTripId: string };
+
+// --- Shared packing item schemas ---
+
+export const createSharedPackingItemSchema = z.object({
+  title: z.string().min(1).max(100),
+  item_type: z.enum(SHARED_PACKING_ITEM_TYPE),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export const updateSharedPackingItemSchema = z.object({
+  title: z.string().min(1).max(100).optional(),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export type CreateSharedPackingItemInput = z.infer<typeof createSharedPackingItemSchema>;
+export type UpdateSharedPackingItemInput = z.infer<typeof updateSharedPackingItemSchema>;
+
+export type CreateSharedPackingItemVariables = { tripId: string; input: CreateSharedPackingItemInput };
+export type UpdateSharedPackingItemVariables = { itemId: string; input: UpdateSharedPackingItemInput };
+export type ClaimSharedPackingItemVariables = { itemId: string; tripId: string };
+export type UnclaimSharedPackingItemVariables = { itemId: string; tripId: string };
+export type DeleteSharedPackingItemVariables = { itemId: string; tripId: string };
+
+// --- Lost & Found schemas ---
+
+export const createLostFoundCaseSchema = z.object({
+  case_type: z.enum(LOST_FOUND_CASE_TYPE),
+  title: z.string().min(1).max(100),
+  description: z.string().max(1000).nullable().optional(),
+  target_user: z.string().uuid().nullable().optional(),
+});
+
+export type CreateLostFoundCaseInput = z.infer<typeof createLostFoundCaseSchema>;
+
+export const updateLostFoundCaseSchema = z.object({
+  title: z.string().min(1).max(100).optional(),
+  description: z.string().max(1000).nullable().optional(),
+});
+export type UpdateLostFoundCaseInput = z.infer<typeof updateLostFoundCaseSchema>;
+
+export type CreateLostFoundCaseVariables = { tripId: string; input: CreateLostFoundCaseInput };
+export type UpdateLostFoundCaseVariables = { caseId: string; tripId: string; input: UpdateLostFoundCaseInput };
+export type ResolveLostFoundCaseVariables = { caseId: string; tripId: string };
+export type UnresolveLostFoundCaseVariables = { caseId: string; tripId: string };
+export type DeleteLostFoundCaseVariables = { caseId: string; tripId: string };
 
 // --- Mutation variable types ---
 // These carry all context needed for offline mutation replay (no closure dependencies).

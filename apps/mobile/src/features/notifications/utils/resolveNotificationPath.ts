@@ -23,6 +23,9 @@ export function resolveNotificationPath(
       return `/trip/${trip_id}`;
     case 'document_access_request':
       return '/(tabs)/profile';
+    case 'lost_found':
+    case 'shared_packing':
+      return `/trip/${trip_id}?tab=Stuff`;
     default:
       return `/trip/${trip_id}`;
   }

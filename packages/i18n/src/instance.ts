@@ -15,6 +15,7 @@ import enPrework from './locales/en/prework.json';
 import enNotifications from './locales/en/notifications.json';
 import enProfile from './locales/en/profile.json';
 import enNotes from './locales/en/notes.json';
+import enStuff from './locales/en/stuff.json';
 import enValidation from './locales/en/validation.json';
 
 import deCommon from './locales/de/common.json';
@@ -31,6 +32,7 @@ import dePrework from './locales/de/prework.json';
 import deNotifications from './locales/de/notifications.json';
 import deProfile from './locales/de/profile.json';
 import deNotes from './locales/de/notes.json';
+import deStuff from './locales/de/stuff.json';
 import deValidation from './locales/de/validation.json';
 
 const resources = {
@@ -49,6 +51,7 @@ const resources = {
     notifications: enNotifications,
     profile: enProfile,
     notes: enNotes,
+    stuff: enStuff,
     validation: enValidation,
   },
   de: {
@@ -66,6 +69,7 @@ const resources = {
     notifications: deNotifications,
     profile: deProfile,
     notes: deNotes,
+    stuff: deStuff,
     validation: deValidation,
   },
 } as const;
@@ -78,7 +82,7 @@ i18n.use(initReactI18next).init({
   ns: [
     'common', 'auth', 'trips', 'activities', 'expenses', 'accommodations',
     'transfer', 'shopping', 'recipes', 'calendar', 'prework', 'notifications',
-    'profile', 'notes', 'validation',
+    'profile', 'notes', 'stuff', 'validation',
   ],
   interpolation: {
     escapeValue: false,

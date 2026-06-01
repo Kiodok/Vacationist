@@ -29,7 +29,7 @@ export function TransferSegmentedControl({ activeSegment, onSegmentChange }: Tra
   };
 
   return (
-    <View className="flex-row gap-xs px-md pt-md pb-sm">
+    <View className="flex-row gap-xs px-md pt-sm pb-xs">
       {SEGMENTS.map((segment) => {
         const isActive = segment === activeSegment;
         return (

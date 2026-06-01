@@ -37,6 +37,14 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Friendly nudge 👋', body: 'Your organizer wants you to check the open votes.' },
     de: { title: 'Freundliche Erinnerung 👋', body: 'Dein Organisator möchte, dass du die offenen Abstimmungen prüfst.' },
   },
+  lost_found: {
+    en: { title: 'Lost & Found', body: 'A lost or found item was reported on your trip.' },
+    de: { title: 'Fundbüro', body: 'Ein verlorener oder gefundener Gegenstand wurde auf deiner Reise gemeldet.' },
+  },
+  shared_packing: {
+    en: { title: 'Shared packing update', body: 'A shared packing item was updated on your trip.' },
+    de: { title: 'Gemeinsame Packliste', body: 'Ein gemeinsamer Packlisteneintrag wurde auf deiner Reise aktualisiert.' },
+  },
 };
 
 function translateNotification(
@@ -114,6 +122,8 @@ function preferenceColumn(type: string): string | null {
     case 'new_member':      return 'new_member';
     case 'schedule_change': return 'schedule_change';
     case 'reminder':        return 'reminder';
+    case 'lost_found':      return 'lost_found';
+    case 'shared_packing':  return 'shared_packing';
     default:                return null;
   }
 }

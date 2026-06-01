@@ -10,12 +10,12 @@ import type { CreateRecipeInput, UpdateRecipeInput } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
-export function useRecipes(tripId: string) {
+export function useRecipes(tripId: string, enabled = true) {
   return useQuery({
     queryKey: ['trips', tripId, 'recipes'],
     queryFn: () => getRecipes(tripId),
     retry: 2,
-    enabled: !!tripId,
+    enabled: !!tripId && enabled,
   });
 }
 

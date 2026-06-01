@@ -12,6 +12,7 @@ import type enPrework from './locales/en/prework.json';
 import type enNotifications from './locales/en/notifications.json';
 import type enProfile from './locales/en/profile.json';
 import type enNotes from './locales/en/notes.json';
+import type enStuff from './locales/en/stuff.json';
 import type enValidation from './locales/en/validation.json';
 
 declare module 'i18next' {
@@ -32,6 +33,7 @@ declare module 'i18next' {
       notifications: typeof enNotifications;
       profile: typeof enProfile;
       notes: typeof enNotes;
+      stuff: typeof enStuff;
       validation: typeof enValidation;
     };
   }

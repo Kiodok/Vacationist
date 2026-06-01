@@ -79,7 +79,8 @@ export async function updateNotificationPreferences(
 
   const { data, error } = await supabase
     .from('notification_preferences')
-    .update(prefs)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .update(prefs as any)
     .eq('trip_id', tripId)
     .eq('user_id', session.user.id)
     .select()

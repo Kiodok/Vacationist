@@ -193,6 +193,27 @@ export type { NotificationRealtimeCallbacks } from './notifications';
 export { upsertPushToken, deletePushToken } from './pushTokens';
 
 export {
+  getPackingCategories,
+  getPackingItems,
+  createPackingItem,
+  updatePackingItem,
+  softDeletePackingItem,
+  copyPackingListToTrip,
+  getSharedPackingItems,
+  createSharedPackingItem,
+  updateSharedPackingItem,
+  claimSharedPackingItem,
+  unclaimSharedPackingItem,
+  softDeleteSharedPackingItem,
+  getLostFoundCases,
+  createLostFoundCase,
+  updateLostFoundCase,
+  resolveLostFoundCase,
+  unresolveLostFoundCase,
+  deleteLostFoundCase,
+} from './stuff';
+
+export {
   getMyTravelDocuments,
   upsertTravelDocument,
   deleteTravelDocument,

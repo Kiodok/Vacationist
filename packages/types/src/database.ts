@@ -15,6 +15,8 @@ import type {
   TransferDirection,
   DocumentType,
   AccessRequestDuration,
+  SharedPackingItemType,
+  LostFoundCaseType,
 } from './enums';
 
 export interface User {
@@ -367,6 +369,8 @@ export interface NotificationPreference {
   new_member: boolean;
   schedule_change: boolean;
   reminder: boolean;
+  lost_found: boolean;
+  shared_packing: boolean;
 }
 
 export interface TravelDocument {
@@ -425,6 +429,57 @@ export interface TripNote {
   created_by: string;
   title: string;
   description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PackingCategory {
+  id: string;
+  name: string;
+  icon: string | null;
+  sort_order: number;
+  is_default: boolean;
+}
+
+export interface PackingItem {
+  id: string;
+  trip_id: string;
+  user_id: string;
+  category: string;
+  title: string;
+  is_packed: boolean;
+  notes: string | null;
+  sort_order: number;
+  source_shared_item_id: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface SharedPackingItem {
+  id: string;
+  trip_id: string;
+  title: string;
+  item_type: SharedPackingItemType;
+  notes: string | null;
+  created_by: string;
+  claimed_by: string | null;
+  is_resolved: boolean;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface LostFoundCase {
+  id: string;
+  trip_id: string;
+  case_type: LostFoundCaseType;
+  title: string;
+  description: string | null;
+  created_by: string;
+  target_user: string | null;
+  is_resolved: boolean;
+  resolved_at: string | null;
   created_at: string;
   updated_at: string;
 }
