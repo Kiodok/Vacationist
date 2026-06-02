@@ -34,5 +34,8 @@
   "tab.trips": "Reisen",
   "tab.calendar": "Kalender",
   "tab.notifications": "Benachrichtigungen",
-  "tab.profile": "Profil"
+  "tab.profile": "Profil",
+  "forceUpdate.title": "Update erforderlich",
+  "forceUpdate.message": "Eine neue Version von Vacationist ist verfügbar. Bitte aktualisiere die App, um fortzufahren.",
+  "forceUpdate.button": "Jetzt aktualisieren"
 }

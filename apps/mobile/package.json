@@ -39,6 +39,7 @@
     "expo-device": "~55.0.17",
     "expo-font": "~55.0.7",
     "expo-image-picker": "~55.0.20",
+    "expo-in-app-updates": "^0.9.0",
     "expo-linking": "~55.0.15",
     "expo-local-authentication": "~55.0.14",
     "expo-localization": "~55.0.15",

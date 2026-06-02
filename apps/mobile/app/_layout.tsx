@@ -32,6 +32,7 @@ import { useThemeStore } from '../src/stores/themeStore';
 import { colorScheme as cssColorScheme } from 'react-native-css-interop';
 import { syncSystemColorScheme } from '../src/utils/themeSync';
 import VercelWebTools from '../src/components/VercelWebTools';
+import { ForceUpdateGate } from '../src/components/ForceUpdateGate';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -253,6 +254,7 @@ function RootLayout() {
           <QueryProvider>
             <ThemeController />
             <OfflineBanner />
+            <ForceUpdateGate />
             <AuthGate />
             <ToastContainer />
             <VercelWebTools />
