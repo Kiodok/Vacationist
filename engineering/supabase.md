@@ -2232,3 +2232,58 @@ Three purely additive RPCs. No table changes, no data mutations. Applied to both
 - `reset_topic_preferences(p_topic_id UUID)` — SECURITY DEFINER; organizer only; deletes all member preferences for a single topic
 
 **Realtime:** `prework_topics` added to `supabase_realtime` publication with `REPLICA IDENTITY FULL`.
+
+---
+
+### Migration: `20260602100001_prework_preferences_replica_identity`
+
+**Why:** After the multi-topic migration, `prework_preferences` DELETE realtime events did not include `topic_id` in `payload.old` because REPLICA IDENTITY was set to DEFAULT (primary key only). Without `topic_id`, the `usePreworkRealtime` hook could not surgically invalidate the correct topic's cache and had to fall back to a broad `invalidateQueries` on every deletion.
+
+**Change:** `ALTER TABLE public.prework_preferences REPLICA IDENTITY FULL` — ensures all columns, including `topic_id`, appear in DELETE event payloads so the hook can target the specific topic's query cache.
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260602100001_prework_preferences_replica_identity.sql`
+
+---
+
+## 2026-06-02 — Trip Reminder Automatic Push Notifications
+
+### Migration: `20260602120000_create_trip_reminder_cron`
+
+**Why:** Trip members had no advance notice before a trip starts. Adds automatic push notifications at 7, 3, and 1 day(s) before every trip that is still in `planning` status.
+
+**Architecture:** Reuses the existing notification pipeline end-to-end:
+1. `private.create_trip_reminders()` inserts `notifications` rows (type `reminder`) for all trip members via the existing `private.create_trip_notification()` helper
+2. The existing `dispatch-pending-push-notifications` pg_cron job (runs every minute) picks up the new rows and delivers them via the push-notification Edge Function
+3. The Edge Function already handles `type = reminder` and checks the `reminder` preference column — members who disabled reminder notifications in trip settings will not receive the push
+
+**Function:** `private.create_trip_reminders() RETURNS INTEGER` — SECURITY DEFINER, `SET search_path = ''`
+- Queries `public.trips WHERE deleted_at IS NULL AND status = 'planning' AND (start_date - CURRENT_DATE) IN (1, 3, 7)`
+- **Deduplication guard:** skips a trip if a `type = 'reminder'` AND `related_type = 'trip'` row already exists for that trip today — prevents double-sends on cron retry or if the job fires more than once (see `20260602130000` for the fix that replaced a buggy `LIKE` pattern with this discriminant)
+- 1-day reminder: title `"Trip starts tomorrow: {title}"`, body `"Your trip starts tomorrow — time to get ready!"`
+- 3/7-day reminders: title `"{N} days until {title}"`, body `"Your trip starts in {N} days!"`
+- Notifies all members (exclude UUID = `'00000000-0000-0000-0000-000000000000'`, the nil UUID sentinel for "notify all")
+- Sets `related_type = 'trip'`, `related_id = trip.id` — deep-link navigates to the trip root
+
+**Cron job:** `create-trip-reminders` scheduled `0 9 * * *` (daily at 09:00 UTC — morning in European timezones)
+
+**No Edge Function changes required** — trip-reminder title/body is set by the DB function and passed as fallback through `translateNotification`; the generic nudge i18n keys are not used.
+
+**No types/hooks/UI changes required** — `type = 'reminder'` is already in the enum, the notification list renders it with the existing `NotificationItem`, and `resolveNotificationPath` already routes `reminder` to the trip root.
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260602120000_create_trip_reminder_cron.sql`
+
+---
+
+### Migration: `20260602130000_fix_trip_reminder_dedup`
+
+**Why (bug fix):** The dedup guard in `create_trip_reminders()` used `body LIKE '%trip starts in%'`, which matched the 3-day and 7-day reminders but not the 1-day reminder (`"Your trip starts tomorrow — time to get ready!"`). If the cron fired more than once per day, every trip starting tomorrow would receive duplicate push notifications.
+
+**Fix:** Replaced the fragile body-text match with `related_type = 'trip'`. Organizer nudges (`send_organizer_nudge`) are inserted with `related_type = NULL`, so this discriminant correctly identifies automatic trip reminders without depending on body text. All three reminder windows (1, 3, 7 days) are now protected by the same guard.
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260602130000_fix_trip_reminder_dedup.sql`

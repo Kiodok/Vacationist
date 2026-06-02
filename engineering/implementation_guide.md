@@ -372,7 +372,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
 
   - [x] `CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions`
   - [x] `CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault`
-  - [x] Insert encryption key via `vault.create_secret()` (NOT direct INSERT — see docs/supabase.md)
+  - [x] Insert encryption key via `vault.create_secret()` (NOT direct INSERT — see engineering/supabase.md)
   - [x] `private.get_travel_doc_encryption_key()` SECURITY DEFINER helper
 
   **Migration 2 — `20260525000002_create_user_travel_documents.sql`**
@@ -690,7 +690,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [x] EAS Submit & Release Pipeline — already configured
   - [x] Google Play Console Assets — app icon 512×512 (`play-store/icon.png`), feature graphic 1024×500 (`play-store/feature-graphic.png`), 4 screenshot HTML mockups (`play-store/screenshots/`), store listing text (`play-store/listing.md`); **manual step remaining**: take actual device screenshots from HTML mockups (Chrome DevTools 390×844), upload to Play Console
   - [x] Compliance & Policy — Privacy Policy (`docs/privacy-policy.html`, Swiss nDSG + GDPR, hosted on GitHub Pages); Terms of Service (`docs/terms-of-service.html`, Swiss OR); Landing page (`docs/home.html`)
-  - [x] Release Strategy — documented in `docs/CLAUDE.md`: version numbering (MAJOR.MINOR.PATCH), EAS channels & build profiles, OTA rules, staged rollout (10%→50%→100%), hotfix process, pre-release checklist, monitoring table, key IDs reference
+  - [x] Release Strategy — documented in `engineering/CLAUDE.md`: version numbering (MAJOR.MINOR.PATCH), EAS channels & build profiles, OTA rules, staged rollout (10%→50%→100%), hotfix process, pre-release checklist, monitoring table, key IDs reference
 
 ## 🌐 Phase 10: Landing Page / Marketing Website (GitHub Pages)
 *Dependencies: Phase 9*

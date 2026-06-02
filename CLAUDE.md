@@ -66,7 +66,7 @@ We are moving to the next task in the Implementation Plan.
 3. **Review Notes:** List any edge cases you handled or technical considerations for the next layer (e.g., "When we move to the Hook layer, we need to ensure we invalidate the 'trips' query").
 
 ### Supabase changes
-Add details to the docs/supabase.md if you make changes by migrations in the Supabase project using the MCP server or other CLI tools.
+Add details to the engineering/supabase.md if you make changes by migrations in the Supabase project using the MCP server or other CLI tools.
 Use CLI instead of MCP server.
 
 ---

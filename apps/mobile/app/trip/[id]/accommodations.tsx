@@ -265,7 +265,7 @@ function AccommodationCardWithVotes({
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
-            {canCloseVoting && votes.length > 0 && (
+            {canCloseVoting && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => setConfirmingCloseVoting(true)}
