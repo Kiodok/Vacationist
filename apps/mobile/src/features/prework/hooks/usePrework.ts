@@ -1,43 +1,43 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getPreworkPreferences,
-  getMyPreworkPreferences,
-  upsertPreworkPreferences,
-  deletePreworkPreferences,
-  resetAllPreworkPreferences,
+  getTopicPreferences,
+  getMyTopicPreferences,
+  upsertTopicPreferences,
+  deleteTopicPreferences,
+  resetTopicPreferences,
 } from '@vacationist/api';
 import type { UpsertPreworkPreferencesInput } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 
-export function usePreworkPreferences(tripId: string) {
+export function useTopicPreferences(topicId: string) {
   return useQuery({
-    queryKey: ['trips', tripId, 'prework-preferences'],
-    queryFn: () => getPreworkPreferences(tripId),
+    queryKey: ['prework-topics', topicId, 'preferences'],
+    queryFn: () => getTopicPreferences(topicId),
     retry: 2,
-    enabled: !!tripId,
+    enabled: !!topicId,
   });
 }
 
-export function useMyPreworkPreferences(tripId: string) {
+export function useMyTopicPreferences(topicId: string) {
   return useQuery({
-    queryKey: ['trips', tripId, 'my-prework-preferences'],
-    queryFn: () => getMyPreworkPreferences(tripId),
+    queryKey: ['prework-topics', topicId, 'my-preferences'],
+    queryFn: () => getMyTopicPreferences(topicId),
     retry: 2,
-    enabled: !!tripId,
+    enabled: !!topicId,
   });
 }
 
-export function useUpsertPreworkPreferences(tripId: string) {
+export function useUpsertTopicPreferences(topicId: string, tripId: string) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationFn: (input: UpsertPreworkPreferencesInput) =>
-      upsertPreworkPreferences(tripId, input),
+      upsertTopicPreferences(topicId, tripId, input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'prework-preferences'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'my-prework-preferences'] });
+      queryClient.invalidateQueries({ queryKey: ['prework-topics', topicId, 'preferences'] });
+      queryClient.invalidateQueries({ queryKey: ['prework-topics', topicId, 'my-preferences'] });
       addToast('success', i18n.t('prework:toast.saved'));
     },
     onError: () => {
@@ -46,15 +46,15 @@ export function useUpsertPreworkPreferences(tripId: string) {
   });
 }
 
-export function useDeletePreworkPreferences(tripId: string) {
+export function useDeleteTopicPreferences(topicId: string) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: () => deletePreworkPreferences(tripId),
+    mutationFn: () => deleteTopicPreferences(topicId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'prework-preferences'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'my-prework-preferences'] });
+      queryClient.invalidateQueries({ queryKey: ['prework-topics', topicId, 'preferences'] });
+      queryClient.invalidateQueries({ queryKey: ['prework-topics', topicId, 'my-preferences'] });
       addToast('success', i18n.t('prework:toast.cleared'));
     },
     onError: () => {
@@ -63,15 +63,15 @@ export function useDeletePreworkPreferences(tripId: string) {
   });
 }
 
-export function useResetAllPreworkPreferences(tripId: string) {
+export function useResetTopicPreferences(topicId: string) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: () => resetAllPreworkPreferences(tripId),
+    mutationFn: () => resetTopicPreferences(topicId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'prework-preferences'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'my-prework-preferences'] });
+      queryClient.invalidateQueries({ queryKey: ['prework-topics', topicId, 'preferences'] });
+      queryClient.invalidateQueries({ queryKey: ['prework-topics', topicId, 'my-preferences'] });
       addToast('success', i18n.t('prework:toast.resetAll'));
     },
     onError: () => {

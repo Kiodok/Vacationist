@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { PreworkFilter } from '@vacationist/types';
@@ -9,10 +9,8 @@ import { colors } from '@vacationist/ui';
 
 interface MyPreferencesSectionProps {
   initialFilters: PreworkFilter[];
-  initialDescription: string;
-  showDescription: boolean;
   recommendedLabels: string[];
-  onSave: (filters: PreworkFilter[], description: string) => void;
+  onSave: (filters: PreworkFilter[]) => void;
   onClear: () => void;
   isSaving: boolean;
   isClearing: boolean;
@@ -20,8 +18,6 @@ interface MyPreferencesSectionProps {
 
 export function MyPreferencesSection({
   initialFilters,
-  initialDescription,
-  showDescription,
   recommendedLabels,
   onSave,
   onClear,
@@ -31,22 +27,20 @@ export function MyPreferencesSection({
   const { t } = useTranslation('prework');
   const { t: tCommon } = useTranslation("common");
   const [filters, setFilters] = useState<PreworkFilter[]>(initialFilters);
-  const [description, setDescription] = useState(initialDescription);
   const [newLabel, setNewLabel] = useState('');
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     setFilters(initialFilters);
-    setDescription(initialDescription);
     setIsDirty(false);
-  }, [initialFilters, initialDescription]);
+  }, [initialFilters]);
 
   const creditSum = filters.reduce((sum, f) => sum + f.weight, 0);
   const hasZeroCredit = filters.some((f) => f.weight < 1);
   const hasEmptyLabel = filters.some((f) => !f.label.trim());
   const exceedsMax = creditSum > 100;
   const hasFilterErrors = filters.length > 0 && (exceedsMax || hasZeroCredit || hasEmptyLabel);
-  const hasContent = filters.length > 0 || (showDescription && description.trim().length > 0);
+  const hasContent = filters.length > 0;
   const canSave = isDirty && hasContent && !hasFilterErrors;
 
   const addFilter = (label: string) => {
@@ -83,15 +77,14 @@ export function MyPreferencesSection({
   };
 
   const handleSave = () => {
-    const result = upsertPreworkPreferencesSchema.safeParse({ filters, description });
+    const result = upsertPreworkPreferencesSchema.safeParse({ filters });
     if (!result.success) return;
-    onSave(filters, description);
+    onSave(filters);
   };
 
   const handleClear = () => {
     onClear();
     setFilters([]);
-    setDescription('');
     setIsDirty(false);
   };
 
@@ -102,26 +95,6 @@ export function MyPreferencesSection({
   return (
     <View className="gap-md">
       <Text className="text-heading-m text-text-primary">{t('my.title')}</Text>
-
-      {/* Description note — organizer only */}
-      {showDescription && (
-        <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">{t('my.descriptionLabel')}</Text>
-          <TextInput
-            value={description}
-            onChangeText={(v) => { setDescription(v); setIsDirty(true); }}
-            placeholder={t('my.descriptionPlaceholder')}
-            placeholderTextColor="#5C5C5C"
-            maxLength={500}
-            multiline
-            numberOfLines={3}
-            className="text-body text-text-primary bg-surface rounded-md px-md py-sm border border-border"
-            style={{ minHeight: 72, textAlignVertical: 'top' }}
-            returnKeyType="default"
-            blurOnSubmit={Platform.OS !== 'ios'}
-          />
-        </View>
-      )}
 
       {filters.length === 0 ? (
         <Text className="text-body-small text-text-secondary">

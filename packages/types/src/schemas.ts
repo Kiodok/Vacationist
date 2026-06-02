@@ -257,11 +257,24 @@ export const upsertPreworkPreferencesSchema = z.object({
     (filters) => filters.every((f) => f.weight >= 1),
     { message: 'Every filter must have at least 1 credit' }
   ),
-  description: z.string().max(500).optional(),
+});
+
+export const createPreworkTopicSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().max(500).nullable().optional(),
+  seeded_labels: z.array(z.string().min(1).max(100)).max(20).optional(),
+});
+
+export const updatePreworkTopicSchema = z.object({
+  title: z.string().min(1).max(100).optional(),
+  description: z.string().max(500).nullable().optional(),
+  seeded_labels: z.array(z.string().min(1).max(100)).max(20).optional(),
 });
 
 export type PreworkFilterInput = z.infer<typeof preworkFilterSchema>;
 export type UpsertPreworkPreferencesInput = z.infer<typeof upsertPreworkPreferencesSchema>;
+export type CreatePreworkTopicInput = z.infer<typeof createPreworkTopicSchema>;
+export type UpdatePreworkTopicInput = z.infer<typeof updatePreworkTopicSchema>;
 
 // --- Transfer schemas ---
 

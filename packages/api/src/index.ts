@@ -117,15 +117,21 @@ export {
 export type { RecipeRealtimeCallbacks, IngredientRealtimeCallbacks, RecipeShoppingListInfo } from './recipes';
 
 export {
-  getPreworkPreferences,
-  getMyPreworkPreferences,
-  upsertPreworkPreferences,
-  deletePreworkPreferences,
-  resetAllPreworkPreferences,
+  getPreworkTopics,
+  createPreworkTopic,
+  updatePreworkTopic,
+  deletePreworkTopic,
+  getTopicPreferences,
+  getMyTopicPreferences,
+  upsertTopicPreferences,
+  deleteTopicPreferences,
+  resetTopicPreferences,
+  subscribeToPreworkTopicsRealtime,
+  unsubscribeFromPreworkTopics,
   subscribeToPreworkRealtime,
   unsubscribeFromPrework,
 } from './prework';
-export type { PreworkRealtimeCallbacks } from './prework';
+export type { PreworkRealtimeCallbacks, PreworkTopicRealtimeCallbacks } from './prework';
 
 export {
   getTransferFlights,

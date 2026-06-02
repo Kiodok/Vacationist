@@ -241,12 +241,24 @@ export interface PreworkFilter {
   weight: number;
 }
 
+export interface PreworkTopic {
+  id: string;
+  trip_id: string;
+  title: string;
+  description: string | null;
+  seeded_labels: string[];
+  position: number;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface PreworkPreferences {
   id: string;
   trip_id: string;
+  topic_id: string;
   user_id: string;
   filters: PreworkFilter[];
-  description: string | null;
   updated_at: string;
 }
 

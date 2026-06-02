@@ -9,9 +9,9 @@ function prefs(
   return {
     id: `pref-${userId}`,
     trip_id: 'trip-1',
+    topic_id: 'topic-1',
     user_id: userId,
     filters,
-    description: null,
     updated_at: '2026-01-01T00:00:00Z',
   };
 }

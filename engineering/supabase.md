@@ -2192,3 +2192,43 @@ Three purely additive RPCs. No table changes, no data mutations. Applied to both
 - The "Lost or Found" toggle was removed from `NotificationPreferencesSection.tsx` — the preference UI no longer exposes this column.
 
 **Deployed to:** dev and prod via `supabase functions deploy push-notification`.
+
+---
+
+## 2026-06-02 — Multi-Topic Prework
+
+### Migration: `20260602100000_create_prework_topics`
+
+**Why:** The Prework feature was extended from a single flat preference list per trip to a multi-topic system. Organizers create named topics (e.g. "Trip Type", "Location", "Accommodation Filters"); each member distributes 100 credits independently per topic.
+
+**Table created:** `public.prework_topics`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | `gen_random_uuid()` |
+| `trip_id` | UUID FK → trips CASCADE | |
+| `title` | TEXT | CHECK length 1–100 |
+| `description` | TEXT | nullable; max 500 chars; organizer context for members |
+| `seeded_labels` | TEXT[] | default `{}`; max 20 items; organizer-suggested option labels |
+| `position` | INT | ordering in segmented control, append-only |
+| `created_by` | UUID FK → users | |
+| `created_at` | TIMESTAMPTZ | `DEFAULT NOW()` |
+| `updated_at` | TIMESTAMPTZ | `DEFAULT NOW()`, trigger-maintained |
+
+**RLS:**
+- SELECT: `private.is_trip_member(trip_id, auth.uid())`
+- INSERT: `created_by = auth.uid() AND private.is_trip_organizer(trip_id, auth.uid())`
+- UPDATE: `private.is_trip_organizer(trip_id, auth.uid())`
+- DELETE: denied (use `delete_prework_topic` RPC)
+
+**Changes to `public.prework_preferences`:**
+- Added `topic_id UUID FK → prework_topics ON DELETE CASCADE` — NOT NULL
+- Removed `description` column (moved to `prework_topics`)
+- UNIQUE constraint changed from `(trip_id, user_id)` to `(topic_id, user_id)`
+- Existing rows migrated: a default "General" topic was created per trip with existing data
+
+**RPCs:**
+- `delete_prework_topic(p_topic_id UUID)` — SECURITY DEFINER; organizer only; hard-deletes topic + cascades to all member preferences
+- `reset_topic_preferences(p_topic_id UUID)` — SECURITY DEFINER; organizer only; deletes all member preferences for a single topic
+
+**Realtime:** `prework_topics` added to `supabase_realtime` publication with `REPLICA IDENTITY FULL`.
