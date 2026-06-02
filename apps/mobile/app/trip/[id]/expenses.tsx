@@ -3,6 +3,8 @@ import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator }
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
+import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
 import { formatCurrency, isExpenseFullySettled } from '@vacationist/utils';
 import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllForPair } from '../../../src/features/expenses/hooks/useExpenses';
@@ -19,6 +21,12 @@ import { ExpenseListSkeleton } from '../../../src/features/expenses/components/E
 import { SettlementsCard } from '../../../src/features/expenses/components/SettlementsCard';
 import { SettlementsModal } from '../../../src/features/expenses/components/SettlementsModal';
 import { colors } from '@vacationist/ui';
+
+const SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; iconColor: string; textClass: string }> = {
+  active:    { icon: 'wallet-outline',         iconColor: colors.textPrimary, textClass: 'text-text-primary' },
+  completed: { icon: 'checkmark-done-outline',  iconColor: colors.success,    textClass: 'text-success' },
+  archived:  { icon: 'archive-outline',         iconColor: colors.textMuted,  textClass: 'text-text-muted' },
+};
 
 export default function ExpensesTab() {
   const { t } = useTranslation('expenses');
@@ -48,6 +56,7 @@ export default function ExpensesTab() {
   const settleAllForPairMutation = useSettleAllForPair();
   const settlingPairRef = useRef(false);
   useExpensesRealtime(tripId!);
+  const { toggle, isCollapsed } = useCollapsibleSections();
 
   const [showCreate, setShowCreate] = useState(false);
   const [showSettlements, setShowSettlements] = useState(false);
@@ -81,18 +90,18 @@ export default function ExpensesTab() {
   }, [expenses]);
 
   const sections = useMemo(() => {
-    const result: { key: string; title: string; data: ExpenseWithSplits[] }[] = [];
+    const raw: { key: string; title: string; originalCount: number; data: ExpenseWithSplits[] }[] = [];
     if (activeExpenses.length > 0) {
-      result.push({ key: 'active', title: t('section.active'), data: activeExpenses });
+      raw.push({ key: 'active', title: t('section.active'), originalCount: activeExpenses.length, data: activeExpenses });
     }
     if (completedExpenses.length > 0) {
-      result.push({ key: 'completed', title: t('section.completed'), data: completedExpenses });
+      raw.push({ key: 'completed', title: t('section.completed'), originalCount: completedExpenses.length, data: completedExpenses });
     }
     if (archivedExpenses.length > 0) {
-      result.push({ key: 'archived', title: t('section.archived'), data: archivedExpenses });
+      raw.push({ key: 'archived', title: t('section.archived'), originalCount: archivedExpenses.length, data: archivedExpenses });
     }
-    return result;
-  }, [activeExpenses, completedExpenses, archivedExpenses]);
+    return raw.map((s) => ({ ...s, data: isCollapsed(s.key) ? [] : s.data }));
+  }, [activeExpenses, completedExpenses, archivedExpenses, isCollapsed]);
 
   const handleCreate = (input: CreateExpenseInput) => {
     createExpense.mutate({ tripId: tripId!, input }, { onSuccess: () => setShowCreate(false) });
@@ -138,23 +147,17 @@ export default function ExpensesTab() {
             </View>
           }
           renderSectionHeader={({ section }) => {
-            const icon = section.key === 'active'
-              ? 'wallet-outline' as const
-              : section.key === 'completed'
-                ? 'checkmark-done-outline' as const
-                : 'archive-outline' as const;
-            const color = section.key === 'active' ? colors.textPrimary : section.key === 'completed' ? colors.success : colors.textMuted;
-            const textClass = section.key === 'active' ? 'text-text-primary' : section.key === 'completed' ? 'text-success' : 'text-text-muted';
+            const cfg = SECTION_CONFIG[section.key] ?? SECTION_CONFIG.active;
             return (
-              <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
-                <Ionicons name={icon} size={16} color={color} />
-                <Text className={`text-body font-semibold ${textClass}`}>
-                  {section.title}
-                </Text>
-                <Text className="text-body-small text-text-muted">
-                  ({section.data.length})
-                </Text>
-              </View>
+              <CollapsibleSectionHeader
+                icon={cfg.icon}
+                iconColor={cfg.iconColor}
+                textClass={cfg.textClass}
+                title={section.title}
+                count={section.originalCount}
+                collapsed={isCollapsed(section.key)}
+                onToggle={() => toggle(section.key)}
+              />
             );
           }}
           renderItem={({ item }) => (

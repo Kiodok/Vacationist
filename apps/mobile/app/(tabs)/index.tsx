@@ -9,6 +9,8 @@ import { TripCard, getEffectiveStatus } from '../../src/features/trips/component
 import { TripListSkeleton } from '../../src/features/trips/components/TripListSkeleton';
 import { EmptyTrips } from '../../src/features/trips/components/EmptyTrips';
 import { useAuthStore } from '../../src/stores/authStore';
+import { useCollapsibleSections } from '../../src/hooks/useCollapsibleSections';
+import { CollapsibleSectionHeader } from '../../src/components/CollapsibleSectionHeader';
 import type { Trip } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
 
@@ -20,6 +22,7 @@ export default function TripsScreen() {
   const { data: trips, isLoading, isFetching, refetch } = useTrips();
   const user = useAuthStore((s) => s.user);
   const [avatarError, setAvatarError] = useState(false);
+  const { toggle, isCollapsed } = useCollapsibleSections({ defaultCollapsed: ['completed'] });
 
   const SECTIONS = useMemo(() => [
     {
@@ -64,8 +67,12 @@ export default function TripsScreen() {
     }
     return SECTIONS
       .filter((cfg) => buckets[cfg.key].length > 0)
-      .map((cfg) => ({ ...cfg, data: buckets[cfg.key] }));
-  }, [trips, SECTIONS]);
+      .map((cfg) => ({
+        ...cfg,
+        originalCount: buckets[cfg.key].length,
+        data: isCollapsed(cfg.key) ? [] : buckets[cfg.key],
+      }));
+  }, [trips, SECTIONS, isCollapsed]);
 
   function handleCreateTrip() {
     router.push('/trip/create' as never);
@@ -122,13 +129,15 @@ export default function TripsScreen() {
           </View>
         }
         renderSectionHeader={({ section }) => (
-          <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
-            <Ionicons name={section.icon} size={16} color={section.iconColor} />
-            <Text className={`text-body font-semibold ${section.textClass}`}>
-              {section.title}
-            </Text>
-            <Text className="text-body-small text-text-muted">({section.data.length})</Text>
-          </View>
+          <CollapsibleSectionHeader
+            icon={section.icon}
+            iconColor={section.iconColor}
+            textClass={section.textClass}
+            title={section.title}
+            count={section.originalCount}
+            collapsed={isCollapsed(section.key)}
+            onToggle={() => toggle(section.key)}
+          />
         )}
         renderItem={({ item }) => (
           <View className="mb-sm">

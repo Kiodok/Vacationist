@@ -3,6 +3,8 @@ import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshC
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
+import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
@@ -18,6 +20,14 @@ import { EditActivitySheet } from '../../../src/features/activities/components/E
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
 import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
 import { colors } from '@vacationist/ui';
+
+const ACTIVITY_SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; iconColor: string; textClass: string }> = {
+  ongoing:     { icon: 'play-circle-outline',    iconColor: colors.warning,     textClass: 'text-warning' },
+  in_planning: { icon: 'compass-outline',        iconColor: colors.primary,     textClass: 'text-primary' },
+  planned:     { icon: 'calendar-outline',       iconColor: colors.textPrimary, textClass: 'text-text-primary' },
+  blocked:     { icon: 'ban-outline',            iconColor: colors.danger,      textClass: 'text-danger' },
+  completed:   { icon: 'checkmark-done-outline', iconColor: colors.success,     textClass: 'text-success' },
+};
 
 function isAutoCompleted(activity: Activity): boolean {
   if (!activity.activity_date) return false;
@@ -82,6 +92,8 @@ export default function ActivitiesTab() {
   const reopenVoting = useReopenVoting(tripId!);
   useActivityVotesRealtime(tripId!);
 
+  const { toggle, expand, isCollapsed } = useCollapsibleSections({ defaultCollapsed: ['completed'] });
+
   const [showCreate, setShowCreate] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
 
@@ -114,7 +126,7 @@ export default function ActivitiesTab() {
     return { inPlanningList: inPlanning, plannedList: planned, blockedList: blocked, ongoingList: ongoing, completedList: completed };
   }, [activities, blockedActivityIds]);
 
-  const sections = useMemo(() => {
+  const rawSections = useMemo(() => {
     const result: { key: string; title: string; data: Activity[] }[] = [];
     if (ongoingList.length > 0) {
       result.push({ key: 'ongoing', title: t('section.ongoing'), data: ongoingList });
@@ -134,21 +146,37 @@ export default function ActivitiesTab() {
     return result;
   }, [ongoingList, inPlanningList, plannedList, blockedList, completedList]);
 
+  const sections = useMemo(
+    () => rawSections.map((s) => ({
+      ...s,
+      originalCount: s.data.length,
+      data: isCollapsed(s.key) ? [] : s.data,
+    })),
+    [rawSections, isCollapsed],
+  );
+
   const sectionListRef = useRef<SectionList>(null);
 
   useEffect(() => {
-    if (!activityId || sections.length === 0) return;
+    if (!activityId || rawSections.length === 0) return;
+    let scrollTimer: ReturnType<typeof setTimeout>;
     const timer = setTimeout(() => {
-      for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-        const itemIndex = sections[sectionIndex].data.findIndex((a) => a.id === activityId);
+      for (let sectionIndex = 0; sectionIndex < rawSections.length; sectionIndex++) {
+        const itemIndex = rawSections[sectionIndex].data.findIndex((a) => a.id === activityId);
         if (itemIndex >= 0) {
-          sectionListRef.current?.scrollToLocation({ sectionIndex, itemIndex, animated: true, viewOffset: 80 });
+          expand(rawSections[sectionIndex].key);
+          scrollTimer = setTimeout(() => {
+            sectionListRef.current?.scrollToLocation({ sectionIndex, itemIndex, animated: true, viewOffset: 80 });
+          }, 100);
           break;
         }
       }
     }, 200);
-    return () => clearTimeout(timer);
-  }, [activityId, sections]);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(scrollTimer);
+    };
+  }, [activityId, rawSections, expand]);
 
   const handleCreate = (input: CreateActivityInput) => {
     setShowCreate(false);
@@ -187,24 +215,17 @@ export default function ActivitiesTab() {
           initialNumToRender={10}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
           renderSectionHeader={({ section }) => {
-            const config: Record<string, { icon: keyof typeof Ionicons.glyphMap; color: string; textClass: string }> = {
-              ongoing: { icon: 'play-circle-outline', color: colors.warning, textClass: 'text-warning' },
-              in_planning: { icon: 'compass-outline', color: colors.primary, textClass: 'text-primary' },
-              planned: { icon: 'calendar-outline', color: colors.textPrimary, textClass: 'text-text-primary' },
-              blocked: { icon: 'ban-outline', color: colors.danger, textClass: 'text-danger' },
-              completed: { icon: 'checkmark-done-outline', color: colors.success, textClass: 'text-success' },
-            };
-            const cfg = config[section.key ?? 'planned'] ?? config.planned;
+            const cfg = ACTIVITY_SECTION_CONFIG[section.key ?? 'planned'] ?? ACTIVITY_SECTION_CONFIG.planned;
             return (
-              <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
-                <Ionicons name={cfg.icon} size={16} color={cfg.color} />
-                <Text className={`text-body font-semibold ${cfg.textClass}`}>
-                  {section.title}
-                </Text>
-                <Text className="text-body-small text-text-muted">
-                  ({section.data.length})
-                </Text>
-              </View>
+              <CollapsibleSectionHeader
+                icon={cfg.icon}
+                iconColor={cfg.iconColor}
+                textClass={cfg.textClass}
+                title={section.title}
+                count={section.originalCount}
+                collapsed={isCollapsed(section.key ?? '')}
+                onToggle={() => toggle(section.key ?? '')}
+              />
             );
           }}
           renderItem={({ item }) => (

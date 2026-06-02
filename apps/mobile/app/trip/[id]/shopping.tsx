@@ -5,6 +5,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem, CreateRecipeInput, Recipe } from '@vacationist/types';
+import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
+import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import { useShoppingLists, useCreateShoppingList, useDeleteShoppingList, useArchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
 import { useAllTripShoppingItems, useUpdateShoppingItemGlobal } from '../../../src/features/shopping/hooks/useShoppingItems';
 import { useRecipes, useCreateRecipe, useDeleteRecipe } from '../../../src/features/recipes/hooks/useRecipes';
@@ -22,6 +24,12 @@ import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyReci
 import { colors } from '@vacationist/ui';
 
 type ViewMode = 'lists' | 'all' | 'recipes';
+
+const SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; iconColor: string; textClass: string }> = {
+  active:    { icon: 'cart-outline',          iconColor: colors.textPrimary, textClass: 'text-text-primary' },
+  completed: { icon: 'checkmark-done-outline', iconColor: colors.success,    textClass: 'text-success' },
+  archived:  { icon: 'archive-outline',        iconColor: colors.textMuted,  textClass: 'text-text-muted' },
+};
 
 export default function ShoppingTab() {
   const { t } = useTranslation('shopping');
@@ -47,6 +55,7 @@ export default function ShoppingTab() {
   const deleteRecipeMut = useDeleteRecipe(tripId!);
 
   const canCreateRecipe = role !== 'guest';
+  const { toggle, isCollapsed } = useCollapsibleSections();
 
   const { activeLists, completedLists, archivedLists } = useMemo(() => {
     const active: ShoppingListWithCounts[] = [];
@@ -65,18 +74,18 @@ export default function ShoppingTab() {
   }, [lists]);
 
   const sections = useMemo(() => {
-    const result: { key: string; title: string; data: ShoppingListWithCounts[] }[] = [];
+    const raw: { key: string; title: string; originalCount: number; data: ShoppingListWithCounts[] }[] = [];
     if (activeLists.length > 0) {
-      result.push({ key: 'active', title: t('section.active'), data: activeLists });
+      raw.push({ key: 'active', title: t('section.active'), originalCount: activeLists.length, data: activeLists });
     }
     if (completedLists.length > 0) {
-      result.push({ key: 'completed', title: t('section.completed'), data: completedLists });
+      raw.push({ key: 'completed', title: t('section.completed'), originalCount: completedLists.length, data: completedLists });
     }
     if (archivedLists.length > 0) {
-      result.push({ key: 'archived', title: t('section.archived'), data: archivedLists });
+      raw.push({ key: 'archived', title: t('section.archived'), originalCount: archivedLists.length, data: archivedLists });
     }
-    return result;
-  }, [activeLists, completedLists, archivedLists]);
+    return raw.map((s) => ({ ...s, data: isCollapsed(s.key) ? [] : s.data }));
+  }, [activeLists, completedLists, archivedLists, isCollapsed]);
 
   const handleCreate = (input: CreateShoppingListInput) => {
     createList.mutate({ tripId: tripId!, input }, { onSuccess: () => setShowCreate(false) });
@@ -152,23 +161,17 @@ export default function ShoppingTab() {
           initialNumToRender={10}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
           renderSectionHeader={({ section }) => {
-            const icon = section.key === 'active'
-              ? 'cart-outline' as const
-              : section.key === 'completed'
-                ? 'checkmark-done-outline' as const
-                : 'archive-outline' as const;
-            const color = section.key === 'active' ? colors.textPrimary : section.key === 'completed' ? colors.success : colors.textMuted;
-            const textClass = section.key === 'active' ? 'text-text-primary' : section.key === 'completed' ? 'text-success' : 'text-text-muted';
+            const cfg = SECTION_CONFIG[section.key] ?? SECTION_CONFIG.active;
             return (
-              <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
-                <Ionicons name={icon} size={16} color={color} />
-                <Text className={`text-body font-semibold ${textClass}`}>
-                  {section.title}
-                </Text>
-                <Text className="text-body-small text-text-muted">
-                  ({section.data.length})
-                </Text>
-              </View>
+              <CollapsibleSectionHeader
+                icon={cfg.icon}
+                iconColor={cfg.iconColor}
+                textClass={cfg.textClass}
+                title={section.title}
+                count={section.originalCount}
+                collapsed={isCollapsed(section.key)}
+                onToggle={() => toggle(section.key)}
+              />
             );
           }}
           renderItem={({ item, section }) => (
