@@ -7,6 +7,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   deleteNotification,
+  deleteAllNotifications,
   subscribeToNotificationsRealtime,
   unsubscribeFromNotifications,
 } from '@vacationist/api';
@@ -16,6 +17,7 @@ import type {
   MarkNotificationReadVariables,
   MarkAllNotificationsReadVariables,
   DeleteNotificationVariables,
+  DeleteAllNotificationsVariables,
 } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useAuthStore } from '../../../stores/authStore';
@@ -204,6 +206,42 @@ export function useDeleteNotification() {
         queryClient.invalidateQueries({ queryKey: ['trips', vars.tripId, 'notifications', 'unread-count'] });
       }
       addToast('error', i18n.t('notifications:toast.deleteFailed'));
+    },
+  });
+}
+
+export function useDeleteAllNotifications() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationKey: ['deleteAllNotifications'],
+    mutationFn: ({ tripId }: DeleteAllNotificationsVariables) => deleteAllNotifications(tripId),
+    onMutate: async ({ tripId }: DeleteAllNotificationsVariables) => {
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+      const prev = queryClient.getQueryData<Notification[]>(['notifications']);
+      if (tripId) {
+        await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'notifications'] });
+        const prevTrip = queryClient.getQueryData<Notification[]>(['trips', tripId, 'notifications']);
+        queryClient.setQueryData<Notification[]>(['trips', tripId, 'notifications'], []);
+        queryClient.setQueryData<Notification[]>(['notifications'], (old) =>
+          old ? old.filter((n) => n.trip_id !== tripId) : []
+        );
+        return { prev, prevTrip };
+      }
+      queryClient.setQueryData<Notification[]>(['notifications'], []);
+      return { prev };
+    },
+    onError: (_err, vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['notifications'], ctx.prev);
+      if (ctx?.prevTrip && vars.tripId) queryClient.setQueryData(['trips', vars.tripId, 'notifications'], ctx.prevTrip);
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      if (vars.tripId) queryClient.invalidateQueries({ queryKey: ['trips', vars.tripId, 'notifications'] });
+      addToast('error', i18n.t('notifications:toast.deleteAllFailed'));
+    },
+    onSettled: (_data, _err, { tripId }) => {
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      if (tripId) queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notifications', 'unread-count'] });
     },
   });
 }

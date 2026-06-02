@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { View, Text, ScrollView, KeyboardAvoidingView, ActivityIndicator, Platform } from 'react-native';
+import { useMemo, useState } from 'react';
+import { View, Text, ScrollView, KeyboardAvoidingView, ActivityIndicator, Platform, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { PreworkFilter } from '@vacationist/types';
@@ -10,6 +10,7 @@ import {
   useMyPreworkPreferences,
   useUpsertPreworkPreferences,
   useDeletePreworkPreferences,
+  useResetAllPreworkPreferences,
 } from '../../../src/features/prework/hooks/usePrework';
 import { usePreworkRealtime } from '../../../src/features/prework/hooks/usePreworkRealtime';
 import { aggregateFilters, getRecommendedLabels } from '../../../src/features/prework/utils/aggregateFilters';
@@ -28,6 +29,7 @@ export default function PreworkTab() {
   const { data: myPreferences, isLoading: isLoadingMy } = useMyPreworkPreferences(tripId!);
   const upsertMutation = useUpsertPreworkPreferences(tripId!);
   const deleteMutation = useDeletePreworkPreferences(tripId!);
+  const resetAllMutation = useResetAllPreworkPreferences(tripId!);
   usePreworkRealtime(tripId!);
 
   const totalMembers = members?.length ?? 0;
@@ -69,6 +71,7 @@ export default function PreworkTab() {
   }, [members, allPreferences]);
 
   const isOrganizer = role === 'organizer';
+  const [confirmingReset, setConfirmingReset] = useState(false);
 
   const handleSave = (filters: PreworkFilter[], description: string) => {
     upsertMutation.mutate({ filters, description });
@@ -76,6 +79,13 @@ export default function PreworkTab() {
 
   const handleClear = () => {
     deleteMutation.mutate();
+  };
+
+  const handleResetAll = () => {
+    resetAllMutation.mutate(undefined, {
+      onSuccess: () => setConfirmingReset(false),
+      onError: () => setConfirmingReset(false),
+    });
   };
 
   if (isLoadingAll || isLoadingMy) {
@@ -152,6 +162,46 @@ export default function PreworkTab() {
           totalMembers={totalMembers}
           memberNames={memberNames}
         />
+
+        {isOrganizer && hasAnyPreferences && (
+          <View>
+            {confirmingReset ? (
+              <View className="gap-sm">
+                <Text className="text-body-small text-text-secondary">{t('resetAll.confirmMessage')}</Text>
+                <View className="flex-row gap-sm">
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={handleResetAll}
+                    disabled={resetAllMutation.isPending}
+                    className="flex-1 py-sm rounded-md bg-danger/20 items-center"
+                  >
+                    {resetAllMutation.isPending ? (
+                      <ActivityIndicator size="small" color={colors.danger} />
+                    ) : (
+                      <Text className="text-danger text-body-small font-semibold">{t('resetAll.confirmAction')}</Text>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => setConfirmingReset(false)}
+                    disabled={resetAllMutation.isPending}
+                    className="flex-1 py-sm rounded-md bg-surface border border-border items-center"
+                  >
+                    <Text className="text-text-secondary text-body-small">{t('resetAll.cancel')}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingReset(true)}
+                className="py-sm rounded-md bg-danger/10 items-center"
+              >
+                <Text className="text-danger text-body font-medium">{t('resetAll.button')}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );

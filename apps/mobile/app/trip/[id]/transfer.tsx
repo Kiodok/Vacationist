@@ -18,7 +18,7 @@ import { useTransferFlights, useCreateTransferFlight, useUpdateTransferFlight, u
 import { useTransferFlightVotes, useCastTransferFlightVote, useRemoveTransferFlightVote } from '../../../src/features/transfer/hooks/useTransferFlightVotes';
 import { useTransferFlightPassengers, useSetTransferFlightPassengers } from '../../../src/features/transfer/hooks/useTransferFlightPassengers';
 import { useTransferVehicles, useCreateTransferVehicle, useUpdateTransferVehicle, useDeleteTransferVehicle } from '../../../src/features/transfer/hooks/useTransferVehicles';
-import { useTransferVehiclePassengers, useAddTransferVehiclePassenger, useRemoveTransferVehiclePassenger, useUpdateTransferVehiclePassenger } from '../../../src/features/transfer/hooks/useTransferVehiclePassengers';
+import { useTransferVehiclePassengers, useAddTransferVehiclePassenger, useRemoveTransferVehiclePassenger, useUpdateTransferVehiclePassenger, useJoinVehicle, useLeaveVehicle } from '../../../src/features/transfer/hooks/useTransferVehiclePassengers';
 import { useTransferRentals, useCreateTransferRental, useUpdateTransferRental, useDeleteTransferRental } from '../../../src/features/transfer/hooks/useTransferRentals';
 import { useTransferRealtime } from '../../../src/features/transfer/hooks/useTransferRealtime';
 import { computeFlightWinner } from '../../../src/features/transfer/utils/flightWinner';
@@ -755,6 +755,8 @@ function VehicleCardWithPassengers({
   const addPassenger = useAddTransferVehiclePassenger(tripId, vehicle.id);
   const removePassenger = useRemoveTransferVehiclePassenger(tripId, vehicle.id);
   const updatePassenger = useUpdateTransferVehiclePassenger(tripId, vehicle.id);
+  const joinVehicleMutation = useJoinVehicle(tripId, vehicle.id);
+  const leaveVehicleMutation = useLeaveVehicle(tripId, vehicle.id);
 
   const [showDetail, setShowDetail] = useState(highlight ?? false);
   const [showPassengerSheet, setShowPassengerSheet] = useState(false);
@@ -763,6 +765,7 @@ function VehicleCardWithPassengers({
   const canEdit = role === 'organizer' || (role === 'participant' && vehicle.created_by === currentUserId);
   const canDelete = role === 'organizer' || (role === 'participant' && vehicle.created_by === currentUserId);
   const canManagePassengers = role === 'organizer' || (role === 'participant' && vehicle.created_by === currentUserId);
+  const isPassenger = currentUserId ? passengers.some((p) => p.user_id === currentUserId) : false;
 
   const currentPassengerIds = passengers.map((p) => p.user_id);
   const driverUserIds = passengers.filter((p) => p.is_driver).map((p) => p.user_id);
@@ -847,6 +850,32 @@ function VehicleCardWithPassengers({
     </View>
   ) : undefined;
 
+  const joinLeaveButton = (
+    <View className="border-t border-border px-md py-xs flex-row justify-end">
+      {isPassenger ? (
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => leaveVehicleMutation.mutate()}
+          disabled={leaveVehicleMutation.isPending}
+          className="flex-row items-center gap-xs px-md py-xs rounded-sm bg-danger/10"
+        >
+          <Ionicons name="exit-outline" size={14} color={colors.danger} />
+          <Text className="text-danger text-body-small font-medium">{t('action.leave')}</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => joinVehicleMutation.mutate()}
+          disabled={joinVehicleMutation.isPending}
+          className="flex-row items-center gap-xs px-md py-xs rounded-sm bg-success/10"
+        >
+          <Ionicons name="enter-outline" size={14} color={colors.success} />
+          <Text className="text-success text-body-small font-medium">{t('action.join')}</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+
   return (
     <>
       <VehicleCard
@@ -856,6 +885,7 @@ function VehicleCardWithPassengers({
         onPress={() => setShowDetail(!showDetail)}
         detail={detailContent}
         highlight={highlight}
+        joinAction={joinLeaveButton}
       />
 
       <PassengerSelectSheet

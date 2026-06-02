@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -35,7 +35,12 @@ export default function StuffTab() {
   return (
     <View className="flex-1">
       {/* Segment control */}
-      <View className="flex-row gap-xs px-md pt-sm pb-xs">
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerClassName="gap-xs px-md pt-sm pb-xs"
+        style={{ flexGrow: 0 }}
+      >
         {segments.map(({ key, label }) => (
           <Pressable
             key={key}
@@ -48,7 +53,7 @@ export default function StuffTab() {
             </Text>
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
 
       {/* Tab content */}
       {activeSegment === 'private' && (

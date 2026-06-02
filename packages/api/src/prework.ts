@@ -71,6 +71,11 @@ export async function deletePreworkPreferences(tripId: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function resetAllPreworkPreferences(tripId: string): Promise<void> {
+  const { error } = await supabase.rpc('reset_all_prework_preferences', { p_trip_id: tripId });
+  if (error) throw error;
+}
+
 export interface PreworkRealtimeCallbacks {
   onInsert: (pref: PreworkPreferences) => void;
   onUpdate: (pref: PreworkPreferences) => void;

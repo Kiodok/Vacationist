@@ -2110,3 +2110,85 @@ Also updated `ON CONFLICT` syntax to use the explicit `ON CONFLICT ON CONSTRAINT
 - `everyone`: blocked (cannot unclaim)
 
 **Local migration file:** `supabase/migrations/20260601000008_unclaim_shared_packing.sql`
+
+---
+
+## 2026-06-02 — App Enhancements: Notifications, Vehicles, Prework
+
+Three purely additive RPCs. No table changes, no data mutations. Applied to both dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`).
+
+---
+
+### Migration: `20260602000001_add_delete_all_notifications`
+
+**Why:** Previously notifications could only be deleted one at a time. After marking all notifications as read, users now have a single "Delete all" button in both the global and per-trip notification screens.
+
+**Function:**
+- `public.delete_all_notifications(p_trip_id UUID DEFAULT NULL)` — SECURITY DEFINER, `SET search_path = ''`; deletes all `notifications` rows where `user_id = auth.uid()`. If `p_trip_id` is provided, scopes deletion to that trip only. Follows the same pattern as `mark_all_notifications_read`.
+
+**RLS note:** No RLS changes needed — the existing DELETE policy already allows users to delete their own rows. The RPC is used for consistency with the mark-all pattern (single call vs. N individual deletes).
+
+**API layer:**
+- `packages/api/src/notifications.ts` — added `deleteAllNotifications(tripId?: string)` calling the new RPC
+- `packages/api/src/index.ts` — exports `deleteAllNotifications`
+- `packages/types/src/schemas.ts` — added `DeleteAllNotificationsVariables = { tripId?: string }`
+
+**Hook:** `useDeleteAllNotifications()` in `useNotifications.ts` — optimistic clear of the notifications cache + unread-count invalidation on settle.
+
+**UI:** Both notification screens now render "Delete all" (red, `text-danger`) in the header when all notifications are read and the list is non-empty. "Mark all as read" continues to appear when any unread notifications exist (the two states are mutually exclusive).
+
+**Local migration file:** `supabase/migrations/20260602000001_add_delete_all_notifications.sql`
+
+---
+
+### Migration: `20260602000002_add_self_assign_vehicle_passenger`
+
+**Why:** Vehicle passenger management was restricted to the organizer or vehicle creator (by RLS INSERT/DELETE policy). Guests, participants, and the organizer now all have a "Join / Leave" button on every vehicle card to self-assign.
+
+**Functions:**
+- `public.join_vehicle(p_vehicle_id UUID)` — SECURITY DEFINER, `SET search_path = ''`; validates vehicle exists and not soft-deleted; validates `private.is_trip_member(v_trip_id, auth.uid())`; inserts `(vehicle_id, user_id=auth.uid(), is_driver=false)` with `ON CONFLICT DO NOTHING` (idempotent).
+- `public.leave_vehicle(p_vehicle_id UUID)` — SECURITY DEFINER, `SET search_path = ''`; same member check; deletes the caller's own row.
+
+**RLS:** No changes. The existing INSERT/DELETE RLS policies remain in place for the organizer/creator multi-select flow (`PassengerSelectSheet`). The new self-assign RPCs bypass RLS via SECURITY DEFINER and enforce membership themselves.
+
+**API layer:**
+- `packages/api/src/transferVehicles.ts` — added `joinVehicle(vehicleId)` and `leaveVehicle(vehicleId)`
+- `packages/api/src/index.ts` — exports both
+
+**Hooks:** `useJoinVehicle(tripId, vehicleId)` and `useLeaveVehicle(tripId, vehicleId)` in `useTransferVehiclePassengers.ts`.
+
+**UI:**
+- `VehicleCard.tsx` — added `joinAction?: React.ReactNode` prop, rendered between the pressable area and the expanded detail (always visible, outside the tap zone)
+- `transfer.tsx` (VehicleCardWithPassengers) — renders a Join (green) or Leave (red) button for every member on every vehicle card; the existing organizer/creator "Passengers" multi-select button remains in the expanded detail section
+
+**Local migration file:** `supabase/migrations/20260602000002_add_self_assign_vehicle_passenger.sql`
+
+---
+
+### Migration: `20260602000003_add_reset_all_prework`
+
+**Why:** Each user's existing "Clear" button only deletes their own prework row (`DELETE WHERE user_id = auth.uid()`). The trip organizer needs a "Reset All Preferences" action that clears all members' rows for a clean restart. The existing RLS DELETE policy (`user_id = auth.uid()`) prevents direct deletion of others' rows, so a SECURITY DEFINER RPC is required.
+
+**Function:**
+- `public.reset_all_prework_preferences(p_trip_id UUID)` — SECURITY DEFINER, `SET search_path = ''`; raises exception if `NOT private.is_trip_organizer(p_trip_id, auth.uid())`; deletes all rows from `prework_preferences WHERE trip_id = p_trip_id`.
+
+**API layer:**
+- `packages/api/src/prework.ts` — added `resetAllPreworkPreferences(tripId)`
+- `packages/api/src/index.ts` — exports it
+
+**Hook:** `useResetAllPreworkPreferences(tripId)` in `usePrework.ts` — invalidates both `prework-preferences` and `my-prework-preferences` query keys on success.
+
+**UI:** Prework tab screen (`trip/[id]/prework.tsx`) — organizer-only "Reset All Preferences" button (danger style) rendered below `GroupSummarySection`, visible only when `isOrganizer && hasAnyPreferences`. Guarded by a native `Alert.alert` confirmation dialog before executing.
+
+**Local migration file:** `supabase/migrations/20260602000003_add_reset_all_prework.sql`
+
+---
+
+### Edge Function update: `push-notification` (2026-06-02)
+
+**Changes:**
+- `lost_found` notification type changed from preference-gated to always-on: `preferenceColumn()` now returns `null` for `lost_found` (same as `document_access_request`). The `lost_found` column in `notification_preferences` is retained but no longer consulted.
+- Push notification title corrected from `'Lost & Found'` to `'Lost or Found'` (brand wording).
+- The "Lost or Found" toggle was removed from `NotificationPreferencesSection.tsx` — the preference UI no longer exposes this column.
+
+**Deployed to:** dev and prod via `supabase functions deploy push-notification`.

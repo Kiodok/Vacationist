@@ -20,7 +20,6 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
     { key: 'new_member',      label: t('preferences.newMembers') },
     { key: 'schedule_change', label: t('preferences.scheduleChanges') },
     { key: 'reminder',        label: t('preferences.reminders') },
-    { key: 'lost_found',      label: t('preferences.lostFound') },
     { key: 'shared_packing',  label: t('preferences.sharedPacking') },
   ];
 

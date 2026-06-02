@@ -121,6 +121,7 @@ export {
   getMyPreworkPreferences,
   upsertPreworkPreferences,
   deletePreworkPreferences,
+  resetAllPreworkPreferences,
   subscribeToPreworkRealtime,
   unsubscribeFromPrework,
 } from './prework';
@@ -155,6 +156,8 @@ export {
   addTransferVehiclePassenger,
   removeTransferVehiclePassenger,
   updateTransferVehiclePassenger,
+  joinVehicle,
+  leaveVehicle,
   subscribeToVehicleRealtime,
   unsubscribeFromVehicleRealtime,
 } from './transferVehicles';
@@ -182,6 +185,7 @@ export {
   markNotificationRead,
   markAllNotificationsRead,
   deleteNotification,
+  deleteAllNotifications,
   getNotificationPreferences,
   updateNotificationPreferences,
   sendOrganizerNudge,

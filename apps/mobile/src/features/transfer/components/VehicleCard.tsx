@@ -12,9 +12,10 @@ interface VehicleCardProps {
   onPress: () => void;
   detail?: React.ReactNode;
   highlight?: boolean;
+  joinAction?: React.ReactNode;
 }
 
-export function VehicleCard({ vehicle, passengers, members, onPress, detail, highlight }: VehicleCardProps) {
+export function VehicleCard({ vehicle, passengers, members, onPress, detail, highlight, joinAction }: VehicleCardProps) {
   const resolvedPassengers = passengers.map((p) => {
     const member = members.find((m) => m.user_id === p.user_id);
     return { ...p, name: member?.user?.name ?? 'Unknown' };
@@ -25,7 +26,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
 
   return (
     <Animated.View
-      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      className={`bg-surface ${detail ? 'rounded-t-md' : joinAction ? 'rounded-t-md' : 'rounded-md'}`}
       style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
     >
       <Pressable
@@ -59,6 +60,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
           <Text className="text-body-small text-text-muted">No passengers assigned</Text>
         )}
       </Pressable>
+      {joinAction}
       {detail}
     </Animated.View>
   );

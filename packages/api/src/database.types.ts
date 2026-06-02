@@ -1660,6 +1660,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_all_notifications: { Args: { p_trip_id?: string }; Returns: undefined }
       delete_push_token: { Args: { p_push_token: string }; Returns: undefined }
       delete_recipe: { Args: { p_recipe_id: string }; Returns: undefined }
       delete_shopping_list: { Args: { p_list_id: string }; Returns: undefined }
@@ -1762,6 +1763,8 @@ export type Database = {
         Args: { p_trip_id?: string }
         Returns: undefined
       }
+      join_vehicle: { Args: { p_vehicle_id: string }; Returns: undefined }
+      leave_vehicle: { Args: { p_vehicle_id: string }; Returns: undefined }
       mark_notification_read: {
         Args: { p_notification_id: string }
         Returns: undefined
@@ -1779,6 +1782,7 @@ export type Database = {
         Args: { p_flight_id: string }
         Returns: undefined
       }
+      reset_all_prework_preferences: { Args: { p_trip_id: string }; Returns: undefined }
       respond_to_document_access_request: {
         Args: { p_granted: boolean; p_request_id: string }
         Returns: undefined

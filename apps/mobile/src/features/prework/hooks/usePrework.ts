@@ -4,6 +4,7 @@ import {
   getMyPreworkPreferences,
   upsertPreworkPreferences,
   deletePreworkPreferences,
+  resetAllPreworkPreferences,
 } from '@vacationist/api';
 import type { UpsertPreworkPreferencesInput } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
@@ -58,6 +59,23 @@ export function useDeletePreworkPreferences(tripId: string) {
     },
     onError: () => {
       addToast('error', i18n.t('prework:toast.clearFailed'));
+    },
+  });
+}
+
+export function useResetAllPreworkPreferences(tripId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: () => resetAllPreworkPreferences(tripId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'prework-preferences'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'my-prework-preferences'] });
+      addToast('success', i18n.t('prework:toast.resetAll'));
+    },
+    onError: () => {
+      addToast('error', i18n.t('prework:toast.resetAllFailed'));
     },
   });
 }

@@ -110,6 +110,16 @@ export async function updateTransferVehiclePassenger(
   return data as unknown as TransferVehiclePassenger;
 }
 
+export async function joinVehicle(vehicleId: string): Promise<void> {
+  const { error } = await supabase.rpc('join_vehicle', { p_vehicle_id: vehicleId });
+  if (error) throw error;
+}
+
+export async function leaveVehicle(vehicleId: string): Promise<void> {
+  const { error } = await supabase.rpc('leave_vehicle', { p_vehicle_id: vehicleId });
+  if (error) throw error;
+}
+
 export interface VehicleRealtimeCallbacks {
   onVehicleInsert: (vehicle: TransferVehicle) => void;
   onVehicleUpdate: (vehicle: TransferVehicle) => void;

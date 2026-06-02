@@ -59,6 +59,14 @@ export async function deleteNotification(notificationId: string): Promise<void> 
   if (error) throw error;
 }
 
+export async function deleteAllNotifications(tripId?: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_all_notifications', {
+    p_trip_id: tripId,
+  });
+
+  if (error) throw error;
+}
+
 export async function getNotificationPreferences(tripId: string): Promise<NotificationPreference> {
   const { data, error } = await supabase
     .from('notification_preferences')

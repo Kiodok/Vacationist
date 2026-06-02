@@ -543,3 +543,4 @@ export type DeleteShoppingItemVariables = { itemId: string; listId: string; trip
 export type MarkNotificationReadVariables = { notificationId: string };
 export type MarkAllNotificationsReadVariables = { tripId?: string };
 export type DeleteNotificationVariables = { notificationId: string; tripId?: string };
+export type DeleteAllNotificationsVariables = { tripId?: string };

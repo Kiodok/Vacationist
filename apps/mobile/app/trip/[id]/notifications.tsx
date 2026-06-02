@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@vacationist/types';
-import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification } from '../../../src/features/notifications/hooks/useNotifications';
+import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification, useDeleteAllNotifications } from '../../../src/features/notifications/hooks/useNotifications';
 import { NotificationItem } from '../../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../../src/features/notifications/components/EmptyNotifications';
 import { resolveNotificationPath } from '../../../src/features/notifications/utils/resolveNotificationPath';
@@ -20,6 +20,7 @@ export default function TripNotificationsScreen() {
   const { mutate: markRead } = useMarkNotificationRead();
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsRead();
   const { mutate: deleteNotification } = useDeleteNotification();
+  const { mutate: deleteAll, isPending: isDeletingAll } = useDeleteAllNotifications();
 
   const handlePress = (notification: Notification) => {
     if (!notification.is_read) {
@@ -38,13 +39,19 @@ export default function TripNotificationsScreen() {
           </Pressable>
           <Text className="text-heading-s text-text-primary">{t('screen.title')}</Text>
         </View>
-        {notifications.some((n) => !n.is_read) && (
+        {notifications.some((n) => !n.is_read) ? (
           <Pressable onPress={() => markAllRead({ tripId })} disabled={isMarkingAll} hitSlop={8}>
             <Text className="text-body-small text-primary">
               {isMarkingAll ? t('marking') : t('markAllRead')}
             </Text>
           </Pressable>
-        )}
+        ) : notifications.length > 0 ? (
+          <Pressable onPress={() => deleteAll({ tripId })} disabled={isDeletingAll} hitSlop={8}>
+            <Text className="text-body-small text-danger">
+              {isDeletingAll ? t('deleting') : t('deleteAll')}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {isLoading ? (
