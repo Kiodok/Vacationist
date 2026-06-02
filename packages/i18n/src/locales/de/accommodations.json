@@ -1,6 +1,8 @@
 {
   "empty.title": "Noch keine Unterkünfte",
   "empty.subtitle": "Schlage eine Unterkunft vor und lass deine Gruppe darüber abstimmen.",
+  "info.title": "Über Unterkünfte",
+  "info.content": "Unterkünfte sind Orte, an denen deine Gruppe übernachten wird. Schlage Orte vor und lass die Gruppe über die beste Option abstimmen. Füge Buchungslinks, Preise und Notizen hinzu, damit alle vergleichen können. Tippe auf +, um deinen ersten Vorschlag hinzuzufügen.",
   "field.title": "Titel",
   "field.description": "Details",
   "field.price": "Gesamtpreis",

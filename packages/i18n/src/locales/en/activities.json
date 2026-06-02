@@ -1,6 +1,8 @@
 {
   "empty.title": "No activities yet",
   "empty.subtitle": "Add activities to plan what your group will do on this trip.",
+  "info.title": "About Activities",
+  "info.content": "Activities are things your group wants to do on the trip. Add options, then everyone can vote on their favorites. The group can track planning status, reservation needs, and costs. Tap + to create your first activity.",
   "section.ongoing": "Ongoing",
   "section.inPlanning": "In Planning",
   "section.planned": "Planned",

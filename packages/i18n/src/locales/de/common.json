@@ -37,5 +37,6 @@
   "tab.profile": "Profil",
   "forceUpdate.title": "Update erforderlich",
   "forceUpdate.message": "Eine neue Version von Vacationist ist verfügbar. Bitte aktualisiere die App, um fortzufahren.",
-  "forceUpdate.button": "Jetzt aktualisieren"
+  "forceUpdate.button": "Jetzt aktualisieren",
+  "button.info": "Info"
 }

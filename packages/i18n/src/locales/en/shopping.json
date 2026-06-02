@@ -1,6 +1,8 @@
 {
   "empty.title": "No shopping lists yet",
   "empty.subtitle": "Create a list and add items your group needs.",
+  "info.title": "About Shopping",
+  "info.content": "Create shopping lists for your trip. Add items the group needs to buy — groceries, supplies, or anything else. Everyone can check off items as they are purchased. Tap + to create your first list.",
   "toggle.lists": "Lists",
   "toggle.allItems": "All Items",
   "toggle.recipes": "Recipes",

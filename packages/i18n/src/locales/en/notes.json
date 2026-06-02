@@ -1,6 +1,8 @@
 {
   "empty.title": "No notes yet",
   "empty.subtitle": "Jot down anything useful before, during, or after the trip.",
+  "info.title": "About Notes",
+  "info.content": "A shared notepad for your group. Jot down packing reminders, restaurant recommendations, travel tips, or anything useful. Everyone in the trip can see and edit notes. Tap + to create your first note.",
   "create.title": "New Note",
   "edit.title": "Edit Note",
   "field.title": "Title",

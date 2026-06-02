@@ -1,6 +1,8 @@
 {
   "empty.title": "Noch keine Rezepte",
   "empty.subtitle": "Füge ein Rezept hinzu und übertrage die Zutaten direkt auf eine Einkaufsliste.",
+  "info.title": "Über Rezepte",
+  "info.content": "Speichere Rezepte für Mahlzeiten, die ihr auf der Reise kochen möchtet. Füge Zutaten mit Mengenangaben hinzu und übertrage sie mit einem Tipp direkt auf eine Einkaufsliste. Tippe auf +, um dein erstes Rezept hinzuzufügen.",
   "field.title": "Titel",
   "field.description": "Beschreibung",
   "field.servings": "Portionen",

@@ -1,6 +1,8 @@
 {
   "empty.title": "No recipes yet",
   "empty.subtitle": "Add a recipe and push its ingredients straight to a shopping list.",
+  "info.title": "About Recipes",
+  "info.content": "Save recipes for meals you want to cook on the trip. Add ingredients with quantities, then push them directly to a shopping list with one tap. Tap + to add your first recipe.",
   "field.title": "Title",
   "field.description": "Description",
   "field.servings": "Servings",

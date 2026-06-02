@@ -1,6 +1,8 @@
 {
   "empty.title": "No expenses yet",
   "empty.subtitle": "Track shared costs and see who owes what.",
+  "info.title": "About Expenses",
+  "info.content": "Track shared costs during your trip. When someone pays for the group, add it here and split it evenly, by exact amounts, or by shares. The app calculates who owes what and shows simplified settlements. Tap + to log your first expense.",
   "section.active": "Active",
   "section.completed": "Completed",
   "section.archived": "Archived",

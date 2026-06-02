@@ -1,6 +1,8 @@
 {
   "empty.title": "No accommodations yet",
   "empty.subtitle": "Suggest a base to stay and vote on it with your group.",
+  "info.title": "About Accommodations",
+  "info.content": "Accommodations are where your group will stay. Suggest places and let the group vote on the best option. Add booking links, prices, and notes so everyone can compare. Tap + to add your first suggestion.",
   "field.title": "Title",
   "field.description": "Details",
   "field.price": "Total price",

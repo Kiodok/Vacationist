@@ -1,6 +1,8 @@
 {
   "empty.title": "Noch keine Aktivitäten",
   "empty.subtitle": "Füge Aktivitäten hinzu, um zu planen, was deine Gruppe auf dieser Reise unternehmen wird.",
+  "info.title": "Über Aktivitäten",
+  "info.content": "Aktivitäten sind Dinge, die deine Gruppe auf der Reise unternehmen möchte. Füge Optionen hinzu, dann kann jeder über seine Favoriten abstimmen. Die Gruppe kann Planungsstatus, Reservierungsbedarf und Kosten verfolgen. Tippe auf +, um deine erste Aktivität zu erstellen.",
   "section.ongoing": "Laufend",
   "section.inPlanning": "In Planung",
   "section.planned": "Geplant",

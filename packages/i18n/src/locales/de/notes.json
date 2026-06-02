@@ -1,6 +1,8 @@
 {
   "empty.title": "Noch keine Notizen",
   "empty.subtitle": "Schreib alles auf, was vor, während oder nach der Reise nützlich ist.",
+  "info.title": "Über Notizen",
+  "info.content": "Ein gemeinsames Notizbuch für deine Gruppe. Schreib Packerinnerungen, Restaurantempfehlungen, Reisetipps oder alles Nützliche auf. Alle Reisemitglieder können Notizen sehen und bearbeiten. Tippe auf +, um deine erste Notiz zu erstellen.",
   "create.title": "Neue Notiz",
   "edit.title": "Notiz bearbeiten",
   "field.title": "Titel",

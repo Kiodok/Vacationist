@@ -1,6 +1,8 @@
 {
   "empty.title": "Noch keine Einkaufslisten",
   "empty.subtitle": "Erstelle eine Liste und füge Artikel hinzu, die deine Gruppe benötigt.",
+  "info.title": "Über Einkaufslisten",
+  "info.content": "Erstelle Einkaufslisten für eure Reise. Füge Artikel hinzu, die die Gruppe kaufen muss — Lebensmittel, Vorräte oder anderes. Jeder kann Artikel abhaken, sobald sie gekauft sind. Tippe auf +, um deine erste Liste zu erstellen.",
   "toggle.lists": "Listen",
   "toggle.allItems": "Alle Artikel",
   "toggle.recipes": "Rezepte",

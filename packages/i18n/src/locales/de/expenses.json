@@ -1,6 +1,8 @@
 {
   "empty.title": "Noch keine Ausgaben",
   "empty.subtitle": "Erfasse gemeinsame Kosten und sieh, wer was schuldet.",
+  "info.title": "Über Ausgaben",
+  "info.content": "Verfolge geteilte Kosten während eurer Reise. Wenn jemand für die Gruppe zahlt, trage es hier ein und teile es gleichmäßig, nach genauen Beträgen oder nach Anteilen auf. Die App berechnet, wer was schuldet und zeigt vereinfachte Abrechnungen. Tippe auf +, um deine erste Ausgabe einzutragen.",
   "section.active": "Aktiv",
   "section.completed": "Abgeschlossen",
   "section.archived": "Archiviert",

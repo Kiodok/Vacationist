@@ -1,6 +1,8 @@
 {
   "empty.title": "No preferences yet",
   "empty.subtitle": "Add filters to help the group decide on this topic.",
+  "info.title": "About Preferences",
+  "info.content": "Preferences help the group decide on trip details before booking. The organizer creates topics (e.g. 'Location', 'Trip Type'), then each member distributes 100 credits across their preferred options. The group summary shows what matters most to everyone.",
   "my.title": "My Preferences",
   "my.emptyHint": "Add what matters to you. You have 100 credits to distribute.",
   "my.placeholder": "e.g. Pool, Near beach, Grill...",
@@ -47,5 +49,7 @@
   "emptyTopics.title": "No topics yet",
   "emptyTopics.subtitle": "The organizer hasn't created any prework topics yet.",
   "emptyTopics.organizerSubtitle": "Create topics to collect preferences from your group.",
-  "emptyTopics.createButton": "Create First Topic"
+  "emptyTopics.createButton": "Create First Topic",
+  "emptyTopics.info.title": "About Prework Topics",
+  "emptyTopics.info.content": "Prework helps your group align on trip preferences before committing to any plans. The organizer creates topics (e.g. 'Location', 'Accommodation Type', 'Trip Style'), then every member distributes 100 credits across their preferred options. The group summary reveals what matters most to everyone — making decisions easier for the whole group."
 }
