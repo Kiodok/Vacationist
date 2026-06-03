@@ -347,8 +347,10 @@ Deno.serve(async (req: Request) => {
   }
 
   const authHeader = req.headers.get('Authorization');
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!authHeader || !serviceRoleKey || !constantTimeEqual(authHeader, `Bearer ${serviceRoleKey}`)) {
+  // PUSH_NOTIFICATION_SECRET is a dedicated edge function secret — independent of
+  // Supabase's own key format so it works regardless of JWT vs sb_secret_* migration.
+  const pushSecret = Deno.env.get('PUSH_NOTIFICATION_SECRET');
+  if (!authHeader || !pushSecret || !constantTimeEqual(authHeader, `Bearer ${pushSecret}`)) {
     return new Response('Unauthorized', { status: 401 });
   }
 

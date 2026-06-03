@@ -112,6 +112,9 @@ redirect_uri = ""
 url = ""
 skip_nonce_check = false
 
+[functions.push-notification]
+verify_jwt = false
+
 [edge_runtime]
 enabled = true
 policy = "per_worker"
