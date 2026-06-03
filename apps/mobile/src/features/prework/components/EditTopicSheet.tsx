@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   View,
   Text,
@@ -34,6 +35,7 @@ export function EditTopicSheet({
   isSaving,
   isDeleting,
 }: EditTopicSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('prework');
   const { t: tCommon } = useTranslation('common');
 
@@ -92,7 +94,7 @@ export function EditTopicSheet({
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <View className="flex-1 justify-end">
           <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[90%]">
+          <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
@@ -183,7 +185,7 @@ export function EditTopicSheet({
                   onPress={handleSubmit}
                   disabled={!canSubmit || isSaving}
                   className={`items-center py-sm rounded-md ${canSubmit && !isSaving ? 'bg-primary' : 'bg-primary/50'}`}
-                  style={{ minHeight: 48 }}
+                  style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
                   <Text className="text-white text-body font-semibold">
                     {isSaving ? tCommon('label.saving') : tCommon('button.save')}
@@ -203,7 +205,7 @@ export function EditTopicSheet({
                         }}
                         disabled={isDeleting}
                         className="flex-1 items-center py-sm rounded-md bg-danger/20"
-                        style={{ minHeight: 48 }}
+                        style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                       >
                         {isDeleting ? (
                           <ActivityIndicator size="small" color={colors.danger} />
@@ -215,7 +217,7 @@ export function EditTopicSheet({
                         onPress={() => setConfirmingDelete(false)}
                         disabled={isDeleting}
                         className="flex-1 items-center py-sm rounded-md bg-surface border border-border"
-                        style={{ minHeight: 48 }}
+                        style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                       >
                         <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
                       </Pressable>
@@ -226,7 +228,7 @@ export function EditTopicSheet({
                     onPress={() => setConfirmingDelete(true)}
                     disabled={isDeleting}
                     className="items-center py-sm rounded-md bg-danger/10"
-                    style={{ minHeight: 48 }}
+                    style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                   >
                     <Text className="text-danger text-body font-medium">{t('topic.delete.action')}</Text>
                   </Pressable>

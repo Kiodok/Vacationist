@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Switch } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +17,7 @@ interface CreateActivitySheetProps {
 }
 
 export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tripStartDate, tripEndDate }: CreateActivitySheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('activities');
   const { t: tCommon } = useTranslation("common");
   const schema = useMemo(
@@ -45,7 +47,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, tri
           className="absolute inset-0 bg-background/80"
           onPress={handleClose}
         />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[85%]">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           {/* Handle bar */}
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />

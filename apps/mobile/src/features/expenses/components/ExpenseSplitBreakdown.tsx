@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Modal } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
@@ -34,6 +35,7 @@ export function ExpenseSplitBreakdown({
   onUncover,
   canManage,
 }: ExpenseSplitBreakdownProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const payer = members.get(expense.paid_by);
 
@@ -52,7 +54,7 @@ export function ExpenseSplitBreakdown({
           className="absolute inset-0 bg-background/80"
           onPress={onClose}
         />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           {/* Handle bar */}
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />

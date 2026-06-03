@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { colors } from '@vacationist/ui';
@@ -17,6 +18,7 @@ export function DocumentAccessRequestSheet({
   onSubmit,
   isPending,
 }: DocumentAccessRequestSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation("common");
   const [selected, setSelected] = useState<number>(30);
@@ -35,7 +37,7 @@ export function DocumentAccessRequestSheet({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 justify-end">
         <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>

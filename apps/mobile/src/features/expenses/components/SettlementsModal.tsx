@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { MemberBalance, User, Currency } from '@vacationist/types';
@@ -16,6 +17,7 @@ interface SettlementsModalProps {
 }
 
 export function SettlementsModal({ visible, onClose, balances, members, currency, onSettleAll, isSettlingAll }: SettlementsModalProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const settlements = computeSettlements(balances);
   const allSettled = settlements.length === 0;
@@ -24,7 +26,7 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 justify-end">
         <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[85%]">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateTransferRentalSchema, type UpdateTransferRentalInput, type TransferRental } from '@vacationist/types';
@@ -16,6 +17,7 @@ interface EditRentalSheetProps {
 }
 
 export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental, currency }: EditRentalSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
   const [priceText, setPriceText] = useState('');
@@ -53,7 +55,7 @@ export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental,
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <View className="flex-1 justify-end">
           <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[90%]">
+          <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>

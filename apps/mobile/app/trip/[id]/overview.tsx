@@ -57,7 +57,7 @@ export default function OverviewTab() {
           </View>
         ) : null}
 
-        {/* Quick stats */}
+        {/* Quick stats — Days & Members row */}
         <View className="flex-row gap-sm">
           <View className="flex-1 bg-surface border border-border rounded-md p-md items-center gap-xs">
             <View style={styles.iconBadgeSuccess}>
@@ -78,19 +78,22 @@ export default function OverviewTab() {
             </Text>
             <Text className="text-body-small text-text-secondary">{t('overview.members')}</Text>
           </View>
+        </View>
 
-          {trip.budget_per_person != null && (
-            <View className="flex-1 bg-surface border border-border rounded-md p-md items-center gap-xs">
-              <View style={styles.iconBadgeWarning}>
-                <Ionicons name="wallet-outline" size={20} color={colors.warning} />
-              </View>
+        {/* Budget — full-width row so long CHF values never overflow */}
+        {trip.budget_per_person != null && (
+          <View className="bg-surface border border-border rounded-md p-md flex-row items-center gap-md">
+            <View style={styles.iconBadgeWarning}>
+              <Ionicons name="wallet-outline" size={20} color={colors.warning} />
+            </View>
+            <View>
               <Text className="text-heading-m text-text-primary">
                 {formatCurrency(trip.budget_per_person, trip.base_currency, i18nInstance.language === 'de' ? 'de-DE' : 'en-US')}
               </Text>
               <Text className="text-body-small text-text-secondary">{t('overview.budget')}</Text>
             </View>
-          )}
-        </View>
+          </View>
+        )}
 
         {/* Members preview */}
         {members && members.length > 0 && (

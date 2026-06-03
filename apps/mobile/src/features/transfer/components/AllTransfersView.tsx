@@ -19,7 +19,7 @@ export interface AllTransfersViewProps {
 
 function formatDatetime(value: string | null): string | null {
   if (!value) return null;
-  const d = dayjs(value.replace(' ', 'T'));
+  const d = dayjs.utc(value.replace(' ', 'T'));
   if (!d.isValid()) return null;
   return d.format('D MMM, HH:mm');
 }
@@ -105,7 +105,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
     <View className="bg-surface border border-border rounded-md p-md gap-sm mb-sm">
       <View className="flex-row items-start justify-between">
         <View className="flex-1 gap-xs mr-sm">
-          <Text className="text-body font-semibold text-text-primary" numberOfLines={1}>
+          <Text className="text-body font-semibold text-text-primary" numberOfLines={2}>
             {flight.title}
           </Text>
           {flight.airline && (

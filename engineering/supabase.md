@@ -2287,3 +2287,23 @@ Three purely additive RPCs. No table changes, no data mutations. Applied to both
 **Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
 
 **Local migration file:** `supabase/migrations/20260602130000_fix_trip_reminder_dedup.sql`
+
+---
+
+## 2026-06-03 — Notes Enhancement: is_done column
+
+### Migration: `20260603000001_add_trip_notes_is_done.sql`
+
+**Why:** Added a done/checked state to trip notes so any trip member can mark a note as completed. Supports a collapsible "Done" section in the Notes UI.
+
+**Table altered:** `public.trip_notes`
+
+| Change | Details |
+|---|---|
+| New column `is_done` | `BOOLEAN NOT NULL DEFAULT FALSE` |
+| New RLS policy `trip_notes_update_member_is_done` | Any trip member may UPDATE (for toggling is_done); the trigger restricts non-owners to only changing is_done |
+| Trigger `restrict_trip_note_update_fields` replaced | Now also prevents non-owners from modifying `title` or `description` |
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
+
+**Local migration file:** `supabase/migrations/20260603000001_add_trip_notes_is_done.sql`

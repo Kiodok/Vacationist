@@ -63,12 +63,13 @@ export default function SettingsTab() {
     try {
       const result = await createInvite.mutateAsync({ expires_in: '7d' });
       const link = `https://vacationist.app/join?token=${result.token}`;
+      const shareMessage = `Join my trip "${trip?.title ?? 'my trip'}" on Vacationist!\n${link}`;
       if (Platform.OS === 'web') {
-        await Clipboard.setStringAsync(link);
+        await Clipboard.setStringAsync(shareMessage);
         addToast('success', 'Invite link copied to clipboard');
       } else {
         await Share.share({
-          message: `Join my trip on Vacationist!\n${link}`,
+          message: shareMessage,
           url: link,
         });
       }

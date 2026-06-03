@@ -134,7 +134,7 @@
   "all.status.done": "Done",
   "all.direction.outPrefix": "Out:",
   "all.direction.retPrefix": "Ret:",
-  "all.perPerson": "/person",
+  "all.perPerson": "/ person",
   "flight.field.returnDeparture": "Return Departure",
   "flight.field.returnArrival": "Return Arrival",
   "flight.field.combinedPrice": "Combined Price / Person",

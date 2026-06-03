@@ -71,7 +71,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         <View className="flex-row items-start justify-between">
           <View className="flex-1 gap-xs">
             <View className="flex-row items-center gap-xs flex-wrap">
-              <Text className="text-body text-text-primary font-semibold" numberOfLines={1}>
+              <Text className="text-body text-text-primary font-semibold" numberOfLines={2}>
                 {flight.title}
               </Text>
               {isWinner && !flight.voting_open && (

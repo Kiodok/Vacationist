@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone, VoteType } from '@vacationist/types';
@@ -27,6 +28,7 @@ export function CalendarActivitySheet({
   onViewFullDetails,
   onEdit,
 }: CalendarActivitySheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('calendar');
   const { data: votes, isLoading: votesLoading } = useActivityVotes(activity?.id ?? '');
   const { data: members } = useTripMembers(activity?.trip_id ?? '');
@@ -68,7 +70,7 @@ export function CalendarActivitySheet({
           className="absolute inset-0 bg-background/80"
           onPress={onClose}
         />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           {/* Handle bar */}
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />

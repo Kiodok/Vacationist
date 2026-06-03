@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { AccessibleMemberDocument } from '@vacationist/types';
 import { MemberAvatar } from '../../trips/components/MemberAvatar';
@@ -32,6 +33,7 @@ function groupByUser(docs: AccessibleMemberDocument[]) {
 }
 
 export function MemberDocumentsSheet({ visible, onClose, documents, isLoading }: MemberDocumentsSheetProps) {
+  const insets = useSafeAreaInsets();
   const groups = groupByUser(documents);
 
   const earliestExpiry = documents.reduce<string | null>((min, d) => {
@@ -43,7 +45,7 @@ export function MemberDocumentsSheet({ visible, onClose, documents, isLoading }:
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 justify-end">
         <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[85%]">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>

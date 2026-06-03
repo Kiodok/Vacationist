@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { VOTE_TYPE, type VoteType } from '@vacationist/types';
 import { VoteChip } from './VoteChip';
@@ -32,6 +33,7 @@ export function VoteSheet({
   isPending,
   memberMap,
 }: VoteSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('activities');
   const myVote = votes.find((v) => v.user_id === currentUserId);
 
@@ -47,7 +49,7 @@ export function VoteSheet({
           className="absolute inset-0 bg-background/80"
           onPress={onClose}
         />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           {/* Handle bar */}
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />

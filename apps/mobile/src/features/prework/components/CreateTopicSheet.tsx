@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   View,
   Text,
@@ -22,6 +23,7 @@ interface CreateTopicSheetProps {
 }
 
 export function CreateTopicSheet({ visible, onClose, onSubmit, isPending }: CreateTopicSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('prework');
   const { t: tCommon } = useTranslation('common');
 
@@ -71,7 +73,7 @@ export function CreateTopicSheet({ visible, onClose, onSubmit, isPending }: Crea
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <View className="flex-1 justify-end">
           <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[90%]">
+          <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
@@ -164,7 +166,7 @@ export function CreateTopicSheet({ visible, onClose, onSubmit, isPending }: Crea
                   onPress={handleSubmit}
                   disabled={!canSubmit || isPending}
                   className={`items-center py-sm rounded-md ${canSubmit && !isPending ? 'bg-primary' : 'bg-primary/50'}`}
-                  style={{ minHeight: 48 }}
+                  style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
                   <Text className="text-white text-body font-semibold">
                     {isPending ? tCommon('label.saving') : tCommon('button.save')}

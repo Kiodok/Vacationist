@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateShoppingListSchema, type UpdateShoppingListInput } from '@vacationist/types';
@@ -14,6 +15,7 @@ interface EditShoppingListSheetProps {
 }
 
 export function EditShoppingListSheet({ visible, onClose, onSubmit, isPending, currentTitle }: EditShoppingListSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('shopping');
   const { t: tCommon } = useTranslation('common');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateShoppingListInput>({
@@ -45,7 +47,7 @@ export function EditShoppingListSheet({ visible, onClose, onSubmit, isPending, c
           className="absolute inset-0 bg-background/80"
           onPress={handleClose}
         />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { TransferVehicle, TransferVehiclePassenger } from '@vacationist/types';
@@ -21,6 +22,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
     return { ...p, name: member?.user?.name ?? 'Unknown' };
   });
 
+  const [notesExpanded, setNotesExpanded] = useState(false);
   const borderColor = colors.border;
   const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
 
@@ -31,7 +33,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
     >
       <Pressable
         onPress={onPress}
-        className="p-md gap-sm"
+        className={`px-md pt-md gap-sm ${vehicle.notes ? 'pb-sm' : 'pb-md'}`}
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
         <View className="flex-row items-center justify-between">
@@ -60,6 +62,23 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
           <Text className="text-body-small text-text-muted">No passengers assigned</Text>
         )}
       </Pressable>
+
+      {/* Notes live outside the card Pressable so their touch target doesn't conflict */}
+      {vehicle.notes ? (
+        <Pressable
+          onPress={() => setNotesExpanded((v) => !v)}
+          className="px-md pb-md"
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+        >
+          <Text
+            className="text-body-small text-text-secondary"
+            numberOfLines={notesExpanded ? undefined : 2}
+          >
+            {vehicle.notes}
+          </Text>
+        </Pressable>
+      ) : null}
+
       {joinAction}
       {detail}
     </Animated.View>

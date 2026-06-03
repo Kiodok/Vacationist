@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, ActivityIndicator, ScrollView, TextInput } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
@@ -14,6 +15,7 @@ interface CopyPackingListSheetProps {
 }
 
 export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPackingListSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
   const { data: trips, isLoading } = useTrips();
@@ -50,7 +52,7 @@ export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPa
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
       <View className="flex-1 justify-end">
         <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl">
+        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>

@@ -1379,6 +1379,7 @@ export type Database = {
           created_by: string
           description: string | null
           id: string
+          is_done: boolean
           title: string
           trip_id: string
           updated_at: string
@@ -1388,6 +1389,7 @@ export type Database = {
           created_by: string
           description?: string | null
           id?: string
+          is_done?: boolean
           title: string
           trip_id: string
           updated_at?: string
@@ -1397,6 +1399,7 @@ export type Database = {
           created_by?: string
           description?: string | null
           id?: string
+          is_done?: boolean
           title?: string
           trip_id?: string
           updated_at?: string

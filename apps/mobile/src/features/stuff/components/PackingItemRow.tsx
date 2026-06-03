@@ -19,19 +19,19 @@ export function PackingItemRow({ item, onToggle, onLongPress }: PackingItemRowPr
 
   return (
     <Pressable
-      onPress={onToggle}
       onLongPress={onLongPress}
       className="flex-row items-center gap-md px-md py-sm"
-      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
     >
-      {/* Checkbox */}
-      <View
-        className={`w-[24px] h-[24px] rounded-sm border-2 items-center justify-center ${
-          isPacked ? 'bg-success border-success' : 'border-border'
-        }`}
-      >
-        {isPacked && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
-      </View>
+      {/* Checkbox — only this area triggers the packed toggle */}
+      <Pressable onPress={onToggle} hitSlop={{ top: 8, bottom: 8, left: 8, right: 12 }}>
+        <View
+          className={`w-[24px] h-[24px] rounded-sm border-2 items-center justify-center ${
+            isPacked ? 'bg-success border-success' : 'border-border'
+          }`}
+        >
+          {isPacked && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
+        </View>
+      </Pressable>
 
       {/* Text */}
       <View className="flex-1">

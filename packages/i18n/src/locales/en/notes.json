@@ -16,5 +16,7 @@
   "create.locked": "New notes can't be added more than 2 weeks after the trip ended.",
   "toast.createFailed": "Failed to create note.",
   "toast.updateFailed": "Failed to update note.",
-  "toast.deleteFailed": "Failed to delete note."
+  "toast.deleteFailed": "Failed to delete note.",
+  "section.done": "Done",
+  "section.doneCount": "Done ({{count}})"
 }

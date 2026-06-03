@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Modal, FlatList, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from "react-i18next";
 import { i18n as i18nInstance } from "@vacationist/i18n";
@@ -13,6 +14,7 @@ interface NudgeSheetProps {
 }
 
 export function NudgeSheet({ tripId, visible, onClose }: NudgeSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('notifications');
   const { mutate: sendNudge, isPending } = useSendNudge(tripId);
 
@@ -58,7 +60,7 @@ export function NudgeSheet({ tripId, visible, onClose }: NudgeSheetProps) {
               ) : null
             }
           />
-          <View className="h-8" />
+          <View style={{ height: Math.max(insets.bottom, 32) }} />
         </View>
       </View>
     </Modal>

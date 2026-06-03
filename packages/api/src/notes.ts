@@ -6,6 +6,7 @@ export async function getNotes(tripId: string): Promise<TripNote[]> {
     .from('trip_notes')
     .select('*')
     .eq('trip_id', tripId)
+    .order('is_done', { ascending: true })
     .order('created_at', { ascending: false });
 
   if (error) throw error;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   View,
   Text,
@@ -20,6 +21,7 @@ interface GuestUpgradeSheetProps {
 }
 
 export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation("common");
   const [email, setEmail] = useState('');
@@ -43,7 +45,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <View className="flex-1 justify-end">
           <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl">
+          <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
             {/* Drag handle */}
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +17,7 @@ interface EditTripSheetProps {
 }
 
 export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: EditTripSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('trips');
   const { t: tCommon } = useTranslation("common");
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTripInput>({
@@ -41,7 +43,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <View className="flex-1 justify-end">
           <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md pb-xl max-h-[92%]">
+          <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[92%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
             {/* Handle bar */}
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
