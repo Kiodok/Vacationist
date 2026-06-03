@@ -34,11 +34,13 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
     await upsertPushToken(token, platform);
 
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'Default',
+      await Notifications.setNotificationChannelAsync('default-v2', {
+        name: 'Vacationist',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: colors.primary,
+        showBadge: true,
+        enableVibrate: true,
       });
     }
 

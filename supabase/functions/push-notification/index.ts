@@ -222,7 +222,7 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
     title,
     body: translatedBody,
     sound: 'default',
-    channelId: 'default',
+    channelId: 'default-v2',
     data: {
       notificationId: payload.notification_id,
       tripId: payload.trip_id,
@@ -307,7 +307,7 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
       title: translated.title,
       body: translated.body,
       sound: 'default',
-      channelId: 'default',
+      channelId: 'default-v2',
       data: {
         notificationId: userToNotificationId.get(user_id as string),
         tripId: trip_id,

@@ -33,6 +33,7 @@ import { colorScheme as cssColorScheme } from 'react-native-css-interop';
 import { syncSystemColorScheme } from '../src/utils/themeSync';
 import VercelWebTools from '../src/components/VercelWebTools';
 import { ForceUpdateGate } from '../src/components/ForceUpdateGate';
+import { colors } from '@vacationist/ui';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -43,6 +44,23 @@ if (Platform.OS !== 'web') {
       shouldShowList: true,
     }),
   });
+}
+
+// Create the Android notification channel at module load — before any auth or
+// notification could arrive. Android auto-creates missing channels with
+// IMPORTANCE_DEFAULT (no heads-up banners) if the channel doesn't exist when the
+// first FCM message lands. Once a channel is created with lower importance, the
+// app cannot upgrade it programmatically. Creating it here guarantees MAX
+// importance is set before anything else runs.
+if (Platform.OS === 'android') {
+  Notifications.setNotificationChannelAsync('default-v2', {
+    name: 'Vacationist',
+    importance: Notifications.AndroidImportance.MAX,
+    vibrationPattern: [0, 250, 250, 250],
+    lightColor: colors.primary,
+    showBadge: true,
+    enableVibrate: true,
+  }).catch(() => {});
 }
 
 export { ErrorBoundary } from 'expo-router';
