@@ -183,6 +183,7 @@ export { subscribeToTransferRealtime, unsubscribeFromTransfer } from './transfer
 export type { TransferRealtimeCallbacks } from './transferRealtime';
 
 export { getNotes, createNote, updateNote, deleteNote } from './notes';
+export { getActivityNotes, createActivityNote, updateActivityNote, deleteActivityNote } from './activity-notes';
 
 export {
   getNotifications,

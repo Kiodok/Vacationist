@@ -8,6 +8,40 @@
 
 ---
 
+## 2026-06-03 — Activity Notes Feature
+
+### Migrations: `20260603100000_create_activity_notes` + `20260603100001_fix_activity_notes_trip_id_nullable`
+
+**Why:** Collaborative notes/suggestions attached to individual activities. Any trip member can add free-text tips (e.g., "Try the rooftop bar at Hotel X"), visible to all members when the activity detail is expanded.
+
+**Table created:** `public.activity_notes`
+
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| activity_id | UUID | FK → activities(id) ON DELETE CASCADE |
+| trip_id | UUID | Nullable, auto-populated by BEFORE INSERT trigger from parent activity |
+| created_by | UUID | FK → users(id) |
+| content | TEXT | NOT NULL, 1–1000 chars |
+| created_at | TIMESTAMPTZ | Default NOW() |
+| updated_at | TIMESTAMPTZ | Auto-maintained by set_updated_at() trigger |
+
+**Key design decisions:**
+- `trip_id` is denormalized (nullable, trigger-populated) — matches the `activity_votes` pattern for efficient RLS filtering without JOINs
+- The BEFORE INSERT trigger also validates parent activity is not soft-deleted; raises exception if not found
+- Hard delete (no `deleted_at`) — matches `trip_notes`
+- No realtime subscription — low-frequency feature; query invalidation on mutation only
+
+**RLS policies:**
+- SELECT: `is_trip_member(trip_id)` + parent activity not soft-deleted
+- INSERT: `created_by = auth.uid()` + `is_trip_member` + parent activity not soft-deleted
+- UPDATE: `created_by = auth.uid()` (owner only)
+- DELETE: `created_by = auth.uid()` OR `is_trip_organizer` (owner + organizer)
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) + prod (`fsfsqghbejwvgxujoyne`)
+
+---
+
 ## 2026-05-23 — Phase 8: Notifications
 
 ### Migration: `20260522213020_create_push_tokens`

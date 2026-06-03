@@ -93,6 +93,7 @@ export type Database = {
       }
       accommodations: {
         Row: {
+          auto_close: boolean
           created_at: string
           created_by: string
           deleted_at: string | null
@@ -108,6 +109,7 @@ export type Database = {
           voting_open: boolean
         }
         Insert: {
+          auto_close?: boolean
           created_at?: string
           created_by: string
           deleted_at?: string | null
@@ -123,6 +125,7 @@ export type Database = {
           voting_open?: boolean
         }
         Update: {
+          auto_close?: boolean
           created_at?: string
           created_by?: string
           deleted_at?: string | null
@@ -157,6 +160,7 @@ export type Database = {
       activities: {
         Row: {
           activity_date: string | null
+          auto_close: boolean
           category: string | null
           cost_estimate: number | null
           created_at: string
@@ -177,6 +181,7 @@ export type Database = {
         }
         Insert: {
           activity_date?: string | null
+          auto_close?: boolean
           category?: string | null
           cost_estimate?: number | null
           created_at?: string
@@ -197,6 +202,7 @@ export type Database = {
         }
         Update: {
           activity_date?: string | null
+          auto_close?: boolean
           category?: string | null
           cost_estimate?: number | null
           created_at?: string
@@ -225,6 +231,58 @@ export type Database = {
           },
           {
             foreignKeyName: "activities_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_notes: {
+        Row: {
+          activity_id: string
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          trip_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          activity_id: string
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activity_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_notes_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_notes_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
@@ -417,29 +475,42 @@ export type Database = {
       expense_splits: {
         Row: {
           amount_owed: number
+          covered_by: string | null
           expense_id: string
           id: string
+          original_amount: number | null
           status: string
           trip_id: string | null
           user_id: string
         }
         Insert: {
           amount_owed: number
+          covered_by?: string | null
           expense_id: string
           id?: string
+          original_amount?: number | null
           status?: string
           trip_id?: string | null
           user_id: string
         }
         Update: {
           amount_owed?: number
+          covered_by?: string | null
           expense_id?: string
           id?: string
+          original_amount?: number | null
           status?: string
           trip_id?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "expense_splits_covered_by_fkey"
+            columns: ["covered_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "expense_splits_expense_id_fkey"
             columns: ["expense_id"]
@@ -600,14 +671,80 @@ export type Database = {
           },
         ]
       }
+      lost_found_cases: {
+        Row: {
+          case_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_resolved: boolean
+          resolved_at: string | null
+          target_user: string | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          case_type: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_resolved?: boolean
+          resolved_at?: string | null
+          target_user?: string | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          case_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_resolved?: boolean
+          resolved_at?: string | null
+          target_user?: string | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lost_found_cases_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lost_found_cases_target_user_fkey"
+            columns: ["target_user"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lost_found_cases_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           expense_change: boolean
           id: string
+          lost_found: boolean
           new_activity: boolean
           new_member: boolean
           reminder: boolean
           schedule_change: boolean
+          shared_packing: boolean
           trip_id: string
           user_id: string
           vote_update: boolean
@@ -615,10 +752,12 @@ export type Database = {
         Insert: {
           expense_change?: boolean
           id?: string
+          lost_found?: boolean
           new_activity?: boolean
           new_member?: boolean
           reminder?: boolean
           schedule_change?: boolean
+          shared_packing?: boolean
           trip_id: string
           user_id: string
           vote_update?: boolean
@@ -626,10 +765,12 @@ export type Database = {
         Update: {
           expense_change?: boolean
           id?: string
+          lost_found?: boolean
           new_activity?: boolean
           new_member?: boolean
           reminder?: boolean
           schedule_change?: boolean
+          shared_packing?: boolean
           trip_id?: string
           user_id?: string
           vote_update?: boolean
@@ -657,6 +798,7 @@ export type Database = {
           created_at: string
           id: string
           is_read: boolean
+          push_queued_at: string | null
           push_sent_at: string | null
           related_id: string | null
           related_type: string | null
@@ -670,6 +812,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_read?: boolean
+          push_queued_at?: string | null
           push_sent_at?: string | null
           related_id?: string | null
           related_type?: string | null
@@ -683,6 +826,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_read?: boolean
+          push_queued_at?: string | null
           push_sent_at?: string | null
           related_id?: string | null
           related_type?: string | null
@@ -708,10 +852,95 @@ export type Database = {
           },
         ]
       }
+      packing_categories: {
+        Row: {
+          icon: string | null
+          id: string
+          is_default: boolean
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          icon?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          icon?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      packing_items: {
+        Row: {
+          category: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_packed: boolean
+          notes: string | null
+          sort_order: number
+          source_shared_item_id: string | null
+          title: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_packed?: boolean
+          notes?: string | null
+          sort_order?: number
+          source_shared_item_id?: string | null
+          title: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_packed?: boolean
+          notes?: string | null
+          sort_order?: number
+          source_shared_item_id?: string | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "packing_items_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "packing_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prework_preferences: {
         Row: {
           filters: Json
           id: string
+          topic_id: string
           trip_id: string
           updated_at: string
           user_id: string
@@ -719,6 +948,7 @@ export type Database = {
         Insert: {
           filters?: Json
           id?: string
+          topic_id: string
           trip_id: string
           updated_at?: string
           user_id: string
@@ -726,11 +956,19 @@ export type Database = {
         Update: {
           filters?: Json
           id?: string
+          topic_id?: string
           trip_id?: string
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "prework_preferences_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "prework_topics"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "prework_preferences_trip_id_fkey"
             columns: ["trip_id"]
@@ -743,6 +981,57 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prework_topics: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          position: number
+          seeded_labels: string[]
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          position?: number
+          seeded_labels?: string[]
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          position?: number
+          seeded_labels?: string[]
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prework_topics_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prework_topics_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
         ]
@@ -823,6 +1112,70 @@ export type Database = {
           },
           {
             foreignKeyName: "recipes_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shared_packing_items: {
+        Row: {
+          claimed_by: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          id: string
+          is_resolved: boolean
+          item_type: string
+          notes: string | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          claimed_by?: string | null
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          id?: string
+          is_resolved?: boolean
+          item_type: string
+          notes?: string | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          claimed_by?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          id?: string
+          is_resolved?: boolean
+          item_type?: string
+          notes?: string | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_packing_items_claimed_by_fkey"
+            columns: ["claimed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shared_packing_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shared_packing_items_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
@@ -1068,6 +1421,7 @@ export type Database = {
           airline: string | null
           arrival_airport: string | null
           arrival_time: string | null
+          auto_close: boolean
           booking_reference: string | null
           created_at: string
           created_by: string
@@ -1095,6 +1449,7 @@ export type Database = {
           airline?: string | null
           arrival_airport?: string | null
           arrival_time?: string | null
+          auto_close?: boolean
           booking_reference?: string | null
           created_at?: string
           created_by: string
@@ -1122,6 +1477,7 @@ export type Database = {
           airline?: string | null
           arrival_airport?: string | null
           arrival_time?: string | null
+          auto_close?: boolean
           booking_reference?: string | null
           created_at?: string
           created_by?: string
@@ -1575,7 +1931,7 @@ export type Database = {
           email: string | null
           id: string
           is_guest: boolean
-          locale: string
+          locale: string | null
           name: string
           timezone: string
           updated_at: string
@@ -1586,7 +1942,7 @@ export type Database = {
           email?: string | null
           id: string
           is_guest?: boolean
-          locale?: string
+          locale?: string | null
           name: string
           timezone?: string
           updated_at?: string
@@ -1597,7 +1953,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_guest?: boolean
-          locale?: string
+          locale?: string | null
           name?: string
           timezone?: string
           updated_at?: string
@@ -1618,6 +1974,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      claim_shared_packing_item: {
+        Args: { p_item_id: string }
+        Returns: undefined
+      }
       close_accommodation_voting: {
         Args: { p_accommodation_id: string }
         Returns: undefined
@@ -1630,15 +1990,22 @@ export type Database = {
         Args: { p_flight_id: string }
         Returns: undefined
       }
+      copy_packing_list_to_trip: {
+        Args: { p_source_trip_id: string; p_target_trip_id: string }
+        Returns: number
+      }
+      cover_split: { Args: { p_split_id: string }; Returns: undefined }
       create_activity: {
         Args: {
           p_activity_date?: string
+          p_auto_close?: boolean
           p_category?: string
           p_cost_estimate?: number
           p_description?: string
           p_end_time?: string
           p_external_url?: string
           p_maps_url?: string
+          p_reservation_required?: boolean
           p_start_time?: string
           p_title: string
           p_trip_id: string
@@ -1663,7 +2030,15 @@ export type Database = {
         }
         Returns: string
       }
-      delete_all_notifications: { Args: { p_trip_id?: string }; Returns: undefined }
+      delete_all_notifications: {
+        Args: { p_trip_id?: string }
+        Returns: undefined
+      }
+      delete_lost_found_case: {
+        Args: { p_case_id: string }
+        Returns: undefined
+      }
+      delete_prework_topic: { Args: { p_topic_id: string }; Returns: undefined }
       delete_push_token: { Args: { p_push_token: string }; Returns: undefined }
       delete_recipe: { Args: { p_recipe_id: string }; Returns: undefined }
       delete_shopping_list: { Args: { p_list_id: string }; Returns: undefined }
@@ -1762,12 +2137,12 @@ export type Database = {
         Args: { p_trip_id?: string }
         Returns: number
       }
+      join_vehicle: { Args: { p_vehicle_id: string }; Returns: undefined }
+      leave_vehicle: { Args: { p_vehicle_id: string }; Returns: undefined }
       mark_all_notifications_read: {
         Args: { p_trip_id?: string }
         Returns: undefined
       }
-      join_vehicle: { Args: { p_vehicle_id: string }; Returns: undefined }
-      leave_vehicle: { Args: { p_vehicle_id: string }; Returns: undefined }
       mark_notification_read: {
         Args: { p_notification_id: string }
         Returns: undefined
@@ -1785,7 +2160,18 @@ export type Database = {
         Args: { p_flight_id: string }
         Returns: undefined
       }
-      reset_all_prework_preferences: { Args: { p_trip_id: string }; Returns: undefined }
+      reset_all_prework_preferences: {
+        Args: { p_trip_id: string }
+        Returns: undefined
+      }
+      reset_topic_preferences: {
+        Args: { p_topic_id: string }
+        Returns: undefined
+      }
+      resolve_lost_found_case: {
+        Args: { p_case_id: string }
+        Returns: undefined
+      }
       respond_to_document_access_request: {
         Args: { p_granted: boolean; p_request_id: string }
         Returns: undefined
@@ -1802,6 +2188,10 @@ export type Database = {
         Args: { p_flight_id: string; p_user_ids: string[] }
         Returns: undefined
       }
+      settle_all_for_pair: {
+        Args: { p_creditor: string; p_debtor: string; p_trip_id: string }
+        Returns: number
+      }
       settle_expense_split: { Args: { p_split_id: string }; Returns: undefined }
       soft_delete_accommodation: {
         Args: { p_accommodation_id: string }
@@ -1809,6 +2199,14 @@ export type Database = {
       }
       soft_delete_activity: {
         Args: { p_activity_id: string }
+        Returns: undefined
+      }
+      soft_delete_packing_item: {
+        Args: { p_item_id: string }
+        Returns: undefined
+      }
+      soft_delete_shared_packing_item: {
+        Args: { p_item_id: string }
         Returns: undefined
       }
       soft_delete_shopping_item: {
@@ -1829,6 +2227,15 @@ export type Database = {
       }
       soft_delete_trip: { Args: { p_trip_id: string }; Returns: undefined }
       unarchive_expense: { Args: { p_expense_id: string }; Returns: undefined }
+      unclaim_shared_packing_item: {
+        Args: { p_item_id: string }
+        Returns: undefined
+      }
+      uncover_split: { Args: { p_split_id: string }; Returns: undefined }
+      unresolve_lost_found_case: {
+        Args: { p_case_id: string }
+        Returns: undefined
+      }
       unsettle_expense_split: {
         Args: { p_split_id: string }
         Returns: undefined

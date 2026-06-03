@@ -19,7 +19,14 @@ import { CreateActivitySheet } from '../../../src/features/activities/components
 import { EditActivitySheet } from '../../../src/features/activities/components/EditActivitySheet';
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
 import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
+import { ActivityNotesSection } from '../../../src/features/activities/components/ActivityNotesSection';
 import { colors } from '@vacationist/ui';
+
+function isTripLocked(endDate: string | null | undefined): boolean {
+  if (!endDate) return false;
+  const diffMs = Date.now() - new Date(endDate + 'T00:00:00').getTime();
+  return diffMs > 14 * 24 * 60 * 60 * 1000;
+}
 
 const ACTIVITY_SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; iconColor: string; textClass: string }> = {
   ongoing:     { icon: 'play-circle-outline',    iconColor: colors.warning,     textClass: 'text-warning' },
@@ -90,6 +97,7 @@ export default function ActivitiesTab() {
   const deleteActivity = useDeleteActivity(tripId!);
   const closeVoting = useCloseVoting(tripId!);
   const reopenVoting = useReopenVoting(tripId!);
+  const locked = isTripLocked(trip?.end_date);
   useActivityVotesRealtime(tripId!);
 
   const { toggle, expand, isCollapsed } = useCollapsibleSections({ defaultCollapsed: ['completed'] });
@@ -237,6 +245,7 @@ export default function ActivitiesTab() {
                 role={role}
                 initialExpanded={item.id === activityId}
                 isBlocked={blockedActivityIds.has(item.id)}
+                locked={locked}
                 onEdit={() => setEditingActivity(item)}
                 onDelete={() => deleteActivity.mutate(item.id)}
                 onCloseVoting={() => closeVoting.mutate(item.id)}
@@ -301,6 +310,7 @@ function ActivityCardWithVotes({
   onCloseVoting,
   onReopenVoting,
   onToggleAutoClose,
+  locked,
 }: {
   activity: Activity;
   tripId: string;
@@ -308,6 +318,7 @@ function ActivityCardWithVotes({
   role: string | null | undefined;
   initialExpanded?: boolean;
   isBlocked: boolean;
+  locked: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onCloseVoting: () => void;
@@ -379,6 +390,14 @@ function ActivityCardWithVotes({
           </Text>
         </TouchableOpacity>
       )}
+
+      <ActivityNotesSection
+        activityId={activity.id}
+        currentUserId={currentUserId}
+        role={role}
+        memberNameMap={memberMap}
+        locked={locked}
+      />
 
       {role === 'organizer' && activity.voting_open && (
         <View className="flex-row items-center justify-between py-xs border-t border-border mt-xs">

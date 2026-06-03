@@ -99,6 +99,16 @@ export interface ActivityVote {
   created_at: string;
 }
 
+export interface ActivityNote {
+  id: string;
+  activity_id: string;
+  trip_id: string;
+  created_by: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Accommodation {
   id: string;
   trip_id: string;

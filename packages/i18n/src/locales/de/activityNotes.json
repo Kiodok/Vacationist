@@ -1,0 +1,18 @@
+{
+  "section.title": "Notizen",
+  "section.titleCount": "Notizen ({{count}})",
+  "empty.message": "Noch keine Notizen. Füge als Erster einen Vorschlag hinzu!",
+  "action.addNote": "Notiz hinzufügen",
+  "create.title": "Neue Notiz",
+  "create.locked": "Notizen können nicht hinzugefügt werden, wenn die Reise vor mehr als 2 Wochen beendet wurde.",
+  "edit.title": "Notiz bearbeiten",
+  "field.content": "Notiz",
+  "placeholder.content": "Teile einen Tipp, Vorschlag oder nützliche Info ...",
+  "confirm.delete": "Diese Notiz löschen?",
+  "toast.created": "Notiz hinzugefügt",
+  "toast.updated": "Notiz aktualisiert",
+  "toast.deleted": "Notiz gelöscht",
+  "toast.createFailed": "Notiz konnte nicht hinzugefügt werden",
+  "toast.updateFailed": "Notiz konnte nicht aktualisiert werden",
+  "toast.deleteFailed": "Notiz konnte nicht gelöscht werden"
+}

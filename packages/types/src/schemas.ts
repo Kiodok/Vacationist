@@ -452,6 +452,19 @@ export const updateTripNoteSchema = z.object({
 export type CreateTripNoteInput = z.infer<typeof createTripNoteSchema>;
 export type UpdateTripNoteInput = z.infer<typeof updateTripNoteSchema>;
 
+// --- Activity note schemas ---
+
+export const createActivityNoteSchema = z.object({
+  content: z.string().min(1, 'Content is required').max(1000),
+});
+
+export const updateActivityNoteSchema = z.object({
+  content: z.string().min(1, 'Content is required').max(1000),
+});
+
+export type CreateActivityNoteInput = z.infer<typeof createActivityNoteSchema>;
+export type UpdateActivityNoteInput = z.infer<typeof updateActivityNoteSchema>;
+
 // --- Packing item schemas (private) ---
 
 export const createPackingItemSchema = z.object({
