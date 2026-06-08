@@ -24,8 +24,11 @@ export function ToastContainer() {
   // isConnected === false (not null) is required — null means "not yet determined".
   const offlineClearance = isConnected === false ? OFFLINE_BANNER_HEIGHT + 8 : 0;
 
+  // Raise the toast above the FAB (56px height + 16px bottom margin = 72px zone).
+  // Add 12px extra gap so the toast never visually touches the FAB.
+  const fabClearance = 72 + 12;
   return (
-    <View style={[styles.container, { bottom: Math.max(insets.bottom, 16) + 8 + offlineClearance }]}>
+    <View style={[styles.container, { bottom: Math.max(insets.bottom, fabClearance) + 8 + offlineClearance }]}>
       {toasts.map((toast) => {
         const toastColors = TYPE_COLORS[toast.type];
         return (

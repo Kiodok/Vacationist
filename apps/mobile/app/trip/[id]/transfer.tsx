@@ -44,7 +44,7 @@ import { colors } from '@vacationist/ui';
 type Segment = 'All' | 'Flights' | 'Vehicles' | 'Rentals';
 
 export default function TransferTab() {
-  const { id: tripId } = useLocalSearchParams<{ id: string }>();
+  const { id: tripId, highlightId: highlightIdParam } = useLocalSearchParams<{ id: string; highlightId?: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
@@ -52,7 +52,7 @@ export default function TransferTab() {
   const currency = trip?.base_currency ?? 'EUR';
 
   const [activeSegment, setActiveSegment] = useState<Segment>('All');
-  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(highlightIdParam ?? null);
 
   const flightListRef = useRef<SectionList<TransferFlight>>(null);
   const vehicleListRef = useRef<SectionList<TransferVehicle>>(null);
@@ -115,6 +115,18 @@ export default function TransferTab() {
     if (ret.length > 0) sections.push({ key: 'return', title: t('direction.return'), data: ret });
     return sections;
   }, [vehicles, t]);
+
+  // Auto-switch to the segment that contains the highlighted item so the scroll effect can fire.
+  useEffect(() => {
+    if (!highlightId) return;
+    for (const s of flightSections) {
+      if (s.data.some((f) => f.id === highlightId)) { setActiveSegment('Flights'); return; }
+    }
+    for (const s of vehicleSections) {
+      if (s.data.some((v) => v.id === highlightId)) { setActiveSegment('Vehicles'); return; }
+    }
+    if (rentals.some((r) => r.id === highlightId)) setActiveSegment('Rentals');
+  }, [highlightId, flightSections, vehicleSections, rentals]);
 
   useEffect(() => {
     if (!highlightId) return;
@@ -384,6 +396,8 @@ export default function TransferTab() {
         onSubmit={handleCreateFlight}
         isPending={createFlight.isPending}
         currency={currency}
+        tripStartDate={trip?.start_date ?? undefined}
+        tripEndDate={trip?.end_date ?? undefined}
       />
       <CreateVehicleSheet
         visible={showCreateVehicle}
@@ -397,6 +411,8 @@ export default function TransferTab() {
         onSubmit={handleCreateRental}
         isPending={createRental.isPending}
         currency={currency}
+        tripStartDate={trip?.start_date ?? undefined}
+        tripEndDate={trip?.end_date ?? undefined}
       />
 
       {/* Edit sheets */}
@@ -408,6 +424,8 @@ export default function TransferTab() {
           isPending={updateFlightMutation.isPending}
           flight={editingFlight}
           currency={currency}
+          tripStartDate={trip?.start_date ?? undefined}
+          tripEndDate={trip?.end_date ?? undefined}
         />
       )}
       {editingVehicle && (
@@ -427,6 +445,8 @@ export default function TransferTab() {
           isPending={updateRentalMutation.isPending}
           rental={editingRental}
           currency={currency}
+          tripStartDate={trip?.start_date ?? undefined}
+          tripEndDate={trip?.end_date ?? undefined}
         />
       )}
     </View>

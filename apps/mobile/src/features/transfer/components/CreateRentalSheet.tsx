@@ -13,19 +13,23 @@ interface CreateRentalSheetProps {
   onSubmit: (input: CreateTransferRentalInput) => void;
   isPending: boolean;
   currency: string;
+  tripStartDate?: string;
+  tripEndDate?: string;
 }
 
-export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, currency }: CreateRentalSheetProps) {
+export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, currency, tripStartDate, tripEndDate }: CreateRentalSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
   const [priceText, setPriceText] = useState('');
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateTransferRentalInput>({
+  const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<CreateTransferRentalInput>({
     resolver: zodResolver(createTransferRentalSchema),
     defaultValues: { title: '' },
   });
+
+  const pickupDate = watch('pickup_date');
 
   const onValid = (data: CreateTransferRentalInput) => {
     Keyboard.dismiss();
@@ -154,6 +158,8 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                           value={value ?? null}
                           onChange={onChange}
                           placeholder="Select date"
+                          minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
+                          maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                         />
                       )}
                     />
@@ -169,6 +175,8 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                           value={value ?? null}
                           onChange={onChange}
                           placeholder="Select date"
+                          minimumDate={pickupDate ? new Date(pickupDate + 'T00:00:00') : (tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined)}
+                          maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                         />
                       )}
                     />

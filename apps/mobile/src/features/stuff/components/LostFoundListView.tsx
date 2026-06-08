@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@vacationist/ui';
 import type { CreateLostFoundCaseInput, UpdateLostFoundCaseInput, LostFoundCase } from '@vacationist/types';
@@ -17,9 +17,10 @@ interface LostFoundListViewProps {
   role: string | null | undefined;
   members: TripMemberWithUser[];
   memberNameMap: Map<string, string>;
+  highlightId?: string;
 }
 
-export function LostFoundListView({ tripId, currentUserId, role, members, memberNameMap }: LostFoundListViewProps) {
+export function LostFoundListView({ tripId, currentUserId, role, members, memberNameMap, highlightId }: LostFoundListViewProps) {
   const { data: cases, isLoading, isFetching, refetch } = useLostFoundCases(tripId);
   const createCase = useCreateLostFoundCase(tripId);
   const updateCase = useUpdateLostFoundCase(tripId);
@@ -29,11 +30,22 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingCase, setEditingCase] = useState<LostFoundCase | null>(null);
+  const listRef = useRef<FlashListRef<LostFoundCase>>(null);
 
   const sortedCases = useMemo(
     () => cases ? [...cases].sort((a, b) => Number(a.is_resolved) - Number(b.is_resolved)) : [],
     [cases],
   );
+
+  useEffect(() => {
+    if (!highlightId || !sortedCases.length) return;
+    const idx = sortedCases.findIndex((c) => c.id === highlightId);
+    if (idx < 0) return;
+    const timer = setTimeout(() => {
+      listRef.current?.scrollToIndex({ index: idx, animated: true });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [highlightId, sortedCases]);
 
   const handleCreate = (input: CreateLostFoundCaseInput) => {
     createCase.mutate({ tripId, input }, { onSuccess: () => setShowCreate(false) });
@@ -59,6 +71,7 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
         <EmptyLostFound />
       ) : (
         <FlashList
+          ref={listRef}
           data={sortedCases}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8, paddingBottom: 80 }}
@@ -68,6 +81,7 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
               memberNameMap={memberNameMap}
               currentUserId={currentUserId}
               role={role}
+              highlight={item.id === highlightId}
               onResolve={() => resolveCase.mutate({ caseId: item.id, tripId })}
               onUnresolve={() => unresolveCase.mutate({ caseId: item.id, tripId })}
               onEdit={() => setEditingCase(item)}

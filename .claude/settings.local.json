@@ -125,7 +125,8 @@
       "WebFetch(domain:docs.expo.dev)",
       "WebFetch(domain:appupgrade.dev)",
       "WebFetch(domain:imighty.hashnode.dev)",
-      "WebFetch(domain:www.thedevpost.com)"
+      "WebFetch(domain:www.thedevpost.com)",
+      "Bash(git show *)"
     ]
   },
   "model": "opusplan",

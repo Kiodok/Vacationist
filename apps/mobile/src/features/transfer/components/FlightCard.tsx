@@ -1,5 +1,6 @@
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { TransferFlight, TransferFlightVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
@@ -44,6 +45,8 @@ interface FlightCardProps {
 }
 
 export function FlightCard({ flight, votes, currentUserId, currency, isWinner, onPress, onVotePress, detail, highlight }: FlightCardProps) {
+  const { t } = useTranslation('activities');
+  const { t: tTransfer } = useTranslation('transfer');
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !flight.voting_open;
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
@@ -76,7 +79,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
               </Text>
               {isWinner && !flight.voting_open && (
                 <View className="px-xs py-[2px] rounded-full bg-success/20">
-                  <Text className="text-success text-label font-semibold">Winner</Text>
+                  <Text className="text-success text-label font-semibold">{tTransfer('flight.winner')}</Text>
                 </View>
               )}
             </View>
@@ -92,7 +95,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
           <View className="flex-row items-center gap-xs">
             <Ionicons name="airplane-outline" size={14} color={METADATA_ICON_COLORS.airplane.color} />
             <Text className="text-body-small text-text-secondary">
-              {isRoundTrip ? 'Out: ' : ''}{[flight.departure_airport, flight.arrival_airport].filter(Boolean).join(' → ')}
+              {isRoundTrip ? `${tTransfer('all.direction.outPrefix')} ` : ''}{[flight.departure_airport, flight.arrival_airport].filter(Boolean).join(' → ')}
             </Text>
           </View>
         )}
@@ -100,7 +103,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
           <View className="flex-row items-center gap-xs">
             <Ionicons name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
             <Text className="text-body-small text-text-secondary">
-              {isRoundTrip ? 'Out: ' : ''}{[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
+              {isRoundTrip ? `${tTransfer('all.direction.outPrefix')} ` : ''}{[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
             </Text>
           </View>
         )}
@@ -110,7 +113,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
           <View className="flex-row items-center gap-xs">
             <Ionicons name="return-up-back-outline" size={14} color={METADATA_ICON_COLORS.return.color} />
             <Text className="text-body-small text-text-secondary">
-              {'Ret: '}{[flight.return_departure_airport, flight.return_arrival_airport].filter(Boolean).join(' → ')}
+              {`${tTransfer('all.direction.retPrefix')} `}{[flight.return_departure_airport, flight.return_arrival_airport].filter(Boolean).join(' → ')}
             </Text>
           </View>
         )}
@@ -118,7 +121,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
           <View className="flex-row items-center gap-xs">
             <Ionicons name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
             <Text className="text-body-small text-text-secondary">
-              {'Ret: '}{[returnDepartureFormatted, returnArrivalFormatted].filter(Boolean).join(' → ')}
+              {`${tTransfer('all.direction.retPrefix')} `}{[returnDepartureFormatted, returnArrivalFormatted].filter(Boolean).join(' → ')}
             </Text>
           </View>
         )}
@@ -161,7 +164,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
               >
                 <Ionicons name="hand-left-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Vote</Text>
+                <Text className="text-primary text-body-small font-medium">{tTransfer('vote.button')}</Text>
               </Pressable>
             )}
           </View>
@@ -171,7 +174,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
               <Text className="text-body-small text-text-primary">
-                Show {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
+                {tTransfer('vote.showCount', { count: votes.length })}
               </Text>
             </Pressable>
           )}
@@ -183,26 +186,27 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
 }
 
 function FlightStatusIndicator({ status, votingOpen }: { status: string; votingOpen: boolean }) {
+  const { t } = useTranslation('transfer');
   if (votingOpen) {
     return (
       <View className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10">
         <View className="w-[6px] h-[6px] rounded-full bg-primary" />
-        <Text className="text-primary text-label font-medium">Voting</Text>
+        <Text className="text-primary text-label font-medium">{t('all.status.voting')}</Text>
       </View>
     );
   }
 
-  const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-    suggested: { bg: 'bg-primary/10', text: 'text-primary', label: 'Suggested' },
-    booked: { bg: 'bg-success/10', text: 'text-success', label: 'Booked' },
-    completed: { bg: 'bg-border/50', text: 'text-text-muted', label: 'Done' },
+  const statusConfig: Record<string, { bg: string; text: string }> = {
+    suggested: { bg: 'bg-primary/10',  text: 'text-primary' },
+    booked:    { bg: 'bg-success/10',  text: 'text-success' },
+    completed: { bg: 'bg-border/50',   text: 'text-text-muted' },
   };
 
   const cfg = statusConfig[status] ?? statusConfig.suggested;
 
   return (
     <View className={`px-sm py-xs rounded-full ${cfg.bg}`}>
-      <Text className={`${cfg.text} text-label font-medium`}>{cfg.label}</Text>
+      <Text className={`${cfg.text} text-label font-medium`}>{t(`all.status.${status}`, { defaultValue: status })}</Text>
     </View>
   );
 }

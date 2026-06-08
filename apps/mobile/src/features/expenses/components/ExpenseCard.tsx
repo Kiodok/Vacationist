@@ -1,9 +1,10 @@
-import { View, Text, Pressable } from 'react-native';
+import { Animated, Platform, View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
 import { colors, METADATA_ICON_COLORS, FEATURE_ICON_COLORS } from '@vacationist/ui';
+import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface ExpenseCardProps {
   expense: Expense;
@@ -13,10 +14,12 @@ interface ExpenseCardProps {
   currency: Currency;
   onPress: () => void;
   detail?: React.ReactNode;
+  highlight?: boolean;
 }
 
-export function ExpenseCard({ expense, splits, members, currentUserId, currency, onPress, detail }: ExpenseCardProps) {
+export function ExpenseCard({ expense, splits, members, currentUserId, currency, onPress, detail, highlight }: ExpenseCardProps) {
   const { t } = useTranslation('expenses');
+  const { animatedBorderColor } = useHighlightAnimation(highlight, colors.border);
   const payer = members.get(expense.paid_by);
   const owerSplits = splits.filter((s) => s.user_id !== expense.paid_by);
   const settledCount = owerSplits.filter((s) => s.status === 'settled').length;
@@ -26,7 +29,10 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
   const iOwe = mySplit && mySplit.status === 'open' && expense.paid_by !== currentUserId;
 
   return (
-    <View className={`bg-surface border border-border ${detail ? 'rounded-t-md' : 'rounded-md'}`}>
+    <Animated.View
+      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+    >
       <Pressable
         onPress={onPress}
         className="p-md gap-sm"
@@ -77,7 +83,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
         )}
       </Pressable>
       {detail}
-    </View>
+    </Animated.View>
   );
 }
 

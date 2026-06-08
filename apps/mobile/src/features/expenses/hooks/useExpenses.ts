@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery, useMutation } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   EXPENSE_PAGE_SIZE,
   getExpenses,
@@ -157,12 +157,18 @@ export function useUncoverSplit() {
 }
 
 export function useSettleAllForPair() {
+  const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationKey: ['settleAllForPair'],
     mutationFn: ({ tripId, debtor, creditor }: SettleAllForPairVariables) =>
       settleAllForPair(tripId, debtor, creditor),
+    onSuccess: (_, { tripId }) => {
+      addToast('success', i18n.t('expenses:toast.settleAllDone'));
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+    },
     onError: () => {
       addToast('error', i18n.t('expenses:toast.settleAllFailed'));
     },

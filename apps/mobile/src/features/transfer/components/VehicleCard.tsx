@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { TransferVehicle, TransferVehiclePassenger } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { colors } from '@vacationist/ui';
@@ -86,17 +87,18 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
 }
 
 function DirectionBadge({ direction }: { direction: string }) {
+  const { t } = useTranslation('transfer');
   if (direction === 'outbound-return') {
     return (
       <View className="px-sm py-xs rounded-full bg-success/10">
-        <Text className="text-label font-medium text-success">Outbound + Return</Text>
+        <Text className="text-label font-medium text-success">{t('direction.both')}</Text>
       </View>
     );
   }
   return (
     <View className={`px-sm py-xs rounded-full ${direction === 'outbound' ? 'bg-primary/10' : 'bg-warning/10'}`}>
       <Text className={`text-label font-medium ${direction === 'outbound' ? 'text-primary' : 'text-warning'}`}>
-        {direction === 'outbound' ? 'Outbound' : 'Return'}
+        {direction === 'outbound' ? t('direction.outbound') : t('direction.return')}
       </Text>
     </View>
   );

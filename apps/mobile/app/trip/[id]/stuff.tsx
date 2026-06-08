@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -13,13 +13,18 @@ type StuffSegment = 'private' | 'shared' | 'lost-found';
 
 export default function StuffTab() {
   const { t } = useTranslation('stuff');
-  const { id: tripId } = useLocalSearchParams<{ id: string }>();
+  const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: members = [] } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
 
   const [activeSegment, setActiveSegment] = useState<StuffSegment>('private');
   const [showCopySheet, setShowCopySheet] = useState(false);
+
+  // When arriving from a lost/found notification, switch to that tab.
+  useEffect(() => {
+    if (highlightId) setActiveSegment('lost-found');
+  }, [highlightId]);
 
   const memberNameMap = useMemo(
     () => new Map(members.map((m) => [m.user_id, m.user.name])),
@@ -79,6 +84,7 @@ export default function StuffTab() {
           role={role}
           members={members}
           memberNameMap={memberNameMap}
+          highlightId={highlightId}
         />
       )}
 

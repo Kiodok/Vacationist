@@ -1,4 +1,3 @@
-import { useRef, useEffect } from 'react';
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +6,7 @@ import type { Activity, ActivityVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
 import { StatusIndicator } from './StatusIndicator';
 import { colors, CATEGORY_ICON_COLORS, METADATA_ICON_COLORS } from '@vacationist/ui';
+import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -25,33 +25,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
   const showBreakdown = !activity.voting_open;
   const borderColor = getVoteBorderColor(votes);
 
-  const highlightAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (highlight) {
-      const timer = setTimeout(() => {
-        Animated.sequence([
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 600, useNativeDriver: false }),
-        ]).start();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [highlight]);
-
-  const animatedBorderColor = highlight
-    ? highlightAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [borderColor, colors.primary],
-      })
-    : borderColor;
+  const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
   const categoryIcon = activity.category ? CATEGORY_ICON_COLORS[activity.category] : null;
 
   return (
@@ -72,8 +46,8 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
           {activity.category ? (
             <View className="flex-row items-center gap-xs">
               {categoryIcon ? <Ionicons name={categoryIcon.icon} size={12} color={categoryIcon.color} /> : null}
-              <Text className="text-body-small text-text-secondary capitalize">
-                {activity.category}
+              <Text className="text-body-small text-text-secondary">
+                {t(`category.${activity.category}`, { defaultValue: activity.category })}
               </Text>
             </View>
           ) : null}
@@ -136,7 +110,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
               <Ionicons name="hand-left-outline" size={14} color={colors.primary} />
-              <Text className="text-primary text-body-small font-medium">Vote</Text>
+              <Text className="text-primary text-body-small font-medium">{t('vote.button')}</Text>
             </Pressable>
           )}
         </View>
@@ -146,7 +120,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
             <Text className="text-body-small text-text-primary">
-              Show {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
+              {t('vote.showCount', { count: votes.length })}
             </Text>
           </Pressable>
         )}

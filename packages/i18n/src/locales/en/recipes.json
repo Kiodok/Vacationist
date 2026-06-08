@@ -39,5 +39,12 @@
   "edit.submit": "Save Changes",
   "field.titleLabel": "Title",
   "field.descriptionLabel": "Description",
-  "field.servingsLabel": "Servings"
+  "field.servingsLabel": "Servings",
+  "card.servings_one": "1 serving",
+  "card.servings_other": "{{count}} servings",
+  "card.ingredients_one": "1 ingredient",
+  "card.ingredients_other": "{{count}} ingredients",
+  "sheet.addIngredients": "Add Ingredients",
+  "sheet.adding": "Adding...",
+  "sheet.recipeDefault": "(recipe: {{count}})"
 }

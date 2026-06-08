@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { Animated, Platform, View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { colors } from '@vacationist/ui';
 import type { LostFoundCase, LostFoundCaseType } from '@vacationist/types';
+import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface LostFoundCaseCardProps {
   lostFoundCase: LostFoundCase;
@@ -14,6 +15,7 @@ interface LostFoundCaseCardProps {
   onUnresolve: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  highlight?: boolean;
 }
 
 const CASE_TYPE_STYLE: Record<LostFoundCaseType, { bg: string; text: string; icon: string }> = {
@@ -30,10 +32,11 @@ const CASE_TYPE_LABEL_KEY: Record<LostFoundCaseType, 'caseType.lostUnknown' | 'c
   found_owner_known: 'caseType.foundOwnerKnown',
 };
 
-export function LostFoundCaseCard({ lostFoundCase: c, memberNameMap, currentUserId, role, onResolve, onUnresolve, onEdit, onDelete }: LostFoundCaseCardProps) {
+export function LostFoundCaseCard({ lostFoundCase: c, memberNameMap, currentUserId, role, onResolve, onUnresolve, onEdit, onDelete, highlight }: LostFoundCaseCardProps) {
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const { animatedBorderColor } = useHighlightAnimation(highlight, colors.border);
 
   const style = CASE_TYPE_STYLE[c.case_type];
   const caseTypeLabel = t(CASE_TYPE_LABEL_KEY[c.case_type]);
@@ -52,7 +55,10 @@ export function LostFoundCaseCard({ lostFoundCase: c, memberNameMap, currentUser
   const canDelete = c.created_by === currentUserId || role === 'organizer';
 
   return (
-    <View className={`bg-surface rounded-md border border-border px-md py-sm gap-xs ${c.is_resolved ? 'opacity-60' : ''}`}>
+    <Animated.View
+      className={`bg-surface rounded-md px-md py-sm gap-xs ${c.is_resolved ? 'opacity-60' : ''}`}
+      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+    >
       {/* Header */}
       <View className="flex-row items-center gap-xs flex-wrap">
         <View className={`flex-row items-center gap-xs px-sm py-xs rounded-full ${style.bg}`}>
@@ -145,6 +151,6 @@ export function LostFoundCaseCard({ lostFoundCase: c, memberNameMap, currentUser
           </View>
         )
       )}
-    </View>
+    </Animated.View>
   );
 }

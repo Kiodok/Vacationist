@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +23,7 @@ function isTripLocked(endDate: string | null | undefined): boolean {
 }
 
 export default function NotesTab() {
-  const { id: tripId } = useLocalSearchParams<{ id: string }>();
+  const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
   const { t } = useTranslation('notes');
   const currentUser = useAuthStore((s) => s.user);
 
@@ -52,6 +52,17 @@ export default function NotesTab() {
 
   const activeNotes = useMemo(() => notes?.filter((n) => !n.is_done) ?? [], [notes]);
   const doneNotes = useMemo(() => notes?.filter((n) => n.is_done) ?? [], [notes]);
+
+  const listRef = useRef<FlashListRef<TripNote>>(null);
+  useEffect(() => {
+    if (!highlightId || !activeNotes.length) return;
+    const idx = activeNotes.findIndex((n) => n.id === highlightId);
+    if (idx < 0) return;
+    const timer = setTimeout(() => {
+      listRef.current?.scrollToIndex({ index: idx, animated: true });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [highlightId, activeNotes]);
 
   const handleCreate = (input: CreateTripNoteInput) => {
     createNote.mutate(input, { onSuccess: () => setShowCreate(false) });
@@ -101,9 +112,10 @@ export default function NotesTab() {
         </View>
       ) : (
         <FlashList
+          ref={listRef}
           data={activeNotes}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingTop: 16, paddingHorizontal: 16, paddingBottom: 80 }}
+          contentContainerStyle={{ paddingTop: 16, paddingHorizontal: 16, paddingBottom: 100 }}
           ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
           renderItem={({ item }) => (
             <NoteCard
@@ -111,6 +123,7 @@ export default function NotesTab() {
               authorName={memberNameMap.get(item.created_by) ?? 'Member'}
               onPress={() => handleNotePress(item)}
               onToggleDone={() => handleToggleDone(item)}
+              highlight={item.id === highlightId}
             />
           )}
           ListFooterComponent={

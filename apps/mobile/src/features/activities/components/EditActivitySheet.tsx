@@ -141,11 +141,11 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                         >
                           <Text
-                            className={`text-body-small capitalize ${
+                            className={`text-body-small ${
                               value === cat ? 'text-white font-semibold' : 'text-text-secondary'
                             }`}
                           >
-                            {cat}
+                            {t(`category.${cat}`, { defaultValue: cat })}
                           </Text>
                         </Pressable>
                       ))}

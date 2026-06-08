@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
-import { formatCurrency, isExpenseFullySettled } from '@vacationist/utils';
+import { isExpenseFullySettled } from '@vacationist/utils';
 import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllForPair } from '../../../src/features/expenses/hooks/useExpenses';
 import { useExpensesRealtime } from '../../../src/features/expenses/hooks/useExpensesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
@@ -31,7 +31,7 @@ const SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; ico
 export default function ExpensesTab() {
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation("common");
-  const { id: tripId } = useLocalSearchParams<{ id: string }>();
+  const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
   const {
@@ -55,6 +55,7 @@ export default function ExpensesTab() {
   const unarchiveExpenseMutation = useUnarchiveExpense();
   const settleAllForPairMutation = useSettleAllForPair();
   const settlingPairRef = useRef(false);
+  const sectionListRef = useRef<SectionList<ExpenseWithSplits>>(null);
   useExpensesRealtime(tripId!);
   const { toggle, isCollapsed } = useCollapsibleSections();
 
@@ -67,11 +68,10 @@ export default function ExpensesTab() {
     return map;
   }, [members]);
 
-  const { activeExpenses, completedExpenses, archivedExpenses, activeTotal } = useMemo(() => {
+  const { activeExpenses, completedExpenses, archivedExpenses } = useMemo(() => {
     const active: ExpenseWithSplits[] = [];
     const completed: ExpenseWithSplits[] = [];
     const archived: ExpenseWithSplits[] = [];
-    let total = 0;
     for (const e of expenses) {
       if (e.archived_at) {
         archived.push(e);
@@ -79,14 +79,9 @@ export default function ExpensesTab() {
         completed.push(e);
       } else {
         active.push(e);
-        for (const s of e.expense_splits) {
-          if (s.status === 'open' && s.user_id !== e.paid_by) {
-            total += Number(s.amount_owed);
-          }
-        }
       }
     }
-    return { activeExpenses: active, completedExpenses: completed, archivedExpenses: archived, activeTotal: total };
+    return { activeExpenses: active, completedExpenses: completed, archivedExpenses: archived };
   }, [expenses]);
 
   const sections = useMemo(() => {
@@ -107,6 +102,30 @@ export default function ExpensesTab() {
     createExpense.mutate({ tripId: tripId!, input }, { onSuccess: () => setShowCreate(false) });
   };
 
+  // Scroll to and highlight the expense when navigating from a notification.
+  const resolvedHighlightId = highlightId;
+  useEffect(() => {
+    if (!resolvedHighlightId) return;
+    // Search the raw (pre-collapse) arrays so we find the item even in a collapsed section.
+    const searchOrder = [
+      { key: 'active', data: activeExpenses },
+      { key: 'completed', data: completedExpenses },
+      { key: 'archived', data: archivedExpenses },
+    ] as const;
+    for (const { key, data } of searchOrder) {
+      const ii = data.findIndex((e) => e.id === resolvedHighlightId);
+      if (ii < 0) continue;
+      // If the section is collapsed, expand it first; the effect re-fires when sections updates.
+      if (isCollapsed(key)) { toggle(key); return; }
+      const si = sections.findIndex((s) => s.key === key);
+      if (si < 0) return;
+      const timer = setTimeout(() => {
+        sectionListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [resolvedHighlightId, sections, activeExpenses, completedExpenses, archivedExpenses, isCollapsed, toggle]);
+
   if (isLoading) {
     return <ExpenseListSkeleton />;
   }
@@ -122,8 +141,8 @@ export default function ExpensesTab() {
         </View>
       ) : (
         <SectionList
+          ref={sectionListRef}
           sections={sections}
-          extraData={activeTotal}
           keyExtractor={(item) => item.id}
           stickySectionHeadersEnabled={false}
           windowSize={5}
@@ -136,18 +155,16 @@ export default function ExpensesTab() {
                 balances={balances}
                 onPress={() => setShowSettlements(true)}
               />
-              <View className="flex-row items-center justify-between py-sm px-sm">
+              <View className="py-sm px-sm">
                 <Text className="text-body-small text-text-secondary">
                   {t('summary.stats', { active: activeExpenses.length, completed: completedExpenses.length })}
-                </Text>
-                <Text className="text-body text-text-primary font-semibold">
-                  {t('summary.open')} {formatCurrency(activeTotal, currency)}
                 </Text>
               </View>
             </View>
           }
           renderSectionHeader={({ section }) => {
-            const cfg = SECTION_CONFIG[section.key] ?? SECTION_CONFIG.active;
+            const key = section.key ?? 'active';
+            const cfg = SECTION_CONFIG[key] ?? SECTION_CONFIG.active;
             return (
               <CollapsibleSectionHeader
                 icon={cfg.icon}
@@ -155,8 +172,8 @@ export default function ExpensesTab() {
                 textClass={cfg.textClass}
                 title={section.title}
                 count={section.originalCount}
-                collapsed={isCollapsed(section.key)}
-                onToggle={() => toggle(section.key)}
+                collapsed={isCollapsed(key)}
+                onToggle={() => toggle(key)}
               />
             );
           }}
@@ -170,6 +187,7 @@ export default function ExpensesTab() {
                 currentUserId={user?.id}
                 role={role}
                 currency={currency}
+                highlight={item.id === resolvedHighlightId}
                 onArchive={() => archiveExpenseMutation.mutate({ expenseId: item.id, tripId: tripId! })}
                 onUnarchive={() => unarchiveExpenseMutation.mutate({ expenseId: item.id, tripId: tripId! })}
               />
@@ -250,6 +268,7 @@ function ExpenseCardWithSplits({
   currentUserId,
   role,
   currency,
+  highlight,
   onArchive,
   onUnarchive,
 }: {
@@ -260,6 +279,7 @@ function ExpenseCardWithSplits({
   currentUserId: string | undefined;
   role: string | null | undefined;
   currency: import('@vacationist/types').Currency;
+  highlight?: boolean;
   onArchive: () => void;
   onUnarchive: () => void;
 }) {
@@ -358,6 +378,7 @@ function ExpenseCardWithSplits({
         members={memberMap}
         currentUserId={currentUserId}
         currency={currency}
+        highlight={highlight}
         onPress={() => setShowDetail(!showDetail)}
         detail={detailContent}
       />

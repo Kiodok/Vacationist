@@ -41,7 +41,12 @@ function isAutoCompleted(activity: Activity): boolean {
   const now = dayjs();
   const date = activity.activity_date;
   if (activity.end_time) {
-    return now.isAfter(dayjs(`${date}T${activity.end_time}`));
+    let end = dayjs(`${date}T${activity.end_time}`);
+    // If end_time is earlier than start_time the activity crosses midnight — shift end to next day.
+    if (activity.start_time && activity.end_time < activity.start_time) {
+      end = end.add(1, 'day');
+    }
+    return now.isAfter(end);
   }
   if (activity.start_time) {
     return now.isAfter(dayjs(`${date}T${activity.start_time}`).add(2, 'hour'));
@@ -55,7 +60,11 @@ function isOngoing(activity: Activity): boolean {
   const date = activity.activity_date;
   if (activity.start_time && activity.end_time) {
     const start = dayjs(`${date}T${activity.start_time}`);
-    const end = dayjs(`${date}T${activity.end_time}`);
+    let end = dayjs(`${date}T${activity.end_time}`);
+    // Midnight-crossing activity: shift end to next day.
+    if (activity.end_time < activity.start_time) {
+      end = end.add(1, 'day');
+    }
     return now.isAfter(start) && now.isBefore(end);
   }
   if (activity.start_time) {
@@ -77,7 +86,8 @@ function sortByDate(a: Activity, b: Activity): number {
 export default function ActivitiesTab() {
   const { t } = useTranslation('activities');
   const { t: tCommon } = useTranslation("common");
-  const { id: tripId, activityId } = useLocalSearchParams<{ id: string; activityId?: string }>();
+  const { id: tripId, activityId: _activityId, highlightId: _highlightId } = useLocalSearchParams<{ id: string; activityId?: string; highlightId?: string }>();
+  const activityId = _activityId ?? _highlightId;
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
   const { data: activities, isLoading, isFetching, refetch } = useActivities(tripId!);

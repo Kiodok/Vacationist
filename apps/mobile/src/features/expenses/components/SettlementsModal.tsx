@@ -42,23 +42,28 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
                 const isPositive = !isNegligible(b.net_balance) && b.net_balance > 0;
                 const isNegative = !isNegligible(b.net_balance) && b.net_balance < 0;
                 return (
-                  <View key={b.user_id} className="flex-row items-center justify-between py-sm px-sm rounded-md bg-surface">
-                    <View className="flex-row items-center gap-sm flex-1">
-                      <View className="w-[28px] h-[28px] rounded-full bg-primary/15 items-center justify-center">
-                        <Text className="text-primary text-label font-semibold">
-                          {(user?.name ?? '?')[0].toUpperCase()}
+                  <View key={b.user_id} className="py-sm px-sm rounded-md bg-surface gap-xs">
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-row items-center gap-sm flex-1">
+                        <View className="w-[28px] h-[28px] rounded-full bg-primary/15 items-center justify-center">
+                          <Text className="text-primary text-label font-semibold">
+                            {(user?.name ?? '?')[0].toUpperCase()}
+                          </Text>
+                        </View>
+                        <Text className="text-body text-text-primary flex-1" numberOfLines={1}>
+                          {user?.name ?? 'Unknown'}
                         </Text>
                       </View>
-                      <Text className="text-body text-text-primary" numberOfLines={1}>
-                        {user?.name ?? 'Unknown'}
-                      </Text>
-                    </View>
-                    <View className="items-end">
                       <Text className={`text-body font-semibold ${isPositive ? 'text-success' : isNegative ? 'text-danger' : 'text-text-muted'}`}>
                         {isPositive ? '+' : ''}{formatCurrency(b.net_balance, currency)}
                       </Text>
+                    </View>
+                    <View className="flex-row gap-md pl-[44px]">
                       <Text className="text-label text-text-muted">
-                        {t('modal.balanceLine', { paid: formatCurrency(b.total_paid, currency), owed: formatCurrency(b.total_owed, currency) })}
+                        {t('modal.paid', { amount: formatCurrency(b.total_paid, currency) })}
+                      </Text>
+                      <Text className="text-label text-text-muted">
+                        {t('modal.owes', { amount: formatCurrency(b.total_owed, currency) })}
                       </Text>
                     </View>
                   </View>

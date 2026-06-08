@@ -12,12 +12,13 @@ import { colors } from '@vacationist/ui';
 interface CreatePackingItemSheetProps {
   visible: boolean;
   categories: PackingCategory[];
+  usedCustomCategories?: string[];
   onClose: () => void;
   onSubmit: (input: CreatePackingItemInput) => void;
   isPending: boolean;
 }
 
-export function CreatePackingItemSheet({ visible, categories, onClose, onSubmit, isPending }: CreatePackingItemSheetProps) {
+export function CreatePackingItemSheet({ visible, categories, usedCustomCategories = [], onClose, onSubmit, isPending }: CreatePackingItemSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
@@ -84,6 +85,20 @@ export function CreatePackingItemSheet({ visible, categories, onClose, onSubmit,
                         >
                           <Text className={`text-body-small font-medium ${isSelected ? 'text-white' : 'text-text-secondary'}`}>
                             {(() => { const k = SEEDED_CATEGORY_I18N[cat.name]; return k ? t(k) : cat.name; })()}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                    {usedCustomCategories.map((customCat) => {
+                      const isSelected = selectedCategory === customCat && !showCustomCategory;
+                      return (
+                        <Pressable
+                          key={`custom-${customCat}`}
+                          onPress={() => { setValue('category', customCat); setShowCustomCategory(false); }}
+                          className={`px-md py-sm rounded-full border border-dashed ${isSelected ? 'bg-primary border-primary' : 'bg-surface border-border'}`}
+                        >
+                          <Text className={`text-body-small font-medium ${isSelected ? 'text-white' : 'text-text-secondary'}`}>
+                            {customCat}
                           </Text>
                         </Pressable>
                       );

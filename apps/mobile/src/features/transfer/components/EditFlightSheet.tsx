@@ -14,6 +14,8 @@ interface EditFlightSheetProps {
   isPending: boolean;
   flight: TransferFlight;
   currency: string;
+  tripStartDate?: string;
+  tripEndDate?: string;
 }
 
 /** Convert a DB TIMESTAMPTZ string to the local YYYY-MM-DDTHH:MM form the form expects. */
@@ -35,7 +37,7 @@ function parseMinDate(isoLocal: string | null | undefined): Date | undefined {
 
 const DIRECTION_ORDER = ['outbound-return', 'outbound', 'return'] as const;
 
-export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight, currency }: EditFlightSheetProps) {
+export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight, currency, tripStartDate, tripEndDate }: EditFlightSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
@@ -228,6 +230,8 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                               }
                             }}
                             placeholder="Date"
+                            minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
+                            maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                           />
                         )}
                       />

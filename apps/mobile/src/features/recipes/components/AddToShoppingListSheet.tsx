@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, Modal, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { ShoppingListWithCounts } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
 
@@ -23,6 +24,7 @@ export function AddToShoppingListSheet({
   isPending,
 }: AddToShoppingListSheetProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('recipes');
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [servings, setServings] = useState(defaultServings);
 
@@ -60,7 +62,7 @@ export function AddToShoppingListSheet({
 
           <View className="gap-md">
             <View className="gap-xs">
-              <Text className="text-label text-text-muted uppercase">Servings</Text>
+              <Text className="text-label text-text-muted uppercase">{t('field.servings')}</Text>
               <View className="flex-row items-center gap-md">
                 <Pressable
                   onPress={() => setServings((s) => Math.max(1, s - 1))}
@@ -81,7 +83,7 @@ export function AddToShoppingListSheet({
                 </Pressable>
                 {servings !== defaultServings && (
                   <Text className="text-body-small text-text-secondary">
-                    (recipe: {defaultServings})
+                    {t('sheet.recipeDefault', { count: defaultServings })}
                   </Text>
                 )}
               </View>
@@ -135,7 +137,7 @@ export function AddToShoppingListSheet({
               style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
             >
               <Text className="text-white text-body font-semibold">
-                {isPending ? 'Adding...' : 'Add Ingredients'}
+                {isPending ? t('sheet.adding') : t('sheet.addIngredients')}
               </Text>
             </Pressable>
           </View>

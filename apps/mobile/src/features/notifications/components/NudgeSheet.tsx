@@ -9,18 +9,19 @@ import { colors } from '@vacationist/ui';
 
 interface NudgeSheetProps {
   tripId: string;
+  tripName: string;
   visible: boolean;
   onClose: () => void;
 }
 
-export function NudgeSheet({ tripId, visible, onClose }: NudgeSheetProps) {
+export function NudgeSheet({ tripId, tripName, visible, onClose }: NudgeSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('notifications');
   const { mutate: sendNudge, isPending } = useSendNudge(tripId);
 
   const handleSelect = (key: string) => {
-    const title = (i18nInstance.t as (k: string) => string)(`notifications:nudge.${key}.title`);
-    const body = (i18nInstance.t as (k: string) => string)(`notifications:nudge.${key}.body`);
+    const title = (i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.title`, { tripName });
+    const body = (i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.body`, { tripName });
     sendNudge(
       { title, body },
       { onSuccess: onClose },
@@ -48,8 +49,8 @@ export function NudgeSheet({ tripId, visible, onClose }: NudgeSheetProps) {
                 disabled={isPending}
                 className="bg-background border border-border rounded-md p-md gap-xs active:opacity-70"
               >
-                <Text className="text-body-default font-semibold text-text-primary">{i18nInstance.t(`notifications:nudge.${key}.title`) as string}</Text>
-                <Text className="text-body-small text-text-secondary">{i18nInstance.t(`notifications:nudge.${key}.body`) as string}</Text>
+                <Text className="text-body-default font-semibold text-text-primary">{(i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.title`, { tripName })}</Text>
+                <Text className="text-body-small text-text-secondary">{(i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.body`, { tripName })}</Text>
               </Pressable>
             )}
             ListFooterComponent={

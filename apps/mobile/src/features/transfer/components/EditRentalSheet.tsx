@@ -14,18 +14,22 @@ interface EditRentalSheetProps {
   isPending: boolean;
   rental: TransferRental;
   currency: string;
+  tripStartDate?: string;
+  tripEndDate?: string;
 }
 
-export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental, currency }: EditRentalSheetProps) {
+export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental, currency, tripStartDate, tripEndDate }: EditRentalSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
   const [priceText, setPriceText] = useState('');
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTransferRentalInput>({
+  const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<UpdateTransferRentalInput>({
     resolver: zodResolver(updateTransferRentalSchema),
   });
+
+  const pickupDate = watch('pickup_date');
 
   useEffect(() => {
     if (visible) {
@@ -164,6 +168,8 @@ export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental,
                           value={value ?? null}
                           onChange={onChange}
                           placeholder="Select date"
+                          minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
+                          maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                         />
                       )}
                     />
@@ -179,6 +185,8 @@ export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental,
                           value={value ?? null}
                           onChange={onChange}
                           placeholder="Select date"
+                          minimumDate={pickupDate ? new Date(pickupDate + 'T00:00:00') : (tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined)}
+                          maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                         />
                       )}
                     />

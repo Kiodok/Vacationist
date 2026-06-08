@@ -2,14 +2,14 @@
   "empty.title": "Noch keine Präferenzen",
   "empty.subtitle": "Füge Filter hinzu, um der Gruppe bei diesem Thema zu helfen.",
   "info.title": "Über Präferenzen",
-  "info.content": "Präferenzen helfen der Gruppe, vor der Buchung über Reisedetails zu entscheiden. Der Organisator erstellt Themen (z.B. 'Ort', 'Reiseart'), dann verteilt jedes Mitglied 100 Credits auf seine bevorzugten Optionen. Die Gruppenübersicht zeigt, was allen am wichtigsten ist.",
+  "info.content": "Präferenzen helfen der Gruppe, vor der Buchung über Reisedetails zu entscheiden. Der Organisator erstellt Themen (z.B. 'Ort', 'Reiseart'), dann verteilt jedes Mitglied 100 Punkte auf seine bevorzugten Optionen. Die Gruppenübersicht zeigt, was allen am wichtigsten ist.",
   "my.title": "Meine Präferenzen",
-  "my.emptyHint": "Füge hinzu, was dir wichtig ist. Du hast 100 Credits zu vergeben.",
+  "my.emptyHint": "Füge hinzu, was dir wichtig ist. Du hast 100 Punkte zu vergeben.",
   "my.placeholder": "z.B. Pool, Strandnähe, Grill...",
   "my.fromOthers": "Vorgeschlagene Optionen",
-  "my.creditsUsed": "Verwendete Credits",
-  "my.exceedsMax": "Gesamte Credits übersteigen 100. Entferne Credits zum Speichern.",
-  "my.zeroCredit": "Jeder Filter benötigt mindestens 1 Credit.",
+  "my.creditsUsed": "Verwendete Punkte",
+  "my.exceedsMax": "Gesamte Punkte übersteigen 100. Entferne Punkte zum Speichern.",
+  "my.zeroCredit": "Jeder Filter benötigt mindestens 1 Punkt.",
   "my.weightPlaceholder": "0",
   "toast.saved": "Präferenzen gespeichert",
   "toast.cleared": "Präferenzen gelöscht",
@@ -51,5 +51,5 @@
   "emptyTopics.organizerSubtitle": "Erstelle Themen, um Präferenzen von deiner Gruppe zu sammeln.",
   "emptyTopics.createButton": "Erstes Thema erstellen",
   "emptyTopics.info.title": "Über Vorarbeit-Themen",
-  "emptyTopics.info.content": "Vorarbeit hilft deiner Gruppe, sich vor der Buchung auf Reisepräferenzen zu einigen. Der Organisator erstellt Themen (z.B. 'Ort', 'Unterkunftsart', 'Reisestil'), dann verteilt jedes Mitglied 100 Credits auf seine bevorzugten Optionen. Die Gruppenübersicht zeigt, was allen am wichtigsten ist — damit Entscheidungen für die ganze Gruppe einfacher werden."
+  "emptyTopics.info.content": "Vorarbeit hilft deiner Gruppe, sich vor der Buchung auf Reisepräferenzen zu einigen. Der Organisator erstellt Themen (z.B. 'Ort', 'Unterkunftsart', 'Reisestil'), dann verteilt jedes Mitglied 100 Punkte auf seine bevorzugten Optionen. Die Gruppenübersicht zeigt, was allen am wichtigsten ist — damit Entscheidungen für die ganze Gruppe einfacher werden."
 }

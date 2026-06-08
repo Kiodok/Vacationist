@@ -13,6 +13,8 @@ interface CreateFlightSheetProps {
   onSubmit: (input: CreateTransferFlightInput) => void;
   isPending: boolean;
   currency: string;
+  tripStartDate?: string;
+  tripEndDate?: string;
 }
 
 function parseMinDate(isoLocal: string | null | undefined): Date | undefined {
@@ -26,7 +28,7 @@ function parseMinDate(isoLocal: string | null | undefined): Date | undefined {
 
 const DIRECTION_ORDER = ['outbound-return', 'outbound', 'return'] as const;
 
-export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, currency }: CreateFlightSheetProps) {
+export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, currency, tripStartDate, tripEndDate }: CreateFlightSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
@@ -211,6 +213,8 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                               }
                             }}
                             placeholder="Date"
+                            minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
+                            maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                           />
                         )}
                       />

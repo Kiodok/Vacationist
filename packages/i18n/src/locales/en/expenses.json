@@ -88,6 +88,8 @@
   "modal.paymentsCount": "{{count}} payment to settle all debts",
   "modal.paymentsCount_other": "{{count}} payments to settle all debts",
   "modal.balanceLine": "paid {{paid}} · owes {{owed}}",
+  "modal.paid": "Paid: {{amount}}",
+  "modal.owes": "Owes: {{amount}}",
   "split.settled": "Settled",
   "split.open": "Open",
   "split.settle": "Settle",

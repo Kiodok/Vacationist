@@ -374,6 +374,7 @@ export default function SettingsTab() {
 
     <NudgeSheet
       tripId={tripId}
+      tripName={trip?.title ?? ''}
       visible={nudgeVisible}
       onClose={() => setNudgeVisible(false)}
     />

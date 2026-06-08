@@ -39,5 +39,12 @@
   "edit.submit": "Änderungen speichern",
   "field.titleLabel": "Titel",
   "field.descriptionLabel": "Beschreibung",
-  "field.servingsLabel": "Portionen"
+  "field.servingsLabel": "Portionen",
+  "card.servings_one": "1 Portion",
+  "card.servings_other": "{{count}} Portionen",
+  "card.ingredients_one": "1 Zutat",
+  "card.ingredients_other": "{{count}} Zutaten",
+  "sheet.addIngredients": "Zutaten hinzufügen",
+  "sheet.adding": "Wird hinzugefügt...",
+  "sheet.recipeDefault": "(Rezept: {{count}})"
 }

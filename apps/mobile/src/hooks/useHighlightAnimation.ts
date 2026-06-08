@@ -18,7 +18,7 @@ export function useHighlightAnimation(highlight: boolean | undefined, borderColo
           Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
           Animated.timing(highlightAnim, { toValue: 0, duration: 300, useNativeDriver: false }),
           Animated.timing(highlightAnim, { toValue: 1, duration: 300, useNativeDriver: false }),
-          Animated.timing(highlightAnim, { toValue: 0, duration: 600, useNativeDriver: false }),
+          Animated.timing(highlightAnim, { toValue: 0, duration: 500, useNativeDriver: false }),
         ]).start();
       }, 500);
       return () => clearTimeout(timer);

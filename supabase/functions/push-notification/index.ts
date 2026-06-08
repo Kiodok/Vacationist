@@ -4,64 +4,87 @@ const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
 // ── i18n translation map for push notification types ─────────────────────────
 // Maps notification_type → locale → { title, body }
-// When a type is not found the caller-supplied title/body is used as fallback.
+// Body templates support {{entity}}, {{trip}}, {{creator}} placeholders.
 type NotifTranslation = { title: string; body: string };
 type LocaleTranslations = Record<string, NotifTranslation>;
 const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
   new_activity: {
-    en: { title: 'New activity added', body: 'A new activity was added to your trip.' },
-    de: { title: 'Neue Aktivität', body: 'Eine neue Aktivität wurde zu deiner Reise hinzugefügt.' },
+    en: { title: 'New activity added', body: '{{creator}} added "{{entity}}" to "{{trip}}".' },
+    de: { title: 'Neue Aktivität', body: '{{creator}} hat "{{entity}}" zu "{{trip}}" hinzugefügt.' },
   },
   vote_finalized: {
-    en: { title: 'Vote finalized', body: 'The vote on an activity has been finalized.' },
-    de: { title: 'Abstimmung abgeschlossen', body: 'Die Abstimmung über eine Aktivität wurde abgeschlossen.' },
+    en: { title: 'Voting finalized', body: 'Voting is closed for "{{entity}}" in "{{trip}}".' },
+    de: { title: 'Abstimmung abgeschlossen', body: 'Die Abstimmung zu "{{entity}}" in "{{trip}}" ist abgeschlossen.' },
   },
   vote_update: {
-    en: { title: 'Vote result', body: 'The group has voted on an activity.' },
-    de: { title: 'Abstimmungsergebnis', body: 'Die Gruppe hat über eine Aktivität abgestimmt.' },
+    en: { title: 'Vote result', body: 'The group has voted on "{{entity}}".' },
+    de: { title: 'Abstimmungsergebnis', body: 'Die Gruppe hat über "{{entity}}" abgestimmt.' },
   },
   expense_change: {
-    en: { title: 'Expense update', body: 'An expense has been updated on your trip.' },
-    de: { title: 'Ausgabe aktualisiert', body: 'Eine Ausgabe auf deiner Reise wurde aktualisiert.' },
+    en: { title: 'New expense added', body: '{{creator}} added "{{entity}}" to "{{trip}}".' },
+    de: { title: 'Neue Ausgabe', body: '{{creator}} hat "{{entity}}" zu "{{trip}}" hinzugefügt.' },
   },
   new_member: {
-    en: { title: 'New member joined', body: 'Someone new has joined your trip.' },
-    de: { title: 'Neues Mitglied', body: 'Jemand Neues ist deiner Reise beigetreten.' },
+    en: { title: 'New member joined', body: '{{creator}} is now part of "{{trip}}".' },
+    de: { title: 'Neues Mitglied', body: '{{creator}} ist jetzt Teil von "{{trip}}".' },
   },
   schedule_change: {
-    en: { title: 'Schedule changed', body: 'An activity time on your trip has changed.' },
-    de: { title: 'Zeitplan geändert', body: 'Die Zeit einer Aktivität auf deiner Reise hat sich geändert.' },
+    en: { title: 'Schedule updated', body: '"{{entity}}" in "{{trip}}" has been rescheduled.' },
+    de: { title: 'Zeitplan geändert', body: '"{{entity}}" in "{{trip}}" wurde neu geplant.' },
   },
-  // 'reminder' is also used for organizer nudges (send_organizer_nudge inserts type='reminder').
+  // 'reminder' is also used for organizer nudges — body comes from DB (already localized by client).
   reminder: {
     en: { title: 'Friendly nudge 👋', body: 'Your organizer wants you to check the open votes.' },
-    de: { title: 'Freundliche Erinnerung 👋', body: 'Dein Organisator möchte, dass du die offenen Abstimmungen prüfst.' },
+    de: { title: 'Freundlicher Anstoß 👋', body: 'Dein Organisator möchte, dass du die offenen Abstimmungen prüfst.' },
   },
   lost_found: {
-    en: { title: 'Lost or Found', body: 'A lost or found item was reported on your trip.' },
-    de: { title: 'Fundbüro', body: 'Ein verlorener oder gefundener Gegenstand wurde auf deiner Reise gemeldet.' },
+    en: { title: 'Lost or Found', body: '{{creator}} reported "{{entity}}" in "{{trip}}".' },
+    de: { title: 'Fundbüro', body: '{{creator}} hat "{{entity}}" in "{{trip}}" gemeldet.' },
   },
   shared_packing: {
-    en: { title: 'Shared packing update', body: 'A shared packing item was updated on your trip.' },
-    de: { title: 'Gemeinsame Packliste', body: 'Ein gemeinsamer Packlisteneintrag wurde auf deiner Reise aktualisiert.' },
+    en: { title: 'Shared packing update', body: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".' },
+    de: { title: 'Gemeinsame Packliste', body: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.' },
   },
 };
+
+interface NotifContext {
+  entity?: string | null;
+  trip?: string | null;
+  creator?: string | null;
+}
+
+function interpolate(template: string, ctx: NotifContext): string {
+  return template
+    .replaceAll('{{entity}}', ctx.entity ?? '')
+    .replaceAll('{{trip}}', ctx.trip ?? '')
+    .replaceAll('{{creator}}', ctx.creator ?? '');
+}
 
 function translateNotification(
   type: string,
   locale: string,
   fallbackTitle: string,
   dbBody: string | null,
+  context?: NotifContext,
 ): { title: string; body: string } {
   const lang = locale?.split('-')[0] ?? 'en';
   const map = NOTIFICATION_TRANSLATIONS[type];
   const translated = map ? (map[lang] ?? map['en']) : null;
-  return {
-    title: translated?.title ?? fallbackTitle,
-    // Prefer the DB body — it contains contextual details (trip/entity names).
-    // Fall back to the translated body only when the DB body is absent.
-    body: dbBody ?? translated?.body ?? '',
-  };
+
+  const title = translated?.title ?? fallbackTitle;
+
+  // Use the translated template with interpolation only when meaningful context is available.
+  // For 'reminder' (nudges) the DB body is already translated by the client, so always prefer it.
+  const hasContext = context && (context.entity != null || context.trip != null || context.creator != null);
+  let body: string;
+  if (hasContext && translated?.body && type !== 'reminder') {
+    body = interpolate(translated.body, context!);
+  } else {
+    // Fall back to the raw DB body (English contextual string) when no context is available.
+    body = dbBody ?? translated?.body ?? '';
+  }
+
+  return { title, body };
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -82,6 +105,9 @@ interface SingleNotificationPayload {
   body: string | null;
   related_type: string | null;
   related_id: string | null;
+  context_entity?: string | null;
+  context_trip?: string | null;
+  context_creator?: string | null;
 }
 
 interface BatchNotificationPayload {
@@ -94,6 +120,9 @@ interface BatchNotificationPayload {
   related_id: string | null;
   notification_ids: string[];
   user_ids: string[];
+  context_entity?: string | null;
+  context_trip?: string | null;
+  context_creator?: string | null;
 }
 
 type NotificationPayload = SingleNotificationPayload | BatchNotificationPayload;
@@ -210,6 +239,11 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
     locale,
     payload.title,
     payload.body,
+    {
+      entity: payload.context_entity,
+      trip: payload.context_trip,
+      creator: payload.context_creator,
+    },
   );
 
   const { data: tokens } = await supabase
@@ -258,7 +292,12 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
 }
 
 async function handleBatch(payload: BatchNotificationPayload): Promise<Response> {
-  const { trip_id, type, title, body, related_type, related_id, notification_ids, user_ids } = payload;
+  const {
+    trip_id, type, title, body, related_type, related_id,
+    notification_ids, user_ids,
+    context_entity, context_trip, context_creator,
+  } = payload;
+  const context: NotifContext = { entity: context_entity, trip: context_trip, creator: context_creator };
 
   if (user_ids.length === 0) return jsonResponse({ sent: 0, reason: 'no_recipients' });
 
@@ -306,7 +345,7 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
   const rawTokens = typedTokens.map((t) => t.push_token);
   const messages: ExpoPushMessage[] = typedTokens.map(({ push_token, user_id }, idx) => {
     const locale = localeMap.get(user_id) ?? 'en';
-    const translated = translateNotification(type, locale, title, body);
+    const translated = translateNotification(type, locale, title, body, context);
     return {
       to: rawTokens[idx],
       title: translated.title,

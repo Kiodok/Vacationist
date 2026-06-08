@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@vacationist/ui';
 
 interface ShoppingListCardProps {
@@ -11,6 +12,7 @@ interface ShoppingListCardProps {
 }
 
 export function ShoppingListCard({ title, itemCount, boughtCount, onPress, onLongPress }: ShoppingListCardProps) {
+  const { t } = useTranslation('shopping');
   const progress = itemCount > 0 ? boughtCount / itemCount : 0;
   const allDone = itemCount > 0 && boughtCount === itemCount;
 
@@ -28,10 +30,10 @@ export function ShoppingListCard({ title, itemCount, boughtCount, onPress, onLon
           </Text>
           <Text className="text-body-small text-text-secondary mt-xs">
             {itemCount === 0
-              ? 'No items'
+              ? t('card.noItems')
               : allDone
-                ? 'All done!'
-                : `${boughtCount}/${itemCount} bought`}
+                ? t('card.allDone')
+                : t('card.progress', { bought: boughtCount, total: itemCount })}
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />

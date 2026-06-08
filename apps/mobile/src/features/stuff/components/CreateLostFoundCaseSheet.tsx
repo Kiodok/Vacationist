@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, ScrollView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
@@ -31,6 +32,13 @@ export function CreateLostFoundCaseSheet({ visible, members, currentUserId, onCl
     resolver: zodResolver(createLostFoundCaseSchema),
     defaultValues: { case_type: 'lost_unknown', title: '', description: null, target_user: null },
   });
+
+  // Reset form when sheet is hidden (e.g. after successful creation closes the modal).
+  useEffect(() => {
+    if (!visible) {
+      reset({ case_type: 'lost_unknown', title: '', description: null, target_user: null });
+    }
+  }, [visible]);
 
   const selectedCaseType = watch('case_type');
   const needsTargetUser = selectedCaseType === 'lost_known' || selectedCaseType === 'found_owner_known';
@@ -81,7 +89,11 @@ export function CreateLostFoundCaseSheet({ visible, members, currentUserId, onCl
                       return (
                         <Pressable
                           key={type}
-                          onPress={() => { setValue('case_type', type); if (!needsTargetUser) setValue('target_user', null); }}
+                          onPress={() => {
+                            setValue('case_type', type);
+                            const newNeedsTarget = type === 'lost_known' || type === 'found_owner_known';
+                            if (!newNeedsTarget) setValue('target_user', null);
+                          }}
                           className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
                           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                         >

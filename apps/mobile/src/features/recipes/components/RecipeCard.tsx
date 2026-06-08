@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
 
 interface RecipeCardProps {
@@ -21,6 +22,7 @@ export function RecipeCard({
   onPress,
   onLongPress,
 }: RecipeCardProps) {
+  const { t } = useTranslation('recipes');
   return (
     <Pressable
       onPress={onPress}
@@ -42,13 +44,13 @@ export function RecipeCard({
             <View className="flex-row items-center gap-xs">
               <Ionicons name="people-outline" size={14} color={METADATA_ICON_COLORS.people.color} />
               <Text className="text-body-small text-text-secondary">
-                {servings} serving{servings !== 1 ? 's' : ''}
+                {t('card.servings', { count: servings })}
               </Text>
             </View>
             <View className="flex-row items-center gap-xs">
               <Ionicons name="list-outline" size={14} color={METADATA_ICON_COLORS.list.color} />
               <Text className="text-body-small text-text-secondary">
-                {ingredientCount} ingredient{ingredientCount !== 1 ? 's' : ''}
+                {t('card.ingredients', { count: ingredientCount })}
               </Text>
             </View>
             {shoppingListNames.length > 0 && (

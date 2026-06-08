@@ -1,8 +1,9 @@
-import { View, Text, Pressable } from 'react-native';
+import { Animated, Platform, Pressable, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
 import type { TripNote } from '@vacationist/types';
+import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface NoteCardProps {
   note: TripNote;
@@ -10,14 +11,22 @@ interface NoteCardProps {
   onPress: () => void;
   onToggleDone: () => void;
   onLongPress?: () => void;
+  highlight?: boolean;
 }
 
-export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress }: NoteCardProps) {
+export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress, highlight }: NoteCardProps) {
+  const baseBorderColor = note.is_done ? 'rgba(62,207,142,0.3)' : colors.border;
+  const { animatedBorderColor } = useHighlightAnimation(highlight, baseBorderColor);
+
   return (
+    <Animated.View
+      className="bg-surface rounded-md"
+      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+    >
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
-      className={`bg-surface border rounded-md p-md gap-xs ${note.is_done ? 'border-success/30' : 'border-border'}`}
+      className="p-md gap-xs"
       style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
     >
       <View className="flex-row items-start justify-between">
@@ -54,5 +63,6 @@ export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress 
         <Text className="text-label text-text-muted">{dayjs(note.updated_at).fromNow()}</Text>
       </View>
     </Pressable>
+    </Animated.View>
   );
 }

@@ -29,6 +29,16 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
   const [editingItem, setEditingItem] = useState<PackingItem | null>(null);
   const [actionItemId, setActionItemId] = useState<string | null>(null);
 
+  // Distinct custom category names used by the current user's items.
+  const usedCustomCategories = useMemo(() => {
+    if (!items) return [];
+    const seen = new Set<string>();
+    for (const item of items) {
+      if (!SEEDED_CATEGORY_I18N[item.category]) seen.add(item.category);
+    }
+    return Array.from(seen).sort();
+  }, [items]);
+
   // All unpacked items grouped by category, then ONE packed section at the bottom.
   const sections = useMemo(() => {
     if (!items || items.length === 0) return [];
@@ -182,6 +192,7 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
       <CreatePackingItemSheet
         visible={showCreate}
         categories={categories}
+        usedCustomCategories={usedCustomCategories}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
         isPending={createItem.isPending}
