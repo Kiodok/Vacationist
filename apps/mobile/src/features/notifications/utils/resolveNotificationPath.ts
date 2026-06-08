@@ -12,9 +12,9 @@ export function resolveNotificationPath(
       return `/trip/${trip_id}?tab=Activities`;
     case 'vote_finalized':
     case 'vote_update':
-      return related_type === 'accommodation'
-        ? `/trip/${trip_id}?tab=Base`
-        : `/trip/${trip_id}?tab=Activities`;
+      if (related_type === 'accommodation') return `/trip/${trip_id}?tab=Base`;
+      if (related_type === 'transfer_flight') return `/trip/${trip_id}?tab=Transfer`;
+      return `/trip/${trip_id}?tab=Activities`;
     case 'expense_change':
       return `/trip/${trip_id}?tab=Expenses`;
     case 'new_member':

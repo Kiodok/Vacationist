@@ -51,12 +51,17 @@ function translateNotification(
   type: string,
   locale: string,
   fallbackTitle: string,
-  fallbackBody: string,
+  dbBody: string | null,
 ): { title: string; body: string } {
   const lang = locale?.split('-')[0] ?? 'en';
   const map = NOTIFICATION_TRANSLATIONS[type];
-  if (!map) return { title: fallbackTitle, body: fallbackBody };
-  return map[lang] ?? map['en'] ?? { title: fallbackTitle, body: fallbackBody };
+  const translated = map ? (map[lang] ?? map['en']) : null;
+  return {
+    title: translated?.title ?? fallbackTitle,
+    // Prefer the DB body — it contains contextual details (trip/entity names).
+    // Fall back to the translated body only when the DB body is absent.
+    body: dbBody ?? translated?.body ?? '',
+  };
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -204,7 +209,7 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
     payload.type,
     locale,
     payload.title,
-    payload.body ?? '',
+    payload.body,
   );
 
   const { data: tokens } = await supabase
@@ -301,7 +306,7 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
   const rawTokens = typedTokens.map((t) => t.push_token);
   const messages: ExpoPushMessage[] = typedTokens.map(({ push_token, user_id }, idx) => {
     const locale = localeMap.get(user_id) ?? 'en';
-    const translated = translateNotification(type, locale, title, body ?? '');
+    const translated = translateNotification(type, locale, title, body);
     return {
       to: rawTokens[idx],
       title: translated.title,
