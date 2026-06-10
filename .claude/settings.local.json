@@ -126,7 +126,8 @@
       "WebFetch(domain:appupgrade.dev)",
       "WebFetch(domain:imighty.hashnode.dev)",
       "WebFetch(domain:www.thedevpost.com)",
-      "Bash(git show *)"
+      "Bash(git show *)",
+      "Bash(npx vitest *)"
     ]
   },
   "model": "opusplan",

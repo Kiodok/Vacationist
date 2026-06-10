@@ -379,6 +379,9 @@ export interface Notification {
   is_read: boolean;
   push_sent_at: string | null;
   created_at: string;
+  context_entity: string | null;
+  context_trip: string | null;
+  context_creator: string | null;
 }
 
 export interface NotificationPreference {

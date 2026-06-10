@@ -133,7 +133,7 @@
   "all.status.booked": "Gebucht",
   "all.status.done": "Fertig",
   "all.direction.outPrefix": "Hin:",
-  "all.direction.retPrefix": "Rück:",
+  "all.direction.retPrefix": "Zurück:",
   "flight.winner": "Gewählt",
   "vote.button": "Abstimmen",
   "vote.showCount_one": "1 Stimme anzeigen",

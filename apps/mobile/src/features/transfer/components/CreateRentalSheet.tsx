@@ -157,7 +157,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                           mode="date"
                           value={value ?? null}
                           onChange={onChange}
-                          placeholder="Select date"
+                          placeholder={tCommon('placeholder.selectDate')}
                           minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
                           maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                         />
@@ -174,7 +174,7 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                           mode="date"
                           value={value ?? null}
                           onChange={onChange}
-                          placeholder="Select date"
+                          placeholder={tCommon('placeholder.selectDate')}
                           minimumDate={pickupDate ? new Date(pickupDate + 'T00:00:00') : (tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined)}
                           maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                         />

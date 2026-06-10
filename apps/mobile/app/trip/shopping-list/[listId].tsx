@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -20,6 +21,8 @@ export default function ShoppingListDetail() {
   const { listId, tripId } = useLocalSearchParams<{ listId: string; tripId: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const { t } = useTranslation('shopping');
+  const { t: tCommon } = useTranslation('common');
 
   const goBackToTrip = () => {
     if (Platform.OS === 'web') {
@@ -95,8 +98,8 @@ export default function ShoppingListDetail() {
           {items && items.length > 0 && (
             <Text className="text-body-small text-text-secondary">
               {items.filter((i) => i.status === 'bought').length === items.length
-                ? 'All done!'
-                : `${items.filter((i) => i.status === 'bought').length}/${items.length} bought`}
+                ? t('card.allDone')
+                : t('card.progress', { bought: items.filter((i) => i.status === 'bought').length, total: items.length })}
             </Text>
           )}
         </View>
@@ -139,7 +142,7 @@ export default function ShoppingListDetail() {
 
       {confirmDeleteList && (
         <View className="flex-row items-center justify-center gap-sm px-md py-sm bg-surface border-b border-border">
-          <Text className="text-text-secondary text-body-small">Delete this entire list?</Text>
+          <Text className="text-text-secondary text-body-small">{t('confirm.deleteList')}</Text>
           <Pressable
             onPress={() => {
               deleteList.mutate({ listId: listId!, tripId: tripId! }, { onSuccess: () => goBackToTrip() });
@@ -147,13 +150,13 @@ export default function ShoppingListDetail() {
             }}
             className="px-md py-xs rounded-sm bg-danger/20"
           >
-            <Text className="text-danger text-body-small font-semibold">Yes, delete</Text>
+            <Text className="text-danger text-body-small font-semibold">{t('confirm.deleteYes')}</Text>
           </Pressable>
           <Pressable
             onPress={() => setConfirmDeleteList(false)}
             className="px-md py-xs rounded-sm"
           >
-            <Text className="text-text-secondary text-body-small">Cancel</Text>
+            <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
           </Pressable>
         </View>
       )}
@@ -176,7 +179,7 @@ export default function ShoppingListDetail() {
               <View className="flex-1 items-center justify-center px-xl gap-sm">
                 <Ionicons name="basket-outline" size={40} color="#5C5C5C" />
                 <Text className="text-body text-text-secondary text-center">
-                  No items yet. Add one below.
+                  {t('list.emptyItems')}
                 </Text>
               </View>
             }

@@ -40,7 +40,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
       >
       <View className="flex-row items-start justify-between">
         <View className="flex-1 gap-xs">
-          <Text className="text-body text-text-primary font-semibold" numberOfLines={1}>
+          <Text className="text-body text-text-primary font-semibold" numberOfLines={2}>
             {activity.title}
           </Text>
           {activity.category ? (

@@ -53,8 +53,8 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
             <Ionicons name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
             <Text className="text-body-small text-text-secondary">
               {[
-                rental.pickup_date ? dayjs(rental.pickup_date).format('D MMM') : null,
-                rental.dropoff_date ? dayjs(rental.dropoff_date).format('D MMM') : null,
+                rental.pickup_date && dayjs(rental.pickup_date).isValid() ? dayjs(rental.pickup_date).format('D MMM') : null,
+                rental.dropoff_date && dayjs(rental.dropoff_date).isValid() ? dayjs(rental.dropoff_date).format('D MMM') : null,
               ].filter(Boolean).join(' – ')}
             </Text>
           </View>

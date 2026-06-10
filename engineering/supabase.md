@@ -8,6 +8,44 @@
 
 ---
 
+## 2026-06-10 — Bug Fix Batch: Auto-close Voting, Lost & Found, Push Context
+
+### Migration: `20260610100000_fix_activity_auto_close_trigger_depth`
+
+**Why:** Migration `20260531100000` recreated `check_activity_update_permissions` to guard `auto_close` but dropped the `pg_trigger_depth() > 1` bypass from `20260513000001`. When `auto_finalize_activity_voting()` (at trigger depth 1) set `voting_open=FALSE`, the permission check fired at depth 2 with `auth.uid()` = the voter (not organizer) → exception. Also fixed the "already voted but auto_close toggled ON after the fact" edge case.
+
+**Changes:**
+- Recreated `check_activity_update_permissions` with `pg_trigger_depth() > 1` bypass restored
+- Added `retroactive_auto_close_activity` BEFORE UPDATE trigger: when organizer sets `auto_close=TRUE` and all members have already voted, closes voting immediately in the same statement
+
+---
+
+### Migration: `20260610110000_lost_found_notification_improvements`
+
+**Why:** When a lost/found case had `target_user IS NOT NULL` (e.g. "found item, owner known"), only the owner received a notification — other trip members were silently excluded. Also, no notification was sent when a case was resolved.
+
+**Changes:**
+- Rewrote `notify_new_lost_found_case()`: when `target_user IS NOT NULL`, sends a targeted personal notification to the owner AND broadcasts a general notification to all other members (excluding creator and owner)
+- Added `notify_lost_found_resolved()` AFTER UPDATE trigger: when `is_resolved` changes FALSE→TRUE, broadcasts a resolution notification to all trip members
+
+---
+
+### Migration: `20260610120000_fix_dispatch_polling_context`
+
+**Why:** `dispatch_pending_push_notifications()` (from `20260527000001`) selected only 9 notification columns — missing `context_entity`, `context_trip`, `context_creator` added in `20260608200000`. Notifications dispatched via polling (all trigger-sourced ones) were delivered without translation context, so the edge function always fell back to English. `create_trip_reminders()` also didn't pass `context_trip`, so trip-reminder push bodies couldn't be translated per-user.
+
+**Changes:**
+- Recreated `dispatch_pending_push_notifications()` to SELECT and forward all three context columns in HTTP payload
+- Recreated `create_trip_reminders()` to pass `context_trip = v_trip.title` to `create_trip_notification`
+
+**Edge function update** (`supabase/functions/push-notification/index.ts`):
+- Updated `reminder` translation template to trip-reminder text (`"Trip reminder"` / `"Reiseerinnerung"`)
+- `translateNotification` now distinguishes nudges from trip reminders by checking `context?.trip`: nudges (no context) use DB title/body as-is; trip reminders (context_trip set) use the translated template
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) + prod (`fsfsqghbejwvgxujoyne`). Edge function deployed to both.
+
+---
+
 ## 2026-06-03 — Activity Notes Feature
 
 ### Migrations: `20260603100000_create_activity_notes` + `20260603100001_fix_activity_notes_trip_id_nullable`

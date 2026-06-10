@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Modal, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, Modal, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from "react-i18next";
@@ -17,21 +17,29 @@ interface NudgeSheetProps {
 export function NudgeSheet({ tripId, tripName, visible, onClose }: NudgeSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('notifications');
+  const { t: tCommon } = useTranslation('common');
   const { mutate: sendNudge, isPending } = useSendNudge(tripId);
 
   const handleSelect = (key: string) => {
     const title = (i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.title`, { tripName });
     const body = (i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.body`, { tripName });
-    sendNudge(
-      { title, body },
-      { onSuccess: onClose },
+    Alert.alert(
+      t('nudge.confirmTitle'),
+      t('nudge.confirmBody'),
+      [
+        { text: tCommon('button.cancel'), style: 'cancel' },
+        {
+          text: t('nudge.confirmSend'),
+          onPress: () => sendNudge({ title, body }, { onSuccess: onClose }),
+        },
+      ],
     );
   };
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-surface rounded-t-2xl">
+        <View className="bg-surface rounded-t-2xl" style={{ maxHeight: '70%' }}>
           <View className="flex-row items-center justify-between px-lg pt-lg pb-md border-b border-border">
             <Text className="text-heading-s text-text-primary">{t('nudge.sheetTitle')}</Text>
             <Pressable onPress={onClose} hitSlop={8}>

@@ -13,7 +13,7 @@ export function StatusIndicator({ status, votingOpen }: StatusIndicatorProps) {
     return (
       <View className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10">
         <View className="w-[6px] h-[6px] rounded-full bg-primary" />
-        <Text className="text-primary text-label font-medium">{t('status.voting')}</Text>
+        <Text className="text-primary text-label font-medium" numberOfLines={1}>{t('status.voting')}</Text>
       </View>
     );
   }
@@ -30,7 +30,7 @@ export function StatusIndicator({ status, votingOpen }: StatusIndicatorProps) {
 
   return (
     <View className={`px-sm py-xs rounded-full ${cfg.bg}`}>
-      <Text className={`${cfg.text} text-label font-medium`}>{t(`status.${status}`, { defaultValue: status })}</Text>
+      <Text className={`${cfg.text} text-label font-medium`} numberOfLines={1}>{t(`status.${status}`, { defaultValue: status })}</Text>
     </View>
   );
 }

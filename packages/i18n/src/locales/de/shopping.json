@@ -37,5 +37,6 @@
   "toast.listDeleteFailed": "Liste konnte nicht gelöscht werden.",
   "toast.itemAddFailed": "Artikel konnte nicht hinzugefügt werden.",
   "toast.itemUpdateFailed": "Artikel konnte nicht aktualisiert werden.",
-  "toast.itemDeleteFailed": "Artikel konnte nicht gelöscht werden."
+  "toast.itemDeleteFailed": "Artikel konnte nicht gelöscht werden.",
+  "list.emptyItems": "Noch keine Artikel. Füge unten einen hinzu."
 }

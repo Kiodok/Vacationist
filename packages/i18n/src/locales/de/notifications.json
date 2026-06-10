@@ -1,6 +1,6 @@
 {
-  "screen.title": "Benachrichtigungen",
-  "markAllRead": "Alle als gelesen markieren",
+  "screen.title": "Nachrichten",
+  "markAllRead": "Alle lesen",
   "marking": "Wird markiert…",
   "deleteAll": "Alle löschen",
   "deleting": "Wird gelöscht…",
@@ -43,5 +43,8 @@
   "type.schedule_change": "Zeitplan aktualisiert",
   "type.reminder": "Erinnerung",
   "type.vote_finalized": "Abstimmung abgeschlossen",
-  "type.document_access_request": "Dokumentenzugriffsanfrage"
+  "type.document_access_request": "Dokumentenzugriffsanfrage",
+  "nudge.confirmTitle": "Anstoß senden?",
+  "nudge.confirmBody": "Alle Reiseteilnehmer erhalten eine Push-Benachrichtigung.",
+  "nudge.confirmSend": "Senden"
 }

@@ -43,5 +43,8 @@
   "type.schedule_change": "Schedule updated",
   "type.reminder": "Reminder",
   "type.vote_finalized": "Voting finalized",
-  "type.document_access_request": "Document access request"
+  "type.document_access_request": "Document access request",
+  "nudge.confirmTitle": "Send nudge?",
+  "nudge.confirmBody": "This will send a push notification to all trip members.",
+  "nudge.confirmSend": "Send"
 }

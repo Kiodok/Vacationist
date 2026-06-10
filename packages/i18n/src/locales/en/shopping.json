@@ -37,5 +37,6 @@
   "toast.listDeleteFailed": "Failed to delete list.",
   "toast.itemAddFailed": "Failed to add item.",
   "toast.itemUpdateFailed": "Failed to update item.",
-  "toast.itemDeleteFailed": "Failed to delete item."
+  "toast.itemDeleteFailed": "Failed to delete item.",
+  "list.emptyItems": "No items yet. Add one below."
 }

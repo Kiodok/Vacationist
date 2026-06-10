@@ -33,10 +33,14 @@
   "notFound.link": "Zur Startseite",
   "tab.trips": "Reisen",
   "tab.calendar": "Kalender",
-  "tab.notifications": "Benachrichtigungen",
+  "tab.notifications": "Nachrichten",
   "tab.profile": "Profil",
   "forceUpdate.title": "Update erforderlich",
   "forceUpdate.message": "Eine neue Version von Vacationist ist verfügbar. Bitte aktualisiere die App, um fortzufahren.",
   "forceUpdate.button": "Jetzt aktualisieren",
-  "button.info": "Info"
+  "button.info": "Info",
+  "placeholder.date": "Datum",
+  "placeholder.time": "Uhrzeit",
+  "placeholder.selectDate": "Datum wählen",
+  "placeholder.selectTime": "Uhrzeit wählen"
 }

@@ -44,7 +44,7 @@ export function RecipeCard({
             <View className="flex-row items-center gap-xs">
               <Ionicons name="people-outline" size={14} color={METADATA_ICON_COLORS.people.color} />
               <Text className="text-body-small text-text-secondary">
-                {t('card.servings', { count: servings })}
+                {t('card.servings', { count: Number(servings) })}
               </Text>
             </View>
             <View className="flex-row items-center gap-xs">

@@ -108,12 +108,12 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                       <Pressable
                         key={dir}
                         onPress={() => setValue('direction', dir)}
-                        className={`flex-1 items-center py-sm rounded-sm border ${
+                        className={`flex-1 items-center justify-center py-sm rounded-sm border min-h-[44px] ${
                           direction === dir ? 'bg-primary border-primary' : 'bg-surface border-border'
                         }`}
                         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                       >
-                        <Text className={`text-body-small font-medium ${direction === dir ? 'text-white' : 'text-text-secondary'}`}>
+                        <Text className={`text-body-small font-medium text-center ${direction === dir ? 'text-white' : 'text-text-secondary'}`}>
                           {dir === 'outbound-return' ? t('direction.both') : dir === 'outbound' ? t('direction.outbound') : t('direction.return')}
                         </Text>
                       </Pressable>
@@ -212,7 +212,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                                 setValue('arrival_time', `${date}T00:00`);
                               }
                             }}
-                            placeholder="Date"
+                            placeholder={tCommon('placeholder.date')}
                             minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
                             maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                           />
@@ -231,7 +231,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                               const date = value?.split('T')[0] ?? null;
                               onChange(date && time ? `${date}T${time}` : null);
                             }}
-                            placeholder="Time"
+                            placeholder={tCommon('placeholder.time')}
                           />
                         )}
                       />
@@ -255,8 +255,9 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                               const time = value?.split('T')[1] ?? null;
                               onChange(date && time ? `${date}T${time}` : date ? `${date}T00:00` : null);
                             }}
-                            placeholder="Date"
+                            placeholder={tCommon('placeholder.date')}
                             minimumDate={parseMinDate(departureTime)}
+                            maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                           />
                         )}
                       />
@@ -273,7 +274,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                               const date = value?.split('T')[0] ?? null;
                               onChange(date && time ? `${date}T${time}` : null);
                             }}
-                            placeholder="Time"
+                            placeholder={tCommon('placeholder.time')}
                           />
                         )}
                       />
@@ -350,8 +351,9 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                                     setValue('return_arrival_time', `${date}T00:00`);
                                   }
                                 }}
-                                placeholder="Date"
+                                placeholder={tCommon('placeholder.date')}
                                 minimumDate={parseMinDate(arrivalTime)}
+                                maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                               />
                             )}
                           />
@@ -368,7 +370,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                                   const date = value?.split('T')[0] ?? null;
                                   onChange(date && time ? `${date}T${time}` : null);
                                 }}
-                                placeholder="Time"
+                                placeholder={tCommon('placeholder.time')}
                               />
                             )}
                           />
@@ -395,8 +397,9 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                                   const time = value?.split('T')[1] ?? null;
                                   onChange(date && time ? `${date}T${time}` : date ? `${date}T00:00` : null);
                                 }}
-                                placeholder="Date"
+                                placeholder={tCommon('placeholder.date')}
                                 minimumDate={parseMinDate(returnDepartureTime)}
+                                maximumDate={tripEndDate ? new Date(tripEndDate + 'T23:59:59') : undefined}
                               />
                             )}
                           />
@@ -413,7 +416,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                                   const date = value?.split('T')[0] ?? null;
                                   onChange(date && time ? `${date}T${time}` : null);
                                 }}
-                                placeholder="Time"
+                                placeholder={tCommon('placeholder.time')}
                               />
                             )}
                           />

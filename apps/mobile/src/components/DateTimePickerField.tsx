@@ -29,8 +29,11 @@ const LOCALE_MAP: Record<string, string> = {
 };
 
 function formatDateDisplay(dateStr: string): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
+  const parts = dateStr.split('-').map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return dateStr;
+  const [y, m, d] = parts;
   const date = new Date(y, m - 1, d);
+  if (isNaN(date.getTime())) return dateStr;
   const locale = LOCALE_MAP[i18n.language] ?? 'en-US';
   return date.toLocaleDateString(locale, {
     month: 'short',
@@ -85,7 +88,7 @@ export function DateTimePickerField({
 }: DateTimePickerFieldProps) {
   const [show, setShow] = useState(false);
   const webInputRef = useRef<HTMLInputElement>(null);
-  const defaultPlaceholder = mode === 'date' ? 'Select date' : 'Select time';
+  const defaultPlaceholder = mode === 'date' ? i18n.t('common:placeholder.selectDate') : i18n.t('common:placeholder.selectTime');
   const displayPlaceholder = placeholder ?? defaultPlaceholder;
 
   if (Platform.OS === 'web') {
@@ -217,7 +220,7 @@ export function DateTimePickerField({
             >
               <View className="flex-row justify-between items-center mb-sm">
                 <Pressable onPress={() => setShow(false)}>
-                  <Text className="text-text-secondary text-body">Cancel</Text>
+                  <Text className="text-text-secondary text-body">{i18n.t('common:button.cancel')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => {
@@ -229,7 +232,7 @@ export function DateTimePickerField({
                     );
                   }}
                 >
-                  <Text className="text-primary text-body font-semibold">Done</Text>
+                  <Text className="text-primary text-body font-semibold">{i18n.t('common:button.done')}</Text>
                 </Pressable>
               </View>
               <RNDateTimePicker

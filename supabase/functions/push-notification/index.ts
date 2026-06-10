@@ -32,10 +32,11 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Schedule updated', body: '"{{entity}}" in "{{trip}}" has been rescheduled.' },
     de: { title: 'Zeitplan geändert', body: '"{{entity}}" in "{{trip}}" wurde neu geplant.' },
   },
-  // 'reminder' is also used for organizer nudges — body comes from DB (already localized by client).
+  // 'reminder' covers both trip reminders (context_trip set) and organizer nudges (no context).
+  // The translateNotification function uses context_trip presence to distinguish them.
   reminder: {
-    en: { title: 'Friendly nudge 👋', body: 'Your organizer wants you to check the open votes.' },
-    de: { title: 'Freundlicher Anstoß 👋', body: 'Dein Organisator möchte, dass du die offenen Abstimmungen prüfst.' },
+    en: { title: 'Trip reminder', body: 'Your trip "{{trip}}" starts soon. Time to get ready!' },
+    de: { title: 'Reiseerinnerung', body: 'Deine Reise "{{trip}}" beginnt bald. Zeit, sich fertig zu machen!' },
   },
   lost_found: {
     en: { title: 'Lost or Found', body: '{{creator}} reported "{{entity}}" in "{{trip}}".' },
@@ -44,6 +45,13 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
   shared_packing: {
     en: { title: 'Shared packing update', body: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".' },
     de: { title: 'Gemeinsame Packliste', body: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.' },
+  },
+  // Virtual key for i_got_it notifications — they reuse DB type='shared_packing' but
+  // their body starts with 'For "', which we detect below to pick the right template.
+  // Keep in sync with BODY_TEMPLATES in apps/mobile/src/features/notifications/components/NotificationItem.tsx.
+  shared_packing_self: {
+    en: { title: 'Shared packing update', body: '{{creator}} is bringing "{{entity}}" for "{{trip}}".' },
+    de: { title: 'Gemeinsame Packliste', body: '{{creator}} bringt "{{entity}}" für "{{trip}}".' },
   },
 };
 
@@ -68,19 +76,33 @@ function translateNotification(
   context?: NotifContext,
 ): { title: string; body: string } {
   const lang = locale?.split('-')[0] ?? 'en';
-  const map = NOTIFICATION_TRANSLATIONS[type];
+
+  // i_got_it shared packing notifications reuse DB type='shared_packing' but their body
+  // starts with 'For "' — route them to the dedicated template so we don't incorrectly
+  // say the item was added "for everyone".
+  const effectiveType =
+    type === 'shared_packing' && dbBody?.startsWith('For "') ? 'shared_packing_self' : type;
+
+  const map = NOTIFICATION_TRANSLATIONS[effectiveType];
   const translated = map ? (map[lang] ?? map['en']) : null;
 
-  const title = translated?.title ?? fallbackTitle;
-
-  // Use the translated template with interpolation only when meaningful context is available.
-  // For 'reminder' (nudges) the DB body is already translated by the client, so always prefer it.
   const hasContext = context && (context.entity != null || context.trip != null || context.creator != null);
+
+  // For nudges (type='reminder', no context_trip): use the DB title/body — it is already
+  // translated by the organizer's client before being stored. For trip reminders
+  // (type='reminder', context_trip is set) and all other types: use the translated template.
+  const isNudge = type === 'reminder' && !context?.trip;
+  const title = isNudge ? fallbackTitle : (translated?.title ?? fallbackTitle);
+
   let body: string;
-  if (hasContext && translated?.body && type !== 'reminder') {
+  // Guard: if the template uses {{trip}} but context_trip is null (e.g. a "claimed"
+  // shared-packing notification), rendering would produce an empty trip name.
+  const templateNeedsTrip = translated?.body?.includes('{{trip}}') ?? false;
+  if (templateNeedsTrip && !context?.trip) {
+    body = dbBody ?? '';
+  } else if (hasContext && translated?.body && !isNudge) {
     body = interpolate(translated.body, context!);
   } else {
-    // Fall back to the raw DB body (English contextual string) when no context is available.
     body = dbBody ?? translated?.body ?? '';
   }
 

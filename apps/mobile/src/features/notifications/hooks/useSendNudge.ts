@@ -13,6 +13,7 @@ export function useSendNudge(tripId: string) {
       addToast('success', i18n.t('notifications:toast.nudgeSent'));
     },
     onError: (error: Error) => {
+      console.error('[useSendNudge]', error.message, error);
       const isRateLimit = error.message?.includes('Rate limit');
       addToast('error', isRateLimit ? i18n.t('notifications:toast.nudgeRateLimited') : i18n.t('notifications:toast.nudgeFailed'));
     },

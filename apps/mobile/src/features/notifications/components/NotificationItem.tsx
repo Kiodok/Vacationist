@@ -1,9 +1,84 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { i18n } from '@vacationist/i18n';
 import { dayjs } from '@vacationist/utils';
 import type { Notification } from '@vacationist/types';
 import { colors, NOTIFICATION_ICON_COLORS } from '@vacationist/ui';
+
+// Keep in sync with NOTIFICATION_TRANSLATIONS in supabase/functions/push-notification/index.ts.
+// shared_packing_self is a virtual key used to distinguish i_got_it notifications
+// (DB body starts with 'For "') from 'everyone' notifications — they share the same
+// DB type but have different semantics. This avoids a DB schema change.
+const BODY_TEMPLATES: Record<string, Record<string, string>> = {
+  new_activity: {
+    en: '{{creator}} added "{{entity}}" to "{{trip}}".',
+    de: '{{creator}} hat "{{entity}}" zu "{{trip}}" hinzugefügt.',
+  },
+  vote_finalized: {
+    en: 'Voting is closed for "{{entity}}" in "{{trip}}".',
+    de: 'Die Abstimmung zu "{{entity}}" in "{{trip}}" ist abgeschlossen.',
+  },
+  vote_update: {
+    en: 'The group has voted on "{{entity}}".',
+    de: 'Die Gruppe hat über "{{entity}}" abgestimmt.',
+  },
+  expense_change: {
+    en: '{{creator}} added "{{entity}}" to "{{trip}}".',
+    de: '{{creator}} hat "{{entity}}" zu "{{trip}}" hinzugefügt.',
+  },
+  new_member: {
+    en: '{{creator}} is now part of "{{trip}}".',
+    de: '{{creator}} ist jetzt Teil von "{{trip}}".',
+  },
+  schedule_change: {
+    en: '"{{entity}}" in "{{trip}}" has been rescheduled.',
+    de: '"{{entity}}" in "{{trip}}" wurde neu geplant.',
+  },
+  lost_found: {
+    en: '{{creator}} reported "{{entity}}" in "{{trip}}".',
+    de: '{{creator}} hat "{{entity}}" in "{{trip}}" gemeldet.',
+  },
+  shared_packing: {
+    en: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".',
+    de: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.',
+  },
+  shared_packing_self: {
+    en: '{{creator}} is bringing "{{entity}}" for "{{trip}}".',
+    de: '{{creator}} bringt "{{entity}}" für "{{trip}}".',
+  },
+};
+
+function translateBody(notification: Notification): string | null {
+  const lang = i18n.language?.split('-')[0] ?? 'en';
+
+  // i_got_it shared packing notifications reuse type='shared_packing' but their
+  // DB body starts with 'For "' — use the dedicated template so we don't claim
+  // the person added something "for everyone" when they're bringing it themselves.
+  const effectiveType =
+    notification.type === 'shared_packing' && notification.body?.startsWith('For "')
+      ? 'shared_packing_self'
+      : notification.type;
+
+  const templates = BODY_TEMPLATES[effectiveType];
+  if (!templates) return notification.body;
+
+  const hasContext = notification.context_entity || notification.context_trip || notification.context_creator;
+  if (!hasContext) return notification.body;
+
+  const template = templates[lang] ?? templates['en'];
+  if (!template) return notification.body;
+
+  // If the template references {{trip}} but context_trip is null (e.g. a "claimed"
+  // shared-packing notification), rendering would produce an empty trip name.
+  // Fall back to the raw DB body instead.
+  if (template.includes('{{trip}}') && !notification.context_trip) return notification.body;
+
+  return template
+    .replaceAll('{{entity}}', notification.context_entity ?? '')
+    .replaceAll('{{trip}}', notification.context_trip ?? '')
+    .replaceAll('{{creator}}', notification.context_creator ?? '');
+}
 
 interface NotificationItemProps {
   notification: Notification;
@@ -14,6 +89,7 @@ interface NotificationItemProps {
 export function NotificationItem({ notification, onPress, onDelete }: NotificationItemProps) {
   const { t } = useTranslation('notifications');
   const typeKey = `type.${notification.type}` as const;
+  const translatedBody = translateBody(notification);
   const iconConfig = NOTIFICATION_ICON_COLORS[notification.type] ?? { icon: 'notifications-outline', color: colors.primary };
   const iconColor = notification.is_read ? colors.textMuted : iconConfig.color;
 
@@ -40,9 +116,9 @@ export function NotificationItem({ notification, onPress, onDelete }: Notificati
         >
           {t(typeKey, { defaultValue: notification.title })}
         </Text>
-        {notification.body ? (
+        {translatedBody ? (
           <Text className="text-body-small text-text-secondary" numberOfLines={2}>
-            {notification.body}
+            {translatedBody}
           </Text>
         ) : null}
         <Text className="text-body-small text-text-muted">
