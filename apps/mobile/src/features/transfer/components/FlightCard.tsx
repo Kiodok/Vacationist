@@ -152,7 +152,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         )}
 
         {/* Vote section */}
-        <View className="flex-row items-center justify-between mt-xs">
+        <View className="mt-xs gap-xs">
           <View className="flex-row items-center gap-sm">
             {votes.length > 0 && <VoteSummary votes={votes} />}
             {showBreakdown ? null : myVote ? (
@@ -191,7 +191,7 @@ function FlightStatusIndicator({ status, votingOpen }: { status: string; votingO
     return (
       <View className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10">
         <View className="w-[6px] h-[6px] rounded-full bg-primary" />
-        <Text className="text-primary text-label font-medium">{t('all.status.voting')}</Text>
+        <Text className="text-primary text-label font-medium" numberOfLines={1}>{t('all.status.voting')}</Text>
       </View>
     );
   }
@@ -206,7 +206,7 @@ function FlightStatusIndicator({ status, votingOpen }: { status: string; votingO
 
   return (
     <View className={`px-sm py-xs rounded-full ${cfg.bg}`}>
-      <Text className={`${cfg.text} text-label font-medium`}>{t(`all.status.${status}`, { defaultValue: status })}</Text>
+      <Text className={`${cfg.text} text-label font-medium`} numberOfLines={1}>{t(`all.status.${status}`, { defaultValue: status })}</Text>
     </View>
   );
 }

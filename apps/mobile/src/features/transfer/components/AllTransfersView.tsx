@@ -73,7 +73,7 @@ function FlightStatusBadge({ status, votingOpen }: { status: string; votingOpen:
     return (
       <View className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10">
         <View className="w-[6px] h-[6px] rounded-full bg-primary" />
-        <Text className="text-primary text-label font-medium">{t('all.status.voting')}</Text>
+        <Text className="text-primary text-label font-medium" numberOfLines={1}>{t('all.status.voting')}</Text>
       </View>
     );
   }
@@ -85,7 +85,7 @@ function FlightStatusBadge({ status, votingOpen }: { status: string; votingOpen:
   const c = cfg[status] ?? cfg.suggested;
   return (
     <View className={`px-sm py-xs rounded-full ${c.bg}`}>
-      <Text className={`${c.text} text-label font-medium`}>{t(c.key)}</Text>
+      <Text className={`${c.text} text-label font-medium`} numberOfLines={1}>{t(c.key)}</Text>
     </View>
   );
 }

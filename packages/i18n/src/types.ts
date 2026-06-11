@@ -13,6 +13,7 @@ import type enNotifications from './locales/en/notifications.json';
 import type enProfile from './locales/en/profile.json';
 import type enNotes from './locales/en/notes.json';
 import type enActivityNotes from './locales/en/activityNotes.json';
+import type enAccommodationNotes from './locales/en/accommodationNotes.json';
 import type enStuff from './locales/en/stuff.json';
 import type enValidation from './locales/en/validation.json';
 
@@ -35,6 +36,7 @@ declare module 'i18next' {
       profile: typeof enProfile;
       notes: typeof enNotes;
       activityNotes: typeof enActivityNotes;
+      accommodationNotes: typeof enAccommodationNotes;
       stuff: typeof enStuff;
       validation: typeof enValidation;
     };

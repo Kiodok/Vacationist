@@ -39,6 +39,24 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '{{creator}} reported "{{entity}}" in "{{trip}}".',
     de: '{{creator}} hat "{{entity}}" in "{{trip}}" gemeldet.',
   },
+  // Virtual lost_found keys — same DB type, distinguished by the English title the
+  // DB triggers store (see resolveEffectiveType below).
+  lost_found_found: {
+    en: '{{creator}} thinks you may have: "{{entity}}".',
+    de: '{{creator}} denkt, du könntest "{{entity}}" haben.',
+  },
+  lost_found_lost: {
+    en: '{{creator}} thinks you may have: "{{entity}}".',
+    de: '{{creator}} denkt, du könntest "{{entity}}" haben.',
+  },
+  lost_found_resolved: {
+    en: '"{{entity}}" has been marked as resolved in "{{trip}}".',
+    de: '"{{entity}}" wurde in "{{trip}}" als gelöst markiert.',
+  },
+  lost_found_reopened: {
+    en: '"{{entity}}" has been reopened in "{{trip}}".',
+    de: '"{{entity}}" wurde in "{{trip}}" wieder geöffnet.',
+  },
   shared_packing: {
     en: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".',
     de: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.',
@@ -49,18 +67,39 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
   },
 };
 
-function translateBody(notification: Notification): string | null {
-  const lang = i18n.language?.split('-')[0] ?? 'en';
+// Several notification kinds reuse one DB type and are distinguished by the body or
+// the English title the DB trigger stores. Mirror of effectiveType in the edge
+// function's translateNotification — keep both in sync.
+type EffectiveNotificationType =
+  | Notification['type']
+  | 'shared_packing_self'
+  | 'lost_found_found'
+  | 'lost_found_lost'
+  | 'lost_found_resolved'
+  | 'lost_found_reopened';
 
+function resolveEffectiveType(notification: Notification): EffectiveNotificationType {
   // i_got_it shared packing notifications reuse type='shared_packing' but their
   // DB body starts with 'For "' — use the dedicated template so we don't claim
   // the person added something "for everyone" when they're bringing it themselves.
-  const effectiveType =
-    notification.type === 'shared_packing' && notification.body?.startsWith('For "')
-      ? 'shared_packing_self'
-      : notification.type;
+  if (notification.type === 'shared_packing' && notification.body?.startsWith('For "')) {
+    return 'shared_packing_self';
+  }
+  if (notification.type === 'lost_found') {
+    switch (notification.title) {
+      case 'Item found':     return 'lost_found_found';
+      case 'Item lost':      return 'lost_found_lost';
+      case 'Case resolved':  return 'lost_found_resolved';
+      case 'Case reopened':  return 'lost_found_reopened';
+    }
+  }
+  return notification.type;
+}
 
-  const templates = BODY_TEMPLATES[effectiveType];
+function translateBody(notification: Notification): string | null {
+  const lang = i18n.language?.split('-')[0] ?? 'en';
+
+  const templates = BODY_TEMPLATES[resolveEffectiveType(notification)];
   if (!templates) return notification.body;
 
   const hasContext = notification.context_entity || notification.context_trip || notification.context_creator;
@@ -88,7 +127,7 @@ interface NotificationItemProps {
 
 export function NotificationItem({ notification, onPress, onDelete }: NotificationItemProps) {
   const { t } = useTranslation('notifications');
-  const typeKey = `type.${notification.type}` as const;
+  const typeKey = `type.${resolveEffectiveType(notification)}` as const;
   const translatedBody = translateBody(notification);
   const iconConfig = NOTIFICATION_ICON_COLORS[notification.type] ?? { icon: 'notifications-outline', color: colors.primary };
   const iconColor = notification.is_read ? colors.textMuted : iconConfig.color;

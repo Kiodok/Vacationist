@@ -1,0 +1,17 @@
+{
+  "section.title": "Notizen",
+  "section.titleCount": "Notizen ({{count}})",
+  "empty.message": "Noch keine Notizen. Füge einen Tipp oder nützliche Info hinzu!",
+  "action.addNote": "Notiz hinzufügen",
+  "create.title": "Neue Notiz",
+  "edit.title": "Notiz bearbeiten",
+  "field.content": "Notiz",
+  "placeholder.content": "Tipp, Check-in-Info oder sonstige nützliche Details ...",
+  "confirm.delete": "Diese Notiz löschen?",
+  "toast.created": "Notiz hinzugefügt",
+  "toast.updated": "Notiz aktualisiert",
+  "toast.deleted": "Notiz gelöscht",
+  "toast.createFailed": "Notiz konnte nicht hinzugefügt werden",
+  "toast.updateFailed": "Notiz konnte nicht aktualisiert werden",
+  "toast.deleteFailed": "Notiz konnte nicht gelöscht werden"
+}

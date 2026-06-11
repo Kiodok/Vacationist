@@ -42,6 +42,24 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Lost or Found', body: '{{creator}} reported "{{entity}}" in "{{trip}}".' },
     de: { title: 'Fundbüro', body: '{{creator}} hat "{{entity}}" in "{{trip}}" gemeldet.' },
   },
+  // Virtual types: personal notifications to the tagged member use specific titles.
+  // Detected below via fallbackTitle matching (same pattern as shared_packing_self).
+  lost_found_found: {
+    en: { title: 'Item found', body: '{{creator}} thinks you may have: "{{entity}}".' },
+    de: { title: 'Gegenstand gefunden', body: '{{creator}} denkt, du könntest "{{entity}}" haben.' },
+  },
+  lost_found_lost: {
+    en: { title: 'Item lost', body: '{{creator}} thinks you may have: "{{entity}}".' },
+    de: { title: 'Gegenstand verloren', body: '{{creator}} denkt, du könntest "{{entity}}" haben.' },
+  },
+  lost_found_resolved: {
+    en: { title: 'Case resolved', body: '"{{entity}}" has been marked as resolved in "{{trip}}".' },
+    de: { title: 'Fall gelöst', body: '"{{entity}}" wurde in "{{trip}}" als gelöst markiert.' },
+  },
+  lost_found_reopened: {
+    en: { title: 'Case reopened', body: '"{{entity}}" has been reopened in "{{trip}}".' },
+    de: { title: 'Fall wieder geöffnet', body: '"{{entity}}" wurde in "{{trip}}" wieder geöffnet.' },
+  },
   shared_packing: {
     en: { title: 'Shared packing update', body: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".' },
     de: { title: 'Gemeinsame Packliste', body: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.' },
@@ -80,8 +98,17 @@ function translateNotification(
   // i_got_it shared packing notifications reuse DB type='shared_packing' but their body
   // starts with 'For "' — route them to the dedicated template so we don't incorrectly
   // say the item was added "for everyone".
+  // lost_found notifications all share one DB type; the DB triggers distinguish the
+  // personal ('Item found'/'Item lost') and lifecycle ('Case resolved'/'Case reopened')
+  // variants via the stored English title. Keep in sync with resolveEffectiveType in
+  // apps/mobile/src/features/notifications/components/NotificationItem.tsx.
   const effectiveType =
-    type === 'shared_packing' && dbBody?.startsWith('For "') ? 'shared_packing_self' : type;
+    type === 'shared_packing' && dbBody?.startsWith('For "') ? 'shared_packing_self' :
+    type === 'lost_found' && fallbackTitle === 'Item found' ? 'lost_found_found' :
+    type === 'lost_found' && fallbackTitle === 'Item lost' ? 'lost_found_lost' :
+    type === 'lost_found' && fallbackTitle === 'Case resolved' ? 'lost_found_resolved' :
+    type === 'lost_found' && fallbackTitle === 'Case reopened' ? 'lost_found_reopened' :
+    type;
 
   const map = NOTIFICATION_TRANSLATIONS[effectiveType];
   const translated = map ? (map[lang] ?? map['en']) : null;
@@ -203,6 +230,17 @@ function jsonResponse(data: unknown, status = 200): Response {
   });
 }
 
+// Every handled notification MUST be marked, including preference-off / no-token /
+// stale-token outcomes — pg_cron retries any row left with push_sent_at IS NULL
+// every 5 minutes (see 20260611180000_fix_push_invocation_flood.sql).
+async function markPushSent(notificationIds: string[]): Promise<void> {
+  if (notificationIds.length === 0) return;
+  await supabase
+    .from('notifications')
+    .update({ push_sent_at: new Date().toISOString() })
+    .in('id', notificationIds);
+}
+
 async function sendToExpo(
   messages: ExpoPushMessage[],
   tokens: string[],
@@ -245,6 +283,7 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
       .single();
 
     if (prefs && prefs[prefCol] === false) {
+      await markPushSent([payload.notification_id]);
       return jsonResponse({ sent: 0, reason: 'preference_off' });
     }
   }
@@ -274,6 +313,7 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
     .eq('user_id', payload.user_id);
 
   if (!tokens || tokens.length === 0) {
+    await markPushSent([payload.notification_id]);
     return jsonResponse({ sent: 0, reason: 'no_tokens' });
   }
 
@@ -303,12 +343,8 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
       .in('push_token', staleTokens);
   }
 
-  if (sent > 0) {
-    await supabase
-      .from('notifications')
-      .update({ push_sent_at: new Date().toISOString() })
-      .eq('id', payload.notification_id);
-  }
+  // Always mark — even if sent=0 (all stale tokens) — so pg_cron stops retrying.
+  await markPushSent([payload.notification_id]);
 
   return jsonResponse({ sent });
 }
@@ -339,7 +375,10 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
     eligibleUserIds = user_ids.filter((uid) => !disabledSet.has(uid));
   }
 
-  if (eligibleUserIds.length === 0) return jsonResponse({ sent: 0, reason: 'all_preferences_off' });
+  if (eligibleUserIds.length === 0) {
+    await markPushSent(notification_ids);
+    return jsonResponse({ sent: 0, reason: 'all_preferences_off' });
+  }
 
   // Fetch tokens and user locales for all eligible users in parallel.
   const [{ data: allTokens }, { data: userLocales }] = await Promise.all([
@@ -353,7 +392,10 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
       .in('id', eligibleUserIds),
   ]);
 
-  if (!allTokens || allTokens.length === 0) return jsonResponse({ sent: 0, reason: 'no_tokens' });
+  if (!allTokens || allTokens.length === 0) {
+    await markPushSent(notification_ids);
+    return jsonResponse({ sent: 0, reason: 'no_tokens' });
+  }
 
   // Build locale lookup map
   const localeMap = new Map<string, string>(
@@ -390,19 +432,8 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
     await supabase.from('user_push_tokens').delete().in('push_token', staleTokens);
   }
 
-  // Mark push_sent_at on all notification rows for users whose token was not stale.
-  const staleSet = new Set(staleTokens);
-  const successfulNotificationIds = typedTokens
-    .filter((t) => !staleSet.has(t.push_token))
-    .map((t) => userToNotificationId.get(t.user_id))
-    .filter((id): id is string => !!id);
-
-  if (successfulNotificationIds.length > 0) {
-    await supabase
-      .from('notifications')
-      .update({ push_sent_at: new Date().toISOString() })
-      .in('id', successfulNotificationIds);
-  }
+  // Always mark all rows — pg_cron must not retry them.
+  await markPushSent(notification_ids);
 
   return jsonResponse({ sent });
 }

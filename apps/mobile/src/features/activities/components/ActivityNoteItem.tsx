@@ -2,10 +2,13 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
-import type { ActivityNote } from '@vacationist/types';
+interface NoteForDisplay {
+  content: string;
+  created_at: string;
+}
 
 interface ActivityNoteItemProps {
-  note: ActivityNote;
+  note: NoteForDisplay;
   authorName: string;
   canEdit: boolean;
   canDelete: boolean;

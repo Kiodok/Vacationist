@@ -120,9 +120,21 @@ export interface Accommodation {
   status: AccommodationStatus;
   voting_open: boolean;
   auto_close: boolean;
+  check_in_date: string | null;
+  check_out_date: string | null;
   created_by: string;
   created_at: string;
   deleted_at: string | null;
+}
+
+export interface AccommodationNote {
+  id: string;
+  accommodation_id: string;
+  trip_id: string;
+  created_by: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AccommodationVote {

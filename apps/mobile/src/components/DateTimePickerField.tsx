@@ -67,6 +67,10 @@ function parseToDate(value: string | null | undefined, mode: 'date' | 'time'): D
   return d;
 }
 
+function toMidnight(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 function getDisplayText(
   value: string | null | undefined,
   mode: 'date' | 'time',
@@ -166,6 +170,17 @@ export function DateTimePickerField({
   const dateValue = parseToDate(value, mode);
   const displayText = getDisplayText(value, mode, displayPlaceholder);
 
+  // Normalize min/max to midnight to avoid time-component comparison issues
+  // with Android's native DatePickerDialog, then clamp the picker's initial
+  // value so Android opens at a date guaranteed to be within the allowed range.
+  const normalizedMin = minimumDate && mode === 'date' ? toMidnight(minimumDate) : minimumDate;
+  const normalizedMax = maximumDate && mode === 'date' ? toMidnight(maximumDate) : maximumDate;
+  let pickerValue = dateValue;
+  if (mode === 'date') {
+    if (normalizedMin && pickerValue < normalizedMin) pickerValue = normalizedMin;
+    if (normalizedMax && pickerValue > normalizedMax) pickerValue = normalizedMax;
+  }
+
   return (
     <View className="gap-xs">
       {label && (
@@ -194,15 +209,20 @@ export function DateTimePickerField({
 
       {show && Platform.OS === 'android' && RNDateTimePicker && (
         <RNDateTimePicker
-          value={dateValue}
+          value={pickerValue}
           mode={mode}
           is24Hour
-          minimumDate={minimumDate}
-          maximumDate={maximumDate}
+          minimumDate={normalizedMin}
+          maximumDate={normalizedMax}
           onChange={(event, date) => {
             setShow(false);
             if (event.type === 'set' && date) {
-              onChange(mode === 'date' ? toDateString(date) : toTimeString(date));
+              let selected = date;
+              if (mode === 'date') {
+                if (normalizedMin && selected < normalizedMin) selected = normalizedMin;
+                if (normalizedMax && selected > normalizedMax) selected = normalizedMax;
+              }
+              onChange(mode === 'date' ? toDateString(selected) : toTimeString(selected));
             }
           }}
         />
@@ -227,8 +247,8 @@ export function DateTimePickerField({
                     setShow(false);
                     onChange(
                       mode === 'date'
-                        ? toDateString(dateValue)
-                        : toTimeString(dateValue),
+                        ? toDateString(pickerValue)
+                        : toTimeString(pickerValue),
                     );
                   }}
                 >
@@ -236,12 +256,12 @@ export function DateTimePickerField({
                 </Pressable>
               </View>
               <RNDateTimePicker
-                value={dateValue}
+                value={pickerValue}
                 mode={mode}
                 display="spinner"
                 is24Hour
-                minimumDate={minimumDate}
-                maximumDate={maximumDate}
+                minimumDate={normalizedMin}
+                maximumDate={normalizedMax}
                 themeVariant="dark"
                 onChange={(_event, date) => {
                   if (date) {

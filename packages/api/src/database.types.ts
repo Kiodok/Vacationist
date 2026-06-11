@@ -39,6 +39,58 @@ export type Database = {
   }
   public: {
     Tables: {
+      accommodation_notes: {
+        Row: {
+          accommodation_id: string
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          accommodation_id: string
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          accommodation_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accommodation_notes_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accommodation_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accommodation_notes_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accommodation_votes: {
         Row: {
           accommodation_id: string
@@ -94,6 +146,8 @@ export type Database = {
       accommodations: {
         Row: {
           auto_close: boolean
+          check_in_date: string | null
+          check_out_date: string | null
           created_at: string
           created_by: string
           deleted_at: string | null
@@ -110,6 +164,8 @@ export type Database = {
         }
         Insert: {
           auto_close?: boolean
+          check_in_date?: string | null
+          check_out_date?: string | null
           created_at?: string
           created_by: string
           deleted_at?: string | null
@@ -126,6 +182,8 @@ export type Database = {
         }
         Update: {
           auto_close?: boolean
+          check_in_date?: string | null
+          check_out_date?: string | null
           created_at?: string
           created_by?: string
           deleted_at?: string | null
@@ -795,6 +853,9 @@ export type Database = {
       notifications: {
         Row: {
           body: string | null
+          context_creator: string | null
+          context_entity: string | null
+          context_trip: string | null
           created_at: string
           id: string
           is_read: boolean
@@ -809,6 +870,9 @@ export type Database = {
         }
         Insert: {
           body?: string | null
+          context_creator?: string | null
+          context_entity?: string | null
+          context_trip?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -823,6 +887,9 @@ export type Database = {
         }
         Update: {
           body?: string | null
+          context_creator?: string | null
+          context_entity?: string | null
+          context_trip?: string | null
           created_at?: string
           id?: string
           is_read?: boolean

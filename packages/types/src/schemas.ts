@@ -140,10 +140,27 @@ export const createAccommodationSchema = z.object({
 
 export const updateAccommodationSchema = createAccommodationSchema.partial().extend({
   status: z.enum(ACCOMMODATION_STATUS).optional(),
+  check_in_date: z.string().optional(),
+  check_out_date: z.string().optional(),
 });
+
+// --- Shared note content schema (activity + accommodation notes) ---
+// Matches the 1–1000 char CHECK constraint on both *_notes tables.
+
+export const noteContentSchema = z.object({
+  content: z.string().min(1, 'Content is required').max(1000),
+});
+
+export type NoteContentInput = z.infer<typeof noteContentSchema>;
+
+export const createAccommodationNoteSchema = noteContentSchema;
+
+export const updateAccommodationNoteSchema = noteContentSchema;
 
 export type CreateAccommodationInput = z.infer<typeof createAccommodationSchema>;
 export type UpdateAccommodationInput = z.infer<typeof updateAccommodationSchema>;
+export type CreateAccommodationNoteInput = z.infer<typeof createAccommodationNoteSchema>;
+export type UpdateAccommodationNoteInput = z.infer<typeof updateAccommodationNoteSchema>;
 
 // --- Expense schemas ---
 
@@ -452,15 +469,11 @@ export const updateTripNoteSchema = z.object({
 export type CreateTripNoteInput = z.infer<typeof createTripNoteSchema>;
 export type UpdateTripNoteInput = z.infer<typeof updateTripNoteSchema>;
 
-// --- Activity note schemas ---
+// --- Activity note schemas (aliases of the shared note content schema) ---
 
-export const createActivityNoteSchema = z.object({
-  content: z.string().min(1, 'Content is required').max(1000),
-});
+export const createActivityNoteSchema = noteContentSchema;
 
-export const updateActivityNoteSchema = z.object({
-  content: z.string().min(1, 'Content is required').max(1000),
-});
+export const updateActivityNoteSchema = noteContentSchema;
 
 export type CreateActivityNoteInput = z.infer<typeof createActivityNoteSchema>;
 export type UpdateActivityNoteInput = z.infer<typeof updateActivityNoteSchema>;
@@ -525,6 +538,8 @@ export type CreateLostFoundCaseInput = z.infer<typeof createLostFoundCaseSchema>
 export const updateLostFoundCaseSchema = z.object({
   title: z.string().min(1).max(100).optional(),
   description: z.string().max(1000).nullable().optional(),
+  case_type: z.enum(LOST_FOUND_CASE_TYPE).optional(),
+  target_user: z.string().uuid().nullable().optional(),
 });
 export type UpdateLostFoundCaseInput = z.infer<typeof updateLostFoundCaseSchema>;
 

@@ -59,7 +59,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary">Edit Accommodation</Text>
+            <Text className="text-heading-m text-text-primary">{t('edit.title')}</Text>
             <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">{tCommon("button.cancel")}</Text>
             </Pressable>
@@ -69,7 +69,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
             <View className="gap-md">
               {/* Title */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Title *</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.title')} *</Text>
                 <Controller
                   control={control}
                   name="title"
@@ -77,7 +77,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="e.g. Airbnb near city center"
+                      placeholder={t('placeholder.title')}
                       value={value ?? ''}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -92,7 +92,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
 
               {/* Description */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Description</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.description')}</Text>
                 <Controller
                   control={control}
                   name="description"
@@ -100,7 +100,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="Details about the base"
+                      placeholder={t('placeholder.description')}
                       value={value ?? ''}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -115,7 +115,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
 
               {/* Price */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Total Price ({currencySymbol})</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.price')} ({currencySymbol})</Text>
                 <Controller
                   control={control}
                   name="price_total"
@@ -139,7 +139,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
 
               {/* External URL */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Link</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.url')}</Text>
                 <Controller
                   control={control}
                   name="external_url"
@@ -147,7 +147,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="https://booking.com/..."
+                      placeholder={t('placeholder.url')}
                       value={value ?? ''}
                       onChangeText={(t) => onChange(t || null)}
                       autoCapitalize="none"
@@ -163,7 +163,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
 
               {/* Notes */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">Notes</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.notes')}</Text>
                 <Controller
                   control={control}
                   name="notes"
@@ -171,7 +171,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
-                      placeholder="Check-in times, parking, etc."
+                      placeholder={t('placeholder.notes')}
                       value={value ?? ''}
                       onChangeText={onChange}
                       onBlur={onBlur}

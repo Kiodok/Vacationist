@@ -1,0 +1,17 @@
+{
+  "section.title": "Notes",
+  "section.titleCount": "Notes ({{count}})",
+  "empty.message": "No notes yet. Add a tip or useful info!",
+  "action.addNote": "Add note",
+  "create.title": "New Note",
+  "edit.title": "Edit Note",
+  "field.content": "Note",
+  "placeholder.content": "Share a tip, check-in info, or anything useful...",
+  "confirm.delete": "Delete this note?",
+  "toast.created": "Note added",
+  "toast.updated": "Note updated",
+  "toast.deleted": "Note deleted",
+  "toast.createFailed": "Failed to add note",
+  "toast.updateFailed": "Failed to update note",
+  "toast.deleteFailed": "Failed to delete note"
+}

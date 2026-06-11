@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Accommodation, AccommodationVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
@@ -15,6 +16,7 @@ interface AccommodationCardProps {
 }
 
 export function AccommodationCard({ accommodation, votes, currentUserId, currency, onPress, onVotePress, detail }: AccommodationCardProps) {
+  const { t } = useTranslation('accommodations');
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !accommodation.voting_open;
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
@@ -50,17 +52,26 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
           </Text>
         )}
 
+        {accommodation.status === 'booked' && accommodation.check_in_date && accommodation.check_out_date && (
+          <View className="flex-row items-center gap-xs">
+            <Ionicons name="calendar-outline" size={14} color={colors.success} />
+            <Text className="text-body-small text-success" numberOfLines={1}>
+              {accommodation.check_in_date} → {accommodation.check_out_date}
+            </Text>
+          </View>
+        )}
+
         {accommodation.external_url && (
           <View className="flex-row items-center gap-xs">
             <Ionicons name="link-outline" size={14} color={METADATA_ICON_COLORS.link.color} />
             <Text className="text-body-small text-text-secondary" numberOfLines={1}>
-              External link
+              {t('field.externalLink')}
             </Text>
           </View>
         )}
 
         {/* Vote section */}
-        <View className="flex-row items-center justify-between mt-xs">
+        <View className="mt-xs gap-xs">
           <View className="flex-row items-center gap-sm">
             {votes.length > 0 && <VoteSummary votes={votes} />}
             {showBreakdown ? null : myVote ? (
@@ -72,7 +83,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
               >
                 <Ionicons name="hand-left-outline" size={14} color={colors.primary} />
-                <Text className="text-primary text-body-small font-medium">Vote</Text>
+                <Text className="text-primary text-body-small font-medium">{t('vote.button')}</Text>
               </Pressable>
             )}
           </View>
@@ -82,7 +93,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
               <Text className="text-body-small text-text-primary">
-                Show {votes.length} {votes.length === 1 ? 'vote' : 'votes'}
+                {t('vote.showCount', { count: votes.length })}
               </Text>
             </Pressable>
           )}
@@ -113,28 +124,30 @@ function getVoteBorderColor(votes: { vote: VoteType }[]): string {
 
 
 function StatusIndicator({ status, votingOpen }: { status: string; votingOpen: boolean }) {
+  const { t } = useTranslation('accommodations');
+
   if (votingOpen) {
     return (
       <View className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10">
         <View className="w-[6px] h-[6px] rounded-full bg-primary" />
-        <Text className="text-primary text-label font-medium">Voting</Text>
+        <Text className="text-primary text-label font-medium" numberOfLines={1}>{t('status.voting')}</Text>
       </View>
     );
   }
 
-  const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-    suggested: { bg: 'bg-primary/10', text: 'text-primary', label: 'Suggested' },
-    requested: { bg: 'bg-warning/10', text: 'text-warning', label: 'Requested' },
-    reserved: { bg: 'bg-success/10', text: 'text-success', label: 'Reserved' },
-    booked: { bg: 'bg-success/10', text: 'text-success', label: 'Booked' },
-    completed: { bg: 'bg-border/50', text: 'text-text-muted', label: 'Done' },
+  const statusConfig: Record<string, { bg: string; text: string; key: string }> = {
+    suggested: { bg: 'bg-primary/10', text: 'text-primary', key: 'status.suggested' },
+    requested: { bg: 'bg-warning/10', text: 'text-warning', key: 'status.requested' },
+    reserved: { bg: 'bg-success/10', text: 'text-success', key: 'status.reserved' },
+    booked: { bg: 'bg-success/10', text: 'text-success', key: 'status.booked' },
+    completed: { bg: 'bg-border/50', text: 'text-text-muted', key: 'status.done' },
   };
 
   const cfg = statusConfig[status] ?? statusConfig.suggested;
 
   return (
     <View className={`px-sm py-xs rounded-full ${cfg.bg}`}>
-      <Text className={`${cfg.text} text-label font-medium`}>{cfg.label}</Text>
+      <Text className={`${cfg.text} text-label font-medium`} numberOfLines={1}>{t(cfg.key as any)}</Text>
     </View>
   );
 }

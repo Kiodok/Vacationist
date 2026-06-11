@@ -119,6 +119,8 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
       <EditLostFoundCaseSheet
         visible={!!editingCase}
         lostFoundCase={editingCase}
+        members={members}
+        currentUserId={currentUserId}
         onClose={() => setEditingCase(null)}
         onSubmit={handleUpdate}
         isPending={updateCase.isPending}

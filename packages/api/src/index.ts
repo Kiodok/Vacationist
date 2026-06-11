@@ -61,6 +61,13 @@ export {
 export type { AccommodationVotingRealtimeCallbacks } from './accommodations';
 
 export {
+  getAccommodationNotes,
+  createAccommodationNote,
+  updateAccommodationNote,
+  deleteAccommodationNote,
+} from './accommodation-notes';
+
+export {
   EXPENSE_PAGE_SIZE,
   getExpenses,
   createExpense,

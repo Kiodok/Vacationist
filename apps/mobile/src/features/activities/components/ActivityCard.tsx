@@ -98,7 +98,7 @@ export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePr
       </View>
 
       {/* Vote section */}
-      <View className="flex-row items-center justify-between mt-xs">
+      <View className="mt-xs gap-xs">
         <View className="flex-row items-center gap-sm">
           {votes.length > 0 && <VoteSummary votes={votes} />}
           {showBreakdown ? null : myVote ? (

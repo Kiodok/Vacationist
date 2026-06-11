@@ -4,31 +4,62 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { updateLostFoundCaseSchema, type UpdateLostFoundCaseInput, type LostFoundCase } from '@vacationist/types';
+import { updateLostFoundCaseSchema, type UpdateLostFoundCaseInput, type LostFoundCase, LOST_FOUND_CASE_TYPE, type LostFoundCaseType } from '@vacationist/types';
+import type { TripMemberWithUser } from '@vacationist/api';
 
 interface EditLostFoundCaseSheetProps {
   visible: boolean;
   lostFoundCase: LostFoundCase | null;
+  members: TripMemberWithUser[];
+  currentUserId: string | undefined;
   onClose: () => void;
   onSubmit: (caseId: string, input: UpdateLostFoundCaseInput) => void;
   isPending: boolean;
 }
 
-export function EditLostFoundCaseSheet({ visible, lostFoundCase: c, onClose, onSubmit, isPending }: EditLostFoundCaseSheetProps) {
+const CASE_TYPE_ICONS: Record<LostFoundCaseType, string> = {
+  lost_unknown: '❓',
+  lost_known: '🔎',
+  found_unknown: '📦',
+  found_owner_known: '✅',
+};
+
+export function EditLostFoundCaseSheet({ visible, lostFoundCase: c, members, currentUserId, onClose, onSubmit, isPending }: EditLostFoundCaseSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateLostFoundCaseInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateLostFoundCaseInput>({
     resolver: zodResolver(updateLostFoundCaseSchema),
-    defaultValues: { title: c?.title ?? '', description: c?.description ?? null },
+    defaultValues: {
+      title: c?.title ?? '',
+      description: c?.description ?? null,
+      case_type: c?.case_type ?? 'lost_unknown',
+      target_user: c?.target_user ?? null,
+    },
   });
 
   useEffect(() => {
     if (visible && c) {
-      reset({ title: c.title, description: c.description ?? null });
+      reset({
+        title: c.title,
+        description: c.description ?? null,
+        case_type: c.case_type,
+        target_user: c.target_user ?? null,
+      });
     }
   }, [visible, c?.id]);
+
+  const selectedCaseType = watch('case_type');
+  const needsTargetUser = selectedCaseType === 'lost_known' || selectedCaseType === 'found_owner_known';
+  const otherMembers = members.filter((m) => m.user_id !== currentUserId);
+
+  const caseTypeLabels: Record<LostFoundCaseType, string> = {
+    lost_unknown: t('caseType.lostUnknown'),
+    lost_known: t('caseType.lostKnown'),
+    found_unknown: t('caseType.foundUnknown'),
+    found_owner_known: t('caseType.foundOwnerKnown'),
+  };
 
   const onValid = (data: UpdateLostFoundCaseInput) => {
     if (!c) return;
@@ -54,6 +85,64 @@ export function EditLostFoundCaseSheet({ visible, lostFoundCase: c, onClose, onS
 
             <ScrollView showsVerticalScrollIndicator={false}>
               <View className="gap-md">
+                {/* Case type picker */}
+                <View className="gap-xs">
+                  <Text className="text-label text-text-muted uppercase">{t('field.caseType')}</Text>
+                  <View className="flex-row flex-wrap gap-xs">
+                    {LOST_FOUND_CASE_TYPE.map((type) => {
+                      const isSelected = selectedCaseType === type;
+                      return (
+                        <Pressable
+                          key={type}
+                          onPress={() => {
+                            setValue('case_type', type);
+                            const newNeedsTarget = type === 'lost_known' || type === 'found_owner_known';
+                            if (!newNeedsTarget) setValue('target_user', null);
+                          }}
+                          className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
+                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                        >
+                          <Text>{CASE_TYPE_ICONS[type]}</Text>
+                          <Text className={`text-body-small font-medium ${isSelected ? 'text-white' : 'text-text-secondary'}`}>
+                            {caseTypeLabels[type]}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+
+                {/* Target user picker (only for known cases) */}
+                {needsTargetUser && otherMembers.length > 0 && (
+                  <View className="gap-xs">
+                    <Text className="text-label text-text-muted uppercase">{t('field.targetMember')}</Text>
+                    <Controller
+                      control={control}
+                      name="target_user"
+                      render={({ field: { value } }) => (
+                        <View className="flex-row flex-wrap gap-xs">
+                          {otherMembers.map((m) => {
+                            const isSelected = value === m.user_id;
+                            return (
+                              <Pressable
+                                key={m.user_id}
+                                onPress={() => setValue('target_user', isSelected ? null : m.user_id)}
+                                className={`px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
+                                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                              >
+                                <Text className={`text-body-small font-medium ${isSelected ? 'text-white' : 'text-text-secondary'}`}>
+                                  {m.user.name}
+                                </Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      )}
+                    />
+                  </View>
+                )}
+
+                {/* Title */}
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">{t('field.title')} *</Text>
                   <Controller
@@ -77,6 +166,7 @@ export function EditLostFoundCaseSheet({ visible, lostFoundCase: c, onClose, onS
                   )}
                 </View>
 
+                {/* Description */}
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">{t('field.description')}</Text>
                   <Controller

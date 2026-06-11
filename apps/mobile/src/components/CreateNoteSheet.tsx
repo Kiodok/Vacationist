@@ -3,26 +3,31 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { createActivityNoteSchema, type CreateActivityNoteInput } from '@vacationist/types';
+import { noteContentSchema, type NoteContentInput } from '@vacationist/types';
 
-interface CreateActivityNoteSheetProps {
+// Shared create sheet for entity-scoped notes (activity + accommodation notes).
+// The namespace picks the feature-specific copy; form/validation/UI are identical.
+export type NoteSheetNamespace = 'activityNotes' | 'accommodationNotes';
+
+interface CreateNoteSheetProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (input: CreateActivityNoteInput) => void;
+  onSubmit: (input: NoteContentInput) => void;
   isPending: boolean;
+  namespace: NoteSheetNamespace;
 }
 
-export function CreateActivityNoteSheet({ visible, onClose, onSubmit, isPending }: CreateActivityNoteSheetProps) {
+export function CreateNoteSheet({ visible, onClose, onSubmit, isPending, namespace }: CreateNoteSheetProps) {
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation('activityNotes');
+  const { t } = useTranslation(namespace);
   const { t: tCommon } = useTranslation('common');
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateActivityNoteInput>({
-    resolver: zodResolver(createActivityNoteSchema),
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<NoteContentInput>({
+    resolver: zodResolver(noteContentSchema),
     defaultValues: { content: '' },
   });
 
-  const onValid = (data: CreateActivityNoteInput) => {
+  const onValid = (data: NoteContentInput) => {
     Keyboard.dismiss();
     onSubmit(data);
     reset();

@@ -8,6 +8,32 @@
 
 ---
 
+## 2026-06-11 — Fix: Push Edge Function Invocation Flood
+
+### Migration: `20260611180000_fix_push_invocation_flood`
+
+**Why:** ~56 notifications with `push_sent_at IS NULL` were being retried every 5 minutes indefinitely, producing ~56 edge function invocations per 5-minute window (228k on dev, 111k on prod in 2.5 weeks). Three root causes found:
+
+**Root cause 1:** `dispatch_pending_push_notifications` had no age limit. Before the June 11 "always mark `push_sent_at`" fix, any notification sent to a user with no push tokens or with preferences off was never marked as sent. Each such row was retried every 5 minutes forever.
+
+**Root cause 2:** Migration `20260611172912` regressed `send_organizer_nudge` in three ways:
+- Rate limit reverted to `COUNT(*)` — for a trip with N members, 1 nudge creates N-1 rows, exceeding the limit after `floor(3/(N-1))` nudges instead of 3.
+- `related_type` set to `NULL` — trip reminder notifications (also `type='reminder'`) counted against the nudge rate limit.
+- `context_trip` set to `v_trip_title` — broke the edge function's `isNudge` detection (`isNudge = type==='reminder' && !context?.trip`), causing nudge push notifications to display the generic "Trip reminder" template instead of the organizer's custom title/body.
+
+**Root cause 3:** No structural guard against permanent retry accumulation (any future transient edge function failure leaves a notification stuck forever).
+
+**Changes:**
+- One-time `UPDATE notifications SET push_sent_at = NOW() WHERE push_sent_at IS NULL` clears all currently-stuck rows immediately
+- `dispatch_pending_push_notifications()` rewritten to auto-expire notifications older than 24 hours (marks as sent without HTTP call) before the dispatch loop — prevents permanent accumulation
+- `send_organizer_nudge` restored to the correct version from `20260523195815`: `COUNT(DISTINCT related_id) WHERE related_type = 'nudge'` for accurate rate limiting; `context_trip = NULL` to preserve the isNudge detection in the edge function; `related_type = 'nudge'` and `related_id = v_nudge_id` for correct distinguishing of nudges vs trip reminders
+
+**Expected result:** Edge function invocations drop to ≤ 1 per actual user action (nudge RPC) or ≤ N per notification batch, with no background flood.
+
+**Applied to:** dev + prod
+
+---
+
 ## 2026-06-10 — Bug Fix Batch: Auto-close Voting, Lost & Found, Push Context
 
 ### Migration: `20260610100000_fix_activity_auto_close_trigger_depth`
@@ -43,6 +69,65 @@
 - `translateNotification` now distinguishes nudges from trip reminders by checking `context?.trip`: nudges (no context) use DB title/body as-is; trip reminders (context_trip set) use the translated template
 
 **Applied to:** dev (`aejywkbkcwyanhyzhrle`) + prod (`fsfsqghbejwvgxujoyne`). Edge function deployed to both.
+
+---
+
+## 2026-06-11 — 14-Task Batch: Notifications, Accommodation Notes, Booking Dates
+
+### Migration: `20260611172912_fix_create_trip_notification_overload`
+
+**Why (Tasks 13 + 14):** `20260608200000` added a 10-param overload of `private.create_trip_notification` without dropping the original 7-param version. PostgreSQL rejected calls with `NULL` arguments (type `unknown`) because it could not resolve the overload → `send_organizer_nudge` errored. The same migration also removed the `pg_trigger_depth() >= 1` guard, so every trigger-fired notification immediately attempted `net.http_post()` which pg_net silently drops at trigger depth ≥ 1 → notifications stayed with `push_sent_at IS NULL` and were retried by pg_cron every 5 minutes forever.
+
+**Changes:**
+- `DROP FUNCTION private.create_trip_notification(7 params)` — removes ambiguous overload
+- Rewrote 10-param version: restores `pg_trigger_depth() >= 1` guard (returns early, lets pg_cron handle push dispatch)
+- Updated `send_organizer_nudge` to call 10-param signature with explicit `NULL::TEXT, NULL::UUID, NULL::TEXT` for context params
+- Updated `dispatch_pending_push_notifications` to SELECT + forward `context_entity`, `context_trip`, `context_creator` columns
+- Added `notify_lost_found_target_user_changed()` trigger (Task 11): fires AFTER UPDATE when `target_user` changes to non-NULL on an open case — sends personal notification to target
+- Extended `notify_lost_found_resolved()` (Task 12): now handles TRUE→FALSE (re-open) direction — broadcasts reopen notification + personal notification to `target_user` if set
+
+**Applied to:** dev + prod
+
+---
+
+### Migration: `20260611172915_create_accommodation_notes`
+
+**Why (Task 8):** Collaborative free-text notes attached to individual accommodation bases, mirroring `activity_notes`.
+
+**Table created:** `public.accommodation_notes`
+
+| Column | Type | Notes |
+|---|---|---|
+| id | UUID | PK |
+| accommodation_id | UUID | FK → accommodations(id) ON DELETE CASCADE |
+| trip_id | UUID | NOT NULL, auto-populated by BEFORE INSERT trigger |
+| created_by | UUID | FK → users(id) |
+| content | TEXT | NOT NULL, 1–1000 chars |
+| created_at / updated_at | TIMESTAMPTZ | Auto-maintained |
+
+**RLS:** SELECT (trip member + parent not deleted), INSERT (member + own created_by), UPDATE (owner), DELETE (owner or organizer)
+
+**Applied to:** dev + prod
+
+---
+
+### Migration: `20260611172918_add_accommodation_booking_dates`
+
+**Why (Task 6):** Allow organizers to mark an accommodation as "Booked" with concrete check-in and check-out dates. Multiple bases per trip can be booked.
+
+**Changes:** Added `check_in_date DATE` and `check_out_date DATE` nullable columns to `public.accommodations`.
+
+**Applied to:** dev + prod
+
+---
+
+### Edge function update (`push-notification/index.ts`)
+
+**Why (Tasks 9 + 13):**
+- Task 13: `handleSingle` and `handleBatch` early-returned (no tokens, preferences off) without marking `push_sent_at` → pg_cron retried forever. Fixed: always mark `push_sent_at` on every code path.
+- Task 9: Added `lost_found_found` / `lost_found_lost` virtual translation types. Detected via `fallbackTitle` matching (`'Item found'` / `'Item lost'`) so personal notifications to tagged members show specific translated titles instead of generic "Lost or Found".
+
+**Applied to:** dev + prod
 
 ---
 

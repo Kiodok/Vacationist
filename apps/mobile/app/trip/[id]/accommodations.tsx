@@ -5,7 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Accommodation, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
-import { useAccommodations, useCreateAccommodation, useUpdateAccommodation, useDeleteAccommodation, useCloseAccommodationVoting, useReopenAccommodationVoting } from '../../../src/features/accommodations/hooks/useAccommodations';
+import { useAccommodations, useCreateAccommodation, useUpdateAccommodation, useBookAccommodation, useDeleteAccommodation, useCloseAccommodationVoting, useReopenAccommodationVoting } from '../../../src/features/accommodations/hooks/useAccommodations';
 import { useAccommodationVotes, useCastAccommodationVote, useRemoveAccommodationVote } from '../../../src/features/accommodations/hooks/useAccommodationVotes';
 import { useAccommodationVotesRealtime } from '../../../src/features/accommodations/hooks/useAccommodationVotesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
@@ -16,6 +16,8 @@ import { VoteSheet } from '../../../src/features/activities/components/VoteSheet
 import { CreateAccommodationSheet } from '../../../src/features/accommodations/components/CreateAccommodationSheet';
 import { EditAccommodationSheet } from '../../../src/features/accommodations/components/EditAccommodationSheet';
 import { EmptyAccommodations } from '../../../src/features/accommodations/components/EmptyAccommodations';
+import { AccommodationNotesSection } from '../../../src/features/accommodations/components/AccommodationNotesSection';
+import { BookAccommodationSheet } from '../../../src/features/accommodations/components/BookAccommodationSheet';
 import { colors } from '@vacationist/ui';
 
 export default function AccommodationsTab() {
@@ -72,6 +74,8 @@ export default function AccommodationsTab() {
             currentUserId={user?.id}
             currency={trip?.base_currency ?? 'EUR'}
             role={role}
+            tripStartDate={trip?.start_date ?? null}
+            tripEndDate={trip?.end_date ?? null}
             onEdit={() => setEditingAccommodation(item)}
             onDelete={() => deleteAccommodation.mutate(item.id)}
             onCloseVoting={() => closeVoting.mutate(item.id)}
@@ -126,6 +130,8 @@ function AccommodationCardWithVotes({
   currentUserId,
   currency,
   role,
+  tripStartDate,
+  tripEndDate,
   onEdit,
   onDelete,
   onCloseVoting,
@@ -137,6 +143,8 @@ function AccommodationCardWithVotes({
   currentUserId: string | undefined;
   currency: string;
   role: string | null | undefined;
+  tripStartDate: string | null;
+  tripEndDate: string | null;
   onEdit: () => void;
   onDelete: () => void;
   onCloseVoting: () => void;
@@ -149,7 +157,9 @@ function AccommodationCardWithVotes({
   const { data: members } = useTripMembers(tripId);
   const castVote = useCastAccommodationVote();
   const removeVote = useRemoveAccommodationVote(tripId, accommodation.id);
+  const bookMutation = useBookAccommodation(tripId);
   const [showVoteSheet, setShowVoteSheet] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
 
   const memberMap = useMemo(
     () => new Map((members ?? []).map((m) => [m.user_id, m.user.name])),
@@ -167,6 +177,7 @@ function AccommodationCardWithVotes({
     (role === 'participant' && accommodation.created_by === currentUserId);
   const canCloseVoting = role === 'organizer' && accommodation.voting_open;
   const canReopenVoting = role === 'organizer' && !accommodation.voting_open;
+  const canBook = role === 'organizer' && !accommodation.voting_open;
 
   const handleCastVote = (vote: VoteType) => {
     castVote.mutate({ vote, accommodationId: accommodation.id, tripId }, { onSuccess: () => setShowVoteSheet(false) });
@@ -215,6 +226,13 @@ function AccommodationCardWithVotes({
           />
         </View>
       )}
+
+      <AccommodationNotesSection
+        accommodationId={accommodation.id}
+        currentUserId={currentUserId}
+        role={role}
+        memberNameMap={memberMap}
+      />
 
       <View className="gap-sm mt-xs">
         {confirmingCloseVoting ? (
@@ -285,6 +303,16 @@ function AccommodationCardWithVotes({
                 <Text className="text-primary text-body-small font-medium">{t('action.reopenVoting')}</Text>
               </TouchableOpacity>
             )}
+            {canBook && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setShowBooking(true)}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
+              >
+                <Ionicons name="checkmark-circle-outline" size={14} color={colors.success} />
+                <Text className="text-success text-body-small font-medium">{t('action.book')}</Text>
+              </TouchableOpacity>
+            )}
             {canDelete && (
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -323,6 +351,22 @@ function AccommodationCardWithVotes({
         onRemoveVote={handleRemoveVote}
         isPending={castVote.isPending}
         memberMap={memberMap}
+      />
+
+      <BookAccommodationSheet
+        visible={showBooking}
+        onClose={() => setShowBooking(false)}
+        onSubmit={(checkIn, checkOut) => {
+          bookMutation.mutate(
+            { accommodationId: accommodation.id, checkIn, checkOut },
+            { onSuccess: () => setShowBooking(false) },
+          );
+        }}
+        isPending={bookMutation.isPending}
+        initialCheckIn={accommodation.check_in_date}
+        initialCheckOut={accommodation.check_out_date}
+        tripStartDate={tripStartDate}
+        tripEndDate={tripEndDate}
       />
     </>
   );

@@ -6,20 +6,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@vacationist/ui';
-import { updateActivityNoteSchema, type UpdateActivityNoteInput, type ActivityNote } from '@vacationist/types';
+import { noteContentSchema, type NoteContentInput } from '@vacationist/types';
+import type { NoteSheetNamespace } from './CreateNoteSheet';
 
-interface EditActivityNoteSheetProps {
+// Shared edit sheet for entity-scoped notes (activity + accommodation notes),
+// including the owner/organizer delete flow with inline confirmation.
+interface EditNoteSheetProps {
   visible: boolean;
-  note: ActivityNote;
+  note: { content: string };
   canDelete: boolean;
   onClose: () => void;
-  onSubmit: (input: UpdateActivityNoteInput) => void;
+  onSubmit: (input: NoteContentInput) => void;
   onDelete: () => void;
   isUpdatePending: boolean;
   isDeletePending: boolean;
+  namespace: NoteSheetNamespace;
 }
 
-export function EditActivityNoteSheet({
+export function EditNoteSheet({
   visible,
   note,
   canDelete,
@@ -28,18 +32,19 @@ export function EditActivityNoteSheet({
   onDelete,
   isUpdatePending,
   isDeletePending,
-}: EditActivityNoteSheetProps) {
+  namespace,
+}: EditNoteSheetProps) {
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation('activityNotes');
+  const { t } = useTranslation(namespace);
   const { t: tCommon } = useTranslation('common');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateActivityNoteInput>({
-    resolver: zodResolver(updateActivityNoteSchema),
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<NoteContentInput>({
+    resolver: zodResolver(noteContentSchema),
     defaultValues: { content: note.content },
   });
 
-  const onValid = (data: UpdateActivityNoteInput) => {
+  const onValid = (data: NoteContentInput) => {
     Keyboard.dismiss();
     onSubmit(data);
   };

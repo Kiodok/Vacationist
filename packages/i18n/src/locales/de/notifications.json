@@ -44,6 +44,11 @@
   "type.reminder": "Erinnerung",
   "type.vote_finalized": "Abstimmung abgeschlossen",
   "type.document_access_request": "Dokumentenzugriffsanfrage",
+  "type.lost_found": "Verloren & Gefunden",
+  "type.lost_found_found": "Gegenstand gefunden",
+  "type.lost_found_lost": "Gegenstand verloren",
+  "type.lost_found_resolved": "Fall gelöst",
+  "type.lost_found_reopened": "Fall wieder geöffnet",
   "nudge.confirmTitle": "Anstoß senden?",
   "nudge.confirmBody": "Alle Reiseteilnehmer erhalten eine Push-Benachrichtigung.",
   "nudge.confirmSend": "Senden"

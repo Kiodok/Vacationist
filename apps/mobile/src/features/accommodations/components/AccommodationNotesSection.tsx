@@ -3,49 +3,46 @@ import { View, Text, Pressable, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@vacationist/ui';
-import type { ActivityNote, CreateActivityNoteInput, UpdateActivityNoteInput } from '@vacationist/types';
+import { ActivityNoteItem } from '../../activities/components/ActivityNoteItem';
+import type { AccommodationNote, CreateAccommodationNoteInput, UpdateAccommodationNoteInput } from '@vacationist/types';
 import {
-  useActivityNotes,
-  useCreateActivityNote,
-  useUpdateActivityNote,
-  useDeleteActivityNote,
-} from '../hooks/useActivityNotes';
-import { ActivityNoteItem } from './ActivityNoteItem';
+  useAccommodationNotes,
+  useCreateAccommodationNote,
+  useUpdateAccommodationNote,
+  useDeleteAccommodationNote,
+} from '../hooks/useAccommodationNotes';
 import { CreateNoteSheet } from '../../../components/CreateNoteSheet';
 import { EditNoteSheet } from '../../../components/EditNoteSheet';
 
-interface ActivityNotesSectionProps {
-  activityId: string;
+interface AccommodationNotesSectionProps {
+  accommodationId: string;
   currentUserId: string | undefined;
   role: string | null | undefined;
   memberNameMap: Map<string, string>;
-  locked: boolean;
 }
 
-export function ActivityNotesSection({
-  activityId,
+export function AccommodationNotesSection({
+  accommodationId,
   currentUserId,
   role,
   memberNameMap,
-  locked,
-}: ActivityNotesSectionProps) {
-  const { t } = useTranslation('activityNotes');
+}: AccommodationNotesSectionProps) {
+  const { t } = useTranslation('accommodationNotes');
   const { t: tCommon } = useTranslation('common');
   const [showCreate, setShowCreate] = useState(false);
-  const [editingNote, setEditingNote] = useState<ActivityNote | null>(null);
-  // confirmingDeleteId: for organizer-deletes-another-member's-note (no edit sheet needed)
+  const [editingNote, setEditingNote] = useState<AccommodationNote | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
-  const { data: notes = [] } = useActivityNotes(activityId);
-  const createNote = useCreateActivityNote(activityId);
-  const updateNote = useUpdateActivityNote(activityId);
-  const deleteNote = useDeleteActivityNote(activityId);
+  const { data: notes = [] } = useAccommodationNotes(accommodationId);
+  const createNote = useCreateAccommodationNote(accommodationId);
+  const updateNote = useUpdateAccommodationNote(accommodationId);
+  const deleteNote = useDeleteAccommodationNote(accommodationId);
 
-  const handleCreate = (input: CreateActivityNoteInput) => {
+  const handleCreate = (input: CreateAccommodationNoteInput) => {
     createNote.mutate(input, { onSuccess: () => setShowCreate(false) });
   };
 
-  const handleUpdate = (input: UpdateActivityNoteInput) => {
+  const handleUpdate = (input: UpdateAccommodationNoteInput) => {
     if (!editingNote) return;
     updateNote.mutate(
       { noteId: editingNote.id, input },
@@ -71,24 +68,22 @@ export function ActivityNotesSection({
       <View className="border-t border-border mt-xs pt-sm gap-sm">
         <View className="flex-row items-center justify-between">
           <Text className="text-label text-text-muted uppercase">{sectionTitle}</Text>
-          {!locked && (
-            <Pressable
-              onPress={() => setShowCreate(true)}
-              hitSlop={8}
-              style={({ pressed }) => ({
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 4,
-                opacity: pressed ? 0.7 : 1,
-              })}
-            >
-              <Ionicons name="add-circle-outline" size={14} color={colors.primary} />
-              <Text className="text-primary text-label">{t('action.addNote')}</Text>
-            </Pressable>
-          )}
+          <Pressable
+            onPress={() => setShowCreate(true)}
+            hitSlop={8}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+              opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <Ionicons name="add-circle-outline" size={14} color={colors.primary} />
+            <Text className="text-primary text-label">{t('action.addNote')}</Text>
+          </Pressable>
         </View>
 
-        {notes.length === 0 && !locked && (
+        {notes.length === 0 && (
           <Text className="text-label text-text-muted italic">{t('empty.message')}</Text>
         )}
 
@@ -131,20 +126,14 @@ export function ActivityNotesSection({
               onEdit={() => setEditingNote(note)}
               onDelete={() => {
                 if (canEdit) {
-                  // owner: open edit sheet which also contains the delete flow
                   setEditingNote(note);
                 } else {
-                  // organizer deleting someone else's note: inline confirm
                   setConfirmingDeleteId(note.id);
                 }
               }}
             />
           );
         })}
-
-        {locked && (
-          <Text className="text-label text-text-muted italic">{t('create.locked')}</Text>
-        )}
       </View>
 
       <CreateNoteSheet
@@ -152,7 +141,7 @@ export function ActivityNotesSection({
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
         isPending={createNote.isPending}
-        namespace="activityNotes"
+        namespace="accommodationNotes"
       />
 
       {editingNote && (
@@ -165,7 +154,7 @@ export function ActivityNotesSection({
           onDelete={handleDeleteFromSheet}
           isUpdatePending={updateNote.isPending}
           isDeletePending={deleteNote.isPending}
-          namespace="activityNotes"
+          namespace="accommodationNotes"
         />
       )}
     </>

@@ -44,6 +44,11 @@
   "type.reminder": "Reminder",
   "type.vote_finalized": "Voting finalized",
   "type.document_access_request": "Document access request",
+  "type.lost_found": "Lost & Found",
+  "type.lost_found_found": "Item found",
+  "type.lost_found_lost": "Item lost",
+  "type.lost_found_resolved": "Case resolved",
+  "type.lost_found_reopened": "Case reopened",
   "nudge.confirmTitle": "Send nudge?",
   "nudge.confirmBody": "This will send a push notification to all trip members.",
   "nudge.confirmSend": "Send"
