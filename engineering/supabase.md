@@ -8,6 +8,22 @@
 
 ---
 
+## 2026-06-13 — Security Fix: Validate target_user Membership in Lost & Found Cases
+
+### Migration: `20260613000001_fix_lost_found_target_user_membership`
+
+**Changes:**
+1. **`restrict_lost_found_target_user` trigger** (BEFORE INSERT OR UPDATE on `lost_found_cases`) — Raises an exception if `target_user` is set to a UUID that is not a member of the trip. Prevents bad data from being stored at the source.
+2. **`notify_new_lost_found_case` trigger function** (defense-in-depth) — Added `private.is_trip_member` check before inserting the notification for `target_user`. Even if the row guard above is bypassed, no notification reaches a non-member user.
+
+**Security impact:** Without this fix any authenticated trip member could deliver a push notification with attacker-controlled text (up to 100 chars) to any user on the platform by supplying an arbitrary UUID as `target_user`. Combined with the unrestricted `users_select_authenticated` policy (any user can read all profiles), this allowed platform-wide push notification spam.
+
+**Non-destructive:** Only affects new inserts/updates where `target_user` is not a trip member — previously invalid data would have been rejected by the notification logic anyway. No existing rows are modified.
+
+**Applied to:** dev + prod
+
+---
+
 ## 2026-06-12 — Feat: Add USD Currency Support
 
 ### Migration: `20260612140000_add_usd_currency`

@@ -129,9 +129,6 @@ window.VACATIONIST_I18N = {
   'dl.sub': 'Download Vacationist and start planning together.',
   'dl.getPlay': 'Get it on Google Play',
   'dl.appSoon': 'App Store — Coming Soon',
-  'dl.qrLabel': '📷 Scan with your camera to download',
-  'dl.qrNote': 'Android only · iOS coming soon',
-
   // Footer
   'footer.copy': '© 2026 Vacationist · Gary Lude, Switzerland',
   'footer.privacy': 'Privacy Policy',

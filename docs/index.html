@@ -564,16 +564,6 @@
       border: 1px solid var(--border); letter-spacing: -.01em;
     }
 
-    /* QR */
-    .qr-wrap {
-      display: inline-block;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 20px; padding: 1.25rem;
-    }
-    .qr-label { font-size:.72rem; color:var(--text3); margin-bottom:.9rem; }
-    #qr-svg { display:block; }
-    .qr-note { font-size:.7rem; color:var(--text3); margin-top:.75rem; }
-
     /* ── FOOTER ── */
     footer {
       border-top: 1px solid var(--border);
@@ -1011,11 +1001,6 @@
       </div>
     </div>
 
-    <div class="qr-wrap reveal d3">
-      <div class="qr-label" data-i18n="dl.qrLabel">📷 Scan with your camera to download</div>
-      <svg id="qr-svg" width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"></svg>
-      <div class="qr-note" data-i18n="dl.qrNote">Android only · iOS coming soon</div>
-    </div>
   </div>
 </section>
 
@@ -1030,7 +1015,6 @@
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="./i18n.js"></script>
 <script>
 /* ── FAQ accordion ── */
@@ -1052,34 +1036,6 @@ const ro = new IntersectionObserver(entries => {
 }, {threshold: 0.1, rootMargin: '0px 0px -36px 0px'});
 document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
 
-/* ── QR Code (qrcode-generator MIT library) ── */
-(function() {
-  const STORE_URL = 'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
-  const svg = document.getElementById('qr-svg');
-  if (!svg || typeof qrcode === 'undefined') return;
-
-  const qr = qrcode(0, 'M');
-  qr.addData(STORE_URL);
-  qr.make();
-
-  const n = qr.getModuleCount();
-  const PAD = 8, CELL = (160 - PAD * 2) / n;
-  let d = '';
-  for (let r = 0; r < n; r++) {
-    for (let c = 0; c < n; c++) {
-      if (qr.isDark(r, c)) {
-        const x = PAD + c * CELL, y = PAD + r * CELL;
-        d += `M${x.toFixed(1)},${y.toFixed(1)}h${CELL.toFixed(2)}v${CELL.toFixed(2)}h-${CELL.toFixed(2)}z`;
-      }
-    }
-  }
-  const cx = 80, cy = 80, s = 24;
-  svg.innerHTML =
-    `<rect width="160" height="160" fill="#1A1A1A" rx="12"/>` +
-    `<path d="${d}" fill="#6C63FF"/>` +
-    `<rect x="${cx - s/2}" y="${cy - s/2}" width="${s}" height="${s}" fill="#1A1A1A" rx="4"/>` +
-    `<path d="M${cx-8} ${cy-8} L${cx} ${cy+8} L${cx+8} ${cy-8}" stroke="#6C63FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
-})();
 </script>
 </body>
 </html>
