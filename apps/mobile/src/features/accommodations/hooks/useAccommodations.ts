@@ -85,9 +85,9 @@ export function useBookAccommodation(tripId: string) {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: ({ accommodationId, checkIn, checkOut }: { accommodationId: string; checkIn: string; checkOut: string }) =>
-      updateAccommodation(accommodationId, { status: 'booked', check_in_date: checkIn, check_out_date: checkOut }),
-    onSuccess: (_data, { accommodationId }) => {
+    mutationFn: (accommodationId: string) =>
+      updateAccommodation(accommodationId, { status: 'booked' }),
+    onSuccess: (_data, accommodationId) => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
       queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId] });
       addToast('success', i18n.t('accommodations:toast.booked'));

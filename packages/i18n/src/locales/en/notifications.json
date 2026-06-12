@@ -44,6 +44,7 @@
   "type.reminder": "Reminder",
   "type.vote_finalized": "Voting finalized",
   "type.document_access_request": "Document access request",
+  "type.activity_note": "Note added",
   "type.lost_found": "Lost & Found",
   "type.lost_found_found": "Item found",
   "type.lost_found_lost": "Item lost",

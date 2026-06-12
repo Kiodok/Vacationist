@@ -17,7 +17,6 @@ import { CreateAccommodationSheet } from '../../../src/features/accommodations/c
 import { EditAccommodationSheet } from '../../../src/features/accommodations/components/EditAccommodationSheet';
 import { EmptyAccommodations } from '../../../src/features/accommodations/components/EmptyAccommodations';
 import { AccommodationNotesSection } from '../../../src/features/accommodations/components/AccommodationNotesSection';
-import { BookAccommodationSheet } from '../../../src/features/accommodations/components/BookAccommodationSheet';
 import { colors } from '@vacationist/ui';
 
 export default function AccommodationsTab() {
@@ -118,6 +117,8 @@ export default function AccommodationsTab() {
           isPending={updateAccommodationMutation.isPending}
           accommodation={editingAccommodation}
           currency={trip?.base_currency ?? 'EUR'}
+          tripStartDate={trip?.start_date ?? null}
+          tripEndDate={trip?.end_date ?? null}
         />
       )}
     </View>
@@ -159,7 +160,6 @@ function AccommodationCardWithVotes({
   const removeVote = useRemoveAccommodationVote(tripId, accommodation.id);
   const bookMutation = useBookAccommodation(tripId);
   const [showVoteSheet, setShowVoteSheet] = useState(false);
-  const [showBooking, setShowBooking] = useState(false);
 
   const memberMap = useMemo(
     () => new Map((members ?? []).map((m) => [m.user_id, m.user.name])),
@@ -306,7 +306,8 @@ function AccommodationCardWithVotes({
             {canBook && (
               <TouchableOpacity
                 activeOpacity={0.7}
-                onPress={() => setShowBooking(true)}
+                onPress={() => bookMutation.mutate(accommodation.id)}
+                disabled={bookMutation.isPending}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
               >
                 <Ionicons name="checkmark-circle-outline" size={14} color={colors.success} />
@@ -353,21 +354,6 @@ function AccommodationCardWithVotes({
         memberMap={memberMap}
       />
 
-      <BookAccommodationSheet
-        visible={showBooking}
-        onClose={() => setShowBooking(false)}
-        onSubmit={(checkIn, checkOut) => {
-          bookMutation.mutate(
-            { accommodationId: accommodation.id, checkIn, checkOut },
-            { onSuccess: () => setShowBooking(false) },
-          );
-        }}
-        isPending={bookMutation.isPending}
-        initialCheckIn={accommodation.check_in_date}
-        initialCheckOut={accommodation.check_out_date}
-        tripStartDate={tripStartDate}
-        tripEndDate={tripEndDate}
-      />
     </>
   );
 }

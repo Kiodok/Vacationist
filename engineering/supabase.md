@@ -8,6 +8,19 @@
 
 ---
 
+## 2026-06-12 — Fix: Activity Note Notifications + Lost & Found Case Type Editability
+
+### Migration: `20260612120000_activity_note_notif_and_lost_found_case_type`
+
+**Changes:**
+1. **`notifications_type_check`** — Extended to include `'activity_note'` as a valid notification type.
+2. **`restrict_lost_found_case_update_fields()`** — Removed the `case_type` immutability guard. `trip_id` and `created_by` remain immutable; `case_type` is now freely editable. Fixes the "Cannot change case_type" error when users switch a case between "person unknown / known" variants.
+3. **`private.notify_activity_note_added()`** — New AFTER INSERT trigger on `activity_notes`. Notifies all trip members (except the note author) when a note is added. Gated on the `new_activity` preference column. Context columns populated (activity title as entity, trip title, creator name).
+
+**Applied to:** dev + prod
+
+---
+
 ## 2026-06-11 — Fix: Push Edge Function Invocation Flood
 
 ### Migration: `20260611180000_fix_push_invocation_flood`

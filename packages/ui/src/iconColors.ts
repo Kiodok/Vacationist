@@ -47,6 +47,7 @@ export const NOTIFICATION_ICON_COLORS: Record<string, IconColorConfig> = {
   schedule_change:          { icon: 'calendar-outline',         color: accentColors.teal },
   reminder:                 { icon: 'megaphone-outline',        color: accentColors.amber },
   document_access_request:  { icon: 'document-text-outline',   color: accentColors.indigo },
+  activity_note:            { icon: 'chatbubble-outline',        color: accentColors.teal },
   lost_found:               { icon: 'search-outline',           color: accentColors.rose },
   shared_packing:           { icon: 'bag-outline',              color: accentColors.orange },
 };

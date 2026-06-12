@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { dayjs } from '@vacationist/utils';
 import type { Accommodation, AccommodationVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
@@ -16,7 +17,9 @@ interface AccommodationCardProps {
 }
 
 export function AccommodationCard({ accommodation, votes, currentUserId, currency, onPress, onVotePress, detail }: AccommodationCardProps) {
-  const { t } = useTranslation('accommodations');
+  const { t, i18n } = useTranslation('accommodations');
+  const dateFormat = i18n.language?.startsWith('de') ? 'DD.MM.YYYY' : 'DD/MM/YYYY';
+  const formatDate = (d: string) => dayjs(d).format(dateFormat);
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !accommodation.voting_open;
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
@@ -56,7 +59,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
           <View className="flex-row items-center gap-xs">
             <Ionicons name="calendar-outline" size={14} color={colors.success} />
             <Text className="text-body-small text-success" numberOfLines={1}>
-              {accommodation.check_in_date} → {accommodation.check_out_date}
+              {formatDate(accommodation.check_in_date)} → {formatDate(accommodation.check_out_date)}
             </Text>
           </View>
         )}

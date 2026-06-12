@@ -60,6 +60,10 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Case reopened', body: '"{{entity}}" has been reopened in "{{trip}}".' },
     de: { title: 'Fall wieder geöffnet', body: '"{{entity}}" wurde in "{{trip}}" wieder geöffnet.' },
   },
+  activity_note: {
+    en: { title: 'Note added', body: '{{creator}} added a note to "{{entity}}" in "{{trip}}".' },
+    de: { title: 'Notiz hinzugefügt', body: '{{creator}} hat eine Notiz zu "{{entity}}" in "{{trip}}" hinzugefügt.' },
+  },
   shared_packing: {
     en: { title: 'Shared packing update', body: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".' },
     de: { title: 'Gemeinsame Packliste', body: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.' },
@@ -206,6 +210,7 @@ function preferenceColumn(type: string): string | null {
     case 'schedule_change': return 'schedule_change';
     case 'reminder':        return 'reminder';
     case 'lost_found':      return null;
+    case 'activity_note':   return 'new_activity';
     case 'shared_packing':  return 'shared_packing';
     default:                return null;
   }

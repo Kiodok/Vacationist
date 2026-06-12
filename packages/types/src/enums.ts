@@ -39,6 +39,7 @@ export const NOTIFICATION_TYPE = [
   'document_access_request',
   'lost_found',
   'shared_packing',
+  'activity_note',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPE)[number];
 

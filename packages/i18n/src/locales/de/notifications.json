@@ -44,6 +44,7 @@
   "type.reminder": "Erinnerung",
   "type.vote_finalized": "Abstimmung abgeschlossen",
   "type.document_access_request": "Dokumentenzugriffsanfrage",
+  "type.activity_note": "Notiz hinzugefügt",
   "type.lost_found": "Verloren & Gefunden",
   "type.lost_found_found": "Gegenstand gefunden",
   "type.lost_found_lost": "Gegenstand verloren",

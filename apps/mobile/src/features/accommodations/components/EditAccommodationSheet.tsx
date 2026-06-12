@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateAccommodationSchema, type UpdateAccommodationInput, type Accommodation } from '@vacationist/types';
+import { DateTimePickerField } from '../../../components/DateTimePickerField';
 
 interface EditAccommodationSheetProps {
   visible: boolean;
@@ -13,9 +14,11 @@ interface EditAccommodationSheetProps {
   isPending: boolean;
   accommodation: Accommodation;
   currency: string;
+  tripStartDate?: string | null;
+  tripEndDate?: string | null;
 }
 
-export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, accommodation, currency }: EditAccommodationSheetProps) {
+export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, accommodation, currency, tripStartDate, tripEndDate }: EditAccommodationSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('accommodations');
   const { t: tCommon } = useTranslation('common');
@@ -26,6 +29,13 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
 
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
 
+  const checkIn = useWatch({ control, name: 'check_in_date' });
+  const checkOut = useWatch({ control, name: 'check_out_date' });
+  const dateOrderError = !!(checkIn && checkOut && checkOut <= checkIn);
+
+  const minDate = tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined;
+  const maxDate = tripEndDate ? new Date(tripEndDate + 'T00:00:00') : undefined;
+
   useEffect(() => {
     if (visible) {
       reset({
@@ -34,12 +44,15 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
         price_total: accommodation.price_total ?? undefined,
         external_url: accommodation.external_url ?? undefined,
         notes: accommodation.notes ?? undefined,
+        check_in_date: accommodation.check_in_date ?? undefined,
+        check_out_date: accommodation.check_out_date ?? undefined,
       });
       setPriceText(accommodation.price_total != null ? String(accommodation.price_total) : '');
     }
   }, [visible, accommodation]);
 
   const onValid = (data: UpdateAccommodationInput) => {
+    if (dateOrderError) return;
     Keyboard.dismiss();
     onSubmit(data);
   };
@@ -161,6 +174,42 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                 )}
               </View>
 
+              {/* Check-in date */}
+              <Controller
+                control={control}
+                name="check_in_date"
+                render={({ field: { onChange, value } }) => (
+                  <DateTimePickerField
+                    label={t('field.checkIn')}
+                    value={value ?? null}
+                    onChange={(v) => onChange(v ?? undefined)}
+                    mode="date"
+                    minimumDate={minDate}
+                    maximumDate={maxDate}
+                  />
+                )}
+              />
+
+              {/* Check-out date */}
+              <Controller
+                control={control}
+                name="check_out_date"
+                render={({ field: { onChange, value } }) => (
+                  <DateTimePickerField
+                    label={t('field.checkOut')}
+                    value={value ?? null}
+                    onChange={(v) => onChange(v ?? undefined)}
+                    mode="date"
+                    minimumDate={minDate}
+                    maximumDate={maxDate}
+                  />
+                )}
+              />
+
+              {dateOrderError && (
+                <Text className="text-danger text-body-small">{t('error.checkOutBeforeCheckIn')}</Text>
+              )}
+
               {/* Notes */}
               <View className="gap-xs">
                 <Text className="text-label text-text-muted uppercase">{t('field.notes')}</Text>
@@ -187,9 +236,9 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
               {/* Submit */}
               <Pressable
                 onPress={handleSubmit(onValid)}
-                disabled={isPending}
+                disabled={isPending || dateOrderError}
                 className={`items-center py-sm rounded-md mt-sm ${
-                  isPending ? 'bg-primary/50' : 'bg-primary'
+                  isPending || dateOrderError ? 'bg-primary/50' : 'bg-primary'
                 }`}
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >

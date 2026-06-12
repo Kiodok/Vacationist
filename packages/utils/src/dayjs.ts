@@ -22,4 +22,11 @@ export function setDayjsLocale(locale: string): void {
   dayjs.locale(locale);
 }
 
+// Clamps future timestamps to now so server clock skew never produces "in a few seconds".
+export function safeFromNow(dateStr: string): string {
+  const d = dayjs(dateStr);
+  const now = dayjs();
+  return (d.isAfter(now) ? now : d).fromNow();
+}
+
 export { dayjs };

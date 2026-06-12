@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { dayjs } from '@vacationist/utils';
+import { safeFromNow } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
 interface NoteForDisplay {
   content: string;
@@ -24,7 +24,7 @@ export function ActivityNoteItem({ note, authorName, canEdit, canDelete, onEdit,
         <View className="flex-row items-center gap-xs">
           <Text className="text-label text-text-muted">{authorName}</Text>
           <Text className="text-label text-text-muted">·</Text>
-          <Text className="text-label text-text-muted">{dayjs(note.created_at).fromNow()}</Text>
+          <Text className="text-label text-text-muted">{safeFromNow(note.created_at)}</Text>
         </View>
         <View className="flex-row items-center gap-xs">
           {canEdit && (

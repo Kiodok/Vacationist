@@ -35,6 +35,10 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '"{{entity}}" in "{{trip}}" has been rescheduled.',
     de: '"{{entity}}" in "{{trip}}" wurde neu geplant.',
   },
+  activity_note: {
+    en: '{{creator}} added a note to "{{entity}}" in "{{trip}}".',
+    de: '{{creator}} hat eine Notiz zu "{{entity}}" in "{{trip}}" hinzugefügt.',
+  },
   lost_found: {
     en: '{{creator}} reported "{{entity}}" in "{{trip}}".',
     de: '{{creator}} hat "{{entity}}" in "{{trip}}" gemeldet.',

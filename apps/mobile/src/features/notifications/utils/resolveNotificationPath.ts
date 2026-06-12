@@ -11,6 +11,7 @@ export function resolveNotificationPath(
   switch (type) {
     case 'new_activity':
     case 'schedule_change':
+    case 'activity_note':
       return `/trip/${trip_id}?tab=Activities${highlight}`;
     case 'vote_finalized':
     case 'vote_update':
