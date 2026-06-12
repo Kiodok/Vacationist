@@ -15,6 +15,9 @@ import { CreateNoteSheet } from '../../../src/features/notes/components/CreateNo
 import { EditNoteSheet } from '../../../src/features/notes/components/EditNoteSheet';
 import { ViewNoteSheet } from '../../../src/features/notes/components/ViewNoteSheet';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 function isTripLocked(endDate: string | null | undefined): boolean {
   if (!endDate) return false;
@@ -28,13 +31,15 @@ export default function NotesTab() {
   const currentUser = useAuthStore((s) => s.user);
 
   const { data: trip } = useTrip(tripId!);
-  const { data: notes, isLoading, isFetching, refetch } = useNotes(tripId!);
+  const notesQuery = useNotes(tripId!);
+  const { data: notes, refetch } = notesQuery;
+  const ux = getQueryDisplayState(notesQuery);
   const { data: members } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
-  const createNote = useCreateNote(tripId!);
-  const updateNote = useUpdateNote(tripId!);
-  const deleteNote = useDeleteNote(tripId!);
-  const toggleDone = useToggleNoteDone(tripId!);
+  const createNote = useCreateNote();
+  const updateNote = useUpdateNote();
+  const deleteNote = useDeleteNote();
+  const toggleDone = useToggleNoteDone();
 
   const locked = isTripLocked(trip?.end_date);
 
@@ -65,24 +70,24 @@ export default function NotesTab() {
   }, [highlightId, activeNotes]);
 
   const handleCreate = (input: CreateTripNoteInput) => {
-    createNote.mutate(input, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createNote.mutate({ tripId: tripId!, input });
   };
 
   const handleUpdate = (input: UpdateTripNoteInput) => {
     if (!editingNote) return;
-    updateNote.mutate(
-      { noteId: editingNote.id, input },
-      { onSuccess: () => setEditingNote(null) }
-    );
+    setEditingNote(null);
+    updateNote.mutate({ noteId: editingNote.id, tripId: tripId!, input });
   };
 
   const handleDelete = () => {
     if (!editingNote) return;
-    deleteNote.mutate(editingNote.id, { onSuccess: () => setEditingNote(null) });
+    setEditingNote(null);
+    deleteNote.mutate({ noteId: editingNote.id, tripId: tripId! });
   };
 
   const handleToggleDone = (note: TripNote) => {
-    toggleDone.mutate({ noteId: note.id, isDone: !note.is_done });
+    toggleDone.mutate({ noteId: note.id, tripId: tripId!, isDone: !note.is_done });
   };
 
   const handleNotePress = (note: TripNote) => {
@@ -94,12 +99,15 @@ export default function NotesTab() {
     }
   };
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (ux.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   const isEmpty = activeNotes.length === 0 && doneNotes.length === 0;
@@ -163,7 +171,7 @@ export default function NotesTab() {
           }
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -191,7 +199,7 @@ export default function NotesTab() {
         visible={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createNote.isPending}
+        isPending={isMutationBusy(createNote)}
       />
 
       {editingNote && (
@@ -202,8 +210,8 @@ export default function NotesTab() {
           onClose={() => setEditingNote(null)}
           onSubmit={handleUpdate}
           onDelete={handleDelete}
-          isUpdatePending={updateNote.isPending}
-          isDeletePending={deleteNote.isPending}
+          isUpdatePending={isMutationBusy(updateNote)}
+          isDeletePending={isMutationBusy(deleteNote)}
         />
       )}
 

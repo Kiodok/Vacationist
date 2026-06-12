@@ -18,6 +18,9 @@ import { AddIngredientInput } from '../../../src/features/recipes/components/Add
 import { EditRecipeSheet } from '../../../src/features/recipes/components/EditRecipeSheet';
 import { AddToShoppingListSheet } from '../../../src/features/recipes/components/AddToShoppingListSheet';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function RecipeDetail() {
   const { t } = useTranslation('recipes');
@@ -30,7 +33,9 @@ export default function RecipeDetail() {
     router.replace(`/trip/${tripId}?tab=Shopping&view=recipes`);
   };
 
-  const { data: recipe, isLoading, isFetching, refetch } = useRecipe(recipeId!);
+  const recipeQuery = useRecipe(recipeId!);
+  const { data: recipe, refetch } = recipeQuery;
+  const ux = getQueryDisplayState(recipeQuery);
   const { data: role } = useCurrentMemberRole(tripId!);
   const { data: shoppingLists } = useShoppingLists(tripId!);
   const updateRecipeMut = useUpdateRecipe(tripId!);
@@ -56,16 +61,22 @@ export default function RecipeDetail() {
   };
 
   const handleAddToShoppingList = (shoppingListId: string, targetServings: number) => {
-    addToListMut.mutate(
-      { recipeId: recipeId!, shoppingListId, targetServings },
-      { onSuccess: () => setShowAddToList(false) },
-    );
+    setShowAddToList(false);
+    addToListMut.mutate({ recipeId: recipeId!, shoppingListId, targetServings });
   };
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center">
         <ActivityIndicator color={colors.primary} size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  if (ux.showOfflineEmpty) {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <OfflineEmptyState onRetry={refetch} />
       </SafeAreaView>
     );
   }
@@ -140,8 +151,9 @@ export default function RecipeDetail() {
           <Text className="text-text-secondary text-body-small">{t('confirm.delete')}</Text>
           <Pressable
             onPress={() => {
-              deleteRecipeMut.mutate(recipeId!, { onSuccess: goBackToTrip });
               setConfirmDelete(false);
+              deleteRecipeMut.mutate(recipeId!);
+              goBackToTrip();
             }}
             className="px-md py-xs rounded-sm bg-danger/20"
           >
@@ -158,13 +170,11 @@ export default function RecipeDetail() {
         <EditIngredientInline
           ingredient={editingIngredient}
           onSave={(input) => {
-            updateIngredientMut.mutate(
-              { ingredientId: editingIngredient.id, input },
-              { onSuccess: () => setEditingIngredient(null) },
-            );
+            setEditingIngredient(null);
+            updateIngredientMut.mutate({ ingredientId: editingIngredient.id, input });
           }}
           onCancel={() => setEditingIngredient(null)}
-          isPending={updateIngredientMut.isPending}
+          isPending={isMutationBusy(updateIngredientMut)}
         />
       )}
 
@@ -200,7 +210,7 @@ export default function RecipeDetail() {
           )}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -211,7 +221,7 @@ export default function RecipeDetail() {
         {!isGuest && (
           <AddIngredientInput
             onAdd={handleAddIngredient}
-            isPending={addIngredientMut.isPending}
+            isPending={isMutationBusy(addIngredientMut)}
           />
         )}
       </KeyboardAvoidingView>
@@ -223,12 +233,10 @@ export default function RecipeDetail() {
           recipe={recipe}
           onClose={() => setShowEdit(false)}
           onSubmit={(input) => {
-            updateRecipeMut.mutate(
-              { recipeId: recipeId!, input },
-              { onSuccess: () => setShowEdit(false) },
-            );
+            setShowEdit(false);
+            updateRecipeMut.mutate({ recipeId: recipeId!, input });
           }}
-          isPending={updateRecipeMut.isPending}
+          isPending={isMutationBusy(updateRecipeMut)}
         />
       )}
 
@@ -239,7 +247,7 @@ export default function RecipeDetail() {
           shoppingLists={shoppingLists ?? []}
           defaultServings={recipe.servings}
           onSubmit={handleAddToShoppingList}
-          isPending={addToListMut.isPending}
+          isPending={isMutationBusy(addToListMut)}
         />
       )}
     </SafeAreaView>

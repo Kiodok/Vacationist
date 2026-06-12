@@ -35,6 +35,9 @@ import { EmptyTopics } from '../../../src/features/prework/components/EmptyTopic
 import { CreateTopicSheet } from '../../../src/features/prework/components/CreateTopicSheet';
 import { EditTopicSheet } from '../../../src/features/prework/components/EditTopicSheet';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function PreworkTab() {
   const { t } = useTranslation('prework');
@@ -45,7 +48,9 @@ export default function PreworkTab() {
   const isOrganizer = role === 'organizer';
 
   // Topics
-  const { data: topics, isLoading: isLoadingTopics } = usePreworkTopics(tripId!);
+  const topicsQuery = usePreworkTopics(tripId!);
+  const { data: topics, refetch: refetchTopics } = topicsQuery;
+  const topicsUx = getQueryDisplayState(topicsQuery);
   const createTopicMutation = useCreatePreworkTopic(tripId!);
   const updateTopicMutation = useUpdatePreworkTopic(tripId!);
   const deleteTopicMutation = useDeletePreworkTopic(tripId!);
@@ -77,8 +82,12 @@ export default function PreworkTab() {
 
   // Topic-scoped preference data — activeTopicId ?? '' keeps hook call count stable;
   // enabled: !!activeTopicId prevents firing until a topic is selected
-  const { data: topicPreferences, isLoading: isLoadingPrefs } = useTopicPreferences(activeTopicId ?? '');
-  const { data: myTopicPreferences, isLoading: isLoadingMyPrefs } = useMyTopicPreferences(activeTopicId ?? '');
+  const prefsQuery = useTopicPreferences(activeTopicId ?? '');
+  const myPrefsQuery = useMyTopicPreferences(activeTopicId ?? '');
+  const { data: topicPreferences } = prefsQuery;
+  const { data: myTopicPreferences } = myPrefsQuery;
+  const prefsUx = getQueryDisplayState(prefsQuery);
+  const myPrefsUx = getQueryDisplayState(myPrefsQuery);
   const upsertMutation = useUpsertTopicPreferences(activeTopicId ?? '', tripId!);
   const deleteMutation = useDeleteTopicPreferences(activeTopicId ?? '');
   const resetMutation = useResetTopicPreferences(activeTopicId ?? '');
@@ -127,43 +136,42 @@ export default function PreworkTab() {
   };
 
   const handleResetAll = () => {
-    resetMutation.mutate(undefined, {
-      onSuccess: () => setConfirmingReset(false),
-      onError: () => setConfirmingReset(false),
-    });
+    setConfirmingReset(false);
+    resetMutation.mutate(undefined);
   };
 
   const handleCreateTopic = (input: CreatePreworkTopicInput) => {
+    setShowCreateTopic(false);
     createTopicMutation.mutate(input, {
-      onSuccess: (newTopic) => {
-        setShowCreateTopic(false);
-        setActiveTopicId(newTopic.id);
-      },
+      // Switching to the new topic needs the server-assigned id, so this stays
+      // in onSuccess; the sheet itself closes immediately above.
+      onSuccess: (newTopic) => setActiveTopicId(newTopic.id),
     });
   };
 
   const handleUpdateTopic = (topicId: string, input: UpdatePreworkTopicInput) => {
-    updateTopicMutation.mutate({ topicId, input }, {
-      onSuccess: () => setEditingTopic(null),
-    });
+    setEditingTopic(null);
+    updateTopicMutation.mutate({ topicId, input });
   };
 
   const handleDeleteTopic = (topicId: string) => {
-    deleteTopicMutation.mutate(topicId, {
-      onSuccess: () => setEditingTopic(null),
-    });
+    setEditingTopic(null);
+    deleteTopicMutation.mutate(topicId);
   };
 
   const webStyle = Platform.OS === 'web'
     ? { maxWidth: 600, width: '100%' as const, alignSelf: 'center' as const }
     : undefined;
 
-  if (isLoadingTopics) {
+  if (topicsUx.showSkeleton) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (topicsUx.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetchTopics} />;
   }
 
   const noTopics = !topics || topics.length === 0;
@@ -191,7 +199,9 @@ export default function PreworkTab() {
       {/* Active topic content */}
       {!noTopics && activeTopic && (
         <>
-          {isLoadingPrefs || isLoadingMyPrefs ? (
+          {prefsUx.showOfflineEmpty || myPrefsUx.showOfflineEmpty ? (
+            <OfflineEmptyState onRetry={() => { prefsQuery.refetch(); myPrefsQuery.refetch(); }} />
+          ) : prefsUx.showSkeleton || myPrefsUx.showSkeleton ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator color={colors.primary} />
             </View>
@@ -315,7 +325,7 @@ export default function PreworkTab() {
         visible={showCreateTopic}
         onClose={() => setShowCreateTopic(false)}
         onSubmit={handleCreateTopic}
-        isPending={createTopicMutation.isPending}
+        isPending={isMutationBusy(createTopicMutation)}
       />
       <EditTopicSheet
         topic={editingTopic}

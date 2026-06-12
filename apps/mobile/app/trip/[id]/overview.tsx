@@ -11,6 +11,7 @@ import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trip
 import { MemberAvatarGroup } from '../../../src/features/trips/components/MemberAvatarGroup';
 import { EditTripSheet } from '../../../src/features/trips/components/EditTripSheet';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
 
 export default function OverviewTab() {
   const { t } = useTranslation('trips');
@@ -27,13 +28,9 @@ export default function OverviewTab() {
   const isOrganizer = role === 'organizer';
   const duration = dayjs(trip.end_date).diff(dayjs(trip.start_date), 'day') + 1;
 
-  async function handleEditSubmit(input: UpdateTripInput) {
-    try {
-      await updateTrip.mutateAsync({ tripId: id!, input });
-      setEditOpen(false);
-    } catch {
-      // onError toast shown by useUpdateTrip
-    }
+  function handleEditSubmit(input: UpdateTripInput) {
+    setEditOpen(false);
+    updateTrip.mutate({ tripId: id!, input });
   }
 
   return (
@@ -135,7 +132,7 @@ export default function OverviewTab() {
           visible={editOpen}
           onClose={() => setEditOpen(false)}
           onSubmit={handleEditSubmit}
-          isPending={updateTrip.isPending}
+          isPending={isMutationBusy(updateTrip)}
           trip={trip}
         />
       )}

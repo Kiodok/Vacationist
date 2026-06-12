@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip, TripNotFoundError } from '@vacationist/api';
-import type { CreateTripInput, UpdateTripInput } from '@vacationist/types';
+import { getTrips, getTrip, createTrip, softDeleteTrip, TripNotFoundError } from '@vacationist/api';
+import type { CreateTripInput, Trip, UpdateTripVariables } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -66,19 +66,27 @@ export function useCreateTrip() {
   });
 }
 
+// mutationFn + onSuccess (invalidation + toast) live in mutationDefaults so
+// the persisted mutation replays correctly after a cold start.
 export function useUpdateTrip() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: ({ tripId, input }: { tripId: string; input: UpdateTripInput }) =>
-      updateTrip(tripId, input),
-    onSuccess: (_data, { tripId }) => {
-      queryClient.invalidateQueries({ queryKey: ['trips'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId] });
-      addToast('success', i18n.t('trips:toast.updated'));
+  return useMutation<Trip, Error, UpdateTripVariables, { previous: Trip | undefined }>({
+    mutationKey: ['updateTrip'],
+    onMutate: async ({ tripId, input }) => {
+      await queryClient.cancelQueries({ queryKey: ['trips', tripId], exact: true });
+      const previous = queryClient.getQueryData<Trip>(['trips', tripId]);
+      queryClient.setQueryData<Trip>(
+        ['trips', tripId],
+        (old) => (old ? { ...old, ...input } : old),
+      );
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(['trips', tripId], context.previous);
+      }
       addToast('error', i18n.t('trips:toast.updateFailed'));
     },
   });

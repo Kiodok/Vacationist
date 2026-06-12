@@ -129,7 +129,9 @@
       "Bash(git show *)",
       "Bash(npx vitest *)",
       "Bash(cat)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "PowerShell(npm run *)",
+      "PowerShell(npm test *)"
     ]
   },
   "model": "opusplan",

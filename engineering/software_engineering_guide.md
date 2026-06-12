@@ -359,11 +359,49 @@ The data model determines whether the app stays maintainable or becomes chaotic.
 
 ---
 
-### 7. Error Handling and Network Resilience
+### 7. Error Handling, Network Resilience & Offline Mode
 
-Vacationist does NOT support offline mode in V1.
+Vacationist is **offline-first** (overhauled June 2026). The app must stay fully responsive without a connection: cached data renders, queued changes apply optimistically and sync on reconnect, and no button or screen may ever hang on a network call.
 
-However, the app must handle network failures gracefully at all times.
+#### Offline Foundation
+
+- TanStack Query runs with `networkMode: 'offlineFirst'` for queries and mutations (`apps/mobile/src/utils/queryClient.ts`). Defaults: `retry: 2` (queries) / `retry: 3` (mutations), `staleTime: 30s`, `gcTime: 24h`.
+- The query cache is persisted to MMKV via `PersistQueryClientProvider` (`apps/mobile/src/providers/QueryProvider.tsx`, `maxAge: 24h` — matches `gcTime`). `travelDocuments` is excluded from persistence (sensitive); optimistic-ID list entries are stripped on serialize.
+- `NetworkProvider` feeds a single NetInfo subscription into both the `useNetworkStatus()` context and TanStack's `onlineManager`. On rehydrate-while-online, paused mutations are resumed and queries invalidated.
+- The Supabase client (`packages/api/src/client.ts`) wraps `fetch` with a hard timeout: **15 s** default, **60 s** for `/storage/v1/` uploads. A hung request on a flaky connection aborts into the retry → offline-pause path instead of blocking the UI for the OS default (60 s+).
+
+#### CRITICAL — Paused-Mutation Semantics
+
+With `offlineFirst`, a mutation that fails while offline is **paused**, not errored: `isPending` stays `true` until reconnect and `onError` never fires. Treating "paused" as "in flight" is what freezes the UI offline. Therefore:
+
+1. **Never bind UI busy-state to raw `isPending`.** Use `isMutationBusy(mutation)` from `apps/mobile/src/utils/mutationStatus.ts` (`isPending && !isPaused`) for every `isPending` / `disabled` prop.
+2. **Close sheets/modals BEFORE calling `mutate()`**, never in an inline `onSuccess` callback — a paused mutation would leave the sheet open forever. Allowed exceptions (server outcome genuinely gates the next UI state): `NudgeSheet`, document-access request (trip settings), `CopyPackingListSheet`. New code needs Tech Lead sign-off to add an exception.
+3. **Never drive loading UI from `isFetching` or `isRefetching`** — a paused query keeps `isFetching: true` forever. Use `getQueryDisplayState(query)` from `apps/mobile/src/hooks/useOfflineAwareQuery.ts`:
+   - `showSkeleton` — genuine initial load (`isPending && fetchStatus === 'fetching'`)
+   - `showOfflineEmpty` — no cached data while offline → render `<OfflineEmptyState onRetry={refetch} />` (`apps/mobile/src/components/OfflineEmptyState.tsx`)
+   - `refreshing` — drives `RefreshControl`; never `true` while paused
+
+#### Persisted Mutation Workflow (required for every new mutation)
+
+Offline-queued mutations survive an app kill and replay on reconnect only if registered. For each new mutation, in this order:
+
+1. **Variables type** in `packages/types/src/schemas.ts` — self-contained `*Variables` object carrying everything needed for replay (`tripId` etc. in the variables, NEVER captured from a hook closure; the persisted payload has no closure).
+2. **Hook** (`features/<feature>/hooks/`) — `mutationKey: ['<key>']` (or `['<key>', tripId]`; defaults partial-match on the first element), `onMutate` optimistic cache update + `onError` rollback with error toast. No `onSuccess` in the hook — a hook-level `onSuccess` would override the default and break replay behavior.
+3. **Defaults** in `apps/mobile/src/utils/mutationDefaults.ts` — `mutationFn` + `onSuccess` (invalidation + success toast). This is what replays after a cold start, when the hook's closure no longer exists.
+4. **Register the key** in `PERSISTED_MUTATION_KEYS` (`apps/mobile/src/utils/queryClient.ts`).
+
+Reference implementations: `useActivities.ts` (update/delete/voting), `useNotes.ts` (optimistic create with `createOptimisticId()`).
+
+**Deliberately NOT persisted** (immediate feedback + generic "could not be saved" warning toast from the mutation-cache subscriber): travel documents (sensitive, cache-excluded), profile update, invites/members (security-sensitive), `sendNudge` (stale push on replay), `copyPackingList`, prework preferences, recipe/ingredient sync flows, transfer passenger assignment (set-replace → silent overwrite on stale replay). Do not add these to `PERSISTED_MUTATION_KEYS`.
+
+#### Offline Banner & Sync Feedback
+
+`apps/mobile/src/components/OfflineBanner.tsx` is the single sync-status surface:
+- Offline with queued work → "*N* changes will sync when you're back online" (count via `useMutationState` filtering paused mutations)
+- Offline, nothing queued → static offline notice
+- Reconnect with queued work → "Syncing changes…" → green "All changes synced" (~2.5 s) → hidden
+
+All banner strings live under `offline.*` in `packages/i18n` (`en` + `de`).
 
 #### Global Error Boundary
 
@@ -373,14 +411,7 @@ Every top-level screen must be wrapped in a React Error Boundary. Uncaught rende
 
 Every TanStack Query operation must define:
 - `retry: 2` (automatic retry for transient failures)
-- `onError` handler per mutation that shows a dismissible toast notification
-
-#### Connectivity Loss
-
-- Use `@react-native-community/netinfo` to monitor connectivity
-- When connection is lost, show a persistent non-blocking banner: "You're offline – changes may not save"
-- When connection is restored, automatically trigger a refetch of active queries
-- Pending mutations that fail due to connectivity must surface a user-visible error with a "Try again" action
+- `onError` handler per mutation that shows a dismissible toast notification (for persisted mutations this fires only for real server errors after reconnect — offline pauses are not errors)
 
 #### Supabase Realtime Disconnection
 
@@ -1156,7 +1187,12 @@ A `<GlobalErrorBoundary>` wraps the entire navigation tree as a last-resort fall
 - Use skeleton screens, not spinners, for initial data loads
 - Use inline loading indicators for refetch operations only (e.g., pull-to-refresh spinner)
 - Never show a full-page loading spinner unless the operation takes longer than 800ms
-- TanStack Query's `isLoading` vs `isFetching` distinction must be used correctly: skeletons for `isLoading`, subtle indicators for `isFetching`
+- **Never derive loading UI from raw `isLoading` / `isFetching` / `isRefetching`** — with `networkMode: 'offlineFirst'` a paused (offline) fetch keeps these flags `true` indefinitely, producing infinite skeletons and stuck pull-to-refresh spinners
+- Always go through `getQueryDisplayState(query)` (`apps/mobile/src/hooks/useOfflineAwareQuery.ts`):
+  - `showSkeleton` → skeleton component
+  - `showOfflineEmpty` → `<OfflineEmptyState onRetry={refetch} />` (no cached data while offline)
+  - `refreshing` → `RefreshControl` prop
+- Mutation busy-states (button disable, "Saving…" labels) use `isMutationBusy(mutation)` — see Section 3.7
 
 ---
 
@@ -2550,7 +2586,6 @@ WITHOUT:
 # 25. Long-Term Scalability (NOT V1)
 
 Possible future additions:
-- offline support
 - map integration
 - AI features
 - public trip pages

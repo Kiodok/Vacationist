@@ -10,7 +10,7 @@ interface NotificationPreferencesSectionProps {
 
 export function NotificationPreferencesSection({ tripId }: NotificationPreferencesSectionProps) {
   const { t } = useTranslation('notifications');
-  const { data: prefs, isLoading } = useNotificationPreferences(tripId);
+  const { data: prefs, isLoading, fetchStatus } = useNotificationPreferences(tripId);
   const { mutate: updatePrefs } = useUpdateNotificationPreferences(tripId);
 
   const PREFERENCE_ROWS: { key: keyof UpdateNotificationPreferencesInput; label: string }[] = [
@@ -23,7 +23,7 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
     { key: 'shared_packing',  label: t('preferences.sharedPacking') },
   ];
 
-  if (isLoading) {
+  if (isLoading && fetchStatus === 'fetching') {
     return (
       <View className="py-lg items-center">
         <ActivityIndicator size="small" color={colors.primary} />
@@ -31,6 +31,8 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
     );
   }
 
+  // No cached data while offline (fetch paused) — hide the section instead of
+  // spinning forever; it reappears once the preferences can be fetched.
   if (!prefs) return null;
 
   return (

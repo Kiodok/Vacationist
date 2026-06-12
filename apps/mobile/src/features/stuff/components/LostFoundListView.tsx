@@ -10,6 +10,9 @@ import { LostFoundCaseCard } from './LostFoundCaseCard';
 import { CreateLostFoundCaseSheet } from './CreateLostFoundCaseSheet';
 import { EditLostFoundCaseSheet } from './EditLostFoundCaseSheet';
 import { EmptyLostFound } from './EmptyPacking';
+import { isMutationBusy } from '../../../utils/mutationStatus';
+import { getQueryDisplayState } from '../../../hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../components/OfflineEmptyState';
 
 interface LostFoundListViewProps {
   tripId: string;
@@ -21,7 +24,9 @@ interface LostFoundListViewProps {
 }
 
 export function LostFoundListView({ tripId, currentUserId, role, members, memberNameMap, highlightId }: LostFoundListViewProps) {
-  const { data: cases, isLoading, isFetching, refetch } = useLostFoundCases(tripId);
+  const casesQuery = useLostFoundCases(tripId);
+  const { data: cases, refetch } = casesQuery;
+  const ux = getQueryDisplayState(casesQuery);
   const createCase = useCreateLostFoundCase(tripId);
   const updateCase = useUpdateLostFoundCase(tripId);
   const resolveCase = useResolveLostFoundCase(tripId);
@@ -48,19 +53,24 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
   }, [highlightId, sortedCases]);
 
   const handleCreate = (input: CreateLostFoundCaseInput) => {
-    createCase.mutate({ tripId, input }, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createCase.mutate({ tripId, input });
   };
 
   const handleUpdate = (caseId: string, input: UpdateLostFoundCaseInput) => {
-    updateCase.mutate({ caseId, tripId, input }, { onSuccess: () => setEditingCase(null) });
+    setEditingCase(null);
+    updateCase.mutate({ caseId, tripId, input });
   };
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (ux.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   const isEmpty = sortedCases.length === 0;
@@ -90,7 +100,7 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
           )}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -113,7 +123,7 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
         currentUserId={currentUserId}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createCase.isPending}
+        isPending={isMutationBusy(createCase)}
       />
 
       <EditLostFoundCaseSheet
@@ -123,7 +133,7 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
         currentUserId={currentUserId}
         onClose={() => setEditingCase(null)}
         onSubmit={handleUpdate}
-        isPending={updateCase.isPending}
+        isPending={isMutationBusy(updateCase)}
       />
     </View>
   );

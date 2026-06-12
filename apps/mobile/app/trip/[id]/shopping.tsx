@@ -22,6 +22,9 @@ import { CreateRecipeSheet } from '../../../src/features/recipes/components/Crea
 import { EmptyShopping } from '../../../src/features/shopping/components/EmptyShopping';
 import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyRecipes';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 type ViewMode = 'lists' | 'all' | 'recipes';
 
@@ -43,8 +46,12 @@ export default function ShoppingTab() {
     view === 'recipes' ? 'recipes' : 'lists'
   );
 
-  const { data: lists, isLoading, isFetching, refetch } = useShoppingLists(tripId!);
-  const { data: recipes, isLoading: recipesLoading, isFetching: recipesFetching, refetch: refetchRecipes } = useRecipes(tripId!, viewMode === 'recipes');
+  const listsQuery = useShoppingLists(tripId!);
+  const { data: lists, refetch } = listsQuery;
+  const listsUx = getQueryDisplayState(listsQuery);
+  const recipesQuery = useRecipes(tripId!, viewMode === 'recipes');
+  const { data: recipes, refetch: refetchRecipes } = recipesQuery;
+  const recipesUx = getQueryDisplayState(recipesQuery);
   const { data: shoppingStatus } = useRecipeShoppingStatus(tripId!, viewMode === 'recipes');
   useRecipesRealtime(viewMode === 'recipes' ? tripId! : '');
   const { data: role } = useCurrentMemberRole(tripId!);
@@ -88,15 +95,19 @@ export default function ShoppingTab() {
   }, [activeLists, completedLists, archivedLists, isCollapsed]);
 
   const handleCreate = (input: CreateShoppingListInput) => {
-    createList.mutate({ tripId: tripId!, input }, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createList.mutate({ tripId: tripId!, input });
   };
 
-  if (isLoading || (viewMode === 'recipes' && recipesLoading)) {
+  if (listsUx.showSkeleton || (viewMode === 'recipes' && recipesUx.showSkeleton)) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (listsUx.showOfflineEmpty || (viewMode === 'recipes' && recipesUx.showOfflineEmpty)) {
+    return <OfflineEmptyState onRetry={() => { refetch(); if (viewMode === 'recipes') refetchRecipes(); }} />;
   }
 
   const isEmpty = !lists || lists.length === 0;
@@ -140,7 +151,7 @@ export default function ShoppingTab() {
           shoppingStatus={shoppingStatus}
           role={role}
           currentUserId={user?.id}
-          isFetching={recipesFetching && !recipesLoading}
+          isFetching={recipesUx.refreshing}
           onRefresh={refetchRecipes}
           onPress={(id) => router.push(`/trip/recipe/${id}?tripId=${tripId}`)}
           onDelete={(id) => deleteRecipeMut.mutate(id)}
@@ -189,7 +200,7 @@ export default function ShoppingTab() {
           ItemSeparatorComponent={() => <View className="h-sm" />}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={listsUx.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -212,14 +223,17 @@ export default function ShoppingTab() {
         visible={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createList.isPending}
+        isPending={isMutationBusy(createList)}
       />
 
       <CreateRecipeSheet
         visible={showCreateRecipe}
         onClose={() => setShowCreateRecipe(false)}
-        onSubmit={(input: CreateRecipeInput) => createRecipe.mutate(input, { onSuccess: () => setShowCreateRecipe(false) })}
-        isPending={createRecipe.isPending}
+        onSubmit={(input: CreateRecipeInput) => {
+          setShowCreateRecipe(false);
+          createRecipe.mutate(input);
+        }}
+        isPending={isMutationBusy(createRecipe)}
       />
     </View>
   );
@@ -284,7 +298,9 @@ function RecipesView({
 
 function AllItemsView({ tripId }: { tripId: string }) {
   const { t } = useTranslation("shopping");
-  const { data: allItems, isLoading } = useAllTripShoppingItems(tripId);
+  const allItemsQuery = useAllTripShoppingItems(tripId);
+  const { data: allItems, refetch } = allItemsQuery;
+  const allItemsUx = getQueryDisplayState(allItemsQuery);
   const updateItem = useUpdateShoppingItemGlobal();
 
   const sections = useMemo(() => {
@@ -307,12 +323,15 @@ function AllItemsView({ tripId }: { tripId: string }) {
     updateItem.mutate({ itemId: item.id, tripId, input: { status: newStatus } });
   };
 
-  if (isLoading) {
+  if (allItemsUx.showSkeleton) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (allItemsUx.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   if (!allItems || allItems.length === 0) {

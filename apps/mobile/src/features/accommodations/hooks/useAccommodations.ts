@@ -1,16 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  getAccommodations,
-  getAccommodation,
-  createAccommodation,
-  updateAccommodation,
-  softDeleteAccommodation,
-  closeAccommodationVoting,
-  reopenAccommodationVoting,
-} from '@vacationist/api';
-import type { CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
+import { getAccommodations, getAccommodation } from '@vacationist/api';
+import type {
+  Accommodation,
+  CreateAccommodationVariables,
+  UpdateAccommodationVariables,
+  DeleteAccommodationVariables,
+  BookAccommodationVariables,
+  CloseAccommodationVotingVariables,
+} from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
+import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
+import { useAuthStore } from '../../../stores/authStore';
 
 export function useAccommodations(tripId: string) {
   return useQuery({
@@ -30,122 +31,175 @@ export function useAccommodation(accommodationId: string) {
   });
 }
 
-export function useCreateAccommodation(tripId: string) {
+// mutationFn + onSuccess (invalidation + toast) live in mutationDefaults so
+// persisted mutations replay correctly after a cold start. Hooks keep
+// onMutate (optimistic update) and onError (rollback + toast).
+
+type ListContext = { previous: Accommodation[] | undefined };
+
+function listKey(tripId: string) {
+  return ['trips', tripId, 'accommodations'] as const;
+}
+
+export function useCreateAccommodation() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (input: CreateAccommodationInput) => createAccommodation(tripId, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      addToast('success', i18n.t('accommodations:toast.added'));
+  return useMutation<Accommodation, Error, CreateAccommodationVariables, ListContext>({
+    mutationKey: ['createAccommodation'],
+    onMutate: async ({ tripId, input }) => {
+      await queryClient.cancelQueries({ queryKey: listKey(tripId) });
+      const previous = queryClient.getQueryData<Accommodation[]>(listKey(tripId));
+
+      const optimistic: Accommodation = {
+        id: createOptimisticId(),
+        trip_id: tripId,
+        title: input.title,
+        description: input.description ?? null,
+        price_total: input.price_total ?? null,
+        external_url: input.external_url ?? null,
+        notes: input.notes ?? null,
+        status: 'suggested',
+        voting_open: true,
+        auto_close: input.auto_close ?? false,
+        check_in_date: input.check_in_date ?? null,
+        check_out_date: input.check_out_date ?? null,
+        created_by: useAuthStore.getState().user?.id ?? '',
+        created_at: new Date().toISOString(),
+        deleted_at: null,
+      };
+      queryClient.setQueryData<Accommodation[]>(listKey(tripId), (old) => [...(old ?? []), optimistic]);
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(listKey(tripId), context.previous);
+      }
       addToast('error', i18n.t('accommodations:toast.addFailed'));
     },
   });
 }
 
-export function useUpdateAccommodation(tripId: string) {
+export function useUpdateAccommodation() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: ({ accommodationId, input }: { accommodationId: string; input: UpdateAccommodationInput }) =>
-      updateAccommodation(accommodationId, input),
-    onSuccess: (_data, { accommodationId }) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId] });
-      addToast('success', i18n.t('accommodations:toast.updated'));
+  return useMutation<Accommodation, Error, UpdateAccommodationVariables, ListContext>({
+    mutationKey: ['updateAccommodation'],
+    onMutate: async ({ accommodationId, tripId, input }) => {
+      await queryClient.cancelQueries({ queryKey: listKey(tripId) });
+      const previous = queryClient.getQueryData<Accommodation[]>(listKey(tripId));
+      queryClient.setQueryData<Accommodation[]>(
+        listKey(tripId),
+        (old) => old?.map((a) => (a.id === accommodationId ? { ...a, ...input } : a)),
+      );
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(listKey(tripId), context.previous);
+      }
       addToast('error', i18n.t('accommodations:toast.updateFailed'));
     },
   });
 }
 
-export function useDeleteAccommodation(tripId: string) {
+export function useDeleteAccommodation() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (accommodationId: string) => softDeleteAccommodation(accommodationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      addToast('success', i18n.t('accommodations:toast.removed'));
+  return useMutation<void, Error, DeleteAccommodationVariables, ListContext>({
+    mutationKey: ['deleteAccommodation'],
+    onMutate: async ({ accommodationId, tripId }) => {
+      await queryClient.cancelQueries({ queryKey: listKey(tripId) });
+      const previous = queryClient.getQueryData<Accommodation[]>(listKey(tripId));
+      queryClient.setQueryData<Accommodation[]>(
+        listKey(tripId),
+        (old) => old?.filter((a) => a.id !== accommodationId),
+      );
+      return { previous };
     },
-    onError: (error: Error) => {
+    onError: (error, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(listKey(tripId), context.previous);
+      }
       addToast('error', error.message || i18n.t('accommodations:toast.removeFailed'));
     },
   });
 }
 
-export function useBookAccommodation(tripId: string) {
+function useSetAccommodationStatus(
+  mutationKey: 'bookAccommodation' | 'unbookAccommodation',
+  status: Accommodation['status'],
+) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (accommodationId: string) =>
-      updateAccommodation(accommodationId, { status: 'booked' }),
-    onSuccess: (_data, accommodationId) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId] });
-      addToast('success', i18n.t('accommodations:toast.booked'));
+  return useMutation<Accommodation, Error, BookAccommodationVariables, ListContext>({
+    mutationKey: [mutationKey],
+    onMutate: async ({ accommodationId, tripId }) => {
+      await queryClient.cancelQueries({ queryKey: listKey(tripId) });
+      const previous = queryClient.getQueryData<Accommodation[]>(listKey(tripId));
+      queryClient.setQueryData<Accommodation[]>(
+        listKey(tripId),
+        (old) => old?.map((a) => (a.id === accommodationId ? { ...a, status } : a)),
+      );
+      return { previous };
     },
-    onError: () => {
-      addToast('error', i18n.t('accommodations:toast.bookFailed'));
+    onError: (_err, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(listKey(tripId), context.previous);
+      }
+      addToast(
+        'error',
+        i18n.t(status === 'booked' ? 'accommodations:toast.bookFailed' : 'accommodations:toast.unbookFailed'),
+      );
     },
   });
 }
 
-export function useUnbookAccommodation(tripId: string) {
+export function useBookAccommodation() {
+  return useSetAccommodationStatus('bookAccommodation', 'booked');
+}
+
+export function useUnbookAccommodation() {
+  return useSetAccommodationStatus('unbookAccommodation', 'suggested');
+}
+
+function useSetAccommodationVotingOpen(
+  mutationKey: 'closeAccommodationVoting' | 'reopenAccommodationVoting',
+  votingOpen: boolean,
+) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (accommodationId: string) =>
-      updateAccommodation(accommodationId, { status: 'suggested' }),
-    onSuccess: (_data, accommodationId) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId] });
-      addToast('success', i18n.t('accommodations:toast.unbooked'));
+  return useMutation<void, Error, CloseAccommodationVotingVariables, ListContext>({
+    mutationKey: [mutationKey],
+    onMutate: async ({ accommodationId, tripId }) => {
+      await queryClient.cancelQueries({ queryKey: listKey(tripId) });
+      const previous = queryClient.getQueryData<Accommodation[]>(listKey(tripId));
+      queryClient.setQueryData<Accommodation[]>(
+        listKey(tripId),
+        (old) => old?.map((a) => (a.id === accommodationId ? { ...a, voting_open: votingOpen } : a)),
+      );
+      return { previous };
     },
-    onError: () => {
-      addToast('error', i18n.t('accommodations:toast.unbookFailed'));
+    onError: (_err, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(listKey(tripId), context.previous);
+      }
+      addToast(
+        'error',
+        i18n.t(votingOpen ? 'accommodations:toast.reopenVotingFailed' : 'accommodations:toast.closeVotingFailed'),
+      );
     },
   });
 }
 
-export function useCloseAccommodationVoting(tripId: string) {
-  const queryClient = useQueryClient();
-  const addToast = useToastStore((s) => s.addToast);
-
-  return useMutation({
-    mutationFn: (accommodationId: string) => closeAccommodationVoting(accommodationId),
-    onSuccess: (_data, accommodationId) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
-      addToast('success', i18n.t('accommodations:toast.votingClosed'));
-    },
-    onError: () => {
-      addToast('error', i18n.t('accommodations:toast.closeVotingFailed'));
-    },
-  });
+export function useCloseAccommodationVoting() {
+  return useSetAccommodationVotingOpen('closeAccommodationVoting', false);
 }
 
-export function useReopenAccommodationVoting(tripId: string) {
-  const queryClient = useQueryClient();
-  const addToast = useToastStore((s) => s.addToast);
-
-  return useMutation({
-    mutationFn: (accommodationId: string) => reopenAccommodationVoting(accommodationId),
-    onSuccess: (_data, accommodationId) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
-      queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
-      addToast('success', i18n.t('accommodations:toast.votingReopened'));
-    },
-    onError: () => {
-      addToast('error', i18n.t('accommodations:toast.reopenVotingFailed'));
-    },
-  });
+export function useReopenAccommodationVoting() {
+  return useSetAccommodationVotingOpen('reopenAccommodationVoting', true);
 }

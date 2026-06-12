@@ -21,6 +21,9 @@ import { ExpenseListSkeleton } from '../../../src/features/expenses/components/E
 import { SettlementsCard } from '../../../src/features/expenses/components/SettlementsCard';
 import { SettlementsModal } from '../../../src/features/expenses/components/SettlementsModal';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 const SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; iconColor: string; textClass: string }> = {
   active:    { icon: 'wallet-outline',         iconColor: colors.textPrimary, textClass: 'text-text-primary' },
@@ -34,15 +37,15 @@ export default function ExpensesTab() {
   const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
+  const expensesQuery = useExpenses(tripId!);
   const {
     data: expensesData,
-    isLoading,
-    isFetching,
     refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useExpenses(tripId!);
+  } = expensesQuery;
+  const ux = getQueryDisplayState(expensesQuery);
   const expenses = useMemo(
     () => expensesData?.pages.flatMap((p) => p.items) ?? [],
     [expensesData],
@@ -99,7 +102,8 @@ export default function ExpensesTab() {
   }, [activeExpenses, completedExpenses, archivedExpenses, isCollapsed]);
 
   const handleCreate = (input: CreateExpenseInput) => {
-    createExpense.mutate({ tripId: tripId!, input }, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createExpense.mutate({ tripId: tripId!, input });
   };
 
   // Scroll to and highlight the expense when navigating from a notification.
@@ -126,8 +130,11 @@ export default function ExpensesTab() {
     }
   }, [resolvedHighlightId, sections, activeExpenses, completedExpenses, archivedExpenses, isCollapsed, toggle]);
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return <ExpenseListSkeleton />;
+  }
+  if (ux.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   const currency = trip?.base_currency ?? 'EUR';
@@ -195,7 +202,7 @@ export default function ExpensesTab() {
           )}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -222,7 +229,7 @@ export default function ExpensesTab() {
           visible
           onClose={() => setShowCreate(false)}
           onSubmit={handleCreate}
-          isPending={createExpense.isPending}
+          isPending={isMutationBusy(createExpense)}
           members={members}
           currentUserId={user.id}
           currency={currency}
@@ -403,9 +410,10 @@ function ExpenseCardWithSplits({
           visible={showEdit}
           onClose={() => setShowEdit(false)}
           onSubmit={(input) => {
-            updateExpense.mutate({ expenseId: expense.id, tripId, input }, { onSuccess: () => setShowEdit(false) });
+            setShowEdit(false);
+            updateExpense.mutate({ expenseId: expense.id, tripId, input });
           }}
-          isPending={updateExpense.isPending}
+          isPending={isMutationBusy(updateExpense)}
           expense={expense}
           splits={splits}
           members={members}

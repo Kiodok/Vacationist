@@ -8,9 +8,36 @@ import { i18n } from '@vacationist/i18n';
 export const PERSISTED_MUTATION_KEYS = [
   // Activities
   'createActivity',
+  'updateActivity',
+  'deleteActivity',
+  'closeActivityVoting',
+  'reopenActivityVoting',
   'castActivityVote',
   'castAccommodationVote',
   'castTransferFlightVote',
+  // Trips
+  'updateTrip',
+  // Accommodations
+  'createAccommodation',
+  'updateAccommodation',
+  'deleteAccommodation',
+  'bookAccommodation',
+  'unbookAccommodation',
+  'closeAccommodationVoting',
+  'reopenAccommodationVoting',
+  // Transfers
+  'createTransferFlight',
+  'updateTransferFlight',
+  'deleteTransferFlight',
+  'closeTransferFlightVoting',
+  'reopenTransferFlightVoting',
+  'bookTransferFlight',
+  'createTransferVehicle',
+  'updateTransferVehicle',
+  'deleteTransferVehicle',
+  'createTransferRental',
+  'updateTransferRental',
+  'deleteTransferRental',
   // Expenses
   'createExpense',
   'updateExpenseWithSplits',
@@ -32,6 +59,25 @@ export const PERSISTED_MUTATION_KEYS = [
   'updateShoppingItem',
   'updateShoppingItemGlobal',
   'deleteShoppingItem',
+  // Packing & lost-found
+  'createPackingItem',
+  'updatePackingItem',
+  'deletePackingItem',
+  'createSharedPackingItem',
+  'updateSharedPackingItem',
+  'claimSharedPackingItem',
+  'unclaimSharedPackingItem',
+  'deleteSharedPackingItem',
+  'createLostFoundCase',
+  'updateLostFoundCase',
+  'resolveLostFoundCase',
+  'unresolveLostFoundCase',
+  'deleteLostFoundCase',
+  // Trip notes
+  'createTripNote',
+  'updateTripNote',
+  'deleteTripNote',
+  'toggleTripNoteDone',
   // Notifications
   'markNotificationRead',
   'markAllNotificationsRead',
@@ -46,7 +92,11 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: 0,
+      // 30 s: avoids refetch churn on every tab switch/remount. Freshness is
+      // preserved by explicit invalidateQueries after mutations, realtime
+      // invalidations, and per-screen refetchInterval polling — all of which
+      // bypass staleTime.
+      staleTime: 30 * 1000,
       gcTime: 24 * 60 * 60 * 1000,      // 24 h — matches PersistQueryClientProvider.maxAge
       refetchOnWindowFocus: true,
       networkMode: 'offlineFirst',

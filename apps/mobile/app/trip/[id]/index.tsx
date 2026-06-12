@@ -13,6 +13,8 @@ import { StatusBadge } from '../../../src/features/trips/components/StatusBadge'
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
 import { colors } from '@vacationist/ui';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import OverviewTab from './overview';
 import PreworkTab from './prework';
 import ActivitiesTab from './activities';
@@ -58,7 +60,9 @@ export default function TripDetailScreen() {
   };
   const { id, tab } = useLocalSearchParams<{ id: string; tab?: string }>();
   const router = useRouter();
-  const { data: trip, isLoading, isError, error } = useTrip(id!);
+  const tripQuery = useTrip(id!);
+  const { data: trip, isError, error, refetch } = tripQuery;
+  const ux = getQueryDisplayState(tripQuery);
   const authLoading = useAuthStore((s) => s.isLoading);
   useTripRealtime(id!);
   const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab(tab));
@@ -73,10 +77,18 @@ export default function TripDetailScreen() {
     }
   };
 
-  if (isLoading || authLoading) {
+  if (ux.showSkeleton || authLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center">
         <ActivityIndicator color={colors.primary} size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  if (ux.showOfflineEmpty) {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <OfflineEmptyState onRetry={refetch} />
       </SafeAreaView>
     );
   }

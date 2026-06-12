@@ -16,6 +16,9 @@ import { AddShoppingItemInput } from '../../../src/features/shopping/components/
 import { EditShoppingItemSheet } from '../../../src/features/shopping/components/EditShoppingItemSheet';
 import { EditShoppingListSheet } from '../../../src/features/shopping/components/EditShoppingListSheet';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function ShoppingListDetail() {
   const { listId, tripId } = useLocalSearchParams<{ listId: string; tripId: string }>();
@@ -35,7 +38,9 @@ export default function ShoppingListDetail() {
   const { data: lists } = useShoppingLists(tripId!);
   const list = lists?.find((l) => l.id === listId);
 
-  const { data: items, isLoading, isFetching, refetch } = useShoppingItems(listId!);
+  const itemsQuery = useShoppingItems(listId!);
+  const { data: items, refetch } = itemsQuery;
+  const ux = getQueryDisplayState(itemsQuery);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createItem = useCreateShoppingItem();
   const updateItem = useUpdateShoppingItem();
@@ -70,18 +75,14 @@ export default function ShoppingListDetail() {
 
   const handleEditSubmit = (input: UpdateShoppingItemInput) => {
     if (!editingItem) return;
-    updateItem.mutate(
-      { itemId: editingItem.id, listId: listId!, tripId: tripId!, input },
-      { onSuccess: () => setEditingItem(null) },
-    );
+    setEditingItem(null);
+    updateItem.mutate({ itemId: editingItem.id, listId: listId!, tripId: tripId!, input });
   };
 
   const handleDelete = () => {
     if (!editingItem) return;
-    deleteItem.mutate(
-      { itemId: editingItem.id, listId: listId!, tripId: tripId! },
-      { onSuccess: () => setEditingItem(null) },
-    );
+    setEditingItem(null);
+    deleteItem.mutate({ itemId: editingItem.id, listId: listId!, tripId: tripId! });
   };
 
   return (
@@ -122,7 +123,10 @@ export default function ShoppingListDetail() {
               </Pressable>
             ) : (
               <Pressable
-                onPress={() => archiveList.mutate({ listId: listId!, tripId: tripId! }, { onSuccess: () => goBackToTrip() })}
+                onPress={() => {
+                  archiveList.mutate({ listId: listId!, tripId: tripId! });
+                  goBackToTrip();
+                }}
                 className="p-xs"
                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
               >
@@ -145,8 +149,9 @@ export default function ShoppingListDetail() {
           <Text className="text-text-secondary text-body-small">{t('confirm.deleteList')}</Text>
           <Pressable
             onPress={() => {
-              deleteList.mutate({ listId: listId!, tripId: tripId! }, { onSuccess: () => goBackToTrip() });
               setConfirmDeleteList(false);
+              deleteList.mutate({ listId: listId!, tripId: tripId! });
+              goBackToTrip();
             }}
             className="px-md py-xs rounded-sm bg-danger/20"
           >
@@ -166,10 +171,12 @@ export default function ShoppingListDetail() {
         behavior="padding"
         keyboardVerticalOffset={Platform.OS === 'android' ? 80 : 0}
       >
-        {isLoading ? (
+        {ux.showSkeleton ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator color={colors.primary} />
           </View>
+        ) : ux.showOfflineEmpty ? (
+          <OfflineEmptyState onRetry={refetch} />
         ) : (
           <FlashList
             data={items}
@@ -193,7 +200,7 @@ export default function ShoppingListDetail() {
             )}
             refreshControl={
               <RefreshControl
-                refreshing={isFetching && !isLoading}
+                refreshing={ux.refreshing}
                 onRefresh={refetch}
                 tintColor={colors.primary}
                 colors={[colors.primary]}
@@ -204,7 +211,7 @@ export default function ShoppingListDetail() {
 
         <AddShoppingItemInput
           onAdd={handleAdd}
-          isPending={createItem.isPending}
+          isPending={isMutationBusy(createItem)}
         />
       </KeyboardAvoidingView>
 
@@ -214,7 +221,7 @@ export default function ShoppingListDetail() {
           onClose={() => setEditingItem(null)}
           onSubmit={handleEditSubmit}
           onDelete={handleDelete}
-          isPending={updateItem.isPending}
+          isPending={isMutationBusy(updateItem)}
           item={editingItem}
           canEdit={canEditItem(editingItem)}
           canDelete={canDeleteItem(editingItem)}
@@ -225,12 +232,10 @@ export default function ShoppingListDetail() {
         visible={showEditList}
         onClose={() => setShowEditList(false)}
         onSubmit={(input) => {
-          updateList.mutate(
-            { listId: listId!, tripId: tripId!, input },
-            { onSuccess: () => setShowEditList(false) },
-          );
+          setShowEditList(false);
+          updateList.mutate({ listId: listId!, tripId: tripId!, input });
         }}
-        isPending={updateList.isPending}
+        isPending={isMutationBusy(updateList)}
         currentTitle={list?.title ?? ''}
       />
     </SafeAreaView>

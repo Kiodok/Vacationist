@@ -10,6 +10,9 @@ import { CreatePackingItemSheet } from './CreatePackingItemSheet';
 import { EditPackingItemSheet } from './EditPackingItemSheet';
 import { EmptyPacking } from './EmptyPacking';
 import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
+import { isMutationBusy } from '../../../utils/mutationStatus';
+import { getQueryDisplayState } from '../../../hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../components/OfflineEmptyState';
 
 interface PrivatePackingListViewProps {
   tripId: string;
@@ -19,7 +22,9 @@ interface PrivatePackingListViewProps {
 export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingListViewProps) {
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
-  const { data: items, isLoading, isFetching, refetch } = usePackingItems(tripId);
+  const itemsQuery = usePackingItems(tripId);
+  const { data: items, refetch } = itemsQuery;
+  const ux = getQueryDisplayState(itemsQuery);
   const { data: categories = [] } = usePackingCategories();
   const createItem = useCreatePackingItem(tripId);
   const updateItem = useUpdatePackingItem(tripId);
@@ -69,11 +74,13 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
   }, [items, t]);
 
   const handleCreate = (input: CreatePackingItemInput) => {
-    createItem.mutate({ tripId, input }, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createItem.mutate({ tripId, input });
   };
 
   const handleEdit = (itemId: string, input: UpdatePackingItemInput) => {
-    updateItem.mutate({ itemId, tripId, input }, { onSuccess: () => setEditingItem(null) });
+    setEditingItem(null);
+    updateItem.mutate({ itemId, tripId, input });
   };
 
   const handleToggle = (item: PackingItem) => {
@@ -86,12 +93,15 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
     setActionItemId(null);
   };
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (ux.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   const isEmpty = !items || items.length === 0;
@@ -161,7 +171,7 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
           )}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -195,7 +205,7 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
         usedCustomCategories={usedCustomCategories}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createItem.isPending}
+        isPending={isMutationBusy(createItem)}
       />
 
       <EditPackingItemSheet
@@ -204,7 +214,7 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
         categories={categories}
         onClose={() => setEditingItem(null)}
         onSubmit={handleEdit}
-        isPending={updateItem.isPending}
+        isPending={isMutationBusy(updateItem)}
       />
     </View>
   );

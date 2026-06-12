@@ -17,6 +17,7 @@ import { YearGrid } from '../../src/features/calendar/components/YearGrid';
 import { CalendarActivitySheet } from '../../src/features/calendar/components/CalendarActivitySheet';
 import { GlobalCalendarTripSection } from '../../src/features/calendar/components/GlobalCalendarTripSection';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../src/utils/mutationStatus';
 
 export default function GlobalCalendarScreen() {
   const { t } = useTranslation('calendar');
@@ -124,14 +125,14 @@ export default function GlobalCalendarScreen() {
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [editingTripDates, setEditingTripDates] = useState<{ start_date: string; end_date: string; trip_id: string } | null>(null);
 
-  const updateActivityMutation = useUpdateActivity(editingTripDates?.trip_id ?? '');
+  const updateActivityMutation = useUpdateActivity();
 
   const handleUpdate = (input: UpdateActivityInput) => {
     if (!editingActivity) return;
-    updateActivityMutation.mutate(
-      { activityId: editingActivity.id, input },
-      { onSuccess: () => { setEditingActivity(null); setEditingTripDates(null); } },
-    );
+    const tripId = editingActivity.trip_id;
+    setEditingActivity(null);
+    setEditingTripDates(null);
+    updateActivityMutation.mutate({ activityId: editingActivity.id, tripId, input });
   };
 
   if (tripsLoading || activitiesLoading) {
@@ -238,7 +239,7 @@ export default function GlobalCalendarScreen() {
           visible={!!editingActivity}
           onClose={() => { setEditingActivity(null); setEditingTripDates(null); }}
           onSubmit={handleUpdate}
-          isPending={updateActivityMutation.isPending}
+          isPending={isMutationBusy(updateActivityMutation)}
           activity={editingActivity}
           tripStartDate={editingTripDates.start_date}
           tripEndDate={editingTripDates.end_date}

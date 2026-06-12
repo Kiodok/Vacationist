@@ -18,41 +18,52 @@ import { EditAccommodationSheet } from '../../../src/features/accommodations/com
 import { EmptyAccommodations } from '../../../src/features/accommodations/components/EmptyAccommodations';
 import { AccommodationNotesSection } from '../../../src/features/accommodations/components/AccommodationNotesSection';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function AccommodationsTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
-  const { data: accommodations, isLoading, isFetching, refetch } = useAccommodations(tripId!);
+  const accommodationsQuery = useAccommodations(tripId!);
+  const { data: accommodations, refetch } = accommodationsQuery;
+  const ux = getQueryDisplayState(accommodationsQuery);
   const { data: role } = useCurrentMemberRole(tripId!);
-  const createAccommodation = useCreateAccommodation(tripId!);
-  const updateAccommodationMutation = useUpdateAccommodation(tripId!);
-  const deleteAccommodation = useDeleteAccommodation(tripId!);
-  const closeVoting = useCloseAccommodationVoting(tripId!);
-  const reopenVoting = useReopenAccommodationVoting(tripId!);
+  const createAccommodation = useCreateAccommodation();
+  const updateAccommodationMutation = useUpdateAccommodation();
+  const deleteAccommodation = useDeleteAccommodation();
+  const closeVoting = useCloseAccommodationVoting();
+  const reopenVoting = useReopenAccommodationVoting();
   useAccommodationVotesRealtime(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingAccommodation, setEditingAccommodation] = useState<Accommodation | null>(null);
 
   const handleCreate = (input: CreateAccommodationInput) => {
-    createAccommodation.mutate(input, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createAccommodation.mutate({ tripId: tripId!, input });
   };
 
   const handleUpdate = (input: UpdateAccommodationInput) => {
     if (!editingAccommodation) return;
-    updateAccommodationMutation.mutate(
-      { accommodationId: editingAccommodation.id, input },
-      { onSuccess: () => setEditingAccommodation(null) },
-    );
+    setEditingAccommodation(null);
+    updateAccommodationMutation.mutate({
+      accommodationId: editingAccommodation.id,
+      tripId: tripId!,
+      input,
+    });
   };
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (ux.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   return (
@@ -76,15 +87,15 @@ export default function AccommodationsTab() {
             tripStartDate={trip?.start_date ?? null}
             tripEndDate={trip?.end_date ?? null}
             onEdit={() => setEditingAccommodation(item)}
-            onDelete={() => deleteAccommodation.mutate(item.id)}
-            onCloseVoting={() => closeVoting.mutate(item.id)}
-            onReopenVoting={() => reopenVoting.mutate(item.id)}
-            onToggleAutoClose={(val) => updateAccommodationMutation.mutate({ accommodationId: item.id, input: { auto_close: val } })}
+            onDelete={() => deleteAccommodation.mutate({ accommodationId: item.id, tripId: tripId! })}
+            onCloseVoting={() => closeVoting.mutate({ accommodationId: item.id, tripId: tripId! })}
+            onReopenVoting={() => reopenVoting.mutate({ accommodationId: item.id, tripId: tripId! })}
+            onToggleAutoClose={(val) => updateAccommodationMutation.mutate({ accommodationId: item.id, tripId: tripId!, input: { auto_close: val } })}
           />
         )}
         refreshControl={
           <RefreshControl
-            refreshing={isFetching && !isLoading}
+            refreshing={ux.refreshing}
             onRefresh={refetch}
             tintColor={colors.primary}
             colors={[colors.primary]}
@@ -105,7 +116,7 @@ export default function AccommodationsTab() {
         visible={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createAccommodation.isPending}
+        isPending={isMutationBusy(createAccommodation)}
         currency={trip?.base_currency ?? 'EUR'}
         tripStartDate={trip?.start_date ?? null}
         tripEndDate={trip?.end_date ?? null}
@@ -116,7 +127,7 @@ export default function AccommodationsTab() {
           visible={!!editingAccommodation}
           onClose={() => setEditingAccommodation(null)}
           onSubmit={handleUpdate}
-          isPending={updateAccommodationMutation.isPending}
+          isPending={isMutationBusy(updateAccommodationMutation)}
           accommodation={editingAccommodation}
           currency={trip?.base_currency ?? 'EUR'}
           tripStartDate={trip?.start_date ?? null}
@@ -160,8 +171,8 @@ function AccommodationCardWithVotes({
   const { data: members } = useTripMembers(tripId);
   const castVote = useCastAccommodationVote();
   const removeVote = useRemoveAccommodationVote(tripId, accommodation.id);
-  const bookMutation = useBookAccommodation(tripId);
-  const unbookMutation = useUnbookAccommodation(tripId);
+  const bookMutation = useBookAccommodation();
+  const unbookMutation = useUnbookAccommodation();
   const [showVoteSheet, setShowVoteSheet] = useState(false);
 
   const memberMap = useMemo(
@@ -184,11 +195,13 @@ function AccommodationCardWithVotes({
   const canUnbook = role === 'organizer' && !accommodation.voting_open && accommodation.status === 'booked';
 
   const handleCastVote = (vote: VoteType) => {
-    castVote.mutate({ vote, accommodationId: accommodation.id, tripId }, { onSuccess: () => setShowVoteSheet(false) });
+    setShowVoteSheet(false);
+    castVote.mutate({ vote, accommodationId: accommodation.id, tripId });
   };
 
   const handleRemoveVote = () => {
-    removeVote.mutate(undefined, { onSuccess: () => setShowVoteSheet(false) });
+    setShowVoteSheet(false);
+    removeVote.mutate(undefined);
   };
 
   const detailContent = showDetail ? (
@@ -310,8 +323,8 @@ function AccommodationCardWithVotes({
             {canBook && (
               <TouchableOpacity
                 activeOpacity={0.7}
-                onPress={() => bookMutation.mutate(accommodation.id)}
-                disabled={bookMutation.isPending}
+                onPress={() => bookMutation.mutate({ accommodationId: accommodation.id, tripId })}
+                disabled={isMutationBusy(bookMutation)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
               >
                 <Ionicons name="checkmark-circle-outline" size={14} color={colors.success} />
@@ -321,8 +334,8 @@ function AccommodationCardWithVotes({
             {canUnbook && (
               <TouchableOpacity
                 activeOpacity={0.7}
-                onPress={() => unbookMutation.mutate(accommodation.id)}
-                disabled={unbookMutation.isPending}
+                onPress={() => unbookMutation.mutate({ accommodationId: accommodation.id, tripId })}
+                disabled={isMutationBusy(unbookMutation)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               >
                 <Ionicons name="close-circle-outline" size={14} color={colors.warning} />
@@ -365,7 +378,7 @@ function AccommodationCardWithVotes({
         votingOpen={accommodation.voting_open}
         onCastVote={handleCastVote}
         onRemoveVote={handleRemoveVote}
-        isPending={castVote.isPending}
+        isPending={isMutationBusy(castVote)}
         memberMap={memberMap}
       />
 

@@ -9,6 +9,9 @@ import { SharedPackingItemCard } from './SharedPackingItemCard';
 import { CreateSharedPackingItemSheet } from './CreateSharedPackingItemSheet';
 import { EditSharedPackingItemSheet } from './EditSharedPackingItemSheet';
 import { EmptySharedPacking } from './EmptyPacking';
+import { isMutationBusy } from '../../../utils/mutationStatus';
+import { getQueryDisplayState } from '../../../hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../components/OfflineEmptyState';
 
 interface SharedPackingListViewProps {
   tripId: string;
@@ -18,7 +21,9 @@ interface SharedPackingListViewProps {
 }
 
 export function SharedPackingListView({ tripId, currentUserId, role, memberNameMap }: SharedPackingListViewProps) {
-  const { data: items, isLoading, isFetching, refetch } = useSharedPackingItems(tripId);
+  const itemsQuery = useSharedPackingItems(tripId);
+  const { data: items, refetch } = itemsQuery;
+  const ux = getQueryDisplayState(itemsQuery);
   const createItem = useCreateSharedPackingItem(tripId);
   const claimItem = useClaimSharedPackingItem(tripId);
   const unclaimItem = useUnclaimSharedPackingItem(tripId);
@@ -34,19 +39,24 @@ export function SharedPackingListView({ tripId, currentUserId, role, memberNameM
   );
 
   const handleCreate = (input: CreateSharedPackingItemInput) => {
-    createItem.mutate({ tripId, input }, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createItem.mutate({ tripId, input });
   };
 
   const handleEdit = (itemId: string, input: UpdateSharedPackingItemInput) => {
-    updateItem.mutate({ itemId, input }, { onSuccess: () => setEditingItem(null) });
+    setEditingItem(null);
+    updateItem.mutate({ itemId, tripId, input });
   };
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (ux.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   const isEmpty = sortedItems.length === 0;
@@ -74,7 +84,7 @@ export function SharedPackingListView({ tripId, currentUserId, role, memberNameM
           )}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -95,7 +105,7 @@ export function SharedPackingListView({ tripId, currentUserId, role, memberNameM
         visible={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createItem.isPending}
+        isPending={isMutationBusy(createItem)}
       />
 
       <EditSharedPackingItemSheet
@@ -103,7 +113,7 @@ export function SharedPackingListView({ tripId, currentUserId, role, memberNameM
         item={editingItem}
         onClose={() => setEditingItem(null)}
         onSubmit={handleEdit}
-        isPending={updateItem.isPending}
+        isPending={isMutationBusy(updateItem)}
       />
     </View>
   );

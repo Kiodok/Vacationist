@@ -26,6 +26,7 @@ import { MemberAvatar } from '../../src/features/trips/components/MemberAvatar';
 import type { TravelDocument, UpsertTravelDocumentInput } from '@vacationist/types';
 import { isGuest } from '@vacationist/types';
 import { colors, useThemeColors } from '@vacationist/ui';
+import { isMutationBusy } from '../../src/utils/mutationStatus';
 import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestUpgradeBanner';
 import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
 import { useThemeStore } from '../../src/stores/themeStore';
@@ -212,7 +213,7 @@ export default function ProfileScreen() {
             requests={pendingRequests}
             onGrant={(requestId) => respondToRequest.mutate({ requestId, granted: true })}
             onDeny={(requestId) => respondToRequest.mutate({ requestId, granted: false })}
-            isPending={respondToRequest.isPending}
+            isPending={isMutationBusy(respondToRequest)}
           />
         )}
 
@@ -220,7 +221,7 @@ export default function ProfileScreen() {
         <ActiveGrantsBanner
           grants={activeGrants}
           onRevoke={(requestId) => revokeAccess.mutate(requestId)}
-          isRevoking={revokeAccess.isPending}
+          isRevoking={isMutationBusy(revokeAccess)}
         />
 
         {/* Travel documents */}
@@ -346,10 +347,11 @@ export default function ProfileScreen() {
       <EditProfileSheet
         visible={editProfileVisible}
         onClose={() => setEditProfileVisible(false)}
-        onSubmit={(input) =>
-          updateProfile.mutate(input, { onSuccess: () => setEditProfileVisible(false) })
-        }
-        isPending={updateProfile.isPending}
+        onSubmit={(input) => {
+          setEditProfileVisible(false);
+          updateProfile.mutate(input);
+        }}
+        isPending={isMutationBusy(updateProfile)}
         user={user}
       />
 
@@ -362,7 +364,7 @@ export default function ProfileScreen() {
         visible={addDocVisible}
         onClose={() => setAddDocVisible(false)}
         onSubmit={handleUpsert}
-        isPending={upsertDoc.isPending}
+        isPending={isMutationBusy(upsertDoc)}
         existingTypes={existingTypes}
       />
 
@@ -371,7 +373,7 @@ export default function ProfileScreen() {
           visible={!!editingDoc}
           onClose={() => setEditingDoc(null)}
           onSubmit={handleUpsert}
-          isPending={upsertDoc.isPending}
+          isPending={isMutationBusy(upsertDoc)}
           document={editingDoc}
         />
       )}

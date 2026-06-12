@@ -21,6 +21,9 @@ import { EmptyActivities } from '../../../src/features/activities/components/Emp
 import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
 import { ActivityNotesSection } from '../../../src/features/activities/components/ActivityNotesSection';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 function isTripLocked(endDate: string | null | undefined): boolean {
   if (!endDate) return false;
@@ -90,7 +93,9 @@ export default function ActivitiesTab() {
   const activityId = _activityId ?? _highlightId;
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
-  const { data: activities, isLoading, isFetching, refetch } = useActivities(tripId!);
+  const activitiesQuery = useActivities(tripId!);
+  const { data: activities, refetch } = activitiesQuery;
+  const ux = getQueryDisplayState(activitiesQuery);
   const { data: role } = useCurrentMemberRole(tripId!);
   const allActivityIds = useMemo(() => (activities ?? []).map((a) => a.id), [activities]);
   const { data: allVotes } = useActivityVotesBatch(allActivityIds);
@@ -103,10 +108,10 @@ export default function ActivitiesTab() {
     return blocked;
   }, [allVotes]);
   const createActivity = useCreateActivity();
-  const updateActivityMutation = useUpdateActivity(tripId!);
-  const deleteActivity = useDeleteActivity(tripId!);
-  const closeVoting = useCloseVoting(tripId!);
-  const reopenVoting = useReopenVoting(tripId!);
+  const updateActivityMutation = useUpdateActivity();
+  const deleteActivity = useDeleteActivity();
+  const closeVoting = useCloseVoting();
+  const reopenVoting = useReopenVoting();
   const locked = isTripLocked(trip?.end_date);
   useActivityVotesRealtime(tripId!);
 
@@ -203,14 +208,15 @@ export default function ActivitiesTab() {
 
   const handleUpdate = (input: UpdateActivityInput) => {
     if (!editingActivity) return;
-    updateActivityMutation.mutate(
-      { activityId: editingActivity.id, input },
-      { onSuccess: () => setEditingActivity(null) },
-    );
+    setEditingActivity(null);
+    updateActivityMutation.mutate({ activityId: editingActivity.id, tripId: tripId!, input });
   };
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return <ActivityListSkeleton />;
+  }
+  if (ux.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   const isEmpty = !activities || activities.length === 0;
@@ -257,16 +263,16 @@ export default function ActivitiesTab() {
                 isBlocked={blockedActivityIds.has(item.id)}
                 locked={locked}
                 onEdit={() => setEditingActivity(item)}
-                onDelete={() => deleteActivity.mutate(item.id)}
-                onCloseVoting={() => closeVoting.mutate(item.id)}
-                onReopenVoting={() => reopenVoting.mutate(item.id)}
-                onToggleAutoClose={(val) => updateActivityMutation.mutate({ activityId: item.id, input: { auto_close: val } })}
+                onDelete={() => deleteActivity.mutate({ activityId: item.id, tripId: tripId! })}
+                onCloseVoting={() => closeVoting.mutate({ activityId: item.id, tripId: tripId! })}
+                onReopenVoting={() => reopenVoting.mutate({ activityId: item.id, tripId: tripId! })}
+                onToggleAutoClose={(val) => updateActivityMutation.mutate({ activityId: item.id, tripId: tripId!, input: { auto_close: val } })}
               />
             </View>
           )}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -288,7 +294,7 @@ export default function ActivitiesTab() {
         visible={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createActivity.isPending}
+        isPending={isMutationBusy(createActivity)}
         tripStartDate={trip?.start_date ?? ''}
         tripEndDate={trip?.end_date ?? ''}
       />
@@ -298,7 +304,7 @@ export default function ActivitiesTab() {
           visible={!!editingActivity}
           onClose={() => setEditingActivity(null)}
           onSubmit={handleUpdate}
-          isPending={updateActivityMutation.isPending}
+          isPending={isMutationBusy(updateActivityMutation)}
           activity={editingActivity}
           tripStartDate={trip?.start_date ?? ''}
           tripEndDate={trip?.end_date ?? ''}
@@ -361,11 +367,13 @@ function ActivityCardWithVotes({
   const canReopenVoting = role === 'organizer' && !activity.voting_open;
 
   const handleCastVote = (vote: VoteType) => {
-    castVote.mutate({ vote, activityId: activity.id, tripId }, { onSuccess: () => setShowVoteSheet(false) });
+    setShowVoteSheet(false);
+    castVote.mutate({ vote, activityId: activity.id, tripId });
   };
 
   const handleRemoveVote = () => {
-    removeVote.mutate(undefined, { onSuccess: () => setShowVoteSheet(false) });
+    setShowVoteSheet(false);
+    removeVote.mutate(undefined);
   };
 
   const detailContent = showDetail ? (
@@ -528,7 +536,7 @@ function ActivityCardWithVotes({
         votingOpen={activity.voting_open}
         onCastVote={handleCastVote}
         onRemoveVote={handleRemoveVote}
-        isPending={castVote.isPending}
+        isPending={isMutationBusy(castVote)}
         memberMap={memberMap}
       />
     </>

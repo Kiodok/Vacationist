@@ -10,13 +10,17 @@ import { NotificationItem } from '../../../src/features/notifications/components
 import { EmptyNotifications } from '../../../src/features/notifications/components/EmptyNotifications';
 import { resolveNotificationPath } from '../../../src/features/notifications/utils/resolveNotificationPath';
 import { colors } from '@vacationist/ui';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function TripNotificationsScreen() {
   const { t } = useTranslation('notifications');
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
-  const { data: notifications = [], isLoading, refetch, isRefetching } = useTripNotifications(tripId!);
+  const notificationsQuery = useTripNotifications(tripId!);
+  const { data: notifications = [], refetch } = notificationsQuery;
+  const ux = getQueryDisplayState(notificationsQuery);
   const { mutate: markRead } = useMarkNotificationRead();
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsRead();
   const { mutate: deleteNotification } = useDeleteNotification();
@@ -54,10 +58,12 @@ export default function TripNotificationsScreen() {
         ) : null}
       </View>
 
-      {isLoading ? (
+      {ux.showSkeleton ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
+      ) : ux.showOfflineEmpty ? (
+        <OfflineEmptyState onRetry={refetch} />
       ) : (
         <FlashList
           data={notifications}
@@ -73,7 +79,7 @@ export default function TripNotificationsScreen() {
           ListEmptyComponent={<EmptyNotifications />}
           refreshControl={
             <RefreshControl
-              refreshing={isRefetching}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
             />

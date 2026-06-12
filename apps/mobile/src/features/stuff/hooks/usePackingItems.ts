@@ -15,7 +15,9 @@ import type {
   CopyPackingListVariables,
 } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
+import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
+import { useAuthStore } from '../../../stores/authStore';
 
 export function usePackingCategories() {
   return useQuery({
@@ -35,17 +37,44 @@ export function usePackingItems(tripId: string) {
   });
 }
 
+// onSuccess (invalidation) lives in mutationDefaults so persisted mutations
+// replay correctly after a cold start. Hooks keep onMutate/onError.
+
 export function useCreatePackingItem(tripId: string) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
+  return useMutation<PackingItem, Error, CreatePackingItemVariables, { previous: PackingItem[] | undefined }>({
     mutationKey: ['createPackingItem', tripId],
-    mutationFn: ({ input }: CreatePackingItemVariables) => createPackingItem(tripId, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'packing-items'] });
+    onMutate: async ({ tripId: tid, input }) => {
+      await queryClient.cancelQueries({ queryKey: ['trips', tid, 'packing-items'] });
+      const previous = queryClient.getQueryData<PackingItem[]>(['trips', tid, 'packing-items']);
+
+      const now = new Date().toISOString();
+      const optimistic: PackingItem = {
+        id: createOptimisticId(),
+        trip_id: tid,
+        user_id: useAuthStore.getState().user?.id ?? '',
+        category: input.category,
+        title: input.title,
+        is_packed: false,
+        notes: input.notes ?? null,
+        sort_order: 0,
+        source_shared_item_id: null,
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+      };
+      queryClient.setQueryData<PackingItem[]>(
+        ['trips', tid, 'packing-items'],
+        (old) => [...(old ?? []), optimistic],
+      );
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { tripId: tid }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(['trips', tid, 'packing-items'], context.previous);
+      }
       addToast('error', i18n.t('stuff:toast.createFailed'));
     },
   });

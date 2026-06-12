@@ -13,13 +13,17 @@ import { useCollapsibleSections } from '../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../src/components/CollapsibleSectionHeader';
 import type { Trip } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
+import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
 
 type TripWithCount = Trip & { member_count: number };
 
 export default function TripsScreen() {
   const { t } = useTranslation('trips');
   const router = useRouter();
-  const { data: trips, isLoading, isFetching, refetch } = useTrips();
+  const tripsQuery = useTrips();
+  const { data: trips, refetch } = tripsQuery;
+  const ux = getQueryDisplayState(tripsQuery);
   const user = useAuthStore((s) => s.user);
   const [avatarError, setAvatarError] = useState(false);
   const { toggle, isCollapsed } = useCollapsibleSections({ defaultCollapsed: ['completed'] });
@@ -82,10 +86,17 @@ export default function TripsScreen() {
     router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never);
   }
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <TripListSkeleton />
+      </SafeAreaView>
+    );
+  }
+  if (ux.showOfflineEmpty) {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <OfflineEmptyState onRetry={refetch} />
       </SafeAreaView>
     );
   }
@@ -149,7 +160,7 @@ export default function TripsScreen() {
         )}
         refreshControl={
           <RefreshControl
-            refreshing={isFetching && !isLoading}
+            refreshing={ux.refreshing}
             onRefresh={refetch}
             tintColor={colors.primary}
             colors={[colors.primary]}

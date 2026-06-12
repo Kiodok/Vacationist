@@ -40,6 +40,9 @@ import { EmptyFlights } from '../../../src/features/transfer/components/EmptyFli
 import { EmptyVehicles } from '../../../src/features/transfer/components/EmptyVehicles';
 import { EmptyRentals } from '../../../src/features/transfer/components/EmptyRentals';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 type Segment = 'All' | 'Flights' | 'Vehicles' | 'Rentals';
 
@@ -59,26 +62,32 @@ export default function TransferTab() {
   const rentalListRef = useRef<FlashListRef<TransferRental>>(null);
 
   // Flights
-  const { data: flights = [], isLoading: flightsLoading, isFetching: flightsFetching, refetch: refetchFlights } = useTransferFlights(tripId!);
-  const createFlight = useCreateTransferFlight(tripId!);
-  const updateFlightMutation = useUpdateTransferFlight(tripId!);
-  const deleteFlight = useDeleteTransferFlight(tripId!);
-  const closeFlightVoting = useCloseTransferFlightVoting(tripId!);
-  const reopenFlightVoting = useReopenTransferFlightVoting(tripId!);
-  const bookFlight = useBookTransferFlight(tripId!);
+  const flightsQuery = useTransferFlights(tripId!);
+  const { data: flights = [], refetch: refetchFlights } = flightsQuery;
+  const flightsUx = getQueryDisplayState(flightsQuery);
+  const createFlight = useCreateTransferFlight();
+  const updateFlightMutation = useUpdateTransferFlight();
+  const deleteFlight = useDeleteTransferFlight();
+  const closeFlightVoting = useCloseTransferFlightVoting();
+  const reopenFlightVoting = useReopenTransferFlightVoting();
+  const bookFlight = useBookTransferFlight();
   useTransferRealtime(tripId!);
 
   // Vehicles
-  const { data: vehicles = [], isLoading: vehiclesLoading, isFetching: vehiclesFetching, refetch: refetchVehicles } = useTransferVehicles(tripId!);
-  const createVehicle = useCreateTransferVehicle(tripId!);
-  const updateVehicleMutation = useUpdateTransferVehicle(tripId!);
-  const deleteVehicle = useDeleteTransferVehicle(tripId!);
+  const vehiclesQuery = useTransferVehicles(tripId!);
+  const { data: vehicles = [], refetch: refetchVehicles } = vehiclesQuery;
+  const vehiclesUx = getQueryDisplayState(vehiclesQuery);
+  const createVehicle = useCreateTransferVehicle();
+  const updateVehicleMutation = useUpdateTransferVehicle();
+  const deleteVehicle = useDeleteTransferVehicle();
 
   // Rentals
-  const { data: rentals = [], isLoading: rentalsLoading, isFetching: rentalsFetching, refetch: refetchRentals } = useTransferRentals(tripId!);
-  const createRental = useCreateTransferRental(tripId!);
-  const updateRentalMutation = useUpdateTransferRental(tripId!);
-  const deleteRental = useDeleteTransferRental(tripId!);
+  const rentalsQuery = useTransferRentals(tripId!);
+  const { data: rentals = [], refetch: refetchRentals } = rentalsQuery;
+  const rentalsUx = getQueryDisplayState(rentalsQuery);
+  const createRental = useCreateTransferRental();
+  const updateRentalMutation = useUpdateTransferRental();
+  const deleteRental = useDeleteTransferRental();
 
   // Sheet state
   const [showCreateFlight, setShowCreateFlight] = useState(false);
@@ -159,45 +168,48 @@ export default function TransferTab() {
   }, [highlightId, activeSegment, flightSections, vehicleSections, rentals]);
 
   const isLoading =
-    (activeSegment === 'All' && (flightsLoading || vehiclesLoading || rentalsLoading)) ||
-    (activeSegment === 'Flights' && flightsLoading) ||
-    (activeSegment === 'Vehicles' && vehiclesLoading) ||
-    (activeSegment === 'Rentals' && rentalsLoading);
+    (activeSegment === 'All' && (flightsUx.showSkeleton || vehiclesUx.showSkeleton || rentalsUx.showSkeleton)) ||
+    (activeSegment === 'Flights' && flightsUx.showSkeleton) ||
+    (activeSegment === 'Vehicles' && vehiclesUx.showSkeleton) ||
+    (activeSegment === 'Rentals' && rentalsUx.showSkeleton);
+
+  const showOfflineEmpty =
+    (activeSegment === 'All' && (flightsUx.showOfflineEmpty || vehiclesUx.showOfflineEmpty || rentalsUx.showOfflineEmpty)) ||
+    (activeSegment === 'Flights' && flightsUx.showOfflineEmpty) ||
+    (activeSegment === 'Vehicles' && vehiclesUx.showOfflineEmpty) ||
+    (activeSegment === 'Rentals' && rentalsUx.showOfflineEmpty);
 
   const handleCreateFlight = (input: CreateTransferFlightInput) => {
-    createFlight.mutate(input, { onSuccess: () => setShowCreateFlight(false) });
+    setShowCreateFlight(false);
+    createFlight.mutate({ tripId: tripId!, input });
   };
 
   const handleUpdateFlight = (input: UpdateTransferFlightInput) => {
     if (!editingFlight) return;
-    updateFlightMutation.mutate(
-      { flightId: editingFlight.id, input },
-      { onSuccess: () => setEditingFlight(null) },
-    );
+    setEditingFlight(null);
+    updateFlightMutation.mutate({ flightId: editingFlight.id, tripId: tripId!, input });
   };
 
   const handleCreateVehicle = (input: CreateTransferVehicleInput) => {
-    createVehicle.mutate(input, { onSuccess: () => setShowCreateVehicle(false) });
+    setShowCreateVehicle(false);
+    createVehicle.mutate({ tripId: tripId!, input });
   };
 
   const handleUpdateVehicle = (input: UpdateTransferVehicleInput) => {
     if (!editingVehicle) return;
-    updateVehicleMutation.mutate(
-      { vehicleId: editingVehicle.id, input },
-      { onSuccess: () => setEditingVehicle(null) },
-    );
+    setEditingVehicle(null);
+    updateVehicleMutation.mutate({ vehicleId: editingVehicle.id, tripId: tripId!, input });
   };
 
   const handleCreateRental = (input: CreateTransferRentalInput) => {
-    createRental.mutate(input, { onSuccess: () => setShowCreateRental(false) });
+    setShowCreateRental(false);
+    createRental.mutate({ tripId: tripId!, input });
   };
 
   const handleUpdateRental = (input: UpdateTransferRentalInput) => {
     if (!editingRental) return;
-    updateRentalMutation.mutate(
-      { rentalId: editingRental.id, input },
-      { onSuccess: () => setEditingRental(null) },
-    );
+    setEditingRental(null);
+    updateRentalMutation.mutate({ rentalId: editingRental.id, tripId: tripId!, input });
   };
 
   const renderDirectionHeader = (title: string, sectionKey: string) => {
@@ -225,6 +237,15 @@ export default function TransferTab() {
     );
   }
 
+  if (showOfflineEmpty) {
+    return (
+      <View className="flex-1">
+        <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
+        <OfflineEmptyState onRetry={() => { refetchFlights(); refetchVehicles(); refetchRentals(); }} />
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1">
       <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
@@ -236,7 +257,7 @@ export default function TransferTab() {
           vehicles={vehicles}
           rentals={rentals}
           currency={currency}
-          isRefreshing={(flightsFetching || vehiclesFetching || rentalsFetching) && !isLoading}
+          isRefreshing={flightsUx.refreshing || vehiclesUx.refreshing || rentalsUx.refreshing}
           onRefresh={() => { refetchFlights(); refetchVehicles(); refetchRentals(); }}
           onFlightPress={(id) => { setHighlightId(id); setActiveSegment('Flights'); }}
           onVehiclePress={(id) => { setHighlightId(id); setActiveSegment('Vehicles'); }}
@@ -275,17 +296,17 @@ export default function TransferTab() {
                   flightsInDirection={flights.filter((f) => f.direction === item.direction)}
                   highlight={item.id === highlightId}
                   onEdit={() => setEditingFlight(item)}
-                  onDelete={() => deleteFlight.mutate(item.id)}
-                  onCloseVoting={() => closeFlightVoting.mutate(item.id)}
-                  onReopenVoting={() => reopenFlightVoting.mutate(item.id)}
-                  onToggleAutoClose={(val) => updateFlightMutation.mutate({ flightId: item.id, input: { auto_close: val } })}
-                  onBook={(input) => bookFlight.mutate({ flightId: item.id, input })}
+                  onDelete={() => deleteFlight.mutate({ flightId: item.id, tripId: tripId! })}
+                  onCloseVoting={() => closeFlightVoting.mutate({ flightId: item.id, tripId: tripId! })}
+                  onReopenVoting={() => reopenFlightVoting.mutate({ flightId: item.id, tripId: tripId! })}
+                  onToggleAutoClose={(val) => updateFlightMutation.mutate({ flightId: item.id, tripId: tripId!, input: { auto_close: val } })}
+                  onBook={(input) => bookFlight.mutate({ flightId: item.id, tripId: tripId!, input })}
                 />
               </View>
             )}
             refreshControl={
               <RefreshControl
-                refreshing={flightsFetching && !flightsLoading}
+                refreshing={flightsUx.refreshing}
                 onRefresh={refetchFlights}
                 tintColor={colors.primary}
                 colors={[colors.primary]}
@@ -323,13 +344,13 @@ export default function TransferTab() {
                   members={members}
                   highlight={item.id === highlightId}
                   onEdit={() => setEditingVehicle(item)}
-                  onDelete={() => deleteVehicle.mutate(item.id)}
+                  onDelete={() => deleteVehicle.mutate({ vehicleId: item.id, tripId: tripId! })}
                 />
               </View>
             )}
             refreshControl={
               <RefreshControl
-                refreshing={vehiclesFetching && !vehiclesLoading}
+                refreshing={vehiclesUx.refreshing}
                 onRefresh={refetchVehicles}
                 tintColor={colors.primary}
                 colors={[colors.primary]}
@@ -359,12 +380,12 @@ export default function TransferTab() {
                 currentUserId={user?.id}
                 highlight={item.id === highlightId}
                 onEdit={() => setEditingRental(item)}
-                onDelete={() => deleteRental.mutate(item.id)}
+                onDelete={() => deleteRental.mutate({ rentalId: item.id, tripId: tripId! })}
               />
             )}
             refreshControl={
               <RefreshControl
-                refreshing={rentalsFetching && !rentalsLoading}
+                refreshing={rentalsUx.refreshing}
                 onRefresh={refetchRentals}
                 tintColor={colors.primary}
                 colors={[colors.primary]}
@@ -394,7 +415,7 @@ export default function TransferTab() {
         visible={showCreateFlight}
         onClose={() => setShowCreateFlight(false)}
         onSubmit={handleCreateFlight}
-        isPending={createFlight.isPending}
+        isPending={isMutationBusy(createFlight)}
         currency={currency}
         tripStartDate={trip?.start_date ?? undefined}
         tripEndDate={trip?.end_date ?? undefined}
@@ -403,13 +424,13 @@ export default function TransferTab() {
         visible={showCreateVehicle}
         onClose={() => setShowCreateVehicle(false)}
         onSubmit={handleCreateVehicle}
-        isPending={createVehicle.isPending}
+        isPending={isMutationBusy(createVehicle)}
       />
       <CreateRentalSheet
         visible={showCreateRental}
         onClose={() => setShowCreateRental(false)}
         onSubmit={handleCreateRental}
-        isPending={createRental.isPending}
+        isPending={isMutationBusy(createRental)}
         currency={currency}
         tripStartDate={trip?.start_date ?? undefined}
         tripEndDate={trip?.end_date ?? undefined}
@@ -421,7 +442,7 @@ export default function TransferTab() {
           visible={!!editingFlight}
           onClose={() => setEditingFlight(null)}
           onSubmit={handleUpdateFlight}
-          isPending={updateFlightMutation.isPending}
+          isPending={isMutationBusy(updateFlightMutation)}
           flight={editingFlight}
           currency={currency}
           tripStartDate={trip?.start_date ?? undefined}
@@ -433,7 +454,7 @@ export default function TransferTab() {
           visible={!!editingVehicle}
           onClose={() => setEditingVehicle(null)}
           onSubmit={handleUpdateVehicle}
-          isPending={updateVehicleMutation.isPending}
+          isPending={isMutationBusy(updateVehicleMutation)}
           vehicle={editingVehicle}
         />
       )}
@@ -442,7 +463,7 @@ export default function TransferTab() {
           visible={!!editingRental}
           onClose={() => setEditingRental(null)}
           onSubmit={handleUpdateRental}
-          isPending={updateRentalMutation.isPending}
+          isPending={isMutationBusy(updateRentalMutation)}
           rental={editingRental}
           currency={currency}
           tripStartDate={trip?.start_date ?? undefined}
@@ -532,11 +553,13 @@ function FlightCardWithVotes({
   const canManagePassengers = role === 'organizer' && flight.status === 'booked';
 
   const handleCastVote = (vote: VoteType) => {
-    castVote.mutate({ vote, flightId: flight.id, tripId }, { onSuccess: () => setShowVoteSheet(false) });
+    setShowVoteSheet(false);
+    castVote.mutate({ vote, flightId: flight.id, tripId });
   };
 
   const handleRemoveVote = () => {
-    removeVote.mutate(undefined, { onSuccess: () => setShowVoteSheet(false) });
+    setShowVoteSheet(false);
+    removeVote.mutate(undefined);
   };
 
   const handleBook = (input: BookTransferFlightInput) => {
@@ -723,7 +746,7 @@ function FlightCardWithVotes({
         votingOpen={flight.voting_open}
         onCastVote={handleCastVote}
         onRemoveVote={handleRemoveVote}
-        isPending={castVote.isPending}
+        isPending={isMutationBusy(castVote)}
         memberMap={memberMap}
       />
 
@@ -740,9 +763,10 @@ function FlightCardWithVotes({
         members={members ?? []}
         selectedUserIds={currentPassengerIds}
         onConfirm={(userIds) => {
-          setPassengers.mutate(userIds, { onSuccess: () => setShowPassengerSheet(false) });
+          setShowPassengerSheet(false);
+          setPassengers.mutate(userIds);
         }}
-        isPending={setPassengers.isPending}
+        isPending={isMutationBusy(setPassengers)}
       />
     </>
   );
@@ -914,7 +938,7 @@ function VehicleCardWithPassengers({
         members={members ?? []}
         selectedUserIds={currentPassengerIds}
         onConfirm={handlePassengerConfirm}
-        isPending={addPassenger.isPending || removePassenger.isPending}
+        isPending={isMutationBusy(addPassenger) || isMutationBusy(removePassenger)}
         showDriverToggle
         driverUserIds={driverUserIds}
         onDriverToggle={handleDriverToggle}

@@ -521,7 +521,7 @@ export type CreateSharedPackingItemInput = z.infer<typeof createSharedPackingIte
 export type UpdateSharedPackingItemInput = z.infer<typeof updateSharedPackingItemSchema>;
 
 export type CreateSharedPackingItemVariables = { tripId: string; input: CreateSharedPackingItemInput };
-export type UpdateSharedPackingItemVariables = { itemId: string; input: UpdateSharedPackingItemInput };
+export type UpdateSharedPackingItemVariables = { itemId: string; tripId: string; input: UpdateSharedPackingItemInput };
 export type ClaimSharedPackingItemVariables = { itemId: string; tripId: string };
 export type UnclaimSharedPackingItemVariables = { itemId: string; tripId: string };
 export type DeleteSharedPackingItemVariables = { itemId: string; tripId: string };
@@ -554,10 +554,37 @@ export type DeleteLostFoundCaseVariables = { caseId: string; tripId: string };
 // --- Mutation variable types ---
 // These carry all context needed for offline mutation replay (no closure dependencies).
 
+export type UpdateTripVariables = { tripId: string; input: UpdateTripInput };
+
 export type CreateActivityVariables = { tripId: string; input: CreateActivityInput };
+export type UpdateActivityVariables = { activityId: string; tripId: string; input: UpdateActivityInput };
+export type DeleteActivityVariables = { activityId: string; tripId: string };
+export type CloseActivityVotingVariables = { activityId: string; tripId: string };
+export type ReopenActivityVotingVariables = { activityId: string; tripId: string };
 export type CastActivityVoteVariables = { vote: (typeof VOTE_TYPE)[number]; activityId: string; tripId: string };
 export type CastAccommodationVoteVariables = { vote: (typeof VOTE_TYPE)[number]; accommodationId: string; tripId: string };
+export type CreateAccommodationVariables = { tripId: string; input: CreateAccommodationInput };
+export type UpdateAccommodationVariables = { accommodationId: string; tripId: string; input: UpdateAccommodationInput };
+export type DeleteAccommodationVariables = { accommodationId: string; tripId: string };
+export type BookAccommodationVariables = { accommodationId: string; tripId: string };
+export type UnbookAccommodationVariables = { accommodationId: string; tripId: string };
+export type CloseAccommodationVotingVariables = { accommodationId: string; tripId: string };
+export type ReopenAccommodationVotingVariables = { accommodationId: string; tripId: string };
 export type CastTransferFlightVoteVariables = { vote: (typeof VOTE_TYPE)[number]; flightId: string; tripId: string };
+
+// --- Transfer mutation variables ---
+export type CreateTransferFlightVariables = { tripId: string; input: CreateTransferFlightInput };
+export type UpdateTransferFlightVariables = { flightId: string; tripId: string; input: UpdateTransferFlightInput };
+export type DeleteTransferFlightVariables = { flightId: string; tripId: string };
+export type CloseTransferFlightVotingVariables = { flightId: string; tripId: string };
+export type ReopenTransferFlightVotingVariables = { flightId: string; tripId: string };
+export type BookTransferFlightVariables = { flightId: string; tripId: string; input: BookTransferFlightInput };
+export type CreateTransferVehicleVariables = { tripId: string; input: CreateTransferVehicleInput };
+export type UpdateTransferVehicleVariables = { vehicleId: string; tripId: string; input: UpdateTransferVehicleInput };
+export type DeleteTransferVehicleVariables = { vehicleId: string; tripId: string };
+export type CreateTransferRentalVariables = { tripId: string; input: CreateTransferRentalInput };
+export type UpdateTransferRentalVariables = { rentalId: string; tripId: string; input: UpdateTransferRentalInput };
+export type DeleteTransferRentalVariables = { rentalId: string; tripId: string };
 
 // --- Expense mutation variables ---
 export type CreateExpenseVariables = { tripId: string; input: CreateExpenseInput };
@@ -582,6 +609,12 @@ export type CreateShoppingItemVariables = { listId: string; tripId: string; inpu
 export type UpdateShoppingItemVariables = { itemId: string; listId: string; tripId: string; input: UpdateShoppingItemInput };
 export type UpdateShoppingItemGlobalVariables = { itemId: string; tripId: string; input: UpdateShoppingItemInput };
 export type DeleteShoppingItemVariables = { itemId: string; listId: string; tripId: string };
+
+// --- Trip note mutation variables ---
+export type CreateTripNoteVariables = { tripId: string; input: CreateTripNoteInput };
+export type UpdateTripNoteVariables = { noteId: string; tripId: string; input: UpdateTripNoteInput };
+export type DeleteTripNoteVariables = { noteId: string; tripId: string };
+export type ToggleTripNoteDoneVariables = { noteId: string; tripId: string; isDone: boolean };
 
 // --- Notification mutation variables ---
 export type MarkNotificationReadVariables = { notificationId: string };

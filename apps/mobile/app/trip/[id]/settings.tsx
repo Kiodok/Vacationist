@@ -18,6 +18,7 @@ import { MemberDocumentsSheet } from '../../../src/features/profile/components/M
 import { NotificationPreferencesSection } from '../../../src/features/notifications/components/NotificationPreferencesSection';
 import { NudgeSheet } from '../../../src/features/notifications/components/NudgeSheet';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
 
 export default function SettingsTab() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -362,7 +363,7 @@ export default function SettingsTab() {
           { onSuccess: () => setRequestDocVisible(false) }
         )
       }
-      isPending={createAccessRequest.isPending}
+      isPending={isMutationBusy(createAccessRequest)}
     />
 
     <MemberDocumentsSheet

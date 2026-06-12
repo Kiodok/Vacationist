@@ -13,6 +13,7 @@ import {
 import { ActivityNoteItem } from './ActivityNoteItem';
 import { CreateNoteSheet } from '../../../components/CreateNoteSheet';
 import { EditNoteSheet } from '../../../components/EditNoteSheet';
+import { isMutationBusy } from '../../../utils/mutationStatus';
 
 interface ActivityNotesSectionProps {
   activityId: string;
@@ -42,24 +43,25 @@ export function ActivityNotesSection({
   const deleteNote = useDeleteActivityNote(activityId);
 
   const handleCreate = (input: CreateActivityNoteInput) => {
-    createNote.mutate(input, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createNote.mutate(input);
   };
 
   const handleUpdate = (input: UpdateActivityNoteInput) => {
     if (!editingNote) return;
-    updateNote.mutate(
-      { noteId: editingNote.id, input },
-      { onSuccess: () => setEditingNote(null) },
-    );
+    setEditingNote(null);
+    updateNote.mutate({ noteId: editingNote.id, input });
   };
 
   const handleDeleteFromSheet = () => {
     if (!editingNote) return;
-    deleteNote.mutate(editingNote.id, { onSuccess: () => setEditingNote(null) });
+    setEditingNote(null);
+    deleteNote.mutate(editingNote.id);
   };
 
   const handleDirectDelete = (noteId: string) => {
-    deleteNote.mutate(noteId, { onSuccess: () => setConfirmingDeleteId(null) });
+    setConfirmingDeleteId(null);
+    deleteNote.mutate(noteId);
   };
 
   const sectionTitle = notes.length > 0
@@ -151,7 +153,7 @@ export function ActivityNotesSection({
         visible={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createNote.isPending}
+        isPending={isMutationBusy(createNote)}
         namespace="activityNotes"
       />
 
@@ -163,8 +165,8 @@ export function ActivityNotesSection({
           onClose={() => setEditingNote(null)}
           onSubmit={handleUpdate}
           onDelete={handleDeleteFromSheet}
-          isUpdatePending={updateNote.isPending}
-          isDeletePending={deleteNote.isPending}
+          isUpdatePending={isMutationBusy(updateNote)}
+          isDeletePending={isMutationBusy(deleteNote)}
           namespace="activityNotes"
         />
       )}

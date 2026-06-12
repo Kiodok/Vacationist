@@ -8,7 +8,14 @@ import {
   closeActivityVoting,
   reopenActivityVoting,
 } from '@vacationist/api';
-import type { Activity, CreateActivityInput, UpdateActivityInput, CreateActivityVariables } from '@vacationist/types';
+import type {
+  Activity,
+  CreateActivityVariables,
+  UpdateActivityVariables,
+  DeleteActivityVariables,
+  CloseActivityVotingVariables,
+  ReopenActivityVotingVariables,
+} from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
@@ -82,71 +89,96 @@ export function useCreateActivity() {
   });
 }
 
-export function useUpdateActivity(tripId: string) {
+// onSuccess (invalidation + toast) lives in mutationDefaults so it also fires
+// for persisted mutations replayed after a cold start. Hooks keep onMutate
+// (optimistic update) and onError (rollback + toast).
+
+export function useUpdateActivity() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: ({ activityId, input }: { activityId: string; input: UpdateActivityInput }) =>
-      updateActivity(activityId, input),
-    onSuccess: (_data, { activityId }) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      queryClient.invalidateQueries({ queryKey: ['global-calendar-activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activities', activityId] });
-      addToast('success', i18n.t('activities:toast.updated'));
+  return useMutation<Activity, Error, UpdateActivityVariables, { previous: Activity[] | undefined }>({
+    mutationKey: ['updateActivity'],
+    mutationFn: ({ activityId, input }) => updateActivity(activityId, input),
+    onMutate: async ({ activityId, tripId, input }) => {
+      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
+      const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
+      queryClient.setQueryData<Activity[]>(
+        ['trips', tripId, 'activities'],
+        (old) => old?.map((a) => (a.id === activityId ? { ...a, ...input } : a)),
+      );
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(['trips', tripId, 'activities'], context.previous);
+      }
       addToast('error', i18n.t('activities:toast.updateFailed'));
     },
   });
 }
 
-export function useDeleteActivity(tripId: string) {
+export function useDeleteActivity() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (activityId: string) => softDeleteActivity(activityId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      addToast('success', i18n.t('activities:toast.deleted'));
+  return useMutation<void, Error, DeleteActivityVariables, { previous: Activity[] | undefined }>({
+    mutationKey: ['deleteActivity'],
+    mutationFn: ({ activityId }) => softDeleteActivity(activityId),
+    onMutate: async ({ activityId, tripId }) => {
+      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
+      const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
+      queryClient.setQueryData<Activity[]>(
+        ['trips', tripId, 'activities'],
+        (old) => old?.filter((a) => a.id !== activityId),
+      );
+      return { previous };
     },
-    onError: (error: Error) => {
+    onError: (error, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(['trips', tripId, 'activities'], context.previous);
+      }
       addToast('error', error.message || i18n.t('activities:toast.deleteFailed'));
     },
   });
 }
 
-export function useCloseVoting(tripId: string) {
+function useSetVotingOpen(
+  mutationKey: 'closeActivityVoting' | 'reopenActivityVoting',
+  votingOpen: boolean,
+) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: (activityId: string) => closeActivityVoting(activityId),
-    onSuccess: (_data, activityId) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
-      addToast('success', i18n.t('activities:toast.votingClosed'));
+  return useMutation<void, Error, CloseActivityVotingVariables, { previous: Activity[] | undefined }>({
+    mutationKey: [mutationKey],
+    mutationFn: ({ activityId }) =>
+      votingOpen ? reopenActivityVoting(activityId) : closeActivityVoting(activityId),
+    onMutate: async ({ activityId, tripId }) => {
+      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
+      const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
+      queryClient.setQueryData<Activity[]>(
+        ['trips', tripId, 'activities'],
+        (old) => old?.map((a) => (a.id === activityId ? { ...a, voting_open: votingOpen } : a)),
+      );
+      return { previous };
     },
-    onError: () => {
-      addToast('error', i18n.t('activities:toast.closeVotingFailed'));
+    onError: (_err, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(['trips', tripId, 'activities'], context.previous);
+      }
+      addToast(
+        'error',
+        i18n.t(votingOpen ? 'activities:toast.reopenVotingFailed' : 'activities:toast.closeVotingFailed'),
+      );
     },
   });
 }
 
-export function useReopenVoting(tripId: string) {
-  const queryClient = useQueryClient();
-  const addToast = useToastStore((s) => s.addToast);
+export function useCloseVoting() {
+  return useSetVotingOpen('closeActivityVoting', false);
+}
 
-  return useMutation({
-    mutationFn: (activityId: string) => reopenActivityVoting(activityId),
-    onSuccess: (_data, activityId) => {
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
-      addToast('success', i18n.t('activities:toast.votingReopened'));
-    },
-    onError: () => {
-      addToast('error', i18n.t('activities:toast.reopenVotingFailed'));
-    },
-  });
+export function useReopenVoting() {
+  return useSetVotingOpen('reopenActivityVoting', true);
 }

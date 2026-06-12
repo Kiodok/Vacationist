@@ -7,6 +7,7 @@ import { dayjs } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
 import { useTrips } from '../../trips/hooks/useTrips';
 import { useCopyPackingList } from '../hooks/usePackingItems';
+import { isMutationBusy } from '../../../utils/mutationStatus';
 
 interface CopyPackingListSheetProps {
   visible: boolean;
@@ -100,7 +101,7 @@ export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPa
                   <Pressable
                     key={trip.id}
                     onPress={() => handleCopy(trip.id)}
-                    disabled={copyList.isPending}
+                    disabled={isMutationBusy(copyList)}
                     className="bg-surface rounded-md border border-border px-md py-sm flex-row items-center justify-between"
                     style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   >

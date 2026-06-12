@@ -7,6 +7,25 @@ import { ExpoSecureStoreAdapter } from './storage';
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
+const DEFAULT_TIMEOUT_MS = 15_000;
+const STORAGE_TIMEOUT_MS = 60_000; // uploads/downloads need headroom
+
+/**
+ * fetch wrapper with a hard timeout. Without it, requests on a flaky
+ * connection (connected but no real internet) hang for the OS default (60s+),
+ * leaving the UI stuck. An aborted request becomes an error, which flows into
+ * TanStack Query's retry → offline-pause path — exactly what we want.
+ * Manual AbortController because AbortSignal.timeout/any are unreliable on Hermes.
+ */
+function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+  const ms = url.includes('/storage/v1/') ? STORAGE_TIMEOUT_MS : DEFAULT_TIMEOUT_MS;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  init.signal?.addEventListener('abort', () => controller.abort());
+  return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     storage: ExpoSecureStoreAdapter,
@@ -14,6 +33,9 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
     autoRefreshToken: true,
     detectSessionInUrl: Platform.OS === 'web',
     flowType: 'pkce',
+  },
+  global: {
+    fetch: fetchWithTimeout,
   },
 });
 

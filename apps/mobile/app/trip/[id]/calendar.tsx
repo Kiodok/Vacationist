@@ -15,6 +15,7 @@ import { AgendaList } from '../../../src/features/calendar/components/AgendaList
 import { CalendarActivitySheet } from '../../../src/features/calendar/components/CalendarActivitySheet';
 import { EditActivitySheet } from '../../../src/features/activities/components/EditActivitySheet';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
 
 export default function CalendarTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -85,14 +86,12 @@ export default function CalendarTab() {
 
   const [previewActivity, setPreviewActivity] = useState<Activity | null>(null);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
-  const updateActivityMutation = useUpdateActivity(tripId!);
+  const updateActivityMutation = useUpdateActivity();
 
   const handleUpdate = (input: UpdateActivityInput) => {
     if (!editingActivity) return;
-    updateActivityMutation.mutate(
-      { activityId: editingActivity.id, input },
-      { onSuccess: () => setEditingActivity(null) },
-    );
+    setEditingActivity(null);
+    updateActivityMutation.mutate({ activityId: editingActivity.id, tripId: tripId!, input });
   };
 
   if (tripLoading || activitiesLoading || !trip) {
@@ -142,7 +141,7 @@ export default function CalendarTab() {
           visible={!!editingActivity}
           onClose={() => setEditingActivity(null)}
           onSubmit={handleUpdate}
-          isPending={updateActivityMutation.isPending}
+          isPending={isMutationBusy(updateActivityMutation)}
           activity={editingActivity}
           tripStartDate={trip.start_date}
           tripEndDate={trip.end_date}

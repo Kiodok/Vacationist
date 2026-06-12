@@ -14,12 +14,17 @@ import { RecipeCardWrapper } from '../../../src/features/recipes/components/Reci
 import { CreateRecipeSheet } from '../../../src/features/recipes/components/CreateRecipeSheet';
 import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyRecipes';
 import { colors } from '@vacationist/ui';
+import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function RecipesTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  const { data: recipes, isLoading, isFetching, refetch } = useRecipes(tripId!);
+  const recipesQuery = useRecipes(tripId!);
+  const { data: recipes, refetch } = recipesQuery;
+  const ux = getQueryDisplayState(recipesQuery);
   const { data: role } = useCurrentMemberRole(tripId!);
   const createRecipe = useCreateRecipe(tripId!);
   const deleteRecipeMut = useDeleteRecipe(tripId!);
@@ -32,15 +37,19 @@ export default function RecipesTab() {
   const canCreate = role !== 'guest';
 
   const handleCreate = (input: CreateRecipeInput) => {
-    createRecipe.mutate(input, { onSuccess: () => setShowCreate(false) });
+    setShowCreate(false);
+    createRecipe.mutate(input);
   };
 
-  if (isLoading) {
+  if (ux.showSkeleton) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
+  }
+  if (ux.showOfflineEmpty) {
+    return <OfflineEmptyState onRetry={refetch} />;
   }
 
   const isEmpty = !recipes || recipes.length === 0;
@@ -69,7 +78,7 @@ export default function RecipesTab() {
           )}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -92,7 +101,7 @@ export default function RecipesTab() {
         visible={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        isPending={createRecipe.isPending}
+        isPending={isMutationBusy(createRecipe)}
       />
     </View>
   );

@@ -10,11 +10,15 @@ import { EmptyNotifications } from '../../src/features/notifications/components/
 import { NotificationListSkeleton } from '../../src/features/notifications/components/NotificationListSkeleton';
 import { resolveNotificationPath } from '../../src/features/notifications/utils/resolveNotificationPath';
 import { colors } from '@vacationist/ui';
+import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
 
 export default function NotificationsScreen() {
   const { t } = useTranslation('notifications');
   const router = useRouter();
-  const { data: notifications = [], isLoading, refetch, isRefetching } = useNotifications();
+  const notificationsQuery = useNotifications();
+  const { data: notifications = [], refetch } = notificationsQuery;
+  const ux = getQueryDisplayState(notificationsQuery);
   const { mutate: markRead } = useMarkNotificationRead();
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsRead();
   const { mutate: deleteNotification } = useDeleteNotification();
@@ -47,8 +51,10 @@ export default function NotificationsScreen() {
         ) : null}
       </View>
 
-      {isLoading ? (
+      {ux.showSkeleton ? (
         <NotificationListSkeleton />
+      ) : ux.showOfflineEmpty ? (
+        <OfflineEmptyState onRetry={refetch} />
       ) : (
         <FlashList
           data={notifications}
@@ -64,7 +70,7 @@ export default function NotificationsScreen() {
           ListEmptyComponent={<EmptyNotifications />}
           refreshControl={
             <RefreshControl
-              refreshing={isRefetching}
+              refreshing={ux.refreshing}
               onRefresh={refetch}
               tintColor={colors.primary}
             />
