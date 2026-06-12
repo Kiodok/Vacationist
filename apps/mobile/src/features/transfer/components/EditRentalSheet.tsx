@@ -4,7 +4,8 @@ import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingVi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateTransferRentalSchema, type UpdateTransferRentalInput, type TransferRental } from '@vacationist/types';
+import { updateTransferRentalSchema, type UpdateTransferRentalInput, type TransferRental, type Currency } from '@vacationist/types';
+import { getCurrencySymbol } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 
 interface EditRentalSheetProps {
@@ -23,7 +24,7 @@ export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental,
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
   const [priceText, setPriceText] = useState('');
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
+  const currencySymbol = getCurrencySymbol(currency as Currency);
 
   const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<UpdateTransferRentalInput>({
     resolver: zodResolver(updateTransferRentalSchema),

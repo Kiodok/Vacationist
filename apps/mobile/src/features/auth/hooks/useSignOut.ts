@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { signOut, deletePushToken } from '@vacationist/api';
 import { useAuthStore } from '../../../stores/authStore';
 import { clearUserCache } from '../../../utils/userCache';
+import { clearSentryUser } from '../../../utils/sentry';
 
 type GoogleSigninType =
   typeof import('@react-native-google-signin/google-signin').GoogleSignin;
@@ -36,6 +37,7 @@ export function useSignOut(): SignOutResult {
     // local state immediately so navigation to login happens right away.
     signOut().catch(() => {});
     clearUserCache();
+    clearSentryUser();
     reset();
   }, [pushToken, setPushToken, reset]);
 

@@ -4,7 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, ACTIVITY_CATEGORIES } from '@vacationist/types';
+import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, type Currency, ACTIVITY_CATEGORIES } from '@vacationist/types';
+import { getCurrencySymbol } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 
 interface EditActivitySheetProps {
@@ -13,11 +14,12 @@ interface EditActivitySheetProps {
   onSubmit: (input: UpdateActivityInput) => void;
   isPending: boolean;
   activity: Activity;
+  currency: Currency;
   tripStartDate: string;
   tripEndDate: string;
 }
 
-export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activity, tripStartDate, tripEndDate }: EditActivitySheetProps) {
+export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activity, currency, tripStartDate, tripEndDate }: EditActivitySheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('activities');
   const { t: tCommon } = useTranslation("common");
@@ -205,7 +207,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
 
               {/* Cost Estimate */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">{t('field.cost')}</Text>
+                <Text className="text-label text-text-muted uppercase">{t('field.cost')} ({getCurrencySymbol(currency)})</Text>
                 <Controller
                   control={control}
                   name="cost_estimate"

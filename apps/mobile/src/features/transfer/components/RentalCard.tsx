@@ -1,7 +1,7 @@
 import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { dayjs } from '@vacationist/utils';
-import type { TransferRental } from '@vacationist/types';
+import { dayjs, formatCurrency } from '@vacationist/utils';
+import type { TransferRental, Currency } from '@vacationist/types';
 import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
@@ -14,7 +14,6 @@ interface RentalCardProps {
 }
 
 export function RentalCard({ rental, currency, onPress, detail, highlight }: RentalCardProps) {
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
 
   const borderColor = colors.border;
   const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
@@ -69,7 +68,7 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
           )}
           {rental.price_total != null && (
             <Text className="text-body-small text-text-secondary">
-              {currencySymbol}{Number(rental.price_total).toFixed(2)}
+              {formatCurrency(Number(rental.price_total), currency as Currency)}
             </Text>
           )}
         </View>

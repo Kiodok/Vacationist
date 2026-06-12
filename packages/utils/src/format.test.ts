@@ -33,6 +33,25 @@ describe('formatCurrency', () => {
     expect(result).toMatch(/CHF/);
     expect(result).toMatch(/99[,\s.]?999\.99/);
   });
+
+  it('formats USD with dollar symbol', () => {
+    const result = formatCurrency(42.5, 'USD');
+    expect(result).toMatch(/\$/);
+    expect(result).toMatch(/42\.50/);
+  });
+
+  it('formats negative USD amount', () => {
+    const result = formatCurrency(-15.3, 'USD');
+    expect(result).toContain('-');
+    expect(result).toMatch(/15\.30/);
+    expect(result).toMatch(/\$/);
+  });
+
+  it('formats large USD amount', () => {
+    const result = formatCurrency(99999.99, 'USD');
+    expect(result).toMatch(/\$/);
+    expect(result).toMatch(/99[,\s.]?999\.99/);
+  });
 });
 
 describe('roundCurrency', () => {

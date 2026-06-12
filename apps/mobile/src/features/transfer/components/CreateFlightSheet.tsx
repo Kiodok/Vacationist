@@ -4,7 +4,8 @@ import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingVi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createTransferFlightSchema, type CreateTransferFlightInput, TRANSFER_DIRECTION } from '@vacationist/types';
+import { createTransferFlightSchema, type CreateTransferFlightInput, TRANSFER_DIRECTION, type Currency } from '@vacationist/types';
+import { getCurrencySymbol } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 
 interface CreateFlightSheetProps {
@@ -33,7 +34,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
   const [priceText, setPriceText] = useState('');
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
+  const currencySymbol = getCurrencySymbol(currency as Currency);
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateTransferFlightInput>({
     resolver: zodResolver(createTransferFlightSchema),

@@ -3,6 +3,7 @@ import type { Currency } from '@vacationist/types';
 const CURRENCY_SYMBOLS: Record<Currency, string> = {
   EUR: '\u20AC',
   CHF: 'CHF',
+  USD: '$',
 };
 
 // Set once at app startup (and on locale change) via setDefaultFormatLocale.
@@ -11,6 +12,10 @@ let _defaultFormatLocale = 'en-US';
 
 export function setDefaultFormatLocale(bcp47Locale: string): void {
   _defaultFormatLocale = bcp47Locale;
+}
+
+export function getCurrencySymbol(currency: Currency): string {
+  return CURRENCY_SYMBOLS[currency];
 }
 
 export function formatCurrency(amount: number, currency: Currency, locale?: string): string {

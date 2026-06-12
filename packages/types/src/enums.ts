@@ -25,7 +25,7 @@ export type ExpenseSplitStatus = (typeof EXPENSE_SPLIT_STATUS)[number];
 export const SHOPPING_ITEM_STATUS = ['open', 'bought'] as const;
 export type ShoppingItemStatus = (typeof SHOPPING_ITEM_STATUS)[number];
 
-export const CURRENCY = ['EUR', 'CHF'] as const;
+export const CURRENCY = ['EUR', 'CHF', 'USD'] as const;
 export type Currency = (typeof CURRENCY)[number];
 
 export const NOTIFICATION_TYPE = [

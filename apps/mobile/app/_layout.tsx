@@ -10,7 +10,7 @@ import { setDayjsLocale, setDefaultFormatLocale } from '@vacationist/utils';
 import { storage } from '../src/utils/mmkvStorage';
 
 initSentry();
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Slot, usePathname, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
@@ -91,6 +91,7 @@ function AuthGate() {
   useNWColorScheme();
   const router = useRouter();
   const segments = useSegments();
+  const pathname = usePathname();
   const hasSession = useAuthStore((s) => s.hasSession);
   const isLoading = useAuthStore((s) => s.isLoading);
   const user = useAuthStore((s) => s.user);
@@ -114,6 +115,13 @@ function AuthGate() {
     });
     return () => sub.remove();
   }, []);
+
+  // Record every screen transition as a Sentry breadcrumb for crash context.
+  useEffect(() => {
+    if (pathname) {
+      Sentry.addBreadcrumb({ category: 'navigation', message: pathname, level: 'info' });
+    }
+  }, [pathname]);
 
   // Register for push notifications once per user session
   useEffect(() => {

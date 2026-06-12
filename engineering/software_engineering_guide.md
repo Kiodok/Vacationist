@@ -573,7 +573,7 @@ description     TEXT
 start_date      DATE NOT NULL
 end_date        DATE NOT NULL
 budget_per_person NUMERIC(10,2)
-base_currency   TEXT DEFAULT 'EUR' CHECK (base_currency IN ('EUR', 'CHF'))
+base_currency   TEXT DEFAULT 'EUR' CHECK (base_currency IN ('EUR', 'CHF', 'USD'))
 timezone        TEXT DEFAULT 'Europe/Berlin'
 status          TEXT DEFAULT 'planning' CHECK (status IN ('planning', 'active', 'completed', 'archived'))
 created_by      UUID REFERENCES users(id)
@@ -745,7 +745,7 @@ related_type    TEXT CHECK (related_type IN ('accommodation', 'activity', 'trans
 related_id      UUID
 title           TEXT NOT NULL
 amount          NUMERIC(10,2) NOT NULL
-currency        TEXT DEFAULT 'EUR' CHECK (currency IN ('EUR', 'CHF'))
+currency        TEXT DEFAULT 'EUR' CHECK (currency IN ('EUR', 'CHF', 'USD'))
 paid_by         UUID REFERENCES users(id)
 created_by      UUID REFERENCES users(id)
 created_at      TIMESTAMPTZ DEFAULT NOW()
@@ -1613,7 +1613,7 @@ Every trip must have a base currency defined at creation.
 
 ```txt
 Default: EUR (Euro)
-Alternative: CHF (Swiss Franc)
+Alternatives: CHF (Swiss Franc), USD (US Dollar)
 ```
 
 The base currency cannot be changed after the first expense is added to the trip.

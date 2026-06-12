@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import { dayjs } from '@vacationist/utils';
-import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
+import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput, Currency } from '@vacationist/types';
 import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
 import { useActivityVotes, useCastVote, useRemoveVote, useActivityVotesBatch } from '../../../src/features/activities/hooks/useVotes';
 import { useActivityVotesRealtime } from '../../../src/features/activities/hooks/useActivityVotesRealtime';
@@ -93,6 +93,7 @@ export default function ActivitiesTab() {
   const activityId = _activityId ?? _highlightId;
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
+  const currency = (trip?.base_currency ?? 'EUR') as Currency;
   const activitiesQuery = useActivities(tripId!);
   const { data: activities, refetch } = activitiesQuery;
   const ux = getQueryDisplayState(activitiesQuery);
@@ -259,6 +260,7 @@ export default function ActivitiesTab() {
                 tripId={tripId!}
                 currentUserId={user?.id}
                 role={role}
+                currency={currency}
                 initialExpanded={item.id === activityId}
                 isBlocked={blockedActivityIds.has(item.id)}
                 locked={locked}
@@ -295,6 +297,7 @@ export default function ActivitiesTab() {
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
         isPending={isMutationBusy(createActivity)}
+        currency={currency}
         tripStartDate={trip?.start_date ?? ''}
         tripEndDate={trip?.end_date ?? ''}
       />
@@ -306,6 +309,7 @@ export default function ActivitiesTab() {
           onSubmit={handleUpdate}
           isPending={isMutationBusy(updateActivityMutation)}
           activity={editingActivity}
+          currency={currency}
           tripStartDate={trip?.start_date ?? ''}
           tripEndDate={trip?.end_date ?? ''}
         />
@@ -319,6 +323,7 @@ function ActivityCardWithVotes({
   tripId,
   currentUserId,
   role,
+  currency,
   initialExpanded,
   isBlocked,
   onEdit,
@@ -332,6 +337,7 @@ function ActivityCardWithVotes({
   tripId: string;
   currentUserId: string | undefined;
   role: string | null | undefined;
+  currency: Currency;
   initialExpanded?: boolean;
   isBlocked: boolean;
   locked: boolean;
@@ -521,6 +527,7 @@ function ActivityCardWithVotes({
         activity={activity}
         votes={votes}
         currentUserId={currentUserId}
+        currency={currency}
         onPress={() => setShowDetail(!showDetail)}
         onVotePress={() => setShowVoteSheet(true)}
         detail={detailContent}

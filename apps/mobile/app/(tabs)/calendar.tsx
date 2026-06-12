@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
-import type { Activity, SupportedTimezone, UpdateActivityInput } from '@vacationist/types';
+import type { Activity, SupportedTimezone, UpdateActivityInput, Currency } from '@vacationist/types';
 import { useUpdateActivity } from '../../src/features/activities/hooks/useActivities';
 import { useActivityVotesBatch } from '../../src/features/activities/hooks/useVotes';
 import { EditActivitySheet } from '../../src/features/activities/components/EditActivitySheet';
@@ -123,7 +123,7 @@ export default function GlobalCalendarScreen() {
   const [previewActivity, setPreviewActivity] = useState<Activity | null>(null);
   const [previewTimezone, setPreviewTimezone] = useState<SupportedTimezone>('Europe/Berlin');
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
-  const [editingTripDates, setEditingTripDates] = useState<{ start_date: string; end_date: string; trip_id: string } | null>(null);
+  const [editingTripDates, setEditingTripDates] = useState<{ start_date: string; end_date: string; trip_id: string; base_currency: string } | null>(null);
 
   const updateActivityMutation = useUpdateActivity();
 
@@ -219,7 +219,7 @@ export default function GlobalCalendarScreen() {
           const trip = trips?.find((t) => t.id === act.trip_id);
           if (!trip) return;
           setEditingActivity(act);
-          setEditingTripDates({ start_date: trip.start_date, end_date: trip.end_date, trip_id: trip.id });
+          setEditingTripDates({ start_date: trip.start_date, end_date: trip.end_date, trip_id: trip.id, base_currency: trip.base_currency });
           setPreviewActivity(null);
         }}
         onViewFullDetails={(activityId) => {
@@ -241,6 +241,7 @@ export default function GlobalCalendarScreen() {
           onSubmit={handleUpdate}
           isPending={isMutationBusy(updateActivityMutation)}
           activity={editingActivity}
+          currency={(editingTripDates.base_currency ?? 'EUR') as Currency}
           tripStartDate={editingTripDates.start_date}
           tripEndDate={editingTripDates.end_date}
         />

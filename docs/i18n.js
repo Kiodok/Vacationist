@@ -12,7 +12,7 @@
   var SUPPORTED = ['en', 'de'];
   var DEFAULT_LANG = 'en';
   var STORAGE_KEY = 'v_lang';
-  var CACHE_VER = '20260528';
+  var CACHE_VER = '20260612';
 
   function detect() {
     var stored = localStorage.getItem(STORAGE_KEY);

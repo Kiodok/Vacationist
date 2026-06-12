@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import * as Sentry from '@sentry/react-native';
 import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
 
@@ -116,14 +117,30 @@ export const queryClient = new QueryClient({
 // A Set tracks which mutation instances have already shown a toast so we
 // don't spam on repeated pause/resume cycles; we reset when isPaused clears.
 const pausedMutationsSeen = new Set<unknown>();
+// Prevents duplicate Sentry events for the same mutation instance — the
+// 'updated' event fires on every state transition, including each retry attempt.
+const erroredMutationsSeen = new Set<unknown>();
 
 queryClient.getMutationCache().subscribe((event) => {
   if (event.type === 'removed') {
     pausedMutationsSeen.delete(event.mutation);
+    erroredMutationsSeen.delete(event.mutation);
     return;
   }
   if (event.type !== 'updated') return;
   const mut = event.mutation;
+  const key = mut.options.mutationKey?.[0];
+
+  // Report final mutation errors to Sentry (after all retries exhausted).
+  // Paused mutations are not errors — they're queued offline, so we skip those.
+  if (mut.state.status === 'error' && mut.state.error && !mut.state.isPaused) {
+    if (!erroredMutationsSeen.has(mut)) {
+      erroredMutationsSeen.add(mut);
+      Sentry.captureException(mut.state.error, {
+        tags: { source: 'mutation', mutationKey: String(key ?? 'unknown') },
+      });
+    }
+  }
 
   if (!mut.state.isPaused) {
     // Mutation resumed or completed — allow a future pause to show a new toast.
@@ -134,7 +151,6 @@ queryClient.getMutationCache().subscribe((event) => {
   if (pausedMutationsSeen.has(mut)) return;
   pausedMutationsSeen.add(mut);
 
-  const key = mut.options.mutationKey?.[0];
   if (!isPersistedMutationKey(key)) {
     // Non-persisted paused mutations are silently lost on app restart — tell
     // the user their action could not be saved so they can retry manually.

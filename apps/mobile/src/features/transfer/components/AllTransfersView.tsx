@@ -1,8 +1,8 @@
 import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { dayjs } from '@vacationist/utils';
-import type { TransferFlight, TransferVehicle, TransferRental } from '@vacationist/types';
+import { dayjs, formatCurrency } from '@vacationist/utils';
+import type { TransferFlight, TransferVehicle, TransferRental, Currency } from '@vacationist/types';
 import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
 
 export interface AllTransfersViewProps {
@@ -92,7 +92,6 @@ function FlightStatusBadge({ status, votingOpen }: { status: string; votingOpen:
 
 function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; currency: string }) {
   const { t } = useTranslation('transfer');
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
   const departureFormatted = formatDatetime(flight.departure_time);
   const arrivalFormatted = formatDatetime(flight.arrival_time);
   const returnDepartureFormatted = formatDatetime(flight.return_departure_time);
@@ -169,7 +168,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
       <View className="flex-row items-center justify-between">
         {flight.price_per_person != null ? (
           <Text className="text-body-small text-text-secondary">
-            {currencySymbol}{Number(flight.price_per_person).toFixed(2)} {t('all.perPerson')}
+            {formatCurrency(Number(flight.price_per_person), currency as Currency)} {t('all.perPerson')}
           </Text>
         ) : <View />}
         <DirectionBadge direction={flight.direction} />
@@ -197,7 +196,6 @@ function VehicleSummaryCard({ vehicle }: { vehicle: TransferVehicle }) {
 }
 
 function RentalSummaryCard({ rental, currency }: { rental: TransferRental; currency: string }) {
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
   return (
     <View className="bg-surface border border-border rounded-md p-md gap-sm mb-sm">
       <Text className="text-body font-semibold text-text-primary" numberOfLines={1}>
@@ -235,7 +233,7 @@ function RentalSummaryCard({ rental, currency }: { rental: TransferRental; curre
           )}
           {rental.price_total != null && (
             <Text className="text-body-small text-text-secondary">
-              {currencySymbol}{Number(rental.price_total).toFixed(2)}
+              {formatCurrency(Number(rental.price_total), currency as Currency)}
             </Text>
           )}
         </View>

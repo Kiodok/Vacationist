@@ -51,9 +51,16 @@ export function OfflineBanner() {
     if (syncPhase !== 'syncing' || pendingCount > 0) return;
     hadQueuedRef.current = false;
     setSyncPhase('synced');
+  }, [syncPhase, pendingCount]);
+
+  // Separate effect so the cleanup from the syncing→synced transition does not
+  // cancel this timer. Without the split, setSyncPhase('synced') re-triggers
+  // the combined effect, whose cleanup calls clearTimeout before it fires.
+  useEffect(() => {
+    if (syncPhase !== 'synced') return;
     const timer = setTimeout(() => setSyncPhase('idle'), 2500);
     return () => clearTimeout(timer);
-  }, [syncPhase, pendingCount]);
+  }, [syncPhase]);
 
   // null = status not yet determined → keep banner hidden until we know for sure
   if (isConnected === false) {

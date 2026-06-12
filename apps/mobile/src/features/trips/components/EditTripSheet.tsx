@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 import { updateTripSchema, type UpdateTripInput, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { Trip } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
@@ -20,9 +21,14 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('trips');
   const { t: tCommon } = useTranslation("common");
+  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTripInput>({
     resolver: zodResolver(updateTripSchema),
   });
+
+  useEffect(() => {
+    if (!visible) setShowCurrencyPicker(false);
+  }, [visible]);
 
   useEffect(() => {
     if (visible) {
@@ -174,25 +180,29 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                       render={({ field: { value, onChange } }) => (
                         <View className="gap-xs">
                           <Text className="text-label text-text-muted uppercase">{t('field.currency')}</Text>
-                          <View className="flex-row gap-sm">
-                            {CURRENCY.map((c) => (
-                              <Pressable
-                                key={c}
-                                onPress={() => onChange(c)}
-                                className={`flex-1 min-h-[48px] rounded-sm items-center justify-center border ${
-                                  value === c ? 'bg-primary border-primary' : 'bg-surface border-border'
-                                }`}
-                              >
-                                <Text
-                                  className={`text-body font-semibold ${
-                                    value === c ? 'text-white' : 'text-text-secondary'
-                                  }`}
+                          <Pressable
+                            onPress={() => setShowCurrencyPicker((v) => !v)}
+                            className="bg-surface border border-border rounded-sm px-md flex-row items-center justify-between min-h-[48px]"
+                            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                          >
+                            <Text className="text-body font-semibold text-text-primary">{value}</Text>
+                            <Ionicons name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color="#9E9E9E" />
+                          </Pressable>
+                          {showCurrencyPicker && (
+                            <View className="bg-surface border border-border rounded-sm mt-xs overflow-hidden">
+                              {CURRENCY.map((c) => (
+                                <Pressable
+                                  key={c}
+                                  onPress={() => { onChange(c); setShowCurrencyPicker(false); }}
+                                  className="px-md py-sm flex-row items-center justify-between"
+                                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, backgroundColor: value === c ? 'rgba(108,99,255,0.12)' : 'transparent' })}
                                 >
-                                  {c}
-                                </Text>
-                              </Pressable>
-                            ))}
-                          </View>
+                                  <Text className={`text-body ${value === c ? 'text-primary font-semibold' : 'text-text-primary'}`}>{c}</Text>
+                                  {value === c && <Ionicons name="checkmark" size={16} color="#6C63FF" />}
+                                </Pressable>
+                              ))}
+                            </View>
+                          )}
                         </View>
                       )}
                     />

@@ -148,6 +148,7 @@ import type {
 } from '@vacationist/types';
 import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
+import { addSentryBreadcrumb } from './sentry';
 
 // These defaults serve two purposes:
 //   1. Provide the mutationFn that TanStack Query uses when replaying persisted
@@ -165,6 +166,7 @@ queryClient.setMutationDefaults(['createActivity'], {
   mutationFn: ({ tripId, input }: CreateActivityVariables) => createActivity(tripId, input),
   onSuccess: (_data: Activity, { tripId }: CreateActivityVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
+    addSentryBreadcrumb('activity', 'Activity created', { tripId });
     useToastStore.getState().addToast('success', i18n.t('activities:toast.created'));
   },
 });
@@ -210,6 +212,7 @@ queryClient.setMutationDefaults(['castActivityVote'], {
   onSuccess: (_data: ActivityVote, { activityId, tripId }: CastActivityVoteVariables) => {
     queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
+    addSentryBreadcrumb('vote', 'Activity vote cast', { tripId });
   },
 });
 
@@ -219,6 +222,7 @@ queryClient.setMutationDefaults(['castAccommodationVote'], {
   onSuccess: (_data: AccommodationVote, { accommodationId, tripId }: CastAccommodationVoteVariables) => {
     queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
+    addSentryBreadcrumb('vote', 'Accommodation vote cast', { tripId });
   },
 });
 
@@ -239,6 +243,7 @@ queryClient.setMutationDefaults(['createExpense'], {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
     useToastStore.getState().addToast('success', i18n.t('expenses:toast.added'));
+    addSentryBreadcrumb('expense', 'Expense created', { tripId });
   },
 });
 

@@ -8,6 +8,22 @@
 
 ---
 
+## 2026-06-12 — Feat: Add USD Currency Support
+
+### Migration: `20260612140000_add_usd_currency`
+
+**Changes:**
+1. **`trips_base_currency_check`** — Replaced CHECK constraint to include `'USD'` alongside `'EUR'` and `'CHF'`.
+2. **`expenses_currency_check`** — Replaced CHECK constraint to include `'USD'` alongside `'EUR'` and `'CHF'`.
+
+**Non-destructive:** existing rows are unaffected; only new rows can use `'USD'`. Fully backwards-compatible.
+
+**Applied to:** dev + prod
+
+**App-layer changes:** `CURRENCY` constant in `packages/types/src/enums.ts` updated to `['EUR', 'CHF', 'USD']`; `CURRENCY_SYMBOLS` in `packages/utils/src/format.ts` gains `USD: '$'`; Zod schemas, TypeScript types, and UI currency pickers all derive from the constant automatically.
+
+---
+
 ## 2026-06-12 — Fix: Activity Note Notifications + Lost & Found Case Type Editability
 
 ### Migration: `20260612120000_activity_note_notif_and_lost_found_case_type`

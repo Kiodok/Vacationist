@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -8,7 +8,9 @@ import { dayjs } from '@vacationist/utils';
 import { TripNotFoundError } from '@vacationist/api';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripRealtime } from '../../../src/features/trips/hooks/useTripRealtime';
+import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
+import { setSentryTripContext, clearSentryTripContext } from '../../../src/utils/sentry';
 import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
@@ -65,7 +67,13 @@ export default function TripDetailScreen() {
   const ux = getQueryDisplayState(tripQuery);
   const authLoading = useAuthStore((s) => s.isLoading);
   useTripRealtime(id!);
+  const { data: role } = useCurrentMemberRole(id!);
   const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab(tab));
+
+  useEffect(() => {
+    if (id && role) setSentryTripContext(id, role);
+    return () => clearSentryTripContext();
+  }, [id, role]);
 
   const handleTabChange = (newTab: Tab) => {
     setActiveTab(newTab);

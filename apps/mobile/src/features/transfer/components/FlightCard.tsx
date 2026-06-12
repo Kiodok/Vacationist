@@ -1,7 +1,8 @@
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import type { TransferFlight, TransferFlightVote, VoteType } from '@vacationist/types';
+import type { TransferFlight, TransferFlightVote, VoteType, Currency } from '@vacationist/types';
+import { formatCurrency } from '@vacationist/utils';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
@@ -49,7 +50,6 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
   const { t: tTransfer } = useTranslation('transfer');
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !flight.voting_open;
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
   const borderColor = isWinner && !flight.voting_open ? colors.success : getVoteBorderColor(votes);
 
   const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
@@ -147,7 +147,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         {/* Price */}
         {flight.price_per_person != null && (
           <Text className="text-body-small text-text-secondary">
-            {currencySymbol}{Number(flight.price_per_person).toFixed(2)} / person
+            {formatCurrency(Number(flight.price_per_person), currency as Currency)} / person
           </Text>
         )}
 

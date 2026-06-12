@@ -1,0 +1,55 @@
+# Vacationist
+
+> A free trip app for collaborative group travel planning. Vacationist helps groups plan trips together — voting on activities, splitting expenses, tracking vacation spending, sharing shopping lists, and keeping everyone in sync in real time.
+
+## What is Vacationist?
+
+Vacationist is a free mobile and web application for group travel planning. It is available on Android (Google Play) and as a web app. An iOS app is in development.
+
+Key use cases:
+- **Vacation trips** — the primary use case; full trip lifecycle from planning to packing
+- **Van life & road trips** — route planning, shared packing list, expense splitting for fuel and campsites
+- **Sustainable travel** — coordinate shared transport, vote on lower-impact activities, plan intentional travel
+- **Timeshare & vacation rentals** — coordinate arrivals, split running costs, shared shopping lists
+- **Group day trips and weekenders** — lightweight coordination without a full travel agent
+- **Bar and dinner nights** — vote on venue, split the bill
+- **Hobby groups and clubs** — recurring meetups with shared costs
+
+## Core Features
+
+- **Activity voting** — suggest activities; group votes "must do", "like", "neutral", or "group blocker"
+- **Expense splitting** — log costs, choose who paid, split equally or with custom amounts; automatic balance tracking; settle individually or all at once
+- **Vacation tracker & shared calendar** — visual timeline of activities, transfers, and check-ins in the trip's timezone; off-calendar view of every day
+- **Real-time shared lists** — shopping lists, packing checklists; concurrent updates across all group members
+- **Transfer & flight management** — suggest flights, vote, record bookings, manage car rentals, assign passengers
+- **Encrypted travel documents** — passport and ID details protected by biometric authentication and AES-256 encryption; temporary organiser access with revocation
+- **Group sharing** — invite via single link; members join instantly, no account required to participate
+- **Offline support** — mutations queued offline and replayed automatically on reconnect
+- **Notifications** — push notifications for votes, expenses, and activity updates
+
+## Technology
+
+- Platform: React Native (Expo), Android + Web
+- Backend: Supabase (PostgreSQL, Auth, Realtime, Edge Functions)
+- Offline: TanStack Query with MMKV persistence
+- Security: AES-256 (pgcrypto), biometric auth, no tracking, no ads
+
+## Keywords
+
+trip app, vacation tracker, group travel planning, split expenses, vacation tracking, road trip planner, van road trip, group sharing, sustainable travel, timeshare vacation, off calendar, travel website, travel app, travel planning app, group trip planner, expense tracker travel
+
+## URLs
+
+- Landing page: https://vacationist.app/
+- Web app: https://web.vacationist.app/
+- Android app: https://play.google.com/store/apps/details?id=com.vacationist.mobile
+- Privacy policy: https://vacationist.app/privacy-policy.html
+- Terms of service: https://vacationist.app/terms-of-service.html
+
+## Pricing
+
+Free to use. No ads. No tracking. A Pro tier is available for power users; core group travel features are always free.
+
+## About
+
+Built by Gary Lude, Switzerland. Independent developer. Launched 2026.

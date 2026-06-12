@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { generateDateRange } from '@vacationist/utils';
-import type { Activity, UpdateActivityInput } from '@vacationist/types';
+import type { Activity, UpdateActivityInput, Currency } from '@vacationist/types';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers } from '../../../src/features/trips/hooks/useMembers';
 import { useActivities, useUpdateActivity } from '../../../src/features/activities/hooks/useActivities';
@@ -143,6 +143,7 @@ export default function CalendarTab() {
           onSubmit={handleUpdate}
           isPending={isMutationBusy(updateActivityMutation)}
           activity={editingActivity}
+          currency={(trip.base_currency ?? 'EUR') as Currency}
           tripStartDate={trip.start_date}
           tripEndDate={trip.end_date}
         />

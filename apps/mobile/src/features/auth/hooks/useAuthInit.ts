@@ -10,6 +10,7 @@ import {
 import { useAuthStore } from '../../../stores/authStore';
 import { saveUserToCache, loadUserFromCache, clearUserCache } from '../../../utils/userCache';
 import { persistLocale, SUPPORTED_LOCALES } from '@vacationist/i18n';
+import { setSentryUser, clearSentryUser } from '../../../utils/sentry';
 import type { SupportedLocale } from '@vacationist/types';
 
 export function useAuthInit() {
@@ -58,6 +59,7 @@ export function useAuthInit() {
           if (mounted) {
             setUser(profile);
             saveUserToCache(profile);
+            setSentryUser(profile.id, profile.locale);
             // Sync all locale singletons from the server-saved preference.
             // Only fires when profile.locale is non-null (null = new user, use device locale).
             // persistLocale propagates to dayjs + formatCurrency via the registered callback.
@@ -69,11 +71,11 @@ export function useAuthInit() {
           // Network unavailable — cached profile already set above.
           // Only sign the user out if we have NO cached profile
           // (first install with no prior successful sign-in).
-          if (!cached && mounted) reset();
+          if (!cached && mounted) { clearSentryUser(); reset(); }
         }
       } catch {
         // getSession() itself failed (shouldn't happen — reads local storage)
-        if (mounted) reset();
+        if (mounted) { clearSentryUser(); reset(); }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -135,11 +137,13 @@ export function useAuthInit() {
         getSession().then((localSession) => {
           if (!localSession && mounted) {
             clearUserCache();
+            clearSentryUser();
             reset();
           }
         }).catch(() => {
           if (mounted) {
             clearUserCache();
+            clearSentryUser();
             reset();
           }
         });
@@ -152,6 +156,7 @@ export function useAuthInit() {
           if (mounted) {
             setUser(profile);
             saveUserToCache(profile);
+            setSentryUser(profile.id, profile.locale);
             if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
               persistLocale(profile.locale as SupportedLocale);
             }
