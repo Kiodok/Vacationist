@@ -98,6 +98,24 @@ export function useBookAccommodation(tripId: string) {
   });
 }
 
+export function useUnbookAccommodation(tripId: string) {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (accommodationId: string) =>
+      updateAccommodation(accommodationId, { status: 'suggested' }),
+    onSuccess: (_data, accommodationId) => {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
+      queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId] });
+      addToast('success', i18n.t('accommodations:toast.unbooked'));
+    },
+    onError: () => {
+      addToast('error', i18n.t('accommodations:toast.unbookFailed'));
+    },
+  });
+}
+
 export function useCloseAccommodationVoting(tripId: string) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);

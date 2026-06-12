@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { createAccommodationSchema, type CreateAccommodationInput } from '@vacationist/types';
+import { DateTimePickerField } from '../../../components/DateTimePickerField';
 
 interface CreateAccommodationSheetProps {
   visible: boolean;
@@ -12,21 +13,49 @@ interface CreateAccommodationSheetProps {
   onSubmit: (input: CreateAccommodationInput) => void;
   isPending: boolean;
   currency: string;
+  tripStartDate?: string | null;
+  tripEndDate?: string | null;
 }
 
-export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending, currency }: CreateAccommodationSheetProps) {
+export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending, currency, tripStartDate, tripEndDate }: CreateAccommodationSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('accommodations');
   const { t: tCommon } = useTranslation("common");
   const [priceText, setPriceText] = useState('');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateAccommodationInput>({
     resolver: zodResolver(createAccommodationSchema),
-    defaultValues: { title: '', auto_close: false },
+    defaultValues: {
+      title: '',
+      auto_close: false,
+      check_in_date: tripStartDate ?? undefined,
+      check_out_date: tripEndDate ?? undefined,
+    },
   });
 
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
 
+  const checkIn = useWatch({ control, name: 'check_in_date' });
+  const checkOut = useWatch({ control, name: 'check_out_date' });
+  const dateOrderError = !!(checkIn && checkOut && checkOut <= checkIn);
+
+  const minDate = tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined;
+  const maxDate = tripEndDate ? new Date(tripEndDate + 'T00:00:00') : undefined;
+
+  // Re-sync trip date defaults when the sheet opens (trip data may load after initial render).
+  useEffect(() => {
+    if (visible) {
+      reset({
+        title: '',
+        auto_close: false,
+        check_in_date: tripStartDate ?? undefined,
+        check_out_date: tripEndDate ?? undefined,
+      });
+      setPriceText('');
+    }
+  }, [visible, tripStartDate, tripEndDate]);
+
   const onValid = (data: CreateAccommodationInput) => {
+    if (dateOrderError) return;
     Keyboard.dismiss();
     onSubmit(data);
     reset();
@@ -156,6 +185,42 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
                 )}
               </View>
 
+              {/* Check-in date */}
+              <Controller
+                control={control}
+                name="check_in_date"
+                render={({ field: { onChange, value } }) => (
+                  <DateTimePickerField
+                    label={t('field.checkIn')}
+                    value={value ?? null}
+                    onChange={(v) => onChange(v ?? undefined)}
+                    mode="date"
+                    minimumDate={minDate}
+                    maximumDate={maxDate}
+                  />
+                )}
+              />
+
+              {/* Check-out date */}
+              <Controller
+                control={control}
+                name="check_out_date"
+                render={({ field: { onChange, value } }) => (
+                  <DateTimePickerField
+                    label={t('field.checkOut')}
+                    value={value ?? null}
+                    onChange={(v) => onChange(v ?? undefined)}
+                    mode="date"
+                    minimumDate={minDate}
+                    maximumDate={maxDate}
+                  />
+                )}
+              />
+
+              {dateOrderError && (
+                <Text className="text-danger text-body-small">{t('error.checkOutBeforeCheckIn')}</Text>
+              )}
+
               {/* Notes */}
               <View className="gap-xs">
                 <Text className="text-label text-text-muted uppercase">{t('field.notes')}</Text>
@@ -200,9 +265,9 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
               {/* Submit */}
               <Pressable
                 onPress={handleSubmit(onValid)}
-                disabled={isPending}
+                disabled={isPending || dateOrderError}
                 className={`items-center py-sm rounded-md mt-sm ${
-                  isPending ? 'bg-primary/50' : 'bg-primary'
+                  isPending || dateOrderError ? 'bg-primary/50' : 'bg-primary'
                 }`}
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >

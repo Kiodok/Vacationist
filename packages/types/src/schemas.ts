@@ -136,6 +136,8 @@ export const createAccommodationSchema = z.object({
   external_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
   auto_close: z.boolean().optional(),
+  check_in_date: z.string().optional(),
+  check_out_date: z.string().optional(),
 });
 
 export const updateAccommodationSchema = createAccommodationSchema.partial().extend({

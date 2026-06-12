@@ -41,6 +41,8 @@ export async function createAccommodation(tripId: string, input: CreateAccommoda
       external_url: input.external_url ?? null,
       notes: input.notes ?? null,
       auto_close: input.auto_close ?? false,
+      check_in_date: input.check_in_date ?? null,
+      check_out_date: input.check_out_date ?? null,
       created_by: user.id,
     } as any)
     .select()

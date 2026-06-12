@@ -55,10 +55,17 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
           </Text>
         )}
 
-        {accommodation.status === 'booked' && accommodation.check_in_date && accommodation.check_out_date && (
+        {accommodation.check_in_date && accommodation.check_out_date && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="calendar-outline" size={14} color={colors.success} />
-            <Text className="text-body-small text-success" numberOfLines={1}>
+            <Ionicons
+              name="calendar-outline"
+              size={14}
+              color={accommodation.status === 'booked' ? colors.success : colors.primary}
+            />
+            <Text
+              className={`text-body-small ${accommodation.status === 'booked' ? 'text-success' : 'text-primary'}`}
+              numberOfLines={1}
+            >
               {formatDate(accommodation.check_in_date)} → {formatDate(accommodation.check_out_date)}
             </Text>
           </View>
