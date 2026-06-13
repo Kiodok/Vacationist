@@ -1,4 +1,5 @@
-import { View, Text, Pressable, Modal, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -34,24 +35,14 @@ export function SettlementsModal({
 }: SettlementsModalProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
+  const { t: tCommon } = useTranslation('common');
+  const [confirmingSettle, setConfirmingSettle] = useState(false);
   const settlements = computeSettlements(balances);
   const allSettled = settlements.length === 0;
 
-  const handleSettleAll = () => {
-    if (!onSettleAllExpenses) return;
-    Alert.alert(
-      t('modal.settleAllConfirmTitle'),
-      t('modal.settleAllConfirmBody'),
-      [
-        { text: t('common:button.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
-        {
-          text: t('modal.settleAllConfirmYes'),
-          style: 'default',
-          onPress: onSettleAllExpenses,
-        },
-      ],
-    );
-  };
+  useEffect(() => {
+    if (!visible) setConfirmingSettle(false);
+  }, [visible]);
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -138,25 +129,49 @@ export function SettlementsModal({
               </View>
             )}
 
-            {/* Global "Settle All" button */}
+            {/* Global "Settle all" button / inline confirmation */}
             {!allSettled && onSettleAllExpenses && (
-              <Pressable
-                onPress={handleSettleAll}
-                disabled={isSettlingAll}
-                className="py-md rounded-md bg-success/10 items-center mb-lg"
-                style={({ pressed }) => ({ opacity: pressed || isSettlingAll ? 0.6 : 1 })}
-              >
-                {isSettlingAll ? (
-                  <ActivityIndicator size="small" color={colors.success} />
-                ) : (
+              confirmingSettle ? (
+                <View className="rounded-md bg-surface border border-border px-sm py-sm mb-lg gap-sm">
+                  <Text className="text-body text-text-primary font-semibold">{t('modal.settleAllConfirmTitle')}</Text>
+                  <Text className="text-body-small text-text-secondary">{t('modal.settleAllConfirmBody')}</Text>
+                  <View className="flex-row gap-sm mt-xs">
+                    <Pressable
+                      onPress={() => setConfirmingSettle(false)}
+                      className="flex-1 py-sm rounded-md bg-surface-elevated items-center"
+                      style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+                    >
+                      <Text className="text-body text-text-secondary font-medium">{tCommon('button.cancel')}</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => { setConfirmingSettle(false); onSettleAllExpenses(); }}
+                      disabled={isSettlingAll}
+                      className="flex-1 py-sm rounded-md bg-success/15 items-center"
+                      style={({ pressed }) => ({ opacity: pressed || isSettlingAll ? 0.6 : 1 })}
+                    >
+                      {isSettlingAll ? (
+                        <ActivityIndicator size="small" color={colors.success} />
+                      ) : (
+                        <Text className="text-body text-success font-semibold">{t('modal.settleAllConfirmYes')}</Text>
+                      )}
+                    </Pressable>
+                  </View>
+                </View>
+              ) : (
+                <Pressable
+                  onPress={() => setConfirmingSettle(true)}
+                  disabled={isSettlingAll}
+                  className="py-md rounded-md bg-success/10 items-center mb-lg"
+                  style={({ pressed }) => ({ opacity: pressed || isSettlingAll ? 0.6 : 1 })}
+                >
                   <View className="flex-row items-center gap-sm">
                     <Ionicons name="checkmark-done-outline" size={18} color={colors.success} />
                     <Text className="text-success font-semibold text-body">
                       {t('modal.settleAllGlobal')}
                     </Text>
                   </View>
-                )}
-              </Pressable>
+                </Pressable>
+              )
             )}
 
             {/* Transaction History */}
