@@ -8,6 +8,21 @@
 
 ---
 
+## 2026-06-13 — Fix: settle_all_expenses — Simplified Settlements in Receipt Snapshot
+
+### Migration: `20260613110000_fix_settle_all_snapshot`
+
+**Changes:**
+1. **`settle_all_expenses` RPC replaced** — Same behavior, but the receipt snapshot now stores the greedy min-payment paths (exact port of `computeSettlements` in TypeScript) instead of raw `(debtor, creditor)` pair aggregates. Net balances are computed inline (same formula as `get_trip_balances`) before any UPDATEs.
+2. **`total_amount` changed** — Now equals the sum of the simplified transfer amounts, not the sum of every individual split.
+3. **`NULL::TEXT` cast** — `context_entity` parameter passed with explicit type cast to avoid parameter-binding ambiguity.
+
+**Non-destructive:** `CREATE OR REPLACE FUNCTION` — no schema changes. Existing receipt rows (if any from testing) remain; only future receipts use the new algorithm.
+
+**Applied to:** dev + prod
+
+---
+
 ## 2026-06-13 — Feat: Global Settle All with Immutable Transaction Receipts
 
 ### Migration: `20260613100000_settle_all_and_receipts`
