@@ -69,6 +69,10 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '{{creator}} is bringing "{{entity}}" for "{{trip}}".',
     de: '{{creator}} bringt "{{entity}}" für "{{trip}}".',
   },
+  expense_settlement: {
+    en: '{{creator}} settled all expenses in "{{trip}}".',
+    de: '{{creator}} hat alle Ausgaben in "{{trip}}" beglichen.',
+  },
 };
 
 // Several notification kinds reuse one DB type and are distinguished by the body or

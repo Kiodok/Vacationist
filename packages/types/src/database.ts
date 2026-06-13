@@ -508,6 +508,36 @@ export interface SharedPackingItem {
   deleted_at: string | null;
 }
 
+export interface SettlementSnapshotEntry {
+  from_user_id: string;
+  from_user_name: string;
+  to_user_id: string;
+  to_user_name: string;
+  amount: number;
+}
+
+export interface SettlementSnapshotMember {
+  user_id: string;
+  name: string;
+}
+
+export interface SettlementSnapshot {
+  settlements: SettlementSnapshotEntry[];
+  members: SettlementSnapshotMember[];
+  settled_split_ids: string[];
+}
+
+export interface SettlementReceipt {
+  id: string;
+  trip_id: string;
+  settled_by: string;
+  currency: Currency;
+  total_amount: number;
+  splits_count: number;
+  snapshot: SettlementSnapshot;
+  created_at: string;
+}
+
 export interface LostFoundCase {
   id: string;
   trip_id: string;

@@ -596,6 +596,7 @@ export type UnsettleExpenseSplitVariables = { splitId: string; expenseId: string
 export type CoverSplitVariables = { splitId: string; expenseId: string; tripId: string };
 export type UncoverSplitVariables = { splitId: string; expenseId: string; tripId: string };
 export type SettleAllForPairVariables = { debtor: string; creditor: string; tripId: string };
+export type SettleAllExpensesVariables = { tripId: string };
 
 // --- Shopping list mutation variables ---
 export type CreateShoppingListVariables = { tripId: string; input: CreateShoppingListInput };

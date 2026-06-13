@@ -2,12 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { resolveNotificationPath } from './resolveNotificationPath';
 import type { Notification } from '@vacationist/types';
 
-type Input = Pick<Notification, 'type' | 'trip_id' | 'related_type'>;
+type Input = Pick<Notification, 'type' | 'trip_id' | 'related_type'> & { related_id?: string | null };
 
 const TRIP = 'trip-abc';
+const RECEIPT = 'receipt-uuid-123';
 
-function n(type: Notification['type'], related_type: string | null = null): Input {
-  return { type, trip_id: TRIP, related_type };
+function n(type: Notification['type'], related_type: string | null = null, related_id?: string | null): Input {
+  return { type, trip_id: TRIP, related_type, related_id };
 }
 
 describe('resolveNotificationPath', () => {
@@ -61,5 +62,29 @@ describe('resolveNotificationPath', () => {
 
   it('routes vote_finalized to trip root when no related_type matches accommodation', () => {
     expect(resolveNotificationPath(n('vote_finalized', 'flight'))).toBe(`/trip/${TRIP}?tab=Activities`);
+  });
+
+  describe('expense_settlement', () => {
+    it('routes to settlement-receipt screen when related_id is present', () => {
+      expect(resolveNotificationPath(n('expense_settlement', null, RECEIPT))).toBe(
+        `/trip/${TRIP}/settlement-receipt?receiptId=${RECEIPT}`,
+      );
+    });
+
+    it('falls back to Expenses tab when related_id is null', () => {
+      expect(resolveNotificationPath(n('expense_settlement', null, null))).toBe(
+        `/trip/${TRIP}?tab=Expenses`,
+      );
+    });
+
+    it('falls back to Expenses tab when related_id is undefined', () => {
+      expect(resolveNotificationPath(n('expense_settlement'))).toBe(
+        `/trip/${TRIP}?tab=Expenses`,
+      );
+    });
+
+    it('returns null when trip_id is empty', () => {
+      expect(resolveNotificationPath({ type: 'expense_settlement', trip_id: '', related_type: null, related_id: RECEIPT })).toBeNull();
+    });
   });
 });

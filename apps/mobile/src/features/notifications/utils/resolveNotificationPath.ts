@@ -20,6 +20,10 @@ export function resolveNotificationPath(
       return `/trip/${trip_id}?tab=Activities${highlight}`;
     case 'expense_change':
       return `/trip/${trip_id}?tab=Expenses${highlight}`;
+    case 'expense_settlement':
+      return related_id
+        ? `/trip/${trip_id}/settlement-receipt?receiptId=${related_id}`
+        : `/trip/${trip_id}?tab=Expenses`;
     case 'new_member':
       return `/trip/${trip_id}?tab=Settings`;
     case 'reminder':

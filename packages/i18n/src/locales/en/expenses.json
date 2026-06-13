@@ -95,5 +95,21 @@
   "split.settle": "Settle",
   "split.reopen": "Reopen",
   "split.settledOf": "{{settled}} of {{total}} settled",
-  "split.paidBy": "{{amount}} paid by {{name}}"
+  "split.paidBy": "{{amount}} paid by {{name}}",
+  "modal.settleAllGlobal": "Settle All Expenses",
+  "modal.settleAllConfirmTitle": "Settle all expenses?",
+  "modal.settleAllConfirmBody": "This will mark all open splits as settled and create an immutable receipt.",
+  "modal.settleAllConfirmYes": "Settle All",
+  "modal.transactionHistory": "Transaction History",
+  "modal.noReceipts": "No receipts yet",
+  "receipt.title": "Settlement Receipt",
+  "receipt.settledBy": "Settled by {{name}}",
+  "receipt.settledAt": "{{date}}",
+  "receipt.totalAmount": "Total: {{amount}}",
+  "receipt.splitsCount": "{{count}} split settled",
+  "receipt.splitsCount_other": "{{count}} splits settled",
+  "receipt.viewReceipt": "View Receipt",
+  "receipt.immutableNotice": "This receipt is permanent and cannot be modified.",
+  "receipt.notFound": "Receipt not found.",
+  "toast.noOpenSplits": "No open splits to settle."
 }

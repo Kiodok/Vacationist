@@ -8,6 +8,23 @@
 
 ---
 
+## 2026-06-13 — Feat: Global Settle All with Immutable Transaction Receipts
+
+### Migration: `20260613100000_settle_all_and_receipts`
+
+**Changes:**
+1. **New table `settlement_receipts`** — Stores an immutable receipt for every "Settle All" action. Columns: `id`, `trip_id`, `settled_by`, `currency`, `total_amount`, `splits_count`, `snapshot` (JSONB with frozen member names and settlement pairs), `created_at`.
+2. **RLS on `settlement_receipts`** — SELECT: trip members only. INSERT/UPDATE/DELETE: all denied via `WITH CHECK (false)` / `USING (false)`. Only the SECURITY DEFINER RPC can insert.
+3. **Realtime** — Table added to `supabase_realtime` publication.
+4. **`notifications_type_check` extended** — Added `'expense_settlement'` to the allowed type values.
+5. **New RPC `settle_all_expenses(p_trip_id UUID) RETURNS UUID`** — Settles ALL open splits across all debtor→creditor pairs in one atomic transaction, cascades cover-expense splits, builds a frozen JSONB snapshot with user names, inserts a receipt row, and calls `private.create_trip_notification` with type `'expense_settlement'`. Returns the receipt UUID. Raises exception if no open splits exist (prevents empty receipts).
+
+**Non-destructive:** The existing `settle_all_for_pair` RPC is kept. New table and new RPC only.
+
+**Applied to:** dev + prod
+
+---
+
 ## 2026-06-13 — Security Fix: Validate target_user Membership in Lost & Found Cases
 
 ### Migration: `20260613000001_fix_lost_found_target_user_membership`

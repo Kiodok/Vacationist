@@ -1,7 +1,7 @@
 import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Json } from './database.types';
-import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, CreateExpenseInput, UpdateExpenseWithSplitsInput } from '@vacationist/types';
+import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, CreateExpenseInput, UpdateExpenseWithSplitsInput, SettlementReceipt } from '@vacationist/types';
 
 export const EXPENSE_PAGE_SIZE = 30;
 
@@ -110,6 +110,36 @@ export async function settleAllForPair(tripId: string, debtor: string, creditor:
   });
   if (error) throw error;
   return data as number;
+}
+
+export async function settleAllExpenses(tripId: string): Promise<string> {
+  const { data, error } = await (supabase.rpc as Function)('settle_all_expenses', {
+    p_trip_id: tripId,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+export async function getSettlementReceipts(tripId: string): Promise<SettlementReceipt[]> {
+  const { data, error } = await (supabase as unknown as { from: (t: string) => any })
+    .from('settlement_receipts')
+    .select('*')
+    .eq('trip_id', tripId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []) as SettlementReceipt[];
+}
+
+export async function getSettlementReceipt(receiptId: string): Promise<SettlementReceipt> {
+  const { data, error } = await (supabase as unknown as { from: (t: string) => any })
+    .from('settlement_receipts')
+    .select('*')
+    .eq('id', receiptId)
+    .single();
+
+  if (error) throw error;
+  return data as SettlementReceipt;
 }
 
 export interface ExpenseRealtimeCallbacks {

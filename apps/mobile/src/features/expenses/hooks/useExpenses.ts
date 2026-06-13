@@ -13,6 +13,9 @@ import {
   coverSplit,
   uncoverSplit,
   settleAllForPair,
+  settleAllExpenses,
+  getSettlementReceipts,
+  getSettlementReceipt,
 } from '@vacationist/api';
 import type {
   CreateExpenseVariables,
@@ -24,6 +27,7 @@ import type {
   CoverSplitVariables,
   UncoverSplitVariables,
   SettleAllForPairVariables,
+  SettleAllExpensesVariables,
 } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
@@ -172,5 +176,47 @@ export function useSettleAllForPair() {
     onError: () => {
       addToast('error', i18n.t('expenses:toast.settleAllFailed'));
     },
+  });
+}
+
+export function useSettleAllExpenses() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationKey: ['settleAllExpenses'],
+    mutationFn: ({ tripId }: SettleAllExpensesVariables) => settleAllExpenses(tripId),
+    onSuccess: (_, { tripId }) => {
+      addToast('success', i18n.t('expenses:toast.settleAllDone'));
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'settlement-receipts'] });
+    },
+    onError: (error: Error) => {
+      const msg = error?.message?.includes('No open splits')
+        ? i18n.t('expenses:toast.noOpenSplits')
+        : i18n.t('expenses:toast.settleAllFailed');
+      addToast('error', msg);
+    },
+  });
+}
+
+export function useSettlementReceipts(tripId: string) {
+  return useQuery({
+    queryKey: ['trips', tripId, 'settlement-receipts'],
+    queryFn: () => getSettlementReceipts(tripId),
+    staleTime: 60_000,
+    retry: 2,
+    enabled: !!tripId,
+  });
+}
+
+export function useSettlementReceipt(receiptId: string) {
+  return useQuery({
+    queryKey: ['settlement-receipts', receiptId],
+    queryFn: () => getSettlementReceipt(receiptId),
+    staleTime: Infinity,
+    retry: 2,
+    enabled: !!receiptId,
   });
 }

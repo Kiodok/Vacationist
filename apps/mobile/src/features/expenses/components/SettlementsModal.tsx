@@ -1,8 +1,9 @@
-import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import { View, Text, Pressable, Modal, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import type { MemberBalance, User, Currency } from '@vacationist/types';
+import { dayjs } from '@vacationist/utils';
+import type { MemberBalance, User, Currency, SettlementReceipt } from '@vacationist/types';
 import { formatCurrency, isNegligible, computeSettlements } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
 
@@ -12,15 +13,45 @@ interface SettlementsModalProps {
   balances: MemberBalance[];
   members: Map<string, User>;
   currency: Currency;
-  onSettleAll?: (debtor: string, creditor: string) => void;
+  onSettleAllExpenses?: () => void;
   isSettlingAll?: boolean;
+  receipts?: SettlementReceipt[];
+  isLoadingReceipts?: boolean;
+  onViewReceipt?: (receiptId: string) => void;
 }
 
-export function SettlementsModal({ visible, onClose, balances, members, currency, onSettleAll, isSettlingAll }: SettlementsModalProps) {
+export function SettlementsModal({
+  visible,
+  onClose,
+  balances,
+  members,
+  currency,
+  onSettleAllExpenses,
+  isSettlingAll,
+  receipts = [],
+  isLoadingReceipts,
+  onViewReceipt,
+}: SettlementsModalProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const settlements = computeSettlements(balances);
   const allSettled = settlements.length === 0;
+
+  const handleSettleAll = () => {
+    if (!onSettleAllExpenses) return;
+    Alert.alert(
+      t('modal.settleAllConfirmTitle'),
+      t('modal.settleAllConfirmBody'),
+      [
+        { text: t('common:button.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
+        {
+          text: t('modal.settleAllConfirmYes'),
+          style: 'default',
+          onPress: onSettleAllExpenses,
+        },
+      ],
+    );
+  };
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -71,16 +102,16 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
               })}
             </View>
 
-            {/* Simplified settlements */}
+            {/* Simplified settlements (read-only) */}
             <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.simplifiedSettlements')}</Text>
             {allSettled ? (
-              <View className="items-center py-lg gap-sm">
+              <View className="items-center py-lg gap-sm mb-lg">
                 <Ionicons name="checkmark-done-circle-outline" size={40} color={colors.success} />
                 <Text className="text-body text-success font-medium">{t('modal.allSettled')}</Text>
                 <Text className="text-body-small text-text-muted">{t('modal.noPayments')}</Text>
               </View>
             ) : (
-              <View className="gap-sm">
+              <View className="gap-sm mb-md">
                 {settlements.map((s, i) => {
                   const fromUser = members.get(s.from);
                   const toUser = members.get(s.to);
@@ -98,24 +129,85 @@ export function SettlementsModal({ visible, onClose, balances, members, currency
                           {formatCurrency(s.amount, currency)}
                         </Text>
                       </View>
-                      {onSettleAll && (
-                        <Pressable
-                          onPress={() => onSettleAll(s.from, s.to)}
-                          disabled={isSettlingAll}
-                          className="px-md py-sm rounded-sm bg-success/10"
-                          style={({ pressed }) => ({ opacity: pressed || isSettlingAll ? 0.6 : 1 })}
-                        >
-                          <Text className="text-success text-body-small font-semibold">
-                            {t('modal.settleAll')}
-                          </Text>
-                        </Pressable>
-                      )}
                     </View>
                   );
                 })}
                 <Text className="text-label text-text-muted text-center mt-xs">
                   {t('modal.paymentsCount', { count: settlements.length })}
                 </Text>
+              </View>
+            )}
+
+            {/* Global "Settle All" button */}
+            {!allSettled && onSettleAllExpenses && (
+              <Pressable
+                onPress={handleSettleAll}
+                disabled={isSettlingAll}
+                className="py-md rounded-md bg-success/10 items-center mb-lg"
+                style={({ pressed }) => ({ opacity: pressed || isSettlingAll ? 0.6 : 1 })}
+              >
+                {isSettlingAll ? (
+                  <ActivityIndicator size="small" color={colors.success} />
+                ) : (
+                  <View className="flex-row items-center gap-sm">
+                    <Ionicons name="checkmark-done-outline" size={18} color={colors.success} />
+                    <Text className="text-success font-semibold text-body">
+                      {t('modal.settleAllGlobal')}
+                    </Text>
+                  </View>
+                )}
+              </Pressable>
+            )}
+
+            {/* Transaction History */}
+            <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.transactionHistory')}</Text>
+            {isLoadingReceipts ? (
+              <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 16 }} />
+            ) : receipts.length === 0 ? (
+              <View className="items-center py-md gap-xs mb-lg">
+                <Ionicons name="receipt-outline" size={28} color={colors.textMuted} />
+                <Text className="text-body-small text-text-muted">{t('modal.noReceipts')}</Text>
+              </View>
+            ) : (
+              <View className="gap-sm mb-md">
+                {receipts.map((receipt) => {
+                  const settledByMember = receipt.snapshot.members.find((m) => m.user_id === receipt.settled_by);
+                  return (
+                    <Pressable
+                      key={receipt.id}
+                      onPress={() => onViewReceipt?.(receipt.id)}
+                      className="py-sm px-sm rounded-md bg-surface gap-xs"
+                      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                    >
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center gap-sm flex-1">
+                          <View className="w-[28px] h-[28px] rounded-full bg-success/15 items-center justify-center">
+                            <Ionicons name="receipt-outline" size={14} color={colors.success} />
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-body-small text-text-primary font-semibold" numberOfLines={1}>
+                              {t('receipt.settledBy', { name: settledByMember?.name ?? '?' })}
+                            </Text>
+                            <Text className="text-label text-text-muted">
+                              {dayjs(receipt.created_at).format('ll · HH:mm')}
+                            </Text>
+                          </View>
+                        </View>
+                        <View className="items-end gap-xs">
+                          <Text className="text-body-small text-success font-semibold">
+                            {formatCurrency(receipt.total_amount, currency)}
+                          </Text>
+                          <View className="flex-row items-center gap-xs">
+                            <Text className="text-label text-text-muted">
+                              {t('receipt.viewReceipt')}
+                            </Text>
+                            <Ionicons name="chevron-forward" size={12} color={colors.textMuted} />
+                          </View>
+                        </View>
+                      </View>
+                    </Pressable>
+                  );
+                })}
               </View>
             )}
           </ScrollView>

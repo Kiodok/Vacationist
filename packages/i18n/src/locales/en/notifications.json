@@ -50,6 +50,7 @@
   "type.lost_found_lost": "Item lost",
   "type.lost_found_resolved": "Case resolved",
   "type.lost_found_reopened": "Case reopened",
+  "type.expense_settlement": "Expenses settled",
   "nudge.confirmTitle": "Send nudge?",
   "nudge.confirmBody": "This will send a push notification to all trip members.",
   "nudge.confirmSend": "Send"

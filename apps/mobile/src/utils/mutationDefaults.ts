@@ -20,6 +20,7 @@ import {
   coverSplit,
   uncoverSplit,
   settleAllForPair,
+  settleAllExpenses,
   createShoppingList,
   updateShoppingList,
   archiveShoppingList,
@@ -92,6 +93,7 @@ import type {
   CoverSplitVariables,
   UncoverSplitVariables,
   SettleAllForPairVariables,
+  SettleAllExpensesVariables,
   CreateShoppingListVariables,
   UpdateShoppingListVariables,
   ArchiveShoppingListVariables,
@@ -322,6 +324,16 @@ queryClient.setMutationDefaults(['settleAllForPair'], {
   onSuccess: (_data: number, { tripId }: SettleAllForPairVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+    useToastStore.getState().addToast('success', i18n.t('expenses:toast.settleAllDone'));
+  },
+});
+
+queryClient.setMutationDefaults(['settleAllExpenses'], {
+  mutationFn: ({ tripId }: SettleAllExpensesVariables) => settleAllExpenses(tripId),
+  onSuccess: (_data: string, { tripId }: SettleAllExpensesVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'settlement-receipts'] });
     useToastStore.getState().addToast('success', i18n.t('expenses:toast.settleAllDone'));
   },
 });

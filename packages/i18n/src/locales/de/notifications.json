@@ -50,6 +50,7 @@
   "type.lost_found_lost": "Gegenstand verloren",
   "type.lost_found_resolved": "Fall gelöst",
   "type.lost_found_reopened": "Fall wieder geöffnet",
+  "type.expense_settlement": "Ausgaben beglichen",
   "nudge.confirmTitle": "Anstoß senden?",
   "nudge.confirmBody": "Alle Reiseteilnehmer erhalten eine Push-Benachrichtigung.",
   "nudge.confirmSend": "Senden"

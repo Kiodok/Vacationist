@@ -50,6 +50,7 @@ export const NOTIFICATION_ICON_COLORS: Record<string, IconColorConfig> = {
   activity_note:            { icon: 'chatbubble-outline',        color: accentColors.teal },
   lost_found:               { icon: 'search-outline',           color: accentColors.rose },
   shared_packing:           { icon: 'bag-outline',              color: accentColors.orange },
+  expense_settlement:       { icon: 'receipt-outline',          color: SUCCESS },
 };
 
 export const METADATA_ICON_COLORS: Record<string, IconColorConfig> = {

@@ -64,6 +64,10 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Note added', body: '{{creator}} added a note to "{{entity}}" in "{{trip}}".' },
     de: { title: 'Notiz hinzugefügt', body: '{{creator}} hat eine Notiz zu "{{entity}}" in "{{trip}}" hinzugefügt.' },
   },
+  expense_settlement: {
+    en: { title: 'Expenses settled', body: '{{creator}} settled all expenses in "{{trip}}".' },
+    de: { title: 'Ausgaben beglichen', body: '{{creator}} hat alle Ausgaben in "{{trip}}" beglichen.' },
+  },
   shared_packing: {
     en: { title: 'Shared packing update', body: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".' },
     de: { title: 'Gemeinsame Packliste', body: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.' },
@@ -205,7 +209,8 @@ function preferenceColumn(type: string): string | null {
     case 'new_activity':    return 'new_activity';
     case 'vote_finalized':
     case 'vote_update':     return 'vote_update';
-    case 'expense_change':  return 'expense_change';
+    case 'expense_change':
+    case 'expense_settlement': return 'expense_change';
     case 'new_member':      return 'new_member';
     case 'schedule_change': return 'schedule_change';
     case 'reminder':        return 'reminder';

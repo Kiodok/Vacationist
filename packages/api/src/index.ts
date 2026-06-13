@@ -81,6 +81,9 @@ export {
   coverSplit,
   uncoverSplit,
   settleAllForPair,
+  settleAllExpenses,
+  getSettlementReceipts,
+  getSettlementReceipt,
   subscribeToExpensesRealtime,
   unsubscribeFromExpenses,
 } from './expenses';

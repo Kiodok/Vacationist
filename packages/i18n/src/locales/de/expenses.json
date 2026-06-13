@@ -95,5 +95,21 @@
   "split.settle": "Begleichen",
   "split.reopen": "Wieder öffnen",
   "split.settledOf": "{{settled}} von {{total}} beglichen",
-  "split.paidBy": "{{amount}} bezahlt von {{name}}"
+  "split.paidBy": "{{amount}} bezahlt von {{name}}",
+  "modal.settleAllGlobal": "Alle Ausgaben begleichen",
+  "modal.settleAllConfirmTitle": "Alle Ausgaben begleichen?",
+  "modal.settleAllConfirmBody": "Alle offenen Aufteilungen werden als beglichen markiert und eine unveränderliche Quittung erstellt.",
+  "modal.settleAllConfirmYes": "Alles begleichen",
+  "modal.transactionHistory": "Transaktionshistorie",
+  "modal.noReceipts": "Noch keine Quittungen",
+  "receipt.title": "Abrechnungsquittung",
+  "receipt.settledBy": "Beglichen von {{name}}",
+  "receipt.settledAt": "{{date}}",
+  "receipt.totalAmount": "Gesamt: {{amount}}",
+  "receipt.splitsCount": "{{count}} Aufteilung beglichen",
+  "receipt.splitsCount_other": "{{count}} Aufteilungen beglichen",
+  "receipt.viewReceipt": "Quittung anzeigen",
+  "receipt.immutableNotice": "Diese Quittung ist dauerhaft und kann nicht geändert werden.",
+  "receipt.notFound": "Quittung nicht gefunden.",
+  "toast.noOpenSplits": "Keine offenen Aufteilungen zum Begleichen."
 }

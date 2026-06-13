@@ -1,13 +1,13 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
 import { isExpenseFullySettled } from '@vacationist/utils';
-import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllForPair } from '../../../src/features/expenses/hooks/useExpenses';
+import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllExpenses, useSettlementReceipts } from '../../../src/features/expenses/hooks/useExpenses';
 import { useExpensesRealtime } from '../../../src/features/expenses/hooks/useExpensesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -35,6 +35,7 @@ export default function ExpensesTab() {
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation("common");
   const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
   const expensesQuery = useExpenses(tripId!);
@@ -53,11 +54,12 @@ export default function ExpensesTab() {
   const { data: members = [] } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const { data: balances = [] } = useTripBalances(tripId!);
+  const { data: settlementReceipts = [], isLoading: isLoadingReceipts } = useSettlementReceipts(tripId!);
   const createExpense = useCreateExpense();
   const archiveExpenseMutation = useArchiveExpense();
   const unarchiveExpenseMutation = useUnarchiveExpense();
-  const settleAllForPairMutation = useSettleAllForPair();
-  const settlingPairRef = useRef(false);
+  const settleAllExpensesMutation = useSettleAllExpenses();
+  const settlingRef = useRef(false);
   const sectionListRef = useRef<SectionList<ExpenseWithSplits>>(null);
   useExpensesRealtime(tripId!);
   const { toggle, isCollapsed } = useCollapsibleSections();
@@ -243,15 +245,21 @@ export default function ExpensesTab() {
           balances={balances}
           members={memberMap}
           currency={currency}
-          onSettleAll={(debtor, creditor) => {
-            if (settlingPairRef.current) return;
-            settlingPairRef.current = true;
-            settleAllForPairMutation.mutate(
-              { tripId: tripId!, debtor, creditor },
-              { onSettled: () => { settlingPairRef.current = false; } },
+          onSettleAllExpenses={() => {
+            if (settlingRef.current) return;
+            settlingRef.current = true;
+            settleAllExpensesMutation.mutate(
+              { tripId: tripId! },
+              { onSettled: () => { settlingRef.current = false; } },
             );
           }}
-          isSettlingAll={settleAllForPairMutation.isPending}
+          isSettlingAll={settleAllExpensesMutation.isPending}
+          receipts={settlementReceipts}
+          isLoadingReceipts={isLoadingReceipts}
+          onViewReceipt={(receiptId) => {
+            setShowSettlements(false);
+            router.push(`/trip/${tripId}/settlement-receipt?receiptId=${receiptId}`);
+          }}
         />
       )}
 
