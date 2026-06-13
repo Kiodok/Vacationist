@@ -22,7 +22,7 @@ export type { TripRealtimeCallbacks } from './trips';
 export { getTripMembers, removeTripMember, leaveTrip, updateMemberRole, getCurrentMemberRole } from './members';
 export type { TripMemberWithUser } from './members';
 
-export { createInviteToken, getActiveInvites, revokeInvite, redeemInviteToken } from './invites';
+export { createInviteToken, getActiveInvites, revokeInvite, redeemInviteToken, getTripInviteStats } from './invites';
 
 export {
   getActivities,

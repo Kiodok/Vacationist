@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@vacationist/ui';
+import { getTripInviteStats } from '@vacationist/api';
 import { useTrip, useDeleteTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers, useRemoveMember, useLeaveTrip, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useActiveInvites, useCreateInvite, useRevokeInvite } from '../../../src/features/trips/hooks/useInvites';
@@ -62,12 +63,38 @@ export default function SettingsTab() {
 
   async function handleCreateInvite() {
     try {
-      const result = await createInvite.mutateAsync({ expires_in: '7d' });
+      const [result, stats] = await Promise.all([
+        createInvite.mutateAsync({ expires_in: '7d' }),
+        getTripInviteStats(tripId),
+      ]);
       const link = `https://vacationist.app/join?token=${result.token}`;
-      const shareMessage = `Join my trip "${trip?.title ?? 'my trip'}" on Vacationist!\n${link}`;
+      const memberCount = members?.length ?? 1;
+
+      const lines: string[] = [
+        t('invite.share.header', { name: currentUser?.name ?? 'Someone', trip: trip?.title ?? 'my trip' }),
+        '',
+        t('invite.share.peoplePlanning', { count: memberCount }),
+        '',
+      ];
+      if (stats.accommodationCount > 0) {
+        lines.push(t('invite.share.voteAccommodations', { count: stats.accommodationCount }));
+      }
+      if (stats.activityCount > 0) {
+        lines.push(t('invite.share.voteActivities', { count: stats.activityCount }));
+      }
+      lines.push(t('invite.share.packingList'));
+      lines.push(t('invite.share.splitExpenses'));
+      lines.push(t('invite.share.shoppingLists'));
+      lines.push('');
+      lines.push(t('invite.share.noAccountRequired'));
+      lines.push('');
+      lines.push(link);
+
+      const shareMessage = lines.join('\n');
+
       if (Platform.OS === 'web') {
         await Clipboard.setStringAsync(shareMessage);
-        addToast('success', 'Invite link copied to clipboard');
+        addToast('success', t('toast.inviteCopied'));
       } else {
         await Share.share({
           message: shareMessage,

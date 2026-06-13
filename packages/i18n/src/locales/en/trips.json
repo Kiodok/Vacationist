@@ -74,5 +74,16 @@
   "error.notFound": "This trip doesn't exist or you don't have access to it.",
   "error.loadFailed": "Failed to load trip.",
   "error.goHome": "Go to home",
-  "error.goBack": "Go back"
+  "error.goBack": "Go back",
+  "invite.share.header": "{{name}} invited you to \"{{trip}}\" on Vacationist!",
+  "invite.share.peoplePlanning_one": "{{count}} person already planning",
+  "invite.share.peoplePlanning_other": "{{count}} people already planning",
+  "invite.share.voteAccommodations_one": "✓ Vote on {{count}} accommodation",
+  "invite.share.voteAccommodations_other": "✓ Vote on {{count}} accommodations",
+  "invite.share.voteActivities_one": "✓ Vote on {{count}} activity",
+  "invite.share.voteActivities_other": "✓ Vote on {{count}} activities",
+  "invite.share.packingList": "✓ Add your packing list",
+  "invite.share.splitExpenses": "✓ Split expenses",
+  "invite.share.shoppingLists": "✓ Shared shopping lists",
+  "invite.share.noAccountRequired": "✓ No account required"
 }

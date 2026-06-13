@@ -74,5 +74,16 @@
   "error.notFound": "Diese Reise existiert nicht oder du hast keinen Zugriff darauf.",
   "error.loadFailed": "Reise konnte nicht geladen werden.",
   "error.goHome": "Zur Startseite",
-  "error.goBack": "Zurück"
+  "error.goBack": "Zurück",
+  "invite.share.header": "{{name}} hat dich zu \"{{trip}}\" auf Vacationist eingeladen!",
+  "invite.share.peoplePlanning_one": "{{count}} Person plant bereits",
+  "invite.share.peoplePlanning_other": "{{count}} Personen planen bereits",
+  "invite.share.voteAccommodations_one": "✓ Abstimmen über {{count}} Unterkunft",
+  "invite.share.voteAccommodations_other": "✓ Abstimmen über {{count}} Unterkünfte",
+  "invite.share.voteActivities_one": "✓ Abstimmen über {{count}} Aktivität",
+  "invite.share.voteActivities_other": "✓ Abstimmen über {{count}} Aktivitäten",
+  "invite.share.packingList": "✓ Packliste hinzufügen",
+  "invite.share.splitExpenses": "✓ Ausgaben aufteilen",
+  "invite.share.shoppingLists": "✓ Gemeinsame Einkaufslisten",
+  "invite.share.noAccountRequired": "✓ Kein Konto erforderlich"
 }

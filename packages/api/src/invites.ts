@@ -68,3 +68,24 @@ export async function redeemInviteToken(tokenValue: string): Promise<string> {
   if (error) throw error;
   return data as string;
 }
+
+export async function getTripInviteStats(
+  tripId: string
+): Promise<{ accommodationCount: number; activityCount: number }> {
+  const [accResult, actResult] = await Promise.all([
+    supabase
+      .from('accommodations')
+      .select('id', { count: 'exact', head: true })
+      .eq('trip_id', tripId)
+      .is('deleted_at', null),
+    supabase
+      .from('activities')
+      .select('id', { count: 'exact', head: true })
+      .eq('trip_id', tripId)
+      .is('deleted_at', null),
+  ]);
+  return {
+    accommodationCount: accResult.count ?? 0,
+    activityCount: actResult.count ?? 0,
+  };
+}
