@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { dayjs } from '@vacationist/utils';
 import { useTrips } from '../../src/features/trips/hooks/useTrips';
 import { TripCard, getEffectiveStatus } from '../../src/features/trips/components/TripCard';
 import { TripListSkeleton } from '../../src/features/trips/components/TripListSkeleton';
@@ -11,12 +12,41 @@ import { EmptyTrips } from '../../src/features/trips/components/EmptyTrips';
 import { useAuthStore } from '../../src/stores/authStore';
 import { useCollapsibleSections } from '../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../src/components/CollapsibleSectionHeader';
+import { SearchInput } from '../../src/components/SearchInput';
 import type { Trip } from '@vacationist/types';
 import { colors } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
 
 type TripWithCount = Trip & { member_count: number };
+type YearDivider = { __type: 'year_divider'; year: number; sectionKey: string };
+type SectionItem = TripWithCount | YearDivider;
+
+function insertYearDividers(
+  trips: TripWithCount[],
+  dateField: 'start_date' | 'end_date',
+  descending: boolean,
+  sectionKey: string,
+): SectionItem[] {
+  if (trips.length === 0) return [];
+  const sorted = [...trips].sort((a, b) => {
+    const diff = a[dateField].localeCompare(b[dateField]);
+    return descending ? -diff : diff;
+  });
+  const years = new Set(sorted.map((t) => dayjs(t[dateField]).year()));
+  if (years.size <= 1) return sorted;
+  const items: SectionItem[] = [];
+  let currentYear: number | null = null;
+  for (const trip of sorted) {
+    const year = dayjs(trip[dateField]).year();
+    if (year !== currentYear) {
+      items.push({ __type: 'year_divider', year, sectionKey });
+      currentYear = year;
+    }
+    items.push(trip);
+  }
+  return items;
+}
 
 export default function TripsScreen() {
   const { t } = useTranslation('trips');
@@ -26,6 +56,7 @@ export default function TripsScreen() {
   const ux = getQueryDisplayState(tripsQuery);
   const user = useAuthStore((s) => s.user);
   const [avatarError, setAvatarError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toggle, isCollapsed } = useCollapsibleSections({ defaultCollapsed: ['completed'] });
 
   const SECTIONS = useMemo(() => [
@@ -52,14 +83,24 @@ export default function TripsScreen() {
     },
   ] as const, [t]);
 
-  const sections = useMemo(() => {
+  const filteredTrips = useMemo(() => {
     if (!trips) return [];
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return trips as TripWithCount[];
+    return (trips as TripWithCount[]).filter(
+      (trip) =>
+        trip.title.toLowerCase().includes(q) ||
+        trip.description?.toLowerCase().includes(q),
+    );
+  }, [trips, searchQuery]);
+
+  const sections = useMemo(() => {
     const buckets: Record<'planning' | 'active' | 'completed', TripWithCount[]> = {
       planning: [],
       active: [],
       completed: [],
     };
-    for (const trip of trips as TripWithCount[]) {
+    for (const trip of filteredTrips) {
       const s = getEffectiveStatus(trip);
       if (s === 'active') {
         buckets.active.push(trip);
@@ -71,12 +112,23 @@ export default function TripsScreen() {
     }
     return SECTIONS
       .filter((cfg) => buckets[cfg.key].length > 0)
-      .map((cfg) => ({
-        ...cfg,
-        originalCount: buckets[cfg.key].length,
-        data: isCollapsed(cfg.key) ? [] : buckets[cfg.key],
-      }));
-  }, [trips, SECTIONS, isCollapsed]);
+      .map((cfg) => {
+        const tripCount = buckets[cfg.key].length;
+        let items: SectionItem[];
+        if (cfg.key === 'completed') {
+          items = insertYearDividers(buckets[cfg.key], 'end_date', true, cfg.key);
+        } else if (cfg.key === 'planning') {
+          items = insertYearDividers(buckets[cfg.key], 'start_date', false, cfg.key);
+        } else {
+          items = buckets[cfg.key];
+        }
+        return {
+          ...cfg,
+          originalCount: tripCount,
+          data: isCollapsed(cfg.key) ? [] : items,
+        };
+      });
+  }, [filteredTrips, SECTIONS, isCollapsed]);
 
   function handleCreateTrip() {
     router.push('/trip/create' as never);
@@ -113,31 +165,48 @@ export default function TripsScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <SectionList
         sections={sections}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => '__type' in item ? `${item.sectionKey}-year-${item.year}` : item.id}
         stickySectionHeadersEnabled={false}
         windowSize={5}
         maxToRenderPerBatch={10}
         initialNumToRender={10}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
         ListHeaderComponent={
-          <View className="flex-row items-center justify-between pt-md pb-sm">
-            <Pressable
-              onPress={() => router.navigate('/(tabs)/profile' as never)}
-              className="w-[40px] h-[40px] rounded-full bg-surface items-center justify-center overflow-hidden"
-            >
-              {user?.avatar_url && !avatarError ? (
-                <Image
-                  source={{ uri: user.avatar_url }}
-                  className="w-full h-full"
-                  onError={() => setAvatarError(true)}
-                />
-              ) : (
-                <Ionicons name="person" size={20} color="#FFFFFF" />
-              )}
-            </Pressable>
-            <Text className="text-heading-xl text-text-primary">{t('screen.title')}</Text>
-            <View className="w-[40px]" />
+          <View className="pt-md pb-sm gap-sm">
+            <View className="flex-row items-center justify-between">
+              <Pressable
+                onPress={() => router.navigate('/(tabs)/profile' as never)}
+                className="w-[40px] h-[40px] rounded-full bg-surface items-center justify-center overflow-hidden"
+              >
+                {user?.avatar_url && !avatarError ? (
+                  <Image
+                    source={{ uri: user.avatar_url }}
+                    className="w-full h-full"
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  <Ionicons name="person" size={20} color="#FFFFFF" />
+                )}
+              </Pressable>
+              <Text className="text-heading-xl text-text-primary">{t('screen.title')}</Text>
+              <View className="w-[40px]" />
+            </View>
+            <SearchInput
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder={t('search.placeholder')}
+            />
           </View>
+        }
+        ListEmptyComponent={
+          searchQuery.trim() ? (
+            <View className="py-xl items-center gap-sm">
+              <Ionicons name="search-outline" size={32} color={colors.textMuted} />
+              <Text className="text-text-secondary text-body">
+                {t('search.noResults', { query: searchQuery.trim() })}
+              </Text>
+            </View>
+          ) : null
         }
         renderSectionHeader={({ section }) => (
           <CollapsibleSectionHeader
@@ -150,14 +219,23 @@ export default function TripsScreen() {
             onToggle={() => toggle(section.key)}
           />
         )}
-        renderItem={({ item }) => (
-          <View className="mb-sm">
-            <TripCard
-              trip={item}
-              onPress={() => handleTripPress(item.id)}
-            />
-          </View>
-        )}
+        renderItem={({ item }) => {
+          if ('__type' in item) {
+            return (
+              <Text className="text-label text-text-muted font-semibold uppercase px-xs pt-sm pb-xs tracking-widest">
+                {item.year}
+              </Text>
+            );
+          }
+          return (
+            <View className="mb-sm">
+              <TripCard
+                trip={item}
+                onPress={() => handleTripPress(item.id)}
+              />
+            </View>
+          );
+        }}
         refreshControl={
           <RefreshControl
             refreshing={ux.refreshing}

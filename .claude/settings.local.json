@@ -131,7 +131,8 @@
       "Bash(cat)",
       "Read(//tmp/**)",
       "PowerShell(npm run *)",
-      "PowerShell(npm test *)"
+      "PowerShell(npm test *)",
+      "Skill(code-review)"
     ]
   },
   "model": "opusplan",

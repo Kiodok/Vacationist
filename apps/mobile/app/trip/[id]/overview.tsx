@@ -13,7 +13,11 @@ import { EditTripSheet } from '../../../src/features/trips/components/EditTripSh
 import { colors } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 
-export default function OverviewTab() {
+interface OverviewTabProps {
+  onTabChange?: (tab: string) => void;
+}
+
+export default function OverviewTab({ onTabChange }: OverviewTabProps) {
   const { t } = useTranslation('trips');
   const { t: tCommon } = useTranslation("common");
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -56,25 +60,37 @@ export default function OverviewTab() {
 
         {/* Quick stats — Days & Members row */}
         <View className="flex-row gap-sm">
-          <View className="flex-1 bg-surface border border-border rounded-md p-md items-center gap-xs">
-            <View style={styles.iconBadgeSuccess}>
-              <Ionicons name="calendar-outline" size={20} color={colors.success} />
+          <Pressable
+            className="flex-1"
+            onPress={() => onTabChange?.('Calendar')}
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+          >
+            <View className="bg-surface border border-border rounded-md p-md items-center gap-xs">
+              <View style={styles.iconBadgeSuccess}>
+                <Ionicons name="calendar-outline" size={20} color={colors.success} />
+              </View>
+              <Text className="text-heading-m text-text-primary">{duration}</Text>
+              <Text className="text-body-small text-text-secondary">
+                {t('overview.days')}
+              </Text>
             </View>
-            <Text className="text-heading-m text-text-primary">{duration}</Text>
-            <Text className="text-body-small text-text-secondary">
-              {t('overview.days')}
-            </Text>
-          </View>
+          </Pressable>
 
-          <View className="flex-1 bg-surface border border-border rounded-md p-md items-center gap-xs">
-            <View style={styles.iconBadgePrimary}>
-              <Ionicons name="people-outline" size={20} color={colors.primary} />
+          <Pressable
+            className="flex-1"
+            onPress={() => onTabChange?.('Settings')}
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+          >
+            <View className="bg-surface border border-border rounded-md p-md items-center gap-xs">
+              <View style={styles.iconBadgePrimary}>
+                <Ionicons name="people-outline" size={20} color={colors.primary} />
+              </View>
+              <Text className="text-heading-m text-text-primary">
+                {trip.member_count}
+              </Text>
+              <Text className="text-body-small text-text-secondary">{t('overview.members')}</Text>
             </View>
-            <Text className="text-heading-m text-text-primary">
-              {trip.member_count}
-            </Text>
-            <Text className="text-body-small text-text-secondary">{t('overview.members')}</Text>
-          </View>
+          </Pressable>
         </View>
 
         {/* Budget — full-width row so long CHF values never overflow */}
@@ -94,21 +110,26 @@ export default function OverviewTab() {
 
         {/* Members preview */}
         {members && members.length > 0 && (
-          <View className="bg-surface border border-border rounded-md p-md">
-            <Text className="text-label text-text-muted uppercase mb-sm">{t('overview.members')}</Text>
-            <View className="flex-row items-center gap-md">
-              <MemberAvatarGroup
-                members={members.map((m) => ({
-                  id: m.user_id,
-                  name: m.user.name,
-                  avatar_url: m.user.avatar_url,
-                }))}
-              />
-              <Text className="text-body-small text-text-secondary">
-                {tCommon('label.membersCount', { count: members.length })}
-              </Text>
+          <Pressable
+            onPress={() => onTabChange?.('Settings')}
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+          >
+            <View className="bg-surface border border-border rounded-md p-md">
+              <Text className="text-label text-text-muted uppercase mb-sm">{t('overview.members')}</Text>
+              <View className="flex-row items-center gap-md">
+                <MemberAvatarGroup
+                  members={members.map((m) => ({
+                    id: m.user_id,
+                    name: m.user.name,
+                    avatar_url: m.user.avatar_url,
+                  }))}
+                />
+                <Text className="text-body-small text-text-secondary">
+                  {tCommon('label.membersCount', { count: members.length })}
+                </Text>
+              </View>
             </View>
-          </View>
+          </Pressable>
         )}
 
         {/* Info */}

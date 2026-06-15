@@ -32,11 +32,17 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Schedule updated', body: '"{{entity}}" in "{{trip}}" has been rescheduled.' },
     de: { title: 'Zeitplan geändert', body: '"{{entity}}" in "{{trip}}" wurde neu geplant.' },
   },
-  // 'reminder' covers both trip reminders (context_trip set) and organizer nudges (no context).
+  // 'reminder' covers trip-start reminders (context_trip set) and organizer nudges (no context).
   // The translateNotification function uses context_trip presence to distinguish them.
   reminder: {
     en: { title: 'Trip reminder', body: 'Your trip "{{trip}}" starts soon. Time to get ready!' },
     de: { title: 'Reiseerinnerung', body: 'Deine Reise "{{trip}}" beginnt bald. Zeit, sich fertig zu machen!' },
+  },
+  // Virtual type: post-trip expense reminders use DB type='reminder' but body contains
+  // 'unsettled expenses'. Detected below in the effectiveType chain.
+  expense_reminder: {
+    en: { title: 'Unsettled expenses', body: '"{{trip}}" has unsettled expenses. Open the Expenses tab to settle up.' },
+    de: { title: 'Offene Ausgaben', body: '"{{trip}}" hat noch offene Ausgaben. Öffne den Ausgaben-Tab, um abzurechnen.' },
   },
   lost_found: {
     en: { title: 'Lost or Found', body: '{{creator}} reported "{{entity}}" in "{{trip}}".' },
@@ -100,6 +106,7 @@ function translateNotification(
   fallbackTitle: string,
   dbBody: string | null,
   context?: NotifContext,
+  relatedType?: string | null,
 ): { title: string; body: string } {
   const lang = locale?.split('-')[0] ?? 'en';
 
@@ -116,6 +123,7 @@ function translateNotification(
     type === 'lost_found' && fallbackTitle === 'Item lost' ? 'lost_found_lost' :
     type === 'lost_found' && fallbackTitle === 'Case resolved' ? 'lost_found_resolved' :
     type === 'lost_found' && fallbackTitle === 'Case reopened' ? 'lost_found_reopened' :
+    type === 'reminder' && relatedType === 'expense_reminder' ? 'expense_reminder' :
     type;
 
   const map = NOTIFICATION_TRANSLATIONS[effectiveType];
@@ -315,6 +323,7 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
       trip: payload.context_trip,
       creator: payload.context_creator,
     },
+    payload.related_type,
   );
 
   const { data: tokens } = await supabase
@@ -419,7 +428,7 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
   const rawTokens = typedTokens.map((t) => t.push_token);
   const messages: ExpoPushMessage[] = typedTokens.map(({ push_token, user_id }, idx) => {
     const locale = localeMap.get(user_id) ?? 'en';
-    const translated = translateNotification(type, locale, title, body, context);
+    const translated = translateNotification(type, locale, title, body, context, related_type);
     return {
       to: rawTokens[idx],
       title: translated.title,

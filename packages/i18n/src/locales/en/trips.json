@@ -85,5 +85,7 @@
   "invite.share.packingList": "✓ Add your packing list",
   "invite.share.splitExpenses": "✓ Split expenses",
   "invite.share.shoppingLists": "✓ Shared shopping lists",
-  "invite.share.noAccountRequired": "✓ No account required"
+  "invite.share.noAccountRequired": "✓ No account required",
+  "search.placeholder": "Search trips...",
+  "search.noResults": "No trips matching \"{{query}}\""
 }

@@ -27,6 +27,7 @@ export function resolveNotificationPath(
     case 'new_member':
       return `/trip/${trip_id}?tab=Settings`;
     case 'reminder':
+      if (related_type === 'expense_reminder') return `/trip/${trip_id}?tab=Expenses`;
       return `/trip/${trip_id}`;
     case 'document_access_request':
       return '/(tabs)/profile';

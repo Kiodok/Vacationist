@@ -1,5 +1,25 @@
 # Supabase Changes Log
 
+## 2026-06-15 — Feat: Post-Trip Expense Reminder Cron
+
+### Migration: `20260615100000_create_expense_reminder_cron`
+
+**Changes:**
+1. **New function `private.create_expense_reminders()`** — Runs daily at 10:00 UTC via pg_cron. Finds trips where `end_date < CURRENT_DATE` and `(today - end_date) IN (1, 3, 7)`. For each such trip, computes unsettled balances inline (cannot use `get_trip_balances` — no `auth.uid()` in cron context), skips trips where all balances are negligible (< 0.01). Creates a `reminder` notification for ALL members via `private.create_trip_notification()` with `related_type='expense_reminder'`.
+2. **Deduplication** — Skips if a reminder with `body LIKE '%unsettled expenses%'` was already created today for the trip.
+3. **pg_cron job `create-expense-reminders`** — Scheduled at `0 10 * * *` (1 hour after the trip-start reminder job).
+4. **No schema changes** — Uses existing `'reminder'` notification type; `related_type` is free-form TEXT.
+
+**Client-side changes (not migrations):**
+- `supabase/functions/push-notification/index.ts`: Added `expense_reminder` virtual translation type (en/de). Detection: `type === 'reminder' && dbBody?.includes('unsettled expenses')`.
+- `apps/mobile/src/features/notifications/utils/resolveNotificationPath.ts`: Routes `related_type === 'expense_reminder'` to `/trip/${trip_id}?tab=Expenses`.
+
+**Non-destructive:** No schema changes. New pg_cron job only.
+
+**Applied to:** dev + prod
+
+---
+
 ## Project Details
 - **Project:** dev
 - **Project ID:** aejywkbkcwyanhyzhrle

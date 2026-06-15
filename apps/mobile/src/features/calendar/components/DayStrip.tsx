@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, View, Platform } from 'react-native';
 import type { SupportedTimezone } from '@vacationist/types';
 import { DayCell } from './DayCell';
 
@@ -34,6 +34,7 @@ export function DayStrip({
   );
 
   useEffect(() => {
+    if (Platform.OS === 'web') return;
     const idx = dateRange.indexOf(selectedDate);
     if (idx >= 0 && listRef.current) {
       requestAnimationFrame(() => {
@@ -66,7 +67,7 @@ export function DayStrip({
         showsHorizontalScrollIndicator={false}
         getItemLayout={getItemLayout}
         contentContainerStyle={{ paddingHorizontal: 16, gap: ITEM_GAP }}
-        initialScrollIndex={Math.max(0, dateRange.indexOf(selectedDate))}
+        initialScrollIndex={Platform.OS === 'web' ? 0 : Math.max(0, dateRange.indexOf(selectedDate))}
         onScrollToIndexFailed={(info) => {
           requestAnimationFrame(() => {
             listRef.current?.scrollToIndex({ index: info.index, animated: false, viewPosition: 0.4 });

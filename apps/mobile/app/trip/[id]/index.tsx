@@ -123,7 +123,7 @@ export default function TripDetailScreen() {
   function renderTab() {
     switch (activeTab) {
       case 'Overview':
-        return <OverviewTab />;
+        return <OverviewTab onTabChange={(tab) => handleTabChange(tab as Tab)} />;
       case 'Prework':
         return <PreworkTab />;
       case 'Calendar':
@@ -159,9 +159,14 @@ export default function TripDetailScreen() {
             <Text className="text-heading-l text-text-primary" numberOfLines={1}>
               {trip.title}
             </Text>
-            <Text className="text-body-small text-text-secondary">
-              {dayjs(trip.start_date).format('D MMM')} – {dayjs(trip.end_date).format('D MMM YYYY')}
-            </Text>
+            <Pressable
+              onPress={() => router.push({ pathname: '/(tabs)/calendar', params: { date: trip.start_date } } as never)}
+              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            >
+              <Text className="text-body-small text-text-secondary">
+                {dayjs(trip.start_date).format('D MMM')} – {dayjs(trip.end_date).format('D MMM YYYY')}
+              </Text>
+            </Pressable>
           </View>
           <TripNotificationBell tripId={id!} />
           <StatusBadge status={trip.status} />

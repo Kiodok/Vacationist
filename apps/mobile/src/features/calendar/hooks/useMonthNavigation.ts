@@ -76,6 +76,15 @@ export function useMonthNavigation(
     setView('year');
   }, []);
 
+  const navigateToDate = useCallback((date: string) => {
+    const d = dayjs(date);
+    if (!d.isValid()) return;
+    setYear(d.year());
+    setMonth(d.month());
+    setSelectedDate(d.format('YYYY-MM-DD'));
+    setView('month');
+  }, []);
+
   const activeMonths = useMemo(
     () => getActiveMonths(activityCountByDate),
     [activityCountByDate],
@@ -103,5 +112,6 @@ export function useMonthNavigation(
     goToNextYear,
     drillIntoMonth,
     goBackToYear,
+    navigateToDate,
   };
 }

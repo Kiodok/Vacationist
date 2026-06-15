@@ -73,5 +73,7 @@
   "toast.closeVotingFailed": "Abstimmung konnte nicht geschlossen werden.",
   "toast.reopenVotingFailed": "Abstimmung konnte nicht wieder geöffnet werden.",
   "toast.voteFailed": "Stimme konnte nicht abgegeben werden.",
-  "toast.removeVoteFailed": "Stimme konnte nicht entfernt werden."
+  "toast.removeVoteFailed": "Stimme konnte nicht entfernt werden.",
+  "search.placeholder": "Aktivitäten suchen...",
+  "search.noResults": "Keine Aktivitäten für \"{{query}}\""
 }

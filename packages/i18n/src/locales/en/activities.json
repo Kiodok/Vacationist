@@ -73,5 +73,7 @@
   "toast.closeVotingFailed": "Failed to close voting.",
   "toast.reopenVotingFailed": "Failed to re-open voting.",
   "toast.voteFailed": "Failed to cast vote.",
-  "toast.removeVoteFailed": "Failed to remove vote."
+  "toast.removeVoteFailed": "Failed to remove vote.",
+  "search.placeholder": "Search activities...",
+  "search.noResults": "No activities matching \"{{query}}\""
 }

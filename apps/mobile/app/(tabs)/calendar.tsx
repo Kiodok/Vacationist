@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
@@ -22,6 +22,7 @@ import { isMutationBusy } from '../../src/utils/mutationStatus';
 export default function GlobalCalendarScreen() {
   const { t } = useTranslation('calendar');
   const router = useRouter();
+  const { date: incomingDate } = useLocalSearchParams<{ date?: string }>();
   const { data: trips, isLoading: tripsLoading } = useTrips();
   const { data: globalData, isLoading: activitiesLoading } = useGlobalCalendarActivities();
 
@@ -108,7 +109,16 @@ export default function GlobalCalendarScreen() {
     goToNextYear,
     drillIntoMonth,
     goBackToYear,
+    navigateToDate,
   } = useMonthNavigation(activityCountByDate, tripDateSet);
+
+  useEffect(() => {
+    if (incomingDate) {
+      navigateToDate(incomingDate);
+      router.setParams({ date: undefined } as never);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingDate]);
 
   const tripsForSelectedDate = useMemo(() => {
     if (!globalData) return [];

@@ -1,6 +1,6 @@
 import { Animated, Platform, Pressable, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { dayjs } from '@vacationist/utils';
+import { safeFromNow } from '@vacationist/utils';
 import { colors } from '@vacationist/ui';
 import type { TripNote } from '@vacationist/types';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
@@ -60,7 +60,7 @@ export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress,
       <View className="flex-row items-center gap-xs mt-xs">
         <Text className="text-label text-text-muted">{authorName}</Text>
         <Text className="text-label text-text-muted">·</Text>
-        <Text className="text-label text-text-muted">{dayjs(note.updated_at).fromNow()}</Text>
+        <Text className="text-label text-text-muted">{safeFromNow(note.updated_at)}</Text>
       </View>
     </Pressable>
     </Animated.View>

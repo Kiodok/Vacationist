@@ -24,6 +24,7 @@ import { colors } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { SearchInput } from '../../../src/components/SearchInput';
 
 function isTripLocked(endDate: string | null | undefined): boolean {
   if (!endDate) return false;
@@ -120,6 +121,17 @@ export default function ActivitiesTab() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredActivities = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return activities ?? [];
+    return (activities ?? []).filter(
+      (a) =>
+        a.title.toLowerCase().includes(q) ||
+        a.description?.toLowerCase().includes(q),
+    );
+  }, [activities, searchQuery]);
 
   const { inPlanningList, plannedList, blockedList, ongoingList, completedList } = useMemo(() => {
     const inPlanning: Activity[] = [];
@@ -127,7 +139,7 @@ export default function ActivitiesTab() {
     const blocked: Activity[] = [];
     const ongoing: Activity[] = [];
     const completed: Activity[] = [];
-    for (const a of activities ?? []) {
+    for (const a of filteredActivities) {
       if (a.status === 'completed' || a.status === 'skipped') {
         completed.push(a);
       } else if (isAutoCompleted(a)) {
@@ -148,7 +160,7 @@ export default function ActivitiesTab() {
     ongoing.sort(sortByDate);
     completed.sort(sortByDate);
     return { inPlanningList: inPlanning, plannedList: planned, blockedList: blocked, ongoingList: ongoing, completedList: completed };
-  }, [activities, blockedActivityIds]);
+  }, [filteredActivities, blockedActivityIds]);
 
   const rawSections = useMemo(() => {
     const result: { key: string; title: string; data: Activity[] }[] = [];
@@ -221,6 +233,8 @@ export default function ActivitiesTab() {
   }
 
   const isEmpty = !activities || activities.length === 0;
+  const searchActive = searchQuery.trim().length > 0;
+  const searchNoResults = searchActive && sections.length === 0;
 
   return (
     <View className="flex-1">
@@ -239,6 +253,25 @@ export default function ActivitiesTab() {
           maxToRenderPerBatch={10}
           initialNumToRender={10}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+          ListHeaderComponent={
+            <View className="mb-sm">
+              <SearchInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder={t('search.placeholder')}
+              />
+            </View>
+          }
+          ListEmptyComponent={
+            searchNoResults ? (
+              <View className="py-xl items-center gap-sm">
+                <Ionicons name="search-outline" size={32} color={colors.textMuted} />
+                <Text className="text-text-secondary text-body">
+                  {t('search.noResults', { query: searchQuery.trim() })}
+                </Text>
+              </View>
+            ) : null
+          }
           renderSectionHeader={({ section }) => {
             const cfg = ACTIVITY_SECTION_CONFIG[section.key ?? 'planned'] ?? ACTIVITY_SECTION_CONFIG.planned;
             return (

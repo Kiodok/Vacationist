@@ -85,5 +85,7 @@
   "invite.share.packingList": "✓ Packliste hinzufügen",
   "invite.share.splitExpenses": "✓ Ausgaben aufteilen",
   "invite.share.shoppingLists": "✓ Gemeinsame Einkaufslisten",
-  "invite.share.noAccountRequired": "✓ Kein Konto erforderlich"
+  "invite.share.noAccountRequired": "✓ Kein Konto erforderlich",
+  "search.placeholder": "Reisen suchen...",
+  "search.noResults": "Keine Reisen für \"{{query}}\""
 }
