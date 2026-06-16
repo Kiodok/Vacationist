@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { TransferFlight, TransferFlightVote, VoteType, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
-import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 const VOTE_SCORE: Record<VoteType, number> = {
@@ -14,13 +14,13 @@ const VOTE_SCORE: Record<VoteType, number> = {
   group_blocker: 1,
 };
 
-function getVoteBorderColor(votes: { vote: VoteType }[]): string {
+function getVoteBorderColor(votes: { vote: VoteType }[], isColorful = false): string {
   if (votes.length === 0) return colors.border;
-  if (votes.some((v) => v.vote === 'group_blocker')) return colors.danger;
+  if (votes.some((v) => v.vote === 'group_blocker')) return colors.primary;
   const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
-  if (avg >= 4.0) return colors.success;
+  if (avg >= 4.0) return isColorful ? '#00A864' : colors.success;
   if (avg >= 3.0) return colors.border;
-  return colors.warning;
+  return isColorful ? '#D4600A' : colors.warning;
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -47,9 +47,12 @@ interface FlightCardProps {
 export function FlightCard({ flight, votes, currentUserId, currency, isWinner, onPress, onVotePress, detail, highlight }: FlightCardProps) {
   const { t } = useTranslation('activities');
   const { t: tTransfer } = useTranslation('transfer');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !flight.voting_open;
-  const borderColor = isWinner && !flight.voting_open ? colors.success : getVoteBorderColor(votes);
+  const winnerBorderColor = isColorful ? '#00A864' : colors.success;
+  const borderColor = isWinner && !flight.voting_open ? winnerBorderColor : getVoteBorderColor(votes, isColorful);
 
   const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
 
@@ -62,7 +65,12 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
   return (
     <Animated.View
       className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
-      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+      style={{
+        borderWidth: isColorful ? 2 : 1,
+        borderColor: animatedBorderColor,
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}),
+        ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
+      }}
     >
       <Pressable
         onPress={onPress}

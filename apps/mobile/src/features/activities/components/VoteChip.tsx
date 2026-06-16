@@ -7,7 +7,7 @@ const VOTE_CONFIG: Record<VoteType, { icon: string; bg: string; text: string }> 
   like: { icon: '👍', bg: 'bg-primary/20', text: 'text-primary' },
   open: { icon: '🤷', bg: 'bg-border/50', text: 'text-text-secondary' },
   skip: { icon: '➡️', bg: 'bg-warning/20', text: 'text-warning' },
-  group_blocker: { icon: '🚫', bg: 'bg-danger/20', text: 'text-danger' },
+  group_blocker: { icon: '💬', bg: 'bg-primary/20', text: 'text-primary' },
 };
 
 interface VoteChipProps {

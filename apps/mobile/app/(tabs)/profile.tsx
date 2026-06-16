@@ -269,7 +269,7 @@ export default function ProfileScreen() {
           </BiometricGate>
         </View>
         {/* Theme */}
-        <View>
+        <View className="w-full">
           <Text className="text-label text-text-muted uppercase mb-sm">{t('section.appearance')}</Text>
           <View className="flex-row bg-surface border border-border rounded-md p-xs gap-xs">
             {(['light', 'system', 'dark', 'colorful'] as const).map((option) => {
@@ -292,8 +292,8 @@ export default function ProfileScreen() {
                     opacity: pressed ? 0.8 : 1,
                   })}
                 >
-                  <ThemedIcon name={icons[option]} size={14} color={active ? '#fff' : colors.textSecondary} />
-                  <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? '#fff' : colors.textSecondary }}>
+                  <ThemedIcon name={icons[option]} size={14} color={active ? (theme === 'colorful' ? colors.surface : '#fff') : colors.textSecondary} />
+                  <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? (theme === 'colorful' ? colors.surface : '#fff') : colors.textSecondary }}>
                     {labels[option]}
                   </Text>
                 </Pressable>

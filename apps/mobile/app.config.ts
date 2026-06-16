@@ -62,6 +62,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-font',
     'expo-web-browser',
     [
+      'expo-calendar',
+      {
+        calendarPermission: 'Allow Vacationist to add your trip dates to your calendar.',
+      },
+    ],
+    [
       'expo-image-picker',
       {
         photosPermission: 'Allow Vacationist to access your photos to set a profile picture.',

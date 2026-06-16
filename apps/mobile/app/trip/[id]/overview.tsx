@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet, Platform, Alert } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
@@ -10,8 +10,9 @@ import { useTrip, useUpdateTrip } from '../../../src/features/trips/hooks/useTri
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { MemberAvatarGroup } from '../../../src/features/trips/components/MemberAvatarGroup';
 import { EditTripSheet } from '../../../src/features/trips/components/EditTripSheet';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { useCalendarSync } from '../../../src/features/trips/hooks/useCalendarSync';
 
 interface OverviewTabProps {
   onTabChange?: (tab: string) => void;
@@ -26,8 +27,16 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
   const { data: role } = useCurrentMemberRole(id!);
   const updateTrip = useUpdateTrip();
   const [editOpen, setEditOpen] = useState(false);
+  const { isInCalendar, isLoading: calendarLoading, addToCalendar } = useCalendarSync(trip);
 
   if (!trip) return null;
+
+  async function handleAddToCalendar() {
+    const success = await addToCalendar();
+    if (success === false && !isInCalendar) {
+      Alert.alert(t('overview.calendarPermissionDenied'));
+    }
+  }
 
   const isOrganizer = role === 'organizer';
   const duration = dayjs(trip.end_date).diff(dayjs(trip.start_date), 'day') + 1;
@@ -146,6 +155,25 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
             </Text>
           </View>
         </View>
+
+        {/* Add to Calendar — native only */}
+        {Platform.OS !== 'web' && (
+          <Pressable
+            onPress={handleAddToCalendar}
+            disabled={calendarLoading || isInCalendar}
+            className="flex-row items-center justify-center gap-sm bg-surface border border-border rounded-md p-md"
+            style={({ pressed }) => ({ opacity: pressed || calendarLoading || isInCalendar ? 0.6 : 1 })}
+          >
+            <ThemedIcon
+              name={isInCalendar ? 'checkmark-circle-outline' : 'calendar-outline'}
+              size={18}
+              color={isInCalendar ? colors.success : colors.primary}
+            />
+            <Text className={`text-body font-medium ${isInCalendar ? 'text-success' : 'text-primary'}`}>
+              {isInCalendar ? t('overview.inCalendar') : t('overview.addToCalendar')}
+            </Text>
+          </Pressable>
+        )}
       </ScrollView>
 
       {isOrganizer && (

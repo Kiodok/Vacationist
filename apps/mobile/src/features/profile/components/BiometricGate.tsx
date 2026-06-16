@@ -1,7 +1,7 @@
 import { Platform, View, Text, Pressable, Alert } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useTranslation } from 'react-i18next';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface BiometricGateProps {
   children: React.ReactNode;
@@ -11,6 +11,8 @@ interface BiometricGateProps {
 
 export function BiometricGate({ children, unlocked, onUnlocked }: BiometricGateProps) {
   const { t } = useTranslation('profile');
+  const theme = useResolvedTheme();
+  const verifyTextColor = theme === 'colorful' ? colors.surface : '#ffffff';
   async function handleUnlock() {
     // expo-local-authentication is not available on web — bypass the gate directly.
     if (Platform.OS === 'web') {
@@ -60,7 +62,7 @@ export function BiometricGate({ children, unlocked, onUnlocked }: BiometricGateP
         onPress={handleUnlock}
         className="min-h-[44px] px-lg rounded-sm bg-primary items-center justify-center"
       >
-        <Text className="text-body text-white font-semibold">{t('biometric.verify')}</Text>
+        <Text className="text-body font-semibold" style={{ color: verifyTextColor }}>{t('biometric.verify')}</Text>
       </Pressable>
     </View>
   );

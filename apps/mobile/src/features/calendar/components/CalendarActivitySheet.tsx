@@ -198,7 +198,7 @@ const VOTE_ICONS: Record<VoteType, { name: IoniconsName; color: string }> = {
   like: { name: 'thumbs-up', color: colors.success },
   open: { name: 'remove-outline', color: colors.textSecondary },
   skip: { name: 'thumbs-down', color: colors.warning },
-  group_blocker: { name: 'ban', color: colors.danger },
+  group_blocker: { name: 'chatbubbles', color: colors.primary },
 };
 
 function VoteIcon({ vote }: { vote: VoteType }) {

@@ -122,6 +122,35 @@ TypeScript strict mode is always enabled. Use Zod for validation at all system b
 ### Pro Gating
 Never add `is_pro` checks to RLS policies — all gating is application-layer only. Never delete data when Pro expires — hide it, never destroy it.
 
+### 🟡 Theme & Design Modes
+Every new component and screen **must be verified across all four modes**: `dark`, `light`, `system`, and `colorful`. Default theme for first-time users is **colorful on Android** and **dark on web**. Colorful is the most demanding mode — design for it first.
+
+**Palette reference**
+
+| Token | dark | light | colorful |
+|-------|------|-------|----------|
+| `background` | `#0F0F0F` | `#FFFFFF` | `#FDA444` |
+| `surface` | `#1A1A1A` | `#F5F5F5` | `#FECE8A` |
+| `primary` | `#6C63FF` | `#6C63FF` | `#8c6196` |
+| `textPrimary` | `#FFFFFF` | `#111111` | `#690F0C` |
+
+**Rules for every new component**
+
+1. **Never hardcode colors** — use NativeWind tokens (`bg-surface`, `text-text-primary`, `border-border`) or `colors.*` / `useThemeColors()` from `@vacationist/ui`.
+2. **Colorful: surface ≈ background** — `bg-surface` (`#FECE8A`) and `bg-background` (`#FDA444`) are close on web. Add `boxShadow: '0 1px 4px rgba(0,0,0,0.12)'` on web when `isColorful && Platform.OS === 'web'`.
+3. **Colorful: white text on primary fails** — `bg-primary` (`#8c6196`) needs `colors.surface` (`#FECE8A`) text, not `#ffffff`. Use `theme === 'colorful' ? colors.surface : '#ffffff'` for any text/icon on a primary-coloured button or badge.
+4. **Colorful: vote/status borders need boosting** — use brighter overrides: success `#00A864`, warning `#D4600A`, and increase `borderWidth` from 1 → 2.
+5. **Use `useResolvedTheme()`** from `@vacationist/ui` whenever a component needs conditional colorful styling. Never read theme directly from the Zustand store in UI components.
+6. **Flash prevention (web)** — if a new theme token is added to `global.css`, update the inline script in `app/+html.tsx` so the `<html>` class is set before React mounts.
+
+**Checklist for new UI work**
+
+- [ ] Tested in dark mode (Android or web `.dark` class)
+- [ ] Tested in light mode
+- [ ] Tested in colorful mode — cards visible? text contrast passing? borders legible?
+- [ ] Web-specific `boxShadow` added for colorful card surfaces
+- [ ] No hardcoded `'#ffffff'` or `'#000000'` in JSX styles
+
 ---
 
 ## Supabase Changes Workflow

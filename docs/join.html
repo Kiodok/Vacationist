@@ -3,78 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Joining trip – Vacationist</title>
+  <title>Join Trip – Vacationist</title>
   <meta name="robots" content="noindex">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #0F0F0F;
       color: #F2F2F2;
       min-height: 100vh;
+    }
+
+    /* Nav */
+    .nav {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 24px;
-      text-align: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid #1E1E1E;
     }
-    .logo {
-      font-size: 32px;
-      font-weight: 700;
-      color: #6C63FF;
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
-    .tagline {
-      color: #A0A0A0;
-      font-size: 15px;
-      margin-bottom: 40px;
-    }
-    .card {
-      background: #1A1A1A;
-      border: 1px solid #2E2E2E;
-      border-radius: 20px;
-      padding: 32px 28px;
-      max-width: 380px;
-      width: 100%;
-    }
-    h1 {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    p {
-      color: #A0A0A0;
-      font-size: 15px;
-      line-height: 1.5;
-      margin-bottom: 24px;
-    }
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid #2E2E2E;
-      border-top-color: #6C63FF;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 20px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .btn {
+    .nav-logo { font-size: 22px; font-weight: 700; color: #6C63FF; letter-spacing: -0.5px; }
+    .nav-cta {
       display: inline-block;
       background: #6C63FF;
       color: #fff;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
-      padding: 14px 28px;
-      border-radius: 12px;
+      padding: 9px 18px;
+      border-radius: 10px;
       text-decoration: none;
-      width: 100%;
       transition: opacity 0.15s;
     }
-    .btn:hover { opacity: 0.85; }
-    .btn-secondary {
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* Main content */
+    .main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      text-align: center;
+    }
+
+    /* Hero */
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6C63FF;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+    .hero-sub {
+      font-size: 16px;
+      color: #A0A0A0;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* Join button */
+    .btn-join {
+      display: inline-block;
+      background: #6C63FF;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 14px;
+      text-decoration: none;
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      margin-bottom: 10px;
+    }
+    .btn-join:hover { opacity: 0.88; }
+    .btn-join:active { transform: scale(0.98); }
+
+    .btn-browser {
       display: inline-block;
       background: transparent;
       border: 1px solid #2E2E2E;
@@ -84,39 +98,183 @@
       border-radius: 12px;
       text-decoration: none;
       width: 100%;
-      margin-top: 10px;
+      cursor: pointer;
       transition: border-color 0.15s;
+      margin-bottom: 32px;
     }
-    .btn-secondary:hover { border-color: #6C63FF; color: #6C63FF; }
-    #error-state { display: none; }
+    .btn-browser:hover { border-color: #6C63FF; color: #6C63FF; }
+
+    .no-account-note {
+      font-size: 13px;
+      color: #6B6B6B;
+      margin-top: -20px;
+      margin-bottom: 40px;
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid #1E1E1E;
+      margin: 40px 0;
+    }
+
+    /* Features */
+    .features-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #A0A0A0;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      text-align: left;
+    }
+    .feature-card {
+      background: #1A1A1A;
+      border: 1px solid #2E2E2E;
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .feature-icon { font-size: 22px; margin-bottom: 8px; }
+    .feature-name { font-size: 14px; font-weight: 600; color: #F2F2F2; margin-bottom: 4px; }
+    .feature-desc { font-size: 13px; color: #6B6B6B; line-height: 1.4; }
+
+    /* CTA section */
+    .cta-section {
+      background: #1A1A1A;
+      border: 1px solid #2E2E2E;
+      border-radius: 18px;
+      padding: 28px 24px;
+      margin-top: 40px;
+      text-align: center;
+    }
+    .cta-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .cta-sub { font-size: 15px; color: #A0A0A0; margin-bottom: 20px; }
+    .btn-play {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid #6C63FF;
+      color: #6C63FF;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-play:hover { background: rgba(108,99,255,0.08); }
+
+    /* Error state */
+    .error-card {
+      background: #1A1A1A;
+      border: 1px solid #2E2E2E;
+      border-radius: 20px;
+      padding: 32px 28px;
+      margin-top: 40px;
+      display: none;
+    }
+    .error-card h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .error-card p { color: #A0A0A0; font-size: 15px; margin-bottom: 20px; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid #1E1E1E;
+      color: #4A4A4A;
+      font-size: 13px;
+    }
+    .footer a { color: #4A4A4A; text-decoration: none; margin: 0 8px; }
+    .footer a:hover { color: #A0A0A0; }
+
+    /* Spinner */
+    .spinner-inline {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="logo">Vacationist</div>
-  <div class="tagline" data-i18n="join.tagline">Collaborative travel planning</div>
 
-  <div class="card" id="loading-state">
-    <div class="spinner"></div>
-    <h1 data-i18n="join.loading.title">Opening Vacationist…</h1>
-    <p data-i18n="join.loading.sub">If the app doesn't open automatically, tap the button below to install it.</p>
-    <a id="store-link" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="btn" data-i18n="join.loading.getPlay">
-      Get Vacationist on Google Play
-    </a>
-    <a id="open-link" href="#" class="btn-secondary" data-i18n="join.loading.openApp">Open in app</a>
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-logo">Vacationist</div>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" data-i18n="join.nav.getApp">Get the App</a>
+  </nav>
+
+  <!-- Main content: normal state -->
+  <div class="main" id="invite-state">
+    <div class="hero-eyebrow" data-i18n="join.hero.eyebrow">✈ Group Trip Planner</div>
+    <h1 class="hero-title" data-i18n="join.hero.title">You've been invited to join a trip!</h1>
+    <p class="hero-sub" data-i18n="join.hero.sub">Tap below to open the app or join directly in your browser. No account needed.</p>
+
+    <button class="btn-join" id="join-btn" onclick="handleJoin()" data-i18n="join.hero.joinBtn">
+      Join Trip
+    </button>
+    <a class="btn-browser hidden" id="browser-link" href="#" data-i18n="join.hero.joinBrowser">Continue in browser</a>
+    <p class="no-account-note" data-i18n="join.hero.note">Free · No account needed to join</p>
+
+    <hr class="divider">
+
+    <p class="features-title" data-i18n="join.features.title">What you can do in the app</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🗳️</div>
+        <div class="feature-name" data-i18n="join.feat.vote.name">Vote on activities</div>
+        <div class="feature-desc" data-i18n="join.feat.vote.desc">Help decide what the group does together.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💸</div>
+        <div class="feature-name" data-i18n="join.feat.expenses.name">Split expenses</div>
+        <div class="feature-desc" data-i18n="join.feat.expenses.desc">Track who paid what. Settle up at the end.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-name" data-i18n="join.feat.lists.name">Shared lists</div>
+        <div class="feature-desc" data-i18n="join.feat.lists.desc">Packing and shopping lists in real time.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🙋</div>
+        <div class="feature-name" data-i18n="join.feat.guest.name">Guest access</div>
+        <div class="feature-desc" data-i18n="join.feat.guest.desc">Join without creating an account.</div>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <div class="cta-title" data-i18n="join.cta.title">Planning your own trip?</div>
+      <div class="cta-sub" data-i18n="join.cta.sub">Get Vacationist for free — no credit card required.</div>
+      <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="btn-play" data-i18n="join.cta.getPlay">Get it on Google Play</a>
+    </div>
   </div>
 
-  <div class="card" id="web-fallback-state" style="display:none">
-    <h1 data-i18n="join.fallback.title">App not installed?</h1>
-    <p data-i18n="join.fallback.sub">Continue accepting your invite in the browser, or grab the app for the full experience.</p>
-    <a id="web-link" href="#" class="btn" data-i18n="join.fallback.continueBrowser">Continue in browser</a>
-    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="btn-secondary" data-i18n="join.fallback.getApp">Get the app</a>
+  <!-- Error state -->
+  <div class="main" id="error-state" style="display:none">
+    <div class="error-card" style="display:block">
+      <h2 data-i18n="join.error.title">Invalid invite link</h2>
+      <p data-i18n="join.error.sub">This invite link is missing a token. Ask the trip organizer to generate a new one.</p>
+      <a href="https://vacationist.app" class="btn-join" data-i18n="join.error.cta">Go to Vacationist</a>
+    </div>
   </div>
 
-  <div class="card" id="error-state">
-    <h1 data-i18n="join.error.title">Invalid invite link</h1>
-    <p data-i18n="join.error.sub">This invite link is missing a token. Ask the trip organizer to generate a new one.</p>
-    <a href="https://vacationist.app" class="btn" data-i18n="join.error.cta">Go to Vacationist</a>
-  </div>
+  <footer class="footer">
+    <a href="https://vacationist.app/privacy-policy.html" data-i18n="join.footer.privacy">Privacy</a>
+    <a href="https://vacationist.app/terms-of-service.html" data-i18n="join.footer.terms">Terms</a>
+    <span>© 2026 Vacationist</span>
+  </footer>
 
   <script src="./i18n.js"></script>
   <script>
@@ -125,7 +283,7 @@
       var token = params.get('token');
 
       if (!token) {
-        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('invite-state').style.display = 'none';
         document.getElementById('error-state').style.display = 'block';
         return;
       }
@@ -133,22 +291,34 @@
       var webUrl = 'https://web.vacationist.app/join?token=' + encodeURIComponent(token);
       var deepLink = 'vacationist://join?token=' + encodeURIComponent(token);
 
-      document.getElementById('open-link').href = deepLink;
-      document.getElementById('web-link').href = webUrl;
+      document.getElementById('browser-link').href = webUrl;
 
-      // If the OS hands off to the app the page becomes hidden — cancel the fallback.
       var appOpened = false;
       document.addEventListener('visibilitychange', function () {
         if (document.hidden) appOpened = true;
       });
 
-      window.location.href = deepLink;
+      window.handleJoin = function () {
+        var btn = document.getElementById('join-btn');
+        var browserLink = document.getElementById('browser-link');
 
-      setTimeout(function () {
-        if (appOpened) return;
-        // App isn't installed — redirect straight to the web app.
-        window.location.replace(webUrl);
-      }, 2500);
+        // Show loading state on button
+        btn.innerHTML = '<span class="spinner-inline"></span>';
+        btn.disabled = true;
+
+        window.location.href = deepLink;
+
+        setTimeout(function () {
+          if (appOpened) return;
+          // App not installed — show browser fallback
+          btn.innerHTML = document.querySelector('[data-i18n="join.hero.joinBtn"]')
+            ? (window.VACATIONIST_I18N && window.VACATIONIST_I18N['join.hero.joinBtnFallback']) || 'Open in browser'
+            : 'Open in browser';
+          btn.disabled = false;
+          btn.onclick = function () { window.location.href = webUrl; };
+          browserLink.classList.remove('hidden');
+        }, 2500);
+      };
     })();
   </script>
 </body>

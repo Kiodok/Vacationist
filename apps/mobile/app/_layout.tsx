@@ -13,6 +13,7 @@ initSentry();
 import { Slot, usePathname, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
@@ -114,6 +115,7 @@ function AuthGate() {
   // in the tab layout reads via useNWColorScheme() to push new CSS variables.
   useNWColorScheme();
   const [fontsLoaded] = useFonts({
+    ...Ionicons.font,
     'Nunito-Regular': require('../assets/fonts/Nunito-Regular.ttf'),
     'Nunito-SemiBold': require('../assets/fonts/Nunito-SemiBold.ttf'),
     'Nunito-Bold': require('../assets/fonts/Nunito-Bold.ttf'),

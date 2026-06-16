@@ -1,5 +1,30 @@
 # Supabase Changes Log
 
+## 2026-06-16 — Feat: Planning Nudge + Guest Conversion Nudge Crons
+
+### Migration: `20260616100000_create_planning_nudge_cron`
+
+**Changes:**
+1. **New function `private.create_planning_nudge_notifications()`** — Runs every Monday at 11:00 UTC. Finds users whose most recently ended trip ended 14+ days ago and who have no trip that ended within the last 14 days or is upcoming (i.e., their most recent trip is truly 14+ days old). Inserts one `reminder` notification per user with `related_type='planning_nudge'`. Dedup: skips if a `planning_nudge` was already sent to the user in the last 14 days.
+2. **pg_cron job `create-planning-nudge-notifications`** — Scheduled at `0 11 * * 1` (Mondays 11:00 UTC).
+3. **No schema changes** — Uses existing `'reminder'` notification type; `related_type` is free-form TEXT. Notification is attached to the user's most recent completed trip ID.
+
+### Migration: `20260616110000_create_guest_nudge_cron`
+
+**Changes:**
+1. **New function `private.create_guest_nudge_notifications()`** — Runs daily at 12:00 UTC. Targets `participant` or `guest` members whose trip ended exactly 1 day ago and who have never been an organizer of any trip. Inserts one `reminder` notification per user+trip with `related_type='guest_nudge'`. Dedup: skips if a `guest_nudge` already exists for the same user+trip combination.
+2. **pg_cron job `create-guest-nudge-notifications`** — Scheduled at `0 12 * * *` (daily 12:00 UTC).
+3. **No schema changes** — Same `reminder` type, `guest_nudge` related_type.
+
+**Client-side changes (not migrations):**
+- `supabase/functions/push-notification/index.ts`: Added `planning_nudge` and `guest_nudge` virtual translation types (en/de). Routing via effectiveType: `type === 'reminder' && relatedType === 'planning_nudge'` and `type === 'reminder' && relatedType === 'guest_nudge'`.
+
+**Non-destructive:** No schema changes. Two new pg_cron jobs only.
+
+**Applied to:** dev + prod
+
+---
+
 ## 2026-06-15 — Feat: Post-Trip Expense Reminder Cron
 
 ### Migration: `20260615100000_create_expense_reminder_cron`

@@ -18,7 +18,7 @@ function loadPersistedTheme(): ThemePreference {
     const stored = storage.getString(STORAGE_KEY);
     if (stored === 'dark' || stored === 'light' || stored === 'system' || stored === 'colorful') return stored;
   } catch {}
-  return 'system';
+  return Platform.OS === 'web' ? 'dark' : 'colorful';
 }
 
 export const useThemeStore = create<ThemeState>()((set) => ({

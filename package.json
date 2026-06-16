@@ -37,5 +37,9 @@
   },
   "devDependencies": {
     "sharp-cli": "^5.2.0"
+  },
+  "allowScripts": {
+    "@sentry/cli@3.4.2": true,
+    "sharp@0.34.2": true
   }
 }

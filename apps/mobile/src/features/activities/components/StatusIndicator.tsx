@@ -20,7 +20,7 @@ export function StatusIndicator({ status, votingOpen }: StatusIndicatorProps) {
 
   const statusConfig: Record<string, { bg: string; text: string }> = {
     planned:   { bg: 'bg-primary/10',  text: 'text-primary' },
-    blocked:   { bg: 'bg-danger/10',   text: 'text-danger' },
+    blocked:   { bg: 'bg-primary/10',  text: 'text-primary' },
     reserved:  { bg: 'bg-success/10',  text: 'text-success' },
     completed: { bg: 'bg-border/50',   text: 'text-text-muted' },
     skipped:   { bg: 'bg-warning/10',  text: 'text-warning' },

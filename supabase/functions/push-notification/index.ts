@@ -74,6 +74,14 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Expenses settled', body: '{{creator}} settled all expenses in "{{trip}}".' },
     de: { title: 'Ausgaben beglichen', body: '{{creator}} hat alle Ausgaben in "{{trip}}" beglichen.' },
   },
+  planning_nudge: {
+    en: { title: 'Ready for your next trip?', body: '"{{trip}}" was great! Start planning your next adventure.' },
+    de: { title: 'Bereit für die nächste Reise?', body: '"{{trip}}" war toll! Plane dein nächstes Abenteuer.' },
+  },
+  guest_nudge: {
+    en: { title: 'Plan your own trip!', body: 'You helped plan "{{trip}}". Create your own trip — it\'s free!' },
+    de: { title: 'Plane deine eigene Reise!', body: 'Du warst bei "{{trip}}" dabei. Starte deine eigene Reise — kostenlos!' },
+  },
   shared_packing: {
     en: { title: 'Shared packing update', body: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".' },
     de: { title: 'Gemeinsame Packliste', body: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.' },
@@ -124,6 +132,8 @@ function translateNotification(
     type === 'lost_found' && fallbackTitle === 'Case resolved' ? 'lost_found_resolved' :
     type === 'lost_found' && fallbackTitle === 'Case reopened' ? 'lost_found_reopened' :
     type === 'reminder' && relatedType === 'expense_reminder' ? 'expense_reminder' :
+    type === 'reminder' && relatedType === 'planning_nudge' ? 'planning_nudge' :
+    type === 'reminder' && relatedType === 'guest_nudge' ? 'guest_nudge' :
     type;
 
   const map = NOTIFICATION_TRANSLATIONS[effectiveType];

@@ -153,7 +153,7 @@ export default function TripDetailScreen() {
       <View className="px-md pt-md pb-sm">
         <View className="flex-row items-center gap-md mb-sm">
           <Pressable onPress={() => router.replace('/(tabs)')} className="p-xs">
-            <ThemedIcon name="arrow-back" size={24} color="#F2F2F2" />
+            <ThemedIcon name="arrow-back" size={24} color={colors.textPrimary} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-heading-l text-text-primary" numberOfLines={1}>

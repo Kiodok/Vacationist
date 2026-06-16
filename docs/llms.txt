@@ -1,6 +1,6 @@
 # Vacationist
 
-> A free trip app for collaborative group travel planning. Vacationist helps groups plan trips together — voting on activities, splitting expenses, tracking vacation spending, sharing shopping lists, and keeping everyone in sync in real time.
+> The free group trip planner. Vacationist helps groups plan trips together — voting on activities, splitting travel expenses, sharing packing lists, managing accommodations, and keeping everyone in sync in real time.
 
 ## What is Vacationist?
 
@@ -8,8 +8,9 @@ Vacationist is a free mobile and web application for group travel planning. It i
 
 Key use cases:
 - **Vacation trips** — the primary use case; full trip lifecycle from planning to packing
+- **Bachelorette & group trips** — vote on activities, split costs, shared packing, everyone in the loop
 - **Van life & road trips** — route planning, shared packing list, expense splitting for fuel and campsites
-- **Sustainable travel** — coordinate shared transport, vote on lower-impact activities, plan intentional travel
+- **Family vacation planning** — shared calendar, accommodations, activity voting, expense tracking
 - **Timeshare & vacation rentals** — coordinate arrivals, split running costs, shared shopping lists
 - **Group day trips and weekenders** — lightweight coordination without a full travel agent
 - **Bar and dinner nights** — vote on venue, split the bill
@@ -36,7 +37,7 @@ Key use cases:
 
 ## Keywords
 
-trip app, vacation tracker, group travel planning, split expenses, vacation tracking, road trip planner, van road trip, group sharing, sustainable travel, timeshare vacation, off calendar, travel website, travel app, travel planning app, group trip planner, expense tracker travel
+group trip planner, group vacation planning app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, vacation tracker, shared trip organizer, holiday planner group, travel expense splitting, group travel app, trip planning app
 
 ## URLs
 

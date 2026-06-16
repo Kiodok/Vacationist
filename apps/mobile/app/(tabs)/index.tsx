@@ -16,6 +16,7 @@ import type { Trip } from '@vacationist/types';
 import { colors , ThemedIcon } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
+import { useStoreReviewNudge } from '../../src/hooks/useStoreReviewNudge';
 
 type TripWithCount = Trip & { member_count: number };
 type YearDivider = { __type: 'year_divider'; year: number; sectionKey: string };
@@ -57,6 +58,8 @@ export default function TripsScreen() {
   const [avatarError, setAvatarError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { toggle, isCollapsed } = useCollapsibleSections({ defaultCollapsed: ['completed'] });
+
+  useStoreReviewNudge(trips as TripWithCount[] | undefined);
 
   const SECTIONS = useMemo(() => [
     {

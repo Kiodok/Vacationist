@@ -33,8 +33,10 @@ export function YearMonthCell({
       >
         <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 24 }}>
           <View
-            className={`rounded-md px-md py-sm items-center ${
-              isCurrentMonth ? 'border border-primary' : ''
+            className={`rounded-md px-md py-sm items-center border ${
+              isCurrentMonth
+                ? 'border-primary bg-primary/10'
+                : 'border-border/50'
             }`}
           >
             <Text

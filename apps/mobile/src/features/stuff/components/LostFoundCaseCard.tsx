@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Animated, Platform, View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { LostFoundCase, LostFoundCaseType } from '@vacationist/types';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
@@ -17,11 +17,11 @@ interface LostFoundCaseCardProps {
   highlight?: boolean;
 }
 
-const CASE_TYPE_STYLE: Record<LostFoundCaseType, { bg: string; text: string; icon: string }> = {
-  lost_unknown:      { bg: 'bg-danger/20',   text: 'text-danger',   icon: 'help-circle-outline' },
-  lost_known:        { bg: 'bg-warning/20',  text: 'text-warning',  icon: 'person-outline' },
-  found_unknown:     { bg: 'bg-primary/20',  text: 'text-primary',  icon: 'cube-outline' },
-  found_owner_known: { bg: 'bg-success/20',  text: 'text-success',  icon: 'checkmark-circle-outline' },
+const CASE_TYPE_STYLE: Record<LostFoundCaseType, { bg: string; text: string; emoji: string }> = {
+  lost_unknown:      { bg: 'bg-danger/20',   text: 'text-danger',   emoji: '❓' },
+  lost_known:        { bg: 'bg-warning/20',  text: 'text-warning',  emoji: '🔎' },
+  found_unknown:     { bg: 'bg-primary/20',  text: 'text-primary',  emoji: '📦' },
+  found_owner_known: { bg: 'bg-success/20',  text: 'text-success',  emoji: '✅' },
 };
 
 const CASE_TYPE_LABEL_KEY: Record<LostFoundCaseType, 'caseType.lostUnknown' | 'caseType.lostKnown' | 'caseType.foundUnknown' | 'caseType.foundOwnerKnown'> = {
@@ -34,6 +34,8 @@ const CASE_TYPE_LABEL_KEY: Record<LostFoundCaseType, 'caseType.lostUnknown' | 'c
 export function LostFoundCaseCard({ lostFoundCase: c, memberNameMap, currentUserId, role, onResolve, onUnresolve, onEdit, onDelete, highlight }: LostFoundCaseCardProps) {
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const { animatedBorderColor } = useHighlightAnimation(highlight, colors.border);
 
@@ -56,12 +58,17 @@ export function LostFoundCaseCard({ lostFoundCase: c, memberNameMap, currentUser
   return (
     <Animated.View
       className={`bg-surface rounded-md px-md py-sm gap-xs ${c.is_resolved ? 'opacity-60' : ''}`}
-      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+      style={{
+        borderWidth: 1,
+        borderColor: animatedBorderColor,
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}),
+        ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
+      }}
     >
       {/* Header */}
       <View className="flex-row items-center gap-xs flex-wrap">
         <View className={`flex-row items-center gap-xs px-sm py-xs rounded-full ${style.bg}`}>
-          <ThemedIcon name={style.icon as any} size={12} color={colors.primary} />
+          <Text style={{ fontSize: 12 }}>{style.emoji}</Text>
           <Text className={`text-label font-medium ${style.text}`}>{caseTypeLabel}</Text>
         </View>
         {c.is_resolved && (

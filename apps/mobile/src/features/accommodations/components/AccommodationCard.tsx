@@ -1,9 +1,9 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Accommodation, AccommodationVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
-import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface AccommodationCardProps {
   accommodation: Accommodation;
@@ -17,17 +17,24 @@ interface AccommodationCardProps {
 
 export function AccommodationCard({ accommodation, votes, currentUserId, currency, onPress, onVotePress, detail }: AccommodationCardProps) {
   const { t, i18n } = useTranslation('accommodations');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const dateFormat = i18n.language?.startsWith('de') ? 'DD.MM.YYYY' : 'DD/MM/YYYY';
   const formatDate = (d: string) => dayjs(d).format(dateFormat);
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const showBreakdown = !accommodation.voting_open;
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
-  const borderColor = getVoteBorderColor(votes);
+  const borderColor = getVoteBorderColor(votes, isColorful);
 
   return (
     <View
-      className={`bg-surface border border-border ${detail ? 'rounded-t-md' : 'rounded-md'}`}
-      style={{ borderColor }}
+      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      style={{
+        borderWidth: isColorful ? 2 : 1,
+        borderColor,
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}),
+        ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
+      }}
     >
       <Pressable
         onPress={onPress}
@@ -121,14 +128,14 @@ const VOTE_SCORE: Record<VoteType, number> = {
   group_blocker: 1,
 };
 
-function getVoteBorderColor(votes: { vote: VoteType }[]): string {
+function getVoteBorderColor(votes: { vote: VoteType }[], isColorful = false): string {
   if (votes.length === 0) return colors.border;
-  if (votes.some((v) => v.vote === 'group_blocker')) return colors.danger;
+  if (votes.some((v) => v.vote === 'group_blocker')) return colors.primary;
 
   const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
-  if (avg >= 4.0) return colors.success;
+  if (avg >= 4.0) return isColorful ? '#00A864' : colors.success;
   if (avg >= 3.0) return colors.border;
-  return colors.warning;
+  return isColorful ? '#D4600A' : colors.warning;
 }
 
 
