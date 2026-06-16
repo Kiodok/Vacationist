@@ -1,10 +1,9 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Accommodation, AccommodationVote, VoteType } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
-import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 
 interface AccommodationCardProps {
   accommodation: Accommodation;
@@ -57,7 +56,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
 
         {accommodation.check_in_date && accommodation.check_out_date && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons
+            <ThemedIcon
               name="calendar-outline"
               size={14}
               color={accommodation.status === 'booked' ? colors.success : colors.primary}
@@ -73,7 +72,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
 
         {accommodation.external_url && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="link-outline" size={14} color={METADATA_ICON_COLORS.link.color} />
+            <ThemedIcon name="link-outline" size={14} color={METADATA_ICON_COLORS.link.color} />
             <Text className="text-body-small text-text-secondary" numberOfLines={1}>
               {t('field.externalLink')}
             </Text>
@@ -92,7 +91,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
                 className="flex-row items-center gap-xs px-md py-sm rounded-full bg-primary/10"
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
               >
-                <Ionicons name="hand-left-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="hand-left-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('vote.button')}</Text>
               </Pressable>
             )}

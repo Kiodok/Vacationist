@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
@@ -20,12 +20,13 @@ import { EmptyExpenses } from '../../../src/features/expenses/components/EmptyEx
 import { ExpenseListSkeleton } from '../../../src/features/expenses/components/ExpenseListSkeleton';
 import { SettlementsCard } from '../../../src/features/expenses/components/SettlementsCard';
 import { SettlementsModal } from '../../../src/features/expenses/components/SettlementsModal';
-import { colors } from '@vacationist/ui';
+import { colors, ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
-const SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; iconColor: string; textClass: string }> = {
+const SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: string; textClass: string }> = {
   active:    { icon: 'wallet-outline',         iconColor: colors.textPrimary, textClass: 'text-text-primary' },
   completed: { icon: 'checkmark-done-outline',  iconColor: colors.success,    textClass: 'text-success' },
   archived:  { icon: 'archive-outline',         iconColor: colors.textMuted,  textClass: 'text-text-muted' },
@@ -269,7 +270,7 @@ export default function ExpensesTab() {
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color="#FFFFFF" />
       </Pressable>
     </View>
   );
@@ -325,7 +326,7 @@ function ExpenseCardWithSplits({
         className="flex-row items-center gap-xs"
         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
       >
-        <Ionicons name="people-outline" size={14} color={colors.primary} />
+        <ThemedIcon name="people-outline" size={14} color={colors.primary} />
         <Text className="text-primary text-body-small font-medium">{t('action.viewSplits', { count: splits.length })}</Text>
       </Pressable>
 
@@ -360,7 +361,7 @@ function ExpenseCardWithSplits({
                 onPress={() => setShowEdit(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </Pressable>
             )}
@@ -369,7 +370,7 @@ function ExpenseCardWithSplits({
                 onPress={() => setConfirmingArchive(true)}
                 className={`flex-row items-center gap-xs px-md py-sm rounded-sm ${isArchived ? 'bg-success/10' : 'bg-danger/10'}`}
               >
-                <Ionicons
+                <ThemedIcon
                   name={isArchived ? 'arrow-undo-outline' : 'archive-outline'}
                   size={14}
                   color={isArchived ? colors.success : colors.danger}

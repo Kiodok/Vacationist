@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { formatActivityTime } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
-import { colors, METADATA_ICON_COLORS, CATEGORY_ICON_COLORS } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, CATEGORY_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 
 interface AgendaItemProps {
   activity: Activity;
@@ -28,7 +27,7 @@ export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
         <View className="bg-surface-elevated rounded-sm px-sm py-xs min-w-[64px] items-center">
-          <Ionicons name="time-outline" size={12} color={METADATA_ICON_COLORS.time.color} />
+          <ThemedIcon name="time-outline" size={12} color={METADATA_ICON_COLORS.time.color} />
           <Text className="text-body-small text-text-secondary font-medium mt-xs">
             {timeLabel}
           </Text>
@@ -40,7 +39,7 @@ export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
           </Text>
           {activity.category && (
             <View className="flex-row items-center gap-xs">
-              {categoryIcon ? <Ionicons name={categoryIcon.icon} size={12} color={categoryIcon.color} /> : null}
+              {categoryIcon ? <ThemedIcon name={categoryIcon.icon} size={12} color={categoryIcon.color} /> : null}
               <Text className="text-body-small text-text-secondary capitalize" numberOfLines={1}>
                 {activity.category}
               </Text>
@@ -58,11 +57,11 @@ export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
             className="flex-row items-center gap-xs py-sm"
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
-            <Ionicons name="people" size={14} color={colors.primary} />
+            <ThemedIcon name="people" size={14} color={colors.primary} />
             <Text className="text-primary text-body-small font-medium">
               {t('attendeeCount', { count: attendees.length })}
             </Text>
-            <Ionicons
+            <ThemedIcon
               name={showAttendees ? 'chevron-up' : 'chevron-down'}
               size={12}
               color={colors.primary}

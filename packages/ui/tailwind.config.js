@@ -20,21 +20,21 @@ module.exports = {
         'text-primary': 'rgb(var(--color-text-primary) / <alpha-value>)',
         'text-secondary': 'rgb(var(--color-text-secondary) / <alpha-value>)',
         'text-muted': 'rgb(var(--color-text-muted) / <alpha-value>)',
-        // Brand/status colors — same in both themes
+        // Brand/status colors — theme-aware via CSS variables
         primary: {
-          DEFAULT: '#6C63FF',
-          light: '#8A84FF',
-          muted: 'rgba(108, 99, 255, 0.1)',
+          DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
+          light: 'rgb(var(--color-primary-light) / <alpha-value>)',
+          muted: 'rgb(var(--color-primary) / 0.1)',
         },
         success: {
-          DEFAULT: '#3ECF8E',
-          muted: 'rgba(62, 207, 142, 0.1)',
+          DEFAULT: 'rgb(var(--color-success) / <alpha-value>)',
+          muted: 'rgb(var(--color-success) / 0.1)',
         },
         warning: {
-          DEFAULT: '#F5A623',
-          muted: 'rgba(245, 166, 35, 0.1)',
+          DEFAULT: 'rgb(var(--color-warning) / <alpha-value>)',
+          muted: 'rgb(var(--color-warning) / 0.1)',
         },
-        danger: '#FF5C5C',
+        danger: 'rgb(var(--color-danger) / <alpha-value>)',
         // Accent colors — theme-invariant
         teal: {
           DEFAULT: '#14B8A6',
@@ -83,6 +83,9 @@ module.exports = {
         md: '12px',
         lg: '20px',
         full: '9999px',
+      },
+      fontFamily: {
+        sans: ['var(--font-family-base)'],
       },
       fontSize: {
         'heading-xl': ['28px', { fontWeight: '700', lineHeight: '34px' }],

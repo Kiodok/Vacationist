@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone, VoteType } from '@vacationist/types';
 import { formatActivityTime, dayjs } from '@vacationist/utils';
@@ -9,7 +8,8 @@ import { StatusIndicator } from '../../activities/components/StatusIndicator';
 import { VoteSummary } from '../../activities/components/VoteChip';
 import { useActivityVotes } from '../../activities/hooks/useVotes';
 import { useTripMembers } from '../../trips/hooks/useMembers';
-import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 
 interface CalendarActivitySheetProps {
   visible: boolean;
@@ -79,7 +79,7 @@ export function CalendarActivitySheet({
           {/* Time and status */}
           <View className="flex-row items-center justify-between mb-sm">
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="time-outline" size={16} color={METADATA_ICON_COLORS.time.color} />
+              <ThemedIcon name="time-outline" size={16} color={METADATA_ICON_COLORS.time.color} />
               <Text className="text-body text-text-secondary">{timeLabel}</Text>
             </View>
             <StatusIndicator status={displayStatus ?? activity.status} votingOpen={activity.voting_open} />
@@ -98,7 +98,7 @@ export function CalendarActivitySheet({
           {/* Date */}
           {activity.activity_date ? (
             <View className="flex-row items-center gap-xs mb-sm">
-              <Ionicons name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
+              <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
               <Text className="text-body-small text-text-secondary">
                 {dayjs.tz(activity.activity_date, timezone).format('dddd, D MMMM YYYY')}
               </Text>
@@ -116,7 +116,7 @@ export function CalendarActivitySheet({
           {attendees.length > 0 && (
             <View className="mb-md">
               <View className="flex-row items-center gap-xs mb-sm">
-                <Ionicons name="people" size={16} color={colors.primary} />
+                <ThemedIcon name="people" size={16} color={colors.primary} />
                 <Text className="text-primary text-body-small font-semibold">
                   {t('attendeeCount', { count: attendees.length })}
                 </Text>
@@ -146,7 +146,7 @@ export function CalendarActivitySheet({
                   <Text className="text-body-small text-text-muted ml-xs">
                     {t('voteCount', { count: votes.length })}
                   </Text>
-                  <Ionicons
+                  <ThemedIcon
                     name={showVotes ? 'chevron-up' : 'chevron-down'}
                     size={14}
                     color={METADATA_ICON_COLORS.chevron.color}
@@ -176,7 +176,7 @@ export function CalendarActivitySheet({
                 className="bg-primary/10 rounded-md py-md items-center justify-center px-md"
                 style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
               >
-                <Ionicons name="create-outline" size={20} color={colors.primary} />
+                <ThemedIcon name="create-outline" size={20} color={colors.primary} />
               </Pressable>
             )}
             <Pressable
@@ -193,7 +193,7 @@ export function CalendarActivitySheet({
   );
 }
 
-const VOTE_ICONS: Record<VoteType, { name: keyof typeof Ionicons.glyphMap; color: string }> = {
+const VOTE_ICONS: Record<VoteType, { name: IoniconsName; color: string }> = {
   must_do: { name: 'heart', color: colors.danger },
   like: { name: 'thumbs-up', color: colors.success },
   open: { name: 'remove-outline', color: colors.textSecondary },
@@ -203,5 +203,5 @@ const VOTE_ICONS: Record<VoteType, { name: keyof typeof Ionicons.glyphMap; color
 
 function VoteIcon({ vote }: { vote: VoteType }) {
   const config = VOTE_ICONS[vote];
-  return <Ionicons name={config.name} size={14} color={config.color} />;
+  return <ThemedIcon name={config.name} size={14} color={config.color} />;
 }

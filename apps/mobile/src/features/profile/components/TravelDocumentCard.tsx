@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Pressable, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { TravelDocument } from '@vacationist/types';
 import dayjs from 'dayjs';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 
 interface TravelDocumentCardProps {
   document: TravelDocument;
@@ -13,7 +13,7 @@ interface TravelDocumentCardProps {
   isDeleting?: boolean;
 }
 
-const DOCUMENT_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+const DOCUMENT_ICONS: Record<string, IoniconsName> = {
   passport: 'book-outline',
   id_card: 'card-outline',
 };
@@ -66,7 +66,7 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
     <View className="bg-surface border border-border rounded-md p-md gap-sm">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-sm">
-          <Ionicons
+          <ThemedIcon
             name={DOCUMENT_ICONS[document.document_type] ?? 'document-outline'}
             size={20}
             color={colors.primary}
@@ -77,10 +77,10 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
         </View>
         <View className="flex-row gap-sm">
           <Pressable onPress={onEdit} hitSlop={8}>
-            <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
+            <ThemedIcon name="pencil-outline" size={18} color={colors.textSecondary} />
           </Pressable>
           <Pressable onPress={handleDelete} disabled={isDeleting} hitSlop={8}>
-            <Ionicons name="trash-outline" size={18} color={colors.danger} />
+            <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
           </Pressable>
         </View>
       </View>
@@ -96,7 +96,7 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
           <View className="flex-row items-center gap-xs">
             <Text className="text-body-small text-text-primary font-mono">{docNumber}</Text>
             <Pressable onPress={() => setRevealed((v) => !v)} hitSlop={8}>
-              <Ionicons
+              <ThemedIcon
                 name={revealed ? 'eye-off-outline' : 'eye-outline'}
                 size={16}
                 color={colors.textSecondary}

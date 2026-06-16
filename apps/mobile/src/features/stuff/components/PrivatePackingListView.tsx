@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
 import { View, Text, SectionList, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import type { PackingItem, CreatePackingItemInput, UpdatePackingItemInput } from '@vacationist/types';
 import { usePackingItems, usePackingCategories, useCreatePackingItem, useUpdatePackingItem, useDeletePackingItem } from '../hooks/usePackingItems';
 import { PackingItemRow } from './PackingItemRow';
@@ -127,9 +126,9 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
             return (
             <View className="flex-row items-center gap-xs pt-md pb-xs px-xs">
               {section.isPacked ? (
-                <Ionicons name="checkmark-done-outline" size={14} color={colors.success} />
+                <ThemedIcon name="checkmark-done-outline" size={14} color={colors.success} />
               ) : (
-                <Ionicons name="list-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="list-outline" size={14} color={colors.primary} />
               )}
               <Text className={`text-body-small font-semibold ${section.isPacked ? 'text-success' : 'text-text-primary'}`}>
                 {sectionLabel}
@@ -183,7 +182,7 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
               className="flex-row items-center gap-xs self-start mb-xs mt-sm"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <Ionicons name="copy-outline" size={14} color={colors.textSecondary} />
+              <ThemedIcon name="copy-outline" size={14} color={colors.textSecondary} />
               <Text className="text-body-small text-text-secondary">{t('action.copyToTrip')}</Text>
             </Pressable>
           }
@@ -196,7 +195,7 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color="#FFFFFF" />
       </Pressable>
 
       <CreatePackingItemSheet

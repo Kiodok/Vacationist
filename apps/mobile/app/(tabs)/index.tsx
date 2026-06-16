@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { View, Text, Pressable, Image, RefreshControl, SectionList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import { useTrips } from '../../src/features/trips/hooks/useTrips';
@@ -14,7 +13,7 @@ import { useCollapsibleSections } from '../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../src/components/CollapsibleSectionHeader';
 import { SearchInput } from '../../src/components/SearchInput';
 import type { Trip } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
 
@@ -185,7 +184,7 @@ export default function TripsScreen() {
                     onError={() => setAvatarError(true)}
                   />
                 ) : (
-                  <Ionicons name="person" size={20} color="#FFFFFF" />
+                  <ThemedIcon name="person" size={20} color="#FFFFFF" />
                 )}
               </Pressable>
               <Text className="text-heading-xl text-text-primary">{t('screen.title')}</Text>
@@ -201,7 +200,7 @@ export default function TripsScreen() {
         ListEmptyComponent={
           searchQuery.trim() ? (
             <View className="py-xl items-center gap-sm">
-              <Ionicons name="search-outline" size={32} color={colors.textMuted} />
+              <ThemedIcon name="search-outline" size={32} color={colors.textMuted} />
               <Text className="text-text-secondary text-body">
                 {t('search.noResults', { query: searchQuery.trim() })}
               </Text>
@@ -251,7 +250,7 @@ export default function TripsScreen() {
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color="#FFFFFF" />
       </Pressable>
     </SafeAreaView>
   );

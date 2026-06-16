@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { InfoSheet } from '../../../components/InfoSheet';
 
 export function EmptyExpenses() {
@@ -13,7 +12,7 @@ export function EmptyExpenses() {
   return (
     <View className="flex-1 items-center justify-center px-xl gap-md py-xl">
       <View className="w-[80px] h-[80px] rounded-full bg-warning-muted items-center justify-center">
-        <Ionicons name="wallet-outline" size={36} color={colors.warning} />
+        <ThemedIcon name="wallet-outline" size={36} color={colors.warning} />
       </View>
       <Text className="text-heading-m text-text-primary text-center">{t('empty.title')}</Text>
       <Text className="text-body-small text-text-secondary text-center">
@@ -26,7 +25,7 @@ export function EmptyExpenses() {
         accessibilityRole="button"
         accessibilityLabel={tCommon('button.info')}
       >
-        <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
+        <ThemedIcon name="information-circle-outline" size={18} color={colors.primary} />
         <Text className="text-body-small text-primary font-semibold">{tCommon('button.info')}</Text>
       </Pressable>
       <InfoSheet

@@ -1,8 +1,7 @@
 import { Platform, View, Text, Pressable, Alert } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface BiometricGateProps {
   children: React.ReactNode;
@@ -49,7 +48,7 @@ export function BiometricGate({ children, unlocked, onUnlocked }: BiometricGateP
   return (
     <View className="bg-surface border border-border rounded-md p-lg items-center gap-md">
       <View className="w-12 h-12 rounded-full bg-primary/10 items-center justify-center">
-        <Ionicons name="lock-closed-outline" size={24} color={colors.primary} />
+        <ThemedIcon name="lock-closed-outline" size={24} color={colors.primary} />
       </View>
       <View className="items-center gap-xs">
         <Text className="text-body text-text-primary font-semibold">{t('biometric.locked')}</Text>

@@ -1,10 +1,9 @@
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { TransferFlight, TransferFlightVote, VoteType, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
-import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 const VOTE_SCORE: Record<VoteType, number> = {
@@ -93,7 +92,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         {/* Route & times — outbound leg */}
         {(flight.departure_airport || flight.arrival_airport) && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="airplane-outline" size={14} color={METADATA_ICON_COLORS.airplane.color} />
+            <ThemedIcon name="airplane-outline" size={14} color={METADATA_ICON_COLORS.airplane.color} />
             <Text className="text-body-small text-text-secondary">
               {isRoundTrip ? `${tTransfer('all.direction.outPrefix')} ` : ''}{[flight.departure_airport, flight.arrival_airport].filter(Boolean).join(' → ')}
             </Text>
@@ -101,7 +100,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         )}
         {(departureFormatted || arrivalFormatted) && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
+            <ThemedIcon name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
             <Text className="text-body-small text-text-secondary">
               {isRoundTrip ? `${tTransfer('all.direction.outPrefix')} ` : ''}{[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
             </Text>
@@ -111,7 +110,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         {/* Return leg (outbound-return only) */}
         {isRoundTrip && (flight.return_departure_airport || flight.return_arrival_airport) && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="return-up-back-outline" size={14} color={METADATA_ICON_COLORS.return.color} />
+            <ThemedIcon name="return-up-back-outline" size={14} color={METADATA_ICON_COLORS.return.color} />
             <Text className="text-body-small text-text-secondary">
               {`${tTransfer('all.direction.retPrefix')} `}{[flight.return_departure_airport, flight.return_arrival_airport].filter(Boolean).join(' → ')}
             </Text>
@@ -119,7 +118,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         )}
         {isRoundTrip && (returnDepartureFormatted || returnArrivalFormatted) && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
+            <ThemedIcon name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
             <Text className="text-body-small text-text-secondary">
               {`${tTransfer('all.direction.retPrefix')} `}{[returnDepartureFormatted, returnArrivalFormatted].filter(Boolean).join(' → ')}
             </Text>
@@ -131,13 +130,13 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
           <View className="flex-row gap-md flex-wrap">
             {flight.flight_number && (
               <View className="flex-row items-center gap-xs">
-                <Ionicons name="barcode-outline" size={14} color={METADATA_ICON_COLORS.barcode.color} />
+                <ThemedIcon name="barcode-outline" size={14} color={METADATA_ICON_COLORS.barcode.color} />
                 <Text className="text-body-small text-text-secondary">{flight.flight_number}</Text>
               </View>
             )}
             {flight.booking_reference && (
               <View className="flex-row items-center gap-xs">
-                <Ionicons name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
+                <ThemedIcon name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
                 <Text className="text-body-small text-text-secondary">{flight.booking_reference}</Text>
               </View>
             )}
@@ -163,7 +162,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
                 className="flex-row items-center gap-xs px-md py-sm rounded-full bg-primary/10"
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
               >
-                <Ionicons name="hand-left-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="hand-left-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{tTransfer('vote.button')}</Text>
               </Pressable>
             )}

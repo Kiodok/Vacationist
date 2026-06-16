@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import type { TripMemberWithUser } from '@vacationist/api';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface PassengerSelectSheetProps {
   visible: boolean;
@@ -82,7 +81,7 @@ export function PassengerSelectSheet({
                     <View className={`w-[20px] h-[20px] rounded-sm border-2 items-center justify-center mr-md ${
                       isSelected ? 'bg-primary border-primary' : 'border-border'
                     }`}>
-                      {isSelected && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
+                      {isSelected && <ThemedIcon name="checkmark" size={14} color="#FFFFFF" />}
                     </View>
                     <Text className="text-body text-text-primary flex-1">
                       {member.user?.name ?? 'Unknown'}

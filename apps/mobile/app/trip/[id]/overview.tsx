@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import { i18n as i18nInstance } from '@vacationist/i18n';
 import { dayjs, formatCurrency } from '@vacationist/utils';
@@ -10,7 +10,7 @@ import { useTrip, useUpdateTrip } from '../../../src/features/trips/hooks/useTri
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { MemberAvatarGroup } from '../../../src/features/trips/components/MemberAvatarGroup';
 import { EditTripSheet } from '../../../src/features/trips/components/EditTripSheet';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 
 interface OverviewTabProps {
@@ -47,7 +47,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
             className="flex-row items-center justify-end gap-xs"
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
-            <Ionicons name="pencil-outline" size={16} color="#A0A0A0" />
+            <ThemedIcon name="pencil-outline" size={16} color="#A0A0A0" />
             <Text className="text-body-small text-text-secondary">{t('overview.editTrip')}</Text>
           </Pressable>
         )}
@@ -67,7 +67,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
           >
             <View className="bg-surface border border-border rounded-md p-md items-center gap-xs">
               <View style={styles.iconBadgeSuccess}>
-                <Ionicons name="calendar-outline" size={20} color={colors.success} />
+                <ThemedIcon name="calendar-outline" size={20} color={colors.success} />
               </View>
               <Text className="text-heading-m text-text-primary">{duration}</Text>
               <Text className="text-body-small text-text-secondary">
@@ -83,7 +83,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
           >
             <View className="bg-surface border border-border rounded-md p-md items-center gap-xs">
               <View style={styles.iconBadgePrimary}>
-                <Ionicons name="people-outline" size={20} color={colors.primary} />
+                <ThemedIcon name="people-outline" size={20} color={colors.primary} />
               </View>
               <Text className="text-heading-m text-text-primary">
                 {trip.member_count}
@@ -97,7 +97,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
         {trip.budget_per_person != null && (
           <View className="bg-surface border border-border rounded-md p-md flex-row items-center gap-md">
             <View style={styles.iconBadgeWarning}>
-              <Ionicons name="wallet-outline" size={20} color={colors.warning} />
+              <ThemedIcon name="wallet-outline" size={20} color={colors.warning} />
             </View>
             <View>
               <Text className="text-heading-m text-text-primary">

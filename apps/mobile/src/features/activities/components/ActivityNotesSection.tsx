@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import type { ActivityNote, CreateActivityNoteInput, UpdateActivityNoteInput } from '@vacationist/types';
 import {
   useActivityNotes,
@@ -84,7 +83,7 @@ export function ActivityNotesSection({
                 opacity: pressed ? 0.7 : 1,
               })}
             >
-              <Ionicons name="add-circle-outline" size={14} color={colors.primary} />
+              <ThemedIcon name="add-circle-outline" size={14} color={colors.primary} />
               <Text className="text-primary text-label">{t('action.addNote')}</Text>
             </Pressable>
           )}

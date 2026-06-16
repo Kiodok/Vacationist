@@ -15,6 +15,12 @@
   --color-text-primary: 26 26 26;
   --color-text-secondary: 107 107 107;
   --color-text-muted: 160 160 160;
+  --font-family-base: system-ui, -apple-system, sans-serif;
+  --color-primary: 108 99 255;
+  --color-primary-light: 138 132 255;
+  --color-success: 62 207 142;
+  --color-warning: 245 166 35;
+  --color-danger: 255 92 92;
 }
 
 .dark {
@@ -25,4 +31,25 @@
   --color-text-primary: 242 242 242;
   --color-text-secondary: 160 160 160;
   --color-text-muted: 92 92 92;
+  --color-primary: 108 99 255;
+  --color-primary-light: 138 132 255;
+  --color-success: 62 207 142;
+  --color-warning: 245 166 35;
+  --color-danger: 255 92 92;
+}
+
+.colorful {
+  --color-background: 253 164 68;
+  --color-surface: 254 206 138;
+  --color-surface-elevated: 254 224 173;
+  --color-border: 224 138 37;
+  --color-text-primary: 105 15 12;
+  --color-text-secondary: 122 36 24;
+  --color-text-muted: 139 104 64;
+  --font-family-base: 'Nunito-Regular', 'Nunito', system-ui, sans-serif;
+  --color-primary: 140 97 150;
+  --color-primary-light: 164 122 176;
+  --color-success: 0 130 77;
+  --color-warning: 155 61 0;
+  --color-danger: 184 50 50;
 }

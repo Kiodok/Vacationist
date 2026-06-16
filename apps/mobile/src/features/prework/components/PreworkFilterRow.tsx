@@ -1,6 +1,5 @@
 import { View, Text, TextInput, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface PreworkFilterRowProps {
   label: string;
@@ -43,7 +42,7 @@ export function PreworkFilterRow({ label, weight, onChangeLabel, onChangeWeight,
         />
       </View>
       <Pressable onPress={onRemove} hitSlop={8} className="p-xs">
-        <Ionicons name="close-circle-outline" size={20} color={colors.danger} />
+        <ThemedIcon name="close-circle-outline" size={20} color={colors.danger} />
       </Pressable>
     </View>
   );

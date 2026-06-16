@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import type { ShoppingItem, UpdateShoppingItemInput } from '@vacationist/types';
 import { useShoppingItems, useCreateShoppingItem, useUpdateShoppingItem, useDeleteShoppingItem } from '../../../src/features/shopping/hooks/useShoppingItems';
 import { useShoppingRealtime } from '../../../src/features/shopping/hooks/useShoppingRealtime';
@@ -15,7 +15,7 @@ import { ShoppingItemRow } from '../../../src/features/shopping/components/Shopp
 import { AddShoppingItemInput } from '../../../src/features/shopping/components/AddShoppingItemInput';
 import { EditShoppingItemSheet } from '../../../src/features/shopping/components/EditShoppingItemSheet';
 import { EditShoppingListSheet } from '../../../src/features/shopping/components/EditShoppingListSheet';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -90,7 +90,7 @@ export default function ShoppingListDetail() {
       {/* Header */}
       <View className="flex-row items-center px-md pt-md pb-sm gap-sm">
         <Pressable onPress={() => goBackToTrip()} className="p-xs">
-          <Ionicons name="arrow-back" size={24} color="#F2F2F2" />
+          <ThemedIcon name="arrow-back" size={24} color="#F2F2F2" />
         </Pressable>
         <View className="flex-1">
           <Text className="text-heading-m text-text-primary" numberOfLines={1}>
@@ -111,7 +111,7 @@ export default function ShoppingListDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="create-outline" size={20} color={colors.primary} />
+              <ThemedIcon name="create-outline" size={20} color={colors.primary} />
             </Pressable>
             {isArchived ? (
               <Pressable
@@ -119,7 +119,7 @@ export default function ShoppingListDetail() {
                 className="p-xs"
                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
               >
-                <Ionicons name="arrow-undo-outline" size={20} color="#A0A0A0" />
+                <ThemedIcon name="arrow-undo-outline" size={20} color="#A0A0A0" />
               </Pressable>
             ) : (
               <Pressable
@@ -130,7 +130,7 @@ export default function ShoppingListDetail() {
                 className="p-xs"
                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
               >
-                <Ionicons name="archive-outline" size={20} color="#A0A0A0" />
+                <ThemedIcon name="archive-outline" size={20} color="#A0A0A0" />
               </Pressable>
             )}
             <Pressable
@@ -138,7 +138,7 @@ export default function ShoppingListDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="trash-outline" size={20} color={colors.danger} />
+              <ThemedIcon name="trash-outline" size={20} color={colors.danger} />
             </Pressable>
           </View>
         )}
@@ -184,7 +184,7 @@ export default function ShoppingListDetail() {
             contentContainerStyle={items?.length === 0 ? { flex: 1 } : undefined}
             ListEmptyComponent={
               <View className="flex-1 items-center justify-center px-xl gap-sm">
-                <Ionicons name="basket-outline" size={40} color="#5C5C5C" />
+                <ThemedIcon name="basket-outline" size={40} color="#5C5C5C" />
                 <Text className="text-body text-text-secondary text-center">
                   {t('list.emptyItems')}
                 </Text>

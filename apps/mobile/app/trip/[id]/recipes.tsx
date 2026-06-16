@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import type { CreateRecipeInput } from '@vacationist/types';
 import { useRecipes, useCreateRecipe, useDeleteRecipe } from '../../../src/features/recipes/hooks/useRecipes';
@@ -13,7 +13,7 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { RecipeCardWrapper } from '../../../src/features/recipes/components/RecipeCardWrapper';
 import { CreateRecipeSheet } from '../../../src/features/recipes/components/CreateRecipeSheet';
 import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyRecipes';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -93,7 +93,7 @@ export default function RecipesTab() {
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
-          <Ionicons name="add" size={28} color="#FFFFFF" />
+          <ThemedIcon name="add" size={28} color="#FFFFFF" />
         </Pressable>
       )}
 

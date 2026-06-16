@@ -1,10 +1,9 @@
 import { View, Text, Pressable, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface ExpenseSplitBreakdownProps {
   visible: boolean;
@@ -98,7 +97,7 @@ export function ExpenseSplitBreakdown({
                     <View className={`w-[32px] h-[32px] rounded-full items-center justify-center ${
                       isCovered ? 'bg-primary/20' : isSettled ? 'bg-success/20' : 'bg-surface'
                     }`}>
-                      <Ionicons
+                      <ThemedIcon
                         name={isCovered ? 'shield-checkmark-outline' : isSettled ? 'checkmark-circle' : 'ellipse-outline'}
                         size={20}
                         color={isCovered ? colors.primary : isSettled ? colors.success : colors.textMuted}

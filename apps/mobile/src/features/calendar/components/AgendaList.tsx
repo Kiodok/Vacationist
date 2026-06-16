@@ -1,9 +1,9 @@
 import { SectionList, View, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { splitDayActivities } from '@vacationist/utils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 import { AgendaItem } from './AgendaItem';
 import { EmptyCalendarDay } from './EmptyCalendarDay';
 
@@ -17,7 +17,7 @@ interface AgendaListProps {
 
 interface AgendaSection {
   title: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsName;
   data: Activity[];
 }
 
@@ -52,7 +52,7 @@ export function AgendaList({ activities, timezone, selectedDate, onActivityPress
       )}
       renderSectionHeader={({ section }) => (
         <View className="flex-row items-center gap-sm px-md pt-md pb-sm">
-          <Ionicons name={section.icon} size={16} color={colors.textSecondary} />
+          <ThemedIcon name={section.icon} size={16} color={colors.textSecondary} />
           <Text className="text-body-small text-text-secondary font-semibold">
             {section.title}
           </Text>

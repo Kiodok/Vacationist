@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, SupportedTimezone, UpdateActivityInput, Currency } from '@vacationist/types';
@@ -16,7 +15,7 @@ import { MonthGrid } from '../../src/features/calendar/components/MonthGrid';
 import { YearGrid } from '../../src/features/calendar/components/YearGrid';
 import { CalendarActivitySheet } from '../../src/features/calendar/components/CalendarActivitySheet';
 import { GlobalCalendarTripSection } from '../../src/features/calendar/components/GlobalCalendarTripSection';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../src/utils/mutationStatus';
 
 export default function GlobalCalendarScreen() {
@@ -157,7 +156,7 @@ export default function GlobalCalendarScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-xl gap-md">
         <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
-          <Ionicons name="calendar-outline" size={36} color={colors.success} />
+          <ThemedIcon name="calendar-outline" size={36} color={colors.success} />
         </View>
         <Text className="text-heading-m text-text-primary text-center">{t('noTrips.title')}</Text>
         <Text className="text-body-small text-text-secondary text-center">
@@ -192,7 +191,7 @@ export default function GlobalCalendarScreen() {
           {tripsForSelectedDate.length === 0 ? (
             <View className="flex-1 items-center justify-center px-xl gap-md py-xl">
               <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
-                <Ionicons name="calendar-clear-outline" size={36} color={colors.success} />
+                <ThemedIcon name="calendar-clear-outline" size={36} color={colors.success} />
               </View>
               <Text className="text-heading-m text-text-primary text-center">{t('noActivities.title')}</Text>
               <Text className="text-body-small text-text-secondary text-center">

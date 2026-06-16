@@ -1,9 +1,9 @@
 import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs, formatCurrency } from '@vacationist/utils';
 import type { TransferFlight, TransferVehicle, TransferRental, Currency } from '@vacationist/types';
-import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 
 export interface AllTransfersViewProps {
   flights: TransferFlight[];
@@ -30,14 +30,14 @@ function SectionHeader({
   count,
   isWinner = false,
 }: {
-  icon: React.ComponentProps<typeof Ionicons>['name'];
+  icon: IoniconsName;
   title: string;
   count: number;
   isWinner?: boolean;
 }) {
   return (
     <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
-      <Ionicons name={icon} size={16} color={isWinner ? colors.success : colors.primary} />
+      <ThemedIcon name={icon} size={16} color={isWinner ? colors.success : colors.primary} />
       <Text className={`text-body font-semibold ${isWinner ? 'text-success' : 'text-text-primary'}`}>{title}</Text>
       <Text className="text-body-small text-text-muted">({count})</Text>
       {isWinner && (
@@ -116,7 +116,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
 
       {(flight.departure_airport || flight.arrival_airport) && (
         <View className="flex-row items-center gap-xs">
-          <Ionicons name="airplane-outline" size={14} color={METADATA_ICON_COLORS.airplane.color} />
+          <ThemedIcon name="airplane-outline" size={14} color={METADATA_ICON_COLORS.airplane.color} />
           <Text className="text-body-small text-text-secondary">
             {outPrefix}{[flight.departure_airport, flight.arrival_airport].filter(Boolean).join(' → ')}
           </Text>
@@ -124,7 +124,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
       )}
       {(departureFormatted || arrivalFormatted) && (
         <View className="flex-row items-center gap-xs">
-          <Ionicons name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
+          <ThemedIcon name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
           <Text className="text-body-small text-text-secondary">
             {outPrefix}{[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
           </Text>
@@ -133,7 +133,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
 
       {isRoundTrip && (flight.return_departure_airport || flight.return_arrival_airport) && (
         <View className="flex-row items-center gap-xs">
-          <Ionicons name="return-up-back-outline" size={14} color={METADATA_ICON_COLORS.return.color} />
+          <ThemedIcon name="return-up-back-outline" size={14} color={METADATA_ICON_COLORS.return.color} />
           <Text className="text-body-small text-text-secondary">
             {retPrefix}{[flight.return_departure_airport, flight.return_arrival_airport].filter(Boolean).join(' → ')}
           </Text>
@@ -141,7 +141,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
       )}
       {isRoundTrip && (returnDepartureFormatted || returnArrivalFormatted) && (
         <View className="flex-row items-center gap-xs">
-          <Ionicons name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
+          <ThemedIcon name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
           <Text className="text-body-small text-text-secondary">
             {retPrefix}{[returnDepartureFormatted, returnArrivalFormatted].filter(Boolean).join(' → ')}
           </Text>
@@ -152,13 +152,13 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
         <View className="flex-row gap-md flex-wrap">
           {flight.flight_number && (
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="barcode-outline" size={14} color={METADATA_ICON_COLORS.barcode.color} />
+              <ThemedIcon name="barcode-outline" size={14} color={METADATA_ICON_COLORS.barcode.color} />
               <Text className="text-body-small text-text-secondary">{flight.flight_number}</Text>
             </View>
           )}
           {flight.booking_reference && (
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
+              <ThemedIcon name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
               <Text className="text-body-small text-text-secondary">{flight.booking_reference}</Text>
             </View>
           )}
@@ -206,7 +206,7 @@ function RentalSummaryCard({ rental, currency }: { rental: TransferRental; curre
       )}
       {(rental.pickup_location || rental.dropoff_location) && (
         <View className="flex-row items-center gap-xs">
-          <Ionicons name="location-outline" size={14} color={METADATA_ICON_COLORS.location.color} />
+          <ThemedIcon name="location-outline" size={14} color={METADATA_ICON_COLORS.location.color} />
           <Text className="text-body-small text-text-secondary" numberOfLines={1}>
             {[rental.pickup_location, rental.dropoff_location].filter(Boolean).join(' → ')}
           </Text>
@@ -214,7 +214,7 @@ function RentalSummaryCard({ rental, currency }: { rental: TransferRental; curre
       )}
       {(rental.pickup_date || rental.dropoff_date) && (
         <View className="flex-row items-center gap-xs">
-          <Ionicons name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
+          <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
           <Text className="text-body-small text-text-secondary">
             {[
               rental.pickup_date ? dayjs(rental.pickup_date).format('D MMM') : null,
@@ -227,7 +227,7 @@ function RentalSummaryCard({ rental, currency }: { rental: TransferRental; curre
         <View className="flex-row gap-md flex-wrap">
           {rental.booking_reference && (
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
+              <ThemedIcon name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
               <Text className="text-body-small text-text-secondary">{rental.booking_reference}</Text>
             </View>
           )}
@@ -259,7 +259,7 @@ export function AllTransfersView({
   if (allEmpty) {
     return (
       <View className="flex-1 items-center justify-center px-xl gap-sm">
-        <Ionicons name="airplane-outline" size={40} color={colors.textMuted} />
+        <ThemedIcon name="airplane-outline" size={40} color={colors.textMuted} />
         <Text className="text-body text-text-secondary text-center">{t('all.empty.title')}</Text>
         <Text className="text-body-small text-text-muted text-center">{t('all.empty.sub')}</Text>
       </View>

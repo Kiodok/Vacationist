@@ -1,10 +1,9 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../src/features/notifications/hooks/useUnreadCount';
 import { useNotificationsRealtime } from '../../src/features/notifications/hooks/useNotifications';
-import { colors, useThemeColors } from '@vacationist/ui';
+import { colors, useThemeColors, useResolvedTheme, ThemedIcon } from '@vacationist/ui';
 import { ThemeVarsProvider } from '../../src/components/ThemeVarsProvider';
 import { useNetworkStatus } from '../../src/hooks/useNetworkStatus';
 import { OFFLINE_BANNER_HEIGHT } from '../../src/components/OfflineBanner';
@@ -14,8 +13,12 @@ export default function TabLayout() {
   const { data: unreadCount = 0 } = useUnreadCount();
   useNotificationsRealtime();
   const tc = useThemeColors();
+  const theme = useResolvedTheme();
   const { isConnected } = useNetworkStatus();
   const insets = useSafeAreaInsets();
+  // In colorful mode the tab icons/labels use the warm wine tone instead of purple
+  const tabActivePrimary = theme === 'colorful' ? tc.textPrimary : tc.primary;
+  const tabActivePrimaryLight = theme === 'colorful' ? tc.textSecondary : tc.primaryLight;
 
   return (
     <Tabs
@@ -36,12 +39,12 @@ export default function TabLayout() {
         name="index"
         options={{
           title: t('tab.trips'),
-          tabBarActiveTintColor: colors.primary,
+          tabBarActiveTintColor: tabActivePrimary,
           tabBarIcon: ({ focused }) => (
-            <Ionicons
+            <ThemedIcon
               name={focused ? 'airplane' : 'airplane-outline'}
               size={24}
-              color={focused ? colors.primary : tc.textMuted}
+              color={focused ? tabActivePrimary : tc.textMuted}
             />
           ),
         }}
@@ -50,12 +53,12 @@ export default function TabLayout() {
         name="calendar"
         options={{
           title: t('tab.calendar'),
-          tabBarActiveTintColor: colors.success,
+          tabBarActiveTintColor: tc.success,
           tabBarIcon: ({ focused }) => (
-            <Ionicons
+            <ThemedIcon
               name={focused ? 'calendar' : 'calendar-outline'}
               size={24}
-              color={focused ? colors.success : tc.textMuted}
+              color={focused ? tc.success : tc.textMuted}
             />
           ),
         }}
@@ -64,28 +67,28 @@ export default function TabLayout() {
         name="notifications"
         options={{
           title: t('tab.notifications'),
-          tabBarActiveTintColor: colors.warning,
+          tabBarActiveTintColor: tc.warning,
           tabBarIcon: ({ focused }) => (
-            <Ionicons
+            <ThemedIcon
               name={focused ? 'notifications' : 'notifications-outline'}
               size={24}
-              color={focused ? colors.warning : tc.textMuted}
+              color={focused ? tc.warning : tc.textMuted}
             />
           ),
           tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
-          tabBarBadgeStyle: { backgroundColor: colors.danger, fontSize: 10 },
+          tabBarBadgeStyle: { backgroundColor: tc.danger, fontSize: 10 },
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: t('tab.profile'),
-          tabBarActiveTintColor: colors.primaryLight,
+          tabBarActiveTintColor: tabActivePrimaryLight,
           tabBarIcon: ({ focused }) => (
-            <Ionicons
+            <ThemedIcon
               name={focused ? 'person' : 'person-outline'}
               size={24}
-              color={focused ? colors.primaryLight : tc.textMuted}
+              color={focused ? tabActivePrimaryLight : tc.textMuted}
             />
           ),
         }}

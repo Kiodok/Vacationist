@@ -1,7 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface OfflineEmptyStateProps {
   onRetry: () => void;
@@ -13,7 +12,7 @@ export function OfflineEmptyState({ onRetry }: OfflineEmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center px-xl gap-md py-xl">
       <View className="w-[80px] h-[80px] rounded-full bg-primary-muted items-center justify-center">
-        <Ionicons name="cloud-offline-outline" size={36} color={colors.primary} />
+        <ThemedIcon name="cloud-offline-outline" size={36} color={colors.primary} />
       </View>
       <Text className="text-body-small text-text-secondary text-center">
         {t('offline.noData')}
@@ -25,7 +24,7 @@ export function OfflineEmptyState({ onRetry }: OfflineEmptyStateProps) {
         accessibilityRole="button"
         accessibilityLabel={t('offline.retry')}
       >
-        <Ionicons name="refresh-outline" size={18} color={colors.primary} />
+        <ThemedIcon name="refresh-outline" size={18} color={colors.primary} />
         <Text className="text-body-small text-primary font-semibold">{t('offline.retry')}</Text>
       </Pressable>
     </View>

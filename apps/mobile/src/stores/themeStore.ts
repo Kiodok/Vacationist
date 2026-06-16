@@ -4,7 +4,7 @@ import { storage } from '../utils/mmkvStorage';
 import { colorScheme as cssColorScheme } from 'react-native-css-interop';
 import { syncSystemColorScheme } from '../utils/themeSync';
 
-type ThemePreference = 'dark' | 'light' | 'system';
+export type ThemePreference = 'dark' | 'light' | 'system' | 'colorful';
 
 interface ThemeState {
   theme: ThemePreference;
@@ -16,7 +16,7 @@ const STORAGE_KEY = 'theme_preference';
 function loadPersistedTheme(): ThemePreference {
   try {
     const stored = storage.getString(STORAGE_KEY);
-    if (stored === 'dark' || stored === 'light' || stored === 'system') return stored;
+    if (stored === 'dark' || stored === 'light' || stored === 'system' || stored === 'colorful') return stored;
   } catch {}
   return 'system';
 }
@@ -27,7 +27,9 @@ export const useThemeStore = create<ThemeState>()((set) => ({
     const effective: 'light' | 'dark' =
       theme === 'system'
         ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light')
-        : theme;
+        : theme === 'colorful'
+          ? 'light'
+          : theme;
 
     // Update NativeWind's observable synchronously BEFORE Zustand notifies React.
     // This guarantees that when ThemeRemountKey changes its key and React unmounts +

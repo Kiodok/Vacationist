@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { BackHandler, Linking, Modal, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
 import * as ExpoInAppUpdates from 'expo-in-app-updates';
-import { Button, useThemeColors } from '@vacationist/ui';
+import { Button, useThemeColors , ThemedIcon } from '@vacationist/ui';
 import { useAppForeground } from '../hooks/useAppForeground';
 import { checkNativeUpdate, setNativeUpdateGateActive } from '../utils/nativeUpdateChecker';
 
@@ -71,7 +70,7 @@ export function ForceUpdateGate() {
       <View className="flex-1 bg-background items-center justify-center px-xl">
         <View className="items-center gap-lg w-full">
           <View className="w-[80px] h-[80px] rounded-full bg-primary/10 items-center justify-center">
-            <Ionicons name="arrow-up-circle-outline" size={44} color={colors.primary} />
+            <ThemedIcon name="arrow-up-circle-outline" size={44} color={colors.primary} />
           </View>
           <Text className="text-2xl font-bold text-text-primary text-center">
             {t('forceUpdate.title')}

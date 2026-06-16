@@ -12,6 +12,7 @@ import { storage } from '../src/utils/mmkvStorage';
 initSentry();
 import { Slot, usePathname, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
@@ -33,7 +34,8 @@ import { colorScheme as cssColorScheme } from 'react-native-css-interop';
 import { syncSystemColorScheme } from '../src/utils/themeSync';
 import VercelWebTools from '../src/components/VercelWebTools';
 import { ForceUpdateGate } from '../src/components/ForceUpdateGate';
-import { colors } from '@vacationist/ui';
+import { colors, ThemeProvider, setLiveColors } from '@vacationist/ui';
+import type { ResolvedTheme } from '@vacationist/ui';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -78,17 +80,44 @@ initDayjs();
 // render so components mount with the correct CSS variables already resolved.
 const _pt = useThemeStore.getState().theme;
 const _is: 'light' | 'dark' =
-  _pt === 'system' ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light') : _pt;
+  _pt === 'system'
+    ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light')
+    : _pt === 'colorful'
+      ? 'light'
+      : _pt;
 syncSystemColorScheme(_is);
 if (Platform.OS !== 'web' || typeof window !== 'undefined') {
   cssColorScheme.set(_is);
 }
+
+// Initialize the live-colors singleton before any component renders so that
+// static `colors.*` imports (icon color props etc.) reflect the stored theme.
+const _initResolved: ResolvedTheme = _pt === 'colorful' ? 'colorful' : _is;
+setLiveColors(_initResolved);
+
+// Keep live colors in sync with subsequent theme changes.
+// Zustand subscriptions fire synchronously before React schedules re-renders,
+// so _liveColors is always up-to-date when components read colors.* in render.
+useThemeStore.subscribe((state) => {
+  const t = state.theme;
+  const rnScheme = Appearance.getColorScheme() ?? 'light';
+  const resolved: ResolvedTheme =
+    t === 'colorful' ? 'colorful' :
+    t === 'system' ? (rnScheme === 'dark' ? 'dark' : 'light') :
+    t as 'dark' | 'light';
+  setLiveColors(resolved);
+});
 
 function AuthGate() {
   // Keeps AuthGate subscribed to systemColorScheme changes via useState (reliable on
   // all architectures). Re-renders update systemColorScheme, which ThemeVarsProvider
   // in the tab layout reads via useNWColorScheme() to push new CSS variables.
   useNWColorScheme();
+  const [fontsLoaded] = useFonts({
+    'Nunito-Regular': require('../assets/fonts/Nunito-Regular.ttf'),
+    'Nunito-SemiBold': require('../assets/fonts/Nunito-SemiBold.ttf'),
+    'Nunito-Bold': require('../assets/fonts/Nunito-Bold.ttf'),
+  });
   const router = useRouter();
   const segments = useSegments();
   const pathname = usePathname();
@@ -223,10 +252,10 @@ function AuthGate() {
   }, [hasSession, isLoading, user, pendingInviteToken, router, addToast]);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [isLoading]);
+  }, [isLoading, fontsLoaded]);
 
   return <Slot />;
 }
@@ -235,10 +264,15 @@ function ThemeController() {
   const theme = useThemeStore((s) => s.theme);
   // React Native's own hook — reliably updates when OS theme changes (used for 'system' mode)
   const rnScheme = useRNColorScheme();
-  const effective: 'light' | 'dark' = theme === 'system' ? (rnScheme === 'dark' ? 'dark' : 'light') : theme;
+  const effective: 'light' | 'dark' =
+    theme === 'system'
+      ? (rnScheme === 'dark' ? 'dark' : 'light')
+      : theme === 'colorful'
+        ? 'light'
+        : theme;
 
   // useLayoutEffect fires synchronously before the browser paints and — critically —
-  // before MutationObserver microtasks flush. This ensures .dark is on <html> and
+  // before MutationObserver microtasks flush. This ensures .dark/.colorful is on <html> and
   // the css-interop observable is set to the stored preference before the
   // NativeWind stylesheet injection triggers the MutationObserver, which would
   // otherwise reset the scheme to the system preference on every page load.
@@ -246,11 +280,14 @@ function ThemeController() {
     syncSystemColorScheme(effective);
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       document.documentElement.classList.toggle('dark', effective === 'dark');
+      document.documentElement.classList.toggle('colorful', theme === 'colorful');
+      document.documentElement.style.backgroundColor =
+        theme === 'colorful' ? '#FDA444' : effective === 'dark' ? '#0F0F0F' : '#FFFFFF';
     }
     if (Platform.OS !== 'web' || typeof window !== 'undefined') {
       cssColorScheme.set(effective);
     }
-  }, [effective]);
+  }, [effective, theme]);
 
   // css-interop's own AppState listener resets systemColorScheme to
   // Appearance.getColorScheme() every time the app comes to foreground.
@@ -263,13 +300,38 @@ function ThemeController() {
         if (Platform.OS !== 'web' || typeof window !== 'undefined') {
           cssColorScheme.set(effective);
         }
+        if (Platform.OS === 'web' && typeof document !== 'undefined') {
+          document.documentElement.classList.toggle('colorful', theme === 'colorful');
+        }
       }
     });
     return () => sub.remove();
-  }, [effective]);
+  }, [effective, theme]);
 
   // 'light' = light-coloured icons (for dark backgrounds); 'dark' = dark icons (for light).
   return <StatusBar style={effective === 'dark' ? 'light' : 'dark'} />;
+}
+
+function RootLayoutInner() {
+  const theme = useThemeStore((s) => s.theme);
+  const rnScheme = useRNColorScheme();
+  const resolvedTheme: ResolvedTheme =
+    theme === 'colorful'
+      ? 'colorful'
+      : theme === 'system'
+        ? (rnScheme === 'dark' ? 'dark' : 'light')
+        : theme;
+
+  return (
+    <ThemeProvider value={resolvedTheme}>
+      <ThemeController />
+      <OfflineBanner />
+      <ForceUpdateGate />
+      <AuthGate />
+      <ToastContainer />
+      <VercelWebTools />
+    </ThemeProvider>
+  );
 }
 
 function RootLayout() {
@@ -278,12 +340,7 @@ function RootLayout() {
       <I18nProvider>
         <NetworkProvider>
           <QueryProvider>
-            <ThemeController />
-            <OfflineBanner />
-            <ForceUpdateGate />
-            <AuthGate />
-            <ToastContainer />
-            <VercelWebTools />
+            <RootLayoutInner />
           </QueryProvider>
         </NetworkProvider>
       </I18nProvider>

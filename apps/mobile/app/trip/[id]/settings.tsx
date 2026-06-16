@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Platform, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import { Button } from '@vacationist/ui';
 import { getTripInviteStats } from '@vacationist/api';
@@ -18,7 +18,7 @@ import { DocumentAccessRequestSheet } from '../../../src/features/profile/compon
 import { MemberDocumentsSheet } from '../../../src/features/profile/components/MemberDocumentsSheet';
 import { NotificationPreferencesSection } from '../../../src/features/notifications/components/NotificationPreferencesSection';
 import { NudgeSheet } from '../../../src/features/notifications/components/NudgeSheet';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 
 export default function SettingsTab() {
@@ -145,7 +145,7 @@ export default function SettingsTab() {
                     hitSlop={12}
                     style={{ padding: 4 }}
                   >
-                    <Ionicons name="close-circle-outline" size={22} color={colors.danger} />
+                    <ThemedIcon name="close-circle-outline" size={22} color={colors.danger} />
                   </Pressable>
                 )}
 
@@ -193,7 +193,7 @@ export default function SettingsTab() {
               variant="secondary"
               onPress={handleCreateInvite}
               loading={createInvite.isPending}
-              icon={<Ionicons name="link-outline" size={18} color={colors.primary} />}
+              icon={<ThemedIcon name="link-outline" size={18} color={colors.primary} />}
             />
 
             {invites && invites.length > 0 && (
@@ -216,7 +216,7 @@ export default function SettingsTab() {
                       onPress={() => revokeInvite.mutate(invite.id)}
                       className="p-xs"
                     >
-                      <Ionicons name="trash-outline" size={18} color={colors.danger} />
+                      <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
                     </Pressable>
                   </View>
                 ))}
@@ -241,7 +241,7 @@ export default function SettingsTab() {
                   variant="secondary"
                   onPress={() => setRequestDocVisible(true)}
                   loading={createAccessRequest.isPending}
-                  icon={<Ionicons name="shield-checkmark-outline" size={18} color={colors.primary} />}
+                  icon={<ThemedIcon name="shield-checkmark-outline" size={18} color={colors.primary} />}
                 />
               </View>
               <View className="flex-1">
@@ -249,7 +249,7 @@ export default function SettingsTab() {
                   label={t('settings.viewDocuments')}
                   variant="secondary"
                   onPress={() => setViewDocsVisible(true)}
-                  icon={<Ionicons name="document-text-outline" size={18} color={hasActiveDocs ? colors.success : colors.primary} />}
+                  icon={<ThemedIcon name="document-text-outline" size={18} color={hasActiveDocs ? colors.success : colors.primary} />}
                   className={hasActiveDocs ? 'border-success' : ''}
                 />
               </View>
@@ -275,7 +275,7 @@ export default function SettingsTab() {
               label={t('settings.sendNudge')}
               variant="secondary"
               onPress={() => setNudgeVisible(true)}
-              icon={<Ionicons name="megaphone-outline" size={18} color={colors.primary} />}
+              icon={<ThemedIcon name="megaphone-outline" size={18} color={colors.primary} />}
             />
           </View>
         </View>
@@ -292,7 +292,7 @@ export default function SettingsTab() {
               label={t('settings.leaveTrip')}
               variant="secondary"
               onPress={() => setPendingLeave(true)}
-              icon={<Ionicons name="exit-outline" size={18} color={colors.primary} />}
+              icon={<ThemedIcon name="exit-outline" size={18} color={colors.primary} />}
             />
           )}
           {!isOrganizer && pendingLeave && (
@@ -337,7 +337,7 @@ export default function SettingsTab() {
               onPress={() => setPendingDelete(true)}
               className="min-h-[48px] rounded-md border border-danger items-center justify-center flex-row gap-sm"
             >
-              <Ionicons name="trash-outline" size={18} color={colors.danger} />
+              <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
               <Text className="text-body text-danger font-semibold">{t('settings.deleteTrip')}</Text>
             </Pressable>
           )}

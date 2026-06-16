@@ -1,5 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 import type { MonthGridDay } from '@vacationist/types';
+import { useThemeColors } from '@vacationist/ui';
+
+const TRIP_COVERAGE_DOT = '#f87a6e';
 
 interface MonthDayCellProps {
   day: MonthGridDay;
@@ -8,6 +11,8 @@ interface MonthDayCellProps {
 }
 
 export function MonthDayCell({ day, isSelected, onPress }: MonthDayCellProps) {
+  const tc = useThemeColors();
+
   const textColor = isSelected
     ? 'text-white'
     : day.isCurrentMonth
@@ -19,6 +24,12 @@ export function MonthDayCell({ day, isSelected, onPress }: MonthDayCellProps) {
     : day.isToday
       ? 'border border-primary'
       : '';
+
+  const dotColor = day.hasActivities
+    ? isSelected ? '#FFFFFF' : tc.primary
+    : day.hasTripCoverage
+      ? isSelected ? '#FFFFFF' : TRIP_COVERAGE_DOT
+      : 'transparent';
 
   return (
     <View style={{ flex: 1 }}>
@@ -33,17 +44,8 @@ export function MonthDayCell({ day, isSelected, onPress }: MonthDayCellProps) {
             </Text>
           </View>
           <View
-            className={`w-[5px] h-[5px] rounded-full mt-xs ${
-              day.hasActivities
-                ? isSelected
-                  ? 'bg-white'
-                  : 'bg-primary'
-                : day.hasTripCoverage
-                  ? isSelected
-                    ? 'bg-white'
-                    : 'bg-warning'
-                  : 'bg-transparent'
-            }`}
+            className="w-[5px] h-[5px] rounded-full mt-xs"
+            style={{ backgroundColor: dotColor }}
           />
         </View>
       </Pressable>

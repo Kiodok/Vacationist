@@ -1,8 +1,7 @@
 import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { dayjs, formatCurrency } from '@vacationist/utils';
 import type { TransferRental, Currency } from '@vacationist/types';
-import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface RentalCardProps {
@@ -40,7 +39,7 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
 
         {(rental.pickup_location || rental.dropoff_location) && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="location-outline" size={14} color={METADATA_ICON_COLORS.location.color} />
+            <ThemedIcon name="location-outline" size={14} color={METADATA_ICON_COLORS.location.color} />
             <Text className="text-body-small text-text-secondary" numberOfLines={1}>
               {[rental.pickup_location, rental.dropoff_location].filter(Boolean).join(' → ')}
             </Text>
@@ -49,7 +48,7 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
 
         {(rental.pickup_date || rental.dropoff_date) && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
+            <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
             <Text className="text-body-small text-text-secondary">
               {[
                 rental.pickup_date && dayjs(rental.pickup_date).isValid() ? dayjs(rental.pickup_date).format('D MMM') : null,
@@ -62,7 +61,7 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
         <View className="flex-row gap-md flex-wrap">
           {rental.booking_reference && (
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
+              <ThemedIcon name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
               <Text className="text-body-small text-text-secondary">{rental.booking_reference}</Text>
             </View>
           )}
@@ -79,7 +78,7 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
             onPress={() => Linking.openURL(rental.external_url!)}
             className="flex-row items-center gap-xs"
           >
-            <Ionicons name="link-outline" size={14} color={colors.primary} />
+            <ThemedIcon name="link-outline" size={14} color={colors.primary} />
             <Text className="text-primary text-body-small underline" numberOfLines={1}>
               {rental.external_url}
             </Text>

@@ -1,8 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, Text, Pressable, Platform, Modal } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { i18n } from '@vacationist/i18n';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 type RNDateTimePickerType =
   typeof import('@react-native-community/datetimepicker').default;
@@ -156,7 +155,7 @@ export function DateTimePickerField({
                 padding: 0,
               }}
             >
-              <Ionicons name="time-outline" size={20} color={colors.textSecondary} />
+              <ThemedIcon name="time-outline" size={20} color={colors.textSecondary} />
             </button>
           )}
         </div>
@@ -196,7 +195,7 @@ export function DateTimePickerField({
         >
           {displayText}
         </Text>
-        <Ionicons
+        <ThemedIcon
           name={mode === 'date' ? 'calendar-outline' : 'time-outline'}
           size={20}
           color={colors.textMuted}

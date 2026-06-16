@@ -4,10 +4,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
 import { createPackingItemSchema, type CreatePackingItemInput, type PackingCategory } from '@vacationist/types';
 import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface CreatePackingItemSheetProps {
   visible: boolean;

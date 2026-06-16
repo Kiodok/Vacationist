@@ -4,10 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
 import { updateTripSchema, type UpdateTripInput, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { Trip } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
+import { ThemedIcon } from '@vacationist/ui';
 
 interface EditTripSheetProps {
   visible: boolean;
@@ -186,7 +186,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                           >
                             <Text className="text-body font-semibold text-text-primary">{value}</Text>
-                            <Ionicons name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color="#9E9E9E" />
+                            <ThemedIcon name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color="#9E9E9E" />
                           </Pressable>
                           {showCurrencyPicker && (
                             <View className="bg-surface border border-border rounded-sm mt-xs overflow-hidden">
@@ -198,7 +198,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, backgroundColor: value === c ? 'rgba(108,99,255,0.12)' : 'transparent' })}
                                 >
                                   <Text className={`text-body ${value === c ? 'text-primary font-semibold' : 'text-text-primary'}`}>{c}</Text>
-                                  {value === c && <Ionicons name="checkmark" size={16} color="#6C63FF" />}
+                                  {value === c && <ThemedIcon name="checkmark" size={16} color="#6C63FF" />}
                                 </Pressable>
                               ))}
                             </View>

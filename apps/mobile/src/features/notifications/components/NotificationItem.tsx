@@ -1,10 +1,9 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@vacationist/i18n';
 import { dayjs } from '@vacationist/utils';
 import type { Notification } from '@vacationist/types';
-import { colors, NOTIFICATION_ICON_COLORS } from '@vacationist/ui';
+import { colors, NOTIFICATION_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 
 // Keep in sync with NOTIFICATION_TRANSLATIONS in supabase/functions/push-notification/index.ts.
 // shared_packing_self is a virtual key used to distinguish i_got_it notifications
@@ -149,7 +148,7 @@ export function NotificationItem({ notification, onPress, onDelete }: Notificati
         className="mt-xs w-[32px] h-[32px] rounded-full items-center justify-center"
         style={{ backgroundColor: notification.is_read ? 'transparent' : iconConfig.color + '1A' }}
       >
-        <Ionicons
+        <ThemedIcon
           name={iconConfig.icon}
           size={18}
           color={iconColor}
@@ -183,7 +182,7 @@ export function NotificationItem({ notification, onPress, onDelete }: Notificati
             hitSlop={8}
             className="p-xs"
           >
-            <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
+            <ThemedIcon name="trash-outline" size={16} color={colors.textMuted} />
           </Pressable>
         )}
       </View>

@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { InfoSheet } from '../../../components/InfoSheet';
 
 interface EmptyTopicsProps {
@@ -17,7 +16,7 @@ export function EmptyTopics({ isOrganizer, onCreateTopic }: EmptyTopicsProps) {
 
   return (
     <View className="flex-1 items-center justify-center px-xl gap-md py-2xl">
-      <Ionicons name="list-outline" size={48} color={colors.textMuted} />
+      <ThemedIcon name="list-outline" size={48} color={colors.textMuted} />
       <View className="items-center gap-xs">
         <Text className="text-heading-m text-text-primary text-center">{t('emptyTopics.title')}</Text>
         <Text className="text-body-small text-text-secondary text-center">
@@ -41,7 +40,7 @@ export function EmptyTopics({ isOrganizer, onCreateTopic }: EmptyTopicsProps) {
         accessibilityRole="button"
         accessibilityLabel={tCommon('button.info')}
       >
-        <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
+        <ThemedIcon name="information-circle-outline" size={18} color={colors.primary} />
         <Text className="text-body-small text-primary font-semibold">{tCommon('button.info')}</Text>
       </Pressable>
       <InfoSheet

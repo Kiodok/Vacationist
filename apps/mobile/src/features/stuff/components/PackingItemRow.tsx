@@ -1,7 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import type { PackingItem } from '@vacationist/types';
 import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
 
@@ -29,7 +28,7 @@ export function PackingItemRow({ item, onToggle, onLongPress }: PackingItemRowPr
             isPacked ? 'bg-success border-success' : 'border-border'
           }`}
         >
-          {isPacked && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
+          {isPacked && <ThemedIcon name="checkmark" size={16} color="#FFFFFF" />}
         </View>
       </Pressable>
 

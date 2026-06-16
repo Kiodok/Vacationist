@@ -4,11 +4,10 @@ import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingVi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Ionicons } from '@expo/vector-icons';
 import { updateExpenseWithSplitsSchema, type UpdateExpenseWithSplitsInput, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency, type Expense, type ExpenseSplit } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { formatCurrency, roundCurrency, isNegligible } from '@vacationist/utils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface EditExpenseSheetProps {
   visible: boolean;
@@ -302,7 +301,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                           className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary border-primary' : 'bg-surface border border-border'}`}
                           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                         >
-                          <Ionicons
+                          <ThemedIcon
                             name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                             size={16}
                             color={isSelected ? '#FFFFFF' : colors.textSecondary}
@@ -342,7 +341,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                             className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
                             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                           >
-                            <Ionicons
+                            <ThemedIcon
                               name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                               size={16}
                               color={isSelected ? '#FFFFFF' : colors.textSecondary}
@@ -382,7 +381,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                                 className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
                                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                               >
-                                <Ionicons name="remove" size={16} color={colors.textSecondary} />
+                                <ThemedIcon name="remove" size={16} color={colors.textSecondary} />
                               </Pressable>
                               <Text className="text-text-primary text-body font-semibold w-[24px] text-center">
                                 {memberShares}
@@ -392,7 +391,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                                 className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
                                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                               >
-                                <Ionicons name="add" size={16} color={colors.textSecondary} />
+                                <ThemedIcon name="add" size={16} color={colors.textSecondary} />
                               </Pressable>
                               {totalAmount > 0 && (
                                 <Text className="text-text-muted text-body-small ml-xs">

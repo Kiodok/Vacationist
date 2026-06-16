@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Text, SectionList, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem, CreateRecipeInput, Recipe } from '@vacationist/types';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
@@ -21,14 +21,15 @@ import { CreateShoppingListSheet } from '../../../src/features/shopping/componen
 import { CreateRecipeSheet } from '../../../src/features/recipes/components/CreateRecipeSheet';
 import { EmptyShopping } from '../../../src/features/shopping/components/EmptyShopping';
 import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyRecipes';
-import { colors } from '@vacationist/ui';
+import { colors, ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 type ViewMode = 'lists' | 'all' | 'recipes';
 
-const SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; iconColor: string; textClass: string }> = {
+const SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: string; textClass: string }> = {
   active:    { icon: 'cart-outline',          iconColor: colors.textPrimary, textClass: 'text-text-primary' },
   completed: { icon: 'checkmark-done-outline', iconColor: colors.success,    textClass: 'text-success' },
   archived:  { icon: 'archive-outline',        iconColor: colors.textMuted,  textClass: 'text-text-muted' },
@@ -215,7 +216,7 @@ export default function ShoppingTab() {
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
-          <Ionicons name="add" size={28} color="#FFFFFF" />
+          <ThemedIcon name="add" size={28} color="#FFFFFF" />
         </Pressable>
       )}
 
@@ -337,7 +338,7 @@ function AllItemsView({ tripId }: { tripId: string }) {
   if (!allItems || allItems.length === 0) {
     return (
       <View className="flex-1 items-center justify-center px-xl gap-sm">
-        <Ionicons name="basket-outline" size={40} color="#5C5C5C" />
+        <ThemedIcon name="basket-outline" size={40} color="#5C5C5C" />
         <Text className="text-body text-text-secondary text-center">
           {t('noItems')}
         </Text>
@@ -356,7 +357,7 @@ function AllItemsView({ tripId }: { tripId: string }) {
       contentContainerStyle={{ paddingBottom: 32 }}
       renderSectionHeader={({ section }) => (
         <View className="flex-row items-center gap-xs pt-md pb-sm px-md bg-background">
-          <Ionicons name="list-outline" size={16} color={colors.primary} />
+          <ThemedIcon name="list-outline" size={16} color={colors.primary} />
           <Text className="text-body font-semibold text-text-primary">
             {section.title}
           </Text>

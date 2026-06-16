@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { AgendaItem } from './AgendaItem';
 import { useTripMembers } from '../../trips/hooks/useMembers';
 import { useActivityVotesBatch } from '../../activities/hooks/useVotes';
@@ -60,7 +59,7 @@ export function GlobalCalendarTripSection({
             {dayjs(trip.start_date).format('D MMM')} – {dayjs(trip.end_date).format('D MMM YYYY')}
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+        <ThemedIcon name="chevron-forward" size={16} color={colors.textMuted} />
       </Pressable>
 
       {/* Activities */}

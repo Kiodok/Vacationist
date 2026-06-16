@@ -1,11 +1,10 @@
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import type { AccessibleMemberDocument } from '@vacationist/types';
 import { MemberAvatar } from '../../trips/components/MemberAvatar';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 dayjs.extend(relativeTime);
 
@@ -53,13 +52,13 @@ export function MemberDocumentsSheet({ visible, onClose, documents, isLoading }:
           <View className="flex-row items-center justify-between mb-sm">
             <Text className="text-heading-m text-text-primary font-semibold">Member Documents</Text>
             <Pressable onPress={onClose} hitSlop={12}>
-              <Ionicons name="close" size={22} color={colors.textSecondary} />
+              <ThemedIcon name="close" size={22} color={colors.textSecondary} />
             </Pressable>
           </View>
 
           {earliestExpiry && (
             <View className="bg-warning/10 border border-warning/30 rounded-sm px-md py-xs mb-md flex-row items-center gap-xs">
-              <Ionicons name="time-outline" size={14} color={colors.warning} />
+              <ThemedIcon name="time-outline" size={14} color={colors.warning} />
               <Text className="text-body-small text-warning">
                 Access expires {dayjs(earliestExpiry).fromNow()}
               </Text>
@@ -72,7 +71,7 @@ export function MemberDocumentsSheet({ visible, onClose, documents, isLoading }:
             </View>
           ) : groups.length === 0 ? (
             <View className="py-xl items-center gap-sm">
-              <Ionicons name="lock-closed-outline" size={32} color={colors.textMuted} />
+              <ThemedIcon name="lock-closed-outline" size={32} color={colors.textMuted} />
               <Text className="text-body text-text-muted text-center">
                 No members have granted access yet
               </Text>

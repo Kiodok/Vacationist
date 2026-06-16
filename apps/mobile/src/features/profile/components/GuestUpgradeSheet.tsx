@@ -9,9 +9,8 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { GoogleAuthButton } from '../../auth/components/GoogleAuthButton';
 import { useGuestUpgrade } from '../../auth/hooks/useGuestUpgrade';
 
@@ -68,7 +67,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
 
             {magicLinkSent ? (
               <View className="items-center gap-md py-lg">
-                <Ionicons name="mail-outline" size={40} color={colors.primary} />
+                <ThemedIcon name="mail-outline" size={40} color={colors.primary} />
                 <Text className="text-body text-text-primary font-semibold text-center">
                   {t('guest.sheet.sent')}
                 </Text>

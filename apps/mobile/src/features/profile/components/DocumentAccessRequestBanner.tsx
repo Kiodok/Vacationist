@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { DocumentAccessRequest } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -34,12 +33,12 @@ export function DocumentAccessRequestBanner({
         className="flex-row items-center justify-between px-md py-sm"
       >
         <View className="flex-row items-center gap-sm">
-          <Ionicons name="shield-outline" size={18} color={colors.warning} />
+          <ThemedIcon name="shield-outline" size={18} color={colors.warning} />
           <Text className="text-body-small text-warning font-semibold">
             {t('accessRequest.title', { count: requests.length })}
           </Text>
         </View>
-        <Ionicons
+        <ThemedIcon
           name={expanded ? 'chevron-up' : 'chevron-down'}
           size={16}
           color={colors.warning}

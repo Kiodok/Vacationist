@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { vars, useColorScheme } from 'nativewind';
+import { vars } from 'nativewind';
+import { useResolvedTheme } from '@vacationist/ui';
 
-// CSS variable maps matching global.css :root and .dark blocks.
+// CSS variable maps matching global.css :root, .dark, and .colorful blocks.
 // Provided via VariableContext (React context) so changes propagate through
 // StaticContainer/React.memo boundaries and trigger reliable render-phase
 // dispatch inside NativeWind's interop() — unlike external observable dispatch
@@ -15,6 +16,12 @@ const lightVars = vars({
   '--color-text-primary': '26 26 26',
   '--color-text-secondary': '107 107 107',
   '--color-text-muted': '160 160 160',
+  '--font-family-base': 'System',
+  '--color-primary': '108 99 255',
+  '--color-primary-light': '138 132 255',
+  '--color-success': '62 207 142',
+  '--color-warning': '245 166 35',
+  '--color-danger': '255 92 92',
 });
 
 const darkVars = vars({
@@ -25,12 +32,35 @@ const darkVars = vars({
   '--color-text-primary': '242 242 242',
   '--color-text-secondary': '160 160 160',
   '--color-text-muted': '92 92 92',
+  '--font-family-base': 'System',
+  '--color-primary': '108 99 255',
+  '--color-primary-light': '138 132 255',
+  '--color-success': '62 207 142',
+  '--color-warning': '245 166 35',
+  '--color-danger': '255 92 92',
+});
+
+const colorfulVars = vars({
+  '--color-background': '253 164 68',
+  '--color-surface': '254 206 138',
+  '--color-surface-elevated': '254 224 173',
+  '--color-border': '224 138 37',
+  '--color-text-primary': '105 15 12',
+  '--color-text-secondary': '122 36 24',
+  '--color-text-muted': '139 104 64',
+  '--font-family-base': 'Nunito-Regular',
+  '--color-primary': '140 97 150',
+  '--color-primary-light': '164 122 176',
+  '--color-success': '0 130 77',
+  '--color-warning': '155 61 0',
+  '--color-danger': '184 50 50',
 });
 
 export function ThemeVarsProvider({ children }: { children: ReactNode }) {
-  const { colorScheme } = useColorScheme();
+  const theme = useResolvedTheme();
+  const activeVars = theme === 'colorful' ? colorfulVars : theme === 'dark' ? darkVars : lightVars;
   return (
-    <View style={[{ flex: 1 }, colorScheme === 'dark' ? darkVars : lightVars]}>
+    <View style={[{ flex: 1 }, activeVars]}>
       {children}
     </View>
   );

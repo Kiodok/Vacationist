@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { TransferVehicle, TransferVehiclePassenger } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface VehicleCardProps {
@@ -50,7 +49,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
           <View className="flex-row flex-wrap gap-xs">
             {resolvedPassengers.map((p) => (
               <View key={p.id} className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-surface-elevated border border-border">
-                {p.is_driver && <Ionicons name="car-outline" size={12} color={colors.primary} />}
+                {p.is_driver && <ThemedIcon name="car-outline" size={12} color={colors.primary} />}
                 <Text className={`text-body-small ${p.is_driver ? 'text-primary font-medium' : 'text-text-secondary'}`}>
                   {p.name}
                 </Text>

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking, RefreshControl, Switch } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import type { Accommodation, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
 import { useAccommodations, useCreateAccommodation, useUpdateAccommodation, useBookAccommodation, useUnbookAccommodation, useDeleteAccommodation, useCloseAccommodationVoting, useReopenAccommodationVoting } from '../../../src/features/accommodations/hooks/useAccommodations';
@@ -17,7 +17,7 @@ import { CreateAccommodationSheet } from '../../../src/features/accommodations/c
 import { EditAccommodationSheet } from '../../../src/features/accommodations/components/EditAccommodationSheet';
 import { EmptyAccommodations } from '../../../src/features/accommodations/components/EmptyAccommodations';
 import { AccommodationNotesSection } from '../../../src/features/accommodations/components/AccommodationNotesSection';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -109,7 +109,7 @@ export default function AccommodationsTab() {
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color="#FFFFFF" />
       </Pressable>
 
       <CreateAccommodationSheet
@@ -224,7 +224,7 @@ function AccommodationCardWithVotes({
           onPress={() => Linking.openURL(accommodation.external_url!)}
           className="flex-row items-center gap-xs"
         >
-          <Ionicons name="link-outline" size={14} color={colors.primary} />
+          <ThemedIcon name="link-outline" size={14} color={colors.primary} />
           <Text className="text-primary text-body-small underline" numberOfLines={1}>
             {accommodation.external_url}
           </Text>
@@ -296,7 +296,7 @@ function AccommodationCardWithVotes({
                 onPress={onEdit}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
@@ -306,7 +306,7 @@ function AccommodationCardWithVotes({
                 onPress={() => setConfirmingCloseVoting(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               >
-                <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
+                <ThemedIcon name="lock-closed-outline" size={14} color={colors.warning} />
                 <Text className="text-warning text-body-small font-medium">{t('action.endVoting')}</Text>
               </TouchableOpacity>
             )}
@@ -316,7 +316,7 @@ function AccommodationCardWithVotes({
                 onPress={onReopenVoting}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="lock-open-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.reopenVoting')}</Text>
               </TouchableOpacity>
             )}
@@ -327,7 +327,7 @@ function AccommodationCardWithVotes({
                 disabled={isMutationBusy(bookMutation)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
               >
-                <Ionicons name="checkmark-circle-outline" size={14} color={colors.success} />
+                <ThemedIcon name="checkmark-circle-outline" size={14} color={colors.success} />
                 <Text className="text-success text-body-small font-medium">{t('action.book')}</Text>
               </TouchableOpacity>
             )}
@@ -338,7 +338,7 @@ function AccommodationCardWithVotes({
                 disabled={isMutationBusy(unbookMutation)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               >
-                <Ionicons name="close-circle-outline" size={14} color={colors.warning} />
+                <ThemedIcon name="close-circle-outline" size={14} color={colors.warning} />
                 <Text className="text-warning text-body-small font-medium">{t('action.unbook')}</Text>
               </TouchableOpacity>
             )}
@@ -348,7 +348,7 @@ function AccommodationCardWithVotes({
                 onPress={() => setConfirmingDelete(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
-                <Ionicons name="trash-outline" size={14} color={colors.danger} />
+                <ThemedIcon name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
               </TouchableOpacity>
             )}

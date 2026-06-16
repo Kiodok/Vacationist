@@ -6,11 +6,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 
 interface CollapsibleSectionHeaderProps {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsName;
   iconColor: string;
   textClass: string;
   title: string;
@@ -51,12 +51,12 @@ export function CollapsibleSectionHeader({
       accessibilityLabel={`${title} (${count})`}
       className="flex-row items-center gap-xs pt-md pb-sm px-xs"
     >
-      <Ionicons name={icon} size={iconSize} color={iconColor} />
+      <ThemedIcon name={icon} size={iconSize} color={iconColor} />
       <Text className={`text-body font-semibold ${textClass}`}>{title}</Text>
       <Text className="text-body-small text-text-muted">({count})</Text>
       <View className="flex-1" />
       <Animated.View style={chevronStyle}>
-        <Ionicons name="chevron-down" size={16} color={colors.textMuted} />
+        <ThemedIcon name="chevron-down" size={16} color={colors.textMuted} />
       </Animated.View>
     </Pressable>
   );

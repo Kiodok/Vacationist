@@ -11,10 +11,9 @@ import {
   Keyboard,
   ActivityIndicator,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { updatePreworkTopicSchema, type UpdatePreworkTopicInput, type PreworkTopic } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface EditTopicSheetProps {
   topic: PreworkTopic | null;
@@ -148,7 +147,7 @@ export function EditTopicSheet({
                         <View key={label} className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10 border border-primary/20">
                           <Text className="text-body-small text-primary">{label}</Text>
                           <Pressable onPress={() => handleRemoveLabel(label)} hitSlop={8}>
-                            <Ionicons name="close-circle" size={14} color={colors.primary} />
+                            <ThemedIcon name="close-circle" size={14} color={colors.primary} />
                           </Pressable>
                         </View>
                       ))}
@@ -171,7 +170,7 @@ export function EditTopicSheet({
                       disabled={!labelInput.trim()}
                       className={`px-md py-sm rounded-md ${labelInput.trim() ? 'bg-primary' : 'bg-surface border border-border'}`}
                     >
-                      <Ionicons
+                      <ThemedIcon
                         name="add"
                         size={20}
                         color={labelInput.trim() ? '#FFFFFF' : '#5C5C5C'}

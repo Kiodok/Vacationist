@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface DocumentAccessRequestSheetProps {
   visible: boolean;
@@ -51,7 +50,7 @@ export function DocumentAccessRequestSheet({
 
           <View className="bg-surface border border-border rounded-md p-md mb-lg gap-xs">
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
+              <ThemedIcon name="information-circle-outline" size={16} color={colors.textSecondary} />
               <Text className="text-body-small text-text-secondary font-medium">{t('accessRequest.howItWorks')}</Text>
             </View>
             <Text className="text-body-small text-text-muted">

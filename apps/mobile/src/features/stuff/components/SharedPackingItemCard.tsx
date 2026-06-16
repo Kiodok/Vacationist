@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import type { SharedPackingItem } from '@vacationist/types';
 
 interface SharedPackingItemCardProps {
@@ -47,7 +46,7 @@ export function SharedPackingItemCard({ item, memberNameMap, currentUserId, role
       {/* Header row */}
       <View className="flex-row items-center gap-xs flex-wrap">
         <View className={`flex-row items-center gap-xs px-sm py-xs rounded-full ${badge.bg}`}>
-          <Ionicons name={badge.icon as any} size={12} color={colors.primary} />
+          <ThemedIcon name={badge.icon as any} size={12} color={colors.primary} />
           <Text className={`text-label font-medium ${badge.text}`}>{typeLabel}</Text>
         </View>
         {item.is_resolved && (
@@ -114,7 +113,7 @@ export function SharedPackingItemCard({ item, memberNameMap, currentUserId, role
               className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <Ionicons name="hand-left-outline" size={14} color={colors.success} />
+              <ThemedIcon name="hand-left-outline" size={14} color={colors.success} />
               <Text className="text-success text-body-small font-medium">{t('action.claim')}</Text>
             </Pressable>
           )}
@@ -124,7 +123,7 @@ export function SharedPackingItemCard({ item, memberNameMap, currentUserId, role
               className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <Ionicons name="refresh-outline" size={14} color={colors.warning} />
+              <ThemedIcon name="refresh-outline" size={14} color={colors.warning} />
               <Text className="text-warning text-body-small font-medium">{t('action.unclaim')}</Text>
             </Pressable>
           )}
@@ -134,7 +133,7 @@ export function SharedPackingItemCard({ item, memberNameMap, currentUserId, role
               className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <Ionicons name="create-outline" size={14} color={colors.primary} />
+              <ThemedIcon name="create-outline" size={14} color={colors.primary} />
               <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
             </Pressable>
           )}
@@ -144,7 +143,7 @@ export function SharedPackingItemCard({ item, memberNameMap, currentUserId, role
               className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <Ionicons name="trash-outline" size={14} color={colors.danger} />
+              <ThemedIcon name="trash-outline" size={14} color={colors.danger} />
               <Text className="text-danger text-body-small font-medium">{tCommon('button.delete')}</Text>
             </Pressable>
           )}

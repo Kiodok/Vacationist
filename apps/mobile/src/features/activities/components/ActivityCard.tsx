@@ -1,11 +1,10 @@
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs, formatCurrency } from '@vacationist/utils';
 import type { Activity, ActivityVote, VoteType, Currency } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
 import { StatusIndicator } from './StatusIndicator';
-import { colors, CATEGORY_ICON_COLORS, METADATA_ICON_COLORS } from '@vacationist/ui';
+import { colors, CATEGORY_ICON_COLORS, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface ActivityCardProps {
@@ -46,7 +45,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
           </Text>
           {activity.category ? (
             <View className="flex-row items-center gap-xs">
-              {categoryIcon ? <Ionicons name={categoryIcon.icon} size={12} color={categoryIcon.color} /> : null}
+              {categoryIcon ? <ThemedIcon name={categoryIcon.icon} size={12} color={categoryIcon.color} /> : null}
               <Text className="text-body-small text-text-secondary">
                 {t(`category.${activity.category}`, { defaultValue: activity.category })}
               </Text>
@@ -65,7 +64,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
       <View className="flex-row flex-wrap items-center gap-sm">
         {activity.activity_date ? (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
+            <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
             <Text className="text-body-small text-text-secondary">
               {dayjs(activity.activity_date).format('ddd, D MMM')}
             </Text>
@@ -73,7 +72,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
         ) : null}
         {activity.start_time ? (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
+            <ThemedIcon name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
             <Text className="text-body-small text-text-secondary">
               {activity.start_time.slice(0, 5)}
               {activity.end_time ? ` – ${activity.end_time.slice(0, 5)}` : ''}
@@ -82,7 +81,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
         ) : null}
         {activity.cost_estimate != null && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="wallet-outline" size={14} color={METADATA_ICON_COLORS.cost.color} />
+            <ThemedIcon name="wallet-outline" size={14} color={METADATA_ICON_COLORS.cost.color} />
             <Text className="text-body-small text-text-secondary">
               {formatCurrency(Number(activity.cost_estimate), currency)}
             </Text>
@@ -90,7 +89,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
         )}
         {activity.reservation_required && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons name="ticket-outline" size={14} color={colors.warning} />
+            <ThemedIcon name="ticket-outline" size={14} color={colors.warning} />
             <Text className="text-body-small" style={{ color: colors.warning }}>
               {t('field.reservationRequired')}
             </Text>
@@ -110,7 +109,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
               className="flex-row items-center gap-xs px-md py-sm rounded-full bg-primary/10"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <Ionicons name="hand-left-outline" size={14} color={colors.primary} />
+              <ThemedIcon name="hand-left-outline" size={14} color={colors.primary} />
               <Text className="text-primary text-body-small font-medium">{t('vote.button')}</Text>
             </Pressable>
           )}

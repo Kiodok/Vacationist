@@ -1,9 +1,9 @@
 import { Animated, Platform, View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
-import { colors, METADATA_ICON_COLORS, FEATURE_ICON_COLORS } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, FEATURE_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface ExpenseCardProps {
@@ -44,7 +44,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
               {expense.title}
             </Text>
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="person-outline" size={13} color={METADATA_ICON_COLORS.person.color} />
+              <ThemedIcon name="person-outline" size={13} color={METADATA_ICON_COLORS.person.color} />
               <Text className="text-body-small text-text-secondary">
                 {expense.split_method === 'cover'
                   ? t('card.coveredFor', { name: members.get(expense.paid_by)?.name ?? 'Unknown' })
@@ -62,7 +62,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
 
         {iOwe && mySplit && (
           <View className="flex-row items-center gap-xs px-sm py-xs rounded-sm bg-warning/10 self-start">
-            <Ionicons name="alert-circle-outline" size={14} color={colors.warning} />
+            <ThemedIcon name="alert-circle-outline" size={14} color={colors.warning} />
             <Text className="text-warning text-body-small font-medium">
               {t('card.youOwe', { amount: formatCurrency(Number(mySplit.amount_owed), currency) })}
             </Text>
@@ -71,7 +71,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
 
         {expense.related_type !== 'manual' && (
           <View className="flex-row items-center gap-xs">
-            <Ionicons
+            <ThemedIcon
               name={getRelatedIcon(expense.related_type)}
               size={14}
               color={FEATURE_ICON_COLORS[expense.related_type]?.color ?? METADATA_ICON_COLORS.receipt.color}
@@ -87,7 +87,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
   );
 }
 
-function getRelatedIcon(relatedType: string): keyof typeof Ionicons.glyphMap {
+function getRelatedIcon(relatedType: string): IoniconsName {
   switch (relatedType) {
     case 'accommodation': return 'bed-outline';
     case 'activity': return 'compass-outline';

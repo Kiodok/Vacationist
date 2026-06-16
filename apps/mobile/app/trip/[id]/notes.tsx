@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
 import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import type { CreateTripNoteInput, TripNote, UpdateTripNoteInput } from '@vacationist/types';
 import { useNotes, useCreateNote, useUpdateNote, useDeleteNote, useToggleNoteDone } from '../../../src/features/notes/hooks/useNotes';
@@ -14,7 +14,7 @@ import { EmptyNotes } from '../../../src/features/notes/components/EmptyNotes';
 import { CreateNoteSheet } from '../../../src/features/notes/components/CreateNoteSheet';
 import { EditNoteSheet } from '../../../src/features/notes/components/EditNoteSheet';
 import { ViewNoteSheet } from '../../../src/features/notes/components/ViewNoteSheet';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -142,12 +142,12 @@ export default function NotesTab() {
                   className="flex-row items-center gap-xs py-sm px-xs"
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Ionicons
+                  <ThemedIcon
                     name={showDone ? 'chevron-down' : 'chevron-forward'}
                     size={16}
                     color={colors.success}
                   />
-                  <Ionicons name="checkmark-done-outline" size={14} color={colors.success} />
+                  <ThemedIcon name="checkmark-done-outline" size={14} color={colors.success} />
                   <Text className="text-body-small font-semibold text-success">
                     {t('section.doneCount', { count: doneNotes.length })}
                   </Text>
@@ -182,7 +182,7 @@ export default function NotesTab() {
 
       {locked ? (
         <View className="flex-row items-center gap-xs px-md py-sm bg-surface border-t border-border">
-          <Ionicons name="lock-closed-outline" size={14} color={colors.textMuted} />
+          <ThemedIcon name="lock-closed-outline" size={14} color={colors.textMuted} />
           <Text className="text-body-small text-text-muted flex-1">{t('create.locked')}</Text>
         </View>
       ) : (
@@ -191,7 +191,7 @@ export default function NotesTab() {
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
-          <Ionicons name="add" size={28} color="#FFFFFF" />
+          <ThemedIcon name="add" size={28} color="#FFFFFF" />
         </Pressable>
       )}
 

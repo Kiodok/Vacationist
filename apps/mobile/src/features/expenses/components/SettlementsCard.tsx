@@ -1,9 +1,8 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { MemberBalance } from '@vacationist/types';
 import { isNegligible } from '@vacationist/utils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface SettlementsCardProps {
   balances: MemberBalance[];
@@ -24,7 +23,7 @@ export function SettlementsCard({ balances, onPress }: SettlementsCardProps) {
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-sm">
           <View className={`w-[36px] h-[36px] rounded-full items-center justify-center ${allSettled ? 'bg-success/15' : 'bg-primary/15'}`}>
-            <Ionicons
+            <ThemedIcon
               name={allSettled ? 'checkmark-done' : 'swap-horizontal'}
               size={20}
               color={allSettled ? colors.success : colors.primary}
@@ -39,7 +38,7 @@ export function SettlementsCard({ balances, onPress }: SettlementsCardProps) {
             </Text>
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+        <ThemedIcon name="chevron-forward" size={18} color={colors.textMuted} />
       </View>
     </Pressable>
   );

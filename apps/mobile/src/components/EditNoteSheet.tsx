@@ -4,8 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { noteContentSchema, type NoteContentInput } from '@vacationist/types';
 import type { NoteSheetNamespace } from './CreateNoteSheet';
 
@@ -117,7 +116,7 @@ export function EditNoteSheet({
                     className="flex-row items-center justify-center gap-xs py-sm"
                     style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   >
-                    <Ionicons name="trash-outline" size={16} color={colors.danger} />
+                    <ThemedIcon name="trash-outline" size={16} color={colors.danger} />
                     <Text className="text-danger text-body-small font-semibold">{tCommon('button.delete')}</Text>
                   </Pressable>
                 )}

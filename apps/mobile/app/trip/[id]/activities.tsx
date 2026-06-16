@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl, Switch } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
@@ -20,7 +20,8 @@ import { EditActivitySheet } from '../../../src/features/activities/components/E
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
 import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
 import { ActivityNotesSection } from '../../../src/features/activities/components/ActivityNotesSection';
-import { colors } from '@vacationist/ui';
+import { colors, ThemedIcon } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -32,7 +33,7 @@ function isTripLocked(endDate: string | null | undefined): boolean {
   return diffMs > 14 * 24 * 60 * 60 * 1000;
 }
 
-const ACTIVITY_SECTION_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; iconColor: string; textClass: string }> = {
+const ACTIVITY_SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: string; textClass: string }> = {
   ongoing:     { icon: 'play-circle-outline',    iconColor: colors.warning,     textClass: 'text-warning' },
   in_planning: { icon: 'compass-outline',        iconColor: colors.primary,     textClass: 'text-primary' },
   planned:     { icon: 'calendar-outline',       iconColor: colors.textPrimary, textClass: 'text-text-primary' },
@@ -265,7 +266,7 @@ export default function ActivitiesTab() {
           ListEmptyComponent={
             searchNoResults ? (
               <View className="py-xl items-center gap-sm">
-                <Ionicons name="search-outline" size={32} color={colors.textMuted} />
+                <ThemedIcon name="search-outline" size={32} color={colors.textMuted} />
                 <Text className="text-text-secondary text-body">
                   {t('search.noResults', { query: searchQuery.trim() })}
                 </Text>
@@ -322,7 +323,7 @@ export default function ActivitiesTab() {
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color="#FFFFFF" />
       </Pressable>
 
       <CreateActivitySheet
@@ -429,7 +430,7 @@ function ActivityCardWithVotes({
           onPress={() => Linking.openURL(activity.external_url!)}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
         >
-          <Ionicons name="link-outline" size={14} color={colors.primary} />
+          <ThemedIcon name="link-outline" size={14} color={colors.primary} />
           <Text className="text-primary text-body-small underline" numberOfLines={1}>
             {activity.external_url}
           </Text>
@@ -441,7 +442,7 @@ function ActivityCardWithVotes({
           onPress={() => Linking.openURL(activity.maps_url!)}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
         >
-          <Ionicons name="map-outline" size={14} color={colors.primary} />
+          <ThemedIcon name="map-outline" size={14} color={colors.primary} />
           <Text className="text-primary text-body-small underline" numberOfLines={1}>
             {activity.maps_url}
           </Text>
@@ -514,7 +515,7 @@ function ActivityCardWithVotes({
                 onPress={onEdit}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(108, 99, 255, 0.1)' }}
               >
-                <Ionicons name="create-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
@@ -524,7 +525,7 @@ function ActivityCardWithVotes({
                 onPress={() => setConfirmingCloseVoting(true)}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(245, 166, 35, 0.1)' }}
               >
-                <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
+                <ThemedIcon name="lock-closed-outline" size={14} color={colors.warning} />
                 <Text className="text-warning text-body-small font-medium">{t('action.endVoting')}</Text>
               </TouchableOpacity>
             )}
@@ -534,7 +535,7 @@ function ActivityCardWithVotes({
                 onPress={onReopenVoting}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(108, 99, 255, 0.1)' }}
               >
-                <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="lock-open-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.reopenVoting')}</Text>
               </TouchableOpacity>
             )}
@@ -544,7 +545,7 @@ function ActivityCardWithVotes({
                 onPress={() => setConfirmingDelete(true)}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.1)' }}
               >
-                <Ionicons name="trash-outline" size={14} color={colors.danger} />
+                <ThemedIcon name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">{t('action.delete')}</Text>
               </TouchableOpacity>
             )}

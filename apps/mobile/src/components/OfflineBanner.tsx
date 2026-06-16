@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useMutationState } from '@tanstack/react-query';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 export const OFFLINE_BANNER_HEIGHT = 28;
 
@@ -66,7 +65,7 @@ export function OfflineBanner() {
   if (isConnected === false) {
     return (
       <View style={[styles.banner, { bottom: insets.bottom, backgroundColor: colors.warning }]}>
-        <Ionicons name="cloud-offline-outline" size={14} color="#000" />
+        <ThemedIcon name="cloud-offline-outline" size={14} color="#000" />
         <Text style={styles.text}>
           {pausedCount > 0
             ? t('offline.pendingChanges', { count: pausedCount })
@@ -79,7 +78,7 @@ export function OfflineBanner() {
   if (syncPhase === 'syncing') {
     return (
       <View style={[styles.banner, { bottom: insets.bottom, backgroundColor: colors.primary }]}>
-        <Ionicons name="sync-outline" size={14} color="#FFFFFF" />
+        <ThemedIcon name="sync-outline" size={14} color="#FFFFFF" />
         <Text style={[styles.text, styles.textLight]}>{t('offline.syncing')}</Text>
       </View>
     );
@@ -88,7 +87,7 @@ export function OfflineBanner() {
   if (syncPhase === 'synced') {
     return (
       <View style={[styles.banner, { bottom: insets.bottom, backgroundColor: colors.success }]}>
-        <Ionicons name="checkmark-circle-outline" size={14} color="#000" />
+        <ThemedIcon name="checkmark-circle-outline" size={14} color="#000" />
         <Text style={styles.text}>{t('offline.synced')}</Text>
       </View>
     );

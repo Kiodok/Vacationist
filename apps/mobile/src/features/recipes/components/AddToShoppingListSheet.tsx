@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { ShoppingListWithCounts } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface AddToShoppingListSheetProps {
   visible: boolean;
@@ -119,7 +118,7 @@ export function AddToShoppingListSheet({
                           </Text>
                         </View>
                         {selected && (
-                          <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
+                          <ThemedIcon name="checkmark-circle" size={22} color={colors.primary} />
                         )}
                       </Pressable>
                     );

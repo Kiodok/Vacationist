@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
 import { View, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import type { CreateSharedPackingItemInput, UpdateSharedPackingItemInput, SharedPackingItem } from '@vacationist/types';
 import { useSharedPackingItems, useCreateSharedPackingItem, useClaimSharedPackingItem, useUnclaimSharedPackingItem, useDeleteSharedPackingItem, useUpdateSharedPackingItem } from '../hooks/useSharedPackingItems';
 import { SharedPackingItemCard } from './SharedPackingItemCard';
@@ -98,7 +97,7 @@ export function SharedPackingListView({ tripId, currentUserId, role, memberNameM
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color="#FFFFFF" />
       </Pressable>
 
       <CreateSharedPackingItemSheet

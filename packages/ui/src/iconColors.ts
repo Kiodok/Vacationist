@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import type { IoniconsName } from './components/ThemedIcon';
 import { accentColors } from './theme';
 
 // These brand colors are identical in both themes — safe to hardcode
@@ -6,8 +6,6 @@ const PRIMARY = '#6C63FF';
 const SUCCESS = '#3ECF8E';
 const WARNING = '#F5A623';
 const NEUTRAL = '#A0A0A0'; // mid-tone, readable on both dark and light backgrounds
-
-type IoniconsName = keyof typeof Ionicons.glyphMap;
 
 export interface IconColorConfig {
   icon: IoniconsName;

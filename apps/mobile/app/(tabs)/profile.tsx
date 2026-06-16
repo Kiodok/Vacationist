@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import type { AppStateStatus } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadAvatar, updateUserProfile } from '@vacationist/api';
@@ -25,7 +24,7 @@ import { ActiveGrantsBanner } from '../../src/features/profile/components/Active
 import { MemberAvatar } from '../../src/features/trips/components/MemberAvatar';
 import type { TravelDocument, UpsertTravelDocumentInput } from '@vacationist/types';
 import { isGuest } from '@vacationist/types';
-import { colors, useThemeColors } from '@vacationist/ui';
+import { colors, useThemeColors , ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../src/utils/mutationStatus';
 import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestUpgradeBanner';
 import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
@@ -172,7 +171,7 @@ export default function ProfileScreen() {
                 {avatarUploading ? (
                   <ActivityIndicator size={10} color="#fff" />
                 ) : (
-                  <Ionicons name="camera" size={12} color="#fff" />
+                  <ThemedIcon name="camera" size={12} color="#fff" />
                 )}
               </View>
             </View>
@@ -204,7 +203,7 @@ export default function ProfileScreen() {
           className="flex-row items-center justify-between bg-surface border border-border rounded-md px-md min-h-[48px]"
         >
           <Text className="text-body text-text-primary">{t('edit.title')}</Text>
-          <Ionicons name="chevron-forward" size={18} color="#5C5C5C" />
+          <ThemedIcon name="chevron-forward" size={18} color="#5C5C5C" />
         </Pressable>
 
         {/* Pending access request banner */}
@@ -253,7 +252,7 @@ export default function ProfileScreen() {
                     onPress={() => setAddDocVisible(true)}
                     className="flex-row items-center justify-center gap-sm min-h-[48px] rounded-md border border-dashed border-border"
                   >
-                    <Ionicons name="add" size={18} color={colors.primary} />
+                    <ThemedIcon name="add" size={18} color={colors.primary} />
                     <Text className="text-body text-primary font-medium">
                       {existingTypes.includes('passport') ? t('section.addIdCard') : t('section.addPassport')}
                     </Text>
@@ -273,9 +272,9 @@ export default function ProfileScreen() {
         <View>
           <Text className="text-label text-text-muted uppercase mb-sm">{t('section.appearance')}</Text>
           <View className="flex-row bg-surface border border-border rounded-md p-xs gap-xs">
-            {(['light', 'system', 'dark'] as const).map((option) => {
-              const labels = { light: t('appearance.light'), system: t('appearance.system'), dark: t('appearance.dark') };
-              const icons = { light: 'sunny-outline', system: 'phone-portrait-outline', dark: 'moon-outline' } as const;
+            {(['light', 'system', 'dark', 'colorful'] as const).map((option) => {
+              const labels = { light: t('appearance.light'), system: t('appearance.system'), dark: t('appearance.dark'), colorful: t('appearance.colorful') };
+              const icons = { light: 'sunny-outline', system: 'phone-portrait-outline', dark: 'moon-outline', colorful: 'color-palette-outline' } as const;
               const active = theme === option;
               return (
                 <Pressable
@@ -293,7 +292,7 @@ export default function ProfileScreen() {
                     opacity: pressed ? 0.8 : 1,
                   })}
                 >
-                  <Ionicons name={icons[option]} size={14} color={active ? '#fff' : colors.textSecondary} />
+                  <ThemedIcon name={icons[option]} size={14} color={active ? '#fff' : colors.textSecondary} />
                   <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? '#fff' : colors.textSecondary }}>
                     {labels[option]}
                   </Text>
@@ -324,7 +323,7 @@ export default function ProfileScreen() {
             onPress={() => setConfirmSignOut(true)}
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#FF5C5C' }}
           >
-            <Ionicons name="log-out-outline" size={18} color={colors.danger} />
+            <ThemedIcon name="log-out-outline" size={18} color={colors.danger} />
             <Text className="text-body text-danger font-semibold">{t('signOut')}</Text>
           </TouchableOpacity>
         )}

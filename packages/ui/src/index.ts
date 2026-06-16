@@ -1,8 +1,10 @@
 export { default as tailwindConfig } from '../tailwind.config';
 export { Button } from './components/Button';
 export { Input } from './components/Input';
-export { colors, darkColors, lightColors, useThemeColors, accentColors, AVATAR_COLORS } from './theme';
+export { colors, darkColors, lightColors, colorfulColors, useThemeColors, setLiveColors, accentColors, AVATAR_COLORS } from './theme';
 export type { ColorKey, Colors, AccentColors } from './theme';
+export { ThemeProvider, useResolvedTheme } from './themeContext';
+export type { ResolvedTheme } from './themeContext';
 export { CATEGORY_ICON_COLORS, FEATURE_ICON_COLORS, NOTIFICATION_ICON_COLORS, METADATA_ICON_COLORS } from './iconColors';
 export type { IconColorConfig } from './iconColors';
 export { Skeleton } from './components/Skeleton';
@@ -10,3 +12,5 @@ export { LoadingScreen } from './components/LoadingScreen';
 export { FloatingActionButton } from './components/FloatingActionButton';
 export { EmptyState } from './components/EmptyState';
 export { GoogleSignInButton } from './components/GoogleSignInButton';
+export { ThemedIcon } from './components/ThemedIcon';
+export type { IoniconsName } from './components/ThemedIcon';

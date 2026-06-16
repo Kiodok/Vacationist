@@ -1,4 +1,5 @@
-import { useColorScheme } from 'nativewind';
+import { useResolvedTheme } from './themeContext';
+import type { ResolvedTheme } from './themeContext';
 
 export interface Colors {
   primary: string;
@@ -92,11 +93,42 @@ export const lightColors: Colors = {
   textMuted: '#A0A0A0',
 };
 
-// Default export retains dark colors for backwards-compat
-// (static imports that don't need reactivity, e.g. non-component utils)
-export const colors = darkColors;
+export const colorfulColors: Colors = {
+  primary: '#8c6196',
+  primaryLight: '#A47AB0',
+  primaryMuted: 'rgba(140, 97, 150, 0.15)',
+  background: '#FDA444',
+  surface: '#FECE8A',
+  surfaceElevated: '#FEE0AD',
+  border: '#E08A25',
+  success: '#00824d',
+  successMuted: 'rgba(0, 130, 77, 0.15)',
+  warning: '#9B3D00',
+  warningMuted: 'rgba(155, 61, 0, 0.15)',
+  danger: '#B83232',
+  textPrimary: '#690F0C',
+  textSecondary: '#7A2418',
+  textMuted: '#8B6840',
+};
+
+// Module-level live palette — updated synchronously before every re-render via setLiveColors().
+// This makes static `colors.*` imports theme-aware without hooking every component.
+let _liveColors: Colors = darkColors;
+
+export function setLiveColors(theme: ResolvedTheme): void {
+  _liveColors = theme === 'colorful' ? colorfulColors : theme === 'dark' ? darkColors : lightColors;
+}
+
+// Proxy reads from _liveColors at access time so all existing `colors.primary` etc. usages
+// automatically reflect the current theme on every render.
+export const colors: Colors = new Proxy({} as Colors, {
+  get(_, key: string) {
+    return _liveColors[key as keyof Colors];
+  },
+});
 
 export function useThemeColors(): Colors {
-  const { colorScheme } = useColorScheme();
-  return colorScheme === 'dark' ? darkColors : lightColors;
+  const theme = useResolvedTheme();
+  if (theme === 'colorful') return colorfulColors;
+  return theme === 'dark' ? darkColors : lightColors;
 }

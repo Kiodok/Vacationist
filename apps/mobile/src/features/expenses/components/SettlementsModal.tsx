@@ -1,12 +1,11 @@
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { MemberBalance, User, Currency, SettlementReceipt } from '@vacationist/types';
 import { formatCurrency, isNegligible, computeSettlements } from '@vacationist/utils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface SettlementsModalProps {
   visible: boolean;
@@ -97,7 +96,7 @@ export function SettlementsModal({
             <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.simplifiedSettlements')}</Text>
             {allSettled ? (
               <View className="items-center py-lg gap-sm mb-lg">
-                <Ionicons name="checkmark-done-circle-outline" size={40} color={colors.success} />
+                <ThemedIcon name="checkmark-done-circle-outline" size={40} color={colors.success} />
                 <Text className="text-body text-success font-medium">{t('modal.allSettled')}</Text>
                 <Text className="text-body-small text-text-muted">{t('modal.noPayments')}</Text>
               </View>
@@ -112,7 +111,7 @@ export function SettlementsModal({
                         <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
                           {fromUser?.name ?? 'Unknown'}
                         </Text>
-                        <Ionicons name="arrow-forward" size={14} color={colors.primary} />
+                        <ThemedIcon name="arrow-forward" size={14} color={colors.primary} />
                         <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
                           {toUser?.name ?? 'Unknown'}
                         </Text>
@@ -165,7 +164,7 @@ export function SettlementsModal({
                   style={({ pressed }) => ({ opacity: pressed || isSettlingAll ? 0.6 : 1 })}
                 >
                   <View className="flex-row items-center gap-sm">
-                    <Ionicons name="checkmark-done-outline" size={18} color={colors.success} />
+                    <ThemedIcon name="checkmark-done-outline" size={18} color={colors.success} />
                     <Text className="text-success font-semibold text-body">
                       {t('modal.settleAllGlobal')}
                     </Text>
@@ -180,7 +179,7 @@ export function SettlementsModal({
               <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 16 }} />
             ) : receipts.length === 0 ? (
               <View className="items-center py-md gap-xs mb-lg">
-                <Ionicons name="receipt-outline" size={28} color={colors.textMuted} />
+                <ThemedIcon name="receipt-outline" size={28} color={colors.textMuted} />
                 <Text className="text-body-small text-text-muted">{t('modal.noReceipts')}</Text>
               </View>
             ) : (
@@ -197,7 +196,7 @@ export function SettlementsModal({
                       <View className="flex-row items-center justify-between">
                         <View className="flex-row items-center gap-sm flex-1">
                           <View className="w-[28px] h-[28px] rounded-full bg-success/15 items-center justify-center">
-                            <Ionicons name="receipt-outline" size={14} color={colors.success} />
+                            <ThemedIcon name="receipt-outline" size={14} color={colors.success} />
                           </View>
                           <View className="flex-1">
                             <Text className="text-body-small text-text-primary font-semibold" numberOfLines={1}>
@@ -216,7 +215,7 @@ export function SettlementsModal({
                             <Text className="text-label text-text-muted">
                               {t('receipt.viewReceipt')}
                             </Text>
-                            <Ionicons name="chevron-forward" size={12} color={colors.textMuted} />
+                            <ThemedIcon name="chevron-forward" size={12} color={colors.textMuted} />
                           </View>
                         </View>
                       </View>

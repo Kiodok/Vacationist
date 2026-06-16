@@ -1,4 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
+import { useThemeColors } from '@vacationist/ui';
+
+const TRIP_COVERAGE_DOT = '#f87a6e';
 
 interface YearMonthCellProps {
   monthIndex: number;
@@ -17,6 +20,7 @@ export function YearMonthCell({
   isCurrentMonth,
   onPress,
 }: YearMonthCellProps) {
+  const tc = useThemeColors();
   const dots: string[] = [];
   for (let i = 0; i < activityDots; i++) dots.push('activity');
   for (let i = 0; i < tripOnlyDots; i++) dots.push('tripOnly');
@@ -44,9 +48,8 @@ export function YearMonthCell({
               {dots.map((type, i) => (
                 <View
                   key={i}
-                  className={`w-[5px] h-[5px] rounded-full ${
-                    type === 'activity' ? 'bg-primary' : 'bg-warning'
-                  }`}
+                  className="w-[5px] h-[5px] rounded-full"
+                  style={{ backgroundColor: type === 'activity' ? tc.primary : TRIP_COVERAGE_DOT }}
                 />
               ))}
             </View>

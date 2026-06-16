@@ -2,14 +2,14 @@ import { View, Text, Pressable, ActivityIndicator, RefreshControl } from 'react-
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@vacationist/types';
 import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useDeleteNotification, useDeleteAllNotifications } from '../../../src/features/notifications/hooks/useNotifications';
 import { NotificationItem } from '../../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../../src/features/notifications/components/EmptyNotifications';
 import { resolveNotificationPath } from '../../../src/features/notifications/utils/resolveNotificationPath';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
@@ -39,7 +39,7 @@ export default function TripNotificationsScreen() {
       <View className="flex-row items-center justify-between px-lg py-md border-b border-border">
         <View className="flex-row items-center gap-md">
           <Pressable onPress={() => router.back()} hitSlop={8}>
-            <Ionicons name="arrow-back" size={22} color="#F2F2F2" />
+            <ThemedIcon name="arrow-back" size={22} color="#F2F2F2" />
           </Pressable>
           <Text className="text-heading-s text-text-primary">{t('screen.title')}</Text>
         </View>

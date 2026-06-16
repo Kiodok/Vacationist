@@ -52,7 +52,7 @@ export default function Root({ children }: PropsWithChildren) {
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('mmkv:theme_preference');var dark=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',dark);document.documentElement.style.backgroundColor=dark?'#0F0F0F':'#FFFFFF';}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('mmkv:theme_preference');var colorful=t==='colorful';var dark=!colorful&&(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches));document.documentElement.classList.toggle('dark',dark);document.documentElement.classList.toggle('colorful',colorful);document.documentElement.style.backgroundColor=colorful?'#FDA444':dark?'#0F0F0F':'#FFFFFF';}catch(e){}})();`,
           }}
         />
         <ScrollViewStyleReset />

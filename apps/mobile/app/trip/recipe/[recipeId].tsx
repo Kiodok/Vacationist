@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator, Pressable, KeyboardAvoidingView, Platfor
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import type { RecipeIngredient, UpdateRecipeIngredientInput } from '@vacationist/types';
 import { useRecipe, useUpdateRecipe, useDeleteRecipe } from '../../../src/features/recipes/hooks/useRecipes';
@@ -17,7 +17,7 @@ import { IngredientRow } from '../../../src/features/recipes/components/Ingredie
 import { AddIngredientInput } from '../../../src/features/recipes/components/AddIngredientInput';
 import { EditRecipeSheet } from '../../../src/features/recipes/components/EditRecipeSheet';
 import { AddToShoppingListSheet } from '../../../src/features/recipes/components/AddToShoppingListSheet';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -97,7 +97,7 @@ export default function RecipeDetail() {
       {/* Header */}
       <View className="flex-row items-center px-md pt-md pb-sm gap-sm">
         <Pressable onPress={goBackToTrip} className="p-xs">
-          <Ionicons name="arrow-back" size={24} color="#F2F2F2" />
+          <ThemedIcon name="arrow-back" size={24} color="#F2F2F2" />
         </Pressable>
         <View className="flex-1">
           <Text className="text-heading-m text-text-primary" numberOfLines={1}>
@@ -114,7 +114,7 @@ export default function RecipeDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="cart-outline" size={22} color={colors.primary} />
+              <ThemedIcon name="cart-outline" size={22} color={colors.primary} />
             </Pressable>
           )}
           {canEdit && (
@@ -123,7 +123,7 @@ export default function RecipeDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="create-outline" size={20} color="#A0A0A0" />
+              <ThemedIcon name="create-outline" size={20} color="#A0A0A0" />
             </Pressable>
           )}
           {canDelete && (
@@ -132,7 +132,7 @@ export default function RecipeDetail() {
               className="p-xs"
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.7 })}
             >
-              <Ionicons name="trash-outline" size={20} color={colors.danger} />
+              <ThemedIcon name="trash-outline" size={20} color={colors.danger} />
             </Pressable>
           )}
         </View>
@@ -194,7 +194,7 @@ export default function RecipeDetail() {
           contentContainerStyle={recipe.recipe_ingredients.length === 0 ? { flex: 1 } : undefined}
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center px-xl gap-sm">
-              <Ionicons name="nutrition-outline" size={40} color="#5C5C5C" />
+              <ThemedIcon name="nutrition-outline" size={40} color="#5C5C5C" />
               <Text className="text-body text-text-secondary text-center">
                 {t('noItemsToAdd')}
               </Text>

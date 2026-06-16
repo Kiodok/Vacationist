@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { ActiveGrant } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -28,12 +27,12 @@ export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrant
         className="flex-row items-center justify-between px-md py-sm"
       >
         <View className="flex-row items-center gap-sm">
-          <Ionicons name="eye-outline" size={18} color={colors.primary} />
+          <ThemedIcon name="eye-outline" size={18} color={colors.primary} />
           <Text className="text-body-small text-primary font-semibold">
             {t('activeGrants.title', { count: grants.length })}
           </Text>
         </View>
-        <Ionicons
+        <ThemedIcon
           name={expanded ? 'chevron-up' : 'chevron-down'}
           size={16}
           color={colors.primary}

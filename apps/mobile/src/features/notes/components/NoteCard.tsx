@@ -1,7 +1,6 @@
 import { Animated, Platform, Pressable, View, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { safeFromNow } from '@vacationist/utils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import type { TripNote } from '@vacationist/types';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
@@ -43,7 +42,7 @@ export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress,
               note.is_done ? 'bg-success border-success' : 'border-border'
             }`}
           >
-            {note.is_done && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
+            {note.is_done && <ThemedIcon name="checkmark" size={14} color="#FFFFFF" />}
           </View>
         </Pressable>
       </View>

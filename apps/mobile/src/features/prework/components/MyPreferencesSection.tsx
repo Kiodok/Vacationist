@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { PreworkFilter } from '@vacationist/types';
 import { upsertPreworkPreferencesSchema } from '@vacationist/types';
 import { PreworkFilterRow } from './PreworkFilterRow';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface MyPreferencesSectionProps {
   initialFilters: PreworkFilter[];
@@ -153,7 +152,7 @@ export function MyPreferencesSection({
                 onPress={() => addFilter(label)}
                 className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10 border border-primary/20"
               >
-                <Ionicons name="add-circle-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="add-circle-outline" size={14} color={colors.primary} />
                 <Text className="text-body-small text-primary">{label}</Text>
               </Pressable>
             ))}
@@ -180,7 +179,7 @@ export function MyPreferencesSection({
             newLabel.trim() ? 'bg-primary' : 'bg-surface border border-border'
           }`}
         >
-          <Ionicons
+          <ThemedIcon
             name="add"
             size={20}
             color={newLabel.trim() ? '#FFFFFF' : '#5C5C5C'}
@@ -201,7 +200,7 @@ export function MyPreferencesSection({
             <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
             <>
-              <Ionicons
+              <ThemedIcon
                 name="checkmark-circle-outline"
                 size={18}
                 color={canSave ? '#FFFFFF' : '#5C5C5C'}

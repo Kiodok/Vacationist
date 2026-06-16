@@ -1,6 +1,5 @@
 import { ScrollView, View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import type { PreworkTopic } from '@vacationist/types';
 
 interface PreworkSegmentedControlProps {
@@ -48,7 +47,7 @@ export function PreworkSegmentedControl({
           className="px-sm py-sm rounded-full bg-surface border border-border items-center justify-center"
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
         >
-          <Ionicons name="add" size={18} color={colors.textSecondary} />
+          <ThemedIcon name="add" size={18} color={colors.textSecondary} />
         </Pressable>
       )}
     </ScrollView>

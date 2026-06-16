@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, TouchableOpacity, SectionList, ActivityIndicator, Linking, RefreshControl, Switch } from 'react-native';
 import { FlashList, FlashListRef } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import type {
   TransferFlight, TransferFlightVote, TransferVehicle, TransferRental,
@@ -39,7 +39,7 @@ import { EditRentalSheet } from '../../../src/features/transfer/components/EditR
 import { EmptyFlights } from '../../../src/features/transfer/components/EmptyFlights';
 import { EmptyVehicles } from '../../../src/features/transfer/components/EmptyVehicles';
 import { EmptyRentals } from '../../../src/features/transfer/components/EmptyRentals';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -220,7 +220,7 @@ export default function TransferTab() {
     const textClass = isBoth ? 'text-success' : isReturn ? 'text-warning' : 'text-primary';
     return (
       <View className="flex-row items-center gap-xs pt-md pb-sm px-xs">
-        <Ionicons name={iconName} size={16} color={iconColor} />
+        <ThemedIcon name={iconName} size={16} color={iconColor} />
         <Text className={`text-body font-semibold ${textClass}`}>{title}</Text>
       </View>
     );
@@ -406,7 +406,7 @@ export default function TransferTab() {
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
-          <Ionicons name="add" size={28} color="#FFFFFF" />
+          <ThemedIcon name="add" size={28} color="#FFFFFF" />
         </Pressable>
       )}
 
@@ -583,7 +583,7 @@ function FlightCardWithVotes({
           onPress={() => Linking.openURL(flight.external_url!)}
           className="flex-row items-center gap-xs"
         >
-          <Ionicons name="link-outline" size={14} color={colors.primary} />
+          <ThemedIcon name="link-outline" size={14} color={colors.primary} />
           <Text className="text-primary text-body-small underline" numberOfLines={1}>
             {flight.external_url}
           </Text>
@@ -664,7 +664,7 @@ function FlightCardWithVotes({
                 onPress={onEdit}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
@@ -674,7 +674,7 @@ function FlightCardWithVotes({
                 onPress={() => setConfirmingCloseVoting(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-warning/10"
               >
-                <Ionicons name="lock-closed-outline" size={14} color={colors.warning} />
+                <ThemedIcon name="lock-closed-outline" size={14} color={colors.warning} />
                 <Text className="text-warning text-body-small font-medium">{t('action.endVoting')}</Text>
               </TouchableOpacity>
             )}
@@ -684,7 +684,7 @@ function FlightCardWithVotes({
                 onPress={onReopenVoting}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="lock-open-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="lock-open-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.reopenVoting')}</Text>
               </TouchableOpacity>
             )}
@@ -694,7 +694,7 @@ function FlightCardWithVotes({
                 onPress={() => setShowBookSheet(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
               >
-                <Ionicons name="checkmark-circle-outline" size={14} color={colors.success} />
+                <ThemedIcon name="checkmark-circle-outline" size={14} color={colors.success} />
                 <Text className="text-success text-body-small font-medium">{t('action.book')}</Text>
               </TouchableOpacity>
             )}
@@ -704,7 +704,7 @@ function FlightCardWithVotes({
                 onPress={() => setShowPassengerSheet(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="people-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="people-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.passengers')}</Text>
               </TouchableOpacity>
             )}
@@ -714,7 +714,7 @@ function FlightCardWithVotes({
                 onPress={() => setConfirmingDelete(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
-                <Ionicons name="trash-outline" size={14} color={colors.danger} />
+                <ThemedIcon name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
               </TouchableOpacity>
             )}
@@ -864,7 +864,7 @@ function VehicleCardWithPassengers({
                 onPress={onEdit}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
@@ -874,7 +874,7 @@ function VehicleCardWithPassengers({
                 onPress={() => setShowPassengerSheet(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="people-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="people-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.passengers')}</Text>
               </TouchableOpacity>
             )}
@@ -884,7 +884,7 @@ function VehicleCardWithPassengers({
                 onPress={() => setConfirmingDelete(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
-                <Ionicons name="trash-outline" size={14} color={colors.danger} />
+                <ThemedIcon name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
               </TouchableOpacity>
             )}
@@ -903,7 +903,7 @@ function VehicleCardWithPassengers({
           disabled={leaveVehicleMutation.isPending}
           className="flex-row items-center gap-xs px-md py-xs rounded-sm bg-danger/10"
         >
-          <Ionicons name="exit-outline" size={14} color={colors.danger} />
+          <ThemedIcon name="exit-outline" size={14} color={colors.danger} />
           <Text className="text-danger text-body-small font-medium">{t('action.leave')}</Text>
         </TouchableOpacity>
       ) : (
@@ -913,7 +913,7 @@ function VehicleCardWithPassengers({
           disabled={joinVehicleMutation.isPending}
           className="flex-row items-center gap-xs px-md py-xs rounded-sm bg-success/10"
         >
-          <Ionicons name="enter-outline" size={14} color={colors.success} />
+          <ThemedIcon name="enter-outline" size={14} color={colors.success} />
           <Text className="text-success text-body-small font-medium">{t('action.join')}</Text>
         </TouchableOpacity>
       )}
@@ -1010,7 +1010,7 @@ function RentalCardExpanded({
                 onPress={onEdit}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
               >
-                <Ionicons name="create-outline" size={14} color={colors.primary} />
+                <ThemedIcon name="create-outline" size={14} color={colors.primary} />
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
@@ -1020,7 +1020,7 @@ function RentalCardExpanded({
                 onPress={() => setConfirmingDelete(true)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
               >
-                <Ionicons name="trash-outline" size={14} color={colors.danger} />
+                <ThemedIcon name="trash-outline" size={14} color={colors.danger} />
                 <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
               </TouchableOpacity>
             )}

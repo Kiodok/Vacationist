@@ -4,9 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { Button, Input } from '@vacationist/ui';
+import { Button, Input , ThemedIcon } from '@vacationist/ui';
 import { createTripSchema, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { CreateTripInput } from '@vacationist/types';
 import { useCreateTrip } from '../../src/features/trips/hooks/useTrips';
@@ -45,7 +44,7 @@ export default function CreateTripScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center px-md pt-md pb-sm gap-md">
         <Pressable onPress={() => router.back()} className="p-xs">
-          <Ionicons name="arrow-back" size={24} color="#F2F2F2" />
+          <ThemedIcon name="arrow-back" size={24} color="#F2F2F2" />
         </Pressable>
         <Text className="text-heading-l text-text-primary flex-1">{t('create.title')}</Text>
       </View>
@@ -151,7 +150,7 @@ export default function CreateTripScreen() {
                     style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   >
                     <Text className="text-body font-semibold text-text-primary">{value}</Text>
-                    <Ionicons name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color="#9E9E9E" />
+                    <ThemedIcon name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color="#9E9E9E" />
                   </Pressable>
                   {showCurrencyPicker && (
                     <View className="bg-surface border border-border rounded-sm mt-xs overflow-hidden">
@@ -163,7 +162,7 @@ export default function CreateTripScreen() {
                           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, backgroundColor: value === c ? 'rgba(108,99,255,0.12)' : 'transparent' })}
                         >
                           <Text className={`text-body ${value === c ? 'text-primary font-semibold' : 'text-text-primary'}`}>{c}</Text>
-                          {value === c && <Ionicons name="checkmark" size={16} color="#6C63FF" />}
+                          {value === c && <ThemedIcon name="checkmark" size={16} color="#6C63FF" />}
                         </Pressable>
                       ))}
                     </View>

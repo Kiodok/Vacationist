@@ -1,7 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import type { ShoppingItem } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface ShoppingItemRowProps {
   item: ShoppingItem;
@@ -32,7 +31,7 @@ export function ShoppingItemRow({ item, onToggle, onDelete, onLongPress }: Shopp
           isBought ? 'bg-success border-success' : 'border-border'
         }`}
       >
-        {isBought && <Ionicons name="checkmark" size={16} color="#0F0F0F" />}
+        {isBought && <ThemedIcon name="checkmark" size={16} color="#0F0F0F" />}
       </View>
 
       <View className="flex-1">
@@ -53,7 +52,7 @@ export function ShoppingItemRow({ item, onToggle, onDelete, onLongPress }: Shopp
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.5 : 0.6 })}
         >
-          <Ionicons name="trash-outline" size={18} color={colors.danger} />
+          <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
         </Pressable>
       )}
     </Pressable>

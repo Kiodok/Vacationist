@@ -1,7 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface ShoppingListCardProps {
   title: string;
@@ -36,7 +35,7 @@ export function ShoppingListCard({ title, itemCount, boughtCount, onPress, onLon
                 : t('card.progress', { bought: boughtCount, total: itemCount })}
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+        <ThemedIcon name="chevron-forward" size={18} color={colors.textMuted} />
       </View>
 
       {itemCount > 0 && (

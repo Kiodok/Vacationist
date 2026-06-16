@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useTranslation } from 'react-i18next';
 import type { PreworkFilter, PreworkTopic, UpdatePreworkTopicInput, CreatePreworkTopicInput } from '@vacationist/types';
 import { useAuthStore } from '../../../src/stores/authStore';
@@ -34,7 +34,7 @@ import { EmptyPrework } from '../../../src/features/prework/components/EmptyPrew
 import { EmptyTopics } from '../../../src/features/prework/components/EmptyTopics';
 import { CreateTopicSheet } from '../../../src/features/prework/components/CreateTopicSheet';
 import { EditTopicSheet } from '../../../src/features/prework/components/EditTopicSheet';
-import { colors } from '@vacationist/ui';
+import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -236,7 +236,7 @@ export default function PreworkTab() {
                       className="flex-row items-center gap-xs px-sm py-xs rounded-md bg-surface border border-border ml-sm"
                       activeOpacity={0.7}
                     >
-                      <Ionicons name="pencil-outline" size={14} color={colors.textSecondary} />
+                      <ThemedIcon name="pencil-outline" size={14} color={colors.textSecondary} />
                       <Text className="text-body-small text-text-secondary">{t('topic.editButton')}</Text>
                     </TouchableOpacity>
                   </View>

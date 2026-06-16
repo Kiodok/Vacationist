@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import type { AggregatedFilter } from '../utils/aggregateFilters';
 
 interface MemberNameMap {
@@ -64,7 +63,7 @@ export function GroupSummarySection({ aggregated, totalMembers, memberNames }: G
                     <Text className="text-body font-semibold text-primary">
                       {filter.totalCredits}
                     </Text>
-                    <Ionicons
+                    <ThemedIcon
                       name={isExpanded ? 'chevron-up' : 'chevron-down'}
                       size={14}
                       color={colors.textMuted}

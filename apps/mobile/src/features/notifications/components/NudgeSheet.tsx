@@ -1,11 +1,10 @@
 import { View, Text, Pressable, Modal, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from "react-i18next";
 import { i18n as i18nInstance } from "@vacationist/i18n";
 import { NUDGE_KEYS } from '@vacationist/types';
 import { useSendNudge } from '../hooks/useSendNudge';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface NudgeSheetProps {
   tripId: string;
@@ -43,7 +42,7 @@ export function NudgeSheet({ tripId, tripName, visible, onClose }: NudgeSheetPro
           <View className="flex-row items-center justify-between px-lg pt-lg pb-md border-b border-border">
             <Text className="text-heading-s text-text-primary">{t('nudge.sheetTitle')}</Text>
             <Pressable onPress={onClose} hitSlop={8}>
-              <Ionicons name="close" size={22} color={colors.textMuted} />
+              <ThemedIcon name="close" size={22} color={colors.textMuted} />
             </Pressable>
           </View>
 

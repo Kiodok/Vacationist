@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { ThemedIcon } from '@vacationist/ui';
 
 interface AddIngredientInputProps {
   onAdd: (title: string, quantity: number | null, unit: string | null) => void;
@@ -52,7 +52,7 @@ export function AddIngredientInput({ onAdd, isPending }: AddIngredientInputProps
           }`}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
         >
-          <Ionicons
+          <ThemedIcon
             name="add"
             size={22}
             color={!title.trim() || isPending ? '#5C5C5C' : '#FFFFFF'}

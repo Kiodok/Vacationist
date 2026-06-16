@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { InfoSheet } from '../../../components/InfoSheet';
 
 export function EmptyFlights() {
@@ -13,7 +12,7 @@ export function EmptyFlights() {
   return (
     <View className="flex-1 items-center justify-center gap-sm py-xl">
       <View className="w-[72px] h-[72px] rounded-full bg-primary-muted items-center justify-center">
-        <Ionicons name="airplane-outline" size={32} color={colors.primary} />
+        <ThemedIcon name="airplane-outline" size={32} color={colors.primary} />
       </View>
       <Text className="text-heading-s text-text-secondary">{t('flights.empty.title')}</Text>
       <Text className="text-body-small text-text-muted text-center px-xl">
@@ -26,7 +25,7 @@ export function EmptyFlights() {
         accessibilityRole="button"
         accessibilityLabel={tCommon('button.info')}
       >
-        <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
+        <ThemedIcon name="information-circle-outline" size={18} color={colors.primary} />
         <Text className="text-body-small text-primary font-semibold">{tCommon('button.info')}</Text>
       </Pressable>
       <InfoSheet

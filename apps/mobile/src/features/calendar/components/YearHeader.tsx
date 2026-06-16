@@ -1,6 +1,5 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 
 interface YearHeaderProps {
   year: number;
@@ -16,7 +15,7 @@ export function YearHeader({ year, onPrevYear, onNextYear }: YearHeaderProps) {
         className="p-xs"
         style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
       >
-        <Ionicons name="chevron-back" size={24} color={colors.textSecondary} />
+        <ThemedIcon name="chevron-back" size={24} color={colors.textSecondary} />
       </Pressable>
 
       <Text className="text-heading-l text-text-primary font-semibold">{year}</Text>
@@ -26,7 +25,7 @@ export function YearHeader({ year, onPrevYear, onNextYear }: YearHeaderProps) {
         className="p-xs"
         style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
       >
-        <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
+        <ThemedIcon name="chevron-forward" size={24} color={colors.textSecondary} />
       </Pressable>
     </View>
   );

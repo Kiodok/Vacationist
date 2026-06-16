@@ -1,7 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors, METADATA_ICON_COLORS } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 
 interface RecipeCardProps {
   title: string;
@@ -42,20 +41,20 @@ export function RecipeCard({
           ) : null}
           <View className="flex-row items-center gap-md mt-xs">
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="people-outline" size={14} color={METADATA_ICON_COLORS.people.color} />
+              <ThemedIcon name="people-outline" size={14} color={METADATA_ICON_COLORS.people.color} />
               <Text className="text-body-small text-text-secondary">
                 {t('card.servings', { count: Number(servings) })}
               </Text>
             </View>
             <View className="flex-row items-center gap-xs">
-              <Ionicons name="list-outline" size={14} color={METADATA_ICON_COLORS.list.color} />
+              <ThemedIcon name="list-outline" size={14} color={METADATA_ICON_COLORS.list.color} />
               <Text className="text-body-small text-text-secondary">
                 {t('card.ingredients', { count: ingredientCount })}
               </Text>
             </View>
             {shoppingListNames.length > 0 && (
               <View className="flex-row items-center gap-xs">
-                <Ionicons name="cart" size={14} color={colors.primary} />
+                <ThemedIcon name="cart" size={14} color={colors.primary} />
                 <Text className="text-body-small text-primary" numberOfLines={1}>
                   {shoppingListNames.join(', ')}
                 </Text>
@@ -63,7 +62,7 @@ export function RecipeCard({
             )}
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={METADATA_ICON_COLORS.chevron.color} />
+        <ThemedIcon name="chevron-forward" size={18} color={METADATA_ICON_COLORS.chevron.color} />
       </View>
     </Pressable>
   );

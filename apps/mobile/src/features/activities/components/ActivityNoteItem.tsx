@@ -1,7 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { safeFromNow } from '@vacationist/utils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 interface NoteForDisplay {
   content: string;
   created_at: string;
@@ -29,12 +28,12 @@ export function ActivityNoteItem({ note, authorName, canEdit, canDelete, onEdit,
         <View className="flex-row items-center gap-xs">
           {canEdit && (
             <Pressable onPress={onEdit} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
-              <Ionicons name="create-outline" size={14} color={colors.primary} />
+              <ThemedIcon name="create-outline" size={14} color={colors.primary} />
             </Pressable>
           )}
           {canDelete && !canEdit && (
             <Pressable onPress={onDelete} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
-              <Ionicons name="trash-outline" size={14} color={colors.danger} />
+              <ThemedIcon name="trash-outline" size={14} color={colors.danger} />
             </Pressable>
           )}
         </View>

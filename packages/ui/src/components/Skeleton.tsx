@@ -6,7 +6,7 @@ import Animated, {
   useAnimatedStyle,
   Easing,
 } from 'react-native-reanimated';
-import { colors } from '../theme';
+import { useThemeColors } from '../theme';
 
 interface SkeletonProps {
   width?: number | string;
@@ -21,6 +21,7 @@ export function Skeleton({
   borderRadius = 6,
   style,
 }: SkeletonProps) {
+  const colors = useThemeColors();
   const opacity = useSharedValue(1);
 
   useEffect(() => {

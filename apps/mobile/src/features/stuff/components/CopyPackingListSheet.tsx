@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, ActivityIndicator, ScrollView, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
-import { colors } from '@vacationist/ui';
+import { colors , ThemedIcon } from '@vacationist/ui';
 import { useTrips } from '../../trips/hooks/useTrips';
 import { useCopyPackingList } from '../hooks/usePackingItems';
 import { isMutationBusy } from '../../../utils/mutationStatus';
@@ -68,7 +67,7 @@ export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPa
           {/* Search bar */}
           {!isLoading && eligibleTrips.length > 0 && (
             <View className="flex-row items-center bg-surface border border-border rounded-sm px-md mb-md gap-sm">
-              <Ionicons name="search-outline" size={16} color="#5C5C5C" />
+              <ThemedIcon name="search-outline" size={16} color="#5C5C5C" />
               <TextInput
                 className="flex-1 py-sm text-text-primary text-body"
                 placeholderTextColor="#5C5C5C"
@@ -89,7 +88,7 @@ export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPa
             </View>
           ) : filteredTrips.length === 0 ? (
             <View className="py-xl items-center gap-sm">
-              <Ionicons name="map-outline" size={32} color="#5C5C5C" />
+              <ThemedIcon name="map-outline" size={32} color="#5C5C5C" />
               <Text className="text-text-secondary text-body">
                 {query.trim() ? t('copyToTrip.noResults', { query }) : t('copyToTrip.noTrips')}
               </Text>
@@ -111,7 +110,7 @@ export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPa
                         {dayjs(trip.start_date).format('D MMM')} – {dayjs(trip.end_date).format('D MMM YYYY')}
                       </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+                    <ThemedIcon name="chevron-forward" size={16} color={colors.textSecondary} />
                   </Pressable>
                 ))}
               </View>
