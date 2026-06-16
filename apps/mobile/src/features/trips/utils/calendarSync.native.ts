@@ -1,9 +1,13 @@
 import * as Calendar from 'expo-calendar';
-import { Platform } from 'react-native';
 import { storage } from '../../../utils/mmkvStorage';
 
-const CALENDAR_ID_KEY = 'vacationist_calendar_id';
 const EVENT_KEY_PREFIX = 'calendar_event_';
+const LEGACY_CALENDAR_ID_KEY = 'vacationist_calendar_id';
+
+interface CalendarEventRecord {
+  eventId: string;
+  calendarId: string;
+}
 
 function eventKey(tripId: string): string {
   return EVENT_KEY_PREFIX + tripId;
@@ -14,31 +18,42 @@ export async function requestCalendarPermission(): Promise<boolean> {
   return status === 'granted';
 }
 
-async function getOrCreateVacationistCalendar(): Promise<string> {
-  const stored = storage.getString(CALENDAR_ID_KEY);
-  if (stored) {
-    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-    if (calendars.some((c) => c.id === stored)) return stored;
+export async function getWritableCalendars(): Promise<Calendar.Calendar[]> {
+  const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+  return calendars.filter((c) => c.allowsModifications);
+}
+
+export function migrateCalendarStorage(): void {
+  const legacyCalendarId = storage.getString(LEGACY_CALENDAR_ID_KEY);
+  if (!legacyCalendarId) return;
+
+  const allKeys = storage.getAllKeys();
+  for (const key of allKeys) {
+    if (!key.startsWith(EVENT_KEY_PREFIX)) continue;
+    const value = storage.getString(key);
+    if (!value) continue;
+    try {
+      JSON.parse(value);
+      // Already JSON — no migration needed for this key
+    } catch {
+      // Plain string (legacy format) — wrap into new format
+      const record: CalendarEventRecord = { eventId: value, calendarId: legacyCalendarId };
+      storage.set(key, JSON.stringify(record));
+    }
   }
 
-  const defaultSource =
-    Platform.OS === 'ios'
-      ? (await Calendar.getDefaultCalendarAsync()).source
-      : { isLocalAccount: true, name: 'Vacationist', type: Calendar.CalendarType.LOCAL };
+  storage.remove(LEGACY_CALENDAR_ID_KEY);
+}
 
-  const id = await Calendar.createCalendarAsync({
-    title: 'Vacationist',
-    color: '#6C63FF',
-    entityType: Calendar.EntityTypes.EVENT,
-    sourceId: (defaultSource as any)?.id,
-    source: defaultSource as any,
-    name: 'vacationist',
-    ownerAccount: 'personal',
-    accessLevel: Calendar.CalendarAccessLevel.OWNER,
-  });
-
-  storage.set(CALENDAR_ID_KEY, id);
-  return id;
+export function getTripCalendarRecord(tripId: string): CalendarEventRecord | undefined {
+  const value = storage.getString(eventKey(tripId));
+  if (!value) return undefined;
+  try {
+    return JSON.parse(value) as CalendarEventRecord;
+  } catch {
+    // Legacy plain-string format — treat as eventId with unknown calendarId
+    return { eventId: value, calendarId: '' };
+  }
 }
 
 export async function addTripToCalendar(
@@ -46,35 +61,54 @@ export async function addTripToCalendar(
   title: string,
   startDate: string,
   endDate: string,
+  calendarId: string,
 ): Promise<boolean> {
   try {
     const granted = await requestCalendarPermission();
     if (!granted) return false;
 
-    const calendarId = await getOrCreateVacationistCalendar();
     const start = new Date(startDate + 'T00:00:00');
-    // End date for all-day events should be the next day (exclusive)
+    // End date for all-day events must be exclusive (next day)
     const end = new Date(endDate + 'T00:00:00');
     end.setDate(end.getDate() + 1);
 
-    const existingEventId = storage.getString(eventKey(tripId));
-    if (existingEventId) {
-      await Calendar.updateEventAsync(existingEventId, {
-        title,
-        startDate: start,
-        endDate: end,
-        allDay: true,
-      });
-    } else {
-      const eventId = await Calendar.createEventAsync(calendarId, {
+    const existing = getTripCalendarRecord(tripId);
+
+    if (existing?.eventId) {
+      if (!existing.calendarId || existing.calendarId === calendarId) {
+        // Same calendar — update in place
+        await Calendar.updateEventAsync(existing.eventId, {
+          title,
+          startDate: start,
+          endDate: end,
+          allDay: true,
+        });
+        storage.set(eventKey(tripId), JSON.stringify({ eventId: existing.eventId, calendarId }));
+        return true;
+      }
+      // Moving to a different calendar — create new first, then remove old
+      const newEventId = await Calendar.createEventAsync(calendarId, {
         title,
         startDate: start,
         endDate: end,
         allDay: true,
         notes: 'Added by Vacationist',
       });
-      storage.set(eventKey(tripId), eventId);
+      storage.set(eventKey(tripId), JSON.stringify({ eventId: newEventId, calendarId }));
+      try {
+        await Calendar.deleteEventAsync(existing.eventId);
+      } catch {}
+      return true;
     }
+
+    const eventId = await Calendar.createEventAsync(calendarId, {
+      title,
+      startDate: start,
+      endDate: end,
+      allDay: true,
+      notes: 'Added by Vacationist',
+    });
+    storage.set(eventKey(tripId), JSON.stringify({ eventId, calendarId }));
     return true;
   } catch {
     return false;
@@ -82,14 +116,10 @@ export async function addTripToCalendar(
 }
 
 export async function removeTripFromCalendar(tripId: string): Promise<void> {
-  const eventId = storage.getString(eventKey(tripId));
-  if (!eventId) return;
+  const record = getTripCalendarRecord(tripId);
+  if (!record) return;
   try {
-    await Calendar.deleteEventAsync(eventId);
+    await Calendar.deleteEventAsync(record.eventId);
   } catch {}
   storage.remove(eventKey(tripId));
-}
-
-export function getTripCalendarEventId(tripId: string): string | undefined {
-  return storage.getString(eventKey(tripId));
 }

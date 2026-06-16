@@ -13,6 +13,7 @@ import { EditTripSheet } from '../../../src/features/trips/components/EditTripSh
 import { colors, ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { useCalendarSync } from '../../../src/features/trips/hooks/useCalendarSync';
+import { CalendarPickerSheet } from '../../../src/features/trips/components/CalendarPickerSheet';
 import { TripHighlightSheet } from '../../../src/features/sharing/components/TripHighlightSheet';
 import { TripExportSheet } from '../../../src/features/sharing/components/TripExportSheet';
 
@@ -31,13 +32,34 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [highlightOpen, setHighlightOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
-  const { isInCalendar, isLoading: calendarLoading, addToCalendar } = useCalendarSync(trip);
+  const {
+    isInCalendar,
+    isLoading: calendarLoading,
+    isPickerVisible,
+    calendars,
+    isLoadingCalendars,
+    openCalendarPicker,
+    closeCalendarPicker,
+    confirmAddToCalendar,
+    removeFromCalendar,
+  } = useCalendarSync(trip);
 
   if (!trip) return null;
 
-  async function handleAddToCalendar() {
-    const success = await addToCalendar();
-    if (success === false && !isInCalendar) {
+  async function handleCalendarPress() {
+    if (isInCalendar) {
+      Alert.alert(
+        t('overview.removeFromCalendar'),
+        t('overview.removeCalendarConfirm'),
+        [
+          { text: t('overview.removeCalendarAction'), style: 'destructive', onPress: removeFromCalendar },
+          { text: tCommon('button.cancel'), style: 'cancel' },
+        ],
+      );
+      return;
+    }
+    const opened = await openCalendarPicker();
+    if (!opened) {
       Alert.alert(t('overview.calendarPermissionDenied'));
     }
   }
@@ -160,13 +182,13 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
           </View>
         </View>
 
-        {/* Add to Calendar — native only */}
+        {/* Add to / Remove from Calendar — native only */}
         {Platform.OS !== 'web' && (
           <Pressable
-            onPress={handleAddToCalendar}
-            disabled={calendarLoading || isInCalendar}
+            onPress={handleCalendarPress}
+            disabled={calendarLoading || isLoadingCalendars}
             className="flex-row items-center justify-center gap-sm bg-surface border border-border rounded-md p-md"
-            style={({ pressed }) => ({ opacity: pressed || calendarLoading || isInCalendar ? 0.6 : 1 })}
+            style={({ pressed }) => ({ opacity: pressed || calendarLoading || isLoadingCalendars ? 0.6 : 1 })}
           >
             <ThemedIcon
               name={isInCalendar ? 'checkmark-circle-outline' : 'calendar-outline'}
@@ -225,6 +247,14 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
           tripId={id!}
         />
       )}
+
+      <CalendarPickerSheet
+        visible={isPickerVisible}
+        onClose={closeCalendarPicker}
+        calendars={calendars}
+        isLoading={calendarLoading}
+        onConfirm={confirmAddToCalendar}
+      />
     </>
   );
 }
