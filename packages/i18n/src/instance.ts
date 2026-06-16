@@ -19,6 +19,7 @@ import enActivityNotes from './locales/en/activityNotes.json';
 import enAccommodationNotes from './locales/en/accommodationNotes.json';
 import enStuff from './locales/en/stuff.json';
 import enValidation from './locales/en/validation.json';
+import enSharing from './locales/en/sharing.json';
 
 import deCommon from './locales/de/common.json';
 import deAuth from './locales/de/auth.json';
@@ -38,6 +39,7 @@ import deActivityNotes from './locales/de/activityNotes.json';
 import deAccommodationNotes from './locales/de/accommodationNotes.json';
 import deStuff from './locales/de/stuff.json';
 import deValidation from './locales/de/validation.json';
+import deSharing from './locales/de/sharing.json';
 
 const resources = {
   en: {
@@ -59,6 +61,7 @@ const resources = {
     accommodationNotes: enAccommodationNotes,
     stuff: enStuff,
     validation: enValidation,
+    sharing: enSharing,
   },
   de: {
     common: deCommon,
@@ -79,6 +82,7 @@ const resources = {
     accommodationNotes: deAccommodationNotes,
     stuff: deStuff,
     validation: deValidation,
+    sharing: deSharing,
   },
 } as const;
 
@@ -90,7 +94,7 @@ i18n.use(initReactI18next).init({
   ns: [
     'common', 'auth', 'trips', 'activities', 'activityNotes', 'accommodationNotes',
     'expenses', 'accommodations', 'transfer', 'shopping', 'recipes', 'calendar',
-    'prework', 'notifications', 'profile', 'notes', 'stuff', 'validation',
+    'prework', 'notifications', 'profile', 'notes', 'stuff', 'validation', 'sharing',
   ],
   interpolation: {
     escapeValue: false,

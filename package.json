@@ -31,9 +31,12 @@
     "@sentry/react-native": "^8.12.0",
     "expo": "^55.0.24",
     "expo-application": "~55.0.15",
+    "expo-file-system": "~55.0.22",
+    "expo-sharing": "~55.0.20",
     "expo-updates": "~55.0.24",
     "react": "19.2.0",
-    "react-native": "0.83.6"
+    "react-native": "0.83.6",
+    "react-native-view-shot": "4.0.3"
   },
   "devDependencies": {
     "sharp-cli": "^5.2.0"

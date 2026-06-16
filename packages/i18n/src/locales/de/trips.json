@@ -90,5 +90,7 @@
   "invite.share.shoppingLists": "✓ Gemeinsame Einkaufslisten",
   "invite.share.noAccountRequired": "✓ Kein Konto erforderlich",
   "search.placeholder": "Reisen suchen...",
-  "search.noResults": "Keine Reisen für \"{{query}}\""
+  "search.noResults": "Keine Reisen für \"{{query}}\"",
+  "overview.shareHighlights": "Highlights teilen",
+  "overview.exportTrip": "Reise exportieren"
 }

@@ -111,5 +111,8 @@
   "receipt.viewReceipt": "View Receipt",
   "receipt.immutableNotice": "This receipt is permanent and cannot be modified.",
   "receipt.notFound": "Receipt not found.",
-  "toast.noOpenSplits": "No open splits to settle."
+  "toast.noOpenSplits": "No open splits to settle.",
+  "modal.shareButton": "Share",
+  "toast.balancesCopied": "Balances copied to clipboard",
+  "toast.balancesShared": "Balances shared!"
 }

@@ -16,7 +16,8 @@
           "project": "react-native",
           "organization": "vacationist"
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "extra": {
       "eas": {

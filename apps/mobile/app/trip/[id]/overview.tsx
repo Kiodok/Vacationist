@@ -13,6 +13,8 @@ import { EditTripSheet } from '../../../src/features/trips/components/EditTripSh
 import { colors, ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { useCalendarSync } from '../../../src/features/trips/hooks/useCalendarSync';
+import { TripHighlightSheet } from '../../../src/features/sharing/components/TripHighlightSheet';
+import { TripExportSheet } from '../../../src/features/sharing/components/TripExportSheet';
 
 interface OverviewTabProps {
   onTabChange?: (tab: string) => void;
@@ -27,6 +29,8 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
   const { data: role } = useCurrentMemberRole(id!);
   const updateTrip = useUpdateTrip();
   const [editOpen, setEditOpen] = useState(false);
+  const [highlightOpen, setHighlightOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const { isInCalendar, isLoading: calendarLoading, addToCalendar } = useCalendarSync(trip);
 
   if (!trip) return null;
@@ -174,6 +178,28 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
             </Text>
           </Pressable>
         )}
+
+        {/* Share Trip Highlights — native only (view-shot has limited web support) */}
+        {Platform.OS !== 'web' && (
+          <Pressable
+            onPress={() => setHighlightOpen(true)}
+            className="flex-row items-center justify-center gap-sm bg-surface border border-border rounded-md p-md"
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          >
+            <ThemedIcon name="image-outline" size={18} color={colors.primary} />
+            <Text className="text-body font-medium text-primary">{t('overview.shareHighlights')}</Text>
+          </Pressable>
+        )}
+
+        {/* Export Trip */}
+        <Pressable
+          onPress={() => setExportOpen(true)}
+          className="flex-row items-center justify-center gap-sm bg-surface border border-border rounded-md p-md"
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+        >
+          <ThemedIcon name="document-text-outline" size={18} color={colors.primary} />
+          <Text className="text-body font-medium text-primary">{t('overview.exportTrip')}</Text>
+        </Pressable>
       </ScrollView>
 
       {isOrganizer && (
@@ -183,6 +209,20 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
           onSubmit={handleEditSubmit}
           isPending={isMutationBusy(updateTrip)}
           trip={trip}
+        />
+      )}
+
+      <TripHighlightSheet
+        visible={highlightOpen}
+        onClose={() => setHighlightOpen(false)}
+        tripId={id!}
+      />
+
+      {exportOpen && (
+        <TripExportSheet
+          visible={exportOpen}
+          onClose={() => setExportOpen(false)}
+          tripId={id!}
         />
       )}
     </>

@@ -246,6 +246,8 @@ export default function ExpensesTab() {
           balances={balances}
           members={memberMap}
           currency={currency}
+          tripId={tripId!}
+          tripTitle={trip?.title ?? ''}
           onSettleAllExpenses={() => {
             if (settlingRef.current) return;
             settlingRef.current = true;

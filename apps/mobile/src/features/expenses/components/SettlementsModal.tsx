@@ -1,11 +1,13 @@
-import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { MemberBalance, User, Currency, SettlementReceipt } from '@vacationist/types';
-import { formatCurrency, isNegligible, computeSettlements } from '@vacationist/utils';
+import { formatCurrency, isNegligible, computeSettlements, formatSettlementShareText } from '@vacationist/utils';
 import { colors , ThemedIcon } from '@vacationist/ui';
+import { shareText } from '../../../utils/share';
+import { useToastStore } from '../../../stores/toastStore';
 
 interface SettlementsModalProps {
   visible: boolean;
@@ -13,6 +15,8 @@ interface SettlementsModalProps {
   balances: MemberBalance[];
   members: Map<string, User>;
   currency: Currency;
+  tripId: string;
+  tripTitle: string;
   onSettleAllExpenses?: () => void;
   isSettlingAll?: boolean;
   receipts?: SettlementReceipt[];
@@ -26,6 +30,8 @@ export function SettlementsModal({
   balances,
   members,
   currency,
+  tripId,
+  tripTitle,
   onSettleAllExpenses,
   isSettlingAll,
   receipts = [],
@@ -35,9 +41,17 @@ export function SettlementsModal({
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation('common');
+  const addToast = useToastStore((s) => s.addToast);
   const [confirmingSettle, setConfirmingSettle] = useState(false);
   const settlements = computeSettlements(balances);
   const allSettled = settlements.length === 0;
+
+  async function handleShare() {
+    const text = formatSettlementShareText({ balances, settlements, members, currency, tripId, tripTitle });
+    const result = await shareText({ text, title: `${tripTitle} — Balances & Settlements` });
+    if (result === 'shared') addToast('success', t('toast.balancesShared'));
+    if (result === 'copied') addToast('success', t('toast.balancesCopied'));
+  }
 
   useEffect(() => {
     if (!visible) setConfirmingSettle(false);
@@ -52,7 +66,17 @@ export function SettlementsModal({
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
-          <Text className="text-heading-m text-text-primary mb-md">{t('modal.title')}</Text>
+          <View className="flex-row items-center justify-between mb-md">
+            <Text className="text-heading-m text-text-primary flex-1">{t('modal.title')}</Text>
+            <Pressable
+              onPress={handleShare}
+              className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10"
+              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            >
+              <ThemedIcon name={Platform.OS === 'web' ? 'copy-outline' : 'share-social-outline'} size={15} color={colors.primary} />
+              <Text className="text-primary text-body-small font-medium">{t('modal.shareButton')}</Text>
+            </Pressable>
+          </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Per-member balances */}

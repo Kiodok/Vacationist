@@ -111,5 +111,8 @@
   "receipt.viewReceipt": "Quittung anzeigen",
   "receipt.immutableNotice": "Diese Quittung ist dauerhaft und kann nicht geändert werden.",
   "receipt.notFound": "Quittung nicht gefunden.",
-  "toast.noOpenSplits": "Keine offenen Aufteilungen zum Begleichen."
+  "toast.noOpenSplits": "Keine offenen Aufteilungen zum Begleichen.",
+  "modal.shareButton": "Teilen",
+  "toast.balancesCopied": "Salden in die Zwischenablage kopiert",
+  "toast.balancesShared": "Salden geteilt!"
 }
