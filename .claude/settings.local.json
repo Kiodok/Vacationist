@@ -136,7 +136,9 @@
       "Bash(curl -L \"https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3j6zbXWjgeg.woff2\" -o /tmp/test_nunito.woff2)",
       "Bash(curl -s \"https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700\" -A \"Mozilla/5.0\")",
       "Bash(npm info *)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(cat node_modules/expo-sharing/app.plugin.js)",
+      "Bash(node -e \"const p = require\\('./node_modules/expo-sharing/plugin/build/index.js'\\); console.log\\(typeof p\\);\")"
     ]
   },
   "model": "opusplan",

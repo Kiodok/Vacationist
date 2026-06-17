@@ -3,7 +3,6 @@ import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator, useWindowD
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type ViewShotType from 'react-native-view-shot';
-import * as Sharing from 'expo-sharing';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useToastStore } from '../../../stores/toastStore';
 import { useTripHighlightData } from '../hooks/useTripHighlightData';
@@ -61,6 +60,7 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
         URL.revokeObjectURL(url);
         addToast('success', toastDownloaded);
       } else {
+        const Sharing = await import('expo-sharing');
         const available = await Sharing.isAvailableAsync();
         if (!available) {
           addToast('error', toastFailed);
