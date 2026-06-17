@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import type { MonthGridDay } from '@vacationist/types';
-import { useThemeColors } from '@vacationist/ui';
+import { colors, useThemeColors, useResolvedTheme } from '@vacationist/ui';
 
 const TRIP_COVERAGE_DOT = '#f87a6e';
 
@@ -12,9 +12,13 @@ interface MonthDayCellProps {
 
 export function MonthDayCell({ day, isSelected, onPress }: MonthDayCellProps) {
   const tc = useThemeColors();
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
+
+  const selectedTextColor = isColorful ? colors.surface : '#FFFFFF';
 
   const textColor = isSelected
-    ? 'text-white'
+    ? null
     : day.isCurrentMonth
       ? 'text-text-primary'
       : 'text-text-muted';
@@ -26,9 +30,9 @@ export function MonthDayCell({ day, isSelected, onPress }: MonthDayCellProps) {
       : '';
 
   const dotColor = day.hasActivities
-    ? isSelected ? '#FFFFFF' : tc.primary
+    ? isSelected ? selectedTextColor : tc.primary
     : day.hasTripCoverage
-      ? isSelected ? '#FFFFFF' : TRIP_COVERAGE_DOT
+      ? isSelected ? selectedTextColor : TRIP_COVERAGE_DOT
       : 'transparent';
 
   return (
@@ -39,7 +43,10 @@ export function MonthDayCell({ day, isSelected, onPress }: MonthDayCellProps) {
       >
         <View style={{ alignItems: 'center', paddingVertical: 4 }}>
           <View className={`w-[36px] h-[36px] rounded-full items-center justify-center ${bgClass}`}>
-            <Text className={`text-body font-medium ${textColor}`}>
+            <Text
+              className={textColor ? `text-body font-medium ${textColor}` : 'text-body font-medium'}
+              style={isSelected ? { color: selectedTextColor } : undefined}
+            >
               {day.dayNumber}
             </Text>
           </View>

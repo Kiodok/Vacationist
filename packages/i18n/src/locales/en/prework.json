@@ -47,7 +47,7 @@
   "topic.toast.updateFailed": "Failed to update topic.",
   "topic.toast.deleteFailed": "Failed to delete topic.",
   "emptyTopics.title": "No topics yet",
-  "emptyTopics.subtitle": "The organizer hasn't created any prework topics yet.",
+  "emptyTopics.subtitle": "No topics yet. Create one to start collecting group preferences.",
   "emptyTopics.organizerSubtitle": "Create topics to collect preferences from your group.",
   "emptyTopics.createButton": "Create First Topic",
   "emptyTopics.info.title": "About Prework Topics",

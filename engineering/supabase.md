@@ -1,5 +1,20 @@
 # Supabase Changes Log
 
+## 2026-06-17 — Allow members to create prework topics
+
+### Migration: `20260617190516_allow_member_create_prework_topics`
+
+**Changes:**
+1. **Dropped** `prework_topics_insert_organizer` RLS policy on `prework_topics`.
+2. **Created** `prework_topics_insert_member` RLS policy: any authenticated trip member can INSERT, as long as `created_by = auth.uid()` and `private.is_trip_member(trip_id, auth.uid())`.
+3. UPDATE and DELETE policies remain organizer-only.
+
+**Non-destructive:** No schema changes. RLS policy replacement only.
+
+**Applied to:** dev + prod
+
+---
+
 ## 2026-06-16 — Feat: Planning Nudge + Guest Conversion Nudge Crons
 
 ### Migration: `20260616100000_create_planning_nudge_cron`

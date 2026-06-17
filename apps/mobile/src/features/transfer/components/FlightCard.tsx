@@ -16,11 +16,11 @@ const VOTE_SCORE: Record<VoteType, number> = {
 
 function getVoteBorderColor(votes: { vote: VoteType }[], isColorful = false): string {
   if (votes.length === 0) return colors.border;
-  if (votes.some((v) => v.vote === 'group_blocker')) return colors.primary;
+  if (votes.some((v) => v.vote === 'group_blocker')) return colors.danger;
   const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
   if (avg >= 4.0) return isColorful ? '#00A864' : colors.success;
   if (avg >= 3.0) return colors.border;
-  return isColorful ? '#D4600A' : colors.warning;
+  return isColorful ? colors.danger : colors.warning;
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

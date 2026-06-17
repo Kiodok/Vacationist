@@ -1,6 +1,6 @@
 import { Animated, Platform, Pressable, View, Text } from 'react-native';
 import { safeFromNow } from '@vacationist/utils';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { TripNote } from '@vacationist/types';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
@@ -14,13 +14,15 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress, highlight }: NoteCardProps) {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const baseBorderColor = note.is_done ? 'rgba(62,207,142,0.3)' : colors.border;
   const { animatedBorderColor } = useHighlightAnimation(highlight, baseBorderColor);
 
   return (
     <Animated.View
       className="bg-surface rounded-md"
-      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+      style={{ borderWidth: isColorful ? 2 : 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}), ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}) }}
     >
     <Pressable
       onPress={onPress}

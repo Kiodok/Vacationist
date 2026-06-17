@@ -14,7 +14,7 @@ import { setSentryTripContext, clearSentryTripContext } from '../../../src/utils
 import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import OverviewTab from './overview';
@@ -69,6 +69,9 @@ export default function TripDetailScreen() {
   useTripRealtime(id!);
   const { data: role } = useCurrentMemberRole(id!);
   const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab(tab));
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
+  const activeTabTextColor = isColorful ? colors.surface : '#ffffff';
 
   useEffect(() => {
     if (id && role) setSentryTripContext(id, role);
@@ -188,8 +191,9 @@ export default function TripDetailScreen() {
             >
               <Text
                 className={`text-body-small font-semibold ${
-                  activeTab === tabKey ? 'text-white' : 'text-text-secondary'
+                  activeTab === tabKey ? '' : 'text-text-secondary'
                 }`}
+                style={activeTab === tabKey ? { color: activeTabTextColor } : undefined}
               >
                 {getTabLabel(tabKey)}
               </Text>

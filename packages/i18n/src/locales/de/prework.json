@@ -47,7 +47,7 @@
   "topic.toast.updateFailed": "Thema konnte nicht aktualisiert werden.",
   "topic.toast.deleteFailed": "Thema konnte nicht gelöscht werden.",
   "emptyTopics.title": "Noch keine Themen",
-  "emptyTopics.subtitle": "Der Organisator hat noch keine Vorarbeit-Themen erstellt.",
+  "emptyTopics.subtitle": "Noch keine Themen. Erstelle eines, um Gruppenpräferenzen zu sammeln.",
   "emptyTopics.organizerSubtitle": "Erstelle Themen, um Präferenzen von deiner Gruppe zu sammeln.",
   "emptyTopics.createButton": "Erstes Thema erstellen",
   "emptyTopics.info.title": "Über Vorarbeit-Themen",

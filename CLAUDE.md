@@ -139,7 +139,7 @@ Every new component and screen **must be verified across all four modes**: `dark
 1. **Never hardcode colors** — use NativeWind tokens (`bg-surface`, `text-text-primary`, `border-border`) or `colors.*` / `useThemeColors()` from `@vacationist/ui`.
 2. **Colorful: surface ≈ background** — `bg-surface` (`#FECE8A`) and `bg-background` (`#FDA444`) are close on web. Add `boxShadow: '0 1px 4px rgba(0,0,0,0.12)'` on web when `isColorful && Platform.OS === 'web'`.
 3. **Colorful: white text on primary fails** — `bg-primary` (`#8c6196`) needs `colors.surface` (`#FECE8A`) text, not `#ffffff`. Use `theme === 'colorful' ? colors.surface : '#ffffff'` for any text/icon on a primary-coloured button or badge.
-4. **Colorful: vote/status borders need boosting** — use brighter overrides: success `#00A864`, warning `#D4600A`, and increase `borderWidth` from 1 → 2.
+4. **Colorful: vote/status borders need boosting** — success border: `#00A864` (hardcoded, brighter than `colors.success`); negative/warning vote border: `colors.danger` (red, not orange — keeps it distinct from the orange default `colors.border`); `group_blocker` border: `colors.danger`. Increase `borderWidth` from 1 → 2.
 5. **Use `useResolvedTheme()`** from `@vacationist/ui` whenever a component needs conditional colorful styling. Never read theme directly from the Zustand store in UI components.
 6. **Flash prevention (web)** — if a new theme token is added to `global.css`, update the inline script in `app/+html.tsx` so the `<html>` class is set before React mounts.
 

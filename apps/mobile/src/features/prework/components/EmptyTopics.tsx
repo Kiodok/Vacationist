@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { InfoSheet } from '../../../components/InfoSheet';
 
 interface EmptyTopicsProps {
-  isOrganizer: boolean;
   onCreateTopic?: () => void;
 }
 
-export function EmptyTopics({ isOrganizer, onCreateTopic }: EmptyTopicsProps) {
+export function EmptyTopics({ onCreateTopic }: EmptyTopicsProps) {
   const { t } = useTranslation('prework');
   const { t: tCommon } = useTranslation('common');
   const [showInfo, setShowInfo] = useState(false);
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
+  const buttonTextColor = isColorful ? colors.surface : '#ffffff';
 
   return (
     <View className="flex-1 items-center justify-center px-xl gap-md py-2xl">
@@ -20,17 +22,17 @@ export function EmptyTopics({ isOrganizer, onCreateTopic }: EmptyTopicsProps) {
       <View className="items-center gap-xs">
         <Text className="text-heading-m text-text-primary text-center">{t('emptyTopics.title')}</Text>
         <Text className="text-body-small text-text-secondary text-center">
-          {isOrganizer ? t('emptyTopics.organizerSubtitle') : t('emptyTopics.subtitle')}
+          {t('emptyTopics.subtitle')}
         </Text>
       </View>
-      {isOrganizer && onCreateTopic && (
+      {onCreateTopic && (
         <Pressable
           onPress={onCreateTopic}
           className="px-lg py-sm rounded-md bg-primary"
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           accessibilityRole="button"
         >
-          <Text className="text-white text-body font-semibold">{t('emptyTopics.createButton')}</Text>
+          <Text className="text-body font-semibold" style={{ color: buttonTextColor }}>{t('emptyTopics.createButton')}</Text>
         </Pressable>
       )}
       <Pressable

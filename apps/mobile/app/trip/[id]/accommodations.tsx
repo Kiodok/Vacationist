@@ -74,8 +74,9 @@ export default function AccommodationsTab() {
         contentContainerStyle={
           accommodations?.length === 0
             ? { flex: 1, paddingHorizontal: 16, paddingVertical: 16 }
-            : { paddingHorizontal: 16, paddingVertical: 16, gap: 8 }
+            : { paddingHorizontal: 16, paddingVertical: 16 }
         }
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         ListEmptyComponent={<EmptyAccommodations />}
         renderItem={({ item }) => (
           <AccommodationCardWithVotes

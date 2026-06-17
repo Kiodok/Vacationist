@@ -30,6 +30,13 @@ import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestU
 import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
 import { useThemeStore } from '../../src/stores/themeStore';
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function openUrl(url: string) {
   if (Platform.OS === 'web') {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -269,18 +276,20 @@ export default function ProfileScreen() {
           </BiometricGate>
         </View>
         {/* Theme */}
-        <View className="w-full">
+        <View>
           <Text className="text-label text-text-muted uppercase mb-sm">{t('section.appearance')}</Text>
-          <View className="flex-row bg-surface border border-border rounded-md p-xs gap-xs">
+          <View style={{ flexDirection: 'row', backgroundColor: tc.surface, borderWidth: 1, borderColor: tc.border, borderRadius: 12, padding: 4, gap: 4 }}>
             {(['light', 'system', 'dark', 'colorful'] as const).map((option) => {
-              const labels = { light: t('appearance.light'), system: t('appearance.system'), dark: t('appearance.dark'), colorful: t('appearance.colorful') };
+              const labels = { light: t('appearance.light'), system: t('appearance.system'), dark: t('appearance.dark'), colorful: t('appearance.colorful') } as const;
               const icons = { light: 'sunny-outline', system: 'phone-portrait-outline', dark: 'moon-outline', colorful: 'color-palette-outline' } as const;
               const active = theme === option;
+              const textColor = active ? (theme === 'colorful' ? colors.surface : '#fff') : tc.textSecondary;
               return (
-                <Pressable
+                <TouchableOpacity
                   key={option}
                   onPress={() => setTheme(option)}
-                  style={({ pressed }) => ({
+                  activeOpacity={0.8}
+                  style={{
                     flex: 1,
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -289,14 +298,13 @@ export default function ProfileScreen() {
                     paddingVertical: 8,
                     borderRadius: 8,
                     backgroundColor: active ? colors.primary : 'transparent',
-                    opacity: pressed ? 0.8 : 1,
-                  })}
+                  }}
                 >
-                  <ThemedIcon name={icons[option]} size={14} color={active ? (theme === 'colorful' ? colors.surface : '#fff') : colors.textSecondary} />
-                  <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? (theme === 'colorful' ? colors.surface : '#fff') : colors.textSecondary }}>
+                  <ThemedIcon name={icons[option]} size={14} color={textColor} />
+                  <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: textColor }}>
                     {labels[option]}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               );
             })}
           </View>
@@ -313,7 +321,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSignOut}
-              style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#FF5C5C', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,92,92,0.1)' }}
+              style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.danger, alignItems: 'center', justifyContent: 'center', backgroundColor: hexToRgba(tc.danger, 0.1) }}
             >
               <Text className="text-body text-danger font-semibold">{tCommon('button.confirm')}</Text>
             </TouchableOpacity>
@@ -321,7 +329,7 @@ export default function ProfileScreen() {
         ) : (
           <TouchableOpacity
             onPress={() => setConfirmSignOut(true)}
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: '#FF5C5C' }}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.danger }}
           >
             <ThemedIcon name="log-out-outline" size={18} color={colors.danger} />
             <Text className="text-body text-danger font-semibold">{t('signOut')}</Text>

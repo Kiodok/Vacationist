@@ -2,7 +2,7 @@ import { View, Text, Switch, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNotificationPreferences, useUpdateNotificationPreferences } from '../hooks/useNotificationPreferences';
 import type { UpdateNotificationPreferencesInput } from '@vacationist/types';
-import { colors } from '@vacationist/ui';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface NotificationPreferencesSectionProps {
   tripId: string;
@@ -10,6 +10,8 @@ interface NotificationPreferencesSectionProps {
 
 export function NotificationPreferencesSection({ tripId }: NotificationPreferencesSectionProps) {
   const { t } = useTranslation('notifications');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { data: prefs, isLoading, fetchStatus } = useNotificationPreferences(tripId);
   const { mutate: updatePrefs } = useUpdateNotificationPreferences(tripId);
 
@@ -53,7 +55,7 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
               value={prefs[key] ?? true}
               onValueChange={(val) => updatePrefs({ [key]: val })}
               trackColor={{ false: '#3A3A3A', true: colors.primary }}
-              thumbColor="#FFFFFF"
+              thumbColor={isColorful ? colors.surface : '#FFFFFF'}
             />
           </View>
         ))}

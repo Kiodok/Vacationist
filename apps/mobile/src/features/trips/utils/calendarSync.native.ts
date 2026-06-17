@@ -67,10 +67,10 @@ export async function addTripToCalendar(
     const granted = await requestCalendarPermission();
     if (!granted) return false;
 
-    const start = new Date(startDate + 'T00:00:00');
+    const start = new Date(startDate + 'T00:00:00Z');
     // End date for all-day events must be exclusive (next day)
-    const end = new Date(endDate + 'T00:00:00');
-    end.setDate(end.getDate() + 1);
+    const end = new Date(endDate + 'T00:00:00Z');
+    end.setUTCDate(end.getUTCDate() + 1);
 
     const existing = getTripCalendarRecord(tripId);
 

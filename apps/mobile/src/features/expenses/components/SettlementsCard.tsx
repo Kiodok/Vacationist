@@ -1,8 +1,8 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { MemberBalance } from '@vacationist/types';
 import { isNegligible } from '@vacationist/utils';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface SettlementsCardProps {
   balances: MemberBalance[];
@@ -11,14 +11,22 @@ interface SettlementsCardProps {
 
 export function SettlementsCard({ balances, onPress }: SettlementsCardProps) {
   const { t } = useTranslation('expenses');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const debtors = balances.filter((b) => !isNegligible(b.net_balance) && b.net_balance < 0);
   const allSettled = debtors.length === 0;
 
   return (
     <Pressable
       onPress={onPress}
-      className="bg-surface border border-border rounded-md p-md mb-sm"
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+      className="bg-surface rounded-md p-md mb-sm"
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.85 : 1,
+        borderWidth: isColorful ? 2 : 1,
+        borderColor: colors.border,
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}),
+        ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
+      })}
     >
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-sm">

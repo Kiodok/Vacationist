@@ -138,7 +138,13 @@
       "Bash(npm info *)",
       "Bash(node *)",
       "Bash(cat node_modules/expo-sharing/app.plugin.js)",
-      "Bash(node -e \"const p = require\\('./node_modules/expo-sharing/plugin/build/index.js'\\); console.log\\(typeof p\\);\")"
+      "Bash(node -e \"const p = require\\('./node_modules/expo-sharing/plugin/build/index.js'\\); console.log\\(typeof p\\);\")",
+      "Bash(npx playwright *)",
+      "Read(//c/Users/Gary/AppData/Local/ms-playwright/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:19006/)",
+      "Bash(npm list *)",
+      "Read(//c/Users/Gary/AppData/Roaming/npm/node_modules/**)",
+      "PowerShell(\\(Get-Command playwright\\).Source; \\(npm root -g\\))"
     ]
   },
   "model": "opusplan",

@@ -1,5 +1,5 @@
 import { ScrollView, View, Text, Pressable } from 'react-native';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { PreworkTopic } from '@vacationist/types';
 
 interface PreworkSegmentedControlProps {
@@ -15,6 +15,10 @@ export function PreworkSegmentedControl({
   onTopicChange,
   onAddTopic,
 }: PreworkSegmentedControlProps) {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
+  const activeTextColor = isColorful ? colors.surface : '#ffffff';
+
   return (
     <ScrollView
       horizontal
@@ -32,7 +36,8 @@ export function PreworkSegmentedControl({
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
             <Text
-              className={`text-body-small font-medium ${isActive ? 'text-white' : 'text-text-secondary'}`}
+              className={`text-body-small font-medium ${isActive ? '' : 'text-text-secondary'}`}
+              style={isActive ? { color: activeTextColor } : undefined}
               numberOfLines={1}
             >
               {topic.title}

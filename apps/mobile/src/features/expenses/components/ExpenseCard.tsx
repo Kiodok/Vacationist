@@ -2,7 +2,7 @@ import { Animated, Platform, View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
-import { colors, METADATA_ICON_COLORS, FEATURE_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, FEATURE_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
@@ -19,6 +19,8 @@ interface ExpenseCardProps {
 
 export function ExpenseCard({ expense, splits, members, currentUserId, currency, onPress, detail, highlight }: ExpenseCardProps) {
   const { t } = useTranslation('expenses');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { animatedBorderColor } = useHighlightAnimation(highlight, colors.border);
   const payer = members.get(expense.paid_by);
   const owerSplits = splits.filter((s) => s.user_id !== expense.paid_by);
@@ -31,7 +33,7 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
   return (
     <Animated.View
       className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
-      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+      style={{ borderWidth: isColorful ? 2 : 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}), ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}) }}
     >
       <Pressable
         onPress={onPress}

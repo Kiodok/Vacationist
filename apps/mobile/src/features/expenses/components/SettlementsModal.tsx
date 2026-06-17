@@ -47,7 +47,7 @@ export function SettlementsModal({
   const allSettled = settlements.length === 0;
 
   async function handleShare() {
-    const text = formatSettlementShareText({ balances, settlements, members, currency, tripId, tripTitle });
+    const text = formatSettlementShareText({ settlements, members, currency, tripId, tripTitle });
     const result = await shareText({ text, title: `${tripTitle} — Balances & Settlements` });
     if (result === 'shared') addToast('success', t('toast.balancesShared'));
     if (result === 'copied') addToast('success', t('toast.balancesCopied'));

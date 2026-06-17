@@ -178,20 +178,17 @@ export default function PreworkTab() {
 
   return (
     <View className="flex-1">
-      {/* Segmented control — always visible, even when empty (shows "+" for organizer) */}
-      {(!noTopics || isOrganizer) && (
-        <PreworkSegmentedControl
-          topics={topics ?? []}
-          activeTopicId={activeTopicId}
-          onTopicChange={setActiveTopicId}
-          onAddTopic={isOrganizer ? () => setShowCreateTopic(true) : undefined}
-        />
-      )}
+      {/* Segmented control — always visible, even when empty (shows "+" for all members) */}
+      <PreworkSegmentedControl
+        topics={topics ?? []}
+        activeTopicId={activeTopicId}
+        onTopicChange={setActiveTopicId}
+        onAddTopic={() => setShowCreateTopic(true)}
+      />
 
       {/* Empty topics state */}
       {noTopics && (
         <EmptyTopics
-          isOrganizer={isOrganizer}
           onCreateTopic={() => setShowCreateTopic(true)}
         />
       )}
