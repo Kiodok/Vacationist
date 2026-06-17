@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Vacationist',
   slug: 'vacationist',
-  version: '1.19.2',
+  version: '1.19.4',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'vacationist',
@@ -97,6 +97,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         project: 'react-native',
       },
     ],
+    'expo-sharing',
     [
       'expo-build-properties',
       {

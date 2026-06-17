@@ -1,5 +1,12 @@
 import { Platform, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { requireOptionalNativeModule } from 'expo-modules-core';
+
+type SharingNativeModule = {
+  isAvailableAsync(): Promise<boolean>;
+  shareAsync(url: string, options: { mimeType?: string; dialogTitle?: string; UTI?: string }): Promise<void>;
+};
+const ExpoSharing = requireOptionalNativeModule<SharingNativeModule>('ExpoSharing');
 
 export type ShareResult = 'shared' | 'copied' | 'dismissed' | 'downloaded';
 
@@ -31,19 +38,10 @@ export async function shareText(options: ShareTextOptions): Promise<ShareResult>
 }
 
 export async function shareFile(options: ShareFileOptions): Promise<ShareResult> {
-  // Dynamic import prevents requireNativeModule('ExpoSharing') from running at
-  // module load time — which crashes during server-side static web rendering and
-  // on binaries built before expo-sharing was linked. Treat a missing native
-  // module as "not available" rather than an error, so callers see 'dismissed'.
-  let Sharing: typeof import('expo-sharing');
-  try {
-    Sharing = await import('expo-sharing');
-  } catch {
-    return 'dismissed';
-  }
-  const isAvailable = await Sharing.isAvailableAsync();
+  if (!ExpoSharing) return 'dismissed';
+  const isAvailable = await ExpoSharing.isAvailableAsync();
   if (!isAvailable) return 'dismissed';
-  await Sharing.shareAsync(options.fileUri, {
+  await ExpoSharing.shareAsync(options.fileUri, {
     mimeType: options.mimeType,
     dialogTitle: options.dialogTitle,
   });

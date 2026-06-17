@@ -3,11 +3,18 @@ import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator, useWindowD
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type ViewShotType from 'react-native-view-shot';
+import { requireOptionalNativeModule } from 'expo-modules-core';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useToastStore } from '../../../stores/toastStore';
 import { useTripHighlightData } from '../hooks/useTripHighlightData';
 import { HighlightCard } from './HighlightCard';
 import type { HighlightFormat } from './HighlightCard';
+
+type SharingNativeModule = {
+  isAvailableAsync(): Promise<boolean>;
+  shareAsync(url: string, options: { mimeType?: string; dialogTitle?: string; UTI?: string }): Promise<void>;
+};
+const ExpoSharing = requireOptionalNativeModule<SharingNativeModule>('ExpoSharing');
 
 // Lazy-load to prevent a fatal crash on binaries that predate this native module.
 // TurboModuleRegistry.getEnforcing("RNViewShot") throws synchronously at require-time
@@ -60,13 +67,12 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
         URL.revokeObjectURL(url);
         addToast('success', toastDownloaded);
       } else {
-        const Sharing = await import('expo-sharing');
-        const available = await Sharing.isAvailableAsync();
+        const available = ExpoSharing ? await ExpoSharing.isAvailableAsync() : false;
         if (!available) {
           addToast('error', toastFailed);
           return;
         }
-        await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle });
+        await ExpoSharing!.shareAsync(uri, { mimeType: 'image/png', dialogTitle });
         addToast('success', toastShared);
       }
     } catch {
