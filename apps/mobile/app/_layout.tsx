@@ -9,7 +9,7 @@ import { initI18n, I18nProvider, i18n, LOCALE_BCP47, onLocaleChange } from '@vac
 import { setDayjsLocale, setDefaultFormatLocale } from '@vacationist/utils';
 import { storage } from '../src/utils/mmkvStorage';
 
-initSentry();
+try { initSentry(); } catch { /* never let Sentry init abort module evaluation */ }
 import { Slot, usePathname, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
@@ -74,8 +74,8 @@ onLocaleChange((loc) => {
   setDayjsLocale(loc);
   setDefaultFormatLocale(LOCALE_BCP47[loc] ?? 'en-US');
 });
-initI18n(storage); // fires the callback above with the startup locale
-initDayjs();
+try { initI18n(storage); } catch { /* never let i18n init abort module evaluation */ } // fires the callback above with the startup locale
+try { initDayjs(); } catch { /* never let dayjs init abort module evaluation */ }
 
 // Synchronously prime the NativeWind color-scheme observable before the first
 // render so components mount with the correct CSS variables already resolved.

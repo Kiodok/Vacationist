@@ -2,13 +2,20 @@ import { useRef, useState } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import ViewShot from 'react-native-view-shot';
+import type ViewShotType from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useToastStore } from '../../../stores/toastStore';
 import { useTripHighlightData } from '../hooks/useTripHighlightData';
 import { HighlightCard } from './HighlightCard';
 import type { HighlightFormat } from './HighlightCard';
+
+// Lazy-load to prevent a fatal crash on binaries that predate this native module.
+// TurboModuleRegistry.getEnforcing("RNViewShot") throws synchronously at require-time
+// when the module is missing, so a static import would kill the app on old builds.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+let ViewShot: typeof ViewShotType | null = null;
+try { ViewShot = require('react-native-view-shot').default; } catch { /* binary lacks RNViewShot */ }
 
 interface TripHighlightSheetProps {
   visible: boolean;
@@ -23,7 +30,7 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
   const theme = useResolvedTheme();
   const addToast = useToastStore((s) => s.addToast);
   const { data } = useTripHighlightData(tripId);
-  const viewShotRef = useRef<ViewShot>(null);
+  const viewShotRef = useRef<ViewShotType>(null);
   const [format, setFormat] = useState<HighlightFormat>('square');
   const [isCapturing, setIsCapturing] = useState(false);
 
@@ -37,7 +44,7 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
   const dialogTitle = t('highlights.title');
 
   async function handleShare() {
-    if (!viewShotRef.current?.capture || isCapturing) return;
+    if (!ViewShot || !viewShotRef.current?.capture || isCapturing) return;
     setIsCapturing(true);
     try {
       const uri = await viewShotRef.current.capture();
@@ -107,12 +114,13 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
           <ScrollView showsVerticalScrollIndicator={false} className="mb-lg">
             {data ? (
               <View style={{ alignItems: 'center' }}>
-                <ViewShot
-                  ref={viewShotRef}
-                  options={{ format: 'png', quality: 1.0 }}
-                >
+                {ViewShot ? (
+                  <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
+                    <HighlightCard data={data} format={format} width={cardWidth} />
+                  </ViewShot>
+                ) : (
                   <HighlightCard data={data} format={format} width={cardWidth} />
-                </ViewShot>
+                )}
               </View>
             ) : (
               <View className="items-center py-xl">
@@ -124,9 +132,9 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
           {/* Share button */}
           <Pressable
             onPress={handleShare}
-            disabled={!data || isCapturing}
+            disabled={!data || isCapturing || !ViewShot}
             className="py-md rounded-md bg-primary items-center"
-            style={({ pressed }) => ({ opacity: pressed || !data || isCapturing ? 0.6 : 1 })}
+            style={({ pressed }) => ({ opacity: pressed || !data || isCapturing || !ViewShot ? 0.6 : 1 })}
           >
             {isCapturing ? (
               <View className="flex-row items-center gap-sm">
