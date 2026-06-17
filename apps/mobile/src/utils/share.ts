@@ -38,7 +38,7 @@ export async function shareText(options: ShareTextOptions): Promise<ShareResult>
 }
 
 export async function shareFile(options: ShareFileOptions): Promise<ShareResult> {
-  if (!ExpoSharing) return 'dismissed';
+  if (!ExpoSharing?.isAvailableAsync) return 'dismissed';
   try {
     const isAvailable = await ExpoSharing.isAvailableAsync();
     if (!isAvailable) return 'dismissed';
