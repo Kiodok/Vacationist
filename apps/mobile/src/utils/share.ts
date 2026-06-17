@@ -39,13 +39,17 @@ export async function shareText(options: ShareTextOptions): Promise<ShareResult>
 
 export async function shareFile(options: ShareFileOptions): Promise<ShareResult> {
   if (!ExpoSharing) return 'dismissed';
-  const isAvailable = await ExpoSharing.isAvailableAsync();
-  if (!isAvailable) return 'dismissed';
-  await ExpoSharing.shareAsync(options.fileUri, {
-    mimeType: options.mimeType,
-    dialogTitle: options.dialogTitle,
-  });
-  return 'shared';
+  try {
+    const isAvailable = await ExpoSharing.isAvailableAsync();
+    if (!isAvailable) return 'dismissed';
+    await ExpoSharing.shareAsync(options.fileUri, {
+      mimeType: options.mimeType,
+      dialogTitle: options.dialogTitle,
+    });
+    return 'shared';
+  } catch {
+    return 'dismissed';
+  }
 }
 
 export function downloadTextFile(filename: string, content: string, mimeType: string): void {

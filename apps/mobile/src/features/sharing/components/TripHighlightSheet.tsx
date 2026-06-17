@@ -67,12 +67,10 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
         URL.revokeObjectURL(url);
         addToast('success', toastDownloaded);
       } else {
-        const available = ExpoSharing ? await ExpoSharing.isAvailableAsync() : false;
-        if (!available) {
-          addToast('error', toastFailed);
-          return;
-        }
-        await ExpoSharing!.shareAsync(uri, { mimeType: 'image/png', dialogTitle });
+        if (!ExpoSharing) return;
+        const available = await ExpoSharing.isAvailableAsync();
+        if (!available) return;
+        await ExpoSharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle });
         addToast('success', toastShared);
       }
     } catch {

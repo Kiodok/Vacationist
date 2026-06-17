@@ -14,7 +14,7 @@ import { useShoppingLists } from '../../shopping/hooks/useShoppingLists';
 import { useAllTripShoppingItems } from '../../shopping/hooks/useShoppingItems';
 import { useNotes } from '../../notes/hooks/useNotes';
 import { useTripBalances } from '../../expenses/hooks/useExpenses';
-import { shareFile, downloadTextFile } from '../../../utils/share';
+import { shareFile, shareText, downloadTextFile } from '../../../utils/share';
 import { useToastStore } from '../../../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
 
@@ -81,9 +81,18 @@ export function useTripExport(tripId: string) {
         downloadTextFile(filename, markdown, 'text/markdown');
         addToast('success', i18n.t('sharing:toast.exportDownloaded'));
       } else {
-        const uri = `${FileSystem.cacheDirectory ?? ''}${filename}`;
-        await FileSystem.writeAsStringAsync(uri, markdown, { encoding: FileSystem.EncodingType.UTF8 });
-        const result = await shareFile({ fileUri: uri, mimeType: 'text/markdown', dialogTitle: filename });
+        // Try to share as a file attachment; falls back to sharing markdown text
+        // directly (using the built-in RN Share sheet) when expo-sharing's native
+        // module is absent from the build.
+        let result: import('../../../utils/share').ShareResult = 'dismissed';
+        const uri = FileSystem.cacheDirectory ? `${FileSystem.cacheDirectory}${filename}` : null;
+        if (uri) {
+          await FileSystem.writeAsStringAsync(uri, markdown, { encoding: FileSystem.EncodingType.UTF8 });
+          result = await shareFile({ fileUri: uri, mimeType: 'text/markdown', dialogTitle: filename });
+        }
+        if (result === 'dismissed') {
+          result = await shareText({ text: markdown, title: filename });
+        }
         if (result === 'shared') {
           addToast('success', i18n.t('sharing:toast.exportShared'));
         }
