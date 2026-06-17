@@ -13,20 +13,24 @@ export async function getGoogleOAuthUrl(redirectTo: string): Promise<string> {
   return data.url;
 }
 
-export async function signInWithMagicLink(email: string, redirectTo: string) {
+export async function signInWithMagicLink(email: string, redirectTo: string, captchaToken?: string) {
   const { data, error } = await supabase.auth.signInWithOtp({
     email,
     options: {
       emailRedirectTo: redirectTo,
+      ...(captchaToken ? { captchaToken } : {}),
     },
   });
   if (error) throw error;
   return data;
 }
 
-export async function signInAnonymously(metadata?: Record<string, string>) {
+export async function signInAnonymously(metadata?: Record<string, string>, captchaToken?: string) {
   const { data, error } = await supabase.auth.signInAnonymously({
-    options: metadata ? { data: metadata } : undefined,
+    options: {
+      ...(metadata ? { data: metadata } : {}),
+      ...(captchaToken ? { captchaToken } : {}),
+    },
   });
   if (error) throw error;
   return data;
@@ -88,12 +92,12 @@ export async function linkGuestWithGoogle(idToken: string) {
   return data;
 }
 
-export async function linkGuestWithMagicLink(email: string, redirectTo: string) {
+export async function linkGuestWithMagicLink(email: string, redirectTo: string, captchaToken?: string) {
   // updateUser adds an email identity to the currently signed-in anonymous
   // user. The UUID is preserved so all existing trip data stays intact.
   const { data, error } = await supabase.auth.updateUser(
     { email },
-    { emailRedirectTo: redirectTo },
+    { emailRedirectTo: redirectTo, ...(captchaToken ? { captchaToken } : {}) },
   );
   if (error) throw error;
   return data;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { makeRedirectUri } from 'expo-auth-session';
@@ -9,19 +9,25 @@ import { signInWithMagicLink } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useGoogleSignIn } from '../../src/features/auth/hooks/useGoogleSignIn';
 import { GoogleAuthButton } from '../../src/features/auth/components/GoogleAuthButton';
+import { TurnstileWidget } from '../../src/features/auth/components/TurnstileWidget';
 
 export default function LoginScreen() {
   const { t } = useTranslation('auth');
+  const { t: tCommon } = useTranslation('common');
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
+  const [captchaReady, setCaptchaReady] = useState(false);
+  const [captchaError, setCaptchaError] = useState(false);
+  const turnstileToken = useRef<string | undefined>(undefined);
 
   const { signIn: handleGoogleSignIn, loading: googleLoading } =
     useGoogleSignIn((msg) => addToast('error', msg));
 
   async function handleMagicLink() {
+    if (!captchaReady) return;
     setEmailError('');
     const trimmed = email.trim().toLowerCase();
 
@@ -33,7 +39,8 @@ export default function LoginScreen() {
     setMagicLinkLoading(true);
     try {
       const redirectTo = makeRedirectUri();
-      await signInWithMagicLink(trimmed, redirectTo);
+      await signInWithMagicLink(trimmed, redirectTo, turnstileToken.current);
+      turnstileToken.current = undefined;
       router.push({
         pathname: '/(auth)/magic-link-sent',
         params: { email: trimmed },
@@ -93,8 +100,30 @@ export default function LoginScreen() {
             variant="secondary"
             onPress={handleMagicLink}
             loading={magicLinkLoading}
-            disabled={googleLoading}
+            disabled={googleLoading || magicLinkLoading || !captchaReady}
           />
+
+          <TurnstileWidget
+            onToken={(token) => {
+              turnstileToken.current = token;
+              setCaptchaReady(true);
+              setCaptchaError(false);
+            }}
+            onExpired={() => {
+              turnstileToken.current = undefined;
+              setCaptchaReady(false);
+            }}
+            onError={() => {
+              setCaptchaReady(false);
+              setCaptchaError(true);
+            }}
+          />
+
+          {captchaError && (
+            <Text className="text-body-small text-danger text-center">
+              {tCommon('captcha.error')}
+            </Text>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Button, Input, colors , ThemedIcon } from '@vacationist/ui';
+import { Button, Input, colors, ThemedIcon } from '@vacationist/ui';
 import { signInAnonymously, redeemInviteToken } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useAuthStore } from '../../src/stores/authStore';
+import { TurnstileWidget } from '../../src/features/auth/components/TurnstileWidget';
 
 export default function JoinScreen() {
   const { t } = useTranslation('auth');
+  const { t: tCommon } = useTranslation('common');
   const { token } = useLocalSearchParams<{ token: string }>();
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
@@ -17,8 +19,12 @@ export default function JoinScreen() {
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [captchaReady, setCaptchaReady] = useState(false);
+  const [captchaError, setCaptchaError] = useState(false);
+  const turnstileToken = useRef<string | undefined>(undefined);
 
   async function handleJoinAsGuest() {
+    if (!captchaReady) return;
     setNameError('');
     const trimmed = name.trim();
 
@@ -34,7 +40,8 @@ export default function JoinScreen() {
 
     setLoading(true);
     try {
-      await signInAnonymously({ name: trimmed });
+      await signInAnonymously({ name: trimmed }, turnstileToken.current);
+      turnstileToken.current = undefined;
 
       if (token) {
         try {
@@ -99,7 +106,30 @@ export default function JoinScreen() {
             label={t('join.submit')}
             onPress={handleJoinAsGuest}
             loading={loading}
+            disabled={loading || !captchaReady}
           />
+
+          <TurnstileWidget
+            onToken={(token) => {
+              turnstileToken.current = token;
+              setCaptchaReady(true);
+              setCaptchaError(false);
+            }}
+            onExpired={() => {
+              turnstileToken.current = undefined;
+              setCaptchaReady(false);
+            }}
+            onError={() => {
+              setCaptchaReady(false);
+              setCaptchaError(true);
+            }}
+          />
+
+          {captchaError && (
+            <Text className="text-body-small text-danger text-center">
+              {tCommon('captcha.error')}
+            </Text>
+          )}
 
           <Button
             label={t('join.signInInstead')}

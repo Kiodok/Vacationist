@@ -48,5 +48,6 @@
   "placeholder.date": "Date",
   "placeholder.time": "Time",
   "placeholder.selectDate": "Select date",
-  "placeholder.selectTime": "Select time"
+  "placeholder.selectTime": "Select time",
+  "captcha.error": "Security check failed. Please reload and try again."
 }

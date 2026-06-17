@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   View,
@@ -10,9 +10,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon } from '@vacationist/ui';
 import { GoogleAuthButton } from '../../auth/components/GoogleAuthButton';
 import { useGuestUpgrade } from '../../auth/hooks/useGuestUpgrade';
+import { TurnstileWidget } from '../../auth/components/TurnstileWidget';
 
 interface GuestUpgradeSheetProps {
   visible: boolean;
@@ -22,22 +23,31 @@ interface GuestUpgradeSheetProps {
 export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('profile');
-  const { t: tCommon } = useTranslation("common");
+  const { t: tCommon } = useTranslation('common');
   const [email, setEmail] = useState('');
+  const [captchaReady, setCaptchaReady] = useState(false);
+  const [captchaError, setCaptchaError] = useState(false);
+  const turnstileToken = useRef<string | undefined>(undefined);
   const { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError } =
     useGuestUpgrade();
 
   function handleClose() {
     setEmail('');
     clearError();
+    setCaptchaReady(false);
+    setCaptchaError(false);
+    turnstileToken.current = undefined;
     onClose();
   }
 
   async function handleMagicLink() {
     const trimmed = email.trim().toLowerCase();
-    if (!trimmed) return;
-    await upgradeWithMagicLink(trimmed);
+    if (!trimmed || !captchaReady) return;
+    const success = await upgradeWithMagicLink(trimmed, turnstileToken.current);
+    if (success) turnstileToken.current = undefined;
   }
+
+  const magicLinkDisabled = isPending || !email.trim() || !captchaReady;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
@@ -111,9 +121,9 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
 
                 <Pressable
                   onPress={handleMagicLink}
-                  disabled={isPending || !email.trim()}
+                  disabled={magicLinkDisabled}
                   className={`min-h-[48px] rounded-sm items-center justify-center border border-border ${
-                    isPending || !email.trim() ? 'opacity-50' : ''
+                    magicLinkDisabled ? 'opacity-50' : ''
                   }`}
                 >
                   {isPending ? (
@@ -125,7 +135,30 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
                   )}
                 </Pressable>
 
-                {/* Error */}
+                <TurnstileWidget
+                  onToken={(token) => {
+                    turnstileToken.current = token;
+                    setCaptchaReady(true);
+                    setCaptchaError(false);
+                  }}
+                  onExpired={() => {
+                    turnstileToken.current = undefined;
+                    setCaptchaReady(false);
+                  }}
+                  onError={() => {
+                    setCaptchaReady(false);
+                    setCaptchaError(true);
+                  }}
+                />
+
+                {/* Captcha error */}
+                {captchaError && (
+                  <Text className="text-body-small text-danger text-center">
+                    {tCommon('captcha.error')}
+                  </Text>
+                )}
+
+                {/* Auth error from hook */}
                 {error && (
                   <Text className="text-body-small text-danger text-center">{error}</Text>
                 )}

@@ -32,15 +32,17 @@ export function useGuestUpgrade() {
     }
   }, []);
 
-  const upgradeWithMagicLink = useCallback(async (email: string) => {
+  const upgradeWithMagicLink = useCallback(async (email: string, captchaToken?: string): Promise<boolean> => {
     setIsPending(true);
     setError(null);
     try {
       const redirectTo = Platform.OS === 'web' ? window.location.origin : 'vacationist://';
-      await linkGuestWithMagicLink(email, redirectTo);
+      await linkGuestWithMagicLink(email, redirectTo, captchaToken);
       setMagicLinkSent(true);
+      return true;
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to send link');
+      return false;
     } finally {
       setIsPending(false);
     }
