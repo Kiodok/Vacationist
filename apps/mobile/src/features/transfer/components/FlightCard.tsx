@@ -1,27 +1,11 @@
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { TransferFlight, TransferFlightVote, VoteType, Currency } from '@vacationist/types';
+import type { TransferFlight, TransferFlightVote, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
-
-const VOTE_SCORE: Record<VoteType, number> = {
-  must_do: 5,
-  like: 4,
-  open: 3,
-  skip: 2,
-  group_blocker: 1,
-};
-
-function getVoteBorderColor(votes: { vote: VoteType }[], isColorful = false): string {
-  if (votes.length === 0) return colors.border;
-  if (votes.some((v) => v.vote === 'group_blocker')) return colors.danger;
-  const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
-  if (avg >= 4.0) return isColorful ? '#00A864' : colors.success;
-  if (avg >= 3.0) return colors.border;
-  return isColorful ? colors.danger : colors.warning;
-}
+import { getVoteBorderColor } from '../../../utils/voteUtils';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 

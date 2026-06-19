@@ -76,7 +76,7 @@ export default function TabLayout() {
             />
           ),
           tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
-          tabBarBadgeStyle: { backgroundColor: tc.danger, fontSize: 10 },
+          tabBarBadgeStyle: { backgroundColor: tc.danger, fontSize: 10, color: theme === 'colorful' ? tc.surfaceElevated : '#FFFFFF' },
         }}
       />
       <Tabs.Screen

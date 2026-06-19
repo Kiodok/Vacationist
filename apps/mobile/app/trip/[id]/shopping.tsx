@@ -21,7 +21,7 @@ import { CreateShoppingListSheet } from '../../../src/features/shopping/componen
 import { CreateRecipeSheet } from '../../../src/features/recipes/components/CreateRecipeSheet';
 import { EmptyShopping } from '../../../src/features/shopping/components/EmptyShopping';
 import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyRecipes';
-import { colors, ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
@@ -36,6 +36,8 @@ const SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: string; te
 };
 
 export default function ShoppingTab() {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { t } = useTranslation('shopping');
   const { t: tCommon } = useTranslation("common");
   const { id: tripId, view } = useLocalSearchParams<{ id: string; view?: string }>();
@@ -216,7 +218,7 @@ export default function ShoppingTab() {
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
-          <ThemedIcon name="add" size={28} color="#FFFFFF" />
+          <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
         </Pressable>
       )}
 

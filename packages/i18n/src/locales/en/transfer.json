@@ -61,6 +61,8 @@
   "rental.placeholder.url": "https://...",
   "rental.placeholder.notes": "Insurance, GPS, additional drivers, etc.",
   "action.edit": "Edit",
+  "action.markAsPlanned": "Mark as Planned",
+  "action.cancelFlight": "Cancel",
   "action.endVoting": "End voting",
   "action.reopenVoting": "Re-open voting",
   "action.book": "Book",

@@ -1,12 +1,5 @@
 import type { TransferFlight, TransferFlightVote } from '@vacationist/types';
-
-const VOTE_SCORE: Record<string, number> = {
-  must_do: 5,
-  like: 4,
-  open: 3,
-  skip: 2,
-  group_blocker: 1,
-};
+import { VOTE_SCORE } from '../../../utils/voteScores';
 
 function pickWinner(
   flights: TransferFlight[],

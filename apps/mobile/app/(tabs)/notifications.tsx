@@ -1,4 +1,4 @@
-import { View, Text, Pressable, RefreshControl } from 'react-native';
+import { View, Text, Pressable, RefreshControl, Linking } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -29,7 +29,11 @@ export default function NotificationsScreen() {
       markRead({ notificationId: notification.id });
     }
     const path = resolveNotificationPath(notification);
-    if (path) router.push(path as never);
+    if (path?.startsWith('https://')) {
+      Linking.openURL(path);
+    } else if (path) {
+      router.push(path as never);
+    }
   };
 
   return (

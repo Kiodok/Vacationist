@@ -39,7 +39,7 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
 
   return (
     <View className="gap-sm">
-      <Text className="text-label-m text-text-secondary uppercase tracking-widest px-xs">
+      <Text className="text-label text-text-muted uppercase mb-sm">
         {t('preferences.title')}
       </Text>
       <View className="bg-surface border border-border rounded-md overflow-hidden">

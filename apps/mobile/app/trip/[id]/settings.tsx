@@ -18,7 +18,7 @@ import { DocumentAccessRequestSheet } from '../../../src/features/profile/compon
 import { MemberDocumentsSheet } from '../../../src/features/profile/components/MemberDocumentsSheet';
 import { NotificationPreferencesSection } from '../../../src/features/notifications/components/NotificationPreferencesSection';
 import { NudgeSheet } from '../../../src/features/notifications/components/NudgeSheet';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 
 export default function SettingsTab() {
@@ -37,6 +37,8 @@ export default function SettingsTab() {
   const createInvite = useCreateInvite(tripId);
   const revokeInvite = useRevokeInvite(tripId);
 
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { t } = useTranslation('trips');
   const { t: tCommon } = useTranslation("common");
   const { t: tProfile } = useTranslation("profile");
@@ -288,12 +290,23 @@ export default function SettingsTab() {
 
           {/* Leave Trip */}
           {!isOrganizer && !pendingLeave && (
-            <Button
-              label={t('settings.leaveTrip')}
-              variant="secondary"
-              onPress={() => setPendingLeave(true)}
-              icon={<ThemedIcon name="exit-outline" size={18} color={colors.primary} />}
-            />
+            isColorful ? (
+              <Pressable
+                onPress={() => setPendingLeave(true)}
+                hitSlop={8}
+                className="min-h-[48px] rounded-md px-lg items-center justify-center flex-row gap-sm bg-transparent border border-danger"
+              >
+                <ThemedIcon name="exit-outline" size={18} color={colors.danger} />
+                <Text className="text-body text-danger font-semibold">{t('settings.leaveTrip')}</Text>
+              </Pressable>
+            ) : (
+              <Button
+                label={t('settings.leaveTrip')}
+                variant="secondary"
+                onPress={() => setPendingLeave(true)}
+                icon={<ThemedIcon name="exit-outline" size={18} color={colors.primary} />}
+              />
+            )
           )}
           {!isOrganizer && pendingLeave && (
             <View className="rounded-md border border-danger p-md gap-sm">

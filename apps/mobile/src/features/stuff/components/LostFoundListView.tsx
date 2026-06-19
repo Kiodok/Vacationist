@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
 import { FlashList, type FlashListRef } from '@shopify/flash-list';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { CreateLostFoundCaseInput, UpdateLostFoundCaseInput, LostFoundCase } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { useLostFoundCases, useCreateLostFoundCase, useUpdateLostFoundCase, useResolveLostFoundCase, useUnresolveLostFoundCase, useDeleteLostFoundCase } from '../hooks/useLostFoundCases';
@@ -23,6 +23,8 @@ interface LostFoundListViewProps {
 }
 
 export function LostFoundListView({ tripId, currentUserId, role, members, memberNameMap, highlightId }: LostFoundListViewProps) {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const casesQuery = useLostFoundCases(tripId);
   const { data: cases, refetch } = casesQuery;
   const ux = getQueryDisplayState(casesQuery);
@@ -113,7 +115,7 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <ThemedIcon name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
       </Pressable>
 
       <CreateLostFoundCaseSheet

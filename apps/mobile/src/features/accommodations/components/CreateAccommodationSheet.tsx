@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { createAccommodationSchema, type CreateAccommodationInput } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface CreateAccommodationSheetProps {
   visible: boolean;
@@ -21,6 +22,8 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('accommodations');
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateAccommodationInput>({
     resolver: zodResolver(createAccommodationSchema),
@@ -254,8 +257,8 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}
-                      trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
-                      thumbColor="#FFFFFF"
+                      trackColor={{ false: '#3E3E3E', true: colors.primary }}
+                      thumbColor={isColorful ? colors.surface : '#FFFFFF'}
                       ios_backgroundColor="#3E3E3E"
                     />
                   </View>

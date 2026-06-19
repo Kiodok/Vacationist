@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, RefreshControl, Linking } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -9,11 +9,13 @@ import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsR
 import { NotificationItem } from '../../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../../src/features/notifications/components/EmptyNotifications';
 import { resolveNotificationPath } from '../../../src/features/notifications/utils/resolveNotificationPath';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function TripNotificationsScreen() {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { t } = useTranslation('notifications');
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -31,7 +33,11 @@ export default function TripNotificationsScreen() {
       markRead({ notificationId: notification.id });
     }
     const path = resolveNotificationPath(notification);
-    if (path) router.push(path as never);
+    if (path?.startsWith('https://')) {
+      Linking.openURL(path);
+    } else if (path) {
+      router.push(path as never);
+    }
   };
 
   return (
@@ -39,7 +45,7 @@ export default function TripNotificationsScreen() {
       <View className="flex-row items-center justify-between px-lg py-md border-b border-border">
         <View className="flex-row items-center gap-md">
           <Pressable onPress={() => router.back()} hitSlop={8}>
-            <ThemedIcon name="arrow-back" size={22} color="#F2F2F2" />
+            <ThemedIcon name="arrow-back" size={22} color={isColorful ? colors.surfaceElevated : colors.textPrimary} />
           </Pressable>
           <Text className="text-heading-s text-text-primary">{t('screen.title')}</Text>
         </View>

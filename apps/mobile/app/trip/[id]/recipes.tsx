@@ -13,12 +13,14 @@ import { useAuthStore } from '../../../src/stores/authStore';
 import { RecipeCardWrapper } from '../../../src/features/recipes/components/RecipeCardWrapper';
 import { CreateRecipeSheet } from '../../../src/features/recipes/components/CreateRecipeSheet';
 import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyRecipes';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function RecipesTab() {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
@@ -93,7 +95,7 @@ export default function RecipesTab() {
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
-          <ThemedIcon name="add" size={28} color="#FFFFFF" />
+          <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
         </Pressable>
       )}
 

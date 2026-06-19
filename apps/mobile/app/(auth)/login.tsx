@@ -66,19 +66,23 @@ export default function LoginScreen() {
         </View>
 
         <View className="gap-md" style={{ alignSelf: 'center', width: 240 }}>
-          <GoogleAuthButton
-            onPress={handleGoogleSignIn}
-            loading={googleLoading}
-            disabled={magicLinkLoading}
-          />
+          {captchaReady && (
+            <>
+              <GoogleAuthButton
+                onPress={handleGoogleSignIn}
+                loading={googleLoading}
+                disabled={magicLinkLoading}
+              />
 
-          <View className="flex-row items-center gap-md my-sm">
-            <View className="flex-1 h-[1px] bg-border" />
-            <Text className="text-body-small text-text-muted">
-              {t('login.orContinueWith')}
-            </Text>
-            <View className="flex-1 h-[1px] bg-border" />
-          </View>
+              <View className="flex-row items-center gap-md my-sm">
+                <View className="flex-1 h-[1px] bg-border" />
+                <Text className="text-body-small text-text-muted">
+                  {t('login.orContinueWith')}
+                </Text>
+                <View className="flex-1 h-[1px] bg-border" />
+              </View>
+            </>
+          )}
 
           <Input
             placeholder={t('login.emailPlaceholder')}

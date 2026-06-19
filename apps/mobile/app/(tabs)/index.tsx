@@ -13,7 +13,7 @@ import { useCollapsibleSections } from '../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../src/components/CollapsibleSectionHeader';
 import { SearchInput } from '../../src/components/SearchInput';
 import type { Trip } from '@vacationist/types';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
 import { useStoreReviewNudge } from '../../src/hooks/useStoreReviewNudge';
@@ -49,6 +49,8 @@ function insertYearDividers(
 }
 
 export default function TripsScreen() {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { t } = useTranslation('trips');
   const router = useRouter();
   const tripsQuery = useTrips();
@@ -253,7 +255,7 @@ export default function TripsScreen() {
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <ThemedIcon name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
       </Pressable>
     </SafeAreaView>
   );

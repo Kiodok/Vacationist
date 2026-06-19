@@ -103,14 +103,6 @@ export function SettlementsModal({
                         {isPositive ? '+' : ''}{formatCurrency(b.net_balance, currency)}
                       </Text>
                     </View>
-                    <View className="flex-row gap-md pl-[44px]">
-                      <Text className="text-label text-text-muted">
-                        {t('modal.paid', { amount: formatCurrency(b.total_paid, currency) })}
-                      </Text>
-                      <Text className="text-label text-text-muted">
-                        {t('modal.owes', { amount: formatCurrency(b.total_owed, currency) })}
-                      </Text>
-                    </View>
                   </View>
                 );
               })}

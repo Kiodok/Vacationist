@@ -1,11 +1,12 @@
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { dayjs, formatCurrency } from '@vacationist/utils';
-import type { Activity, ActivityVote, VoteType, Currency } from '@vacationist/types';
+import type { Activity, ActivityVote, Currency } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
 import { StatusIndicator } from './StatusIndicator';
 import { colors, CATEGORY_ICON_COLORS, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
+import { getVoteBorderColor } from '../../../utils/voteUtils';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -32,11 +33,11 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
 
   return (
     <Animated.View
-      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      className={`bg-surface ${detail ? 'rounded-t-lg' : 'rounded-lg'}`}
       style={{
         borderWidth: isColorful ? 2 : 1,
         borderColor: animatedBorderColor,
-        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}),
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const, backgroundColor: colors.surface } : {}),
         ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
       }}
     >
@@ -138,22 +139,5 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
   );
 }
 
-const VOTE_SCORE: Record<VoteType, number> = {
-  must_do: 5,
-  like: 4,
-  open: 3,
-  skip: 2,
-  group_blocker: 1,
-};
-
-function getVoteBorderColor(votes: { vote: VoteType }[], isColorful = false): string {
-  if (votes.length === 0) return colors.border;
-  if (votes.some((v) => v.vote === 'group_blocker')) return colors.danger;
-
-  const avg = votes.reduce((sum, v) => sum + VOTE_SCORE[v.vote], 0) / votes.length;
-  if (avg >= 4.0) return isColorful ? '#00A864' : colors.success;
-  if (avg >= 3.0) return colors.border;
-  return isColorful ? colors.danger : colors.warning;
-}
 
 

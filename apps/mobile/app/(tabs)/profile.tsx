@@ -85,6 +85,7 @@ export default function ProfileScreen() {
   const { handleSignOut } = useSignOut();
   const tc = useThemeColors();
   const theme = useThemeStore((s) => s.theme);
+  const isColorful = theme === 'colorful';
   const setTheme = useThemeStore((s) => s.setTheme);
   const updateProfile = useUpdateProfile();
   const { data: documents = [], isLoading: docsLoading } = useTravelDocuments(docsUnlocked);
@@ -176,9 +177,9 @@ export default function ProfileScreen() {
                 }}
               >
                 {avatarUploading ? (
-                  <ActivityIndicator size={10} color="#fff" />
+                  <ActivityIndicator size={10} color={isColorful ? colors.surfaceElevated : '#fff'} />
                 ) : (
-                  <ThemedIcon name="camera" size={12} color="#fff" />
+                  <ThemedIcon name="camera" size={12} color={isColorful ? colors.surfaceElevated : '#fff'} />
                 )}
               </View>
             </View>

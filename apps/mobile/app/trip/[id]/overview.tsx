@@ -159,9 +159,6 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
                     avatar_url: m.user.avatar_url,
                   }))}
                 />
-                <Text className="text-body-small text-text-secondary">
-                  {tCommon('label.membersCount', { count: members.length })}
-                </Text>
               </View>
             </View>
           </Pressable>

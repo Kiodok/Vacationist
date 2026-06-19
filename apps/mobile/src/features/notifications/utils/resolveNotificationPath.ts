@@ -4,6 +4,11 @@ export function resolveNotificationPath(
   notification: Pick<Notification, 'type' | 'trip_id' | 'related_type'> & { related_id?: string | null }
 ): string | null {
   const { type, trip_id, related_type, related_id } = notification;
+
+  if (type === 'reminder' && related_type === 'review_nudge') {
+    return 'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
+  }
+
   if (!trip_id) return null;
 
   const highlight = related_id ? `&highlightId=${related_id}` : '';

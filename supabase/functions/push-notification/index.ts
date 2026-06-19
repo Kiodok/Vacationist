@@ -78,6 +78,10 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Ready for your next trip?', body: '"{{trip}}" was great! Start planning your next adventure.' },
     de: { title: 'Bereit für die nächste Reise?', body: '"{{trip}}" war toll! Plane dein nächstes Abenteuer.' },
   },
+  review_nudge: {
+    en: { title: 'Enjoying Vacationist?', body: 'Your trip is over — we\'d love a quick rating on the Play Store! 🌟' },
+    de: { title: 'Gefällt dir Vacationist?', body: 'Deine Reise ist vorbei — wir freuen uns über eine Bewertung im Play Store! 🌟' },
+  },
   guest_nudge: {
     en: { title: 'Plan your own trip!', body: 'You helped plan "{{trip}}". Create your own trip — it\'s free!' },
     de: { title: 'Plane deine eigene Reise!', body: 'Du warst bei "{{trip}}" dabei. Starte deine eigene Reise — kostenlos!' },
@@ -134,6 +138,7 @@ function translateNotification(
     type === 'reminder' && relatedType === 'expense_reminder' ? 'expense_reminder' :
     type === 'reminder' && relatedType === 'planning_nudge' ? 'planning_nudge' :
     type === 'reminder' && relatedType === 'guest_nudge' ? 'guest_nudge' :
+    type === 'reminder' && relatedType === 'review_nudge' ? 'review_nudge' :
     type;
 
   const map = NOTIFICATION_TRANSLATIONS[effectiveType];

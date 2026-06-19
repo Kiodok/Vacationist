@@ -26,6 +26,8 @@
   "vote.showCount_other": "{{count}} Stimmen anzeigen",
   "edit.title": "Unterkunft bearbeiten",
   "action.edit": "Bearbeiten",
+  "action.markAsPlanned": "Als geplant markieren",
+  "action.cancelAccommodation": "Abbrechen",
   "action.endVoting": "Abstimmung beenden",
   "action.reopenVoting": "Abstimmung wieder öffnen",
   "action.remove": "Entfernen",

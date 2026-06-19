@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createTransferFlightSchema, type CreateTransferFlightInput, TRANSFER_DIRECTION, type Currency } from '@vacationist/types';
 import { getCurrencySymbol } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface CreateFlightSheetProps {
   visible: boolean;
@@ -33,6 +34,8 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
   const currencySymbol = getCurrencySymbol(currency as Currency);
 
@@ -515,8 +518,8 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                       <Switch
                         value={value ?? false}
                         onValueChange={onChange}
-                        trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
-                        thumbColor="#FFFFFF"
+                        trackColor={{ false: '#3E3E3E', true: colors.primary }}
+                        thumbColor={isColorful ? colors.surface : '#FFFFFF'}
                         ios_backgroundColor="#3E3E3E"
                       />
                     </View>

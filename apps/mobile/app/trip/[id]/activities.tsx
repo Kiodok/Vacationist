@@ -20,7 +20,7 @@ import { EditActivitySheet } from '../../../src/features/activities/components/E
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
 import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
 import { ActivityNotesSection } from '../../../src/features/activities/components/ActivityNotesSection';
-import { colors, ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
@@ -37,7 +37,7 @@ const ACTIVITY_SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: s
   ongoing:     { icon: 'play-circle-outline',    iconColor: colors.warning,     textClass: 'text-warning' },
   in_planning: { icon: 'compass-outline',        iconColor: colors.primary,     textClass: 'text-primary' },
   planned:     { icon: 'calendar-outline',       iconColor: colors.textPrimary, textClass: 'text-text-primary' },
-  blocked:     { icon: 'chatbubbles-outline',     iconColor: colors.primary,     textClass: 'text-primary' },
+  blocked:     { icon: 'chatbubbles-outline',     iconColor: colors.danger,      textClass: 'text-danger' },
   completed:   { icon: 'checkmark-done-outline', iconColor: colors.success,     textClass: 'text-success' },
 };
 
@@ -91,6 +91,8 @@ function sortByDate(a: Activity, b: Activity): number {
 export default function ActivitiesTab() {
   const { t } = useTranslation('activities');
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { id: tripId, activityId: _activityId, highlightId: _highlightId } = useLocalSearchParams<{ id: string; activityId?: string; highlightId?: string }>();
   const activityId = _activityId ?? _highlightId;
   const user = useAuthStore((s) => s.user);
@@ -147,10 +149,10 @@ export default function ActivitiesTab() {
         completed.push(a);
       } else if (isOngoing(a)) {
         ongoing.push(a);
+      } else if (a.voting_open && blockedActivityIds.has(a.id)) {
+        blocked.push(a);
       } else if (a.voting_open) {
         inPlanning.push(a);
-      } else if (blockedActivityIds.has(a.id)) {
-        blocked.push(a);
       } else {
         planned.push(a);
       }
@@ -323,7 +325,7 @@ export default function ActivitiesTab() {
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <ThemedIcon name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
       </Pressable>
 
       <CreateActivitySheet
@@ -383,6 +385,8 @@ function ActivityCardWithVotes({
 }) {
   const { t } = useTranslation("activities");
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { data: votes = [] } = useActivityVotes(activity.id);
   const { data: members } = useTripMembers(tripId);
   const castVote = useCastVote();
@@ -391,6 +395,10 @@ function ActivityCardWithVotes({
   const [showDetail, setShowDetail] = useState(initialExpanded ?? false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingCloseVoting, setConfirmingCloseVoting] = useState(false);
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+
+  const isDiscuss = isBlocked && activity.voting_open;
+  const canActOnDiscuss = isDiscuss && (role === 'organizer' || activity.created_by === currentUserId);
 
   const memberMap = useMemo(
     () => new Map((members ?? []).map((m) => [m.user_id, m.user.name])),
@@ -463,8 +471,8 @@ function ActivityCardWithVotes({
           <Switch
             value={activity.auto_close}
             onValueChange={onToggleAutoClose}
-            trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
-            thumbColor="#FFFFFF"
+            trackColor={{ false: '#3E3E3E', true: colors.primary }}
+            thumbColor={isColorful ? colors.surface : '#FFFFFF'}
             ios_backgroundColor="#3E3E3E"
           />
         </View>
@@ -507,6 +515,24 @@ function ActivityCardWithVotes({
               <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
             </TouchableOpacity>
           </View>
+        ) : confirmingCancel ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text className="text-text-secondary text-body-small">{t('confirm.cancelActivity')}</Text>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => { onDelete(); setConfirmingCancel(false); }}
+              style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.2)' }}
+            >
+              <Text className="text-danger text-body-small font-semibold">{tCommon('button.yes')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setConfirmingCancel(false)}
+              style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
+            >
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
             {canEdit && (
@@ -519,7 +545,27 @@ function ActivityCardWithVotes({
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
-            {canCloseVoting && (
+            {canActOnDiscuss && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingCloseVoting(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(0, 168, 100, 0.1)' }}
+              >
+                <ThemedIcon name="checkmark-circle-outline" size={14} color={colors.success} />
+                <Text className="text-success text-body-small font-medium">{t('action.markAsPlanned')}</Text>
+              </TouchableOpacity>
+            )}
+            {canActOnDiscuss && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingCancel(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: 'rgba(255, 92, 92, 0.1)' }}
+              >
+                <ThemedIcon name="close-circle-outline" size={14} color={colors.danger} />
+                <Text className="text-danger text-body-small font-medium">{t('action.cancelActivity')}</Text>
+              </TouchableOpacity>
+            )}
+            {!isDiscuss && canCloseVoting && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => setConfirmingCloseVoting(true)}
@@ -539,7 +585,7 @@ function ActivityCardWithVotes({
                 <Text className="text-primary text-body-small font-medium">{t('action.reopenVoting')}</Text>
               </TouchableOpacity>
             )}
-            {canDelete && (
+            {!isDiscuss && canDelete && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => setConfirmingDelete(true)}

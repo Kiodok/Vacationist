@@ -39,7 +39,7 @@ import { EditRentalSheet } from '../../../src/features/transfer/components/EditR
 import { EmptyFlights } from '../../../src/features/transfer/components/EmptyFlights';
 import { EmptyVehicles } from '../../../src/features/transfer/components/EmptyVehicles';
 import { EmptyRentals } from '../../../src/features/transfer/components/EmptyRentals';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -49,6 +49,8 @@ type Segment = 'All' | 'Flights' | 'Vehicles' | 'Rentals';
 export default function TransferTab() {
   const { id: tripId, highlightId: highlightIdParam } = useLocalSearchParams<{ id: string; highlightId?: string }>();
   const user = useAuthStore((s) => s.user);
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { data: trip } = useTrip(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
   const { data: members = [] } = useTripMembers(tripId!);
@@ -371,7 +373,7 @@ export default function TransferTab() {
             ref={rentalListRef}
             data={rentals}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 12 }}
             renderItem={({ item }) => (
               <RentalCardExpanded
                 rental={item}
@@ -406,7 +408,7 @@ export default function TransferTab() {
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
-          <ThemedIcon name="add" size={28} color="#FFFFFF" />
+          <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
         </Pressable>
       )}
 
@@ -512,6 +514,8 @@ function FlightCardWithVotes({
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation("common");
   const { data: votes = [] } = useTransferFlightVotes(flight.id);
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { data: passengers = [] } = useTransferFlightPassengers(flight.id);
   const castVote = useCastTransferFlightVote();
   const removeVote = useRemoveTransferFlightVote(tripId, flight.id);
@@ -551,6 +555,9 @@ function FlightCardWithVotes({
   const canReopenVoting = role === 'organizer' && !flight.voting_open;
   const canBook = role === 'organizer' && !flight.voting_open && flight.status !== 'booked';
   const canManagePassengers = role === 'organizer' && flight.status === 'booked';
+
+  const isDiscuss = votes.some((v) => v.vote === 'group_blocker') && flight.voting_open;
+  const canActOnDiscuss = isDiscuss && (role === 'organizer' || flight.created_by === currentUserId);
 
   const handleCastVote = (vote: VoteType) => {
     setShowVoteSheet(false);
@@ -612,8 +619,8 @@ function FlightCardWithVotes({
           <Switch
             value={flight.auto_close}
             onValueChange={onToggleAutoClose}
-            trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
-            thumbColor="#FFFFFF"
+            trackColor={{ false: '#3E3E3E', true: colors.primary }}
+            thumbColor={isColorful ? colors.surface : '#FFFFFF'}
             ios_backgroundColor="#3E3E3E"
           />
         </View>
@@ -668,7 +675,27 @@ function FlightCardWithVotes({
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
-            {canCloseVoting && (
+            {canActOnDiscuss && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingCloseVoting(true)}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
+              >
+                <ThemedIcon name="checkmark-circle-outline" size={14} color={colors.success} />
+                <Text className="text-success text-body-small font-medium">{t('action.markAsPlanned')}</Text>
+              </TouchableOpacity>
+            )}
+            {canActOnDiscuss && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingDelete(true)}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
+              >
+                <ThemedIcon name="close-circle-outline" size={14} color={colors.danger} />
+                <Text className="text-danger text-body-small font-medium">{t('action.cancelFlight')}</Text>
+              </TouchableOpacity>
+            )}
+            {!isDiscuss && canCloseVoting && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => setConfirmingCloseVoting(true)}
@@ -708,7 +735,7 @@ function FlightCardWithVotes({
                 <Text className="text-primary text-body-small font-medium">{t('action.passengers')}</Text>
               </TouchableOpacity>
             )}
-            {canDelete && (
+            {!isDiscuss && canDelete && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => setConfirmingDelete(true)}
@@ -973,6 +1000,7 @@ function RentalCardExpanded({
 
   const canEdit = role === 'organizer' || (role === 'participant' && rental.created_by === currentUserId);
   const canDelete = role === 'organizer' || (role === 'participant' && rental.created_by === currentUserId);
+  const hasDetail = !!rental.notes || canEdit || canDelete;
 
   const detailContent = showDetail ? (
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
@@ -1034,7 +1062,7 @@ function RentalCardExpanded({
     <RentalCard
       rental={rental}
       currency={currency}
-      onPress={() => setShowDetail(!showDetail)}
+      onPress={hasDetail ? () => setShowDetail(!showDetail) : undefined}
       detail={detailContent}
       highlight={highlight}
     />

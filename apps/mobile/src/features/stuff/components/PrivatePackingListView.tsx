@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { View, Text, SectionList, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { PackingItem, CreatePackingItemInput, UpdatePackingItemInput } from '@vacationist/types';
 import { usePackingItems, usePackingCategories, useCreatePackingItem, useUpdatePackingItem, useDeletePackingItem } from '../hooks/usePackingItems';
 import { PackingItemRow } from './PackingItemRow';
@@ -19,6 +19,8 @@ interface PrivatePackingListViewProps {
 }
 
 export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingListViewProps) {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
   const itemsQuery = usePackingItems(tripId);
@@ -195,7 +197,7 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <ThemedIcon name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
       </Pressable>
 
       <CreatePackingItemSheet

@@ -50,16 +50,14 @@ export function GroupSummarySection({ aggregated, totalMembers, memberNames }: G
               className="bg-surface rounded-md border border-border overflow-hidden"
             >
               <View className="px-md py-sm gap-xs">
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center gap-xs flex-1">
-                    <Text className="text-body text-text-primary" numberOfLines={1}>
-                      {filter.label}
-                    </Text>
+                <View className="flex-row items-start justify-between gap-sm">
+                  <Text className="text-body text-text-primary flex-1">
+                    {filter.label}
+                  </Text>
+                  <View className="flex-row items-center gap-xs flex-shrink-0">
                     <Text className="text-label text-text-muted">
                       {filter.memberCount}/{totalMembers}
                     </Text>
-                  </View>
-                  <View className="flex-row items-center gap-xs">
                     <Text className="text-body font-semibold text-primary">
                       {filter.totalCredits}
                     </Text>

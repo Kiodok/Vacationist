@@ -21,8 +21,8 @@ export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress,
 
   return (
     <Animated.View
-      className="bg-surface rounded-md"
-      style={{ borderWidth: isColorful ? 2 : 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}), ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}) }}
+      className="bg-surface rounded-lg"
+      style={{ borderWidth: isColorful ? 2 : 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const, backgroundColor: colors.surface } : {}), ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}) }}
     >
     <Pressable
       onPress={onPress}

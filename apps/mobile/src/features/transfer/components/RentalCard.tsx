@@ -7,7 +7,7 @@ import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 interface RentalCardProps {
   rental: TransferRental;
   currency: string;
-  onPress: () => void;
+  onPress?: () => void;
   detail?: React.ReactNode;
   highlight?: boolean;
 }

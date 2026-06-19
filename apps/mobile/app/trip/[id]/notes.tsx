@@ -14,7 +14,7 @@ import { EmptyNotes } from '../../../src/features/notes/components/EmptyNotes';
 import { CreateNoteSheet } from '../../../src/features/notes/components/CreateNoteSheet';
 import { EditNoteSheet } from '../../../src/features/notes/components/EditNoteSheet';
 import { ViewNoteSheet } from '../../../src/features/notes/components/ViewNoteSheet';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -26,6 +26,8 @@ function isTripLocked(endDate: string | null | undefined): boolean {
 }
 
 export default function NotesTab() {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
   const { t } = useTranslation('notes');
   const currentUser = useAuthStore((s) => s.user);
@@ -191,7 +193,7 @@ export default function NotesTab() {
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
         >
-          <ThemedIcon name="add" size={28} color="#FFFFFF" />
+          <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
         </Pressable>
       )}
 

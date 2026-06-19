@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -12,6 +13,8 @@ import { CopyPackingListSheet } from '../../../src/features/stuff/components/Cop
 type StuffSegment = 'private' | 'shared' | 'lost-found';
 
 export default function StuffTab() {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { t } = useTranslation('stuff');
   const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
   const user = useAuthStore((s) => s.user);
@@ -53,7 +56,10 @@ export default function StuffTab() {
             className={`px-md py-sm rounded-full ${activeSegment === key ? 'bg-primary' : 'bg-surface'}`}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
-            <Text className={`text-body-small font-semibold ${activeSegment === key ? 'text-white' : 'text-text-secondary'}`}>
+            <Text
+              className={`text-body-small font-semibold ${activeSegment === key ? 'text-white' : 'text-text-secondary'}`}
+              style={activeSegment === key && isColorful ? { color: colors.surfaceElevated } : undefined}
+            >
               {label}
             </Text>
           </Pressable>

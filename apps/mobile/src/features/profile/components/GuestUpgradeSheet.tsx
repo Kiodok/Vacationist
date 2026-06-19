@@ -90,19 +90,22 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
               </View>
             ) : (
               <View className="gap-md">
-                {/* Google Sign-In */}
-                <GoogleAuthButton
-                  onPress={upgradeWithGoogle}
-                  loading={isPending}
-                  disabled={isPending}
-                />
+                {/* Google Sign-In — only shown after CAPTCHA succeeds */}
+                {captchaReady && (
+                  <>
+                    <GoogleAuthButton
+                      onPress={upgradeWithGoogle}
+                      loading={isPending}
+                      disabled={isPending}
+                    />
 
-                {/* Divider */}
-                <View className="flex-row items-center gap-md">
-                  <View className="flex-1 h-[1px] bg-border" />
-                  <Text className="text-body-small text-text-muted">{t('guest.sheet.or')}</Text>
-                  <View className="flex-1 h-[1px] bg-border" />
-                </View>
+                    <View className="flex-row items-center gap-md">
+                      <View className="flex-1 h-[1px] bg-border" />
+                      <Text className="text-body-small text-text-muted">{t('guest.sheet.or')}</Text>
+                      <View className="flex-1 h-[1px] bg-border" />
+                    </View>
+                  </>
+                )}
 
                 {/* Magic link email input */}
                 <TextInput

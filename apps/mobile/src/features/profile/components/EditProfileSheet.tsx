@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +18,8 @@ interface EditProfileSheetProps {
 }
 
 export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }: EditProfileSheetProps) {
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation("common");
@@ -153,7 +156,10 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
                 isPending ? 'bg-primary/50' : 'bg-primary'
               }`}
             >
-              <Text className="text-body text-white font-semibold">
+              <Text
+                className="text-body text-white font-semibold"
+                style={isColorful ? { color: colors.surfaceElevated } : undefined}
+              >
                 {isPending ? t('edit.saving') : t('edit.saveButton')}
               </Text>
             </Pressable>

@@ -57,11 +57,11 @@ export function LostFoundCaseCard({ lostFoundCase: c, memberNameMap, currentUser
 
   return (
     <Animated.View
-      className={`bg-surface rounded-md px-md py-sm gap-xs ${c.is_resolved ? 'opacity-60' : ''}`}
+      className={`bg-surface rounded-lg px-md py-sm gap-xs ${c.is_resolved ? 'opacity-60' : ''}`}
       style={{
         borderWidth: isColorful ? 2 : 1,
         borderColor: animatedBorderColor,
-        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}),
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const, backgroundColor: colors.surface } : {}),
         ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
       }}
     >

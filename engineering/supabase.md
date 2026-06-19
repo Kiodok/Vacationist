@@ -1,5 +1,41 @@
 # Supabase Changes Log
 
+## 2026-06-19 — Vote cleanup on member removal + auto-close blocker guard + review nudge
+
+### Migration: `20260619100000_cleanup_votes_on_member_removal`
+
+**Changes:**
+1. **New function `public.cleanup_votes_on_member_removal()`** — AFTER DELETE trigger on `trip_members`. When a user is removed from a trip, deletes their `activity_votes`, `accommodation_votes`, and `transfer_flight_votes` for entities belonging to that trip.
+2. **New trigger `trg_cleanup_votes_on_member_removal`** on `trip_members`.
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
+### Migration: `20260619110000_prevent_auto_close_with_blocker`
+
+**Changes:**
+1. **Updated `auto_finalize_activity_voting()`** — now checks for any `group_blocker` vote before auto-closing. If a blocker vote exists, the trigger exits early without closing voting.
+2. **Updated `auto_finalize_accommodation_voting()`** — same blocker guard.
+3. **Updated `auto_finalize_flight_voting()`** — same blocker guard.
+
+This keeps activities/accommodations/flights with a blocker vote in the "Discuss" section until explicitly resolved.
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
+### Migration: `20260619120000_create_review_nudge_cron`
+
+**Changes:**
+1. **Added `review_nudge_sent_at TIMESTAMPTZ`** column to `trips` table.
+2. **New function `private.create_review_nudge_notifications()`** — Runs every hour at :15. Finds trips that ended 12+ hours ago with no nudge sent yet. Inserts a `reminder` notification with `related_type='review_nudge'` for all trip members. Sets `review_nudge_sent_at` to prevent duplicates.
+3. **pg_cron job `create-review-nudge-notifications`** — Scheduled at `15 * * * *`.
+
+**Applied to:** dev + prod.
+
+---
+
 ## 2026-06-17 — Allow members to create prework topics
 
 ### Migration: `20260617190516_allow_member_create_prework_topics`

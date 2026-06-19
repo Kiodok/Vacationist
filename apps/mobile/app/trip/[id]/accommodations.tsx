@@ -17,7 +17,7 @@ import { CreateAccommodationSheet } from '../../../src/features/accommodations/c
 import { EditAccommodationSheet } from '../../../src/features/accommodations/components/EditAccommodationSheet';
 import { EmptyAccommodations } from '../../../src/features/accommodations/components/EmptyAccommodations';
 import { AccommodationNotesSection } from '../../../src/features/accommodations/components/AccommodationNotesSection';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -25,6 +25,8 @@ import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 export default function AccommodationsTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { data: trip } = useTrip(tripId!);
   const accommodationsQuery = useAccommodations(tripId!);
   const { data: accommodations, refetch } = accommodationsQuery;
@@ -110,7 +112,7 @@ export default function AccommodationsTab() {
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
       >
-        <ThemedIcon name="add" size={28} color="#FFFFFF" />
+        <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
       </Pressable>
 
       <CreateAccommodationSheet
@@ -168,6 +170,8 @@ function AccommodationCardWithVotes({
 }) {
   const { t } = useTranslation('accommodations');
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { data: votes = [] } = useAccommodationVotes(accommodation.id);
   const { data: members } = useTripMembers(tripId);
   const castVote = useCastAccommodationVote();
@@ -192,6 +196,9 @@ function AccommodationCardWithVotes({
     (role === 'participant' && accommodation.created_by === currentUserId);
   const canCloseVoting = role === 'organizer' && accommodation.voting_open;
   const canReopenVoting = role === 'organizer' && !accommodation.voting_open;
+
+  const isDiscuss = votes.some((v) => v.vote === 'group_blocker') && accommodation.voting_open;
+  const canActOnDiscuss = isDiscuss && (role === 'organizer' || accommodation.created_by === currentUserId);
   const canBook = role === 'organizer' && !accommodation.voting_open && accommodation.status !== 'booked';
   const canUnbook = role === 'organizer' && !accommodation.voting_open && accommodation.status === 'booked';
 
@@ -238,8 +245,8 @@ function AccommodationCardWithVotes({
           <Switch
             value={accommodation.auto_close}
             onValueChange={onToggleAutoClose}
-            trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
-            thumbColor="#FFFFFF"
+            trackColor={{ false: '#3E3E3E', true: colors.primary }}
+            thumbColor={isColorful ? colors.surface : '#FFFFFF'}
             ios_backgroundColor="#3E3E3E"
           />
         </View>
@@ -301,7 +308,27 @@ function AccommodationCardWithVotes({
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
-            {canCloseVoting && (
+            {canActOnDiscuss && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingCloseVoting(true)}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
+              >
+                <ThemedIcon name="checkmark-circle-outline" size={14} color={colors.success} />
+                <Text className="text-success text-body-small font-medium">{t('action.markAsPlanned')}</Text>
+              </TouchableOpacity>
+            )}
+            {canActOnDiscuss && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingDelete(true)}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
+              >
+                <ThemedIcon name="close-circle-outline" size={14} color={colors.danger} />
+                <Text className="text-danger text-body-small font-medium">{t('action.cancelAccommodation')}</Text>
+              </TouchableOpacity>
+            )}
+            {!isDiscuss && canCloseVoting && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => setConfirmingCloseVoting(true)}
@@ -343,7 +370,7 @@ function AccommodationCardWithVotes({
                 <Text className="text-warning text-body-small font-medium">{t('action.unbook')}</Text>
               </TouchableOpacity>
             )}
-            {canDelete && (
+            {!isDiscuss && canDelete && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => setConfirmingDelete(true)}

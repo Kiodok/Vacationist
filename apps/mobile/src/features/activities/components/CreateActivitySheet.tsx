@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { createActivitySchemaForTrip, type CreateActivityInput, type Currency, ACTIVITY_CATEGORIES } from '@vacationist/types';
 import { getCurrencySymbol } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface CreateActivitySheetProps {
   visible: boolean;
@@ -22,6 +23,8 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('activities');
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const schema = useMemo(
     () => createActivitySchemaForTrip(tripStartDate, tripEndDate),
     [tripStartDate, tripEndDate],
@@ -250,8 +253,8 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}
-                      trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
-                      thumbColor="#FFFFFF"
+                      trackColor={{ false: '#3E3E3E', true: colors.primary }}
+                      thumbColor={isColorful ? colors.surface : '#FFFFFF'}
                       ios_backgroundColor="#3E3E3E"
                     />
                   </View>
@@ -268,8 +271,8 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}
-                      trackColor={{ false: '#3E3E3E', true: '#6C63FF' }}
-                      thumbColor="#FFFFFF"
+                      trackColor={{ false: '#3E3E3E', true: colors.primary }}
+                      thumbColor={isColorful ? colors.surface : '#FFFFFF'}
                       ios_backgroundColor="#3E3E3E"
                     />
                   </View>

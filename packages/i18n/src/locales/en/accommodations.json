@@ -26,6 +26,8 @@
   "vote.showCount_other": "Show {{count}} votes",
   "edit.title": "Edit Accommodation",
   "action.edit": "Edit",
+  "action.markAsPlanned": "Mark as Planned",
+  "action.cancelAccommodation": "Cancel",
   "action.endVoting": "End voting",
   "action.reopenVoting": "Re-open voting",
   "action.remove": "Remove",
