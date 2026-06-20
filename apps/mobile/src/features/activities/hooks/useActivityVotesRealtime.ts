@@ -45,6 +45,7 @@ export function useActivityVotesRealtime(tripId: string) {
               return [...withoutUser, vote];
             },
           );
+          queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
         },
         onVoteUpdate: (vote) => {
           queryClient.setQueryData<ActivityVote[]>(
@@ -56,6 +57,7 @@ export function useActivityVotesRealtime(tripId: string) {
               return [...withoutUser, vote];
             },
           );
+          queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
         },
         onVoteDelete: (oldVote) => {
           if (oldVote.activity_id) {
@@ -69,6 +71,7 @@ export function useActivityVotesRealtime(tripId: string) {
           } else {
             queryClient.invalidateQueries({ queryKey: ['activities'] });
           }
+          queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
         },
         onActivityUpdate: (activity) => {
           queryClient.setQueryData<Activity[]>(

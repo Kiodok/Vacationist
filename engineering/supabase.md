@@ -1,5 +1,23 @@
 # Supabase Changes Log
 
+## 2026-06-20 — Blocker votes as workflow escalation
+
+### Migration: `20260620000000_blocker_as_workflow_escalation`
+
+**Changes:**
+1. **Updated `close_activity_voting()`** — now deletes all `group_blocker` votes from `activity_votes` after setting `voting_open = FALSE`. When an organiser/creator marks a Discuss item as Planned, blockers are removed automatically.
+2. **Updated `close_accommodation_voting()`** — same blocker deletion after closing.
+3. **Updated `close_transfer_flight_voting()`** — same.
+4. **Updated `book_transfer_flight()`** — same; blocker votes deleted after the flight is booked.
+5. **New function `auto_finalize_activity_voting_on_blocker_removal()`** — AFTER DELETE trigger on `activity_votes`. When a user removes their `group_blocker` vote, re-evaluates auto-close: if no remaining blockers, `auto_close = true`, and all members have voted, sets `voting_open = FALSE`. Exits early if `voting_open` is already false (prevents loop with step 1).
+6. **New trigger `on_activity_vote_deleted`** on `activity_votes`.
+7. **New function `auto_finalize_accommodation_voting_on_blocker_removal()`** + **trigger `on_accommodation_vote_deleted`** — same pattern for accommodations.
+8. **New function `auto_finalize_flight_voting_on_blocker_removal()`** + **trigger `on_transfer_flight_vote_deleted`** — same pattern for transfer flights.
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
 ## 2026-06-19 — Vote cleanup on member removal + auto-close blocker guard + review nudge
 
 ### Migration: `20260619100000_cleanup_votes_on_member_removal`

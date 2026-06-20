@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAccommodations, getAccommodation } from '@vacationist/api';
 import type {
   Accommodation,
+  AccommodationVote,
   CreateAccommodationVariables,
   UpdateAccommodationVariables,
   DeleteAccommodationVariables,
@@ -173,7 +174,9 @@ function useSetAccommodationVotingOpen(
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation<void, Error, CloseAccommodationVotingVariables, ListContext>({
+  type Context = { previous: Accommodation[] | undefined; previousVotes: AccommodationVote[] | undefined };
+
+  return useMutation<void, Error, CloseAccommodationVotingVariables, Context>({
     mutationKey: [mutationKey],
     onMutate: async ({ accommodationId, tripId }) => {
       await queryClient.cancelQueries({ queryKey: listKey(tripId) });
@@ -182,11 +185,25 @@ function useSetAccommodationVotingOpen(
         listKey(tripId),
         (old) => old?.map((a) => (a.id === accommodationId ? { ...a, voting_open: votingOpen } : a)),
       );
-      return { previous };
+
+      let previousVotes: AccommodationVote[] | undefined;
+      if (!votingOpen) {
+        await queryClient.cancelQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
+        previousVotes = queryClient.getQueryData<AccommodationVote[]>(['accommodations', accommodationId, 'votes']);
+        queryClient.setQueryData<AccommodationVote[]>(
+          ['accommodations', accommodationId, 'votes'],
+          (old) => old?.filter((v) => v.vote !== 'group_blocker'),
+        );
+      }
+
+      return { previous, previousVotes };
     },
-    onError: (_err, { tripId }, context) => {
+    onError: (_err, { accommodationId, tripId }, context) => {
       if (context !== undefined) {
         queryClient.setQueryData(listKey(tripId), context.previous);
+        if (context.previousVotes !== undefined) {
+          queryClient.setQueryData(['accommodations', accommodationId, 'votes'], context.previousVotes);
+        }
       }
       addToast(
         'error',

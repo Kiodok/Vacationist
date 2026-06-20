@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTransferFlights, getTransferFlight } from '@vacationist/api';
 import type {
   TransferFlight,
+  TransferFlightVote,
   CreateTransferFlightVariables,
   UpdateTransferFlightVariables,
   DeleteTransferFlightVariables,
@@ -148,7 +149,9 @@ function useSetFlightVotingOpen(
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation<void, Error, CloseTransferFlightVotingVariables, FlightsContext>({
+  type Context = { previous: TransferFlight[] | undefined; previousVotes: TransferFlightVote[] | undefined };
+
+  return useMutation<void, Error, CloseTransferFlightVotingVariables, Context>({
     mutationKey: [mutationKey],
     onMutate: async ({ flightId, tripId }) => {
       await queryClient.cancelQueries({ queryKey: flightsKey(tripId) });
@@ -157,11 +160,25 @@ function useSetFlightVotingOpen(
         flightsKey(tripId),
         (old) => old?.map((f) => (f.id === flightId ? { ...f, voting_open: votingOpen } : f)),
       );
-      return { previous };
+
+      let previousVotes: TransferFlightVote[] | undefined;
+      if (!votingOpen) {
+        await queryClient.cancelQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
+        previousVotes = queryClient.getQueryData<TransferFlightVote[]>(['transfer-flights', flightId, 'votes']);
+        queryClient.setQueryData<TransferFlightVote[]>(
+          ['transfer-flights', flightId, 'votes'],
+          (old) => old?.filter((v) => v.vote !== 'group_blocker'),
+        );
+      }
+
+      return { previous, previousVotes };
     },
-    onError: (_err, { tripId }, context) => {
+    onError: (_err, { flightId, tripId }, context) => {
       if (context !== undefined) {
         queryClient.setQueryData(flightsKey(tripId), context.previous);
+        if (context.previousVotes !== undefined) {
+          queryClient.setQueryData(['transfer-flights', flightId, 'votes'], context.previousVotes);
+        }
       }
       addToast(
         'error',
@@ -183,7 +200,9 @@ export function useBookTransferFlight() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation<void, Error, BookTransferFlightVariables, FlightsContext>({
+  type BookContext = { previous: TransferFlight[] | undefined; previousVotes: TransferFlightVote[] | undefined };
+
+  return useMutation<void, Error, BookTransferFlightVariables, BookContext>({
     mutationKey: ['bookTransferFlight'],
     onMutate: async ({ flightId, tripId, input }) => {
       await queryClient.cancelQueries({ queryKey: flightsKey(tripId) });
@@ -202,11 +221,22 @@ export function useBookTransferFlight() {
             : f,
         ),
       );
-      return { previous };
+
+      await queryClient.cancelQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
+      const previousVotes = queryClient.getQueryData<TransferFlightVote[]>(['transfer-flights', flightId, 'votes']);
+      queryClient.setQueryData<TransferFlightVote[]>(
+        ['transfer-flights', flightId, 'votes'],
+        (old) => old?.filter((v) => v.vote !== 'group_blocker'),
+      );
+
+      return { previous, previousVotes };
     },
-    onError: (_err, { tripId }, context) => {
+    onError: (_err, { flightId, tripId }, context) => {
       if (context !== undefined) {
         queryClient.setQueryData(flightsKey(tripId), context.previous);
+        if (context.previousVotes !== undefined) {
+          queryClient.setQueryData(['transfer-flights', flightId, 'votes'], context.previousVotes);
+        }
       }
       addToast('error', i18n.t('transfer:toast.flightBookFailed'));
     },

@@ -64,6 +64,7 @@ export function useRemoveVote(tripId: string, activityId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
     },
     onError: () => {
       addToast('error', i18n.t('activities:toast.removeVoteFailed'));

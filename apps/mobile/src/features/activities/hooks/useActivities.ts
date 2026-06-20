@@ -10,6 +10,7 @@ import {
 } from '@vacationist/api';
 import type {
   Activity,
+  ActivityVote,
   CreateActivityVariables,
   UpdateActivityVariables,
   DeleteActivityVariables,
@@ -150,7 +151,9 @@ function useSetVotingOpen(
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation<void, Error, CloseActivityVotingVariables, { previous: Activity[] | undefined }>({
+  type Context = { previous: Activity[] | undefined; previousVotes: ActivityVote[] | undefined };
+
+  return useMutation<void, Error, CloseActivityVotingVariables, Context>({
     mutationKey: [mutationKey],
     mutationFn: ({ activityId }) =>
       votingOpen ? reopenActivityVoting(activityId) : closeActivityVoting(activityId),
@@ -161,11 +164,25 @@ function useSetVotingOpen(
         ['trips', tripId, 'activities'],
         (old) => old?.map((a) => (a.id === activityId ? { ...a, voting_open: votingOpen } : a)),
       );
-      return { previous };
+
+      let previousVotes: ActivityVote[] | undefined;
+      if (!votingOpen) {
+        await queryClient.cancelQueries({ queryKey: ['activities', activityId, 'votes'] });
+        previousVotes = queryClient.getQueryData<ActivityVote[]>(['activities', activityId, 'votes']);
+        queryClient.setQueryData<ActivityVote[]>(
+          ['activities', activityId, 'votes'],
+          (old) => old?.filter((v) => v.vote !== 'group_blocker'),
+        );
+      }
+
+      return { previous, previousVotes };
     },
-    onError: (_err, { tripId }, context) => {
+    onError: (_err, { activityId, tripId }, context) => {
       if (context !== undefined) {
         queryClient.setQueryData(['trips', tripId, 'activities'], context.previous);
+        if (context.previousVotes !== undefined) {
+          queryClient.setQueryData(['activities', activityId, 'votes'], context.previousVotes);
+        }
       }
       addToast(
         'error',
