@@ -290,7 +290,7 @@ export default function ActivitiesTab() {
             );
           }}
           renderItem={({ item }) => (
-            <View className="mb-sm">
+            <View style={{ marginBottom: 12 }}>
               <ActivityCardWithVotes
                 activity={item}
                 tripId={tripId!}

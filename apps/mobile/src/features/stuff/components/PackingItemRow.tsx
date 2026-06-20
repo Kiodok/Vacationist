@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { PackingItem } from '@vacationist/types';
 import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
 
@@ -12,6 +12,8 @@ interface PackingItemRowProps {
 
 export function PackingItemRow({ item, onToggle, onLongPress }: PackingItemRowProps) {
   const { t } = useTranslation('stuff');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const isPacked = item.is_packed;
   const categoryKey = SEEDED_CATEGORY_I18N[item.category];
   const categoryLabel = categoryKey ? t(categoryKey) : item.category;
@@ -27,8 +29,9 @@ export function PackingItemRow({ item, onToggle, onLongPress }: PackingItemRowPr
           className={`w-[24px] h-[24px] rounded-sm border-2 items-center justify-center ${
             isPacked ? 'bg-success border-success' : 'border-border'
           }`}
+          style={isColorful && !isPacked ? { borderColor: colors.surface } : undefined}
         >
-          {isPacked && <ThemedIcon name="checkmark" size={16} color="#FFFFFF" />}
+          {isPacked && <ThemedIcon name="checkmark" size={16} color={isColorful ? colors.surface : '#FFFFFF'} />}
         </View>
       </Pressable>
 

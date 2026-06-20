@@ -54,8 +54,8 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
             <Switch
               value={prefs[key] ?? true}
               onValueChange={(val) => updatePrefs({ [key]: val })}
-              trackColor={{ false: '#3A3A3A', true: colors.primary }}
-              thumbColor={isColorful ? colors.surface : '#FFFFFF'}
+              trackColor={{ false: '#3A3A3A', true: isColorful ? colors.background : colors.primary }}
+              thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
             />
           </View>
         ))}

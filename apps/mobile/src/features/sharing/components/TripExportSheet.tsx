@@ -23,9 +23,10 @@ export function TripExportSheet({ visible, onClose, tripId }: TripExportSheetPro
     if (success) onClose();
   }
 
+  const isColorful = theme === 'colorful';
   const switchTrackColor = {
     false: colors.border,
-    true: colors.primary,
+    true: isColorful ? colors.surface : colors.primary,
   };
 
   return (
@@ -53,7 +54,7 @@ export function TripExportSheet({ visible, onClose, tripId }: TripExportSheetPro
               value={includeExpenses}
               onValueChange={setIncludeExpenses}
               trackColor={switchTrackColor}
-              thumbColor={theme === 'colorful' ? colors.textPrimary : '#FFFFFF'}
+              thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
             />
           </View>
 

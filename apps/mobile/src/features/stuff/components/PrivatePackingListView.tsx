@@ -179,14 +179,20 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
             />
           }
           ListHeaderComponent={
-            <Pressable
-              onPress={onCopyToTrip}
-              className="flex-row items-center gap-xs self-start mb-xs mt-sm"
-              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            >
-              <ThemedIcon name="copy-outline" size={14} color={colors.textSecondary} />
-              <Text className="text-body-small text-text-secondary">{t('action.copyToTrip')}</Text>
-            </Pressable>
+            <View className="mt-sm mb-xs gap-xs">
+              <Pressable
+                onPress={onCopyToTrip}
+                className="flex-row items-center gap-xs self-start"
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+              >
+                <ThemedIcon name="copy-outline" size={14} color={colors.textSecondary} />
+                <Text className="text-body-small text-text-secondary">{t('action.copyToTrip')}</Text>
+              </Pressable>
+              <View className="flex-row items-center gap-xs">
+                <ThemedIcon name="hand-left-outline" size={12} color={colors.textSecondary} />
+                <Text className="text-body-small text-text-muted">{t('hint.longPress')}</Text>
+              </View>
+            </View>
           }
         />
       )}

@@ -253,8 +253,8 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}
-                      trackColor={{ false: '#3E3E3E', true: colors.primary }}
-                      thumbColor={isColorful ? colors.surface : '#FFFFFF'}
+                      trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                      thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
                       ios_backgroundColor="#3E3E3E"
                     />
                   </View>
@@ -271,8 +271,8 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}
-                      trackColor={{ false: '#3E3E3E', true: colors.primary }}
-                      thumbColor={isColorful ? colors.surface : '#FFFFFF'}
+                      trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                      thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
                       ios_backgroundColor="#3E3E3E"
                     />
                   </View>

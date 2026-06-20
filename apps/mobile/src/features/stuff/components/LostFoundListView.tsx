@@ -85,7 +85,8 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
           ref={listRef}
           data={sortedCases}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8, paddingBottom: 80 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 80 }}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={({ item }) => (
             <LostFoundCaseCard
               lostFoundCase={item}

@@ -3,14 +3,14 @@ import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TransferVehicle, TransferVehiclePassenger } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface VehicleCardProps {
   vehicle: TransferVehicle;
   passengers: TransferVehiclePassenger[];
   members: TripMemberWithUser[];
-  onPress: () => void;
+  onPress?: () => void;
   detail?: React.ReactNode;
   highlight?: boolean;
   joinAction?: React.ReactNode;
@@ -23,13 +23,20 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
   });
 
   const [notesExpanded, setNotesExpanded] = useState(false);
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const borderColor = colors.border;
   const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
 
   return (
     <Animated.View
-      className={`bg-surface ${detail ? 'rounded-t-md' : joinAction ? 'rounded-t-md' : 'rounded-md'}`}
-      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
+      style={{
+        borderWidth: isColorful ? 2 : 1,
+        borderColor: animatedBorderColor,
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const, backgroundColor: colors.surface, ...(detail ? { borderTopLeftRadius: 12, borderTopRightRadius: 12 } : { borderRadius: 12 }) } : {}),
+        ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
+      }}
     >
       <Pressable
         onPress={onPress}

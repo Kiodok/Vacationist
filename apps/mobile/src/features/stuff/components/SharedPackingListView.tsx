@@ -70,7 +70,8 @@ export function SharedPackingListView({ tripId, currentUserId, role, memberNameM
         <FlashList
           data={sortedItems}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8, paddingBottom: 80 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 80 }}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={({ item }) => (
             <SharedPackingItemCard
               item={item}

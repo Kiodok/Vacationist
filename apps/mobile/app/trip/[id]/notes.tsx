@@ -126,7 +126,7 @@ export default function NotesTab() {
           data={activeNotes}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingTop: 16, paddingHorizontal: 16, paddingBottom: 100 }}
-          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={({ item }) => (
             <NoteCard
               note={item}
@@ -138,7 +138,7 @@ export default function NotesTab() {
           )}
           ListFooterComponent={
             doneNotes.length > 0 ? (
-              <View style={{ marginTop: activeNotes.length > 0 ? 8 : 0 }}>
+              <View style={{ marginTop: activeNotes.length > 0 ? 12 : 0 }}>
                 <Pressable
                   onPress={() => setShowDone((v) => !v)}
                   className="flex-row items-center gap-xs py-sm px-xs"
@@ -156,7 +156,7 @@ export default function NotesTab() {
                 </Pressable>
 
                 {showDone && (
-                  <View style={{ gap: 8 }}>
+                  <View style={{ gap: 12 }}>
                     {doneNotes.map((note) => (
                       <NoteCard
                         key={note.id}

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface AddIngredientInputProps {
   onAdd: (title: string, quantity: number | null, unit: string | null) => void;
@@ -10,6 +10,8 @@ interface AddIngredientInputProps {
 
 export function AddIngredientInput({ onAdd, isPending }: AddIngredientInputProps) {
   const { t } = useTranslation('recipes');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [title, setTitle] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [unit, setUnit] = useState('');
@@ -55,7 +57,7 @@ export function AddIngredientInput({ onAdd, isPending }: AddIngredientInputProps
           <ThemedIcon
             name="add"
             size={22}
-            color={!title.trim() || isPending ? '#5C5C5C' : '#FFFFFF'}
+            color={!title.trim() || isPending ? '#5C5C5C' : isColorful ? colors.surface : '#FFFFFF'}
           />
         </Pressable>
       </View>

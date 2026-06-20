@@ -29,6 +29,7 @@
   "action.unresolve": "Wieder öffnen",
   "action.edit": "Bearbeiten",
   "action.copyToTrip": "In Reise kopieren",
+  "hint.longPress": "Gedrückt halten zum Bearbeiten oder Löschen",
   "label.category": "Kategorie",
   "label.claimedBy": "Übernommen von {{name}}",
   "label.broughtBy": "Mitgebracht von {{name}}",

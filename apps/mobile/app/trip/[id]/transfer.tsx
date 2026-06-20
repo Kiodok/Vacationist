@@ -286,7 +286,7 @@ export default function TransferTab() {
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
             renderItem={({ item }) => (
-              <View className="mb-sm">
+              <View style={{ marginBottom: 12 }}>
                 <FlightCardWithVotes
                   flight={item}
                   tripId={tripId!}
@@ -337,7 +337,7 @@ export default function TransferTab() {
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
             renderItem={({ item }) => (
-              <View className="mb-sm">
+              <View style={{ marginBottom: 12 }}>
                 <VehicleCardWithPassengers
                   vehicle={item}
                   tripId={tripId!}
@@ -619,8 +619,8 @@ function FlightCardWithVotes({
           <Switch
             value={flight.auto_close}
             onValueChange={onToggleAutoClose}
-            trackColor={{ false: '#3E3E3E', true: colors.primary }}
-            thumbColor={isColorful ? colors.surface : '#FFFFFF'}
+            trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+            thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
             ios_backgroundColor="#3E3E3E"
           />
         </View>
@@ -836,6 +836,7 @@ function VehicleCardWithPassengers({
   const canEdit = role === 'organizer' || (role === 'participant' && vehicle.created_by === currentUserId);
   const canDelete = role === 'organizer' || (role === 'participant' && vehicle.created_by === currentUserId);
   const canManagePassengers = role === 'organizer' || (role === 'participant' && vehicle.created_by === currentUserId);
+  const hasDetail = canEdit || canDelete || canManagePassengers;
   const isPassenger = currentUserId ? passengers.some((p) => p.user_id === currentUserId) : false;
 
   const currentPassengerIds = passengers.map((p) => p.user_id);
@@ -857,14 +858,7 @@ function VehicleCardWithPassengers({
 
   const detailContent = showDetail ? (
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
-      {vehicle.notes && (
-        <View className="gap-xs">
-          <Text className="text-label text-text-muted uppercase">{tCommon('label.notes')}</Text>
-          <Text className="text-body-small text-text-secondary">{vehicle.notes}</Text>
-        </View>
-      )}
-
-      <View className="gap-sm mt-xs">
+      <View className="gap-sm">
         {confirmingDelete ? (
           <View className="flex-row items-center gap-sm">
             <Text className="text-text-secondary text-body-small">{t('confirm.removeVehicle')}</Text>
@@ -953,8 +947,8 @@ function VehicleCardWithPassengers({
         vehicle={vehicle}
         passengers={passengers}
         members={members ?? []}
-        onPress={() => setShowDetail(!showDetail)}
-        detail={detailContent}
+        onPress={hasDetail ? () => setShowDetail(!showDetail) : undefined}
+        detail={hasDetail ? detailContent : undefined}
         highlight={highlight}
         joinAction={joinLeaveButton}
       />

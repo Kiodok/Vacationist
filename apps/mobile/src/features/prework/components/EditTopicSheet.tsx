@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { updatePreworkTopicSchema, type UpdatePreworkTopicInput, type PreworkTopic } from '@vacationist/types';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface EditTopicSheetProps {
   topic: PreworkTopic | null;
@@ -37,6 +37,8 @@ export function EditTopicSheet({
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('prework');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -173,7 +175,7 @@ export function EditTopicSheet({
                       <ThemedIcon
                         name="add"
                         size={20}
-                        color={labelInput.trim() ? '#FFFFFF' : '#5C5C5C'}
+                        color={labelInput.trim() ? (isColorful ? colors.surface : '#FFFFFF') : '#5C5C5C'}
                       />
                     </Pressable>
                   </View>
@@ -186,7 +188,7 @@ export function EditTopicSheet({
                   className={`items-center py-sm rounded-md ${canSubmit && !isSaving ? 'bg-primary' : 'bg-primary/50'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-body font-semibold" style={{ color: isColorful ? colors.surface : '#FFFFFF' }}>
                     {isSaving ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>

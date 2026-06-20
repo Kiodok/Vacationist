@@ -190,7 +190,7 @@ export default function ExpensesTab() {
             );
           }}
           renderItem={({ item }) => (
-            <View className="mb-sm" style={item.archived_at ? { opacity: 0.5 } : undefined}>
+            <View style={item.archived_at ? { opacity: 0.5, marginBottom: 12 } : { marginBottom: 12 }}>
               <ExpenseCardWithSplits
                 expense={item}
                 tripId={tripId!}

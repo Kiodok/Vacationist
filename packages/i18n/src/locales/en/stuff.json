@@ -29,6 +29,7 @@
   "action.unresolve": "Reopen",
   "action.edit": "Edit",
   "action.copyToTrip": "Copy to Trip",
+  "hint.longPress": "Long press an item to edit or delete",
   "label.category": "Category",
   "label.claimedBy": "Claimed by {{name}}",
   "label.broughtBy": "Brought by {{name}}",

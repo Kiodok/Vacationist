@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { PreworkFilter } from '@vacationist/types';
 import { upsertPreworkPreferencesSchema } from '@vacationist/types';
 import { PreworkFilterRow } from './PreworkFilterRow';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface MyPreferencesSectionProps {
   initialFilters: PreworkFilter[];
@@ -25,6 +25,8 @@ export function MyPreferencesSection({
 }: MyPreferencesSectionProps) {
   const { t } = useTranslation('prework');
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [filters, setFilters] = useState<PreworkFilter[]>(initialFilters);
   const [newLabel, setNewLabel] = useState('');
   const [isDirty, setIsDirty] = useState(false);
@@ -182,7 +184,7 @@ export function MyPreferencesSection({
           <ThemedIcon
             name="add"
             size={20}
-            color={newLabel.trim() ? '#FFFFFF' : '#5C5C5C'}
+            color={newLabel.trim() ? (isColorful ? colors.surface : '#FFFFFF') : '#5C5C5C'}
           />
         </Pressable>
       </View>
@@ -197,18 +199,17 @@ export function MyPreferencesSection({
           }`}
         >
           {isSaving ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color={isColorful ? colors.surface : '#FFFFFF'} />
           ) : (
             <>
               <ThemedIcon
                 name="checkmark-circle-outline"
                 size={18}
-                color={canSave ? '#FFFFFF' : '#5C5C5C'}
+                color={canSave ? (isColorful ? colors.surface : '#FFFFFF') : '#5C5C5C'}
               />
               <Text
-                className={`text-body font-semibold ${
-                  canSave ? 'text-white' : 'text-text-muted'
-                }`}
+                className={`text-body font-semibold ${canSave ? '' : 'text-text-muted'}`}
+                style={canSave ? { color: isColorful ? colors.surface : '#FFFFFF' } : undefined}
               >
                 {tCommon('button.save')}
               </Text>

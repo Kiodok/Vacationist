@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface AddShoppingItemInputProps {
   onAdd: (title: string) => void;
@@ -10,6 +10,8 @@ interface AddShoppingItemInputProps {
 
 export function AddShoppingItemInput({ onAdd, isPending }: AddShoppingItemInputProps) {
   const { t } = useTranslation('shopping');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [title, setTitle] = useState('');
   const inputRef = useRef<TextInput>(null);
 
@@ -46,7 +48,7 @@ export function AddShoppingItemInput({ onAdd, isPending }: AddShoppingItemInputP
         <ThemedIcon
           name="add"
           size={22}
-          color={!title.trim() || isPending ? '#5C5C5C' : '#FFFFFF'}
+          color={!title.trim() || isPending ? '#5C5C5C' : isColorful ? colors.surface : '#FFFFFF'}
         />
       </Pressable>
     </View>

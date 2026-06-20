@@ -1,7 +1,7 @@
 import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
 import { dayjs, formatCurrency } from '@vacationist/utils';
 import type { TransferRental, Currency } from '@vacationist/types';
-import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface RentalCardProps {
@@ -13,14 +13,20 @@ interface RentalCardProps {
 }
 
 export function RentalCard({ rental, currency, onPress, detail, highlight }: RentalCardProps) {
-
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const borderColor = colors.border;
   const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
 
   return (
     <Animated.View
       className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
-      style={{ borderWidth: 1, borderColor: animatedBorderColor, ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const } : {}) }}
+      style={{
+        borderWidth: isColorful ? 2 : 1,
+        borderColor: animatedBorderColor,
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const, backgroundColor: colors.surface, ...(detail ? { borderTopLeftRadius: 12, borderTopRightRadius: 12 } : { borderRadius: 12 }) } : {}),
+        ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
+      }}
     >
       <Pressable
         onPress={onPress}

@@ -33,11 +33,11 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
 
   return (
     <Animated.View
-      className={`bg-surface ${detail ? 'rounded-t-lg' : 'rounded-lg'}`}
+      className={`bg-surface ${detail ? 'rounded-t-md' : 'rounded-md'}`}
       style={{
         borderWidth: isColorful ? 2 : 1,
         borderColor: animatedBorderColor,
-        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const, backgroundColor: colors.surface } : {}),
+        ...(Platform.OS === 'web' ? { borderStyle: 'solid' as const, backgroundColor: colors.surface, ...(detail ? { borderTopLeftRadius: 12, borderTopRightRadius: 12 } : { borderRadius: 12 }) } : {}),
         ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
       }}
     >

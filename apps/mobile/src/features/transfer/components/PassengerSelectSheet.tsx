@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { TripMemberWithUser } from '@vacationist/api';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface PassengerSelectSheetProps {
   visible: boolean;
@@ -28,6 +28,8 @@ export function PassengerSelectSheet({
   onDriverToggle,
 }: PassengerSelectSheetProps) {
   const insets = useSafeAreaInsets();
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [selected, setSelected] = useState<Set<string>>(new Set(selectedUserIds));
 
   const toggle = (userId: string) => {
@@ -81,7 +83,7 @@ export function PassengerSelectSheet({
                     <View className={`w-[20px] h-[20px] rounded-sm border-2 items-center justify-center mr-md ${
                       isSelected ? 'bg-primary border-primary' : 'border-border'
                     }`}>
-                      {isSelected && <ThemedIcon name="checkmark" size={14} color="#FFFFFF" />}
+                      {isSelected && <ThemedIcon name="checkmark" size={14} color={isColorful ? colors.surface : '#FFFFFF'} />}
                     </View>
                     <Text className="text-body text-text-primary flex-1">
                       {member.user?.name ?? 'Unknown'}
@@ -92,8 +94,8 @@ export function PassengerSelectSheet({
                         <Switch
                           value={isDriver}
                           onValueChange={(val) => onDriverToggle(member.user_id, val)}
-                          thumbColor={isDriver ? colors.primary : '#555555'}
-                          trackColor={{ false: '#2E2E2E', true: colors.primaryMuted }}
+                          trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                          thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
                         />
                       </View>
                     )}
@@ -109,7 +111,7 @@ export function PassengerSelectSheet({
             className={`items-center py-sm rounded-md mt-md ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
             style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
           >
-            <Text className="text-white text-body font-semibold">
+            <Text className="text-body font-semibold" style={{ color: isColorful ? colors.surface : '#FFFFFF' }}>
               {isPending ? 'Saving...' : `Confirm (${selected.size})`}
             </Text>
           </Pressable>
