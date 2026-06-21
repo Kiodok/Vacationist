@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateRecipeSchema, type UpdateRecipeInput } from '@vacationist/types';
 import type { Recipe } from '@vacationist/types';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditRecipeSheetProps {
   visible: boolean;
@@ -18,6 +19,8 @@ export function EditRecipeSheet({ visible, recipe, onClose, onSubmit, isPending 
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('recipes');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateRecipeInput>({
     resolver: zodResolver(updateRecipeSchema),
     defaultValues: {
@@ -139,7 +142,7 @@ export function EditRecipeSheet({ visible, recipe, onClose, onSubmit, isPending 
               className={`items-center py-sm rounded-md ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
               style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
             >
-              <Text className="text-white text-body font-semibold">
+              <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                 {isPending ? tCommon('label.saving') : tCommon('button.save')}
               </Text>
             </Pressable>

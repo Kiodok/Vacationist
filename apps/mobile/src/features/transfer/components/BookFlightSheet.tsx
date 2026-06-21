@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { bookTransferFlightSchema, type BookTransferFlightInput } from '@vacationist/types';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface BookFlightSheetProps {
   visible: boolean;
@@ -16,6 +17,8 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending }: BookF
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { control, handleSubmit, reset, formState: { errors } } = useForm<BookTransferFlightInput>({
     resolver: zodResolver(bookTransferFlightSchema),
     defaultValues: { flight_number: '', booking_reference: '' },
@@ -106,7 +109,7 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending }: BookF
                   className={`items-center py-sm rounded-md mt-sm ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? tCommon('label.saving') : t('action.book')}
                   </Text>
                 </Pressable>

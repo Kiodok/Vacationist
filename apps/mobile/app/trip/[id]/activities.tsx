@@ -471,8 +471,8 @@ function ActivityCardWithVotes({
           <Switch
             value={activity.auto_close}
             onValueChange={onToggleAutoClose}
-            trackColor={{ false: '#3E3E3E', true: colors.primary }}
-            thumbColor={isColorful ? colors.surface : '#FFFFFF'}
+            trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+            thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
             ios_backgroundColor="#3E3E3E"
           />
         </View>

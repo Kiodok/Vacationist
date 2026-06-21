@@ -8,7 +8,7 @@ import { StatusIndicator } from '../../activities/components/StatusIndicator';
 import { VoteSummary } from '../../activities/components/VoteChip';
 import { useActivityVotes } from '../../activities/hooks/useVotes';
 import { useTripMembers } from '../../trips/hooks/useMembers';
-import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 
 interface CalendarActivitySheetProps {
@@ -30,6 +30,8 @@ export function CalendarActivitySheet({
 }: CalendarActivitySheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('calendar');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { data: votes, isLoading: votesLoading } = useActivityVotes(activity?.id ?? '');
   const { data: members } = useTripMembers(activity?.trip_id ?? '');
   const [showVotes, setShowVotes] = useState(false);
@@ -184,7 +186,7 @@ export function CalendarActivitySheet({
               className="bg-primary rounded-md py-md items-center flex-1"
               style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
             >
-              <Text className="text-white text-body font-semibold">{t('viewFullDetails')}</Text>
+              <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>{t('viewFullDetails')}</Text>
             </Pressable>
           </View>
         </View>

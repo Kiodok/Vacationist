@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { updateTripSchema, type UpdateTripInput, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { Trip } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
-import { ThemedIcon } from '@vacationist/ui';
+import { ThemedIcon, colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditTripSheetProps {
   visible: boolean;
@@ -21,6 +21,8 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('trips');
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTripInput>({
     resolver: zodResolver(updateTripSchema),
@@ -256,7 +258,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                   }`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>

@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { createSharedPackingItemSchema, type CreateSharedPackingItemInput, SHARED_PACKING_ITEM_TYPE, type SharedPackingItemType } from '@vacationist/types';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface CreateSharedPackingItemSheetProps {
   visible: boolean;
@@ -24,6 +25,8 @@ export function CreateSharedPackingItemSheet({ visible, onClose, onSubmit, isPen
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateSharedPackingItemInput>({
     resolver: zodResolver(createSharedPackingItemSchema),
@@ -143,7 +146,7 @@ export function CreateSharedPackingItemSheet({ visible, onClose, onSubmit, isPen
                   className={`items-center py-sm rounded-md ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>

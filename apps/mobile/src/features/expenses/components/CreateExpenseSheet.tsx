@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createExpenseSchema, type CreateExpenseInput, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { formatCurrency, roundCurrency, isNegligible } from '@vacationist/utils';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface CreateExpenseSheetProps {
   visible: boolean;
@@ -23,6 +23,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
 
   const RELATED_TYPE_LABELS: Record<string, string> = {
     manual: t('category.manual'),
@@ -243,7 +245,10 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                           className={`px-md py-sm rounded-full ${value === type ? 'bg-primary' : 'bg-surface border border-border'}`}
                           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                         >
-                          <Text className={`text-body-small ${value === type ? 'text-white font-semibold' : 'text-text-secondary'}`}>
+                          <Text
+                            className={`text-body-small ${value === type ? 'text-white font-semibold' : 'text-text-secondary'}`}
+                            style={value === type && isColorful ? { color: colors.surface } : undefined}
+                          >
                             {RELATED_TYPE_LABELS[type] ?? type}
                           </Text>
                         </Pressable>
@@ -269,7 +274,11 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                             className={`px-md py-sm rounded-full ${value === m.user_id ? 'bg-primary' : 'bg-surface border border-border'}`}
                             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                           >
-                            <Text className={`text-body-small ${value === m.user_id ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
+                            <Text
+                              className={`text-body-small ${value === m.user_id ? 'text-white font-semibold' : 'text-text-secondary'}`}
+                              style={value === m.user_id && isColorful ? { color: colors.surface } : undefined}
+                              numberOfLines={1}
+                            >
                               {m.user.name}
                             </Text>
                           </Pressable>
@@ -291,7 +300,10 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                       className={`flex-1 items-center py-sm rounded-md ${splitMethod === method ? 'bg-primary' : 'bg-surface border border-border'}`}
                       style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                     >
-                      <Text className={`text-body-small font-medium ${splitMethod === method ? 'text-white' : 'text-text-secondary'}`}>
+                      <Text
+                        className={`text-body-small font-medium ${splitMethod === method ? 'text-white' : 'text-text-secondary'}`}
+                        style={splitMethod === method && isColorful ? { color: colors.surface } : undefined}
+                      >
                         {SPLIT_METHOD_LABELS[method]}
                       </Text>
                     </Pressable>
@@ -319,13 +331,17 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                           <ThemedIcon
                             name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                             size={16}
-                            color={isSelected ? '#FFFFFF' : colors.textSecondary}
+                            color={isSelected ? (isColorful ? colors.surface : '#FFFFFF') : colors.textSecondary}
                           />
-                          <Text className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
+                          <Text
+                            className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`}
+                            style={isSelected && isColorful ? { color: colors.surface } : undefined}
+                            numberOfLines={1}
+                          >
                             {m.user.name}
                           </Text>
                           {isSelected && totalAmount > 0 && (
-                            <Text className="text-white/70 text-body-small">{formatCurrency(totalAmount, currency)}</Text>
+                            <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, currency)}</Text>
                           )}
                         </Pressable>
                       );
@@ -359,16 +375,20 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                             <ThemedIcon
                               name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                               size={16}
-                              color={isSelected ? '#FFFFFF' : colors.textSecondary}
+                              color={isSelected ? (isColorful ? colors.surface : '#FFFFFF') : colors.textSecondary}
                             />
-                            <Text className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
+                            <Text
+                              className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`}
+                              style={isSelected && isColorful ? { color: colors.surface } : undefined}
+                              numberOfLines={1}
+                            >
                               {m.user.name}
                             </Text>
                             {isSelected && splitMethod === 'even' && totalAmount > 0 && (
-                              <Text className="text-white/70 text-body-small">{formatCurrency(perPerson, currency)}</Text>
+                              <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(perPerson, currency)}</Text>
                             )}
                             {isSelected && splitMethod === 'exact' && selectedMembers.size === 1 && totalAmount > 0 && (
-                              <Text className="text-white/70 text-body-small">{formatCurrency(totalAmount, currency)}</Text>
+                              <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, currency)}</Text>
                             )}
                           </Pressable>
 
@@ -443,7 +463,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                 className={`items-center py-sm rounded-md mt-sm ${!canSubmit ? 'bg-primary/50' : 'bg-primary'}`}
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
-                <Text className="text-white text-body font-semibold">
+                <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                   {isPending ? t('create.adding') : t('create.submit')}
                 </Text>
               </Pressable>

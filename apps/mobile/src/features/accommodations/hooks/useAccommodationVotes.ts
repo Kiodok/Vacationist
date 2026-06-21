@@ -36,6 +36,10 @@ export function useCastAccommodationVote() {
       }
       return { previous };
     },
+    onSuccess: (_data, { accommodationId, tripId }) => {
+      queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
+    },
     onError: (_error, { accommodationId }, context) => {
       if (context?.previous) {
         queryClient.setQueryData(['accommodations', accommodationId, 'votes'], context.previous);

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { updateLostFoundCaseSchema, type UpdateLostFoundCaseInput, type LostFoundCase, LOST_FOUND_CASE_TYPE, type LostFoundCaseType } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditLostFoundCaseSheetProps {
   visible: boolean;
@@ -28,6 +29,8 @@ export function EditLostFoundCaseSheet({ visible, lostFoundCase: c, members, cur
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateLostFoundCaseInput>({
     resolver: zodResolver(updateLostFoundCaseSchema),
@@ -194,7 +197,7 @@ export function EditLostFoundCaseSheet({ visible, lostFoundCase: c, members, cur
                   className={`items-center py-sm rounded-md ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>

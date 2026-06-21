@@ -373,7 +373,8 @@ export default function TransferTab() {
             ref={rentalListRef}
             data={rentals}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 12 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             renderItem={({ item }) => (
               <RentalCardExpanded
                 rental={item}

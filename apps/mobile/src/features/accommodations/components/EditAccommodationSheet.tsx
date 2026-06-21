@@ -6,6 +6,7 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateAccommodationSchema, type UpdateAccommodationInput, type Accommodation } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditAccommodationSheetProps {
   visible: boolean;
@@ -22,6 +23,8 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('accommodations');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateAccommodationInput>({
     resolver: zodResolver(updateAccommodationSchema),
@@ -242,7 +245,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                 }`}
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
-                <Text className="text-white text-body font-semibold">
+                <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                   {isPending ? tCommon('label.saving') : tCommon('button.save')}
                 </Text>
               </Pressable>

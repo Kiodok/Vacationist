@@ -37,6 +37,7 @@
   "doc.reveal": "Tap to reveal",
   "doc.delete.title": "Delete document",
   "doc.delete.confirm": "Remove your {{type}}?",
+  "document.saveButton": "Save Document",
   "biometric.locked": "Documents locked",
   "biometric.subtitle": "Verify your identity to view travel document details",
   "biometric.verify": "Verify Identity",

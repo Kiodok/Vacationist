@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { upsertTravelDocumentSchema, type UpsertTravelDocumentInput, DOCUMENT_TYPE } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 const DOCUMENT_LABELS: Record<string, string> = {
   passport: 'Passport',
@@ -29,6 +30,8 @@ export function AddTravelDocumentSheet({
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const availableTypes = DOCUMENT_TYPE.filter((t) => !existingTypes.includes(t));
   const defaultType = availableTypes[0] ?? 'passport';
 
@@ -260,8 +263,8 @@ export function AddTravelDocumentSheet({
                 isPending ? 'bg-primary/50' : 'bg-primary'
               }`}
             >
-              <Text className="text-body text-white font-semibold">
-                {isPending ? 'Saving…' : 'Save Document'}
+              <Text className="text-body text-white font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
+                {isPending ? tCommon('label.saving') : t('document.saveButton')}
               </Text>
             </Pressable>
           </View>

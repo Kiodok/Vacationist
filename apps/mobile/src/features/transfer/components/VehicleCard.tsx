@@ -17,6 +17,7 @@ interface VehicleCardProps {
 }
 
 export function VehicleCard({ vehicle, passengers, members, onPress, detail, highlight, joinAction }: VehicleCardProps) {
+  const { t } = useTranslation('transfer');
   const resolvedPassengers = passengers.map((p) => {
     const member = members.find((m) => m.user_id === p.user_id);
     return { ...p, name: member?.user?.name ?? 'Unknown' };
@@ -66,7 +67,7 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
         )}
 
         {resolvedPassengers.length === 0 && (
-          <Text className="text-body-small text-text-muted">No passengers assigned</Text>
+          <Text className="text-body-small text-text-muted">{t('label.noPassengers')}</Text>
         )}
       </Pressable>
 

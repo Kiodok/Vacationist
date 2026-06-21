@@ -532,7 +532,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                   className={`items-center py-sm rounded-md mt-sm ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? t('flight.create.adding') : t('flight.create.submit')}
                   </Text>
                 </Pressable>

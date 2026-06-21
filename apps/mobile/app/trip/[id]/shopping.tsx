@@ -123,7 +123,10 @@ export default function ShoppingTab() {
           onPress={() => setViewMode('lists')}
           className={`px-md py-sm rounded-full ${viewMode === 'lists' ? 'bg-primary' : 'bg-surface'}`}
         >
-          <Text className={`text-body-small font-semibold ${viewMode === 'lists' ? 'text-white' : 'text-text-secondary'}`}>
+          <Text
+            className={`text-body-small font-semibold ${viewMode === 'lists' ? 'text-white' : 'text-text-secondary'}`}
+            style={viewMode === 'lists' && isColorful ? { color: colors.surface } : undefined}
+          >
             {t('toggle.lists')}
           </Text>
         </Pressable>
@@ -132,7 +135,10 @@ export default function ShoppingTab() {
             onPress={() => setViewMode('all')}
             className={`px-md py-sm rounded-full ${viewMode === 'all' ? 'bg-primary' : 'bg-surface'}`}
           >
-            <Text className={`text-body-small font-semibold ${viewMode === 'all' ? 'text-white' : 'text-text-secondary'}`}>
+            <Text
+              className={`text-body-small font-semibold ${viewMode === 'all' ? 'text-white' : 'text-text-secondary'}`}
+              style={viewMode === 'all' && isColorful ? { color: colors.surface } : undefined}
+            >
               {t('toggle.allItems')}
             </Text>
           </Pressable>
@@ -141,7 +147,10 @@ export default function ShoppingTab() {
           onPress={() => setViewMode('recipes')}
           className={`px-md py-sm rounded-full ${viewMode === 'recipes' ? 'bg-primary' : 'bg-surface'}`}
         >
-          <Text className={`text-body-small font-semibold ${viewMode === 'recipes' ? 'text-white' : 'text-text-secondary'}`}>
+          <Text
+            className={`text-body-small font-semibold ${viewMode === 'recipes' ? 'text-white' : 'text-text-secondary'}`}
+            style={viewMode === 'recipes' && isColorful ? { color: colors.surface } : undefined}
+          >
             {t('toggle.recipes')}
           </Text>
         </Pressable>

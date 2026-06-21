@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface DocumentAccessRequestSheetProps {
   visible: boolean;
@@ -20,6 +20,8 @@ export function DocumentAccessRequestSheet({
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation("common");
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [selected, setSelected] = useState<number>(30);
 
   const DURATION_OPTIONS = [
@@ -89,9 +91,9 @@ export function DocumentAccessRequestSheet({
             }`}
           >
             {isPending ? (
-              <ActivityIndicator size="small" color="#fff" />
+              <ActivityIndicator size="small" color={isColorful ? colors.surface : '#ffffff'} />
             ) : (
-              <Text className="text-body text-white font-semibold">{t('accessRequest.send')}</Text>
+              <Text className="text-body text-white font-semibold" style={isColorful ? { color: colors.surface } : undefined}>{t('accessRequest.send')}</Text>
             )}
           </Pressable>
         </View>

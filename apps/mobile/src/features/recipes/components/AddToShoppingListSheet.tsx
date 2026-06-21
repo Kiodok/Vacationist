@@ -3,7 +3,7 @@ import { View, Text, Pressable, Modal, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { ShoppingListWithCounts } from '@vacationist/types';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface AddToShoppingListSheetProps {
   visible: boolean;
@@ -24,6 +24,8 @@ export function AddToShoppingListSheet({
 }: AddToShoppingListSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('recipes');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [servings, setServings] = useState(defaultServings);
 
@@ -135,7 +137,7 @@ export function AddToShoppingListSheet({
               }`}
               style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
             >
-              <Text className="text-white text-body font-semibold">
+              <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                 {isPending ? t('sheet.adding') : t('sheet.addIngredients')}
               </Text>
             </Pressable>

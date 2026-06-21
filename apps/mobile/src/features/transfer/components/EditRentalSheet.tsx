@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { updateTransferRentalSchema, type UpdateTransferRentalInput, type TransferRental, type Currency } from '@vacationist/types';
 import { getCurrencySymbol } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditRentalSheetProps {
   visible: boolean;
@@ -23,6 +24,8 @@ export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental,
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
   const currencySymbol = getCurrencySymbol(currency as Currency);
 
@@ -292,7 +295,7 @@ export function EditRentalSheet({ visible, onClose, onSubmit, isPending, rental,
                   className={`items-center py-sm rounded-md mt-sm ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { upsertTravelDocumentSchema, type UpsertTravelDocumentInput } from '@vacationist/types';
 import type { TravelDocument } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 const DOCUMENT_LABELS: Record<string, string> = {
   passport: 'Passport',
@@ -31,6 +32,8 @@ export function EditTravelDocumentSheet({
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpsertTravelDocumentInput>({
     resolver: zodResolver(upsertTravelDocumentSchema),
   });
@@ -228,8 +231,8 @@ export function EditTravelDocumentSheet({
                 isPending ? 'bg-primary/50' : 'bg-primary'
               }`}
             >
-              <Text className="text-body text-white font-semibold">
-                {isPending ? 'Saving…' : 'Save Changes'}
+              <Text className="text-body text-white font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
+                {isPending ? tCommon('label.saving') : tCommon('button.save')}
               </Text>
             </Pressable>
           </View>

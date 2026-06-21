@@ -37,6 +37,7 @@
   "doc.reveal": "Zum Anzeigen tippen",
   "doc.delete.title": "Dokument löschen",
   "doc.delete.confirm": "{{type}} entfernen?",
+  "document.saveButton": "Dokument speichern",
   "biometric.locked": "Dokumente gesperrt",
   "biometric.subtitle": "Verifiziere deine Identität, um Reisedokumentdetails anzusehen",
   "biometric.verify": "Identität verifizieren",

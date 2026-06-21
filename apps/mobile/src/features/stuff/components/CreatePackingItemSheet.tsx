@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { createPackingItemSchema, type CreatePackingItemInput, type PackingCategory } from '@vacationist/types';
 import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface CreatePackingItemSheetProps {
   visible: boolean;
@@ -21,6 +21,8 @@ export function CreatePackingItemSheet({ visible, categories, usedCustomCategori
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [showCustomCategory, setShowCustomCategory] = useState(false);
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreatePackingItemInput>({
@@ -185,7 +187,7 @@ export function CreatePackingItemSheet({ visible, categories, usedCustomCategori
                   className={`items-center py-sm rounded-md ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>

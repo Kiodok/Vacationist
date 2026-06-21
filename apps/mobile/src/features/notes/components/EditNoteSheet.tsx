@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateTripNoteSchema, type UpdateTripNoteInput, type TripNote } from '@vacationist/types';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface EditNoteSheetProps {
   visible: boolean;
@@ -31,6 +31,8 @@ export function EditNoteSheet({
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('notes');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTripNoteInput>({
@@ -122,8 +124,8 @@ export function EditNoteSheet({
                   className={`items-center py-sm rounded-md ${isUpdatePending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
-                    {isUpdatePending ? 'Saving...' : 'Save Changes'}
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
+                    {isUpdatePending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>
 

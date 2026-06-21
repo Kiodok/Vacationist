@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { updateExpenseWithSplitsSchema, type UpdateExpenseWithSplitsInput, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency, type Expense, type ExpenseSplit } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { formatCurrency, roundCurrency, isNegligible } from '@vacationist/utils';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface EditExpenseSheetProps {
   visible: boolean;
@@ -25,6 +25,8 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
 
   const SPLIT_METHOD_LABELS: Record<ExpenseSplitMethod, string> = {
     even: t('split.even'),
@@ -254,7 +256,11 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                             className={`px-md py-sm rounded-full ${value === m.user_id ? 'bg-primary' : 'bg-surface border border-border'}`}
                             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                           >
-                            <Text className={`text-body-small ${value === m.user_id ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
+                            <Text
+                              className={`text-body-small ${value === m.user_id ? 'text-white font-semibold' : 'text-text-secondary'}`}
+                              style={value === m.user_id && isColorful ? { color: colors.surface } : undefined}
+                              numberOfLines={1}
+                            >
                               {m.user.name}
                             </Text>
                           </Pressable>
@@ -276,7 +282,10 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                       className={`flex-1 items-center py-sm rounded-md ${splitMethod === method ? 'bg-primary' : 'bg-surface border border-border'}`}
                       style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                     >
-                      <Text className={`text-body-small font-medium ${splitMethod === method ? 'text-white' : 'text-text-secondary'}`}>
+                      <Text
+                        className={`text-body-small font-medium ${splitMethod === method ? 'text-white' : 'text-text-secondary'}`}
+                        style={splitMethod === method && isColorful ? { color: colors.surface } : undefined}
+                      >
                         {SPLIT_METHOD_LABELS[method]}
                       </Text>
                     </Pressable>
@@ -304,13 +313,17 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                           <ThemedIcon
                             name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                             size={16}
-                            color={isSelected ? '#FFFFFF' : colors.textSecondary}
+                            color={isSelected ? (isColorful ? colors.surface : '#FFFFFF') : colors.textSecondary}
                           />
-                          <Text className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
+                          <Text
+                            className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`}
+                            style={isSelected && isColorful ? { color: colors.surface } : undefined}
+                            numberOfLines={1}
+                          >
                             {m.user.name}
                           </Text>
                           {isSelected && totalAmount > 0 && (
-                            <Text className="text-white/70 text-body-small">{formatCurrency(totalAmount, currency)}</Text>
+                            <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, currency)}</Text>
                           )}
                         </Pressable>
                       );
@@ -344,16 +357,20 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                             <ThemedIcon
                               name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                               size={16}
-                              color={isSelected ? '#FFFFFF' : colors.textSecondary}
+                              color={isSelected ? (isColorful ? colors.surface : '#FFFFFF') : colors.textSecondary}
                             />
-                            <Text className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`} numberOfLines={1}>
+                            <Text
+                              className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`}
+                              style={isSelected && isColorful ? { color: colors.surface } : undefined}
+                              numberOfLines={1}
+                            >
                               {m.user.name}
                             </Text>
                             {isSelected && splitMethod === 'even' && totalAmount > 0 && (
-                              <Text className="text-white/70 text-body-small">{formatCurrency(perPerson, currency)}</Text>
+                              <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(perPerson, currency)}</Text>
                             )}
                             {isSelected && splitMethod === 'exact' && selectedMembers.size === 1 && totalAmount > 0 && (
-                              <Text className="text-white/70 text-body-small">{formatCurrency(totalAmount, currency)}</Text>
+                              <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, currency)}</Text>
                             )}
                           </Pressable>
 
@@ -428,7 +445,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                 className={`items-center py-sm rounded-md mt-sm ${!canSubmit ? 'bg-primary/50' : 'bg-primary'}`}
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
-                <Text className="text-white text-body font-semibold">
+                <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                   {isPending ? tCommon('label.saving') : tCommon('button.save')}
                 </Text>
               </Pressable>

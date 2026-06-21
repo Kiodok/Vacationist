@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { updatePackingItemSchema, type UpdatePackingItemInput, type PackingCategory, type PackingItem } from '@vacationist/types';
 import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditPackingItemSheetProps {
   visible: boolean;
@@ -20,6 +21,8 @@ export function EditPackingItemSheet({ visible, item, categories, onClose, onSub
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('stuff');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
 
   const seededNames = new Set(categories.map((c) => c.name));
   const isCustomCategory = (cat: string) => !seededNames.has(cat);
@@ -171,7 +174,7 @@ export function EditPackingItemSheet({ visible, item, categories, onClose, onSub
                   className={`items-center py-sm rounded-md ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>

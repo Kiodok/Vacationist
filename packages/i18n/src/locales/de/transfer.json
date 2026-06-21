@@ -74,6 +74,7 @@
   "label.winner": "Gewinner",
   "label.booked": "Gebucht",
   "label.unknown": "Unbekannt",
+  "label.noPassengers": "Keine Passagiere zugewiesen",
   "confirm.closeVoting": "Abstimmung endgültig schließen?",
   "confirm.removeFlight": "Diesen Flug entfernen?",
   "confirm.removeVehicle": "Dieses Fahrzeug entfernen?",

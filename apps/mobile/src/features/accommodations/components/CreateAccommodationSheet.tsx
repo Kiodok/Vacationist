@@ -274,7 +274,7 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
                 }`}
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
-                <Text className="text-white text-body font-semibold">
+                <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                   {isPending ? tCommon('label.saving') : tCommon('button.save')}
                 </Text>
               </Pressable>

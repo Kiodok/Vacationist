@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateTransferVehicleSchema, type UpdateTransferVehicleInput, type TransferVehicle } from '@vacationist/types';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditVehicleSheetProps {
   visible: boolean;
@@ -18,6 +19,8 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateTransferVehicleInput>({
     resolver: zodResolver(updateTransferVehicleSchema),
   });
@@ -131,7 +134,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
                   className={`items-center py-sm rounded-md mt-sm ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                   style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text className="text-white text-body font-semibold">
+                  <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                     {isPending ? tCommon('label.saving') : tCommon('button.save')}
                   </Text>
                 </Pressable>

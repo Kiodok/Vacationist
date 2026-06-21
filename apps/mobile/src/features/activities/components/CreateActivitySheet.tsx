@@ -286,7 +286,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                 className="items-center py-sm rounded-md mt-sm bg-primary"
                 style={({ pressed }) => ({ minHeight: 48, opacity: isPending || pressed ? 0.7 : 1 })}
               >
-                <Text className="text-white text-body font-semibold">
+                <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                   {tCommon('button.save')}
                 </Text>
               </Pressable>

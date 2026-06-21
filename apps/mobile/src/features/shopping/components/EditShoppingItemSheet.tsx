@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateShoppingItemSchema, type UpdateShoppingItemInput, type ShoppingItem } from '@vacationist/types';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditShoppingItemSheetProps {
   visible: boolean;
@@ -30,6 +31,8 @@ export function EditShoppingItemSheet({
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('shopping');
   const { t: tCommon } = useTranslation('common');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const [quantityText, setQuantityText] = useState(
     item.quantity != null ? String(item.quantity) : '',
   );
@@ -175,7 +178,7 @@ export function EditShoppingItemSheet({
                     className={`items-center py-sm rounded-md ${isPending ? 'bg-primary/50' : 'bg-primary'}`}
                     style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                   >
-                    <Text className="text-white text-body font-semibold">
+                    <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
                       {isPending ? tCommon('label.saving') : tCommon('button.save')}
                     </Text>
                   </Pressable>
