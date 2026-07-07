@@ -23,6 +23,7 @@ export function TutorialModal({ visible, onDismiss }: TutorialModalProps) {
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [activeIndex, setActiveIndex] = useState(0);
+  const [slideHeight, setSlideHeight] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const { width } = Dimensions.get('window');
   const isFirst = activeIndex === 0;
@@ -75,11 +76,13 @@ export function TutorialModal({ visible, onDismiss }: TutorialModalProps) {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           scrollEnabled={false}
+          style={{ flex: 1 }}
+          onLayout={(e) => setSlideHeight(e.nativeEvent.layout.height)}
           getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
           renderItem={({ item }) => (
             <View
-              style={{ width }}
-              className="flex-1 items-center justify-center px-xl gap-xl"
+              style={{ width, height: slideHeight || undefined }}
+              className="items-center justify-center px-xl gap-xl"
             >
               <View
                 className="w-[88px] h-[88px] rounded-full bg-primary-muted items-center justify-center"
