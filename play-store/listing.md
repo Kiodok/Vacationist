@@ -1,7 +1,7 @@
-# Vacationist — Play Store Listing
+# Vacationist - Play Store Listing
 
 ## App Name
-Vacationist — Plan Trips Together
+Vacationist - Plan Trips Together
 
 ## Short Description (60 chars)
 Collaborative trip planning: activities, expenses & more.

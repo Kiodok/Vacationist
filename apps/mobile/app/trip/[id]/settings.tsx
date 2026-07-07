@@ -4,6 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
+import { formatDateRange } from '@vacationist/utils';
 import { Button } from '@vacationist/ui';
 import { getTripInviteStats } from '@vacationist/api';
 import { useTrip, useDeleteTrip } from '../../../src/features/trips/hooks/useTrips';
@@ -20,6 +21,7 @@ import { NotificationPreferencesSection } from '../../../src/features/notificati
 import { NudgeSheet } from '../../../src/features/notifications/components/NudgeSheet';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
+
 
 export default function SettingsTab() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -74,6 +76,7 @@ export default function SettingsTab() {
 
       const lines: string[] = [
         t('invite.share.header', { name: currentUser?.name ?? 'Someone', trip: trip?.title ?? 'my trip' }),
+        t('invite.share.dates', { dateRange: trip?.start_date && trip?.end_date ? formatDateRange(trip.start_date, trip.end_date) : '' }),
         '',
         t('invite.share.peoplePlanning', { count: memberCount }),
         '',

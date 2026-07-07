@@ -68,6 +68,10 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '{{creator}} is bringing "{{entity}}" for "{{trip}}".',
     de: '{{creator}} bringt "{{entity}}" für "{{trip}}".',
   },
+  shared_packing_claimed: {
+    en: '{{creator}} claimed "{{entity}}" for "{{trip}}".',
+    de: '{{creator}} hat "{{entity}}" für "{{trip}}" beansprucht.',
+  },
   expense_settlement: {
     en: '{{creator}} settled all expenses in "{{trip}}".',
     de: '{{creator}} hat alle Ausgaben in "{{trip}}" beglichen.',
@@ -80,6 +84,7 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
 type EffectiveNotificationType =
   | Notification['type']
   | 'shared_packing_self'
+  | 'shared_packing_claimed'
   | 'lost_found_found'
   | 'lost_found_lost'
   | 'lost_found_resolved'
@@ -89,8 +94,11 @@ function resolveEffectiveType(notification: Notification): EffectiveNotification
   // i_got_it shared packing notifications reuse type='shared_packing' but their
   // DB body starts with 'For "' — use the dedicated template so we don't claim
   // the person added something "for everyone" when they're bringing it themselves.
-  if (notification.type === 'shared_packing' && notification.body?.startsWith('For "')) {
-    return 'shared_packing_self';
+  if (notification.type === 'shared_packing') {
+    // claimed must be checked before self — both store body starting with 'For "',
+    // so the title pattern is the only reliable discriminator.
+    if (notification.title?.includes(' claimed: ')) return 'shared_packing_claimed';
+    if (notification.body?.startsWith('For "')) return 'shared_packing_self';
   }
   if (notification.type === 'lost_found') {
     switch (notification.title) {

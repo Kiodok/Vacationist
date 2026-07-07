@@ -39,7 +39,7 @@ export function resolveNotificationPath(
     case 'lost_found':
       return `/trip/${trip_id}?tab=Stuff${highlight}`;
     case 'shared_packing':
-      return `/trip/${trip_id}?tab=Stuff${highlight}`;
+      return `/trip/${trip_id}?tab=Stuff&stuffSegment=shared${related_id ? `&sharedItemId=${related_id}` : ''}`;
     default:
       return `/trip/${trip_id}`;
   }

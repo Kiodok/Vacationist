@@ -9,6 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { uploadAvatar, updateUserProfile } from '@vacationist/api';
 import { useAuthStore } from '../../src/stores/authStore';
 import { useSignOut } from '../../src/features/auth/hooks/useSignOut';
+import { useDeleteAccount } from '../../src/features/auth/hooks/useDeleteAccount';
 import { useUpdateProfile } from '../../src/features/profile/hooks/useUpdateProfile';
 import { useTravelDocuments } from '../../src/features/profile/hooks/useTravelDocuments';
 import { useUpsertTravelDocument } from '../../src/features/profile/hooks/useUpsertTravelDocument';
@@ -56,6 +57,7 @@ export default function ProfileScreen() {
   const [addDocVisible, setAddDocVisible] = useState(false);
   const [editingDoc, setEditingDoc] = useState<TravelDocument | null>(null);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
   const [upgradeSheetVisible, setUpgradeSheetVisible] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
 
@@ -78,11 +80,12 @@ export default function ProfileScreen() {
   // doesn't persist stale UI state when the user switches tabs and comes back.
   useFocusEffect(
     useCallback(() => {
-      return () => setConfirmSignOut(false);
+      return () => { setConfirmSignOut(false); setConfirmDeleteAccount(false); };
     }, [])
   );
 
   const { handleSignOut } = useSignOut();
+  const { handleDeleteAccount, isDeleting } = useDeleteAccount();
   const tc = useThemeColors();
   const theme = useThemeStore((s) => s.theme);
   const isColorful = theme === 'colorful';
@@ -329,13 +332,52 @@ export default function ProfileScreen() {
           </View>
         ) : (
           <TouchableOpacity
-            onPress={() => setConfirmSignOut(true)}
+            onPress={() => { setConfirmSignOut(true); setConfirmDeleteAccount(false); }}
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.danger }}
           >
             <ThemedIcon name="log-out-outline" size={18} color={colors.danger} />
             <Text className="text-body text-danger font-semibold">{t('signOut')}</Text>
           </TouchableOpacity>
         )}
+        {/* Delete account — only for registered (non-guest) users */}
+        {!isGuest(user) && (
+          confirmDeleteAccount ? (
+            <View className="flex-row gap-sm">
+              <TouchableOpacity
+                disabled={isDeleting}
+                onPress={() => setConfirmDeleteAccount(false)}
+                style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.border, alignItems: 'center', justifyContent: 'center', opacity: isDeleting ? 0.5 : 1 }}
+              >
+                <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={isDeleting}
+                onPress={async () => {
+                  try {
+                    await handleDeleteAccount();
+                  } catch {
+                    Alert.alert('', t('deleteAccount.failed'));
+                  }
+                }}
+                style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.danger, alignItems: 'center', justifyContent: 'center', backgroundColor: hexToRgba(tc.danger, 0.1) }}
+              >
+                {isDeleting
+                  ? <ActivityIndicator size="small" color={tc.danger} />
+                  : <Text className="text-body text-danger font-semibold">{tCommon('button.confirm')}</Text>
+                }
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => { setConfirmDeleteAccount(true); setConfirmSignOut(false); }}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.danger }}
+            >
+              <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
+              <Text className="text-body text-danger font-semibold">{t('deleteAccount')}</Text>
+            </TouchableOpacity>
+          )
+        )}
+
         {/* Legal */}
         <View className="flex-row justify-center flex-wrap gap-xs pb-xs">
           <Pressable onPress={() => openUrl('https://vacationist.app/privacy-policy.html')}>

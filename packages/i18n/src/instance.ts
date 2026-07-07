@@ -20,6 +20,7 @@ import enAccommodationNotes from './locales/en/accommodationNotes.json';
 import enStuff from './locales/en/stuff.json';
 import enValidation from './locales/en/validation.json';
 import enSharing from './locales/en/sharing.json';
+import enTutorial from './locales/en/tutorial.json';
 
 import deCommon from './locales/de/common.json';
 import deAuth from './locales/de/auth.json';
@@ -40,6 +41,7 @@ import deAccommodationNotes from './locales/de/accommodationNotes.json';
 import deStuff from './locales/de/stuff.json';
 import deValidation from './locales/de/validation.json';
 import deSharing from './locales/de/sharing.json';
+import deTutorial from './locales/de/tutorial.json';
 
 const resources = {
   en: {
@@ -62,6 +64,7 @@ const resources = {
     stuff: enStuff,
     validation: enValidation,
     sharing: enSharing,
+    tutorial: enTutorial,
   },
   de: {
     common: deCommon,
@@ -83,6 +86,7 @@ const resources = {
     stuff: deStuff,
     validation: deValidation,
     sharing: deSharing,
+    tutorial: deTutorial,
   },
 } as const;
 
@@ -95,6 +99,7 @@ i18n.use(initReactI18next).init({
     'common', 'auth', 'trips', 'activities', 'activityNotes', 'accommodationNotes',
     'expenses', 'accommodations', 'transfer', 'shopping', 'recipes', 'calendar',
     'prework', 'notifications', 'profile', 'notes', 'stuff', 'validation', 'sharing',
+    'tutorial',
   ],
   interpolation: {
     escapeValue: false,

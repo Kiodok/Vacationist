@@ -60,6 +60,14 @@ export async function revokeInvite(tokenId: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function previewInviteToken(
+  tokenValue: string
+): Promise<{ trip_title: string; start_date: string; end_date: string } | null> {
+  const { data, error } = await supabase.rpc('preview_invite_token', { p_token: tokenValue });
+  if (error || !data || data.length === 0) return null;
+  return data[0];
+}
+
 export async function redeemInviteToken(tokenValue: string): Promise<string> {
   const { data, error } = await supabase.rpc('redeem_invite_token', {
     token_value: tokenValue,

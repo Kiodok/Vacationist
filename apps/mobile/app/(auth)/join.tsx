@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { formatDateRange } from '@vacationist/utils';
 import { Button, Input, colors, ThemedIcon } from '@vacationist/ui';
-import { signInAnonymously, redeemInviteToken } from '@vacationist/api';
+import { signInAnonymously, redeemInviteToken, previewInviteToken } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useAuthStore } from '../../src/stores/authStore';
 import { TurnstileWidget } from '../../src/features/auth/components/TurnstileWidget';
@@ -22,6 +23,19 @@ export default function JoinScreen() {
   const [captchaReady, setCaptchaReady] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
   const turnstileToken = useRef<string | undefined>(undefined);
+  const [tripPreview, setTripPreview] = useState<{ trip_title: string; start_date: string; end_date: string } | null>(null);
+  const [tokenInvalid, setTokenInvalid] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(!!token);
+
+  useEffect(() => {
+    if (!token) return;
+    setPreviewLoading(true);
+    previewInviteToken(token).then((preview) => {
+      if (preview) setTripPreview(preview);
+      else setTokenInvalid(true);
+      setPreviewLoading(false);
+    });
+  }, [token]);
 
   async function handleJoinAsGuest() {
     if (!captchaReady) return;
@@ -79,8 +93,20 @@ export default function JoinScreen() {
         </View>
 
         <Text className="text-heading-l text-text-primary text-center">
-          {t('join.title')}
+          {previewLoading ? ' ' : tripPreview ? tripPreview.trip_title : t('join.title')}
         </Text>
+
+        {tripPreview && !previewLoading ? (
+          <Text className="text-body text-primary text-center font-medium">
+            {t('join.tripDates', { dateRange: formatDateRange(tripPreview.start_date, tripPreview.end_date) })}
+          </Text>
+        ) : null}
+
+        {tokenInvalid ? (
+          <Text className="text-body-small text-danger text-center">
+            {t('join.expiredToken')}
+          </Text>
+        ) : null}
 
         <Text className="text-body text-text-secondary text-center">
           {t('join.subtitle')}

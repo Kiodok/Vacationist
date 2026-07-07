@@ -103,6 +103,11 @@ export async function linkGuestWithMagicLink(email: string, redirectTo: string, 
   return data;
 }
 
+export async function deleteOwnAccount(): Promise<void> {
+  const { error } = await supabase.rpc('delete_own_account');
+  if (error) throw error;
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) {

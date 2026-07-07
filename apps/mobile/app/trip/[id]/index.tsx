@@ -12,6 +12,7 @@ import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembe
 import { useAuthStore } from '../../../src/stores/authStore';
 import { setSentryTripContext, clearSentryTripContext } from '../../../src/utils/sentry';
 import { StatusBadge } from '../../../src/features/trips/components/StatusBadge';
+import { getEffectiveStatus } from '../../../src/features/trips/components/TripCard';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
@@ -172,7 +173,7 @@ export default function TripDetailScreen() {
             </Pressable>
           </View>
           <TripNotificationBell tripId={id!} />
-          <StatusBadge status={trip.status} />
+          <StatusBadge status={getEffectiveStatus(trip)} />
         </View>
 
         {/* Tab bar */}

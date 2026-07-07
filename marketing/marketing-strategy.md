@@ -1,4 +1,4 @@
-# Vacationist — Comprehensive Growth & Visibility Strategy
+# Vacationist - Comprehensive Growth & Visibility Strategy
 *Prepared: June 2026 | Roles: Senior Startup Growth Advisor, Product Marketing Manager, Mobile App Growth Lead, Travel Industry Expert, ASO Specialist, SEO Specialist, Viral Product Designer*
 
 ---
@@ -683,7 +683,7 @@ These searchers are already product-aware and actively looking to switch.
 ## 7. App Store Optimization (ASO)
 
 ### Current State Assessment
-**App Name:** "Vacationist — Plan Trips Together"
+**App Name:** "Vacationist - Plan Trips Together"
 **Short Description:** "Collaborative trip planning: activities, expenses & more."
 **Rating:** New (no reviews yet — critical gap)
 
@@ -691,12 +691,12 @@ These searchers are already product-aware and actively looking to switch.
 
 | Option | Rationale |
 |--------|-----------|
-| **Vacationist — Group Trip Planner** | Clear keyword ("Group Trip Planner") in title = ASO gold |
+| **Vacationist - Group Trip Planner** | Clear keyword ("Group Trip Planner") in title = ASO gold |
 | Vacationist: Plan & Split Together | "Split" keyword captures Splitwise searchers |
-| Vacationist — Trip Planner & Split | Explicit function keywords |
+| Vacationist - Trip Planner & Split | Explicit function keywords |
 | **Vacationist: Trip Planner for Groups** | Highest keyword value, clearest description |
 
-**Recommendation:** Change to **"Vacationist — Group Trip Planner"**. The current subtitle "Plan Trips Together" is emotionally nice but has zero ASO value. "Group Trip Planner" has search volume and clearly describes the product.
+**Recommendation:** Change to **"Vacationist - Group Trip Planner"**. The current subtitle "Plan Trips Together" is emotionally nice but has zero ASO value. "Group Trip Planner" has search volume and clearly describes the product.
 
 ### Subtitle / Short Description Options
 
@@ -774,7 +774,7 @@ Current feature graphic exists. Ensure it:
 - [ ] Get 10 friends to install the app and plan a real trip — capture their unscripted reaction as video content
 - [ ] Record 3 screen-recorded demo videos (60s each): trip creation, voting, expense splitting
 - [ ] Take real device screenshots for Play Store (all 7 recommended above)
-- [ ] Update App Name to "Vacationist — Group Trip Planner"
+- [ ] Update App Name to "Vacationist - Group Trip Planner"
 - [ ] Build the blog infrastructure at vacationist.app/blog
 - [ ] Write first 3 blog posts: Splitwise alternative, Wanderlog alternative, group trip planning guide
 - [ ] Create accounts on: Reddit (personal, not brand), TikTok, Instagram
@@ -968,7 +968,7 @@ The product has deliberately avoided AI features. That was the right V1 decision
 |----------|--------|-----|
 | 1 | **Launch iOS app** | Unlocks 50%+ of the addressable market, unblocks Product Hunt, unlocks App Store editorial |
 | 2 | **Loosen free tier to 30 days/year** | 15 days is too restrictive for the use case. More usage = more word of mouth. |
-| 3 | **Update ASO: App Name → "Vacationist — Group Trip Planner"** | Zero cost, immediate SEO/ASO improvement |
+| 3 | **Update ASO: App Name → "Vacationist - Group Trip Planner"** | Zero cost, immediate SEO/ASO improvement |
 | 4 | **Rebuild invite join page as a marketing page** | Every invite is a free marketing impression — currently wasted |
 | 5 | **Write 3 "alternative to competitor" blog posts** | High-intent, long-tail SEO traffic from motivated buyers |
 | 6 | **Get 25 Play Store reviews** | Social proof is the #1 conversion driver for app downloads |
@@ -991,7 +991,7 @@ The product has deliberately avoided AI features. That was the right V1 decision
 
 ## Top 10 Quick Wins (Achievable in 30 Days)
 
-1. **Update Play Store app name** to "Vacationist — Group Trip Planner" → takes 15 minutes, impacts ASO in 2–3 weeks
+1. **Update Play Store app name** to "Vacationist - Group Trip Planner" → takes 15 minutes, impacts ASO in 2–3 weeks
 2. **Replace screenshots** with real device screenshots taken from the app → 2–3 hours of work, direct conversion improvement
 3. **Message 50 people personally** asking them to install and try the app → 20+ installs within a week
 4. **Post first TikTok** showing the vote reveal feature → "wait until you see this" hook, zero cost

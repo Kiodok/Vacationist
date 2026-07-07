@@ -1186,6 +1186,54 @@ export type Database = {
           },
         ]
       }
+      settlement_receipts: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          settled_by: string
+          snapshot: Json
+          splits_count: number
+          total_amount: number
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          id?: string
+          settled_by: string
+          snapshot: Json
+          splits_count: number
+          total_amount: number
+          trip_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          settled_by?: string
+          snapshot?: Json
+          splits_count?: number
+          total_amount?: number
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_receipts_settled_by_fkey"
+            columns: ["settled_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_receipts_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shared_packing_items: {
         Row: {
           claimed_by: string | null
@@ -1855,6 +1903,7 @@ export type Database = {
           end_date: string
           id: string
           member_count: number
+          review_nudge_sent_at: string | null
           start_date: string
           status: string
           timezone: string
@@ -1871,6 +1920,7 @@ export type Database = {
           end_date: string
           id?: string
           member_count?: number
+          review_nudge_sent_at?: string | null
           start_date: string
           status?: string
           timezone?: string
@@ -1887,6 +1937,7 @@ export type Database = {
           end_date?: string
           id?: string
           member_count?: number
+          review_nudge_sent_at?: string | null
           start_date?: string
           status?: string
           timezone?: string
@@ -2214,6 +2265,14 @@ export type Database = {
         Args: { p_notification_id: string }
         Returns: undefined
       }
+      preview_invite_token: {
+        Args: { p_token: string }
+        Returns: {
+          end_date: string
+          start_date: string
+          trip_title: string
+        }[]
+      }
       redeem_invite_token: { Args: { token_value: string }; Returns: string }
       reopen_accommodation_voting: {
         Args: { p_accommodation_id: string }
@@ -2255,6 +2314,7 @@ export type Database = {
         Args: { p_flight_id: string; p_user_ids: string[] }
         Returns: undefined
       }
+      settle_all_expenses: { Args: { p_trip_id: string }; Returns: string }
       settle_all_for_pair: {
         Args: { p_creditor: string; p_debtor: string; p_trip_id: string }
         Returns: number

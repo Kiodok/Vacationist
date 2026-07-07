@@ -64,6 +64,26 @@ describe('resolveNotificationPath', () => {
     expect(resolveNotificationPath(n('vote_finalized', 'flight'))).toBe(`/trip/${TRIP}?tab=Activities`);
   });
 
+  describe('shared_packing', () => {
+    it('routes to Stuff tab with stuffSegment=shared when related_id is present', () => {
+      expect(resolveNotificationPath(n('shared_packing', null, RECEIPT))).toBe(
+        `/trip/${TRIP}?tab=Stuff&stuffSegment=shared&sharedItemId=${RECEIPT}`,
+      );
+    });
+
+    it('routes to Stuff tab with stuffSegment=shared when related_id is null', () => {
+      expect(resolveNotificationPath(n('shared_packing', null, null))).toBe(
+        `/trip/${TRIP}?tab=Stuff&stuffSegment=shared`,
+      );
+    });
+
+    it('routes to Stuff tab with stuffSegment=shared when related_id is undefined', () => {
+      expect(resolveNotificationPath(n('shared_packing'))).toBe(
+        `/trip/${TRIP}?tab=Stuff&stuffSegment=shared`,
+      );
+    });
+  });
+
   describe('expense_settlement', () => {
     it('routes to settlement-receipt screen when related_id is present', () => {
       expect(resolveNotificationPath(n('expense_settlement', null, RECEIPT))).toBe(

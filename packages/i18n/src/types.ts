@@ -17,6 +17,7 @@ import type enAccommodationNotes from './locales/en/accommodationNotes.json';
 import type enStuff from './locales/en/stuff.json';
 import type enValidation from './locales/en/validation.json';
 import type enSharing from './locales/en/sharing.json';
+import type enTutorial from './locales/en/tutorial.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -41,6 +42,7 @@ declare module 'i18next' {
       stuff: typeof enStuff;
       validation: typeof enValidation;
       sharing: typeof enSharing;
+      tutorial: typeof enTutorial;
     };
   }
 }

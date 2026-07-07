@@ -1,3 +1,4 @@
+import { dayjs } from './dayjs';
 import type { Currency } from '@vacationist/types';
 
 const CURRENCY_SYMBOLS: Record<Currency, string> = {
@@ -42,4 +43,12 @@ export function isNegligible(amount: number): boolean {
 
 export function normalizeBalance(amount: number): number {
   return isNegligible(amount) ? 0 : roundCurrency(amount);
+}
+
+export function formatDateRange(start: string, end: string): string {
+  const s = dayjs(start);
+  const e = dayjs(end);
+  if (s.year() !== e.year()) return `${s.format('D MMM YYYY')} – ${e.format('D MMM YYYY')}`;
+  if (s.month() !== e.month()) return `${s.format('D MMM')} – ${e.format('D MMM YYYY')}`;
+  return `${s.format('D')} – ${e.format('D MMM YYYY')}`;
 }

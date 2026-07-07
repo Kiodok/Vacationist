@@ -1,11 +1,11 @@
 window.VACATIONIST_I18N = {
   __lang: 'de',
 
-  'meta.title': 'Vacationist — Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
+  'meta.title': 'Vacationist - Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
   'meta.description': 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und Unterkünfte verwalten — alles an einem Ort. Perfekt für Gruppenreisen, Roadtrips und Junggesellinnenabschiede.',
-  'meta.og_title': 'Vacationist — Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
+  'meta.og_title': 'Vacationist - Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
   'meta.og_description': 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen, Unterkünfte verwalten — alles an einem Ort. Kein Konto zum Beitreten nötig.',
-  'meta.twitter_title': 'Vacationist — Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
+  'meta.twitter_title': 'Vacationist - Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
   'meta.twitter_description': 'Der kostenlose Gruppenreise-Planer. Aktivitäten abstimmen, Kosten teilen, Packlisten — perfekt für Gruppenurlaub, Roadtrips und Junggesellinnenabschiede.',
 
   // Nav
@@ -142,7 +142,7 @@ window.VACATIONIST_I18N = {
   'join.hero.title': 'Du wurdest zu einer Reise eingeladen!',
   'join.hero.sub': 'Tippe unten, um die App zu öffnen oder direkt im Browser beizutreten. Kein Konto nötig.',
   'join.hero.joinBtn': 'Reise beitreten',
-  'join.hero.joinBrowser': 'Im Browser fortfahren',
+  'join.hero.joinBrowser': 'In der App fortfahren',
   'join.hero.joinBtnFallback': 'Im Browser öffnen',
   'join.hero.note': 'Kostenlos · Kein Konto zum Beitreten nötig',
   'join.features.title': 'Was du in der App machen kannst',

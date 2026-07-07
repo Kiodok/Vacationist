@@ -164,6 +164,22 @@ After every migration cycle:
 
 ---
 
+## First-Launch Tutorial
+
+The tutorial is a 5-slide fullscreen modal shown once to every new user. Slides and copy live in `packages/i18n/src/locales/{en,de}/tutorial.json`. The modal component is `apps/mobile/src/features/tutorial/components/TutorialModal.tsx`. It is mounted in `apps/mobile/app/(tabs)/_layout.tsx`.
+
+**When adding a major feature:** Update both `tutorial.json` locale files to reflect it (add, update, or replace a slide). Keep the slide count at 5 — repurpose an existing slide rather than adding a sixth. Bump the MMKV key in `apps/mobile/src/features/tutorial/hooks/useTutorialSeen.ts` from `tutorial_seen_v1` → `tutorial_seen_v2` (etc.) so existing users see the updated tutorial once.
+
+---
+
+## Example Trip for New Users
+
+Every new non-guest user automatically gets a pre-populated demo trip via the `create-example-trip` Edge Function (`supabase/functions/create-example-trip/index.ts`). It is triggered by the `trg_create_example_trip` AFTER INSERT trigger on `public.users`.
+
+**When adding a new feature that creates new entity types:** Update the edge function to include a representative example of the new entity in the demo trip so new users can explore it. The guard at the top of the function (`count > 0`) prevents re-creation for existing users; it is safe to update example content at any time — only new sign-ups will see it.
+
+---
+
 ## Release Strategy
 
 ### Version Numbering (`app.config.ts`)

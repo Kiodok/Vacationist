@@ -1,4 +1,4 @@
-# Vacationist — Zero-Budget Growth Plan
+# Vacationist - Zero-Budget Growth Plan
 *Constraints: €0 budget · 1 founder · minimal existing audience · no team · no paid ads*
 
 ---
@@ -33,7 +33,7 @@ These aren't growth actions. They are minimum viable prerequisites. Nothing else
 Change the annual day limit from 15 → 30 days. Right now, someone planning a 10-day trip burns 67% of their year's quota on trip #1. That person has no room to recommend the app to someone else who then creates their own trip. Every extra free day is a growth multiplier, not a revenue loss — you have no revenue yet.
 
 ### Fix 2 — Update the Play Store
-- App name: "Vacationist — Group Trip Planner" (replaces "Plan Trips Together")
+- App name: "Vacationist - Group Trip Planner" (replaces "Plan Trips Together")
 - Screenshots: take real device screenshots today, replace the HTML mockups
 - Short description: "Vote on activities, split expenses, sync in real time"
 
@@ -279,7 +279,7 @@ Target 15–20 creators with a genuine, personalized message. Expect 2–4 to re
 
 > "Hey [Name] — I've been following your content for a while. Your [specific recent post about planning the Lisbon trip with your crew] is exactly the kind of content that made me think of you.
 >
-> I built a group trip planning app called Vacationist — basically Splitwise + activity voting in one app. I think your audience would genuinely find it useful based on how you plan trips together.
+> I built a group trip planning app called Vacationist - basically Splitwise + activity voting in one app. I think your audience would genuinely find it useful based on how you plan trips together.
 >
 > I'm not asking you to promote anything. I'd love to give you free access to the Pro version, let you and your travel group actually use it for a real trip, and if you think it's worth sharing with your audience, I'd be grateful. If not, no pressure — keep the Pro access either way.
 >
@@ -605,7 +605,7 @@ You cannot predict which spike event happens. You can maximize the probability o
 **Theme: Fix the basics before doing anything else. Every subsequent action is more effective if these are done first.**
 
 **Monday–Tuesday (4 hours):**
-- [ ] Update Play Store app name to "Vacationist — Group Trip Planner"
+- [ ] Update Play Store app name to "Vacationist - Group Trip Planner"
 - [ ] Update short description to "Vote on activities, split expenses, sync in real time"
 - [ ] Update keyword field with new keyword set (see marketing-strategy.md)
 - [ ] Increase free tier day limit from 15 → 30 days (code change + deploy OTA update)

@@ -34,7 +34,7 @@ function isTripLocked(endDate: string | null | undefined): boolean {
 }
 
 const ACTIVITY_SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: string; textClass: string }> = {
-  ongoing:     { icon: 'play-circle-outline',    iconColor: colors.warning,     textClass: 'text-warning' },
+  ongoing:     { icon: 'play-circle-outline',    iconColor: colors.success,     textClass: 'text-success' },
   in_planning: { icon: 'compass-outline',        iconColor: colors.primary,     textClass: 'text-primary' },
   planned:     { icon: 'calendar-outline',       iconColor: colors.textPrimary, textClass: 'text-text-primary' },
   blocked:     { icon: 'chatbubbles-outline',     iconColor: colors.danger,      textClass: 'text-danger' },

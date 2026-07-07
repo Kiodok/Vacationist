@@ -86,6 +86,7 @@
   "error.goHome": "Zur Startseite",
   "error.goBack": "Zurück",
   "invite.share.header": "{{name}} hat dich zu \"{{trip}}\" auf Vacationist eingeladen!",
+  "invite.share.dates": "📅 {{dateRange}}",
   "invite.share.peoplePlanning_one": "{{count}} Person plant bereits",
   "invite.share.peoplePlanning_other": "{{count}} Personen planen bereits",
   "invite.share.voteAccommodations_one": "✓ Abstimmen über {{count}} Unterkunft",

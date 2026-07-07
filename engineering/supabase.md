@@ -1,5 +1,84 @@
 # Supabase Changes Log
 
+## 2026-07-07 — Delete account (anonymize strategy)
+
+### Migration: `20260707100000_delete_own_account`
+
+**Changes:**
+1. **Sentinel user** — inserts `00000000-0000-0000-0000-000000000000` into `auth.users` and `public.users` (name: "Deleted User"). Acts as the permanent FK target for all anonymized content.
+2. **New function `public.delete_own_account()`** — `SECURITY DEFINER`, callable by `authenticated`. Single-transaction deletion:
+   - Disables user-defined triggers via `SET LOCAL session_replication_role = 'replica'` (scoped to the transaction; bypasses `check_last_organizer` and `restrict_*_update_fields` triggers).
+   - Handles last-organizer trips: promotes the earliest-joined other member, or soft-deletes the trip if the caller is the sole member.
+   - Reassigns all non-cascading `created_by` / `paid_by` / `settled_by` / `user_id` columns (18 tables) to the sentinel UUID; sets nullable columns (`expenses.updated_by`, `shared_packing_items.claimed_by`, `lost_found_cases.target_user`, `expense_splits.covered_by`) to NULL.
+   - Deletes the user's avatar from `storage.objects` (`bucket_id = 'avatars'`).
+   - Deletes from `auth.users`, which cascades to `public.users` and all CASCADE-linked tables (`trip_members`, votes, notifications, packing_items, push_tokens, etc.).
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
+### Migration: `20260707110000_fix_delete_own_account_cascade`
+
+**Changes:**
+1. **Replaced `public.delete_own_account()`** — fixes a critical bug where `session_replication_role = 'replica'` (needed to bypass user-defined triggers during UPDATE statements) also disabled FK CASCADE on the final `DELETE FROM auth.users`. This left `auth.identities`, `auth.sessions`, and `public.users` intact, causing re-signup with the same email to fail with "Database error saving new user" (GoTrue finds the orphaned identity row).
+2. **Fix**: explicitly DELETE the caller's `trip_members` rows while still in replica mode (avoiding `check_last_organizer`), then `SET LOCAL session_replication_role = 'origin'` before `DELETE FROM auth.users` so CASCADE propagates normally to all child tables.
+3. **Added guest guard**: `RAISE EXCEPTION` if `public.users.is_guest = true` — consistent with the rest of the codebase's guest-restriction pattern.
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
+## 2026-07-06 — Invite token preview RPC + example trip trigger + shared packing notification fix
+
+### Migration: `20260706100000_fix_shared_packing_notification_context`
+
+**Changes:**
+1. **Updated `private.handle_shared_packing_item_insert()`** — now passes `context_entity`, `context_trip`, `context_creator` to both `create_trip_notification()` calls so the in-app notification body interpolates correctly.
+2. **Updated `private.notify_shared_packing_item_claimed()`** — added `v_trip_title` lookup and sets `body` (was NULL), plus populates `context_entity`, `context_trip`, `context_creator` columns.
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
+### Migration: `20260706110000_invite_token_preview_rpc`
+
+**Changes:**
+1. **New function `public.preview_invite_token(p_token TEXT)`** — read-only RPC callable by `anon` and `authenticated`. Validates the token is not expired/revoked/exhausted and returns `(trip_title, start_date, end_date)`. Returns empty result for invalid tokens. Allows the join screen to show trip name and dates before the user enters their name.
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
+### Migration: `20260706120000_create_example_trip_trigger`
+
+**Changes:**
+1. **New function `private.trigger_create_example_trip()`** — AFTER INSERT trigger on `public.users`. Skips guests (`is_guest = TRUE`). Initial version reading vault secrets `example_trip_fn_url` + `example_trip_service_role_key`. Superseded by migrations 130000 and 140000.
+2. **New trigger `trg_create_example_trip`** on `public.users`.
+3. **New Edge Function** `create-example-trip` — creates a full demo trip (trip, 4 activities, activity note, 2 accommodations, 1 flight, shopping list, recipe, 3 expenses, 1 packing item, 1 shared packing item, 1 trip note) for the new user. Guards against duplicate trips.
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
+### Migration: `20260706130000_fix_example_trip_trigger_reuse_key`
+
+**Changes:**
+1. **Updated `private.trigger_create_example_trip()`** — reuses the existing `push_notification_service_role_key` vault secret instead of requiring a separate `example_trip_service_role_key`. Only vault secrets needed: `example_trip_fn_url` + `push_notification_service_role_key`.
+
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
+### Migration: `20260706140000_simplify_example_trip_trigger`
+
+**Changes:**
+1. **Updated `private.trigger_create_example_trip()`** — final form. The `create-example-trip` Edge Function is deployed with `--no-verify-jwt`, so no `Authorization` header is needed. Only vault secret required: `example_trip_fn_url`. The `pg_net` call sends only `Content-Type` and `{ user_id }` in the body.
+
+**Vault secret required (both envs):** `example_trip_fn_url`.
+**Non-destructive.** Applied to: dev + prod.
+
+---
+
 ## 2026-06-20 — Blocker votes as workflow escalation
 
 ### Migration: `20260620000000_blocker_as_workflow_escalation`

@@ -1,11 +1,11 @@
 window.VACATIONIST_I18N = {
   __lang: 'en',
 
-  'meta.title': 'Vacationist — Best Group Trip Planner App | Split Expenses & Vote on Activities',
+  'meta.title': 'Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities',
   'meta.description': 'The free group trip planning app. Vote on activities, split travel expenses, share packing lists, and manage accommodations — all in one place. Perfect for group vacations, road trips, and bachelorette trips.',
-  'meta.og_title': 'Vacationist — Best Group Trip Planner App | Split Expenses & Vote on Activities',
+  'meta.og_title': 'Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities',
   'meta.og_description': 'The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations — all in one place. No account needed to join.',
-  'meta.twitter_title': 'Vacationist — Best Group Trip Planner App | Split Expenses & Vote on Activities',
+  'meta.twitter_title': 'Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities',
   'meta.twitter_description': 'The free group trip planner. Vote on activities, split expenses, share packing lists — perfect for group vacations, road trips, and bachelorette trips.',
 
   // Nav
@@ -142,7 +142,7 @@ window.VACATIONIST_I18N = {
   'join.hero.title': "You've been invited to join a trip!",
   'join.hero.sub': 'Tap below to open the app or join directly in your browser. No account needed.',
   'join.hero.joinBtn': 'Join Trip',
-  'join.hero.joinBrowser': 'Continue in browser',
+  'join.hero.joinBrowser': 'Continue in app',
   'join.hero.joinBtnFallback': 'Open in browser',
   'join.hero.note': 'Free · No account needed to join',
   'join.features.title': 'What you can do in the app',

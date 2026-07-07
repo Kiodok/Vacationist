@@ -144,7 +144,8 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:19006/)",
       "Bash(npm list *)",
       "Read(//c/Users/Gary/AppData/Roaming/npm/node_modules/**)",
-      "PowerShell(\\(Get-Command playwright\\).Source; \\(npm root -g\\))"
+      "PowerShell(\\(Get-Command playwright\\).Source; \\(npm root -g\\))",
+      "WebFetch(domain:supabase.com)"
     ]
   },
   "model": "opusplan",

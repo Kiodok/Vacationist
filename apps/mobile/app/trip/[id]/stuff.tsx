@@ -16,7 +16,7 @@ export default function StuffTab() {
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const { t } = useTranslation('stuff');
-  const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
+  const { id: tripId, highlightId, stuffSegment } = useLocalSearchParams<{ id: string; highlightId?: string; stuffSegment?: string }>();
   const user = useAuthStore((s) => s.user);
   const { data: members = [] } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
@@ -24,10 +24,11 @@ export default function StuffTab() {
   const [activeSegment, setActiveSegment] = useState<StuffSegment>('private');
   const [showCopySheet, setShowCopySheet] = useState(false);
 
-  // When arriving from a lost/found notification, switch to that tab.
+  // Switch to the correct segment when arriving from a notification deep-link.
   useEffect(() => {
-    if (highlightId) setActiveSegment('lost-found');
-  }, [highlightId]);
+    if (stuffSegment === 'shared') setActiveSegment('shared');
+    else if (highlightId) setActiveSegment('lost-found');
+  }, [highlightId, stuffSegment]);
 
   const memberNameMap = useMemo(
     () => new Map(members.map((m) => [m.user_id, m.user.name])),

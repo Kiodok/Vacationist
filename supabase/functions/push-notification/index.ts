@@ -87,15 +87,21 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     de: { title: 'Plane deine eigene Reise!', body: 'Du warst bei "{{trip}}" dabei. Starte deine eigene Reise — kostenlos!' },
   },
   shared_packing: {
-    en: { title: 'Shared packing update', body: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".' },
-    de: { title: 'Gemeinsame Packliste', body: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.' },
+    en: { title: 'Shared Packing Update', body: '{{creator}} added "{{entity}}" for everyone in "{{trip}}".' },
+    de: { title: 'Geteilte Packliste', body: '{{creator}} hat "{{entity}}" für alle in "{{trip}}" hinzugefügt.' },
   },
   // Virtual key for i_got_it notifications — they reuse DB type='shared_packing' but
   // their body starts with 'For "', which we detect below to pick the right template.
   // Keep in sync with BODY_TEMPLATES in apps/mobile/src/features/notifications/components/NotificationItem.tsx.
   shared_packing_self: {
-    en: { title: 'Shared packing update', body: '{{creator}} is bringing "{{entity}}" for "{{trip}}".' },
-    de: { title: 'Gemeinsame Packliste', body: '{{creator}} bringt "{{entity}}" für "{{trip}}".' },
+    en: { title: 'Shared Packing Update', body: '{{creator}} is bringing "{{entity}}" for "{{trip}}".' },
+    de: { title: 'Geteilte Packliste', body: '{{creator}} bringt "{{entity}}" für "{{trip}}".' },
+  },
+  // Virtual key for claimed who_has items — title contains ' claimed: '.
+  // Keep in sync with BODY_TEMPLATES in apps/mobile/.../NotificationItem.tsx.
+  shared_packing_claimed: {
+    en: { title: 'Shared Packing Update', body: '{{creator}} claimed "{{entity}}" for "{{trip}}".' },
+    de: { title: 'Geteilte Packliste', body: '{{creator}} hat "{{entity}}" für "{{trip}}" beansprucht.' },
   },
 };
 
@@ -130,6 +136,7 @@ function translateNotification(
   // variants via the stored English title. Keep in sync with resolveEffectiveType in
   // apps/mobile/src/features/notifications/components/NotificationItem.tsx.
   const effectiveType =
+    type === 'shared_packing' && fallbackTitle?.includes(' claimed: ') ? 'shared_packing_claimed' :
     type === 'shared_packing' && dbBody?.startsWith('For "') ? 'shared_packing_self' :
     type === 'lost_found' && fallbackTitle === 'Item found' ? 'lost_found_found' :
     type === 'lost_found' && fallbackTitle === 'Item lost' ? 'lost_found_lost' :
@@ -171,7 +178,7 @@ function translateNotification(
 // Single client reused across all invocations — created once on cold start.
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')!)['default'],
   { auth: { persistSession: false } },
 );
 

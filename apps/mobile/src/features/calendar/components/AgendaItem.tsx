@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Activity, SupportedTimezone } from '@vacationist/types';
-import { formatActivityTime } from '@vacationist/utils';
+import { dayjs, formatActivityTime } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
 import { colors, METADATA_ICON_COLORS, CATEGORY_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 
@@ -13,14 +13,37 @@ interface AgendaItemProps {
   attendees?: string[];
 }
 
-export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
+function isActivityOngoing(activity: Activity, timezone: SupportedTimezone): boolean {
+  if (!activity.activity_date || !activity.start_time) return false;
+  const now = dayjs().tz(timezone);
+  if (now.format('YYYY-MM-DD') !== activity.activity_date) return false;
+  const todayPrefix = activity.activity_date + 'T';
+  const startDt = dayjs.tz(todayPrefix + activity.start_time, timezone);
+  if (!activity.end_time) return !now.isBefore(startDt);
+  const endDt = dayjs.tz(todayPrefix + activity.end_time, timezone);
+  return !now.isBefore(startDt) && now.isBefore(endDt);
+}
+
+export function AgendaItem({ activity, timezone, onPress, attendees }: AgendaItemProps) {
   const { t } = useTranslation('calendar');
   const timeLabel = formatActivityTime(activity.start_time, activity.end_time, t('allDay'));
   const [showAttendees, setShowAttendees] = useState(false);
   const categoryIcon = activity.category ? CATEGORY_ICON_COLORS[activity.category] : null;
+  const [, setTick] = useState(0);
+  const ongoing = isActivityOngoing(activity, timezone);
+
+  // Re-evaluate ongoing status every minute so the border appears/disappears without a manual refresh.
+  useEffect(() => {
+    if (!activity.activity_date || !activity.start_time) return;
+    const id = setInterval(() => setTick((n) => n + 1), 60_000);
+    return () => clearInterval(id);
+  }, [activity.activity_date, activity.start_time]);
 
   return (
-    <View className="bg-surface border border-border rounded-md overflow-hidden">
+    <View
+      className="bg-surface rounded-md overflow-hidden"
+      style={{ borderWidth: ongoing ? 2 : 1, borderColor: ongoing ? colors.primary : colors.border }}
+    >
       <Pressable
         onPress={() => onPress(activity)}
         className="p-md flex-row items-center gap-md"
