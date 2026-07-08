@@ -76,6 +76,10 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '{{creator}} settled all expenses in "{{trip}}".',
     de: '{{creator}} hat alle Ausgaben in "{{trip}}" beglichen.',
   },
+  activity_reminder: {
+    en: '"{{entity}}" in "{{trip}}" starts in 1 hour!',
+    de: '"{{entity}}" in "{{trip}}" beginnt in 1 Stunde!',
+  },
 };
 
 // Several notification kinds reuse one DB type and are distinguished by the body or
@@ -88,7 +92,8 @@ type EffectiveNotificationType =
   | 'lost_found_found'
   | 'lost_found_lost'
   | 'lost_found_resolved'
-  | 'lost_found_reopened';
+  | 'lost_found_reopened'
+  | 'activity_reminder';
 
 function resolveEffectiveType(notification: Notification): EffectiveNotificationType {
   // i_got_it shared packing notifications reuse type='shared_packing' but their
@@ -107,6 +112,9 @@ function resolveEffectiveType(notification: Notification): EffectiveNotification
       case 'Case resolved':  return 'lost_found_resolved';
       case 'Case reopened':  return 'lost_found_reopened';
     }
+  }
+  if (notification.type === 'reminder' && notification.related_type === 'activity_reminder') {
+    return 'activity_reminder';
   }
   return notification.type;
 }

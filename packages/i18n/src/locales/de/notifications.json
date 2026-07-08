@@ -14,6 +14,7 @@
   "preferences.scheduleChanges": "Planänderungen",
   "preferences.reminders": "Erinnerungen & Anstöße",
   "preferences.sharedPacking": "Gemeinsame Packliste",
+  "preferences.activityReminders": "Aktivitätserinnerungen",
   "nudge.sheetTitle": "Anstoß senden",
   "nudge.democracy.title": "Die Demokratie ruft!",
   "nudge.democracy.body": "Bist du für Diktaturen? Wenn nicht, stimme jetzt bei {{tripName}} ab!",
@@ -53,6 +54,7 @@
   "type.lost_found_resolved": "Fall gelöst",
   "type.lost_found_reopened": "Fall wieder geöffnet",
   "type.expense_settlement": "Ausgaben beglichen",
+  "type.activity_reminder": "Aktivität beginnt bald",
   "nudge.confirmTitle": "Anstoß senden?",
   "nudge.confirmBody": "Alle Reiseteilnehmer erhalten eine Push-Benachrichtigung.",
   "nudge.confirmSend": "Senden"

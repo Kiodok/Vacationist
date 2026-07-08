@@ -14,6 +14,7 @@
   "preferences.scheduleChanges": "Schedule changes",
   "preferences.reminders": "Reminders & nudges",
   "preferences.sharedPacking": "Shared Packing",
+  "preferences.activityReminders": "Activity reminders",
   "nudge.sheetTitle": "Send a nudge",
   "nudge.democracy.title": "Democracy calls!",
   "nudge.democracy.body": "Are you in favor of dictatorships? If not, vote now on {{tripName}}!",
@@ -53,6 +54,7 @@
   "type.lost_found_resolved": "Case resolved",
   "type.lost_found_reopened": "Case reopened",
   "type.expense_settlement": "Expenses settled",
+  "type.activity_reminder": "Activity starting soon",
   "nudge.confirmTitle": "Send nudge?",
   "nudge.confirmBody": "This will send a push notification to all trip members.",
   "nudge.confirmSend": "Send"

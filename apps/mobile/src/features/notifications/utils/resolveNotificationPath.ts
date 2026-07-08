@@ -33,6 +33,7 @@ export function resolveNotificationPath(
       return `/trip/${trip_id}?tab=Settings`;
     case 'reminder':
       if (related_type === 'expense_reminder') return `/trip/${trip_id}?tab=Expenses`;
+      if (related_type === 'activity_reminder') return `/trip/${trip_id}?tab=Activities${highlight}`;
       return `/trip/${trip_id}`;
     case 'document_access_request':
       return '/(tabs)/profile';

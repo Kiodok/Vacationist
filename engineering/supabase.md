@@ -1,5 +1,22 @@
 # Supabase Changes Log
 
+## 2026-07-08 — Activity reminder cron
+
+### Migration: `20260708100000_create_activity_reminder_cron`
+
+**Changes:**
+1. **New column `notification_preferences.activity_reminder`** — BOOLEAN NOT NULL DEFAULT TRUE. Separate toggle from the existing `reminder` column so users can opt out of activity reminders without losing trip-start reminders and nudges.
+2. **New function `private.create_activity_reminders()`** — SECURITY DEFINER, runs every 5 minutes via pg_cron. For each activity where `activity_date IS NOT NULL AND start_time IS NOT NULL AND status NOT IN ('completed', 'skipped') AND deleted_at IS NULL`, converts the naive local time to UTC using `timezone(trip.timezone, activity_date + start_time)` and checks if it falls within `NOW()` to `NOW() + 65 minutes`. Deduplicates via `related_type='activity_reminder' AND related_id=activity.id AND created_at > NOW() - INTERVAL '2 hours'` — time-window based (not calendar day) to avoid false double-sends across the UTC midnight boundary. Calls `private.create_trip_notification()` with `type='reminder'`, `related_type='activity_reminder'`, and context fields.
+3. **Cron schedule `create-activity-reminders`** — `*/5 * * * *` (every 5 minutes). Uses the existing push-dispatch pipeline.
+
+**Non-destructive.** Applied to: dev + prod.
+
+**Client changes (same PR):**
+- Edge function `push-notification`: `preferenceColumn()` accepts optional `relatedType`; `reminder + activity_reminder` → `'activity_reminder'` column. `translateNotification()` effectiveType chain + `NOTIFICATION_TRANSLATIONS` entry added.
+- Bug fix: `isOngoing()` / `isAutoCompleted()` in `activities.tsx` now accept a `timezone` string and use `dayjs.tz()` for all datetime construction, fixing classification for users whose device timezone differs from the trip timezone.
+
+---
+
 ## 2026-07-07 — Delete account (anonymize strategy)
 
 ### Migration: `20260707100000_delete_own_account`

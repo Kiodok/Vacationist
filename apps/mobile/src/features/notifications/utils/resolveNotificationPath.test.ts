@@ -56,6 +56,23 @@ describe('resolveNotificationPath', () => {
     expect(resolveNotificationPath(n('reminder'))).toBe(`/trip/${TRIP}`);
   });
 
+  describe('activity_reminder', () => {
+    it('routes reminder with activity_reminder related_type to Activities tab', () => {
+      expect(resolveNotificationPath(n('reminder', 'activity_reminder'))).toBe(`/trip/${TRIP}?tab=Activities`);
+    });
+
+    it('routes reminder with activity_reminder related_type and related_id to Activities tab with highlight', () => {
+      const activityId = 'activity-uuid-456';
+      expect(resolveNotificationPath(n('reminder', 'activity_reminder', activityId))).toBe(
+        `/trip/${TRIP}?tab=Activities&highlightId=${activityId}`,
+      );
+    });
+
+    it('routes reminder with expense_reminder related_type to Expenses tab (not overridden)', () => {
+      expect(resolveNotificationPath(n('reminder', 'expense_reminder'))).toBe(`/trip/${TRIP}?tab=Expenses`);
+    });
+  });
+
   it('routes document_access_request to profile tab (no trip_id in path)', () => {
     expect(resolveNotificationPath(n('document_access_request'))).toBe('/(tabs)/profile');
   });

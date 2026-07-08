@@ -408,6 +408,7 @@ export interface NotificationPreference {
   reminder: boolean;
   lost_found: boolean;
   shared_packing: boolean;
+  activity_reminder: boolean;
 }
 
 export interface TravelDocument {

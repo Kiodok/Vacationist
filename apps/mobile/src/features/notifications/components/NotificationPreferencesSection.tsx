@@ -21,8 +21,9 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
     { key: 'expense_change',  label: t('preferences.expenseUpdates') },
     { key: 'new_member',      label: t('preferences.newMembers') },
     { key: 'schedule_change', label: t('preferences.scheduleChanges') },
-    { key: 'reminder',        label: t('preferences.reminders') },
-    { key: 'shared_packing',  label: t('preferences.sharedPacking') },
+    { key: 'reminder',          label: t('preferences.reminders') },
+    { key: 'activity_reminder', label: t('preferences.activityReminders') },
+    { key: 'shared_packing',    label: t('preferences.sharedPacking') },
   ];
 
   if (isLoading && fetchStatus === 'fetching') {

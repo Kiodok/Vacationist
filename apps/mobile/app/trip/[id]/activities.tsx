@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl, Switch } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl, Switch, Platform } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
@@ -41,12 +41,12 @@ const ACTIVITY_SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: s
   completed:   { icon: 'checkmark-done-outline', iconColor: colors.success,     textClass: 'text-success' },
 };
 
-function isAutoCompleted(activity: Activity): boolean {
+function isAutoCompleted(activity: Activity, timezone: string): boolean {
   if (!activity.activity_date) return false;
   const now = dayjs();
   const date = activity.activity_date;
   if (activity.end_time) {
-    let end = dayjs(`${date}T${activity.end_time}`);
+    let end = dayjs.tz(`${date}T${activity.end_time}`, timezone);
     // If end_time is earlier than start_time the activity crosses midnight — shift end to next day.
     if (activity.start_time && activity.end_time < activity.start_time) {
       end = end.add(1, 'day');
@@ -54,18 +54,18 @@ function isAutoCompleted(activity: Activity): boolean {
     return now.isAfter(end);
   }
   if (activity.start_time) {
-    return now.isAfter(dayjs(`${date}T${activity.start_time}`).add(2, 'hour'));
+    return now.isAfter(dayjs.tz(`${date}T${activity.start_time}`, timezone).add(2, 'hour'));
   }
-  return now.isAfter(dayjs(date).endOf('day'));
+  return now.isAfter(dayjs.tz(date, timezone).endOf('day'));
 }
 
-function isOngoing(activity: Activity): boolean {
+function isOngoing(activity: Activity, timezone: string): boolean {
   if (!activity.activity_date) return false;
   const now = dayjs();
   const date = activity.activity_date;
   if (activity.start_time && activity.end_time) {
-    const start = dayjs(`${date}T${activity.start_time}`);
-    let end = dayjs(`${date}T${activity.end_time}`);
+    const start = dayjs.tz(`${date}T${activity.start_time}`, timezone);
+    let end = dayjs.tz(`${date}T${activity.end_time}`, timezone);
     // Midnight-crossing activity: shift end to next day.
     if (activity.end_time < activity.start_time) {
       end = end.add(1, 'day');
@@ -73,10 +73,10 @@ function isOngoing(activity: Activity): boolean {
     return now.isAfter(start) && now.isBefore(end);
   }
   if (activity.start_time) {
-    const start = dayjs(`${date}T${activity.start_time}`);
+    const start = dayjs.tz(`${date}T${activity.start_time}`, timezone);
     return now.isAfter(start) && now.isBefore(start.add(2, 'hour'));
   }
-  return dayjs(date).isSame(now, 'day');
+  return dayjs().tz(timezone).isSame(dayjs.tz(date, timezone), 'day');
 }
 
 function sortByDate(a: Activity, b: Activity): number {
@@ -137,6 +137,7 @@ export default function ActivitiesTab() {
   }, [activities, searchQuery]);
 
   const { inPlanningList, plannedList, blockedList, ongoingList, completedList } = useMemo(() => {
+    const tz = trip?.timezone ?? 'Europe/Berlin';
     const inPlanning: Activity[] = [];
     const planned: Activity[] = [];
     const blocked: Activity[] = [];
@@ -145,9 +146,9 @@ export default function ActivitiesTab() {
     for (const a of filteredActivities) {
       if (a.status === 'completed' || a.status === 'skipped') {
         completed.push(a);
-      } else if (isAutoCompleted(a)) {
+      } else if (isAutoCompleted(a, tz)) {
         completed.push(a);
-      } else if (isOngoing(a)) {
+      } else if (isOngoing(a, tz)) {
         ongoing.push(a);
       } else if (a.voting_open && blockedActivityIds.has(a.id)) {
         blocked.push(a);
@@ -163,7 +164,7 @@ export default function ActivitiesTab() {
     ongoing.sort(sortByDate);
     completed.sort(sortByDate);
     return { inPlanningList: inPlanning, plannedList: planned, blockedList: blocked, ongoingList: ongoing, completedList: completed };
-  }, [filteredActivities, blockedActivityIds]);
+  }, [filteredActivities, blockedActivityIds, trip?.timezone]);
 
   const rawSections = useMemo(() => {
     const result: { key: string; title: string; data: Activity[] }[] = [];
@@ -323,7 +324,7 @@ export default function ActivitiesTab() {
       <Pressable
         onPress={() => setShowCreate(true)}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-        style={{ elevation: 4, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+        style={{ elevation: 4, ...Platform.select({ web: { boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }, default: { shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 } }) }}
       >
         <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
       </Pressable>

@@ -448,9 +448,10 @@ export const updateNotificationPreferencesSchema = z.object({
   expense_change:  z.boolean().optional(),
   new_member:      z.boolean().optional(),
   schedule_change: z.boolean().optional(),
-  reminder:        z.boolean().optional(),
-  lost_found:      z.boolean().optional(),
-  shared_packing:  z.boolean().optional(),
+  reminder:          z.boolean().optional(),
+  lost_found:        z.boolean().optional(),
+  shared_packing:    z.boolean().optional(),
+  activity_reminder: z.boolean().optional(),
 });
 
 export type UpdateNotificationPreferencesInput = z.infer<typeof updateNotificationPreferencesSchema>;

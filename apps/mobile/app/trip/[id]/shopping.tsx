@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, SectionList, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
+import { View, Text, SectionList, ActivityIndicator, Pressable, RefreshControl, Platform } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -225,7 +225,7 @@ export default function ShoppingTab() {
         <Pressable
           onPress={() => viewMode === 'recipes' ? setShowCreateRecipe(true) : setShowCreate(true)}
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
-          style={{ elevation: 6, zIndex: 10, shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 }}
+          style={{ elevation: 6, zIndex: 10, ...Platform.select({ web: { boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }, default: { shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 } }) }}
         >
           <ThemedIcon name="add" size={28} color={isColorful ? colors.surfaceElevated : '#FFFFFF'} />
         </Pressable>

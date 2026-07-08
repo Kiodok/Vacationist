@@ -38,6 +38,11 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Trip reminder', body: 'Your trip "{{trip}}" starts soon. Time to get ready!' },
     de: { title: 'Reiseerinnerung', body: 'Deine Reise "{{trip}}" beginnt bald. Zeit, sich fertig zu machen!' },
   },
+  // Virtual type: activity reminders use DB type='reminder' with related_type='activity_reminder'.
+  activity_reminder: {
+    en: { title: 'Activity starting soon', body: '"{{entity}}" in "{{trip}}" starts in 1 hour!' },
+    de: { title: 'Aktivität beginnt bald', body: '"{{entity}}" in "{{trip}}" beginnt in 1 Stunde!' },
+  },
   // Virtual type: post-trip expense reminders use DB type='reminder' but body contains
   // 'unsettled expenses'. Detected below in the effectiveType chain.
   expense_reminder: {
@@ -142,6 +147,7 @@ function translateNotification(
     type === 'lost_found' && fallbackTitle === 'Item lost' ? 'lost_found_lost' :
     type === 'lost_found' && fallbackTitle === 'Case resolved' ? 'lost_found_resolved' :
     type === 'lost_found' && fallbackTitle === 'Case reopened' ? 'lost_found_reopened' :
+    type === 'reminder' && relatedType === 'activity_reminder' ? 'activity_reminder' :
     type === 'reminder' && relatedType === 'expense_reminder' ? 'expense_reminder' :
     type === 'reminder' && relatedType === 'planning_nudge' ? 'planning_nudge' :
     type === 'reminder' && relatedType === 'guest_nudge' ? 'guest_nudge' :
@@ -234,7 +240,7 @@ interface ExpoPushTicket {
 }
 
 // Returns null for always-on notification types (no preference gate).
-function preferenceColumn(type: string): string | null {
+function preferenceColumn(type: string, relatedType?: string | null): string | null {
   switch (type) {
     case 'new_activity':    return 'new_activity';
     case 'vote_finalized':
@@ -243,7 +249,7 @@ function preferenceColumn(type: string): string | null {
     case 'expense_settlement': return 'expense_change';
     case 'new_member':      return 'new_member';
     case 'schedule_change': return 'schedule_change';
-    case 'reminder':        return 'reminder';
+    case 'reminder':        return relatedType === 'activity_reminder' ? 'activity_reminder' : 'reminder';
     case 'lost_found':      return null;
     case 'activity_note':   return 'new_activity';
     case 'shared_packing':  return 'shared_packing';
@@ -313,7 +319,7 @@ async function sendToExpo(
 }
 
 async function handleSingle(payload: SingleNotificationPayload): Promise<Response> {
-  const prefCol = preferenceColumn(payload.type);
+  const prefCol = preferenceColumn(payload.type, payload.related_type);
   if (prefCol !== null) {
     const { data: prefs } = await supabase
       .from('notification_preferences')
@@ -402,7 +408,7 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
 
   // Filter by notification preferences in one batch query.
   let eligibleUserIds = user_ids;
-  const prefCol = preferenceColumn(type);
+  const prefCol = preferenceColumn(type, related_type);
   if (prefCol !== null) {
     const { data: prefs } = await supabase
       .from('notification_preferences')
