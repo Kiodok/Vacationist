@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="/">
+  <title>Vacationist – Free Group Trip Planner App</title>
+  <link rel="canonical" href="https://vacationist.app/scan/android-qr">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+  <meta name="description" content="Download Vacationist — the free group trip planner. Vote on activities, split expenses, share packing lists. Available on Google Play.">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vacationist.app/scan/android-qr">
+  <meta property="og:site_name" content="Vacationist">
+  <meta property="og:title" content="Vacationist – Free Group Trip Planner App">
+  <meta property="og:description" content="Download Vacationist — the free group trip planner. Vote on activities, split expenses, share packing lists. Available on Google Play.">
+  <meta property="og:image" content="https://vacationist.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vacationist – Free Group Trip Planner App">
+  <meta name="twitter:description" content="Download Vacationist — the free group trip planner. Vote on activities, split expenses, share packing lists.">
+  <meta name="twitter:image" content="https://vacationist.app/og-image.png">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0F0F0F;
+      color: #F2F2F2;
+      min-height: 100vh;
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid #1E1E1E;
+    }
+    .nav-logo { font-size: 22px; font-weight: 700; color: #6C63FF; letter-spacing: -0.5px; }
+    .nav-cta {
+      display: inline-block;
+      background: #6C63FF;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* Main content */
+    .main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      text-align: center;
+    }
+
+    /* Hero */
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6C63FF;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+    .hero-sub {
+      font-size: 16px;
+      color: #A0A0A0;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* Primary CTA */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #6C63FF;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 14px;
+      text-decoration: none;
+      width: 100%;
+      transition: opacity 0.15s, transform 0.1s;
+      margin-bottom: 14px;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .hero-note {
+      font-size: 13px;
+      color: #6B6B6B;
+      margin-bottom: 40px;
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid #1E1E1E;
+      margin: 40px 0;
+    }
+
+    /* Features */
+    .features-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #A0A0A0;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      text-align: left;
+    }
+    .feature-card {
+      background: #1A1A1A;
+      border: 1px solid #2E2E2E;
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .feature-icon { font-size: 22px; margin-bottom: 8px; }
+    .feature-name { font-size: 14px; font-weight: 600; color: #F2F2F2; margin-bottom: 4px; }
+    .feature-desc { font-size: 13px; color: #6B6B6B; line-height: 1.4; }
+
+    /* Trust strip */
+    .trust-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-top: 28px;
+      padding: 16px 0;
+      border-top: 1px solid #1E1E1E;
+      border-bottom: 1px solid #1E1E1E;
+    }
+    .trust-item {
+      font-size: 12px;
+      color: #5C5C5C;
+      white-space: nowrap;
+    }
+    .trust-sep {
+      color: #2E2E2E;
+      font-size: 12px;
+    }
+
+    /* CTA section */
+    .cta-section {
+      background: #1A1A1A;
+      border: 1px solid #2E2E2E;
+      border-radius: 18px;
+      padding: 28px 24px;
+      margin-top: 40px;
+      text-align: center;
+    }
+    .cta-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .cta-sub { font-size: 15px; color: #A0A0A0; margin-bottom: 20px; }
+    .btn-play {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 1px solid #6C63FF;
+      color: #6C63FF;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-play:hover { background: rgba(108,99,255,0.08); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid #1E1E1E;
+      color: #4A4A4A;
+      font-size: 13px;
+    }
+    .footer a { color: #4A4A4A; text-decoration: none; margin: 0 8px; }
+    .footer a:hover { color: #A0A0A0; }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-logo">Vacationist</div>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile&utm_source=qr&utm_medium=print&utm_campaign=android-qr" class="nav-cta" data-i18n="scan.nav.getApp">Get the App</a>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="hero-eyebrow" data-i18n="scan.hero.eyebrow">✈ Group Trip Planner</div>
+    <h1 class="hero-title" data-i18n="scan.hero.title">Discover Vacationist</h1>
+    <p class="hero-sub" data-i18n="scan.hero.sub">The free group trip planner. Vote on activities, split expenses, share packing lists, and keep everyone in sync.</p>
+
+    <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile&utm_source=qr&utm_medium=print&utm_campaign=android-qr">
+      <svg width="19" height="21" viewBox="0 0 20 22" fill="none" aria-hidden="true"><path d="M2 2L18 11L2 20" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="#fff"/></svg>
+      <span data-i18n="scan.hero.getPlay">Get it on Google Play</span>
+    </a>
+    <p class="hero-note" data-i18n="scan.hero.note">Free · No ads · No account needed to join</p>
+
+    <hr class="divider">
+
+    <p class="features-title" data-i18n="scan.features.title">Why groups love Vacationist</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🗳️</div>
+        <div class="feature-name" data-i18n="scan.feat.vote.name">Vote on activities</div>
+        <div class="feature-desc" data-i18n="scan.feat.vote.desc">Suggest ideas and let the group decide together.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💸</div>
+        <div class="feature-name" data-i18n="scan.feat.expenses.name">Split expenses</div>
+        <div class="feature-desc" data-i18n="scan.feat.expenses.desc">Track who paid what. Settle up fairly at the end.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-name" data-i18n="scan.feat.lists.name">Shared lists</div>
+        <div class="feature-desc" data-i18n="scan.feat.lists.desc">Packing and shopping lists, synced in real time.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <div class="feature-name" data-i18n="scan.feat.budget.name">Trip budget</div>
+        <div class="feature-desc" data-i18n="scan.feat.budget.desc">Set a budget, track spending, see who owes whom.</div>
+      </div>
+    </div>
+
+    <!-- Trust strip -->
+    <div class="trust-strip">
+      <span class="trust-item" data-i18n="scan.trust.free">Free to use</span>
+      <span class="trust-sep" aria-hidden="true">·</span>
+      <span class="trust-item" data-i18n="scan.trust.noAds">No ads, no tracking</span>
+      <span class="trust-sep" aria-hidden="true">·</span>
+      <span class="trust-item" data-i18n="scan.trust.swiss">Built in Switzerland</span>
+    </div>
+
+    <div class="cta-section">
+      <div class="cta-title" data-i18n="scan.cta.title">Ready to plan your next trip?</div>
+      <div class="cta-sub" data-i18n="scan.cta.sub">Download Vacationist and start organizing together.</div>
+      <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile&utm_source=qr&utm_medium=print&utm_campaign=android-qr" class="btn-play">
+        <svg width="14" height="16" viewBox="0 0 20 22" fill="none" aria-hidden="true"><path d="M2 2L18 11L2 20" stroke="#6C63FF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="#6C63FF"/></svg>
+        <span data-i18n="scan.cta.getPlay">Get it on Google Play</span>
+      </a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <a href="https://vacationist.app/privacy-policy.html" data-i18n="scan.footer.privacy">Privacy</a>
+    <a href="https://vacationist.app/terms-of-service.html" data-i18n="scan.footer.terms">Terms</a>
+    <span>© 2026 Vacationist</span>
+  </footer>
+
+  <script src="i18n.js"></script>
+</body>
+</html>

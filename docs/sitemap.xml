@@ -11,6 +11,15 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/"/>
   </url>
   <url>
+    <loc>https://vacationist.app/scan/android-qr</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/scan/android-qr"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/scan/android-qr"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/scan/android-qr"/>
+  </url>
+  <url>
     <loc>https://vacationist.app/privacy-policy.html</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>yearly</changefreq>

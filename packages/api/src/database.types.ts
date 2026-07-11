@@ -2156,6 +2156,7 @@ export type Database = {
         Args: { p_case_id: string }
         Returns: undefined
       }
+      delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined }
       delete_prework_topic: { Args: { p_topic_id: string }; Returns: undefined }
       delete_push_token: { Args: { p_push_token: string }; Returns: undefined }
       delete_recipe: { Args: { p_recipe_id: string }; Returns: undefined }

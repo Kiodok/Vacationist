@@ -15,6 +15,18 @@ export function initSentry() {
     release: Application.nativeApplicationVersion ?? undefined,
     dist: Updates.updateId ?? Application.nativeBuildVersion ?? undefined,
 
+    // Drop errors injected by in-app browsers (Instagram, Facebook, etc.) that try
+    // to call window.webkit.messageHandlers when the native bridge is unavailable.
+    ignoreErrors: [
+      /window\.webkit\.messageHandlers/,
+      /evaluating 'window\.webkit/,
+      'sendDataToNative',
+    ],
+    // app:/// is the synthetic URL scheme used by IAB-injected scripts — never our code.
+    denyUrls: [
+      /^app:\/\/\//,
+    ],
+
     // 20% performance tracing, 10% CPU profiling. Zero in local dev.
     tracesSampleRate: __DEV__ ? 0 : 0.2,
     profilesSampleRate: __DEV__ ? 0 : 0.1,
@@ -38,6 +50,13 @@ export function initSentry() {
     ] : [],
 
     beforeSend(event) {
+      // Safety net: drop any event where every stack frame is from app:/// —
+      // that's an IAB-injected script, not our bundle.
+      const frames = event.exception?.values?.[0]?.stacktrace?.frames;
+      if (frames?.length && frames.every((f) => f.abs_path === 'app:///' || f.filename === 'app:///')) {
+        return null;
+      }
+
       // Strip invite tokens that could appear in fetch breadcrumb URLs.
       if (event.breadcrumbs) {
         event.breadcrumbs = event.breadcrumbs.map((bc) => {
