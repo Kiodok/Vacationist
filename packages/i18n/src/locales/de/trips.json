@@ -99,6 +99,6 @@
   "invite.share.noAccountRequired": "✓ Kein Konto erforderlich",
   "search.placeholder": "Reisen suchen...",
   "search.noResults": "Keine Reisen für \"{{query}}\"",
-  "overview.shareHighlights": "Highlights teilen (Beta)",
+  "overview.shareHighlights": "Highlights teilen",
   "overview.exportTrip": "Reise exportieren"
 }

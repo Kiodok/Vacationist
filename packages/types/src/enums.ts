@@ -67,6 +67,9 @@ export type AccessRequestDuration = (typeof ACCESS_REQUEST_DURATION)[number];
 export const SUPPORTED_LOCALES = ['en', 'de'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
+export const HIGHLIGHT_FORMAT = ['square', 'story'] as const;
+export type HighlightFormat = (typeof HIGHLIGHT_FORMAT)[number];
+
 export const SUPPORTED_TIMEZONES = [
   'Europe/Berlin',
   'Europe/London',

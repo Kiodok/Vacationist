@@ -99,6 +99,6 @@
   "invite.share.noAccountRequired": "✓ No account required",
   "search.placeholder": "Search trips...",
   "search.noResults": "No trips matching \"{{query}}\"",
-  "overview.shareHighlights": "Share Trip Highlights (Beta)",
+  "overview.shareHighlights": "Share Trip Highlights",
   "overview.exportTrip": "Export Trip"
 }

@@ -1,14 +1,17 @@
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { requireOptionalNativeModule } from 'expo-modules-core';
 import * as Sharing from 'expo-sharing';
+import type { HighlightFormat } from '@vacationist/types';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useToastStore } from '../../../stores/toastStore';
-import { useTripHighlightData } from '../hooks/useTripHighlightData';
+import { useHighlightCandidates } from '../hooks/useTripHighlightData';
+import { useHighlightSelection } from '../hooks/useHighlightSelection';
+import { buildRenderData } from '../utils/highlightSelection';
 import { HighlightCard } from './HighlightCard';
-import type { HighlightFormat } from './HighlightCard';
+import { HighlightContentPicker } from './HighlightContentPicker';
 
 // Gate on the native module before requiring the JS module. Without this check,
 // require('react-native-view-shot') calls TurboModuleRegistry.getEnforcing('RNViewShot')
@@ -32,10 +35,39 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
   const { width: screenWidth } = useWindowDimensions();
   const theme = useResolvedTheme();
   const addToast = useToastStore((s) => s.addToast);
-  const { data } = useTripHighlightData(tripId);
+
+  const { candidates, isLoaded } = useHighlightCandidates(tripId);
+  const {
+    selection,
+    format,
+    setFormat,
+    toggleItem,
+    setAccommodation,
+    toggleMembers,
+    toggleStats,
+    toggleShoppingStat,
+    resetToDefaults,
+    canAdd,
+    wasTrimmed,
+    slotsUsed,
+    slotBudget,
+  } = useHighlightSelection(tripId, candidates, isLoaded);
+
   const cardRef = useRef<View>(null);
-  const [format, setFormat] = useState<HighlightFormat>('square');
+  const [step, setStep] = useState<'select' | 'preview'>('select');
   const [isCapturing, setIsCapturing] = useState(false);
+
+  // Start over at the selection step every time the sheet opens
+  useEffect(() => {
+    if (visible) setStep('select');
+  }, [visible]);
+
+  // Single render model feeding BOTH the off-screen capture surface and the
+  // preview card — the shared image always matches the preview by construction.
+  const renderData = useMemo(
+    () => (candidates && selection ? buildRenderData(candidates, selection) : null),
+    [candidates, selection],
+  );
 
   const cardWidth = Math.min(screenWidth - 48, 360);
   const buttonTextColor = theme === 'colorful' ? colors.surface : '#FFFFFF';
@@ -90,14 +122,14 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
       {/* Off-screen capture surface — must be outside the Modal so react-native-view-shot
           can reach it via the main activity window. Android Modal renders in a separate
           native window; captureRef cannot find views inside it. */}
-      {data && (
+      {renderData && (
         <View
           ref={cardRef}
           collapsable={false}
           pointerEvents="none"
           style={{ position: 'absolute', top: 0, left: -(cardWidth + 100) }}
         >
-          <HighlightCard data={data} format={format} width={cardWidth} />
+          <HighlightCard data={renderData} format={format} width={cardWidth} />
         </View>
       )}
 
@@ -112,60 +144,139 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
-            <Text className="text-heading-m text-text-primary mb-xs">{t('highlights.title')}</Text>
-            <Text className="text-body-small text-text-secondary mb-md">{t('highlights.subtitle')}</Text>
-
-            {/* Format toggle */}
-            <View className="flex-row gap-sm mb-lg">
-              {(['square', 'story'] as HighlightFormat[]).map((fmt) => (
+            <View className="flex-row items-center gap-sm mb-xs">
+              {step === 'preview' && (
                 <Pressable
-                  key={fmt}
-                  onPress={() => setFormat(fmt)}
-                  className={`px-md py-sm rounded-full ${format === fmt ? 'bg-primary' : 'bg-surface'}`}
+                  onPress={() => setStep('select')}
+                  hitSlop={8}
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                 >
-                  <Text
-                    className={`text-body-small font-semibold ${format !== fmt ? 'text-text-secondary' : ''}`}
-                    style={format === fmt ? { color: buttonTextColor } : undefined}
-                  >
-                    {fmt === 'square' ? t('highlights.squareFormat') : t('highlights.storyFormat')}
-                  </Text>
+                  <ThemedIcon name="chevron-back" size={22} color={colors.primary} />
                 </Pressable>
-              ))}
+              )}
+              <Text className="text-heading-m text-text-primary">{t('highlights.title')}</Text>
             </View>
+            <Text className="text-body-small text-text-secondary mb-md">
+              {step === 'select' ? t('highlights.selectContent') : t('highlights.subtitle')}
+            </Text>
 
-            {/* Card preview — display only, captured from the off-screen surface above */}
-            <ScrollView showsVerticalScrollIndicator={false} className="mb-lg">
-              {data ? (
-                <View style={{ alignItems: 'center' }}>
-                  <HighlightCard data={data} format={format} width={cardWidth} />
+            {step === 'select' ? (
+              <>
+                {/* Format toggle */}
+                <View className="flex-row gap-sm mb-sm">
+                  {(['square', 'story'] as HighlightFormat[]).map((fmt) => (
+                    <Pressable
+                      key={fmt}
+                      onPress={() => setFormat(fmt)}
+                      className={`px-md py-sm rounded-full ${format === fmt ? 'bg-primary' : 'bg-surface'}`}
+                      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                    >
+                      <Text
+                        className={`text-body-small font-semibold ${format !== fmt ? 'text-text-secondary' : ''}`}
+                        style={format === fmt ? { color: buttonTextColor } : undefined}
+                      >
+                        {fmt === 'square' ? t('highlights.squareFormat') : t('highlights.storyFormat')}
+                      </Text>
+                    </Pressable>
+                  ))}
                 </View>
-              ) : (
-                <View className="items-center py-xl">
-                  <ActivityIndicator color={colors.primary} />
-                </View>
-              )}
-            </ScrollView>
+                {wasTrimmed && (
+                  <Text className="text-body-small text-warning mb-sm">{t('highlights.autoTrimmed')}</Text>
+                )}
 
-            {/* Share button */}
-            <Pressable
-              onPress={handleShare}
-              disabled={!data || isCapturing || !captureRef}
-              className="py-md rounded-md bg-primary items-center"
-              style={({ pressed }) => ({ opacity: pressed || !data || isCapturing || !captureRef ? 0.6 : 1 })}
-            >
-              {isCapturing ? (
-                <View className="flex-row items-center gap-sm">
-                  <ActivityIndicator size="small" color={buttonTextColor} />
-                  <Text className="font-semibold text-body" style={{ color: buttonTextColor }}>{t('highlights.capturing')}</Text>
-                </View>
-              ) : (
-                <View className="flex-row items-center gap-sm">
-                  <ThemedIcon name="share-social-outline" size={18} color={buttonTextColor} />
-                  <Text className="font-semibold text-body" style={{ color: buttonTextColor }}>{t('highlights.shareButton')}</Text>
-                </View>
-              )}
-            </Pressable>
+                {/* Budget indicator — pinned above the scrollable picker */}
+                {selection && (
+                  <View className="mb-sm">
+                    <View className="flex-row items-center justify-between mb-xs">
+                      <Text className="text-body-small text-text-secondary">
+                        {t('highlights.slotsUsed', { used: slotsUsed, total: slotBudget })}
+                      </Text>
+                      <Pressable onPress={resetToDefaults} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+                        <Text className="text-body-small text-primary font-semibold">
+                          {t('highlights.resetDefaults')}
+                        </Text>
+                      </Pressable>
+                    </View>
+                    <View className="h-[6px] rounded-full bg-surface border border-border overflow-hidden">
+                      <View
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${Math.min(100, Math.round((slotsUsed / slotBudget) * 100))}%` }}
+                      />
+                    </View>
+                    {slotsUsed >= slotBudget && (
+                      <Text className="text-body-small text-text-muted mt-xs">{t('highlights.spaceFull')}</Text>
+                    )}
+                  </View>
+                )}
+
+                <ScrollView showsVerticalScrollIndicator={false} className="mb-lg">
+                  {candidates && selection ? (
+                    <HighlightContentPicker
+                      candidates={candidates}
+                      selection={selection}
+                      canAdd={canAdd}
+                      onToggleItem={toggleItem}
+                      onSetAccommodation={setAccommodation}
+                      onToggleMembers={toggleMembers}
+                      onToggleStats={toggleStats}
+                      onToggleShoppingStat={toggleShoppingStat}
+                    />
+                  ) : (
+                    <View className="items-center py-xl">
+                      <ActivityIndicator color={colors.primary} />
+                    </View>
+                  )}
+                </ScrollView>
+
+                {/* Continue to preview */}
+                <Pressable
+                  onPress={() => setStep('preview')}
+                  disabled={!renderData}
+                  className="py-md rounded-md bg-primary items-center"
+                  style={({ pressed }) => ({ opacity: pressed || !renderData ? 0.6 : 1 })}
+                >
+                  <View className="flex-row items-center gap-sm">
+                    <Text className="font-semibold text-body" style={{ color: buttonTextColor }}>{t('highlights.previewButton')}</Text>
+                    <ThemedIcon name="chevron-forward" size={18} color={buttonTextColor} />
+                  </View>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                {/* Card preview — display only, captured from the off-screen surface above */}
+                <ScrollView showsVerticalScrollIndicator={false} className="mb-lg">
+                  {renderData ? (
+                    <View style={{ alignItems: 'center' }}>
+                      <HighlightCard data={renderData} format={format} width={cardWidth} />
+                    </View>
+                  ) : (
+                    <View className="items-center py-xl">
+                      <ActivityIndicator color={colors.primary} />
+                    </View>
+                  )}
+                </ScrollView>
+
+                {/* Share button */}
+                <Pressable
+                  onPress={handleShare}
+                  disabled={!renderData || isCapturing || !captureRef}
+                  className="py-md rounded-md bg-primary items-center"
+                  style={({ pressed }) => ({ opacity: pressed || !renderData || isCapturing || !captureRef ? 0.6 : 1 })}
+                >
+                  {isCapturing ? (
+                    <View className="flex-row items-center gap-sm">
+                      <ActivityIndicator size="small" color={buttonTextColor} />
+                      <Text className="font-semibold text-body" style={{ color: buttonTextColor }}>{t('highlights.capturing')}</Text>
+                    </View>
+                  ) : (
+                    <View className="flex-row items-center gap-sm">
+                      <ThemedIcon name="share-social-outline" size={18} color={buttonTextColor} />
+                      <Text className="font-semibold text-body" style={{ color: buttonTextColor }}>{t('highlights.shareButton')}</Text>
+                    </View>
+                  )}
+                </Pressable>
+              </>
+            )}
           </View>
         </View>
       </Modal>

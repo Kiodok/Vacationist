@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, SUPPORTED_LOCALES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE, SHARED_PACKING_ITEM_TYPE, LOST_FOUND_CASE_TYPE } from './enums';
+import { SUPPORTED_TIMEZONES, SUPPORTED_LOCALES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE, SHARED_PACKING_ITEM_TYPE, LOST_FOUND_CASE_TYPE, HIGHLIGHT_FORMAT } from './enums';
 import type { VOTE_TYPE } from './enums';
 
 export const userSchema = z.object({
@@ -623,3 +623,27 @@ export type MarkNotificationReadVariables = { notificationId: string };
 export type MarkAllNotificationsReadVariables = { tripId?: string };
 export type DeleteNotificationVariables = { notificationId: string; tripId?: string };
 export type DeleteAllNotificationsVariables = { tripId?: string };
+
+// --- Trip highlight sharing (client-side MMKV persistence) ---
+
+export const highlightSelectionSchema = z.object({
+  accommodationId: z.string().nullable(),
+  activityIds: z.array(z.string()),
+  flightIds: z.array(z.string()),
+  vehicleIds: z.array(z.string()),
+  rentalIds: z.array(z.string()),
+  recipeIds: z.array(z.string()),
+  showMembers: z.boolean(),
+  showStats: z.boolean(),
+  showShoppingStat: z.boolean(),
+});
+
+export type HighlightSelection = z.infer<typeof highlightSelectionSchema>;
+
+export const persistedHighlightSelectionSchema = z.object({
+  v: z.literal(1),
+  format: z.enum(HIGHLIGHT_FORMAT),
+  selection: highlightSelectionSchema,
+});
+
+export type PersistedHighlightSelection = z.infer<typeof persistedHighlightSelectionSchema>;

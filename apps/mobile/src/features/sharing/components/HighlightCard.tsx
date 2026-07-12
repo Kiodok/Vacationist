@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import type { HighlightFormat } from '@vacationist/types';
 import { dayjs } from '@vacationist/utils';
 import { useThemeColors } from '@vacationist/ui';
-import type { HighlightData } from '../hooks/useTripHighlightData';
+import type { CardSection, HighlightRenderData } from '../utils/highlightSelection';
 
-export type HighlightFormat = 'square' | 'story';
+export type { HighlightFormat };
 
 interface HighlightCardProps {
-  data: HighlightData;
+  data: HighlightRenderData;
   format: HighlightFormat;
   width: number;
 }
@@ -20,6 +21,12 @@ export function HighlightCard({ data, format, width }: HighlightCardProps) {
 
   const startFormatted = dayjs(data.startDate).format('D MMM');
   const endFormatted = dayjs(data.endDate).format('D MMM YYYY');
+
+  const sectionLabels: Record<CardSection, string> = {
+    activities: t('highlights.topActivities'),
+    transfers: t('highlights.section.transfers'),
+    recipes: t('highlights.section.recipes'),
+  };
 
   const s = useMemo(() => StyleSheet.create({
     card: {
@@ -56,40 +63,39 @@ export function HighlightCard({ data, format, width }: HighlightCardProps) {
       color: colors.textSecondary,
       fontWeight: '500',
     },
-    separator: {
-      height: 1,
-      backgroundColor: colors.border,
-      marginVertical: format === 'square' ? 16 : 24,
-    },
     sectionLabel: {
       fontSize: 10,
       fontWeight: '700',
       color: colors.textMuted,
       textTransform: 'uppercase',
       letterSpacing: 1,
-      marginBottom: 8,
+      marginBottom: format === 'square' ? 6 : 8,
     },
     accommodationText: {
       fontSize: 14,
       fontWeight: '600',
       color: colors.textPrimary,
     },
-    activitiesContainer: {
-      gap: 4,
+    sectionSpacing: {
+      marginTop: format === 'square' ? 8 : 16,
     },
-    activityRow: {
+    itemsContainer: {
+      gap: format === 'square' ? 3 : 4,
+    },
+    itemRow: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 6,
     },
-    activityDot: {
+    itemDot: {
       width: 5,
       height: 5,
       borderRadius: 3,
       backgroundColor: colors.primary,
     },
-    activityText: {
+    itemText: {
       fontSize: 13,
+      lineHeight: format === 'square' ? 17 : 18,
       color: colors.textPrimary,
       fontWeight: '500',
       flexShrink: 1,
@@ -151,9 +157,6 @@ export function HighlightCard({ data, format, width }: HighlightCardProps) {
     },
   }), [colors, format, width, height]);
 
-  const maxActivities = format === 'square' ? 4 : 6;
-  const displayActivities = data.topActivities.slice(0, maxActivities);
-
   return (
     <View style={s.card}>
       <View style={s.accentBar} />
@@ -168,48 +171,56 @@ export function HighlightCard({ data, format, width }: HighlightCardProps) {
       </View>
 
       <View style={{ flex: 1, justifyContent: 'center' }}>
-        {data.accommodationName ? (
-          <>
+        {data.accommodationName && (
+          <View>
             <Text style={s.sectionLabel}>{t('highlights.accommodation')}</Text>
             <Text style={s.accommodationText} numberOfLines={1}>
               {data.accommodationName}
             </Text>
-            <View style={s.separator} />
-          </>
-        ) : (
-          <View style={s.separator} />
+          </View>
         )}
 
-        {displayActivities.length > 0 && (
-          <>
-            <Text style={s.sectionLabel}>{t('highlights.topActivities')}</Text>
-            <View style={s.activitiesContainer}>
-              {displayActivities.map((name, i) => (
-                <View key={i} style={s.activityRow}>
-                  <View style={s.activityDot} />
-                  <Text style={s.activityText} numberOfLines={1}>
-                    {name}
+        {data.sections.map((section, sectionIndex) => (
+          <View
+            key={section.key}
+            style={sectionIndex > 0 || data.accommodationName ? s.sectionSpacing : undefined}
+          >
+            <Text style={s.sectionLabel}>{sectionLabels[section.key]}</Text>
+            <View style={s.itemsContainer}>
+              {section.items.map((label, i) => (
+                <View key={i} style={s.itemRow}>
+                  <View style={s.itemDot} />
+                  <Text style={s.itemText} numberOfLines={1}>
+                    {label}
                   </Text>
                 </View>
               ))}
             </View>
-          </>
-        )}
+          </View>
+        ))}
       </View>
 
       <View style={s.footer}>
-        <View style={s.stats}>
-          <View style={s.stat}>
-            <Text style={s.statNumber}>{data.durationDays}</Text>
-            <Text style={s.statLabel}>{t('highlights.days')}</Text>
+        {data.stats && (
+          <View style={s.stats}>
+            <View style={s.stat}>
+              <Text style={s.statNumber}>{data.stats.durationDays}</Text>
+              <Text style={s.statLabel}>{t('highlights.days')}</Text>
+            </View>
+            <View style={s.stat}>
+              <Text style={s.statNumber}>{data.stats.memberCount}</Text>
+              <Text style={s.statLabel}>{t('highlights.members')}</Text>
+            </View>
+            {data.stats.shoppingItemCount !== null && (
+              <View style={s.stat}>
+                <Text style={s.statNumber}>{data.stats.shoppingItemCount}</Text>
+                <Text style={s.statLabel}>{t('highlights.shoppingItems')}</Text>
+              </View>
+            )}
           </View>
-          <View style={s.stat}>
-            <Text style={s.statNumber}>{data.memberCount}</Text>
-            <Text style={s.statLabel}>{t('highlights.members')}</Text>
-          </View>
-        </View>
+        )}
 
-        {data.memberFirstNames.length > 0 && (
+        {data.memberFirstNames && (
           <View style={s.membersRow}>
             {data.memberFirstNames.map((name, i) => (
               <View key={i} style={s.memberBadge}>
