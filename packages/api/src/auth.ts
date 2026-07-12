@@ -26,6 +26,12 @@ export async function signInWithMagicLink(email: string, redirectTo: string, cap
 }
 
 export async function signInAnonymously(metadata?: Record<string, string>, captchaToken?: string) {
+  // Guard: supabase-js creates a NEW anonymous user unconditionally, silently
+  // superseding any existing session (and orphaning that account's trip data).
+  const { data: { session: existing } } = await supabase.auth.getSession();
+  if (existing) {
+    throw new Error('ALREADY_SIGNED_IN');
+  }
   const { data, error } = await supabase.auth.signInAnonymously({
     options: {
       ...(metadata ? { data: metadata } : {}),

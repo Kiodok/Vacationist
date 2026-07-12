@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { formatDateRange } from '@vacationist/utils';
 import { Button, Input, colors, ThemedIcon } from '@vacationist/ui';
-import { signInAnonymously, redeemInviteToken, previewInviteToken } from '@vacationist/api';
+import { signInAnonymously, redeemInviteToken, previewInviteToken, getSession } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useAuthStore } from '../../src/stores/authStore';
 import { TurnstileWidget } from '../../src/features/auth/components/TurnstileWidget';
@@ -17,6 +17,7 @@ export default function JoinScreen() {
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
   const setPendingInviteToken = useAuthStore((s) => s.setPendingInviteToken);
+  const authLoading = useAuthStore((s) => s.isLoading);
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,8 +38,18 @@ export default function JoinScreen() {
     });
   }, [token]);
 
+  // A session already exists (route-guard race, or stale tab): never create a
+  // second anonymous account — hand the token to the authenticated join flow.
+  function redirectSignedInUser() {
+    if (token) {
+      router.replace({ pathname: '/trip/join-confirm', params: { token } } as never);
+    } else {
+      router.replace('/(tabs)' as never);
+    }
+  }
+
   async function handleJoinAsGuest() {
-    if (!captchaReady) return;
+    if (!captchaReady || authLoading) return;
     setNameError('');
     const trimmed = name.trim();
 
@@ -53,6 +64,13 @@ export default function JoinScreen() {
     }
 
     setLoading(true);
+
+    const session = await getSession().catch(() => null);
+    if (session) {
+      redirectSignedInUser();
+      return;
+    }
+
     try {
       await signInAnonymously({ name: trimmed }, turnstileToken.current);
       turnstileToken.current = undefined;
@@ -69,7 +87,11 @@ export default function JoinScreen() {
           return;
         }
       }
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.message === 'ALREADY_SIGNED_IN') {
+        redirectSignedInUser();
+        return;
+      }
       addToast('error', t('join.failed'));
       setLoading(false);
     }
@@ -145,7 +167,7 @@ export default function JoinScreen() {
             variant="secondary"
             onPress={handleJoinAsGuest}
             loading={loading}
-            disabled={loading || !captchaReady}
+            disabled={loading || !captchaReady || authLoading}
           />
 
           <TurnstileWidget

@@ -10,7 +10,7 @@ import { setDayjsLocale, setDefaultFormatLocale } from '@vacationist/utils';
 import { storage } from '../src/utils/mmkvStorage';
 
 try { initSentry(); } catch { /* never let Sentry init abort module evaluation */ }
-import { Slot, usePathname, useRouter, useSegments } from 'expo-router';
+import { Slot, useGlobalSearchParams, usePathname, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
@@ -164,6 +164,8 @@ function AuthGate() {
     });
   }, [hasSession, userId, setPushToken]);
 
+  const globalParams = useGlobalSearchParams<{ token?: string | string[] }>();
+
   useEffect(() => {
     if (isLoading) return;
 
@@ -172,9 +174,18 @@ function AuthGate() {
     if (!hasSession && !inAuth) {
       router.replace('/(auth)/login');
     } else if (hasSession && inAuth) {
-      router.replace('/(tabs)');
+      // An authenticated user landing on the join screen must not lose the
+      // invite token to the generic (tabs) redirect — hand it to join-confirm.
+      const rawToken = segments[1] === 'join' ? globalParams.token : undefined;
+      const joinToken = Array.isArray(rawToken) ? rawToken[0] : rawToken;
+      if (joinToken && joinToken !== handledInviteTokenRef.current) {
+        handledInviteTokenRef.current = joinToken;
+        router.replace({ pathname: '/trip/join-confirm', params: { token: joinToken } } as never);
+      } else {
+        router.replace('/(tabs)');
+      }
     }
-  }, [hasSession, isLoading, segments, router]);
+  }, [hasSession, isLoading, segments, globalParams.token, router]);
 
   // Process invite token saved before OAuth redirect (Zustand or sessionStorage).
   // Waits for `user` to be set — the profile must exist before the RLS-gated

@@ -149,7 +149,8 @@
       "PowerShell(\\(Get-Command playwright\\).Source; \\(npm root -g\\))",
       "WebFetch(domain:supabase.com)",
       "Skill(artifact-design)",
-      "Artifact"
+      "Artifact",
+      "PowerShell(npx supabase projects list 2>&1 | Select-Object -First 10)"
     ]
   },
   "model": "opusplan",

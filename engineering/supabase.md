@@ -1,5 +1,24 @@
 # Supabase Changes Log
 
+## 2026-07-12 — Retain votes on member removal + membership-filtered vote visibility
+
+### Migration: `20260715100000_retain_votes_on_member_removal`
+
+**Why:** Prod incident — deleting a `trip_members` row (leave/kick/duplicate cleanup) hard-deleted all of the user's votes via `trg_cleanup_votes_on_member_removal`, with no restore on rejoin. Votes are now retained and hidden while the voter is not a member; rejoining with the same user id restores them.
+
+**Changes:**
+1. **`cleanup_votes_on_member_removal()` replaced** — no longer deletes votes (function name now historical). Still removes `transfer_vehicle_passengers` + `prework_preferences` and sends the `member_left` notification. **New:** re-evaluates auto-close for the trip's open `auto_close` votings after removal (member-filtered counts; guarded against `member_count = 0`), since removing a non-voter can complete a vote.
+2. **SELECT policies replaced ×3** (`activity_votes`, `accommodation_votes`, `transfer_flight_votes`) — a vote is visible only while the **voter** is a current trip member (caller-membership check unchanged; flight policy keeps its parent-EXISTS shape because `transfer_flight_votes.trip_id` is nullable).
+3. **All auto-close vote counting member-filtered** — `auto_finalize_activity_voting`, `auto_finalize_accommodation_voting`, `auto_finalize_transfer_flight_voting`, `auto_finalize_flight_voting`, the three `*_on_blocker_removal` functions, and `retroactive_auto_close_activity`: vote and blocker counts now JOIN `trip_members`, so ex-member stale votes/blockers neither complete nor block a vote.
+4. **Bug fix:** `restrict_transfer_flight_update_fields()` gains the `pg_trigger_depth() > 1` bypass (activities/accommodations already had it) — previously a non-organizer's final vote on an `auto_close` flight raised `Only organizers can change voting_open`.
+5. **Bug fix:** `on_transfer_flight_vote_inserted` trigger re-asserted to execute `auto_finalize_transfer_flight_voting()`, which now (finally) carries the `group_blocker` guard — migration `20260619110000` had added the guard to `auto_finalize_flight_voting()`, a function no trigger executes, so the flight blocker guard was never live.
+
+**Client (same session, OTA-eligible):** `signInAnonymously` now throws `ALREADY_SIGNED_IN` if a session exists; join screen redirects signed-in users to `join-confirm` instead of creating a second anonymous account (session-supersede race); root-layout auth gate preserves the invite token when bouncing an authenticated user off `/join`.
+
+**Non-destructive.** Applied to: dev + prod (2026-07-12, after manual dev verification). Note: previously deleted votes are not restorable — retention applies only from this migration onward.
+
+---
+
 ## 2026-07-12 — Fix member_left push notification titles
 
 No migration. Edge function `push-notification` redeployed to dev + prod with corrected title templates for `member_left` and `member_left_removed`:
