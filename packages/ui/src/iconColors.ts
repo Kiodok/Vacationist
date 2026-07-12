@@ -49,6 +49,8 @@ export const NOTIFICATION_ICON_COLORS: Record<string, IconColorConfig> = {
   lost_found:               { icon: 'search-outline',           color: accentColors.rose },
   shared_packing:           { icon: 'bag-outline',              color: accentColors.orange },
   expense_settlement:       { icon: 'receipt-outline',          color: SUCCESS },
+  trip_deleted:             { icon: 'trash-outline',            color: accentColors.rose },
+  member_left:              { icon: 'person-remove-outline',    color: accentColors.rose },
 };
 
 export const METADATA_ICON_COLORS: Record<string, IconColorConfig> = {

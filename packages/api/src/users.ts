@@ -58,6 +58,16 @@ export async function uploadAvatar(
   return `${data.publicUrl}?t=${Date.now()}`;
 }
 
+export async function getUsersByIds(userIds: string[]): Promise<User[]> {
+  if (userIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .in('id', userIds);
+  if (error) throw error;
+  return (data ?? []) as User[];
+}
+
 export async function updateUserProfile(
   userId: string,
   updates: UpdateProfileInput

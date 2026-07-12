@@ -40,7 +40,9 @@
     "react-native-view-shot": "4.0.3"
   },
   "devDependencies": {
-    "sharp-cli": "^5.2.0"
+    "qrcode": "^1.5.4",
+    "sharp-cli": "^5.2.0",
+    "zxing-wasm": "^3.1.0"
   },
   "allowScripts": {
     "@sentry/cli@3.4.2": true,

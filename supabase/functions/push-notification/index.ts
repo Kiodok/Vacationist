@@ -79,6 +79,19 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Expenses settled', body: '{{creator}} settled all expenses in "{{trip}}".' },
     de: { title: 'Ausgaben beglichen', body: '{{creator}} hat alle Ausgaben in "{{trip}}" beglichen.' },
   },
+  trip_deleted: {
+    en: { title: 'Trip deleted', body: '{{creator}} deleted "{{trip}}".' },
+    de: { title: 'Reise gelöscht', body: '{{creator}} hat "{{trip}}" gelöscht.' },
+  },
+  member_left: {
+    en: { title: '{{creator}} left', body: '{{creator}} left "{{trip}}".' },
+    de: { title: '{{creator}} hat die Reise verlassen', body: '{{creator}} hat "{{trip}}" verlassen.' },
+  },
+  // Virtual key: same DB type member_left, context_entity='removed' means organizer kick.
+  member_left_removed: {
+    en: { title: '{{creator}} was removed', body: '{{creator}} was removed from "{{trip}}".' },
+    de: { title: '{{creator}} wurde entfernt', body: '{{creator}} wurde aus "{{trip}}" entfernt.' },
+  },
   planning_nudge: {
     en: { title: 'Ready for your next trip?', body: '"{{trip}}" was great! Start planning your next adventure.' },
     de: { title: 'Bereit für die nächste Reise?', body: '"{{trip}}" war toll! Plane dein nächstes Abenteuer.' },
@@ -152,6 +165,7 @@ function translateNotification(
     type === 'reminder' && relatedType === 'planning_nudge' ? 'planning_nudge' :
     type === 'reminder' && relatedType === 'guest_nudge' ? 'guest_nudge' :
     type === 'reminder' && relatedType === 'review_nudge' ? 'review_nudge' :
+    type === 'member_left' && context?.entity === 'removed' ? 'member_left_removed' :
     type;
 
   const map = NOTIFICATION_TRANSLATIONS[effectiveType];
@@ -163,7 +177,8 @@ function translateNotification(
   // translated by the organizer's client before being stored. For trip reminders
   // (type='reminder', context_trip is set) and all other types: use the translated template.
   const isNudge = type === 'reminder' && !context?.trip;
-  const title = isNudge ? fallbackTitle : (translated?.title ?? fallbackTitle);
+  const rawTitle = isNudge ? fallbackTitle : (translated?.title ?? fallbackTitle);
+  const title = hasContext && !isNudge ? interpolate(rawTitle, context!) : rawTitle;
 
   let body: string;
   // Guard: if the template uses {{trip}} but context_trip is null (e.g. a "claimed"
@@ -253,6 +268,8 @@ function preferenceColumn(type: string, relatedType?: string | null): string | n
     case 'lost_found':      return null;
     case 'activity_note':   return 'new_activity';
     case 'shared_packing':  return 'shared_packing';
+    case 'trip_deleted':    return null;
+    case 'member_left':     return 'new_member';
     default:                return null;
   }
 }

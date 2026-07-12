@@ -73,8 +73,18 @@ export default function ExpensesTab() {
   const memberMap = useMemo(() => {
     const map = new Map<string, User>();
     members.forEach((m) => map.set(m.user_id, m.user));
+    for (const e of expenses) {
+      if (e.payer && !map.has(e.payer.id)) {
+        map.set(e.payer.id, { id: e.payer.id, name: e.payer.name, avatar_url: e.payer.avatar_url, email: null, locale: null, timezone: 'UTC', is_guest: false, created_at: '', updated_at: '' });
+      }
+      for (const s of e.expense_splits) {
+        if (s.split_user && !map.has(s.split_user.id)) {
+          map.set(s.split_user.id, { id: s.split_user.id, name: s.split_user.name, avatar_url: s.split_user.avatar_url, email: null, locale: null, timezone: 'UTC', is_guest: false, created_at: '', updated_at: '' });
+        }
+      }
+    }
     return map;
-  }, [members]);
+  }, [members, expenses]);
 
   const { activeExpenses, completedExpenses, archivedExpenses } = useMemo(() => {
     const active: ExpenseWithSplits[] = [];

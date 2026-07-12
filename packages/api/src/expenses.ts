@@ -11,7 +11,7 @@ export async function getExpenses(
 ): Promise<{ items: ExpenseWithSplits[]; hasMore: boolean }> {
   const { data, error } = await supabase
     .from('expenses')
-    .select('*, expense_splits(*)')
+    .select('*, payer:users!paid_by(id, name, avatar_url), expense_splits(*, split_user:users!user_id(id, name, avatar_url))')
     .eq('trip_id', tripId)
     .order('created_at', { ascending: false })
     .range(offset, offset + EXPENSE_PAGE_SIZE - 1);

@@ -9,6 +9,9 @@ export function resolveNotificationPath(
     return 'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
   }
 
+  // trip_deleted routes to home regardless of trip_id — the trip no longer exists
+  if (type === 'trip_deleted') return '/(tabs)';
+
   if (!trip_id) return null;
 
   const highlight = related_id ? `&highlightId=${related_id}` : '';
@@ -30,6 +33,7 @@ export function resolveNotificationPath(
         ? `/trip/${trip_id}/settlement-receipt?receiptId=${related_id}`
         : `/trip/${trip_id}?tab=Expenses`;
     case 'new_member':
+    case 'member_left':
       return `/trip/${trip_id}?tab=Settings`;
     case 'reminder':
       if (related_type === 'expense_reminder') return `/trip/${trip_id}?tab=Expenses`;

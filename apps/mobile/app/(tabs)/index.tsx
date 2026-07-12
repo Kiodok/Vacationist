@@ -189,7 +189,7 @@ export default function TripsScreen() {
                     onError={() => setAvatarError(true)}
                   />
                 ) : (
-                  <ThemedIcon name="person" size={20} color="#FFFFFF" />
+                  <ThemedIcon name="person" size={20} color={colors.textMuted} />
                 )}
               </Pressable>
               <Text className="text-heading-xl text-text-primary">{t('screen.title')}</Text>

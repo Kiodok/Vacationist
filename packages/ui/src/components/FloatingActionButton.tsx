@@ -29,7 +29,7 @@ export function FloatingActionButton({
         pressed && styles.fabPressed,
       ]}
     >
-      <ThemedIcon name={icon} size={28} color="#FFFFFF" />
+      <ThemedIcon name={icon} size={28} color={theme === 'colorful' ? colors.surface : '#FFFFFF'} />
     </Pressable>
   );
 }

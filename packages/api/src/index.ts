@@ -15,7 +15,7 @@ export {
   onAuthStateChange,
 } from './auth';
 
-export { getUserProfile, ensureUserProfile, updateUserProfile, uploadAvatar } from './users';
+export { getUserProfile, ensureUserProfile, updateUserProfile, uploadAvatar, getUsersByIds } from './users';
 
 export { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip, TripNotFoundError, subscribeToTripRealtime, unsubscribeFromTrip } from './trips';
 export type { TripRealtimeCallbacks } from './trips';

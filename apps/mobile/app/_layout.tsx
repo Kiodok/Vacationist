@@ -19,13 +19,11 @@ import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { initDayjs } from '@vacationist/utils';
-import { redeemInviteToken } from '@vacationist/api';
 import { GlobalErrorBoundary } from '../src/components/GlobalErrorBoundary';
 import { QueryProvider } from '../src/providers/QueryProvider';
 import { ToastContainer } from '../src/components/Toast';
 import { useAuthInit } from '../src/features/auth/hooks/useAuthInit';
 import { useAuthStore } from '../src/stores/authStore';
-import { useToastStore } from '../src/stores/toastStore';
 import { registerForPushNotificationsAsync } from '../src/features/notifications/utils/registerForPushNotifications';
 import { usePushNotificationHandler } from '../src/features/notifications/hooks/usePushNotificationHandler';
 import { NetworkProvider } from '../src/providers/NetworkProvider';
@@ -129,7 +127,6 @@ function AuthGate() {
   const pendingInviteToken = useAuthStore((s) => s.pendingInviteToken);
   const setPendingInviteToken = useAuthStore((s) => s.setPendingInviteToken);
   const setPushToken = useAuthStore((s) => s.setPushToken);
-  const addToast = useToastStore((s) => s.addToast);
   const userId = user?.id;
 
   useAuthInit();
@@ -137,6 +134,10 @@ function AuthGate() {
 
   const appState = useRef(AppState.currentState);
   const initialUrlHandled = useRef(false);
+  // Tracks tokens already sent to join-confirm so the deep-link handler's
+  // async getInitialURL callback cannot push a second time after the
+  // pendingInviteToken effect has already cleared pendingInviteToken to null.
+  const handledInviteTokenRef = useRef<string | null>(null);
   useEffect(() => {
     const sub = AppState.addEventListener('change', (nextState) => {
       if (appState.current.match(/inactive|background/) && nextState === 'active') {
@@ -192,16 +193,9 @@ function AuthGate() {
       try { sessionStorage.removeItem('pendingInviteToken'); } catch {}
     }
 
-    redeemInviteToken(token)
-      .then((tripId) => {
-        addToast('success', i18n.t('auth:invite.joined'));
-        router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never);
-      })
-      .catch((err) => {
-        const message = err instanceof Error ? err.message : 'Invalid invite link';
-        addToast('error', message);
-      });
-  }, [hasSession, isLoading, user, pendingInviteToken, setPendingInviteToken, router, addToast]);
+    handledInviteTokenRef.current = token;
+    router.push({ pathname: '/trip/join-confirm', params: { token } } as never);
+  }, [hasSession, isLoading, user, pendingInviteToken, setPendingInviteToken, router]);
 
   // Handle invite deep links when user is already authenticated.
   // Guards on `user` so redeemInviteToken is never called before the profile
@@ -222,16 +216,9 @@ function AuthGate() {
 
     function handleDeepLink(event: { url: string }) {
       const token = extractInviteToken(event.url);
-      if (token) {
-        redeemInviteToken(token)
-          .then((tripId) => {
-            addToast('success', i18n.t('auth:invite.joined'));
-            router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never);
-          })
-          .catch((err) => {
-            const message = err instanceof Error ? err.message : 'Invalid invite link';
-            addToast('error', message);
-          });
+      if (token && token !== handledInviteTokenRef.current) {
+        handledInviteTokenRef.current = token;
+        router.push({ pathname: '/trip/join-confirm', params: { token } } as never);
       }
     }
 
@@ -243,15 +230,12 @@ function AuthGate() {
     if (!initialUrlHandled.current) {
       initialUrlHandled.current = true;
       Linking.getInitialURL().then((url) => {
-        if (!url) return;
-        const urlToken = extractInviteToken(url);
-        if (urlToken && urlToken === pendingInviteToken) return;
-        handleDeepLink({ url });
+        if (url) handleDeepLink({ url });
       });
     }
 
     return () => subscription.remove();
-  }, [hasSession, isLoading, user, pendingInviteToken, router, addToast]);
+  }, [hasSession, isLoading, user, pendingInviteToken, router]);
 
   useEffect(() => {
     if (!isLoading && fontsLoaded) {

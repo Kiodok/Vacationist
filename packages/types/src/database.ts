@@ -176,6 +176,7 @@ export interface Expense {
   created_at: string;
   updated_by: string | null;
   archived_at: string | null;
+  payer?: { id: string; name: string; avatar_url: string | null } | null;
 }
 
 export interface ExpenseSplit {
@@ -187,6 +188,7 @@ export interface ExpenseSplit {
   status: ExpenseSplitStatus;
   covered_by: string | null;
   original_amount: number | null;
+  split_user?: { id: string; name: string; avatar_url: string | null } | null;
 }
 
 export interface ExpenseWithSplits extends Expense {

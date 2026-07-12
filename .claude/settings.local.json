@@ -131,6 +131,8 @@
       "Bash(cat)",
       "Read(//tmp/**)",
       "PowerShell(npm run *)",
+      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\" && npm run typecheck *)",
+      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\"; npm run typecheck *)",
       "PowerShell(npm test *)",
       "Skill(code-review)",
       "Bash(curl -L \"https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3j6zbXWjgeg.woff2\" -o /tmp/test_nunito.woff2)",
@@ -145,7 +147,9 @@
       "Bash(npm list *)",
       "Read(//c/Users/Gary/AppData/Roaming/npm/node_modules/**)",
       "PowerShell(\\(Get-Command playwright\\).Source; \\(npm root -g\\))",
-      "WebFetch(domain:supabase.com)"
+      "WebFetch(domain:supabase.com)",
+      "Skill(artifact-design)",
+      "Artifact"
     ]
   },
   "model": "opusplan",

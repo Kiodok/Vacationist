@@ -80,6 +80,19 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '"{{entity}}" in "{{trip}}" starts in 1 hour!',
     de: '"{{entity}}" in "{{trip}}" beginnt in 1 Stunde!',
   },
+  trip_deleted: {
+    en: '{{creator}} deleted "{{trip}}".',
+    de: '{{creator}} hat "{{trip}}" gelöscht.',
+  },
+  // Virtual key: same DB type member_left, context_entity='removed' = organizer kick.
+  member_left: {
+    en: '{{creator}} left "{{trip}}".',
+    de: '{{creator}} hat "{{trip}}" verlassen.',
+  },
+  member_left_removed: {
+    en: '{{creator}} was removed from "{{trip}}".',
+    de: '{{creator}} wurde aus "{{trip}}" entfernt.',
+  },
 };
 
 // Several notification kinds reuse one DB type and are distinguished by the body or
@@ -93,7 +106,8 @@ type EffectiveNotificationType =
   | 'lost_found_lost'
   | 'lost_found_resolved'
   | 'lost_found_reopened'
-  | 'activity_reminder';
+  | 'activity_reminder'
+  | 'member_left_removed';
 
 function resolveEffectiveType(notification: Notification): EffectiveNotificationType {
   // i_got_it shared packing notifications reuse type='shared_packing' but their
@@ -115,6 +129,9 @@ function resolveEffectiveType(notification: Notification): EffectiveNotification
   }
   if (notification.type === 'reminder' && notification.related_type === 'activity_reminder') {
     return 'activity_reminder';
+  }
+  if (notification.type === 'member_left' && notification.context_entity === 'removed') {
+    return 'member_left_removed';
   }
   return notification.type;
 }
@@ -176,7 +193,7 @@ export function NotificationItem({ notification, onPress, onDelete }: Notificati
           className={`text-body-default ${notification.is_read ? 'text-text-secondary' : 'text-text-primary font-semibold'}`}
           numberOfLines={2}
         >
-          {t(typeKey, { defaultValue: notification.title })}
+          {t(typeKey, { defaultValue: notification.title, name: notification.context_creator ?? '' })}
         </Text>
         {translatedBody ? (
           <Text className="text-body-small text-text-secondary" numberOfLines={2}>

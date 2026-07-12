@@ -15,7 +15,7 @@ import { ShoppingItemRow } from '../../../src/features/shopping/components/Shopp
 import { AddShoppingItemInput } from '../../../src/features/shopping/components/AddShoppingItemInput';
 import { EditShoppingItemSheet } from '../../../src/features/shopping/components/EditShoppingItemSheet';
 import { EditShoppingListSheet } from '../../../src/features/shopping/components/EditShoppingListSheet';
-import { colors ,  ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useThemeColors } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -26,6 +26,7 @@ export default function ShoppingListDetail() {
   const user = useAuthStore((s) => s.user);
   const { t } = useTranslation('shopping');
   const { t: tCommon } = useTranslation('common');
+  const themeColors = useThemeColors();
 
   const goBackToTrip = () => {
     if (Platform.OS === 'web') {
@@ -90,7 +91,7 @@ export default function ShoppingListDetail() {
       {/* Header */}
       <View className="flex-row items-center px-md pt-md pb-sm gap-sm">
         <Pressable onPress={() => goBackToTrip()} className="p-xs">
-          <ThemedIcon name="arrow-back" size={24} color="#F2F2F2" />
+          <ThemedIcon name="arrow-back" size={24} color={themeColors.textPrimary} />
         </Pressable>
         <View className="flex-1">
           <Text className="text-heading-m text-text-primary" numberOfLines={1}>

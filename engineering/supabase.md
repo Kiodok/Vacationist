@@ -1,5 +1,72 @@
 # Supabase Changes Log
 
+## 2026-07-12 — Fix member_left push notification titles
+
+No migration. Edge function `push-notification` redeployed to dev + prod with corrected title templates for `member_left` and `member_left_removed`:
+- DE `member_left` title: `{{creator}} hat verlassen` → `{{creator}} hat die Reise verlassen`
+- EN `member_left_removed` title: `{{creator}} removed` → `{{creator}} was removed`
+- DE `member_left_removed` title: `{{creator}} entfernt` → `{{creator}} wurde entfernt`
+
+These now match the in-app i18n strings. Also resolves the root cause where Android push popups showed the raw DB fallback `"Member left"` (the live function predated the `member_left` translation entries from 2026-07-14).
+
+---
+
+## 2026-07-14 — Fix trip_deleted constraint + member_left notification + expense name retention
+
+### Migration: `20260714100000_add_trip_deleted_and_member_left_types`
+
+**Changes:**
+- Dropped and recreated `notifications_type_check` to include `'trip_deleted'` (was missing — caused CHECK constraint crash on trip deletion) and `'member_left'` (new type for member removal notifications).
+
+**Non-destructive.** Applied to: dev + prod.
+
+### Migration: `20260714100001_notify_on_member_removal`
+
+**Changes:**
+- `CREATE OR REPLACE FUNCTION public.cleanup_votes_on_member_removal()` — extends the existing trigger function to also call `private.create_trip_notification()` with `type='member_left'` after the vote/passenger cleanup. Excludes the departing member from the notification. Sets `context_entity='left'` for self-leave or `'removed'` for organizer kick (detected via `auth.uid() = OLD.user_id`). Skips if the trip has already been soft-deleted.
+
+**Non-destructive.** Applied to: dev + prod.
+
+**Client + edge function changes (same session):**
+- `packages/types/src/enums.ts`: Added `'member_left'` to `NOTIFICATION_TYPE`.
+- `packages/ui/src/iconColors.ts`: `NOTIFICATION_ICON_COLORS.member_left = person-remove-outline / rose`.
+- Edge function `push-notification` deployed to dev + prod: Added `member_left` and `member_left_removed` (virtual key, `context_entity='removed'`) translations (en/de); `preferenceColumn` maps `member_left` → `new_member`.
+- `NotificationItem.tsx`: Added `member_left` / `member_left_removed` body templates + `EffectiveNotificationType`.
+- `resolveNotificationPath.ts`: `member_left` routes to trip settings (same as `new_member`).
+- `packages/i18n/locales/{en,de}/notifications.json`: Added `type.member_left` and `type.member_left_removed` labels.
+- `packages/api/src/users.ts`: Added `getUsersByIds(userIds)` to fetch user rows by ID array.
+- `apps/mobile/src/features/expenses/hooks/useExpenseParticipants.ts` (new): Hook that merges current members map with former members referenced in expense splits, so expense screens show real names after a user leaves.
+- `apps/mobile/app/trip/[id]/expenses.tsx`: Uses `useExpenseParticipants` to build the merged `memberMap`.
+
+---
+
+## 2026-07-13 — Member cleanup + trip deletion notification
+
+### Migration: `20260713100000_cleanup_passengers_prework_on_member_removal`
+
+**Changes:**
+- `CREATE OR REPLACE FUNCTION public.cleanup_votes_on_member_removal()` — extends the existing trigger function (from `20260619100000`) to also DELETE `transfer_vehicle_passengers` (via `vehicle_id → transfer_vehicles.trip_id`) and `prework_preferences` (direct `trip_id`) for the departing user. Fixes "Unknown" chips in VehicleCard and GroupSummarySection.
+- Existing trigger `trg_cleanup_votes_on_member_removal` on `AFTER DELETE ON trip_members` fires the updated function — no trigger DDL change.
+
+**Non-destructive.** Applied to: dev + prod.
+
+### Migration: `20260713110000_notify_members_on_trip_soft_delete`
+
+**Changes:**
+- `CREATE OR REPLACE FUNCTION public.soft_delete_trip()` — adds `private.create_trip_notification()` call with `type='trip_deleted'` BEFORE setting `deleted_at`, so `trip_members` is still queryable. Excludes the organizer from the notification.
+
+**Non-destructive.** Applied to: dev + prod.
+
+**Client changes (same PR):**
+- `packages/types/src/enums.ts`: Added `'trip_deleted'` to `NOTIFICATION_TYPE`.
+- `packages/ui/src/iconColors.ts`: `NOTIFICATION_ICON_COLORS.trip_deleted = trash-outline / rose`.
+- Edge function `push-notification` deployed to dev + prod: Added `trip_deleted` translation (en/de); `preferenceColumn` returns `null` (always-on).
+- `NotificationItem.tsx`: Added `trip_deleted` body template + `EffectiveNotificationType`.
+- `resolveNotificationPath.ts`: `trip_deleted` routes to `/(tabs)` (trip no longer exists).
+- `packages/i18n/locales/{en,de}/notifications.json`: Added `type.trip_deleted` label.
+
+---
+
 ## 2026-07-08 — Activity reminder cron
 
 ### Migration: `20260708100000_create_activity_reminder_cron`
@@ -12,7 +79,7 @@
 **Non-destructive.** Applied to: dev + prod.
 
 **Client changes (same PR):**
-- Edge function `push-notification`: `preferenceColumn()` accepts optional `relatedType`; `reminder + activity_reminder` → `'activity_reminder'` column. `translateNotification()` effectiveType chain + `NOTIFICATION_TRANSLATIONS` entry added.
+- Edge function `push-notification` (deployed to dev + prod): `preferenceColumn()` accepts optional `relatedType`; `reminder + activity_reminder` → `'activity_reminder'` column. `translateNotification()` effectiveType chain + `NOTIFICATION_TRANSLATIONS` entry added.
 - Bug fix: `isOngoing()` / `isAutoCompleted()` in `activities.tsx` now accept a `timezone` string and use `dayjs.tz()` for all datetime construction, fixing classification for users whose device timezone differs from the trip timezone.
 
 ---

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -86,33 +86,45 @@ export default function JoinScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background justify-center px-lg">
-      <View className="items-center gap-lg">
-        <View className="w-[64px] h-[64px] rounded-full bg-primary-muted items-center justify-center">
-          <ThemedIcon name="people-outline" size={32} color={colors.primary} />
+    <SafeAreaView className="flex-1 bg-background">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1 justify-center px-lg"
+      >
+        <View className="items-center mb-3xl">
+          <View className="w-[64px] h-[64px] rounded-full bg-primary-muted items-center justify-center mb-lg">
+            <ThemedIcon name="people-outline" size={32} color={colors.primary} />
+          </View>
+
+          <Text className="text-heading-l text-text-primary text-center">
+            {previewLoading ? ' ' : tripPreview ? tripPreview.trip_title : t('join.title')}
+          </Text>
+
+          {tripPreview && !previewLoading ? (
+            <Text className="text-body text-primary text-center font-medium mt-xs">
+              {t('join.tripDates', { dateRange: formatDateRange(tripPreview.start_date, tripPreview.end_date) })}
+            </Text>
+          ) : null}
+
+          {tokenInvalid ? (
+            <Text className="text-body-small text-danger text-center mt-xs">
+              {t('join.expiredToken')}
+            </Text>
+          ) : null}
         </View>
 
-        <Text className="text-heading-l text-text-primary text-center">
-          {previewLoading ? ' ' : tripPreview ? tripPreview.trip_title : t('join.title')}
-        </Text>
+        <View className="gap-md" style={{ alignSelf: 'center', width: 240 }}>
+          <Button
+            label={t('join.signInInstead')}
+            onPress={handleSignInInstead}
+          />
 
-        {tripPreview && !previewLoading ? (
-          <Text className="text-body text-primary text-center font-medium">
-            {t('join.tripDates', { dateRange: formatDateRange(tripPreview.start_date, tripPreview.end_date) })}
-          </Text>
-        ) : null}
+          <View className="flex-row items-center gap-md">
+            <View className="flex-1 h-px bg-border" />
+            <Text className="text-body-small text-text-muted">{t('join.or')}</Text>
+            <View className="flex-1 h-px bg-border" />
+          </View>
 
-        {tokenInvalid ? (
-          <Text className="text-body-small text-danger text-center">
-            {t('join.expiredToken')}
-          </Text>
-        ) : null}
-
-        <Text className="text-body text-text-secondary text-center">
-          {t('join.subtitle')}
-        </Text>
-
-        <View className="w-full gap-md mt-md">
           <Input
             label={t('join.nameLabel')}
             placeholder={t('join.namePlaceholder')}
@@ -130,6 +142,7 @@ export default function JoinScreen() {
 
           <Button
             label={t('join.submit')}
+            variant="secondary"
             onPress={handleJoinAsGuest}
             loading={loading}
             disabled={loading || !captchaReady}
@@ -156,14 +169,8 @@ export default function JoinScreen() {
               {tCommon('captcha.error')}
             </Text>
           )}
-
-          <Button
-            label={t('join.signInInstead')}
-            variant="ghost"
-            onPress={handleSignInInstead}
-          />
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

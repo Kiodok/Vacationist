@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { ThemedIcon } from './ThemedIcon';
 import type { IoniconsName } from './ThemedIcon';
 import { useThemeColors } from '../theme';
+import { useResolvedTheme } from '../themeContext';
 
 interface EmptyStateProps {
   icon: IoniconsName;
@@ -16,6 +17,8 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, subtitle, action }: EmptyStateProps) {
   const colors = useThemeColors();
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   return (
     <View style={styles.container}>
       <ThemedIcon name={icon} size={48} color={colors.textMuted} />
@@ -23,7 +26,7 @@ export function EmptyState({ icon, title, subtitle, action }: EmptyStateProps) {
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
       {action && (
         <Pressable style={[styles.button, { backgroundColor: colors.primary }]} onPress={action.onPress}>
-          <Text style={styles.buttonText}>{action.label}</Text>
+          <Text style={[styles.buttonText, { color: isColorful ? colors.surface : '#FFFFFF' }]}>{action.label}</Text>
         </Pressable>
       )}
     </View>
@@ -59,6 +62,5 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#FFFFFF',
   },
 });

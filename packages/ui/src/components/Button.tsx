@@ -1,4 +1,6 @@
 import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { useResolvedTheme } from '../themeContext';
+import { useThemeColors } from '../theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
@@ -15,7 +17,7 @@ interface ButtonProps {
 const variantStyles: Record<ButtonVariant, { container: string; text: string; spinner: string }> = {
   primary: {
     container: 'bg-primary',
-    text: 'text-white font-semibold',
+    text: 'font-semibold',
     spinner: '#FFFFFF',
   },
   secondary: {
@@ -39,8 +41,15 @@ export function Button({
   icon,
   className = '',
 }: ButtonProps) {
+  const theme = useResolvedTheme();
+  const colors = useThemeColors();
   const styles = variantStyles[variant];
   const isDisabled = disabled || loading;
+
+  // In colorful mode, bg-primary is #8c6196 — white text has poor contrast.
+  // Use colors.surface (#FECE8A) for text and spinner on primary buttons.
+  const isPrimaryColorful = variant === 'primary' && theme === 'colorful';
+  const spinnerColor = isPrimaryColorful ? colors.surface : styles.spinner;
 
   return (
     <Pressable
@@ -49,11 +58,16 @@ export function Button({
       className={`min-h-[48px] rounded-md px-lg items-center justify-center flex-row gap-sm ${styles.container} ${isDisabled ? 'opacity-50' : ''} ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={styles.spinner} />
+        <ActivityIndicator color={spinnerColor} />
       ) : (
         <>
           {icon}
-          <Text className={`text-body ${styles.text}`}>{label}</Text>
+          <Text
+            className={`text-body ${styles.text}`}
+            style={isPrimaryColorful ? { color: colors.surface } : variant === 'primary' ? { color: '#FFFFFF' } : undefined}
+          >
+            {label}
+          </Text>
         </>
       )}
     </Pressable>

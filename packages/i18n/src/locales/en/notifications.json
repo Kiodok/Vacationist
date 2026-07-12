@@ -55,6 +55,9 @@
   "type.lost_found_reopened": "Case reopened",
   "type.expense_settlement": "Expenses settled",
   "type.activity_reminder": "Activity starting soon",
+  "type.trip_deleted": "Trip deleted",
+  "type.member_left": "{{name}} left",
+  "type.member_left_removed": "{{name}} was removed",
   "nudge.confirmTitle": "Send nudge?",
   "nudge.confirmBody": "This will send a push notification to all trip members.",
   "nudge.confirmSend": "Send"

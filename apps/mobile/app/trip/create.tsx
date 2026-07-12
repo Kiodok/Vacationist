@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { Button, Input , ThemedIcon } from '@vacationist/ui';
+import { Button, Input, ThemedIcon, useThemeColors, useResolvedTheme } from '@vacationist/ui';
 import { createTripSchema, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { CreateTripInput } from '@vacationist/types';
 import { useCreateTrip } from '../../src/features/trips/hooks/useTrips';
@@ -17,6 +17,9 @@ export default function CreateTripScreen() {
   const router = useRouter();
   const createTrip = useCreateTrip();
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const theme = useResolvedTheme();
+  const colors = useThemeColors();
+  const isColorful = theme === 'colorful';
 
   const { control, handleSubmit, formState: { errors } } = useForm<CreateTripInput>({
     resolver: zodResolver(createTripSchema),
@@ -44,7 +47,7 @@ export default function CreateTripScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center px-md pt-md pb-sm gap-md">
         <Pressable onPress={() => router.back()} className="p-xs">
-          <ThemedIcon name="arrow-back" size={24} color="#F2F2F2" />
+          <ThemedIcon name="arrow-back" size={24} color={colors.textPrimary} />
         </Pressable>
         <Text className="text-heading-l text-text-primary flex-1">{t('create.title')}</Text>
       </View>
@@ -197,9 +200,8 @@ export default function CreateTripScreen() {
                       }`}
                     >
                       <Text
-                        className={`text-body-small ${
-                          value === tz ? 'text-white font-semibold' : 'text-text-secondary'
-                        }`}
+                        className={`text-body-small ${value === tz ? 'font-semibold' : 'text-text-secondary'}`}
+                        style={value === tz ? { color: isColorful ? colors.surface : '#FFFFFF' } : undefined}
                       >
                         {label}
                       </Text>

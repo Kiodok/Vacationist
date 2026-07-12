@@ -41,6 +41,8 @@ export const NOTIFICATION_TYPE = [
   'shared_packing',
   'activity_note',
   'expense_settlement',
+  'trip_deleted',
+  'member_left',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPE)[number];
 

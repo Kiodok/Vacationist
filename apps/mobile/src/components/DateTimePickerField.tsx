@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, Text, Pressable, Platform, Modal } from 'react-native';
 import { i18n } from '@vacationist/i18n';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useThemeColors, useResolvedTheme } from '@vacationist/ui';
 
 type RNDateTimePickerType =
   typeof import('@react-native-community/datetimepicker').default;
@@ -93,6 +93,8 @@ export function DateTimePickerField({
   const webInputRef = useRef<HTMLInputElement>(null);
   const defaultPlaceholder = mode === 'date' ? i18n.t('common:placeholder.selectDate') : i18n.t('common:placeholder.selectTime');
   const displayPlaceholder = placeholder ?? defaultPlaceholder;
+  const themeColors = useThemeColors();
+  const theme = useResolvedTheme();
 
   if (Platform.OS === 'web') {
     const minStr = minimumDate ? toDateString(minimumDate) : undefined;
@@ -104,8 +106,8 @@ export function DateTimePickerField({
           <Text className="text-label text-text-muted uppercase">{label}</Text>
         )}
         <div style={{
-          backgroundColor: '#1A1A1A',
-          border: '1px solid #2E2E2E',
+          backgroundColor: themeColors.surface,
+          border: `1px solid ${themeColors.border}`,
           borderRadius: 4,
           minHeight: 48,
           display: 'flex',
@@ -127,12 +129,12 @@ export function DateTimePickerField({
               backgroundColor: 'transparent',
               border: 'none',
               outline: 'none',
-              color: value ? '#F2F2F2' : colors.textMuted,
+              color: value ? themeColors.textPrimary : themeColors.textMuted,
               fontSize: 16,
               fontFamily: 'inherit',
               height: 48,
               width: '100%',
-              colorScheme: 'dark',
+              colorScheme: theme === 'dark' ? 'dark' : 'light',
               cursor: 'pointer',
             }}
           />
