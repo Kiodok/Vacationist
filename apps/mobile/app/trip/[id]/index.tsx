@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -70,6 +70,8 @@ export default function TripDetailScreen() {
   useTripRealtime(id!);
   const { data: role } = useCurrentMemberRole(id!);
   const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab(tab));
+  const tabBarRef = useRef<ScrollView>(null);
+  const tabPositions = useRef<Partial<Record<Tab, number>>>({});
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const activeTabTextColor = isColorful ? colors.surface : '#ffffff';
@@ -79,8 +81,17 @@ export default function TripDetailScreen() {
     return () => clearSentryTripContext();
   }, [id, role]);
 
+  useEffect(() => {
+    if (activeTab === 'Overview') return;
+    requestAnimationFrame(() => {
+      tabBarRef.current?.scrollTo({ x: tabPositions.current[activeTab] ?? 0, animated: false });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleTabChange = (newTab: Tab) => {
     setActiveTab(newTab);
+    tabBarRef.current?.scrollTo({ x: tabPositions.current[newTab] ?? 0, animated: true });
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       url.searchParams.delete('id');
@@ -178,6 +189,7 @@ export default function TripDetailScreen() {
 
         {/* Tab bar */}
         <ScrollView
+          ref={tabBarRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerClassName="gap-xs"
@@ -186,6 +198,7 @@ export default function TripDetailScreen() {
             <Pressable
               key={tabKey}
               onPress={() => handleTabChange(tabKey)}
+              onLayout={(e) => { tabPositions.current[tabKey] = e.nativeEvent.layout.x; }}
               className={`px-md py-sm rounded-full ${
                 activeTab === tabKey ? 'bg-primary' : 'bg-surface'
               }`}
