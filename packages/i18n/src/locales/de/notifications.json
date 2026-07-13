@@ -15,6 +15,7 @@
   "preferences.reminders": "Erinnerungen & Anstöße",
   "preferences.sharedPacking": "Gemeinsame Packliste",
   "preferences.activityReminders": "Aktivitätserinnerungen",
+  "preferences.chatMessages": "Chat-Nachrichten",
   "nudge.sheetTitle": "Anstoß senden",
   "nudge.democracy.title": "Die Demokratie ruft!",
   "nudge.democracy.body": "Bist du für Diktaturen? Wenn nicht, stimme jetzt bei {{tripName}} ab!",
@@ -58,6 +59,7 @@
   "type.trip_deleted": "Reise gelöscht",
   "type.member_left": "{{name}} hat die Reise verlassen",
   "type.member_left_removed": "{{name}} wurde entfernt",
+  "type.new_chat_message": "Neue Chat-Nachricht in {{trip}}",
   "nudge.confirmTitle": "Anstoß senden?",
   "nudge.confirmBody": "Alle Reiseteilnehmer erhalten eine Push-Benachrichtigung.",
   "nudge.confirmSend": "Senden"

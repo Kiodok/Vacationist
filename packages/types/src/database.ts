@@ -411,6 +411,7 @@ export interface NotificationPreference {
   lost_found: boolean;
   shared_packing: boolean;
   activity_reminder: boolean;
+  new_chat_message: boolean;
 }
 
 export interface TravelDocument {

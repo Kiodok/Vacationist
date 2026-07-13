@@ -24,6 +24,7 @@ export function NotificationPreferencesSection({ tripId }: NotificationPreferenc
     { key: 'reminder',          label: t('preferences.reminders') },
     { key: 'activity_reminder', label: t('preferences.activityReminders') },
     { key: 'shared_packing',    label: t('preferences.sharedPacking') },
+    { key: 'new_chat_message',  label: t('preferences.chatMessages') },
   ];
 
   if (isLoading && fetchStatus === 'fetching') {

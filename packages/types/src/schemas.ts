@@ -452,6 +452,7 @@ export const updateNotificationPreferencesSchema = z.object({
   lost_found:        z.boolean().optional(),
   shared_packing:    z.boolean().optional(),
   activity_reminder: z.boolean().optional(),
+  new_chat_message:  z.boolean().optional(),
 });
 
 export type UpdateNotificationPreferencesInput = z.infer<typeof updateNotificationPreferencesSchema>;

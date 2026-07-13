@@ -43,6 +43,7 @@ export const NOTIFICATION_TYPE = [
   'expense_settlement',
   'trip_deleted',
   'member_left',
+  'new_chat_message',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPE)[number];
 

@@ -80,6 +80,10 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '"{{entity}}" in "{{trip}}" starts in 1 hour!',
     de: '"{{entity}}" in "{{trip}}" beginnt in 1 Stunde!',
   },
+  new_chat_message: {
+    en: '{{creator}}: {{entity}}',
+    de: '{{creator}}: {{entity}}',
+  },
   trip_deleted: {
     en: '{{creator}} deleted "{{trip}}".',
     de: '{{creator}} hat "{{trip}}" gelöscht.',
@@ -193,7 +197,7 @@ export function NotificationItem({ notification, onPress, onDelete }: Notificati
           className={`text-body-default ${notification.is_read ? 'text-text-secondary' : 'text-text-primary font-semibold'}`}
           numberOfLines={2}
         >
-          {t(typeKey, { defaultValue: notification.title, name: notification.context_creator ?? '' })}
+          {t(typeKey, { defaultValue: notification.title, name: notification.context_creator ?? '', trip: notification.context_trip ?? '' })}
         </Text>
         {translatedBody ? (
           <Text className="text-body-small text-text-secondary" numberOfLines={2}>

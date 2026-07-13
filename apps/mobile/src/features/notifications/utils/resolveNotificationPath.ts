@@ -45,6 +45,8 @@ export function resolveNotificationPath(
       return `/trip/${trip_id}?tab=Stuff${highlight}`;
     case 'shared_packing':
       return `/trip/${trip_id}?tab=Stuff&stuffSegment=shared${related_id ? `&sharedItemId=${related_id}` : ''}`;
+    case 'new_chat_message':
+      return `/trip/${trip_id}?tab=Chat`;
     default:
       return `/trip/${trip_id}`;
   }

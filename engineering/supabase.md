@@ -2,6 +2,30 @@
 
 > **Schema dumps without Docker (this machine has no Docker):** `supabase db dump` always shells into a Docker `pg_dump` and fails here — but `npx supabase db dump --linked --dry-run` needs no Docker and prints the complete dump script, **including ephemeral login-role credentials** (`PGHOST`/`PGUSER`/`PGPASSWORD` for a temporary `cli_login_postgres.<ref>` role) plus the exact pg_dump flags and sed filters the CLI would run. Replay it with the locally installed PostgreSQL 17 client (`C:\Program Files\PostgreSQL\17\bin\pg_dump.exe`, matches both projects' Postgres 17.6): set the printed `PG*` env vars, then run `pg_dump --schema-only --quote-all-identifiers --role postgres --exclude-schema "<list from the script>"` (note: the local binary wants `--quote-all-identifiers`, plural — the script prints the singular form). For dev↔prod diffs, strip `^\\(un)?restrict` lines (random per dump) and `^--` comments from both outputs before diffing. Quick alternative without dumps: compare `supabase migration list` ledgers on both projects.
 
+## 2026-07-18 — Chat push notifications
+
+### Migration: `20260718100000_notify_on_new_chat_message`
+
+**Why:** New message INSERTs into `trip_messages` now fan out push notifications to all trip members except the sender. Edits and soft-deletes (UPDATEs) remain silent. Users can opt out per trip via the new "Chat messages" toggle in trip notification settings.
+
+**Changes:**
+1. **`notifications_type_check`** — DROP + recreate to include `'new_chat_message'`.
+2. **`notification_preferences.new_chat_message`** — `BOOLEAN NOT NULL DEFAULT TRUE` (existing members default to ON).
+3. **`notify_on_new_chat_message()` function** (SECURITY DEFINER) — looks up sender name + trip title, then calls `private.create_trip_notification()` with `p_exclude_user_id = NEW.created_by`. `context_entity` holds the first 200 chars of the message text for client-side preview rendering.
+4. **`notify_new_chat_message` trigger** — `AFTER INSERT ON public.trip_messages FOR EACH ROW`.
+
+**Non-destructive.** Applied to: dev + prod (2026-07-18).
+
+**Client changes (same session):**
+- `NOTIFICATION_TYPE` enum + `NotificationPreference` interface + `updateNotificationPreferencesSchema` updated.
+- Push-notification Edge Function: `new_chat_message` translation (title = `{{creator}} in {{trip}}`, body = `{{entity}}`) + preference gate.
+- In-app `BODY_TEMPLATES`: `{{creator}}: {{entity}}` (sender name + message preview).
+- `resolveNotificationPath`: `new_chat_message` → `/trip/${tripId}?tab=Chat`.
+- `NotificationPreferencesSection`: new "Chat messages" toggle row.
+- i18n (en/de): `preferences.chatMessages` + `type.new_chat_message`.
+
+---
+
 ## 2026-07-13 — Bring rls_auto_enable / ensure_rls under version control (dev↔prod parity)
 
 ### Migration: `20260717100000_add_rls_auto_enable_event_trigger`

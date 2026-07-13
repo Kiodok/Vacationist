@@ -121,6 +121,10 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Shared Packing Update', body: '{{creator}} claimed "{{entity}}" for "{{trip}}".' },
     de: { title: 'Geteilte Packliste', body: '{{creator}} hat "{{entity}}" für "{{trip}}" beansprucht.' },
   },
+  new_chat_message: {
+    en: { title: 'New chat message in {{trip}}', body: '{{creator}}: {{entity}}' },
+    de: { title: 'Neue Chat-Nachricht in {{trip}}', body: '{{creator}}: {{entity}}' },
+  },
 };
 
 interface NotifContext {
@@ -268,9 +272,10 @@ function preferenceColumn(type: string, relatedType?: string | null): string | n
     case 'lost_found':      return null;
     case 'activity_note':   return 'new_activity';
     case 'shared_packing':  return 'shared_packing';
-    case 'trip_deleted':    return null;
-    case 'member_left':     return 'new_member';
-    default:                return null;
+    case 'trip_deleted':     return null;
+    case 'member_left':      return 'new_member';
+    case 'new_chat_message': return 'new_chat_message';
+    default:                 return null;
   }
 }
 

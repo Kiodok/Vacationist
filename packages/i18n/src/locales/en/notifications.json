@@ -15,6 +15,7 @@
   "preferences.reminders": "Reminders & nudges",
   "preferences.sharedPacking": "Shared Packing",
   "preferences.activityReminders": "Activity reminders",
+  "preferences.chatMessages": "Chat messages",
   "nudge.sheetTitle": "Send a nudge",
   "nudge.democracy.title": "Democracy calls!",
   "nudge.democracy.body": "Are you in favor of dictatorships? If not, vote now on {{tripName}}!",
@@ -58,6 +59,7 @@
   "type.trip_deleted": "Trip deleted",
   "type.member_left": "{{name}} left",
   "type.member_left_removed": "{{name}} was removed",
+  "type.new_chat_message": "New chat message in {{trip}}",
   "nudge.confirmTitle": "Send nudge?",
   "nudge.confirmBody": "This will send a push notification to all trip members.",
   "nudge.confirmSend": "Send"
