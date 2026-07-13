@@ -20,6 +20,7 @@ Key use cases:
 
 - **Activity voting** — suggest activities; group votes "must do", "like", "neutral", or "group blocker"
 - **Expense splitting** — log costs, choose who paid, split equally or with custom amounts; automatic balance tracking; settle individually or all at once
+- **Group chat** — dedicated real-time chat tab per trip; send, edit, and delete messages; organizers can moderate the conversation; paginated message history
 - **Vacation tracker & shared calendar** — visual timeline of activities, transfers, and check-ins in the trip's timezone; off-calendar view of every day
 - **Real-time shared lists** — shopping lists, packing checklists; concurrent updates across all group members
 - **Transfer & flight management** — suggest flights, vote, record bookings, manage car rentals, assign passengers
