@@ -361,6 +361,20 @@ Deno.serve(async (req: Request) => {
       description: 'This trip was created automatically so you can explore every feature of Vacationist. Feel free to edit, vote, add expenses, and invite friends. Delete this trip whenever you\'re ready.',
     });
 
+    // 16. Trip chat messages
+    await supabase.from('trip_messages').insert([
+      {
+        trip_id: tripId,
+        created_by: userId,
+        text: 'Welcome to the trip chat! Every trip has one — perfect for quick questions and updates without leaving the app.',
+      },
+      {
+        trip_id: tripId,
+        created_by: userId,
+        text: 'Once your friends join via the invite link, they can chat here too. Try it out!',
+      },
+    ]);
+
     return new Response(JSON.stringify({ trip_id: tripId }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

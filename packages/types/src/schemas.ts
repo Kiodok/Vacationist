@@ -472,6 +472,19 @@ export const updateTripNoteSchema = z.object({
 export type CreateTripNoteInput = z.infer<typeof createTripNoteSchema>;
 export type UpdateTripNoteInput = z.infer<typeof updateTripNoteSchema>;
 
+// --- Trip message schemas ---
+
+export const createTripMessageSchema = z.object({
+  text: z.string().min(1, 'Message is required').max(2000),
+});
+
+export const updateTripMessageSchema = z.object({
+  text: z.string().min(1, 'Message is required').max(2000),
+});
+
+export type CreateTripMessageInput = z.infer<typeof createTripMessageSchema>;
+export type UpdateTripMessageInput = z.infer<typeof updateTripMessageSchema>;
+
 // --- Activity note schemas (aliases of the shared note content schema) ---
 
 export const createActivityNoteSchema = noteContentSchema;
@@ -617,6 +630,11 @@ export type CreateTripNoteVariables = { tripId: string; input: CreateTripNoteInp
 export type UpdateTripNoteVariables = { noteId: string; tripId: string; input: UpdateTripNoteInput };
 export type DeleteTripNoteVariables = { noteId: string; tripId: string };
 export type ToggleTripNoteDoneVariables = { noteId: string; tripId: string; isDone: boolean };
+
+// --- Trip message mutation variables ---
+export type CreateTripMessageVariables = { tripId: string; input: CreateTripMessageInput };
+export type UpdateTripMessageVariables = { messageId: string; tripId: string; input: UpdateTripMessageInput };
+export type DeleteTripMessageVariables = { messageId: string; tripId: string };
 
 // --- Notification mutation variables ---
 export type MarkNotificationReadVariables = { notificationId: string };

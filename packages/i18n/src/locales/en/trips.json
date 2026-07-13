@@ -70,6 +70,7 @@
   "toast.inviteFailed": "Failed to generate invite link",
   "toast.leaveFailed": "Failed to leave trip.",
   "tab.overview": "Overview",
+  "tab.chat": "Chat",
   "tab.prework": "Prework",
   "tab.base": "Base",
   "tab.transfer": "Transfer",

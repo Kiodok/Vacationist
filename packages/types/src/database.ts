@@ -474,6 +474,27 @@ export interface TripNote {
   updated_at: string;
 }
 
+export interface TripMessage {
+  id: string;
+  trip_id: string;
+  created_by: string;
+  text: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export type MessageSender = Pick<User, 'name' | 'avatar_url'>;
+
+export interface TripMessageWithSender extends TripMessage {
+  sender: MessageSender | null;
+}
+
+export interface TripMessagesPage {
+  items: TripMessageWithSender[];
+  nextCursor: string | null;
+}
+
 export interface PackingCategory {
   id: string;
   name: string;

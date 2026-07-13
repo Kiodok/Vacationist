@@ -1259,3 +1259,29 @@ DB trigger (AFTER INSERT on notifications)
 - **No new DB trigger needed:** The existing `trg_dispatch_push_notification` trigger already fires on every `notifications` INSERT and calls the Edge Function. The Edge Function update in Step 6 makes it also deliver to web push subscribers — no migration is needed to change the trigger itself.
 - **Notification preferences apply to web push** identically to Expo push — the Edge Function checks `notification_preferences` before sending to either delivery channel. No extra preference columns are needed.
 - **Test on HTTPS only:** The Web Push API and service workers require a secure context (`https://` or `localhost`). They will not work on plain `http://` origins. Vercel preview URLs are HTTPS, so testing on any Vercel deployment works.
+
+---
+
+## 💬 Phase 13: Trip Chat
+*Dependencies: Phase 1 (Auth), Phase 2 (Trips & Members)*
+*Goal: One lightweight chat per trip — keep trip-related communication inside the trip context. Not a WhatsApp replacement: text only, no reactions/threads/typing indicators/read receipts/attachments.*
+
+- [x] **1. DB/RLS & Types**
+  - [x] Migration `20260716100000_create_trip_messages.sql` — `trip_messages` table (id, trip_id, created_by, text ≤2000, created_at, updated_at, deleted_at), partial index `(trip_id, created_at DESC) WHERE deleted_at IS NULL` for keyset pagination
+  - [x] RLS: members SELECT (no deleted_at filter so soft-delete UPDATEs pass realtime RLS); members INSERT own; sender-only UPDATE while not deleted; no DELETE policy
+  - [x] `soft_delete_trip_message` RPC (SECURITY DEFINER) — sender deletes own (incl. guests), organizer deletes any
+  - [x] `set_updated_at` + immutable-fields triggers (trip_id, created_by, created_at)
+  - [x] Realtime enabled via `ALTER PUBLICATION supabase_realtime ADD TABLE trip_messages` (soft delete arrives as UPDATE — no REPLICA IDENTITY FULL needed)
+  - [x] Types: `TripMessage`, `TripMessageWithSender`, `TripMessagesPage` in `packages/types/src/database.ts`; Zod schemas + mutation Variables in `schemas.ts`
+- [x] **2. Services & Hooks**
+  - [x] `packages/api/src/messages.ts` — `getTripMessages(tripId, cursor?)` (keyset pagination, page 50, joins `sender:users!created_by`), `createMessage`, `updateMessage`, `deleteMessage` (RPC), `subscribeToMessages` (`trip-messages:${tripId}`, INSERT+UPDATE filtered on trip_id), `unsubscribeFromMessages`
+  - [x] `useTripMessages` (`useInfiniteQuery`, key `['trips', tripId, 'messages']`), `useCreateMessage`/`useUpdateMessage`/`useDeleteMessage` with optimistic updates + rollback
+  - [x] `useTripChatRealtime` — cache patching via pure helpers (`messageCache.ts`, unit-tested); realtime INSERT sender enrichment from members cache; optimistic/echo dedupe
+  - [x] Offline replay: mutation defaults + `PERSISTED_MUTATION_KEYS` (`createTripMessage`, `updateTripMessage`, `deleteTripMessage`); surgical `setQueryData` in onSuccess (no infinite-query invalidation)
+- [x] **3. Components & Screens**
+  - [x] Chat tab between Overview and Prework (`app/trip/[id]/chat.tsx` + TABS wiring)
+  - [x] `ChatMessageRow` (MemberAvatar + name + absolute timestamp + text, long-press for actions), `ChatInputBar` (multiline, edit mode strip), `MessageActionsSheet` (edit own / delete own-or-organizer with inline confirm)
+  - [x] Non-inverted FlashList with `maintainVisibleContentPosition` (auto-scroll to newest) + `onStartReached` older-page loading
+  - [x] Empty state ("Start the conversation with your travel group."), i18n namespace `chat` (en+de), `tab.chat` labels
+  - [x] Tutorial slide 1 mentions chat (en+de), MMKV key bumped `tutorial_seen_v1` → `v2`
+  - [x] `create-example-trip` edge function seeds 2 example messages (deployed to dev + prod)

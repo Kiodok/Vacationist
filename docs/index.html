@@ -460,6 +460,42 @@
     .feat-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:.45rem; letter-spacing:-.02em; }
     .feat-desc { font-size:.88rem; color:var(--text2); line-height:1.6; }
 
+    /* Chat feature — wide card spanning full grid width */
+    .feat-card--wide {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    @media (max-width: 760px) {
+      .feat-card--wide { grid-template-columns: 1fr; }
+      .feat-chat-preview { display: none; }
+    }
+    .feat-chat-preview {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 0.9rem;
+      display: flex; flex-direction: column; gap: 0.7rem;
+    }
+    .chat-msg { display: flex; align-items: flex-end; gap: 0.5rem; }
+    .chat-msg--own { flex-direction: row-reverse; }
+    .chat-av {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .chat-body { display: flex; flex-direction: column; gap: 2px; max-width: 78%; }
+    .chat-msg--own .chat-body { align-items: flex-end; }
+    .chat-name { font-size: 0.67rem; font-weight: 600; color: var(--text3); padding: 0 0.15rem; }
+    .chat-bubble {
+      font-size: 0.8rem; color: var(--text); line-height: 1.45;
+      background: var(--surf-el); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.38rem 0.65rem;
+    }
+    .chat-msg--own .chat-bubble {
+      background: var(--pri-dim); border-color: rgba(108,99,255,.25); color: var(--pri-lite);
+    }
+
     /* ── HOW IT WORKS ── */
     .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; position: relative; }
     @media (max-width: 680px) { .steps { grid-template-columns: 1fr; gap: 2.5rem; } }
@@ -820,6 +856,35 @@
         <div class="feat-icon">🗓️</div>
         <div class="feat-title" data-i18n="feat.6.title">Vacation tracker &amp; calendar</div>
         <div class="feat-desc" data-i18n="feat.6.desc">A visual timeline of all planned activities, transfers, and check-ins — your vacation tracker displayed in the trip's timezone. See every day off at a glance.</div>
+      </div>
+      <div class="feat-card feat-card--wide reveal d1">
+        <div>
+          <div class="feat-icon">💬</div>
+          <div class="feat-title" data-i18n="feat.7.title">Group chat</div>
+          <div class="feat-desc" data-i18n="feat.7.desc">A dedicated chat tab for every trip — message the whole group, edit or delete your own messages, and catch up instantly with real-time delivery. Organizers can moderate the conversation.</div>
+        </div>
+        <div class="feat-chat-preview" aria-hidden="true">
+          <div class="chat-msg">
+            <div class="chat-av" style="background:#EC4899">M</div>
+            <div class="chat-body">
+              <span class="chat-name">Maya</span>
+              <div class="chat-bubble">Found an amazing seafood spot near the harbour 🦞</div>
+            </div>
+          </div>
+          <div class="chat-msg chat-msg--own">
+            <div class="chat-av" style="background:#6C63FF">G</div>
+            <div class="chat-body">
+              <div class="chat-bubble">Let's vote on it! Adding to activities now 👍</div>
+            </div>
+          </div>
+          <div class="chat-msg">
+            <div class="chat-av" style="background:#F59E0B">J</div>
+            <div class="chat-body">
+              <span class="chat-name">Jan</span>
+              <div class="chat-bubble">Count me in! What time are we thinking? 🕐</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

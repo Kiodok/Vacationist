@@ -79,6 +79,10 @@ export const PERSISTED_MUTATION_KEYS = [
   'updateTripNote',
   'deleteTripNote',
   'toggleTripNoteDone',
+  // Trip chat
+  'createTripMessage',
+  'updateTripMessage',
+  'deleteTripMessage',
   // Notifications
   'markNotificationRead',
   'markAllNotificationsRead',

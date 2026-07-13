@@ -61,6 +61,8 @@ window.VACATIONIST_I18N = {
   'feat.5.desc': 'Passport and ID details stored behind biometric authentication, AES-256 encrypted. Share temporary organiser access and revoke it any time.',
   'feat.6.title': 'Vacation tracker & calendar',
   'feat.6.desc': 'A visual timeline of all planned activities, transfers, and check-ins — your vacation tracker displayed in the trip\'s timezone. See every day off at a glance.',
+  'feat.7.title': 'Group chat',
+  'feat.7.desc': 'A dedicated chat tab for every trip — message the whole group, edit or delete your own messages, and catch up instantly with real-time delivery. Organizers can moderate the conversation.',
 
   // How it works
   'how.label': 'How it works',

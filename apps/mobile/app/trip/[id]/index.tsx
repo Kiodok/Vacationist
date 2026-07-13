@@ -29,8 +29,9 @@ import StuffTab from './stuff';
 import SettingsTab from './settings';
 import CalendarTab from './calendar';
 import NotesTab from './notes';
+import ChatTab from './chat';
 
-const TABS = ['Overview', 'Prework', 'Base', 'Transfer', 'Expenses', 'Activities', 'Calendar', 'Stuff', 'Shopping', 'Notes', 'Settings'] as const;
+const TABS = ['Overview', 'Chat', 'Prework', 'Base', 'Transfer', 'Expenses', 'Activities', 'Calendar', 'Stuff', 'Shopping', 'Notes', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
 
 
@@ -49,6 +50,7 @@ export default function TripDetailScreen() {
   const getTabLabel = (tabKey: Tab): string => {
     switch (tabKey) {
       case 'Overview':    return t('tab.overview');
+      case 'Chat':        return t('tab.chat');
       case 'Prework':     return t('tab.prework');
       case 'Base':        return t('tab.base');
       case 'Transfer':    return t('tab.transfer');
@@ -139,6 +141,8 @@ export default function TripDetailScreen() {
     switch (activeTab) {
       case 'Overview':
         return <OverviewTab onTabChange={(tab) => handleTabChange(tab as Tab)} />;
+      case 'Chat':
+        return <ChatTab />;
       case 'Prework':
         return <PreworkTab />;
       case 'Calendar':

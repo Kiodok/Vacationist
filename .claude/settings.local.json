@@ -150,7 +150,9 @@
       "WebFetch(domain:supabase.com)",
       "Skill(artifact-design)",
       "Artifact",
-      "PowerShell(npx supabase projects list 2>&1 | Select-Object -First 10)"
+      "PowerShell(npx supabase projects list 2>&1 | Select-Object -First 10)",
+      "PowerShell(npx supabase status 2>&1 | Select-Object -First 15)",
+      "PowerShell(npx supabase link --project-ref aejywkbkcwyanhyzhrle 2>&1 | Select-Object -Last 5; npx supabase db push --dry-run 2>&1 | Select-Object -Last 10)"
     ]
   },
   "model": "opusplan",

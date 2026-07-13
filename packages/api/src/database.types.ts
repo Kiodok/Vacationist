@@ -795,6 +795,7 @@ export type Database = {
       }
       notification_preferences: {
         Row: {
+          activity_reminder: boolean
           expense_change: boolean
           id: string
           lost_found: boolean
@@ -808,6 +809,7 @@ export type Database = {
           vote_update: boolean
         }
         Insert: {
+          activity_reminder?: boolean
           expense_change?: boolean
           id?: string
           lost_found?: boolean
@@ -821,6 +823,7 @@ export type Database = {
           vote_update?: boolean
         }
         Update: {
+          activity_reminder?: boolean
           expense_change?: boolean
           id?: string
           lost_found?: boolean
@@ -1844,6 +1847,51 @@ export type Database = {
           },
         ]
       }
+      trip_messages: {
+        Row: {
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          id: string
+          text: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          id?: string
+          text: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          id?: string
+          text?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_messages_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_messages_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_notes: {
         Row: {
           created_at: string
@@ -2156,7 +2204,7 @@ export type Database = {
         Args: { p_case_id: string }
         Returns: undefined
       }
-      delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined }
+      delete_own_account: { Args: never; Returns: undefined }
       delete_prework_topic: { Args: { p_topic_id: string }; Returns: undefined }
       delete_push_token: { Args: { p_push_token: string }; Returns: undefined }
       delete_recipe: { Args: { p_recipe_id: string }; Returns: undefined }
@@ -2354,6 +2402,10 @@ export type Database = {
         Returns: undefined
       }
       soft_delete_trip: { Args: { p_trip_id: string }; Returns: undefined }
+      soft_delete_trip_message: {
+        Args: { p_message_id: string }
+        Returns: undefined
+      }
       unarchive_expense: { Args: { p_expense_id: string }; Returns: undefined }
       unclaim_shared_packing_item: {
         Args: { p_item_id: string }

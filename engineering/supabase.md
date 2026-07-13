@@ -1,5 +1,48 @@
 # Supabase Changes Log
 
+> **Schema dumps without Docker (this machine has no Docker):** `supabase db dump` always shells into a Docker `pg_dump` and fails here — but `npx supabase db dump --linked --dry-run` needs no Docker and prints the complete dump script, **including ephemeral login-role credentials** (`PGHOST`/`PGUSER`/`PGPASSWORD` for a temporary `cli_login_postgres.<ref>` role) plus the exact pg_dump flags and sed filters the CLI would run. Replay it with the locally installed PostgreSQL 17 client (`C:\Program Files\PostgreSQL\17\bin\pg_dump.exe`, matches both projects' Postgres 17.6): set the printed `PG*` env vars, then run `pg_dump --schema-only --quote-all-identifiers --role postgres --exclude-schema "<list from the script>"` (note: the local binary wants `--quote-all-identifiers`, plural — the script prints the singular form). For dev↔prod diffs, strip `^\\(un)?restrict` lines (random per dump) and `^--` comments from both outputs before diffing. Quick alternative without dumps: compare `supabase migration list` ledgers on both projects.
+
+## 2026-07-13 — Bring rls_auto_enable / ensure_rls under version control (dev↔prod parity)
+
+### Migration: `20260717100000_add_rls_auto_enable_event_trigger`
+
+**Why:** The Docker-free schema dump diff (see header note) surfaced a dev-only `rls_auto_enable()` function + `ensure_rls` event trigger — added once via the SQL editor, never migrated, so prod lacked it. It auto-enables ROW LEVEL SECURITY on any newly created `public` table, a backstop against migrations that forget `ENABLE ROW LEVEL SECURITY`.
+
+**Changes:**
+1. `CREATE OR REPLACE FUNCTION public.rls_auto_enable()` (body copied verbatim from dev) + `REVOKE FROM PUBLIC` / `GRANT TO service_role` matching dev's ACL.
+2. `DROP EVENT TRIGGER IF EXISTS ensure_rls` + `CREATE EVENT TRIGGER ensure_rls ON ddl_command_end` — idempotent so the same migration converges dev (already had it) and prod (didn't).
+
+Migrations must still write `ENABLE ROW LEVEL SECURITY` explicitly — this is a safety net, not a convention.
+
+**Non-destructive.** Applied to: dev + prod (2026-07-13). Remaining known drift is cosmetic only (variable-name/comment differences in a few older function bodies).
+
+---
+
+## 2026-07-13 — Phase 13: Trip Chat
+
+### Migration: `20260716100000_create_trip_messages`
+
+**Why:** New Trip Chat feature — one lightweight chat per trip (Chat tab between Overview and Prework) so trip-related communication stays inside the trip context.
+
+**Changes:**
+1. **`public.trip_messages` table** — `id`, `trip_id` (FK trips, CASCADE), `created_by` (FK users), `text` (≤2000 chars, non-blank CHECK), `created_at`, `updated_at`, `deleted_at` (soft delete). Partial index `(trip_id, created_at DESC) WHERE deleted_at IS NULL` for keyset pagination.
+2. **RLS** — SELECT: any trip member (deliberately no `deleted_at IS NULL` filter so the soft-delete UPDATE event passes realtime RLS; clients filter). INSERT: member + own row (guests included). UPDATE: sender only, while not deleted (organizers cannot edit others' messages). No DELETE policy — deletion is RPC-only.
+3. **`soft_delete_trip_message(p_message_id)`** SECURITY DEFINER RPC — sender deletes own message (all roles incl. guest), organizer deletes any; sets `deleted_at = NOW()`.
+4. **Triggers** — `set_updated_at` on UPDATE; `restrict_trip_message_update_fields` blocks changes to `trip_id`, `created_by`, `created_at`.
+5. **Realtime** — `ALTER PUBLICATION supabase_realtime ADD TABLE public.trip_messages`. Soft delete arrives as UPDATE, so no `REPLICA IDENTITY FULL` and no DELETE handler needed; client subscribes with `filter: trip_id=eq.<tripId>` on channel `trip-messages:<tripId>`.
+
+**Non-destructive.** Applied to: dev + prod (2026-07-13). Schema parity verified twice: migration ledgers (`supabase migration list`) identical on both projects, and a Docker-free pg_dump diff (method in the header note) — all `trip_messages` objects identical. The dump diff surfaced only pre-existing drift unrelated to this phase: cosmetic variable-name/comment differences in a few older functions (`check_invite_rate_limit` et al.), and a dev-only `rls_auto_enable()` + `ensure_rls` event trigger (RLS auto-enable safety net) that prod does not have.
+
+**Edge function:** `create-example-trip` redeployed to dev + prod — seeds 2 example chat messages in the demo trip (existing-user guard unaffected).
+
+**Client changes (same PR/session):**
+- `packages/api/src/messages.ts` (new): `getTripMessages` (keyset pagination, sender join), `createMessage`, `updateMessage`, `deleteMessage`, `subscribeToMessages`, `unsubscribeFromMessages`.
+- `packages/types`: `TripMessage`/`TripMessageWithSender`/`TripMessagesPage`, Zod schemas, mutation Variables.
+- `apps/mobile/src/features/chat/` (new): hooks (`useTripMessages` infinite query, mutations with optimistic updates, `useTripChatRealtime`), components (`ChatMessageRow`, `ChatInputBar`, `MessageActionsSheet`), unit-tested cache helpers.
+- Chat tab wired into `app/trip/[id]/index.tsx` (between Overview and Prework); mutation defaults + `PERSISTED_MUTATION_KEYS` for offline replay; i18n namespace `chat` (en/de); tutorial slide 1 copy updated + MMKV key bump to `tutorial_seen_v2`.
+
+---
+
 ## 2026-07-12 — Retain votes on member removal + membership-filtered vote visibility
 
 ### Migration: `20260715100000_retain_votes_on_member_removal`

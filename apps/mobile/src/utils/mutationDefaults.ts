@@ -8,6 +8,9 @@ import {
   createNote,
   updateNote,
   deleteNote,
+  createMessage,
+  updateMessage,
+  deleteMessage,
   castActivityVote,
   castAccommodationVote,
   castTransferFlightVote,
@@ -75,6 +78,10 @@ import type {
   UpdateTripNoteVariables,
   DeleteTripNoteVariables,
   ToggleTripNoteDoneVariables,
+  TripMessageWithSender,
+  CreateTripMessageVariables,
+  UpdateTripMessageVariables,
+  DeleteTripMessageVariables,
   ActivityVote,
   AccommodationVote,
   TransferFlightVote,
@@ -151,6 +158,12 @@ import type {
 import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
 import { addSentryBreadcrumb } from './sentry';
+import {
+  resolveOptimistic,
+  replaceMessage,
+  removeMessage,
+  type MessagesData,
+} from '../features/chat/utils/messageCache';
 
 // These defaults serve two purposes:
 //   1. Provide the mutationFn that TanStack Query uses when replaying persisted
@@ -743,6 +756,41 @@ queryClient.setMutationDefaults(['toggleTripNoteDone'], {
   mutationFn: ({ noteId, isDone }: ToggleTripNoteDoneVariables) => updateNote(noteId, { is_done: isDone }),
   onSuccess: (_data: TripNote, { tripId }: ToggleTripNoteDoneVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notes'] });
+  },
+});
+
+// ─── Trip chat ────────────────────────────────────────────────────────────────
+// Surgical cache patches instead of invalidateQueries: invalidating an
+// infinite query refetches every loaded page. No success toasts — chat is
+// high-frequency.
+
+queryClient.setMutationDefaults(['createTripMessage'], {
+  mutationFn: ({ tripId, input }: CreateTripMessageVariables) => createMessage(tripId, input),
+  onSuccess: (message: TripMessageWithSender, { tripId }: CreateTripMessageVariables) => {
+    queryClient.setQueryData<MessagesData>(
+      ['trips', tripId, 'messages'],
+      (old) => resolveOptimistic(old, message),
+    );
+  },
+});
+
+queryClient.setMutationDefaults(['updateTripMessage'], {
+  mutationFn: ({ messageId, input }: UpdateTripMessageVariables) => updateMessage(messageId, input),
+  onSuccess: (message: TripMessageWithSender, { tripId }: UpdateTripMessageVariables) => {
+    queryClient.setQueryData<MessagesData>(
+      ['trips', tripId, 'messages'],
+      (old) => old && replaceMessage(old, message),
+    );
+  },
+});
+
+queryClient.setMutationDefaults(['deleteTripMessage'], {
+  mutationFn: ({ messageId }: DeleteTripMessageVariables) => deleteMessage(messageId),
+  onSuccess: (_data: void, { messageId, tripId }: DeleteTripMessageVariables) => {
+    queryClient.setQueryData<MessagesData>(
+      ['trips', tripId, 'messages'],
+      (old) => old && removeMessage(old, messageId),
+    );
   },
 });
 

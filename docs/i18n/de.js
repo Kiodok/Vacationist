@@ -61,6 +61,8 @@ window.VACATIONIST_I18N = {
   'feat.5.desc': 'Reisepass- und Ausweisdaten, gesichert durch biometrische Authentifizierung, AES-256 verschlüsselt. Temporären Organisatorzugriff gewähren und jederzeit widerrufen.',
   'feat.6.title': 'Urlaubsverfolgung & Kalender',
   'feat.6.desc': 'Eine visuelle Zeitleiste aller geplanten Aktivitäten, Transfers und Check-ins — deine Urlaubsverfolgung in der Zeitzone der Reise. Jeden freien Tag auf einen Blick.',
+  'feat.7.title': 'Gruppenchat',
+  'feat.7.desc': 'Ein eigener Chat-Tab für jede Reise — schreib der ganzen Gruppe, bearbeite oder lösche eigene Nachrichten und bleib mit Echtzeit-Zustellung immer auf dem neuesten Stand. Organisatoren können die Unterhaltung moderieren.',
 
   // How it works
   'how.label': 'So funktioniert\'s',

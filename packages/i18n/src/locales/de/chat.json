@@ -1,0 +1,14 @@
+{
+  "emptyTitle": "Noch keine Nachrichten",
+  "emptySubtitle": "Starte die Unterhaltung mit deiner Reisegruppe.",
+  "placeholder.message": "Nachricht schreiben…",
+  "editing": "Nachricht bearbeiten",
+  "action.edit": "Nachricht bearbeiten",
+  "action.delete": "Nachricht löschen",
+  "confirm.delete": "Diese Nachricht löschen? Das kann nicht rückgängig gemacht werden.",
+  "confirm.deleteYes": "Löschen",
+  "unknownSender": "Ehemaliges Mitglied",
+  "toast.sendFailed": "Nachricht konnte nicht gesendet werden",
+  "toast.updateFailed": "Nachricht konnte nicht aktualisiert werden",
+  "toast.deleteFailed": "Nachricht konnte nicht gelöscht werden"
+}

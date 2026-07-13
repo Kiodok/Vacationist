@@ -1,0 +1,14 @@
+{
+  "emptyTitle": "No messages yet",
+  "emptySubtitle": "Start the conversation with your travel group.",
+  "placeholder.message": "Write a message…",
+  "editing": "Editing message",
+  "action.edit": "Edit message",
+  "action.delete": "Delete message",
+  "confirm.delete": "Delete this message? This cannot be undone.",
+  "confirm.deleteYes": "Delete",
+  "unknownSender": "Former member",
+  "toast.sendFailed": "Failed to send message",
+  "toast.updateFailed": "Failed to update message",
+  "toast.deleteFailed": "Failed to delete message"
+}
