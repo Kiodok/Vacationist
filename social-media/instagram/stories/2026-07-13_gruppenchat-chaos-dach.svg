@@ -1,0 +1,229 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"
+     font-family="'Segoe UI','Helvetica Neue',system-ui,Arial,sans-serif">
+  <defs>
+    <!-- Dot grid -->
+    <pattern id="dotGrid" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="14" cy="14" r="1.2" fill="#1C1C1C"/>
+    </pattern>
+
+    <!-- Radial purple glow behind headline / phone -->
+    <radialGradient id="bgGlow" cx="50%" cy="28%" r="55%">
+      <stop offset="0%"   stop-color="#26145C" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#0F0F0F" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft glow behind CTA -->
+    <radialGradient id="ctaGlowBg" cx="50%" cy="82%" r="30%">
+      <stop offset="0%"   stop-color="#26145C" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0F0F0F" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Headline accent gradient -->
+    <linearGradient id="hlGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#8B83FF"/>
+      <stop offset="100%" stop-color="#C4BDFF"/>
+    </linearGradient>
+
+    <!-- Progress bar / CTA fill -->
+    <linearGradient id="prog" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#6C63FF"/>
+      <stop offset="100%" stop-color="#A89CFF"/>
+    </linearGradient>
+
+    <linearGradient id="ctaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#7C74FF"/>
+      <stop offset="100%" stop-color="#5A51E8"/>
+    </linearGradient>
+
+    <!-- Phone body gradient -->
+    <linearGradient id="phoneGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#1D1D2C"/>
+      <stop offset="100%" stop-color="#15151F"/>
+    </linearGradient>
+
+    <!-- Violet drop glow -->
+    <filter id="cardGlow" x="-18%" y="-18%" width="136%" height="136%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="26" result="blur"/>
+      <feFlood flood-color="#6C63FF" flood-opacity="0.28" result="colour"/>
+      <feComposite in="colour" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="chipShadow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.55" result="colour"/>
+      <feComposite in="colour" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- ════════════════ BACKGROUND ════════════════ -->
+  <rect width="1080" height="1920" fill="#0F0F0F"/>
+  <rect width="1080" height="1920" fill="url(#dotGrid)"/>
+  <rect width="1080" height="1920" fill="url(#bgGlow)"/>
+  <rect width="1080" height="1920" fill="url(#ctaGlowBg)"/>
+
+  <!-- Top accent hairline -->
+  <rect x="0" y="0" width="1080" height="3" fill="#6C63FF" opacity="0.35"/>
+
+  <!-- Ambient dots + faint connecting lines -->
+  <circle cx="120"  cy="540"  r="4" fill="#6C63FF" opacity="0.20"/>
+  <circle cx="985"  cy="430"  r="3" fill="#A89CFF" opacity="0.22"/>
+  <circle cx="950"  cy="1180" r="4" fill="#6C63FF" opacity="0.16"/>
+  <circle cx="110"  cy="1300" r="3" fill="#6C63FF" opacity="0.16"/>
+  <circle cx="540"  cy="180"  r="3" fill="#A89CFF" opacity="0.18"/>
+  <line x1="120" y1="540"  x2="540" y2="180"  stroke="#6C63FF" stroke-width="1" opacity="0.06"/>
+  <line x1="540" y1="180"  x2="985" y2="430"  stroke="#6C63FF" stroke-width="1" opacity="0.06"/>
+  <line x1="985" y1="430"  x2="950" y2="1180" stroke="#6C63FF" stroke-width="1" opacity="0.05"/>
+
+  <!-- ════════════════ HEADLINE ZONE ════════════════ -->
+
+  <!-- Eyebrow -->
+  <text x="540" y="336" font-size="24" font-weight="700" letter-spacing="5"
+        fill="#8B83FF" text-anchor="middle">VACATIONIST · GRUPPENREISE-PLANER</text>
+
+  <!-- Headline -->
+  <text x="540" y="446" font-size="92" font-weight="800" letter-spacing="-2"
+        fill="#FFFFFF" text-anchor="middle">Schluss mit dem</text>
+  <text x="540" y="552" font-size="92" font-weight="800" letter-spacing="-2"
+        fill="url(#hlGrad)" text-anchor="middle">Gruppenchat-Chaos.</text>
+
+  <!-- Subline -->
+  <text x="540" y="626" font-size="36" font-weight="400" fill="#C2C2C8"
+        text-anchor="middle">Abstimmen. Kosten teilen. Gemeinsam reisen.</text>
+
+  <!-- ════════════════ PHONE MOCKUP ════════════════ -->
+
+  <!-- Glow layer -->
+  <rect x="290" y="690" width="500" height="760" rx="46" fill="none" filter="url(#cardGlow)"/>
+
+  <!-- Phone body -->
+  <rect x="290" y="690" width="500" height="760" rx="46"
+        fill="url(#phoneGrad)" stroke="#2E2E44" stroke-width="2"/>
+
+  <!-- Screen -->
+  <rect x="304" y="704" width="472" height="732" rx="34" fill="#131320"/>
+
+  <!-- Camera punch hole -->
+  <circle cx="540" cy="732" r="7" fill="#0A0A12" stroke="#23233A" stroke-width="1.5"/>
+
+  <!-- Trip header -->
+  <text x="334" y="800" font-size="27" font-weight="700" fill="#FFFFFF">Mallorca 2026</text>
+  <text x="334" y="831" font-size="16" fill="#68687E">12. – 19. Sep  ·  6 Freunde</text>
+
+  <!-- Member avatars -->
+  <circle cx="734" cy="800" r="17" fill="#181828" stroke="#3ECF8E" stroke-width="2.5"/>
+  <circle cx="706" cy="800" r="17" fill="#181828" stroke="#FDA444" stroke-width="2.5"/>
+  <circle cx="678" cy="800" r="17" fill="#181828" stroke="#FF6B9D" stroke-width="2.5"/>
+  <text x="734" y="805" font-size="11" font-weight="700" fill="#3ECF8E" text-anchor="middle">L</text>
+  <text x="706" y="805" font-size="11" font-weight="700" fill="#FDA444" text-anchor="middle">J</text>
+  <text x="678" y="805" font-size="11" font-weight="700" fill="#FF6B9D" text-anchor="middle">A</text>
+
+  <!-- Divider -->
+  <line x1="334" y1="856" x2="746" y2="856" stroke="#222234" stroke-width="1"/>
+
+  <!-- ── ROW 1: VOTE ── -->
+  <rect x="334" y="874" width="412" height="92" rx="14" fill="#18182A"/>
+  <circle cx="376" cy="920" r="26" fill="#6C63FF" fill-opacity="0.18"/>
+  <polyline points="364,920 372,930 390,905"
+            stroke="#6C63FF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="414" y="913" font-size="19" font-weight="600" fill="#E8E8F0">Bootstour Cala d’Or</text>
+  <text x="414" y="941" font-size="15" fill="#55556A">Abstimmung läuft</text>
+  <rect x="632" y="890" width="100" height="32" rx="16" fill="#3ECF8E" fill-opacity="0.13"/>
+  <text x="682" y="911" font-size="15" font-weight="700" fill="#3ECF8E" text-anchor="middle">5 dafür</text>
+
+  <!-- ── ROW 2: EXPENSE ── -->
+  <rect x="334" y="980" width="412" height="92" rx="14" fill="#18182A"/>
+  <circle cx="376" cy="1026" r="26" fill="#3ECF8E" fill-opacity="0.18"/>
+  <text x="376" y="1036" font-size="27" font-weight="800" fill="#3ECF8E" text-anchor="middle">€</text>
+  <text x="414" y="1019" font-size="19" font-weight="600" fill="#E8E8F0">Finca  ·  840 €</text>
+  <text x="414" y="1047" font-size="15" fill="#55556A">Gleichmäßig · 6 Personen</text>
+  <text x="730" y="1034" font-size="19" font-weight="700" fill="#3ECF8E" text-anchor="end">140 € p. P.</text>
+
+  <!-- ── ROW 3: SHARED LIST ── -->
+  <rect x="334" y="1086" width="412" height="92" rx="14" fill="#18182A"/>
+  <circle cx="376" cy="1132" r="26" fill="#FDA444" fill-opacity="0.18"/>
+  <line x1="363" y1="1123" x2="389" y2="1123" stroke="#FDA444" stroke-width="3" stroke-linecap="round"/>
+  <line x1="363" y1="1132" x2="389" y2="1132" stroke="#FDA444" stroke-width="3" stroke-linecap="round"/>
+  <line x1="363" y1="1141" x2="379" y2="1141" stroke="#FDA444" stroke-width="3" stroke-linecap="round"/>
+  <text x="414" y="1125" font-size="19" font-weight="600" fill="#E8E8F0">Packliste</text>
+  <text x="414" y="1153" font-size="15" fill="#55556A">7 von 12 erledigt</text>
+  <rect x="580" y="1124" width="150" height="10" rx="5" fill="#222234"/>
+  <rect x="580" y="1124" width="88"  height="10" rx="5" fill="url(#prog)"/>
+
+  <!-- ── INVITE STRIP ── -->
+  <rect x="334" y="1192" width="412" height="96" rx="14"
+        fill="#6C63FF" fill-opacity="0.08" stroke="#6C63FF" stroke-opacity="0.25" stroke-width="1.5"/>
+  <circle cx="374" cy="1240" r="20" fill="#6C63FF" fill-opacity="0.18"/>
+  <rect x="365" y="1238" width="18" height="13" rx="3"
+        fill="none" stroke="#A89CFF" stroke-width="2.4"/>
+  <path d="M368,1238 L368,1233 Q368,1227 374,1227 Q380,1227 380,1233 L380,1238"
+        fill="none" stroke="#A89CFF" stroke-width="2.4" stroke-linecap="round"/>
+  <text x="408" y="1234" font-size="18" font-weight="600" fill="#C4BDFF">Per Link beitreten</text>
+  <text x="408" y="1261" font-size="14.5" fill="#55556A">Kein Account nötig – sofort mitplanen</text>
+
+  <!-- ── VOTE ACTION PILLS ── -->
+  <!-- Pill 1: Muss! -->
+  <rect x="334" y="1312" width="128" height="56" rx="28"
+        fill="#F5C242" fill-opacity="0.13" stroke="#F5C242" stroke-opacity="0.45" stroke-width="1.5"/>
+  <polygon transform="translate(368,1340)"
+           points="0,-10 2.9,-3.6 9.5,-3.1 4.7,1.8 5.9,8.1 0,4.9 -5.9,8.1 -4.7,1.8 -9.5,-3.1 -2.9,-3.6"
+           fill="#F5C242" stroke="#F5C242" stroke-width="1" stroke-linejoin="round"/>
+  <text x="388" y="1347" font-size="17" font-weight="600" fill="#E8E8F0">Muss!</text>
+
+  <!-- Pill 2: Dafür -->
+  <rect x="476" y="1312" width="128" height="56" rx="28"
+        fill="#3ECF8E" fill-opacity="0.13" stroke="#3ECF8E" stroke-opacity="0.45" stroke-width="1.5"/>
+  <polyline points="500,1340 506,1348 520,1330"
+            stroke="#3ECF8E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="530" y="1347" font-size="17" font-weight="600" fill="#E8E8F0">Dafür</text>
+
+  <!-- Pill 3: Skip -->
+  <rect x="618" y="1312" width="128" height="56" rx="28"
+        fill="#55556A" fill-opacity="0.13" stroke="#55556A" stroke-opacity="0.55" stroke-width="1.5"/>
+  <line x1="644" y1="1340" x2="666" y2="1340" stroke="#8888A0" stroke-width="3" stroke-linecap="round"/>
+  <polyline points="659,1332 667,1340 659,1348"
+            stroke="#8888A0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="680" y="1347" font-size="17" font-weight="600" fill="#E8E8F0">Skip</text>
+
+  <!-- Home indicator -->
+  <rect x="500" y="1408" width="80" height="5" rx="2.5" fill="#2E2E44"/>
+
+  <!-- ════════════════ FLOATING CHIPS ════════════════ -->
+
+  <!-- Chip A: top-left, overlaps phone corner -->
+  <g filter="url(#chipShadow)">
+    <rect x="104" y="648" width="376" height="64" rx="32"
+          fill="#1D1D2C" stroke="#6C63FF" stroke-opacity="0.45" stroke-width="1.5"/>
+    <circle cx="140" cy="680" r="18" fill="#6C63FF" fill-opacity="0.18"/>
+    <polyline points="131,680 137,688 150,669"
+              stroke="#6C63FF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="170" y="688" font-size="20" font-weight="600" fill="#E8E8F0">Abstimmen statt diskutieren</text>
+  </g>
+
+  <!-- Chip B: bottom-right, overlaps phone corner -->
+  <g filter="url(#chipShadow)">
+    <rect x="636" y="1398" width="304" height="64" rx="32"
+          fill="#1D1D2C" stroke="#3ECF8E" stroke-opacity="0.45" stroke-width="1.5"/>
+    <circle cx="672" cy="1430" r="18" fill="#3ECF8E" fill-opacity="0.18"/>
+    <text x="672" y="1437" font-size="19" font-weight="800" fill="#3ECF8E" text-anchor="middle">€</text>
+    <text x="702" y="1438" font-size="20" font-weight="600" fill="#E8E8F0">Kosten fair teilen</text>
+  </g>
+
+  <!-- ════════════════ CTA ZONE ════════════════ -->
+
+  <rect x="250" y="1500" width="580" height="112" rx="56" fill="none" filter="url(#cardGlow)"/>
+  <rect x="250" y="1500" width="580" height="112" rx="56" fill="url(#ctaGrad)"/>
+  <text x="540" y="1568" font-size="33" font-weight="700" fill="#FFFFFF"
+        text-anchor="middle">Jetzt kostenlos ausprobieren</text>
+
+  <text x="540" y="1668" font-size="31" font-weight="600" letter-spacing="1.5"
+        fill="#8B83FF" text-anchor="middle">vacationist.app</text>
+
+</svg>
