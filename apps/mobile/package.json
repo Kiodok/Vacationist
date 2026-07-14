@@ -31,6 +31,8 @@
     "@vercel/speed-insights": "^2.0.0",
     "babel-preset-expo": "~55.0.8",
     "expo": "^55.0.24",
+    "@sentry/react-native": "~7.11.0",
+    "expo-application": "~55.0.16",
     "expo-auth-session": "~55.0.16",
     "expo-build-properties": "^56.0.13",
     "expo-calendar": "~55.0.15",

@@ -8,7 +8,7 @@ interface NotificationPreferencesSectionProps {
   tripId: string;
 }
 
-export function NotificationPreferencesSection({ tripId }: NotificationPreferencesSectionProps) {
+export function NotificationPreferencesSection({ tripId }: Readonly<NotificationPreferencesSectionProps>) {
   const { t } = useTranslation('notifications');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';

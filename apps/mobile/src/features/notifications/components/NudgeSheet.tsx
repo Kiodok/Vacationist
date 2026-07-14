@@ -13,7 +13,7 @@ interface NudgeSheetProps {
   onClose: () => void;
 }
 
-export function NudgeSheet({ tripId, tripName, visible, onClose }: NudgeSheetProps) {
+export function NudgeSheet({ tripId, tripName, visible, onClose }: Readonly<NudgeSheetProps>) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('notifications');
   const { t: tCommon } = useTranslation('common');
@@ -40,7 +40,7 @@ export function NudgeSheet({ tripId, tripName, visible, onClose }: NudgeSheetPro
       <View className="flex-1 justify-end bg-black/50">
         <View className="bg-surface rounded-t-2xl" style={{ maxHeight: '70%' }}>
           <View className="flex-row items-center justify-between px-lg pt-lg pb-md border-b border-border">
-            <Text className="text-heading-s text-text-primary">{t('nudge.sheetTitle')}</Text>
+            <Text className="text-heading-m text-text-primary">{t('nudge.sheetTitle')}</Text>
             <Pressable onPress={onClose} hitSlop={8}>
               <ThemedIcon name="close" size={22} color={colors.textMuted} />
             </Pressable>

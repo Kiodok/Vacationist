@@ -23,7 +23,7 @@ export function MessageActionsSheet({
   onDelete,
   onClose,
   isDeletePending,
-}: MessageActionsSheetProps) {
+}: Readonly<MessageActionsSheetProps>) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('chat');
   const { t: tCommon } = useTranslation('common');

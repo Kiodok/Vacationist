@@ -2448,6 +2448,58 @@ export type Database = {
         }
         Returns: string
       }
+      create_trip_message: {
+        Args: { p_trip_id: string; p_text: string }
+        Returns: {
+          id: string
+          trip_id: string
+          created_by: string
+          text: string
+          created_at: string
+          updated_at: string
+          deleted_at: string | null
+          sender: Json
+        }[]
+      }
+      update_trip_message: {
+        Args: { p_message_id: string; p_text: string }
+        Returns: {
+          id: string
+          trip_id: string
+          created_by: string
+          text: string
+          created_at: string
+          updated_at: string
+          deleted_at: string | null
+          sender: Json
+        }[]
+      }
+      get_trip_messages: {
+        Args: { p_trip_id: string; p_cursor?: string | null; p_limit?: number }
+        Returns: {
+          id: string
+          trip_id: string
+          created_by: string
+          text: string
+          created_at: string
+          updated_at: string
+          deleted_at: string | null
+          sender: Json
+        }[]
+      }
+      get_trip_message_by_id: {
+        Args: { p_message_id: string }
+        Returns: {
+          id: string
+          trip_id: string
+          created_by: string
+          text: string
+          created_at: string
+          updated_at: string
+          deleted_at: string | null
+          sender: Json
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -7,7 +7,7 @@ interface TripNotificationBellProps {
   tripId: string;
 }
 
-export function TripNotificationBell({ tripId }: TripNotificationBellProps) {
+export function TripNotificationBell({ tripId }: Readonly<TripNotificationBellProps>) {
   const router = useRouter();
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';

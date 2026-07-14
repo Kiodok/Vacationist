@@ -17,7 +17,7 @@ export const ChatMessageRow = memo(function ChatMessageRow({
   isOwn,
   canDelete,
   onLongPress,
-}: ChatMessageRowProps) {
+}: Readonly<ChatMessageRowProps>) {
   const { t } = useTranslation('chat');
   const senderName = message.sender?.name ?? t('unknownSender');
   const hasActions = isOwn || canDelete;
@@ -37,19 +37,17 @@ export const ChatMessageRow = memo(function ChatMessageRow({
           colorSeed={message.created_by}
         />
         <View className={`shrink gap-[2px] ${isOwn ? 'items-end' : 'items-start'}`}>
-          <View className={`items-baseline gap-sm ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
-            <Text className="text-body-small font-semibold text-text-primary" numberOfLines={1}>
-              {senderName}
-            </Text>
-            <Text className="text-label text-text-muted">
-              {formatMessageTime(message.created_at)}
-            </Text>
-          </View>
+          <Text className="text-body-small font-semibold text-text-primary" numberOfLines={1}>
+            {senderName}
+          </Text>
           <Text
             className={`text-body text-text-primary ${isOwn ? 'text-right' : 'text-left'}`}
             selectable
           >
             {message.text}
+          </Text>
+          <Text className="text-label text-text-muted">
+            {formatMessageTime(message.created_at)}
           </Text>
         </View>
       </View>

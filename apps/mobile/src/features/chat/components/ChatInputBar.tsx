@@ -26,7 +26,7 @@ export function ChatInputBar({
   editingMessage,
   onCancelEdit,
   isPending,
-}: ChatInputBarProps) {
+}: Readonly<ChatInputBarProps>) {
   const { t } = useTranslation('chat');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
@@ -85,26 +85,37 @@ export function ChatInputBar({
           </Pressable>
         </View>
       )}
-      <View className="flex-row items-end px-md py-sm gap-sm">
-        <TextInput
-          ref={inputRef}
-          className="flex-1 bg-surface-elevated border border-border rounded-sm px-md py-sm text-text-primary text-body"
-          placeholderTextColor="#5C5C5C"
-          placeholder={t('placeholder.message')}
-          value={text}
-          onChangeText={setText}
-          onKeyPress={handleKeyPress}
-          maxLength={2000}
-          multiline
-          style={{ maxHeight: 100 }}
-        />
+      <View
+        className="flex-row items-end px-md py-sm gap-sm"
+        style={Platform.OS === 'web' ? { alignItems: 'stretch' } : undefined}
+      >
+        {/* Wrapper owns background/border/radius — more reliable than styling the textarea directly on web */}
+        <View
+          className="flex-1 bg-surface-elevated border border-border rounded-md overflow-hidden"
+          style={{ minHeight: 40, maxHeight: 100 }}
+        >
+          <TextInput
+            ref={inputRef}
+            className="px-md py-sm text-text-primary text-body"
+            placeholderTextColor="#5C5C5C"
+            placeholder={t('placeholder.message')}
+            value={text}
+            onChangeText={setText}
+            onKeyPress={handleKeyPress}
+            maxLength={2000}
+            multiline
+            style={{ minHeight: 40, backgroundColor: 'transparent' }}
+          />
+        </View>
         <Pressable
           onPress={handleSubmit}
           disabled={!canSubmit}
-          className={`w-[40px] h-[40px] rounded-sm items-center justify-center ${
+          className={`w-[40px] min-h-[40px] rounded-md items-center justify-center ${
             canSubmit ? 'bg-primary' : 'bg-surface-elevated'
           }`}
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          style={({ pressed }) => ({
+            opacity: pressed ? 0.7 : 1,
+          })}
         >
           <ThemedIcon
             name={editingMessage ? 'checkmark' : 'send'}

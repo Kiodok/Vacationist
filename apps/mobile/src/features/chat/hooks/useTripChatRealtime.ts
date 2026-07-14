@@ -1,10 +1,9 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppForeground } from '../../../hooks/useAppForeground';
-import { subscribeToMessages, unsubscribeFromMessages } from '@vacationist/api';
-import type { TripMemberWithUser } from '@vacationist/api';
+import { subscribeToMessages, unsubscribeFromMessages, getMessageById } from '@vacationist/api';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import type { TripMessageWithSender } from '@vacationist/types';
+import type { TripMessage } from '@vacationist/types';
 import {
   resolveOptimistic,
   replaceMessage,
@@ -25,37 +24,51 @@ export function useTripChatRealtime(tripId: string) {
     }
   }, []);
 
+  // Realtime payloads carry encrypted BYTEA in the text field — unusable directly.
+  // Re-fetch via get_trip_message_by_id RPC to get the decrypted TripMessageWithSender.
+  const fetchAndMergeInsert = useCallback(async (message: TripMessage) => {
+    try {
+      const decrypted = await getMessageById(message.id);
+      if (!decrypted) return;
+      queryClient.setQueryData<MessagesData>(queryKey, (old) => resolveOptimistic(old, decrypted));
+    } catch {
+      // Silently ignore realtime fetch errors — the optimistic message from
+      // useCreateMessage is already in the cache; next manual refresh will sync.
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripId, queryClient]);
+
+  const fetchAndMergeUpdate = useCallback(async (message: TripMessage) => {
+    if (message.deleted_at) {
+      queryClient.setQueryData<MessagesData>(queryKey, (old) =>
+        old && removeMessage(old, message.id),
+      );
+      return;
+    }
+    try {
+      const decrypted = await getMessageById(message.id);
+      if (!decrypted) return;
+      queryClient.setQueryData<MessagesData>(queryKey, (old) => {
+        if (!old) return old;
+        return replaceMessage(old, decrypted);
+      });
+    } catch {
+      // Ignore — stale cache entry is acceptable until next refresh.
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripId, queryClient]);
+
   const subscribe = useCallback(() => {
     cleanup();
 
     const channel = subscribeToMessages(tripId, {
-      onInsert: (message) => {
-        // Realtime payloads carry no users join — the sender of a live
-        // message is always a current member, so enrich from the members cache.
-        const members = queryClient.getQueryData<TripMemberWithUser[]>(['trips', tripId, 'members']);
-        const senderUser = members?.find((m) => m.user_id === message.created_by)?.user;
-        const enriched: TripMessageWithSender = {
-          ...message,
-          sender: senderUser ? { name: senderUser.name, avatar_url: senderUser.avatar_url } : null,
-        };
-        queryClient.setQueryData<MessagesData>(queryKey, (old) => resolveOptimistic(old, enriched));
-      },
-      onUpdate: (message) => {
-        if (message.deleted_at) {
-          queryClient.setQueryData<MessagesData>(queryKey, (old) =>
-            old && removeMessage(old, message.id),
-          );
-          return;
-        }
-        queryClient.setQueryData<MessagesData>(queryKey, (old) =>
-          old && replaceMessage(old, message),
-        );
-      },
+      onInsert: (message) => { void fetchAndMergeInsert(message); },
+      onUpdate: (message) => { void fetchAndMergeUpdate(message); },
     });
 
     channelRef.current = channel;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripId, queryClient, cleanup]);
+  }, [tripId, queryClient, cleanup, fetchAndMergeInsert, fetchAndMergeUpdate]);
 
   useAppForeground(() => {
     subscribe();

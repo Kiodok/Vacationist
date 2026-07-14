@@ -2,6 +2,59 @@
 
 > **Schema dumps without Docker (this machine has no Docker):** `supabase db dump` always shells into a Docker `pg_dump` and fails here — but `npx supabase db dump --linked --dry-run` needs no Docker and prints the complete dump script, **including ephemeral login-role credentials** (`PGHOST`/`PGUSER`/`PGPASSWORD` for a temporary `cli_login_postgres.<ref>` role) plus the exact pg_dump flags and sed filters the CLI would run. Replay it with the locally installed PostgreSQL 17 client (`C:\Program Files\PostgreSQL\17\bin\pg_dump.exe`, matches both projects' Postgres 17.6): set the printed `PG*` env vars, then run `pg_dump --schema-only --quote-all-identifiers --role postgres --exclude-schema "<list from the script>"` (note: the local binary wants `--quote-all-identifiers`, plural — the script prints the singular form). For dev↔prod diffs, strip `^\\(un)?restrict` lines (random per dump) and `^--` comments from both outputs before diffing. Quick alternative without dumps: compare `supabase migration list` ledgers on both projects.
 
+## 2026-07-19 — Fix ambiguous id in create_trip_message
+
+### Migration: `20260719120000_fix_ambiguous_id_in_create_trip_message`
+
+**Why:** After fixing the `trip_id` ambiguity, `create_trip_message` hit a second `42702` error: `RETURNING id INTO v_id` — bare `id` is ambiguous between the `RETURNS TABLE` output variable and `trip_messages.id`.
+
+**Fix:** `CREATE OR REPLACE FUNCTION` for `create_trip_message`. Added `AS ins` alias to the INSERT target and changed `RETURNING id` → `RETURNING ins.id`. All other column references in the function are already table-alias qualified.
+
+**Applied to:** dev + prod.
+
+---
+
+## 2026-07-19 — Fix ambiguous trip_id in chat RPCs
+
+### Migration: `20260719110000_fix_ambiguous_trip_id_in_chat_rpcs`
+
+**Why:** `create_trip_message`, `get_trip_messages`, and `get_trip_message_by_id` all declared `trip_id UUID` in their `RETURNS TABLE` signature. Bare `trip_id` in the `WHERE trip_id = …` membership check was ambiguous between the output column variable and `public.trip_members.trip_id`, causing a runtime `42702` error on every call.
+
+**Fix:** `CREATE OR REPLACE FUNCTION` for all three. Added alias `tm` on `public.trip_members` and qualified the column as `tm.trip_id` in every membership check. No schema changes — functions only.
+
+**Applied to:** dev + prod.
+
+---
+
+## 2026-07-19 — Chat message encryption at rest
+
+### Migration: `20260719100000_encrypt_trip_messages`
+
+**Why:** Trip chat messages were stored as plain text in the `trip_messages.text` column. This migration encrypts them at rest using AES-256 (pgp_sym_encrypt), matching the travel documents encryption pattern.
+
+**Changes:**
+1. **Vault secret `trip_messages_encryption_key`** — 256-bit random key stored via `vault.create_secret()`.
+2. **`private.get_chat_encryption_key()`** — SECURITY DEFINER helper to fetch the decrypted key from vault (same pattern as `private.get_travel_doc_encryption_key()`).
+3. **`trip_messages.text`** — column type changed `TEXT → BYTEA`. Existing rows encrypted in-place with `pgp_sym_encrypt`.
+4. **`trip_messages_text_check` constraint** — dropped (BYTEA is incompatible with `char_length`); length validation moved to RPC layer.
+5. **New SECURITY DEFINER RPCs (all in `public` schema):**
+   - `create_trip_message(p_trip_id, p_text)` — validates, encrypts, inserts, returns decrypted row + sender JSON.
+   - `update_trip_message(p_message_id, p_text)` — validates, encrypts, updates, returns decrypted row.
+   - `get_trip_messages(p_trip_id, p_cursor, p_limit)` — decrypts on read, keyset pagination, returns rows with sender.
+   - `get_trip_message_by_id(p_message_id)` — decrypts a single message; used by realtime handler to hydrate the cache after INSERT/UPDATE (realtime payload contains encrypted BYTEA).
+6. **`notify_on_new_chat_message()` trigger** — recreated to decrypt `NEW.text` before passing the preview to `private.create_trip_notification()`.
+
+**Client changes (same session):**
+- `packages/api/src/messages.ts` — all read/write now goes through the 4 new RPCs; `getMessageById` added for realtime hydration.
+- `apps/mobile/src/features/chat/hooks/useTripChatRealtime.ts` — INSERT/UPDATE handlers now call `getMessageById` RPC instead of using the raw (encrypted) payload text.
+- `packages/api/src/database.types.ts` — 4 new RPC entries added manually (no Docker for `supabase gen types`).
+
+**Important for next SDK upgrade:** Task 8 (Play Store warning about deprecated edge-to-edge APIs) is caused by React Native / Material internals (`StatusBarModule`, `WindowUtilKt`, `BottomSheetDialog`) still calling deprecated `Window.setStatusBarColor` etc. The app already has `edgeToEdgeEnabled: true`. No app-code fix possible — resolved by upgrading to an Expo SDK version that ships the fixed RN/Material dependencies.
+
+**Applied to:** dev (push before testing), prod (after dev verification).
+
+---
+
 ## 2026-07-18 — Chat push notifications
 
 ### Migration: `20260718100000_notify_on_new_chat_message`

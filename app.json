@@ -1,24 +1,5 @@
 {
-  "android": {
-    "package": "com.garylude.vacationist"
-  },
-  "extra": {
-    "eas": {
-      "projectId": "a1dc4172-7c41-4aa9-a44d-afb1a0088278"
-    }
-  },
   "expo": {
-    "plugins": [
-      [
-        "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "project": "react-native",
-          "organization": "vacationist"
-        }
-      ],
-      "expo-sharing"
-    ],
     "extra": {
       "eas": {
         "projectId": "a1dc4172-7c41-4aa9-a44d-afb1a0088278"
@@ -26,14 +7,6 @@
     },
     "updates": {
       "url": "https://u.expo.dev/a1dc4172-7c41-4aa9-a44d-afb1a0088278"
-    },
-    "android": {
-      "runtimeVersion": "1.0.0"
-    },
-    "ios": {
-      "runtimeVersion": {
-        "policy": "appVersion"
-      }
     }
   }
 }

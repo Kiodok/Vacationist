@@ -3,10 +3,7 @@ import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { DocumentAccessRequest } from '@vacationist/types';
 import { colors , ThemedIcon } from '@vacationist/ui';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(relativeTime);
+import { safeFromNow } from '@vacationist/utils';
 
 interface DocumentAccessRequestBannerProps {
   requests: DocumentAccessRequest[];
@@ -20,7 +17,7 @@ export function DocumentAccessRequestBanner({
   onGrant,
   onDeny,
   isPending,
-}: DocumentAccessRequestBannerProps) {
+}: Readonly<DocumentAccessRequestBannerProps>) {
   const { t } = useTranslation('profile');
   const [expanded, setExpanded] = useState(false);
 
@@ -63,7 +60,7 @@ export function DocumentAccessRequestBanner({
                     {t('accessRequest.trip')} {req.trip_title}
                   </Text>
                   <Text className="text-label text-text-muted">
-                    {t('accessRequest.duration', { minutes: req.duration_minutes })} · {dayjs(req.created_at).fromNow()}
+                    {t('accessRequest.duration', { minutes: req.duration_minutes })} · {safeFromNow(req.created_at)}
                   </Text>
                 </View>
               </View>

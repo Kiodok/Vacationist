@@ -218,12 +218,7 @@
 
   <!-- ════════════════ CTA ZONE ════════════════ -->
 
-  <rect x="250" y="1500" width="580" height="112" rx="56" fill="none" filter="url(#cardGlow)"/>
-  <rect x="250" y="1500" width="580" height="112" rx="56" fill="url(#ctaGrad)"/>
-  <text x="540" y="1568" font-size="33" font-weight="700" fill="#FFFFFF"
-        text-anchor="middle">Jetzt kostenlos ausprobieren</text>
-
-  <text x="540" y="1668" font-size="31" font-weight="600" letter-spacing="1.5"
+  <text x="540" y="1580" font-size="31" font-weight="600" letter-spacing="1.5"
         fill="#8B83FF" text-anchor="middle">vacationist.app</text>
 
 </svg>

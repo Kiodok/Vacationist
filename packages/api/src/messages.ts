@@ -10,30 +10,44 @@ import type {
 
 export const MESSAGE_PAGE_SIZE = 50;
 
-const MESSAGE_SELECT = '*, sender:users!created_by(name, avatar_url)';
+// Shape returned by get_trip_messages / create_trip_message / update_trip_message RPCs.
+// The sender column is a JSON object rather than a joined relation.
+interface RpcMessageRow {
+  id: string;
+  trip_id: string;
+  created_by: string;
+  text: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  sender: { name: string; avatar_url: string | null } | null;
+}
+
+function toMessageWithSender(row: RpcMessageRow): TripMessageWithSender {
+  return {
+    id: row.id,
+    trip_id: row.trip_id,
+    created_by: row.created_by,
+    text: row.text,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    deleted_at: row.deleted_at,
+    sender: row.sender,
+  };
+}
 
 export async function getTripMessages(
   tripId: string,
   cursor?: string,
 ): Promise<TripMessagesPage> {
-  let query = supabase
-    .from('trip_messages')
-    .select(MESSAGE_SELECT)
-    .eq('trip_id', tripId)
-    .is('deleted_at', null);
-
-  // Keyset pagination: stable against realtime prepends, unlike offsets.
-  if (cursor) {
-    query = query.lt('created_at', cursor);
-  }
-
-  const { data, error } = await query
-    .order('created_at', { ascending: false })
-    .order('id', { ascending: false })
-    .limit(MESSAGE_PAGE_SIZE);
+  const { data, error } = await supabase.rpc('get_trip_messages', {
+    p_trip_id: tripId,
+    p_cursor: cursor ?? null,
+    p_limit: MESSAGE_PAGE_SIZE,
+  });
 
   if (error) throw error;
-  const items = (data ?? []) as unknown as TripMessageWithSender[];
+  const items = ((data ?? []) as unknown as RpcMessageRow[]).map(toMessageWithSender);
   return {
     items,
     nextCursor: items.length === MESSAGE_PAGE_SIZE ? items[items.length - 1].created_at : null,
@@ -44,41 +58,47 @@ export async function createMessage(
   tripId: string,
   input: CreateTripMessageInput,
 ): Promise<TripMessageWithSender> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-
-  const { data, error } = await supabase
-    .from('trip_messages')
-    .insert({
-      trip_id: tripId,
-      created_by: session.user.id,
-      text: input.text.trim(),
-    })
-    .select(MESSAGE_SELECT)
-    .single();
+  const { data, error } = await supabase.rpc('create_trip_message', {
+    p_trip_id: tripId,
+    p_text: input.text.trim(),
+  });
 
   if (error) throw error;
-  return data as unknown as TripMessageWithSender;
+  const rows = (data ?? []) as unknown as RpcMessageRow[];
+  if (!rows.length) throw new Error('create_trip_message returned no rows');
+  return toMessageWithSender(rows[0]);
 }
 
 export async function updateMessage(
   messageId: string,
   input: UpdateTripMessageInput,
 ): Promise<TripMessageWithSender> {
-  const { data, error } = await supabase
-    .from('trip_messages')
-    .update({ text: input.text.trim() })
-    .eq('id', messageId)
-    .select(MESSAGE_SELECT)
-    .single();
+  const { data, error } = await supabase.rpc('update_trip_message', {
+    p_message_id: messageId,
+    p_text: input.text.trim(),
+  });
 
   if (error) throw error;
-  return data as unknown as TripMessageWithSender;
+  const rows = (data ?? []) as unknown as RpcMessageRow[];
+  if (!rows.length) throw new Error('update_trip_message returned no rows');
+  return toMessageWithSender(rows[0]);
 }
 
 export async function deleteMessage(messageId: string): Promise<void> {
   const { error } = await supabase.rpc('soft_delete_trip_message', { p_message_id: messageId });
   if (error) throw error;
+}
+
+// Fetches and decrypts a single message by id.
+// Used by the realtime handler: INSERT/UPDATE payloads contain encrypted BYTEA,
+// so we re-fetch via RPC to get the plaintext before hydrating the cache.
+export async function getMessageById(messageId: string): Promise<TripMessageWithSender | null> {
+  const { data, error } = await supabase.rpc('get_trip_message_by_id', {
+    p_message_id: messageId,
+  });
+  if (error) throw error;
+  const rows = (data ?? []) as unknown as RpcMessageRow[];
+  return rows.length ? toMessageWithSender(rows[0]) : null;
 }
 
 export interface MessageRealtimeCallbacks {

@@ -1,9 +1,9 @@
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@vacationist/i18n';
-import { dayjs } from '@vacationist/utils';
 import type { Notification } from '@vacationist/types';
 import { colors, NOTIFICATION_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import { safeFromNow } from '@vacationist/utils';
 
 // Keep in sync with NOTIFICATION_TRANSLATIONS in supabase/functions/push-notification/index.ts.
 // shared_packing_self is a virtual key used to distinguish i_got_it notifications
@@ -169,7 +169,7 @@ interface NotificationItemProps {
   onDelete?: (notification: Notification) => void;
 }
 
-export function NotificationItem({ notification, onPress, onDelete }: NotificationItemProps) {
+export function NotificationItem({ notification, onPress, onDelete }: Readonly<NotificationItemProps>) {
   const { t } = useTranslation('notifications');
   const typeKey = `type.${resolveEffectiveType(notification)}` as const;
   const translatedBody = translateBody(notification);
@@ -205,7 +205,7 @@ export function NotificationItem({ notification, onPress, onDelete }: Notificati
           </Text>
         ) : null}
         <Text className="text-body-small text-text-muted">
-          {dayjs(notification.created_at).fromNow()}
+          {safeFromNow(notification.created_at)}
         </Text>
       </View>
 

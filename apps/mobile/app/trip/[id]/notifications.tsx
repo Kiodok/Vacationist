@@ -9,13 +9,12 @@ import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsR
 import { NotificationItem } from '../../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../../src/features/notifications/components/EmptyNotifications';
 import { resolveNotificationPath } from '../../../src/features/notifications/utils/resolveNotificationPath';
-import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { ThemedIcon, useThemeColors } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
 export default function TripNotificationsScreen() {
-  const theme = useResolvedTheme();
-  const isColorful = theme === 'colorful';
+  const themeColors = useThemeColors();
   const { t } = useTranslation('notifications');
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -45,9 +44,9 @@ export default function TripNotificationsScreen() {
       <View className="flex-row items-center justify-between px-lg py-md border-b border-border">
         <View className="flex-row items-center gap-md">
           <Pressable onPress={() => router.back()} hitSlop={8}>
-            <ThemedIcon name="arrow-back" size={22} color={isColorful ? colors.surfaceElevated : colors.textPrimary} />
+            <ThemedIcon name="arrow-back" size={22} color={themeColors.textPrimary} />
           </Pressable>
-          <Text className="text-heading-s text-text-primary">{t('screen.title')}</Text>
+          <Text className="text-heading-m text-text-primary">{t('screen.title')}</Text>
         </View>
         {notifications.some((n) => !n.is_read) ? (
           <Pressable onPress={() => markAllRead({ tripId })} disabled={isMarkingAll} hitSlop={8}>
@@ -66,7 +65,7 @@ export default function TripNotificationsScreen() {
 
       {ux.showSkeleton ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={colors.primary} />
+          <ActivityIndicator size="large" color={themeColors.primary} />
         </View>
       ) : ux.showOfflineEmpty ? (
         <OfflineEmptyState onRetry={refetch} />
@@ -87,7 +86,7 @@ export default function TripNotificationsScreen() {
             <RefreshControl
               refreshing={ux.refreshing}
               onRefresh={refetch}
-              tintColor={colors.primary}
+              tintColor={themeColors.primary}
             />
           }
         />

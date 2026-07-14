@@ -201,6 +201,7 @@ export {
   createMessage,
   updateMessage,
   deleteMessage,
+  getMessageById,
   subscribeToMessages,
   unsubscribeFromMessages,
 } from './messages';

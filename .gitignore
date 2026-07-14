@@ -7,6 +7,10 @@ dist/
 *.log
 .DS_Store
 
+# Native build folders belong in apps/mobile — ignore root-level remnants
+/android/
+/ios/
+
 .env.local
 
 # Claude Code session artifacts
