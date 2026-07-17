@@ -70,7 +70,10 @@ export function ChatInputBar({
   };
 
   return (
-    <View className="border-t border-border bg-surface">
+    <View
+      className="border-t border-border bg-surface"
+      style={Platform.OS !== 'ios' ? { borderTopLeftRadius: 20, borderTopRightRadius: 20 } : undefined}
+    >
       {editingMessage && (
         <View className="flex-row items-center justify-between px-md pt-sm gap-sm">
           <Text className="text-label text-text-muted flex-1" numberOfLines={1}>

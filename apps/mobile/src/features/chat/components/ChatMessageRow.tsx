@@ -3,7 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TripMessageWithSender } from '@vacationist/types';
 import { MemberAvatar } from '../../trips/components/MemberAvatar';
-import { formatMessageTime } from '../utils/formatMessageTime';
+import { formatMessageTimeParts } from '../utils/formatMessageTime';
 
 interface ChatMessageRowProps {
   message: TripMessageWithSender;
@@ -46,9 +46,17 @@ export const ChatMessageRow = memo(function ChatMessageRow({
           >
             {message.text}
           </Text>
-          <Text className="text-label text-text-muted">
-            {formatMessageTime(message.created_at)}
-          </Text>
+          {(() => {
+            const { datePart, timePart } = formatMessageTimeParts(message.created_at);
+            return (
+              <View className="flex-row gap-[4px] items-baseline">
+                {datePart && (
+                  <Text className="text-label text-text-muted">{datePart}</Text>
+                )}
+                <Text className="text-label text-text-muted">{timePart}</Text>
+              </View>
+            );
+          })()}
         </View>
       </View>
     </Pressable>
