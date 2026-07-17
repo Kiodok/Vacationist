@@ -4,11 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4DRBWGQHE3');
+  </script>
+
   <title>Vacationist - Group Trip Planner</title>
   <meta name="description" content="The free group trip planning app. Vote on activities, split travel expenses, share packing lists, and manage accommodations — all in one place. Perfect for group vacations, road trips, and bachelorette trips.">
   <meta name="keywords" content="group trip planner, group vacation planning app, trip planning app, group travel app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, vacation tracker, expense splitting app, shared trip organizer, holiday planner group">
 
   <link rel="canonical" href="https://vacationist.app/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Vacationist - Group Trip Planner">
@@ -200,7 +212,15 @@
       transition: color 0.15s, background 0.15s; line-height: 1;
     }
     .lang-switcher button:hover { color: var(--text2); }
-    .lang-switcher button.lang-active { background: var(--primary); color: #fff; }
+    .lang-switcher .lang-active { background: var(--primary); color: #fff; }
+    .lang-switcher .lang-de {
+      color: var(--text3); text-decoration: none;
+      font-size: 0.75rem; font-weight: 600;
+      padding: 0.22rem 0.55rem; border-radius: 6px;
+      transition: color 0.15s, background 0.15s; line-height: 1;
+    }
+    .lang-switcher .lang-de:hover:not(.lang-active) { color: var(--text2); }
+    .lang-switcher a.lang-active { color: #fff; }
 
     @media (max-width: 640px) {
       .nav {
@@ -642,6 +662,36 @@
     .faq-a { padding:0 0 1.25rem; }
     .faq-a p { font-size:.92rem; color:var(--text2); line-height:1.7; }
 
+    /* ── BLOG STRIP ── */
+    .blog-strip {
+      padding: clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 5vw, 4rem);
+      border-top: 1px solid var(--border);
+    }
+    .blog-strip-inner { max-width: 1200px; margin: 0 auto; }
+    .blog-strip h2 {
+      font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 1.25rem; color: var(--text);
+    }
+    .blog-strip-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+    }
+    @media (max-width: 960px) {
+      .blog-strip-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .blog-strip-card {
+      display: flex; flex-direction: column; gap: 0.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .blog-strip-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .bsc-title { color: var(--text); font-weight: 600; font-size: 0.95rem; letter-spacing: -0.01em; }
+    .bsc-desc { color: var(--text3); font-size: 0.82rem; line-height: 1.5; }
+    @media (max-width: 760px) {
+      .blog-strip-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── REVEAL ── */
     .reveal { opacity:0; transform:translateY(22px); transition:opacity .6s ease,transform .6s ease; }
     .reveal.in { opacity:1; transform:none; }
@@ -673,13 +723,14 @@
     <a href="#how" data-i18n="nav.how">How it works</a>
     <a href="#use-cases" data-i18n="nav.useCases">Use cases</a>
     <a href="#faq" data-i18n="nav.faq">FAQ</a>
+    <a href="./blog/" data-i18n="nav.blog" data-i18n-href="blog.href">Blog</a>
     <a href="./privacy-policy.html" data-i18n="nav.privacy">Privacy</a>
     <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer" data-i18n="nav.webApp">🌐 Web app</a>
     <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer" data-i18n="nav.getApp">Get the app</a>
     <!-- Language switcher -->
     <div class="lang-switcher" aria-label="Language">
+      <a class="lang-de" data-lang="de" href="./de/" title="Deutsche Version">DE</a>
       <button data-lang="en" class="lang-active">EN</button>
-      <button data-lang="de">DE</button>
     </div>
   </div>
 </nav>
@@ -939,7 +990,7 @@
       <div class="alt-card reveal d2">
         <div class="alt-icon">🚐</div>
         <div class="alt-title" data-i18n="use.2.title">Van life &amp; road trips</div>
-        <div class="alt-desc" data-i18n="use.2.desc">Plan your van road trip stop by stop. The shared calendar tracks every campsite and city, expense splitting keeps fuel and food costs fair, and the shared packing list keeps the van organized for sustainable travel.</div>
+        <div class="alt-desc" data-i18n="use.2.desc">Plan your van road trip stop by stop. The shared calendar tracks every campsite and city, expense splitting keeps fuel and food costs fair, and the shared packing list keeps the van organized for the whole crew.</div>
         <div class="alt-tags">
           <span class="alt-tag" data-i18n="use.2.tag1">Route planning</span>
           <span class="alt-tag" data-i18n="use.2.tag2">Expense splitting</span>
@@ -1022,11 +1073,11 @@
       </div>
       <div class="faq-item reveal d1">
         <button class="faq-q" aria-expanded="false">
-          <span data-i18n="faq.4.q">Is Vacationist designed for sustainable travel?</span>
+          <span data-i18n="faq.4.q">What makes Vacationist different from other group trip planning apps?</span>
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a" hidden>
-          <p data-i18n="faq.4.a">Sustainable travel starts with better coordination. When your group shares one vehicle instead of driving separately, books smarter, and avoids the waste of disorganized trips, the footprint shrinks. Vacationist helps you vote on lower-impact activities, coordinate shared transport, and plan more intentional travel.</p>
+          <p data-i18n="faq.4.a">Vacationist combines activity voting, expense splitting, shared packing lists, and real-time collaboration in a single app designed specifically for group travel. Unlike general-purpose apps, everything is built around the group trip workflow — from suggesting activities and voting as a team to splitting costs and managing travel documents. And anyone can join without creating an account.</p>
         </div>
       </div>
       <div class="faq-item reveal d2">
@@ -1082,10 +1133,37 @@
   </div>
 </section>
 
+<!-- FROM THE BLOG -->
+<section class="blog-strip">
+  <div class="blog-strip-inner">
+    <h2 data-i18n="strip.title">Guides from the blog</h2>
+    <div class="blog-strip-grid">
+      <a class="blog-strip-card" href="./blog/how-to-plan-a-group-trip/">
+        <span class="bsc-title" data-i18n="strip.1.title">How to plan a group trip</span>
+        <span class="bsc-desc" data-i18n="strip.1.desc">The complete guide — dates, budgets, decisions, and surviving as the organizer.</span>
+      </a>
+      <a class="blog-strip-card" href="./blog/how-to-split-travel-expenses/">
+        <span class="bsc-title" data-i18n="strip.2.title">Splitting travel expenses fairly</span>
+        <span class="bsc-desc" data-i18n="strip.2.desc">What's shared, what's personal, and how to settle up without awkwardness.</span>
+      </a>
+      <a class="blog-strip-card" href="./blog/best-group-travel-apps-2026/">
+        <span class="bsc-title" data-i18n="strip.3.title">Best group travel apps in 2026</span>
+        <span class="bsc-desc" data-i18n="strip.3.desc">Splitwise, Wanderlog, TripIt and more — honestly compared by use case.</span>
+      </a>
+      <a class="blog-strip-card" data-i18n-href="strip.4.href" href="./alternatives/splitwise/">
+        <span class="bsc-title" data-i18n="strip.4.title">The best Splitwise alternatives</span>
+        <span class="bsc-desc" data-i18n="strip.4.desc">Seven apps for splitting travel costs, honestly compared.</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <span class="f-copy" data-i18n="footer.copy">© 2026 Vacationist · Gary Lude, Switzerland</span>
   <div class="f-links">
+    <a href="./features/" data-i18n="footer.features">Features</a>
+    <a href="./blog/" data-i18n="footer.blog" data-i18n-href="blog.href">Blog</a>
     <a href="./privacy-policy.html" data-i18n="footer.privacy">Privacy Policy</a>
     <a href="./terms-of-service.html" data-i18n="footer.terms">Terms of Service</a>
     <a href="./impressum.html" data-i18n="footer.impressum">Impressum</a>

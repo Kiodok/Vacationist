@@ -26,10 +26,11 @@
     "supabase:types": "npx supabase gen types typescript --local > packages/api/src/database.types.ts",
     "supabase:reset": "npx supabase db reset",
     "test": "npm run test --workspace=@vacationist/utils && npm run test --workspace=@vacationist/mobile",
-    "serve:docs": "npx serve docs -p 3001"
+    "serve:docs": "npx serve docs -p 3001",
+    "build:site": "node marketing/site/build.mjs"
   },
-  "dependencies": {},
   "devDependencies": {
+    "marked": "^18.0.6",
     "qrcode": "^1.5.4",
     "sharp-cli": "^5.2.0",
     "zxing-wasm": "^3.1.0"

@@ -159,7 +159,9 @@
       "PowerShell(npx supabase functions deploy push-notification 2>&1; npx supabase functions deploy create-example-trip --no-verify-jwt 2>&1)",
       "PowerShell(npx supabase link --project-ref fsfsqghbejwvgxujoyne 2>&1)",
       "PowerShell(Set-Location *)",
-      "PowerShell(npm view *)"
+      "PowerShell(npm view *)",
+      "PowerShell(npm install *)",
+      "PowerShell(git diff *)"
     ]
   },
   "model": "opusplan",

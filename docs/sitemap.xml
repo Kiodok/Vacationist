@@ -3,11 +3,11 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://vacationist.app/</loc>
-    <lastmod>2026-07-13</lastmod>
+    <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/"/>
   </url>
   <url>
@@ -15,9 +15,6 @@
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/scan/android-qr"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/scan/android-qr"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/scan/android-qr"/>
   </url>
   <url>
     <loc>https://vacationist.app/privacy-policy.html</loc>
@@ -30,5 +27,134 @@
     <lastmod>2026-05-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/alternatives/splitwise/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/splitwise/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/splitwise/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/splitwise/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/alternatives/wanderlog/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/blog/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/blog/bachelorette-trip-planning-guide/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/blog/best-group-travel-apps-2026/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/blog/family-vacation-coordination-guide/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/blog/group-camping-trip-planner/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/blog/how-to-plan-a-group-trip/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/blog/how-to-split-travel-expenses/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/alternatives/splitwise/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/splitwise/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/splitwise/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/splitwise/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/blog/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/features/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/features/expenses/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/features/shopping-lists/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/features/travel-documents/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/features/voting/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/vs/splitwise/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/vs/wanderlog/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

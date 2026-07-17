@@ -43,8 +43,23 @@ group trip planner, group vacation planning app, split travel expenses, activity
 ## URLs
 
 - Landing page: https://vacationist.app/
+- German landing page: https://vacationist.app/de/
 - Web app: https://web.vacationist.app/
 - Android app: https://play.google.com/store/apps/details?id=com.vacationist.mobile
+- Features overview: https://vacationist.app/features/
+  - Activity voting: https://vacationist.app/features/voting/
+  - Expense splitting: https://vacationist.app/features/expenses/
+  - Shared lists: https://vacationist.app/features/shopping-lists/
+  - Encrypted travel documents: https://vacationist.app/features/travel-documents/
+- Blog (group travel guides): https://vacationist.app/blog/
+  - How to plan a group trip: https://vacationist.app/blog/how-to-plan-a-group-trip/
+  - How to split travel expenses: https://vacationist.app/blog/how-to-split-travel-expenses/
+  - Best group travel apps 2026: https://vacationist.app/blog/best-group-travel-apps-2026/
+- Comparisons:
+  - Vacationist vs. Splitwise: https://vacationist.app/vs/splitwise/
+  - Vacationist vs. Wanderlog: https://vacationist.app/vs/wanderlog/
+  - Splitwise alternatives: https://vacationist.app/alternatives/splitwise/
+  - Wanderlog alternatives: https://vacationist.app/alternatives/wanderlog/
 - Privacy policy: https://vacationist.app/privacy-policy.html
 - Terms of service: https://vacationist.app/terms-of-service.html
 

@@ -1,0 +1,290 @@
+/* Vacationist marketing pages — shared stylesheet.
+   Source of truth: marketing/site/site.css (copied to docs/assets/site.css by build.mjs).
+   Design tokens mirror docs/index.html :root. */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0F0F0F;
+  --surface:  #1A1A1A;
+  --surf-el:  #242424;
+  --border:   #2E2E2E;
+  --primary:  #6C63FF;
+  --pri-lite: #8A84FF;
+  --pri-dim:  rgba(108,99,255,0.12);
+  --pri-glow: rgba(108,99,255,0.22);
+  --success:  #3ECF8E;
+  --warning:  #F5A623;
+  --danger:   #FF5C5C;
+  --text:     #F2F2F2;
+  --text2:    #A0A0A0;
+  --text3:    #5C5C5C;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(1.25rem, 5vw, 4rem);
+  background: rgba(15,15,15,0.80);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text);
+  font-weight: 700; font-size: 1rem; letter-spacing: -0.02em;
+}
+.nav-logo-icon { width: 32px; height: 32px; flex-shrink: 0; }
+.nav-links { display: flex; align-items: center; gap: 1.5rem; }
+.nav-links a {
+  color: var(--text2); text-decoration: none;
+  font-size: 0.875rem; font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  background: var(--primary) !important; color: #fff !important;
+  padding: 0.48rem 1.1rem !important; border-radius: 8px !important;
+  font-weight: 600 !important; font-size: 0.83rem !important;
+  transition: opacity 0.2s !important;
+}
+.nav-cta:hover { opacity: 0.88 !important; }
+.nav-cta-web {
+  border: 1px solid var(--border) !important;
+  color: var(--text2) !important;
+  padding: 0.48rem 1.1rem !important; border-radius: 8px !important;
+  font-weight: 600 !important; font-size: 0.83rem !important;
+  transition: border-color 0.2s, color 0.2s !important;
+}
+.nav-cta-web:hover { border-color: var(--primary) !important; color: var(--text) !important; }
+.lang-pair {
+  display: inline-flex; align-items: center; gap: 2px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 2px; flex-shrink: 0;
+}
+.lang-pair a, .lang-pair .lp-on {
+  font-size: 0.75rem !important; font-weight: 600 !important;
+  padding: 0.22rem 0.55rem !important; border-radius: 6px !important;
+  line-height: 1; text-decoration: none;
+}
+.lang-pair a { color: var(--text3) !important; transition: color 0.15s; }
+.lang-pair a:hover { color: var(--text) !important; }
+.lang-pair .lp-on { background: var(--primary); color: #fff; }
+
+@media (max-width: 640px) {
+  .nav { height: auto; flex-wrap: wrap; padding-top: 0.75rem; padding-bottom: 0.75rem; gap: 0.5rem; }
+  .nav-links { flex: 0 0 100%; justify-content: flex-start; gap: 0.6rem; flex-wrap: wrap; }
+}
+
+/* ── PAGE LAYOUT ── */
+.page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 5vw, 2rem) 4rem;
+}
+
+.crumbs {
+  font-size: 0.8rem; color: var(--text3);
+  margin-bottom: 2rem;
+  display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;
+}
+.crumbs a { color: var(--text3); text-decoration: none; transition: color 0.2s; }
+.crumbs a:hover { color: var(--text2); }
+.crumbs span[aria-current] { color: var(--text2); }
+.crumb-sep { color: var(--text3); }
+
+/* ── ARTICLE TYPOGRAPHY ── */
+.article { font-size: 1rem; line-height: 1.75; color: var(--text2); }
+
+.article h1 {
+  color: var(--text);
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;
+  margin-bottom: 1.25rem;
+}
+.article h2 {
+  color: var(--text);
+  font-size: clamp(1.35rem, 2.6vw, 1.7rem);
+  font-weight: 700; letter-spacing: -0.02em; line-height: 1.25;
+  margin: 2.75rem 0 1rem;
+  padding-top: 1rem;
+}
+.article h3 {
+  color: var(--text);
+  font-size: 1.12rem; font-weight: 600; letter-spacing: -0.01em;
+  margin: 2rem 0 0.75rem;
+}
+.article p { margin-bottom: 1.1rem; }
+.article .lede { font-size: 1.12rem; color: var(--text2); margin-bottom: 2rem; }
+.article-meta { font-size: 0.8rem; color: var(--text3); margin-bottom: 1.5rem; }
+
+.article a { color: var(--pri-lite); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+.article a:hover { border-bottom-color: var(--pri-lite); }
+
+.article ul, .article ol { margin: 0 0 1.25rem 1.4rem; }
+.article li { margin-bottom: 0.5rem; }
+.article li::marker { color: var(--text3); }
+
+.article strong { color: var(--text); font-weight: 600; }
+.article em { color: var(--text); }
+
+.article blockquote {
+  border-left: 3px solid var(--primary);
+  background: var(--surface);
+  border-radius: 0 10px 10px 0;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.article blockquote p:last-child { margin-bottom: 0; }
+
+.article code {
+  background: var(--surf-el); border: 1px solid var(--border);
+  border-radius: 5px; padding: 0.1em 0.4em;
+  font-size: 0.88em; color: var(--text);
+}
+
+.article hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+/* Tables (comparison pages) */
+.article table {
+  width: 100%; border-collapse: collapse;
+  margin: 1.5rem 0; font-size: 0.9rem;
+  display: block; overflow-x: auto;
+}
+.article th, .article td {
+  border: 1px solid var(--border);
+  padding: 0.65rem 0.85rem;
+  text-align: left; vertical-align: top;
+}
+.article th {
+  background: var(--surface); color: var(--text);
+  font-weight: 600; white-space: nowrap;
+}
+.article td { color: var(--text2); }
+
+/* Images */
+.article img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); }
+
+/* ── CTA BAND ── */
+.cta-band {
+  background: linear-gradient(135deg, var(--pri-dim), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2.5rem 0;
+  text-align: center;
+}
+.cta-band h3 { color: var(--text); font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 0.6rem; }
+.cta-band p { font-size: 0.92rem; color: var(--text2); max-width: 34rem; margin: 0 auto 1.25rem; }
+.cta-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+.btn-white {
+  background: #fff; color: #0F0F0F !important;
+  padding: 0.7rem 1.4rem; border-radius: 10px;
+  font-weight: 700; font-size: 0.9rem; text-decoration: none;
+  border-bottom: none !important;
+  transition: opacity 0.2s;
+}
+.btn-white:hover { opacity: 0.88; }
+.btn-outline {
+  border: 1px solid var(--border); color: var(--text) !important;
+  padding: 0.7rem 1.4rem; border-radius: 10px;
+  font-weight: 600; font-size: 0.9rem; text-decoration: none;
+  border-bottom: 1px solid var(--border) !important;
+  transition: border-color 0.2s;
+}
+.btn-outline:hover { border-color: var(--primary) !important; }
+
+/* ── RELATED / KEEP READING ── */
+.related { max-width: 820px; margin: 3rem auto 0; }
+.related-heading {
+  color: var(--text); font-size: 1.2rem; font-weight: 700;
+  letter-spacing: -0.02em; margin-bottom: 1.25rem;
+}
+.related-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.related-card {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.25rem;
+  text-decoration: none;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.related-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+.related-title { color: var(--text); font-weight: 600; font-size: 0.95rem; letter-spacing: -0.01em; }
+.related-desc {
+  color: var(--text3); font-size: 0.82rem; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* ── BLOG INDEX ── */
+.post-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+.post-card {
+  display: block; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.5rem;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.post-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+.post-card time { font-size: 0.78rem; color: var(--text3); }
+.post-badge {
+  display: inline-block; margin-left: 0.4rem;
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--text3); border: 1px solid var(--border);
+  border-radius: 5px; padding: 0.1rem 0.4rem; vertical-align: middle;
+}
+.post-card h2 {
+  color: var(--text); font-size: 1.15rem; font-weight: 700;
+  letter-spacing: -0.02em; margin: 0.4rem 0 0.5rem; padding: 0;
+}
+.post-card p { color: var(--text2); font-size: 0.9rem; line-height: 1.6; margin: 0; }
+
+/* ── FOOTER ── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 3rem clamp(1.25rem, 5vw, 4rem) 2rem;
+  margin-top: 4rem;
+}
+.footer-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: 2rem;
+}
+.footer-brand p { color: var(--text3); font-size: 0.82rem; line-height: 1.6; margin-top: 0.6rem; max-width: 16rem; }
+.footer-logo { color: var(--text); font-weight: 700; font-size: 1rem; letter-spacing: -0.02em; }
+.footer-col { display: flex; flex-direction: column; gap: 0.55rem; }
+.footer-col h4 {
+  color: var(--text); font-size: 0.78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem;
+}
+.footer-col a {
+  color: var(--text3); text-decoration: none;
+  font-size: 0.84rem; transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--text); }
+.footer-copy {
+  max-width: 1100px; margin: 2.5rem auto 0;
+  padding-top: 1.5rem; border-top: 1px solid var(--border);
+  color: var(--text3); font-size: 0.78rem;
+}
+
+@media (max-width: 860px) {
+  .footer-inner { grid-template-columns: repeat(2, 1fr); }
+  .footer-brand { grid-column: 1 / -1; }
+}

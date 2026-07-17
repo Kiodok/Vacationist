@@ -12,9 +12,17 @@
   var SUPPORTED = ['en', 'de'];
   var DEFAULT_LANG = 'en';
   var STORAGE_KEY = 'v_lang';
-  var CACHE_VER = '20260711';
+  var CACHE_VER = '20260717c';
 
   function detect() {
+    // Explicit ?lang= override (used by static pages linking back, e.g. /de/ → /?lang=en)
+    try {
+      var qp = new URLSearchParams(window.location.search).get('lang');
+      if (qp && SUPPORTED.indexOf(qp) !== -1) {
+        localStorage.setItem(STORAGE_KEY, qp);
+        return qp;
+      }
+    } catch (e) { /* URLSearchParams unavailable — fall through */ }
     var stored = localStorage.getItem(STORAGE_KEY);
     if (stored && SUPPORTED.indexOf(stored) !== -1) return stored;
     var browser = (navigator.language || '').split('-')[0].toLowerCase();
@@ -40,6 +48,11 @@
     document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
       var v = t[el.getAttribute('data-i18n-placeholder')];
       if (v !== undefined) el.placeholder = v;
+    });
+    // Language-dependent link targets (e.g. blog-strip card → /de/ page in German)
+    document.querySelectorAll('[data-i18n-href]').forEach(function (el) {
+      var v = t[el.getAttribute('data-i18n-href')];
+      if (v !== undefined) el.setAttribute('href', v);
     });
 
     // html lang + SEO tags
