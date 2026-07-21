@@ -45,6 +45,18 @@ window.VACATIONIST_I18N = {
   'phone.tab.calendar': 'Calendar',
   'phone.tab.alerts': 'Alerts',
   'phone.tab.profile': 'Profile',
+  'phone.card1.name': 'Summer in Lisbon',
+  'phone.card1.meta': 'Aug 10 – 17 · 5 members',
+  'phone.card2.name': 'Alpine Ski Week',
+  'phone.card2.meta': 'Feb 3 – 10 · 3 members',
+  'phone.vchip.mustdo': '⭐ 3 must do',
+  'phone.vchip.like': '👍 1 like',
+  'phone.vchip.open': '🤷 1 open',
+
+  // Chat preview (group chat feature card)
+  'chat.1.msg': 'Found an amazing seafood spot near the harbour 🦞',
+  'chat.2.msg': "Let's vote on it! Adding to activities now 👍",
+  'chat.3.msg': 'Count me in! What time are we thinking? 🕐',
 
   // Features section
   'feat.label': "What's inside",
@@ -142,8 +154,14 @@ window.VACATIONIST_I18N = {
   'strip.3.desc': 'Splitwise, Wanderlog, TripIt and more — honestly compared by use case.',
   'strip.4.title': 'The best Splitwise alternatives',
   'strip.4.desc': 'Seven apps for splitting travel costs, honestly compared.',
+  'strip.1.href': './blog/how-to-plan-a-group-trip/',
+  'strip.2.href': './blog/how-to-split-travel-expenses/',
+  'strip.3.href': './blog/best-group-travel-apps-2026/',
   'strip.4.href': './alternatives/splitwise/',
   'blog.href': './blog/',
+  'privacy.href': './privacy-policy.html',
+  'terms.href': './terms-of-service.html',
+  'impressum.href': './impressum.html',
 
   // Footer
   'footer.copy': '© 2026 Vacationist · Gary Lude, Switzerland',

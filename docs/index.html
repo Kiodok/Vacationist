@@ -13,7 +13,7 @@
     gtag('config', 'G-4DRBWGQHE3');
   </script>
 
-  <title>Vacationist - Group Trip Planner</title>
+  <title>Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities</title>
   <meta name="description" content="The free group trip planning app. Vote on activities, split travel expenses, share packing lists, and manage accommodations — all in one place. Perfect for group vacations, road trips, and bachelorette trips.">
   <meta name="keywords" content="group trip planner, group vacation planning app, trip planning app, group travel app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, vacation tracker, expense splitting app, shared trip organizer, holiday planner group">
 
@@ -23,7 +23,7 @@
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Vacationist - Group Trip Planner">
+  <meta property="og:title" content="Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities">
   <meta property="og:description" content="The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations — all in one place. No account needed to join.">
   <meta property="og:url" content="https://vacationist.app/">
   <meta property="og:type" content="website">
@@ -34,7 +34,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Vacationist - Group Trip Planner">
+  <meta name="twitter:title" content="Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities">
   <meta name="twitter:description" content="The free group trip planner. Vote on activities, split expenses, share packing lists — perfect for group vacations, road trips, and bachelorette trips.">
   <meta name="twitter:image" content="https://vacationist.app/og-image.png">
 
@@ -211,8 +211,7 @@
       font-family: inherit; padding: 0.22rem 0.55rem; border-radius: 6px;
       transition: color 0.15s, background 0.15s; line-height: 1;
     }
-    .lang-switcher button:hover { color: var(--text2); }
-    .lang-switcher .lang-active { background: var(--primary); color: #fff; }
+    .lang-switcher button:hover:not(.lang-active) { color: var(--text2); }
     .lang-switcher .lang-de {
       color: var(--text3); text-decoration: none;
       font-size: 0.75rem; font-weight: 600;
@@ -220,7 +219,8 @@
       transition: color 0.15s, background 0.15s; line-height: 1;
     }
     .lang-switcher .lang-de:hover:not(.lang-active) { color: var(--text2); }
-    .lang-switcher a.lang-active { color: #fff; }
+    /* Active pill last: must beat .lang-de and hover for <a>, <button>, and <span> alike */
+    .lang-switcher .lang-active { background: var(--primary); color: #fff; }
 
     @media (max-width: 640px) {
       .nav {
@@ -724,7 +724,7 @@
     <a href="#use-cases" data-i18n="nav.useCases">Use cases</a>
     <a href="#faq" data-i18n="nav.faq">FAQ</a>
     <a href="./blog/" data-i18n="nav.blog" data-i18n-href="blog.href">Blog</a>
-    <a href="./privacy-policy.html" data-i18n="nav.privacy">Privacy</a>
+    <a href="./privacy-policy.html" data-i18n="nav.privacy" data-i18n-href="privacy.href">Privacy</a>
     <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer" data-i18n="nav.webApp">🌐 Web app</a>
     <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer" data-i18n="nav.getApp">Get the app</a>
     <!-- Language switcher -->
@@ -744,13 +744,13 @@
     <div class="hero-text">
       <div class="hero-eyebrow">
         <div class="eyebrow-dot"></div>
-        <span data-i18n="hero.eyebrow">✈ The free trip app for group travel</span>
+        <span data-i18n="hero.eyebrow">✈ The free group trip planner</span>
       </div>
 
       <h1 data-i18n-html="hero.h1">Plan trips<br><em>together</em>,<br>effortlessly.</h1>
 
       <p class="hero-sub" data-i18n="hero.sub">
-        Suggest activities, vote as a group, split expenses, and track vacation spending — from the first idea to the last flight home. Group sharing made simple.
+        The group trip planning app that does it all — vote on activities, split travel expenses, share packing lists, and keep everyone in sync. From the first idea to the last flight home.
       </p>
 
       <div class="hero-actions">
@@ -814,8 +814,8 @@
                 <span class="ps-card-status" data-i18n="phone.planning">Planning</span>
               </div>
               <div class="ps-card-body">
-                <div class="ps-card-name">Summer in Lisbon</div>
-                <div class="ps-card-meta">Aug 10 – 17 · 5 members</div>
+                <div class="ps-card-name" data-i18n="phone.card1.name">Summer in Lisbon</div>
+                <div class="ps-card-meta" data-i18n="phone.card1.meta">Aug 10 – 17 · 5 members</div>
                 <div class="ps-card-foot">
                   <div class="ps-avs">
                     <div class="ps-av" style="background:#6C63FF">G</div>
@@ -827,9 +827,9 @@
                   <div class="ps-role" data-i18n="phone.organiser">Organiser</div>
                 </div>
                 <div class="ps-votes">
-                  <div class="ps-vchip" style="background:rgba(62,207,142,.15);color:#3ECF8E">⭐ 3 must do</div>
-                  <div class="ps-vchip" style="background:rgba(108,99,255,.15);color:#8A84FF">👍 1 like</div>
-                  <div class="ps-vchip" style="background:rgba(92,92,92,.2);color:#9CA3AF">🤷 1 open</div>
+                  <div class="ps-vchip" style="background:rgba(62,207,142,.15);color:#3ECF8E" data-i18n="phone.vchip.mustdo">⭐ 3 must do</div>
+                  <div class="ps-vchip" style="background:rgba(108,99,255,.15);color:#8A84FF" data-i18n="phone.vchip.like">👍 1 like</div>
+                  <div class="ps-vchip" style="background:rgba(92,92,92,.2);color:#9CA3AF" data-i18n="phone.vchip.open">🤷 1 open</div>
                 </div>
               </div>
             </div>
@@ -841,8 +841,8 @@
                 <span class="ps-flag">🎿</span>
               </div>
               <div class="ps-card-body">
-                <div class="ps-card-name">Alpine Ski Week</div>
-                <div class="ps-card-meta">Feb 3 – 10 · 3 members</div>
+                <div class="ps-card-name" data-i18n="phone.card2.name">Alpine Ski Week</div>
+                <div class="ps-card-meta" data-i18n="phone.card2.meta">Feb 3 – 10 · 3 members</div>
                 <div class="ps-card-foot">
                   <div class="ps-avs">
                     <div class="ps-av" style="background:#6C63FF">G</div>
@@ -886,7 +886,7 @@
       <div class="feat-card reveal d2">
         <div class="feat-icon">💸</div>
         <div class="feat-title" data-i18n="feat.2.title">Split expenses fairly</div>
-        <div class="feat-desc" data-i18n="feat.2.desc">Log every cost, choose who paid, and split equally or by custom amounts. Balances always show exactly who owes what.</div>
+        <div class="feat-desc" data-i18n="feat.2.desc">Log every cost, choose who paid, and split equally or by custom amounts. Balances always show exactly who owes what — no more mental math or IOUs.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🛒</div>
@@ -919,20 +919,20 @@
             <div class="chat-av" style="background:#EC4899">M</div>
             <div class="chat-body">
               <span class="chat-name">Maya</span>
-              <div class="chat-bubble">Found an amazing seafood spot near the harbour 🦞</div>
+              <div class="chat-bubble" data-i18n="chat.1.msg">Found an amazing seafood spot near the harbour 🦞</div>
             </div>
           </div>
           <div class="chat-msg chat-msg--own">
             <div class="chat-av" style="background:#6C63FF">G</div>
             <div class="chat-body">
-              <div class="chat-bubble">Let's vote on it! Adding to activities now 👍</div>
+              <div class="chat-bubble" data-i18n="chat.2.msg">Let's vote on it! Adding to activities now 👍</div>
             </div>
           </div>
           <div class="chat-msg">
             <div class="chat-av" style="background:#F59E0B">J</div>
             <div class="chat-body">
               <span class="chat-name">Jan</span>
-              <div class="chat-bubble">Count me in! What time are we thinking? 🕐</div>
+              <div class="chat-bubble" data-i18n="chat.3.msg">Count me in! What time are we thinking? 🕐</div>
             </div>
           </div>
         </div>
@@ -1138,15 +1138,15 @@
   <div class="blog-strip-inner">
     <h2 data-i18n="strip.title">Guides from the blog</h2>
     <div class="blog-strip-grid">
-      <a class="blog-strip-card" href="./blog/how-to-plan-a-group-trip/">
+      <a class="blog-strip-card" data-i18n-href="strip.1.href" href="./blog/how-to-plan-a-group-trip/">
         <span class="bsc-title" data-i18n="strip.1.title">How to plan a group trip</span>
         <span class="bsc-desc" data-i18n="strip.1.desc">The complete guide — dates, budgets, decisions, and surviving as the organizer.</span>
       </a>
-      <a class="blog-strip-card" href="./blog/how-to-split-travel-expenses/">
+      <a class="blog-strip-card" data-i18n-href="strip.2.href" href="./blog/how-to-split-travel-expenses/">
         <span class="bsc-title" data-i18n="strip.2.title">Splitting travel expenses fairly</span>
         <span class="bsc-desc" data-i18n="strip.2.desc">What's shared, what's personal, and how to settle up without awkwardness.</span>
       </a>
-      <a class="blog-strip-card" href="./blog/best-group-travel-apps-2026/">
+      <a class="blog-strip-card" data-i18n-href="strip.3.href" href="./blog/best-group-travel-apps-2026/">
         <span class="bsc-title" data-i18n="strip.3.title">Best group travel apps in 2026</span>
         <span class="bsc-desc" data-i18n="strip.3.desc">Splitwise, Wanderlog, TripIt and more — honestly compared by use case.</span>
       </a>
@@ -1164,9 +1164,9 @@
   <div class="f-links">
     <a href="./features/" data-i18n="footer.features">Features</a>
     <a href="./blog/" data-i18n="footer.blog" data-i18n-href="blog.href">Blog</a>
-    <a href="./privacy-policy.html" data-i18n="footer.privacy">Privacy Policy</a>
-    <a href="./terms-of-service.html" data-i18n="footer.terms">Terms of Service</a>
-    <a href="./impressum.html" data-i18n="footer.impressum">Impressum</a>
+    <a href="./privacy-policy.html" data-i18n="footer.privacy" data-i18n-href="privacy.href">Privacy Policy</a>
+    <a href="./terms-of-service.html" data-i18n="footer.terms" data-i18n-href="terms.href">Terms of Service</a>
+    <a href="./impressum.html" data-i18n="footer.impressum" data-i18n-href="impressum.href">Impressum</a>
     <a href="mailto:meetdeep.de@gmail.com" data-i18n="footer.contact">Contact</a>
   </div>
 </footer>

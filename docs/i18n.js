@@ -12,7 +12,7 @@
   var SUPPORTED = ['en', 'de'];
   var DEFAULT_LANG = 'en';
   var STORAGE_KEY = 'v_lang';
-  var CACHE_VER = '20260717c';
+  var CACHE_VER = '20260721a';
 
   function detect() {
     // Explicit ?lang= override (used by static pages linking back, e.g. /de/ → /?lang=en)
@@ -94,7 +94,9 @@
     document.querySelectorAll('script[data-lang-script]').forEach(function (s) { s.remove(); });
     var s = document.createElement('script');
     s.setAttribute('data-lang-script', lang);
-    s.src = (document.querySelector('base') ? '' : './') + 'i18n/' + lang + '.js?v=' + CACHE_VER;
+    // Absolute path: 404.html is served at arbitrary nested URLs, so a
+    // relative path would resolve against the missing directory.
+    s.src = '/i18n/' + lang + '.js?v=' + CACHE_VER;
     s.onload = function () {
       if (window.VACATIONIST_I18N) {
         // Store EN keys for parity checks on subsequent language switches

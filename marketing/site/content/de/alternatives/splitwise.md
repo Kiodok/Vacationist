@@ -8,7 +8,7 @@ schema: Article
 date: 2026-07-17
 altPath: /alternatives/splitwise/
 keywords: Splitwise Alternative, Splitwise Alternative Deutsch, Kosten teilen Urlaub App, Reisekosten teilen App
-related: /de/, /features/expenses/, /vs/splitwise/
+related: /de/vs/splitwise/, /de/features/expenses/, /de/alternatives/wanderlog/
 breadcrumbLabel: Splitwise-Alternativen
 ---
 
@@ -76,7 +76,7 @@ Von der anderen Seite kommend: Wanderlog ist eine Reiseplaner-App (Karten, Orte,
 
 - **Stärken:** exzellente Karten und Orts-Entdeckung, schöne Reisepläne, iOS + Android.
 - **Schwächen:** die Kostenteilung ist oberflächlich; Zusammenarbeit erfordert Konten für alle; Offline-Zugriff kostet extra; kaum deutschsprachige Inhalte.
-- **Ideal für:** Reisende, deren Hauptaufgabe die Recherche des Ziels ist. (Der ausführliche englische Vergleich: [Vacationist vs. Wanderlog](/vs/wanderlog/).)
+- **Ideal für:** Reisende, deren Hauptaufgabe die Recherche des Ziels ist. (Der ausführliche Vergleich: [Vacationist vs. Wanderlog](/de/vs/wanderlog/).)
 
 ## Die Entscheidungshilfe
 

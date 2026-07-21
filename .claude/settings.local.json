@@ -161,7 +161,8 @@
       "PowerShell(Set-Location *)",
       "PowerShell(npm view *)",
       "PowerShell(npm install *)",
-      "PowerShell(git diff *)"
+      "PowerShell(git diff *)",
+      "PowerShell(Get-ChildItem \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\index.html\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\i18n\\\\en.js\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\i18n\\\\de.js\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\join.html\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\404.html\" | Select-Object Name,Length; \\(Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\index.html\" | Measure-Object -Line\\).Lines)"
     ]
   },
   "model": "opusplan",

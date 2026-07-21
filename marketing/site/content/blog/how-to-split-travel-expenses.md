@@ -6,6 +6,7 @@ lang: en
 type: article
 schema: BlogPosting
 date: 2026-07-17
+altPath: /de/blog/how-to-split-travel-expenses/
 keywords: how to split travel expenses, split expenses vacation, travel expense splitting, group trip expenses
 blogIndex: true
 titleDe: Reisekosten fair teilen — der komplette Guide

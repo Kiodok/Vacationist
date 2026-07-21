@@ -6,6 +6,7 @@ lang: en
 type: article
 schema: BlogPosting
 date: 2026-07-17
+altPath: /de/blog/bachelorette-trip-planning-guide/
 keywords: bachelorette trip planning app, bach trip planner, how to plan a bachelorette trip, bachelor party planning
 blogIndex: true
 titleDe: Junggesellinnenabschied für eine große Gruppe planen — das Playbook

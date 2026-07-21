@@ -6,6 +6,7 @@ lang: en
 type: feature
 schema: WebPage
 date: 2026-07-17
+altPath: /de/features/voting/
 keywords: vote on trip activities app, trip activity planner app, group decision making travel, activity voting
 related: /features/expenses/, /blog/how-to-plan-a-group-trip/, /vs/wanderlog/
 breadcrumbLabel: Activity voting

@@ -6,6 +6,7 @@ lang: en
 type: pillar
 schema: BlogPosting
 date: 2026-07-17
+altPath: /de/blog/how-to-plan-a-group-trip/
 keywords: how to plan a group trip, group trip planning, group trip planning app, plan a trip with friends
 blogIndex: true
 titleDe: Gruppenreise planen ohne Chaos — der komplette Guide

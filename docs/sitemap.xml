@@ -3,7 +3,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://vacationist.app/</loc>
-    <lastmod>2026-07-17</lastmod>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/"/>
@@ -21,12 +21,18 @@
     <lastmod>2026-05-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/privacy-policy.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/privacy-policy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/privacy-policy.html"/>
   </url>
   <url>
     <loc>https://vacationist.app/terms-of-service.html</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/terms-of-service.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/terms-of-service/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/terms-of-service.html"/>
   </url>
   <url>
     <loc>https://vacationist.app/alternatives/splitwise/</loc>
@@ -42,6 +48,9 @@
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/wanderlog/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/wanderlog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/wanderlog/"/>
   </url>
   <url>
     <loc>https://vacationist.app/blog/</loc>
@@ -57,40 +66,58 @@
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/bachelorette-trip-planning-guide/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/bachelorette-trip-planning-guide/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/bachelorette-trip-planning-guide/"/>
   </url>
   <url>
     <loc>https://vacationist.app/blog/best-group-travel-apps-2026/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/best-group-travel-apps-2026/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/best-group-travel-apps-2026/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/best-group-travel-apps-2026/"/>
   </url>
   <url>
     <loc>https://vacationist.app/blog/family-vacation-coordination-guide/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/family-vacation-coordination-guide/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/family-vacation-coordination-guide/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/family-vacation-coordination-guide/"/>
   </url>
   <url>
     <loc>https://vacationist.app/blog/group-camping-trip-planner/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/group-camping-trip-planner/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/group-camping-trip-planner/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/group-camping-trip-planner/"/>
   </url>
   <url>
     <loc>https://vacationist.app/blog/how-to-plan-a-group-trip/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/how-to-plan-a-group-trip/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/how-to-plan-a-group-trip/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/how-to-plan-a-group-trip/"/>
   </url>
   <url>
     <loc>https://vacationist.app/blog/how-to-split-travel-expenses/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/how-to-split-travel-expenses/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/how-to-split-travel-expenses/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/how-to-split-travel-expenses/"/>
   </url>
   <url>
     <loc>https://vacationist.app/de/</loc>
-    <lastmod>2026-07-17</lastmod>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/"/>
@@ -107,8 +134,17 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/splitwise/"/>
   </url>
   <url>
+    <loc>https://vacationist.app/de/alternatives/wanderlog/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/wanderlog/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/wanderlog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/wanderlog/"/>
+  </url>
+  <url>
     <loc>https://vacationist.app/de/blog/</loc>
-    <lastmod>2026-07-17</lastmod>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/"/>
@@ -116,45 +152,207 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/"/>
   </url>
   <url>
+    <loc>https://vacationist.app/de/blog/bachelorette-trip-planning-guide/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/bachelorette-trip-planning-guide/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/bachelorette-trip-planning-guide/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/bachelorette-trip-planning-guide/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/blog/best-group-travel-apps-2026/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/best-group-travel-apps-2026/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/best-group-travel-apps-2026/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/best-group-travel-apps-2026/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/blog/family-vacation-coordination-guide/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/family-vacation-coordination-guide/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/family-vacation-coordination-guide/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/family-vacation-coordination-guide/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/blog/group-camping-trip-planner/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/group-camping-trip-planner/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/group-camping-trip-planner/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/group-camping-trip-planner/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/blog/how-to-plan-a-group-trip/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/how-to-plan-a-group-trip/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/how-to-plan-a-group-trip/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/how-to-plan-a-group-trip/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/blog/how-to-split-travel-expenses/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/how-to-split-travel-expenses/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/how-to-split-travel-expenses/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/how-to-split-travel-expenses/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/features/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/features/expenses/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/expenses/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/expenses/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/expenses/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/features/shopping-lists/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/shopping-lists/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/shopping-lists/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/shopping-lists/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/features/travel-documents/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/travel-documents/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/travel-documents/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/travel-documents/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/features/voting/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/voting/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/voting/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/voting/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/impressum/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/privacy-policy/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/privacy-policy.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/privacy-policy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/privacy-policy.html"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/terms-of-service/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/terms-of-service.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/terms-of-service/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/terms-of-service.html"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/vs/splitwise/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/splitwise/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/splitwise/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/splitwise/"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/vs/wanderlog/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/wanderlog/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/wanderlog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/wanderlog/"/>
+  </url>
+  <url>
     <loc>https://vacationist.app/features/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/"/>
   </url>
   <url>
     <loc>https://vacationist.app/features/expenses/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/expenses/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/expenses/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/expenses/"/>
   </url>
   <url>
     <loc>https://vacationist.app/features/shopping-lists/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/shopping-lists/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/shopping-lists/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/shopping-lists/"/>
   </url>
   <url>
     <loc>https://vacationist.app/features/travel-documents/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/travel-documents/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/travel-documents/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/travel-documents/"/>
   </url>
   <url>
     <loc>https://vacationist.app/features/voting/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/voting/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/voting/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/voting/"/>
   </url>
   <url>
     <loc>https://vacationist.app/vs/splitwise/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/splitwise/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/splitwise/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/splitwise/"/>
   </url>
   <url>
     <loc>https://vacationist.app/vs/wanderlog/</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/wanderlog/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/wanderlog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/wanderlog/"/>
   </url>
 </urlset>

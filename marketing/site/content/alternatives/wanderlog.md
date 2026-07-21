@@ -6,6 +6,7 @@ lang: en
 type: listicle
 schema: Article
 date: 2026-07-17
+altPath: /de/alternatives/wanderlog/
 keywords: wanderlog alternative, wanderlog alternatives 2026, apps like wanderlog, group trip planning app
 related: /vs/wanderlog/, /features/voting/, /blog/best-group-travel-apps-2026/
 breadcrumbLabel: Wanderlog alternatives

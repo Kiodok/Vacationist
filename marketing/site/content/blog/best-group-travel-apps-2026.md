@@ -6,6 +6,7 @@ lang: en
 type: article
 schema: BlogPosting
 date: 2026-07-17
+altPath: /de/blog/best-group-travel-apps-2026/
 keywords: best group travel app, group vacation planning app, best trip planning apps 2026, travel app for groups of friends
 blogIndex: true
 titleDe: Die 8 besten Gruppenreise-Apps 2026 im ehrlichen Vergleich

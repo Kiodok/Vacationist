@@ -6,6 +6,7 @@ lang: en
 type: article
 schema: BlogPosting
 date: 2026-07-17
+altPath: /de/blog/family-vacation-coordination-guide/
 keywords: family vacation planning app, family trip coordination, multi family vacation planning, plan family reunion trip
 blogIndex: true
 titleDe: Familienurlaub über mehrere Haushalte koordinieren

@@ -6,6 +6,7 @@ lang: en
 type: comparison
 schema: Article
 date: 2026-07-17
+altPath: /de/vs/splitwise/
 keywords: vacationist vs splitwise, splitwise alternative for travel, splitwise for trip planning
 related: /alternatives/splitwise/, /features/expenses/, /blog/how-to-split-travel-expenses/
 breadcrumbLabel: vs. Splitwise

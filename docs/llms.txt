@@ -46,22 +46,25 @@ group trip planner, group vacation planning app, split travel expenses, activity
 - German landing page: https://vacationist.app/de/
 - Web app: https://web.vacationist.app/
 - Android app: https://play.google.com/store/apps/details?id=com.vacationist.mobile
-- Features overview: https://vacationist.app/features/
-  - Activity voting: https://vacationist.app/features/voting/
-  - Expense splitting: https://vacationist.app/features/expenses/
-  - Shared lists: https://vacationist.app/features/shopping-lists/
-  - Encrypted travel documents: https://vacationist.app/features/travel-documents/
-- Blog (group travel guides): https://vacationist.app/blog/
-  - How to plan a group trip: https://vacationist.app/blog/how-to-plan-a-group-trip/
-  - How to split travel expenses: https://vacationist.app/blog/how-to-split-travel-expenses/
-  - Best group travel apps 2026: https://vacationist.app/blog/best-group-travel-apps-2026/
+- Features overview: https://vacationist.app/features/ (German: https://vacationist.app/de/features/)
+  - Activity voting: https://vacationist.app/features/voting/ (German: https://vacationist.app/de/features/voting/)
+  - Expense splitting: https://vacationist.app/features/expenses/ (German: https://vacationist.app/de/features/expenses/)
+  - Shared lists: https://vacationist.app/features/shopping-lists/ (German: https://vacationist.app/de/features/shopping-lists/)
+  - Encrypted travel documents: https://vacationist.app/features/travel-documents/ (German: https://vacationist.app/de/features/travel-documents/)
+- Blog (group travel guides): https://vacationist.app/blog/ (German: https://vacationist.app/de/blog/)
+  - How to plan a group trip: https://vacationist.app/blog/how-to-plan-a-group-trip/ (German: https://vacationist.app/de/blog/how-to-plan-a-group-trip/)
+  - How to split travel expenses: https://vacationist.app/blog/how-to-split-travel-expenses/ (German: https://vacationist.app/de/blog/how-to-split-travel-expenses/)
+  - Best group travel apps 2026: https://vacationist.app/blog/best-group-travel-apps-2026/ (German: https://vacationist.app/de/blog/best-group-travel-apps-2026/)
+  - Bachelorette trip planning guide: https://vacationist.app/blog/bachelorette-trip-planning-guide/ (German: https://vacationist.app/de/blog/bachelorette-trip-planning-guide/)
+  - Family vacation coordination guide: https://vacationist.app/blog/family-vacation-coordination-guide/ (German: https://vacationist.app/de/blog/family-vacation-coordination-guide/)
+  - Group camping trip planner: https://vacationist.app/blog/group-camping-trip-planner/ (German: https://vacationist.app/de/blog/group-camping-trip-planner/)
 - Comparisons:
-  - Vacationist vs. Splitwise: https://vacationist.app/vs/splitwise/
-  - Vacationist vs. Wanderlog: https://vacationist.app/vs/wanderlog/
-  - Splitwise alternatives: https://vacationist.app/alternatives/splitwise/
-  - Wanderlog alternatives: https://vacationist.app/alternatives/wanderlog/
-- Privacy policy: https://vacationist.app/privacy-policy.html
-- Terms of service: https://vacationist.app/terms-of-service.html
+  - Vacationist vs. Splitwise: https://vacationist.app/vs/splitwise/ (German: https://vacationist.app/de/vs/splitwise/)
+  - Vacationist vs. Wanderlog: https://vacationist.app/vs/wanderlog/ (German: https://vacationist.app/de/vs/wanderlog/)
+  - Splitwise alternatives: https://vacationist.app/alternatives/splitwise/ (German: https://vacationist.app/de/alternatives/splitwise/)
+  - Wanderlog alternatives: https://vacationist.app/alternatives/wanderlog/ (German: https://vacationist.app/de/alternatives/wanderlog/)
+- Privacy policy: https://vacationist.app/privacy-policy.html (German: https://vacationist.app/de/privacy-policy/)
+- Terms of service: https://vacationist.app/terms-of-service.html (German: https://vacationist.app/de/terms-of-service/)
 
 ## Pricing
 

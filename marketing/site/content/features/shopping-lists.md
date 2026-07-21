@@ -6,6 +6,7 @@ lang: en
 type: feature
 schema: WebPage
 date: 2026-07-17
+altPath: /de/features/shopping-lists/
 keywords: shared packing list app, group shopping list travel, group trip packing list, recipe shopping list app
 related: /features/voting/, /blog/group-camping-trip-planner/, /blog/how-to-plan-a-group-trip/
 breadcrumbLabel: Shared lists

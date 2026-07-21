@@ -229,8 +229,7 @@
       font-family: inherit; padding: 0.22rem 0.55rem; border-radius: 6px;
       transition: color 0.15s, background 0.15s; line-height: 1;
     }
-    .lang-switcher button:hover { color: var(--text2); }
-    .lang-switcher .lang-active { background: var(--primary); color: #fff; }
+    .lang-switcher button:hover:not(.lang-active) { color: var(--text2); }
     .lang-switcher .lang-de {
       color: var(--text3); text-decoration: none;
       font-size: 0.75rem; font-weight: 600;
@@ -238,7 +237,8 @@
       transition: color 0.15s, background 0.15s; line-height: 1;
     }
     .lang-switcher .lang-de:hover:not(.lang-active) { color: var(--text2); }
-    .lang-switcher a.lang-active { color: #fff; }
+    /* Active pill last: must beat .lang-de and hover for <a>, <button>, and <span> alike */
+    .lang-switcher .lang-active { background: var(--primary); color: #fff; }
 
     @media (max-width: 640px) {
       .nav {
@@ -742,7 +742,7 @@
     <a href="#use-cases" data-i18n="nav.useCases">Anwendungsfälle</a>
     <a href="#faq" data-i18n="nav.faq">FAQ</a>
     <a href="/de/blog/" data-i18n="nav.blog" data-i18n-href="blog.href">Blog</a>
-    <a href="/privacy-policy.html" data-i18n="nav.privacy">Datenschutz</a>
+    <a href="/de/privacy-policy/" data-i18n="nav.privacy" data-i18n-href="privacy.href">Datenschutz</a>
     <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer" data-i18n="nav.webApp">🌐 Web-App</a>
     <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer" data-i18n="nav.getApp">App holen</a>
     <!-- Language switcher -->
@@ -830,8 +830,8 @@
                 <span class="ps-card-status" data-i18n="phone.planning">Planung</span>
               </div>
               <div class="ps-card-body">
-                <div class="ps-card-name">Summer in Lisbon</div>
-                <div class="ps-card-meta">Aug 10 – 17 · 5 members</div>
+                <div class="ps-card-name" data-i18n="phone.card1.name">Sommer in Lissabon</div>
+                <div class="ps-card-meta" data-i18n="phone.card1.meta">10.–17. Aug · 5 Mitglieder</div>
                 <div class="ps-card-foot">
                   <div class="ps-avs">
                     <div class="ps-av" style="background:#6C63FF">G</div>
@@ -843,9 +843,9 @@
                   <div class="ps-role" data-i18n="phone.organiser">Organisator</div>
                 </div>
                 <div class="ps-votes">
-                  <div class="ps-vchip" style="background:rgba(62,207,142,.15);color:#3ECF8E">⭐ 3 must do</div>
-                  <div class="ps-vchip" style="background:rgba(108,99,255,.15);color:#8A84FF">👍 1 like</div>
-                  <div class="ps-vchip" style="background:rgba(92,92,92,.2);color:#9CA3AF">🤷 1 open</div>
+                  <div class="ps-vchip" style="background:rgba(62,207,142,.15);color:#3ECF8E" data-i18n="phone.vchip.mustdo">⭐ 3 Muss sein</div>
+                  <div class="ps-vchip" style="background:rgba(108,99,255,.15);color:#8A84FF" data-i18n="phone.vchip.like">👍 1 Gefällt mir</div>
+                  <div class="ps-vchip" style="background:rgba(92,92,92,.2);color:#9CA3AF" data-i18n="phone.vchip.open">🤷 1 Offen</div>
                 </div>
               </div>
             </div>
@@ -857,8 +857,8 @@
                 <span class="ps-flag">🎿</span>
               </div>
               <div class="ps-card-body">
-                <div class="ps-card-name">Alpine Ski Week</div>
-                <div class="ps-card-meta">Feb 3 – 10 · 3 members</div>
+                <div class="ps-card-name" data-i18n="phone.card2.name">Alpine Skiwoche</div>
+                <div class="ps-card-meta" data-i18n="phone.card2.meta">3.–10. Feb · 3 Mitglieder</div>
                 <div class="ps-card-foot">
                   <div class="ps-avs">
                     <div class="ps-av" style="background:#6C63FF">G</div>
@@ -935,20 +935,20 @@
             <div class="chat-av" style="background:#EC4899">M</div>
             <div class="chat-body">
               <span class="chat-name">Maya</span>
-              <div class="chat-bubble">Found an amazing seafood spot near the harbour 🦞</div>
+              <div class="chat-bubble" data-i18n="chat.1.msg">Hab ein mega Fischrestaurant am Hafen gefunden 🦞</div>
             </div>
           </div>
           <div class="chat-msg chat-msg--own">
             <div class="chat-av" style="background:#6C63FF">G</div>
             <div class="chat-body">
-              <div class="chat-bubble">Let's vote on it! Adding to activities now 👍</div>
+              <div class="chat-bubble" data-i18n="chat.2.msg">Lasst uns abstimmen! Füge es gleich zu den Aktivitäten hinzu 👍</div>
             </div>
           </div>
           <div class="chat-msg">
             <div class="chat-av" style="background:#F59E0B">J</div>
             <div class="chat-body">
               <span class="chat-name">Jan</span>
-              <div class="chat-bubble">Count me in! What time are we thinking? 🕐</div>
+              <div class="chat-bubble" data-i18n="chat.3.msg">Bin dabei! An welche Uhrzeit denken wir? 🕐</div>
             </div>
           </div>
         </div>
@@ -1154,21 +1154,21 @@
   <div class="blog-strip-inner">
     <h2 data-i18n="strip.title">Guides aus dem Blog</h2>
     <div class="blog-strip-grid">
-      <a class="blog-strip-card" href="/blog/how-to-plan-a-group-trip/">
-        <span class="bsc-title" data-i18n="strip.1.title">Gruppenreise planen: der komplette Guide (Englisch)</span>
+      <a class="blog-strip-card" data-i18n-href="strip.1.href" href="/de/blog/how-to-plan-a-group-trip/">
+        <span class="bsc-title" data-i18n="strip.1.title">Gruppenreise planen: der komplette Guide</span>
         <span class="bsc-desc" data-i18n="strip.1.desc">Termine, Budgets, Entscheidungen — und wie man als Organisator überlebt.</span>
       </a>
-      <a class="blog-strip-card" href="/blog/how-to-split-travel-expenses/">
-        <span class="bsc-title" data-i18n="strip.2.title">Reisekosten fair teilen (Englisch)</span>
+      <a class="blog-strip-card" data-i18n-href="strip.2.href" href="/de/blog/how-to-split-travel-expenses/">
+        <span class="bsc-title" data-i18n="strip.2.title">Reisekosten fair teilen</span>
         <span class="bsc-desc" data-i18n="strip.2.desc">Was geteilt wird, was privat ist, und wie ihr ohne Peinlichkeit abrechnet.</span>
       </a>
-      <a class="blog-strip-card" href="/blog/best-group-travel-apps-2026/">
-        <span class="bsc-title" data-i18n="strip.3.title">Die besten Gruppenreise-Apps 2026 (Englisch)</span>
+      <a class="blog-strip-card" data-i18n-href="strip.3.href" href="/de/blog/best-group-travel-apps-2026/">
+        <span class="bsc-title" data-i18n="strip.3.title">Die besten Gruppenreise-Apps 2026</span>
         <span class="bsc-desc" data-i18n="strip.3.desc">Splitwise, Wanderlog, TripIt und mehr — ehrlich verglichen nach Anwendungsfall.</span>
       </a>
       <a class="blog-strip-card" data-i18n-href="strip.4.href" href="/de/alternatives/splitwise/">
         <span class="bsc-title" data-i18n="strip.4.title">Die besten Splitwise-Alternativen</span>
-        <span class="bsc-desc" data-i18n="strip.4.desc">Sieben Apps für die Kostenteilung im Urlaub, ehrlich verglichen — auf Deutsch.</span>
+        <span class="bsc-desc" data-i18n="strip.4.desc">Sieben Apps für die Kostenteilung im Urlaub, ehrlich verglichen.</span>
       </a>
     </div>
   </div>
@@ -1180,9 +1180,9 @@
   <div class="f-links">
     <a href="/features/" data-i18n="footer.features">Funktionen</a>
     <a href="/de/blog/" data-i18n="footer.blog" data-i18n-href="blog.href">Blog</a>
-    <a href="/privacy-policy.html" data-i18n="footer.privacy">Datenschutzerklärung</a>
-    <a href="/terms-of-service.html" data-i18n="footer.terms">Nutzungsbedingungen</a>
-    <a href="/impressum.html" data-i18n="footer.impressum">Impressum</a>
+    <a href="/de/privacy-policy/" data-i18n="footer.privacy" data-i18n-href="privacy.href">Datenschutzerklärung</a>
+    <a href="/de/terms-of-service/" data-i18n="footer.terms" data-i18n-href="terms.href">Nutzungsbedingungen</a>
+    <a href="/de/impressum/" data-i18n="footer.impressum" data-i18n-href="impressum.href">Impressum</a>
     <a href="mailto:meetdeep.de@gmail.com" data-i18n="footer.contact">Kontakt</a>
   </div>
 </footer>

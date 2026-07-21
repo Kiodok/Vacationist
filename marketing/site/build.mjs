@@ -27,12 +27,12 @@ const OG_IMAGE = `${SITE}/og-image.png`;
 
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-07-17';
+const DE_HOME_LASTMOD = '2026-07-21';
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
   {
-    loc: `${SITE}/`, lastmod: '2026-07-17', changefreq: 'monthly', priority: '1.0',
+    loc: `${SITE}/`, lastmod: '2026-07-21', changefreq: 'monthly', priority: '1.0',
     alternates: [
       { hreflang: 'en', href: `${SITE}/` },
       { hreflang: 'de', href: `${SITE}/de/` },
@@ -40,9 +40,25 @@ const STATIC_SITEMAP_ENTRIES = [
     ],
   },
   { loc: `${SITE}/scan/android-qr`, lastmod: '2026-07-11', changefreq: 'monthly', priority: '0.6' },
-  { loc: `${SITE}/privacy-policy.html`, lastmod: '2026-05-23', changefreq: 'yearly', priority: '0.4' },
-  { loc: `${SITE}/terms-of-service.html`, lastmod: '2026-05-23', changefreq: 'yearly', priority: '0.4' },
+  {
+    loc: `${SITE}/privacy-policy.html`, lastmod: '2026-05-23', changefreq: 'yearly', priority: '0.4',
+    alternates: [
+      { hreflang: 'en', href: `${SITE}/privacy-policy.html` },
+      { hreflang: 'de', href: `${SITE}/de/privacy-policy/` },
+      { hreflang: 'x-default', href: `${SITE}/privacy-policy.html` },
+    ],
+  },
+  {
+    loc: `${SITE}/terms-of-service.html`, lastmod: '2026-05-23', changefreq: 'yearly', priority: '0.4',
+    alternates: [
+      { hreflang: 'en', href: `${SITE}/terms-of-service.html` },
+      { hreflang: 'de', href: `${SITE}/de/terms-of-service/` },
+      { hreflang: 'x-default', href: `${SITE}/terms-of-service.html` },
+    ],
+  },
 ];
+/* Note: /impressum.html is noindex — deliberately absent from the sitemap and
+   from any hreflang cluster. The German /de/impressum/ page stands alone. */
 
 /* ────────────────────────────── i18n strings ────────────────────────────── */
 
@@ -110,25 +126,28 @@ const FOOTER_LINKS = {
   },
   de: {
     product: [
-      ['/features/', 'Alle Funktionen'],
-      ['/features/voting/', 'Aktivitäten-Voting'],
-      ['/features/expenses/', 'Kosten teilen'],
-      ['/features/shopping-lists/', 'Gemeinsame Listen'],
-      ['/features/travel-documents/', 'Reisedokumente'],
+      ['/de/features/', 'Alle Funktionen'],
+      ['/de/features/voting/', 'Aktivitäten-Voting'],
+      ['/de/features/expenses/', 'Kosten teilen'],
+      ['/de/features/shopping-lists/', 'Gemeinsame Listen'],
+      ['/de/features/travel-documents/', 'Reisedokumente'],
     ],
     compare: [
+      ['/de/vs/splitwise/', 'Vacationist vs. Splitwise'],
+      ['/de/vs/wanderlog/', 'Vacationist vs. Wanderlog'],
       ['/de/alternatives/splitwise/', 'Splitwise-Alternativen'],
-      ['/vs/splitwise/', 'Vacationist vs. Splitwise (EN)'],
-      ['/vs/wanderlog/', 'Vacationist vs. Wanderlog (EN)'],
+      ['/de/alternatives/wanderlog/', 'Wanderlog-Alternativen'],
     ],
     resources: [
       ['/de/blog/', 'Blog'],
-      ['/de/', 'Vacationist auf Deutsch'],
+      ['/de/blog/how-to-plan-a-group-trip/', 'Gruppenreise-Planungs-Guide'],
+      ['/de/blog/best-group-travel-apps-2026/', 'Beste Gruppenreise-Apps'],
+      ['/de/blog/how-to-split-travel-expenses/', 'Reisekosten-Guide'],
     ],
     legal: [
-      ['/privacy-policy.html', 'Datenschutz'],
-      ['/terms-of-service.html', 'Nutzungsbedingungen'],
-      ['/impressum.html', 'Impressum'],
+      ['/de/privacy-policy/', 'Datenschutz'],
+      ['/de/terms-of-service/', 'Nutzungsbedingungen'],
+      ['/de/impressum/', 'Impressum'],
       ['mailto:meetdeep.de@gmail.com', 'Kontakt'],
     ],
   },
@@ -252,11 +271,14 @@ const LOGO_SVG = `<svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http:/
 
 function breadcrumbs(page, registry) {
   const t = STR[page.lang];
-  const crumbs = [{ name: t.breadcrumbHome, path: page.lang === 'de' ? '/de/' : '/' }];
-  if (page.path === '/de/') return crumbs.length > 1 ? crumbs : [{ name: t.breadcrumbHome, path: '/' }, { name: 'Deutsch', path: '/de/' }];
+  const isDe = page.lang === 'de';
+  const crumbs = [{ name: t.breadcrumbHome, path: isDe ? '/de/' : '/' }];
+  if (page.path === '/de/') return [{ name: t.breadcrumbHome, path: '/' }, { name: 'Deutsch', path: '/de/' }];
   const segs = page.path.split('/').filter(Boolean);
-  if (segs[0] === 'blog' && segs.length > 1) crumbs.push({ name: t.breadcrumbBlog, path: '/blog/' });
-  if (segs[0] === 'features' && segs.length > 1) crumbs.push({ name: t.breadcrumbFeatures, path: '/features/' });
+  // German pages live under /de/…; the section segment comes after the prefix.
+  const rel = segs[0] === 'de' ? segs.slice(1) : segs;
+  if (rel[0] === 'blog' && rel.length > 1) crumbs.push({ name: t.breadcrumbBlog, path: isDe ? '/de/blog/' : '/blog/' });
+  if (rel[0] === 'features' && rel.length > 1) crumbs.push({ name: t.breadcrumbFeatures, path: isDe ? '/de/features/' : '/features/' });
   const label = page.breadcrumbLabel || page.title.split(/[:|—|]/)[0].trim();
   crumbs.push({ name: label, path: page.path });
   return crumbs;
@@ -332,7 +354,7 @@ function navHtml(page) {
     Vacationist
   </a>
   <div class="nav-links">
-    <a href="/features/">${t.navFeatures}</a>
+    <a href="${isDe ? '/de/features/' : '/features/'}">${t.navFeatures}</a>
     <a href="${isDe ? '/de/blog/' : '/blog/'}">${t.navBlog}</a>
     <a href="${WEB_APP_URL}" class="nav-cta-web" target="_blank" rel="noopener noreferrer">${t.navWebApp}</a>
     <a href="${PLAY_URL}" class="nav-cta" target="_blank" rel="noopener noreferrer">${t.navGetApp}</a>
@@ -619,7 +641,7 @@ function postCard(p, { title, description, badge } = {}) {
 function renderBlogIndex(pages, registry) {
   const t = STR.en;
   const posts = pages
-    .filter((p) => p.blogIndex)
+    .filter((p) => p.blogIndex && p.lang === 'en')
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 
   const page = blogIndexPage('en');
@@ -636,17 +658,18 @@ ${posts.map((p) => postCard(p)).join('\n')}
 }
 
 /**
- * German blog overview at /de/blog/: German-language articles first, then the
- * English guides with German titles/descriptions (titleDe/descriptionDe front
- * matter) and an "Englisch" badge. Article bodies stay English by design.
+ * German blog overview at /de/blog/: German blog articles first, then any
+ * English guides that have no German counterpart yet, shown with German
+ * titles/descriptions (titleDe/descriptionDe front matter) and an "Englisch"
+ * badge.
  */
 function renderGermanBlogIndex(pages, registry) {
   const t = STR.de;
   const dePosts = pages
-    .filter((p) => p.lang === 'de' && p.type !== 'home-de')
+    .filter((p) => p.lang === 'de' && p.path.startsWith('/de/blog/'))
     .sort((a, b) => (a.date < b.date ? 1 : -1));
   const enPosts = pages
-    .filter((p) => p.blogIndex)
+    .filter((p) => p.blogIndex && p.lang === 'en' && !p.altPath)
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 
   const cards = [
@@ -659,6 +682,7 @@ function renderGermanBlogIndex(pages, registry) {
   ].join('\n');
 
   const page = blogIndexPage('de');
+  if (dePosts.length) page.updated = dePosts[0].updated;
 
   const content = `
     <h1>${esc(t.blogIndexH1)}</h1>
@@ -735,9 +759,11 @@ function main() {
   registry.set('/de/', deHome);
 
   // Validate altPath pairs are bidirectional ("/" is the hand-authored homepage,
-  // whose hreflang back-links live in index.html and the static sitemap entry)
+  // whose hreflang back-links live in index.html and the static sitemap entry;
+  // ".html" altPaths point at hand-authored static pages outside the registry,
+  // whose hreflang back-links are maintained in the HTML files themselves)
   for (const p of pages) {
-    if (p.altPath && p.altPath !== '/') {
+    if (p.altPath && p.altPath !== '/' && !p.altPath.endsWith('.html')) {
       const alt = registry.get(p.altPath);
       if (!alt) throw new Error(`${p.file}: altPath ${p.altPath} has no matching page`);
       if (alt.altPath !== p.path) throw new Error(`${p.file}: altPath pair is not bidirectional (${p.path} ↔ ${p.altPath})`);

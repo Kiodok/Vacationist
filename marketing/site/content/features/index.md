@@ -6,6 +6,7 @@ lang: en
 type: features-index
 schema: WebPage
 date: 2026-07-17
+altPath: /de/features/
 keywords: group trip planner features, group travel app features, collaborative trip planner
 related: /blog/how-to-plan-a-group-trip/, /vs/splitwise/, /vs/wanderlog/
 breadcrumbLabel: Features

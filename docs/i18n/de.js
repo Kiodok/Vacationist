@@ -45,6 +45,18 @@ window.VACATIONIST_I18N = {
   'phone.tab.calendar': 'Kalender',
   'phone.tab.alerts': 'Benachricht.',
   'phone.tab.profile': 'Profil',
+  'phone.card1.name': 'Sommer in Lissabon',
+  'phone.card1.meta': '10.–17. Aug · 5 Mitglieder',
+  'phone.card2.name': 'Alpine Skiwoche',
+  'phone.card2.meta': '3.–10. Feb · 3 Mitglieder',
+  'phone.vchip.mustdo': '⭐ 3 Muss sein',
+  'phone.vchip.like': '👍 1 Gefällt mir',
+  'phone.vchip.open': '🤷 1 Offen',
+
+  // Chat preview (group chat feature card)
+  'chat.1.msg': 'Hab ein mega Fischrestaurant am Hafen gefunden 🦞',
+  'chat.2.msg': 'Lasst uns abstimmen! Füge es gleich zu den Aktivitäten hinzu 👍',
+  'chat.3.msg': 'Bin dabei! An welche Uhrzeit denken wir? 🕐',
 
   // Features section
   'feat.label': 'Was drin steckt',
@@ -134,16 +146,22 @@ window.VACATIONIST_I18N = {
   'dl.appSoon': 'App Store — Demnächst',
   // Blog strip
   'strip.title': 'Guides aus dem Blog',
-  'strip.1.title': 'Gruppenreise planen: der komplette Guide (Englisch)',
+  'strip.1.title': 'Gruppenreise planen: der komplette Guide',
   'strip.1.desc': 'Termine, Budgets, Entscheidungen — und wie man als Organisator überlebt.',
-  'strip.2.title': 'Reisekosten fair teilen (Englisch)',
+  'strip.2.title': 'Reisekosten fair teilen',
   'strip.2.desc': 'Was geteilt wird, was privat ist, und wie ihr ohne Peinlichkeit abrechnet.',
-  'strip.3.title': 'Die besten Gruppenreise-Apps 2026 (Englisch)',
+  'strip.3.title': 'Die besten Gruppenreise-Apps 2026',
   'strip.3.desc': 'Splitwise, Wanderlog, TripIt und mehr — ehrlich verglichen nach Anwendungsfall.',
   'strip.4.title': 'Die besten Splitwise-Alternativen',
-  'strip.4.desc': 'Sieben Apps für die Kostenteilung im Urlaub, ehrlich verglichen — auf Deutsch.',
+  'strip.4.desc': 'Sieben Apps für die Kostenteilung im Urlaub, ehrlich verglichen.',
+  'strip.1.href': '/de/blog/how-to-plan-a-group-trip/',
+  'strip.2.href': '/de/blog/how-to-split-travel-expenses/',
+  'strip.3.href': '/de/blog/best-group-travel-apps-2026/',
   'strip.4.href': '/de/alternatives/splitwise/',
   'blog.href': '/de/blog/',
+  'privacy.href': '/de/privacy-policy/',
+  'terms.href': '/de/terms-of-service/',
+  'impressum.href': '/de/impressum/',
 
   // Footer
   'footer.copy': '© 2026 Vacationist · Gary Lude, Schweiz',

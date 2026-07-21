@@ -6,6 +6,7 @@ lang: en
 type: comparison
 schema: Article
 date: 2026-07-17
+altPath: /de/vs/wanderlog/
 keywords: vacationist vs wanderlog, wanderlog alternative, wanderlog comparison
 related: /alternatives/wanderlog/, /features/voting/, /blog/best-group-travel-apps-2026/
 breadcrumbLabel: vs. Wanderlog
