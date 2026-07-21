@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, ActivityIndicator } from 'react-native';
+import { ScrollView } from '@vacationist/ui';
 import { useTranslation } from 'react-i18next';
 import type { PreworkFilter } from '@vacationist/types';
 import { upsertPreworkPreferencesSchema } from '@vacationist/types';

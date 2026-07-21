@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Platform, Share } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Platform, Share } from 'react-native';
+import { ScrollView } from '@vacationist/ui';
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 

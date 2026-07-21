@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, TextInput, RefreshControl } from 'react-native';
+import { useState, useRef, useCallback } from 'react';
+import { View, Text, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, StatusBar, TextInput, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -17,7 +17,7 @@ import { IngredientRow } from '../../../src/features/recipes/components/Ingredie
 import { AddIngredientInput } from '../../../src/features/recipes/components/AddIngredientInput';
 import { EditRecipeSheet } from '../../../src/features/recipes/components/EditRecipeSheet';
 import { AddToShoppingListSheet } from '../../../src/features/recipes/components/AddToShoppingListSheet';
-import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -27,8 +27,6 @@ export default function RecipeDetail() {
   const { t: tCommon } = useTranslation("common");
   const { recipeId, tripId } = useLocalSearchParams<{ recipeId: string; tripId: string }>();
   const router = useRouter();
-  const theme = useResolvedTheme();
-  const isColorful = theme === 'colorful';
   const user = useAuthStore((s) => s.user);
 
   const goBackToTrip = () => {
@@ -53,6 +51,15 @@ export default function RecipeDetail() {
   const [showAddToList, setShowAddToList] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<RecipeIngredient | null>(null);
+
+  const kavContainerRef = useRef<View>(null);
+  const [kavOffset, setKavOffset] = useState(0);
+  const handleKavLayout = useCallback(() => {
+    kavContainerRef.current?.measureInWindow((_x, y) => {
+      const statusBar = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0;
+      setKavOffset(y + statusBar);
+    });
+  }, []);
 
   const canEdit = role === 'organizer' || recipe?.created_by === user?.id;
   const canDelete = role === 'organizer' || recipe?.created_by === user?.id;
@@ -99,7 +106,7 @@ export default function RecipeDetail() {
       {/* Header */}
       <View className="flex-row items-center px-md pt-md pb-sm gap-sm">
         <Pressable onPress={goBackToTrip} className="p-xs">
-          <ThemedIcon name="arrow-back" size={24} color={isColorful ? colors.surface : colors.textPrimary} />
+          <ThemedIcon name="arrow-back" size={24} color={colors.textPrimary} />
         </Pressable>
         <View className="flex-1">
           <Text className="text-heading-m text-text-primary" numberOfLines={1}>
@@ -181,10 +188,11 @@ export default function RecipeDetail() {
       )}
 
       {/* Ingredients list */}
+      <View ref={kavContainerRef} onLayout={handleKavLayout} collapsable={false} className="flex-1">
       <KeyboardAvoidingView
         className="flex-1"
         behavior="padding"
-        keyboardVerticalOffset={Platform.OS === 'android' ? 80 : 0}
+        keyboardVerticalOffset={kavOffset}
       >
         <View className="px-md pt-sm pb-xs">
           <Text className="text-label text-text-muted uppercase">{t('field.ingredientName')}</Text>
@@ -227,6 +235,7 @@ export default function RecipeDetail() {
           />
         )}
       </KeyboardAvoidingView>
+      </View>
 
       {/* Sheets */}
       {showEdit && (

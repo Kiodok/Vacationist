@@ -13,6 +13,9 @@ Source of truth files:
 - `engineering/implementation_guide.md` — phase roadmap and completion status
 - `engineering/supabase.md` — Supabase change log (update it after every migration)
 
+### Errors & Issues Found During Work
+When you encounter errors or issues that were **not introduced by the current session** (pre-existing type errors, failing tests, broken imports, lint violations, etc.), **always fix them and explain what you found** — do not leave them in place just because they predate the current task. Briefly tell the user: what the issue was, why it existed, and what you did to fix it.
+
 ---
 
 ## Development Commands

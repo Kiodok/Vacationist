@@ -162,7 +162,13 @@
       "PowerShell(npm view *)",
       "PowerShell(npm install *)",
       "PowerShell(git diff *)",
-      "PowerShell(Get-ChildItem \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\index.html\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\i18n\\\\en.js\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\i18n\\\\de.js\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\join.html\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\404.html\" | Select-Object Name,Length; \\(Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\index.html\" | Measure-Object -Line\\).Lines)"
+      "PowerShell(Get-ChildItem \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\index.html\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\i18n\\\\en.js\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\i18n\\\\de.js\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\join.html\",\"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\404.html\" | Select-Object Name,Length; \\(Get-Content \"F:\\\\Expo Projects\\\\Vacationist\\\\docs\\\\index.html\" | Measure-Object -Line\\).Lines)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:d[k] for k in ['types','typesVersions','exports'] if k in d}, indent=2\\)\\)\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\('F:/Expo Projects/Vacationist/node_modules/nativewind/package.json'\\)\\); print\\(json.dumps\\(d.get\\('exports', {}\\), indent=2\\)\\)\")",
+      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\" && npm run typecheck 2>&1 | Where-Object { $_ -match \"error TS|Found [0-9]\" })",
+      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\" && npm run typecheck 2>&1 | Where-Object { $_ -match \"error TS\" } | Select-Object -First 10)",
+      "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\" && npm run typecheck 2>&1 | Where-Object { $_ -match \"error TS\" } | Select-Object -First 5)",
+      "Bash(python *)"
     ]
   },
   "model": "opusplan",

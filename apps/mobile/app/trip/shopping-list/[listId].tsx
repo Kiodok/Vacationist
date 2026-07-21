@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
+import { useState, useRef, useCallback } from 'react';
+import { View, Text, ActivityIndicator, Pressable, KeyboardAvoidingView, Platform, StatusBar, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -56,6 +56,15 @@ export default function ShoppingListDetail() {
   const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
   const [showEditList, setShowEditList] = useState(false);
   const [confirmDeleteList, setConfirmDeleteList] = useState(false);
+
+  const kavContainerRef = useRef<View>(null);
+  const [kavOffset, setKavOffset] = useState(0);
+  const handleKavLayout = useCallback(() => {
+    kavContainerRef.current?.measureInWindow((_x, y) => {
+      const statusBar = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0;
+      setKavOffset(y + statusBar);
+    });
+  }, []);
 
   const isArchived = !!list?.archived_at;
   const canManageList = role === 'organizer' || list?.created_by === user?.id;
@@ -167,10 +176,11 @@ export default function ShoppingListDetail() {
         </View>
       )}
 
+      <View ref={kavContainerRef} onLayout={handleKavLayout} collapsable={false} className="flex-1">
       <KeyboardAvoidingView
         className="flex-1"
         behavior="padding"
-        keyboardVerticalOffset={Platform.OS === 'android' ? 80 : 0}
+        keyboardVerticalOffset={kavOffset}
       >
         {ux.showSkeleton ? (
           <View className="flex-1 items-center justify-center">
@@ -215,6 +225,7 @@ export default function ShoppingListDetail() {
           isPending={isMutationBusy(createItem)}
         />
       </KeyboardAvoidingView>
+      </View>
 
       {editingItem && (
         <EditShoppingItemSheet

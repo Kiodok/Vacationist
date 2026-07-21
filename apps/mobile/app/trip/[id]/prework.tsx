@@ -1,13 +1,14 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   KeyboardAvoidingView,
   ActivityIndicator,
   Platform,
+  StatusBar,
   TouchableOpacity,
 } from 'react-native';
+import { ScrollView } from '@vacationist/ui';
 import { useLocalSearchParams } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
@@ -159,6 +160,17 @@ export default function PreworkTab() {
     deleteTopicMutation.mutate(topicId);
   };
 
+  // The prework tab renders below the trip header + pill bar; measure the
+  // container's absolute Y so KAV knows how much to compensate on Android.
+  const containerRef = useRef<View>(null);
+  const [kavOffset, setKavOffset] = useState(0);
+  const handleContainerLayout = useCallback(() => {
+    containerRef.current?.measureInWindow((_x, y) => {
+      const statusBar = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0;
+      setKavOffset(y + statusBar);
+    });
+  }, []);
+
   const webStyle = Platform.OS === 'web'
     ? { maxWidth: 600, width: '100%' as const, alignSelf: 'center' as const }
     : undefined;
@@ -177,7 +189,7 @@ export default function PreworkTab() {
   const noTopics = !topics || topics.length === 0;
 
   return (
-    <View className="flex-1">
+    <View ref={containerRef} onLayout={handleContainerLayout} collapsable={false} className="flex-1">
       {/* Segmented control — always visible, even when empty (shows "+" for all members) */}
       <PreworkSegmentedControl
         topics={topics ?? []}
@@ -203,7 +215,7 @@ export default function PreworkTab() {
               <ActivityIndicator color={colors.primary} />
             </View>
           ) : (
-            <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={kavOffset}>
               <ScrollView
                 className="flex-1"
                 contentContainerClassName="px-md py-md gap-xl"

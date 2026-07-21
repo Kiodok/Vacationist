@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { ScrollView } from '@vacationist/ui';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';

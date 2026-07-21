@@ -1,4 +1,5 @@
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { ScrollView } from '@vacationist/ui';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { PreworkTopic } from '@vacationist/types';
 

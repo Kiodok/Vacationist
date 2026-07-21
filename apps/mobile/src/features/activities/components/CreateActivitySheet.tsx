@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Switch } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Switch } from 'react-native';
+import { ScrollView } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet, Platform, Alert } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Platform, Alert } from 'react-native';
+import { ScrollView } from '@vacationist/ui';
 import { useLocalSearchParams } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
