@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Platform, View, Text, ScrollView, Pressable, TouchableOpacity, ActivityIndicator, AppState, Alert } from 'react-native';
+import { Platform, View, Text, Pressable, TouchableOpacity, ActivityIndicator, AppState, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { AppStateStatus } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,7 +25,7 @@ import { ActiveGrantsBanner } from '../../src/features/profile/components/Active
 import { MemberAvatar } from '../../src/features/trips/components/MemberAvatar';
 import type { TravelDocument, UpsertTravelDocumentInput } from '@vacationist/types';
 import { isGuest } from '@vacationist/types';
-import { colors, useThemeColors , ThemedIcon } from '@vacationist/ui';
+import { colors, useThemeColors, ThemedIcon, PersistentScrollView } from '@vacationist/ui';
 import { isMutationBusy } from '../../src/utils/mutationStatus';
 import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestUpgradeBanner';
 import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
@@ -152,10 +152,9 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <ScrollView
+      <PersistentScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 16, gap: 24 }}
-        showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View className="items-center gap-sm pt-md">
@@ -392,7 +391,7 @@ export default function ProfileScreen() {
             <Text className="text-body-small text-text-muted">{t('footer.impressum')}</Text>
           </Pressable>
         </View>
-      </ScrollView>
+      </PersistentScrollView>
 
       <EditProfileSheet
         visible={editProfileVisible}
