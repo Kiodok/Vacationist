@@ -10,9 +10,13 @@
  */
 (function () {
   var SUPPORTED = ['en', 'de'];
-  var DEFAULT_LANG = 'en';
+  // Pages can override the fallback language (e.g. the DACH-targeted QR
+  // landing page) by setting window.I18N_DEFAULT_LANG before this script loads.
+  var DEFAULT_LANG = (window.I18N_DEFAULT_LANG && SUPPORTED.indexOf(window.I18N_DEFAULT_LANG) !== -1)
+    ? window.I18N_DEFAULT_LANG
+    : 'en';
   var STORAGE_KEY = 'v_lang';
-  var CACHE_VER = '20260721a';
+  var CACHE_VER = '20260726a';
 
   function detect() {
     // Explicit ?lang= override (used by static pages linking back, e.g. /de/ → /?lang=en)
