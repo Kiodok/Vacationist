@@ -71,7 +71,7 @@ window.VACATIONIST_I18N = {
   'feat.4.title': 'Transfer & flights',
   'feat.4.desc': 'Suggest flights, vote on options, record bookings, manage car rentals, and assign who rides with whom — all in one place.',
   'feat.5.title': 'Encrypted travel documents',
-  'feat.5.desc': 'Passport and ID details stored behind biometric authentication, AES-256 encrypted. Share temporary organiser access and revoke it any time.',
+  'feat.5.desc': 'Passport and ID details encrypted at rest and protected by biometric authentication. Share temporary organiser access and revoke it any time.',
   'feat.6.title': 'Vacation tracker & calendar',
   'feat.6.desc': 'A visual timeline of all planned activities, transfers, and check-ins — your vacation tracker displayed in the trip\'s timezone. See every day off at a glance.',
   'feat.7.title': 'Group chat',
@@ -133,8 +133,8 @@ window.VACATIONIST_I18N = {
   'faq.6.a': 'Each trip in Vacationist acts as a shared workspace. Invite anyone via a single link — they join instantly, no account needed to participate. The vacation tracker view shows your full trip timeline, off-calendar events, and spending at a glance. Changes sync in real time so everyone stays up to date.',
 
   // Trust strip
-  'trust.aes': 'AES-256 encrypted documents',
-  'trust.noAds': 'No ads, no tracking',
+  'trust.aes': 'Documents encrypted at rest',
+  'trust.noAds': 'No ads, no tracking in the app',
   'trust.swiss': 'Built in Switzerland',
   'trust.free': 'Free to use',
   'trust.platform': 'Android · iOS coming soon',
@@ -158,6 +158,7 @@ window.VACATIONIST_I18N = {
   'strip.2.href': './blog/how-to-split-travel-expenses/',
   'strip.3.href': './blog/best-group-travel-apps-2026/',
   'strip.4.href': './alternatives/splitwise/',
+  'features.href': './features/',
   'blog.href': './blog/',
   'privacy.href': './privacy-policy.html',
   'terms.href': './terms-of-service.html',
@@ -170,6 +171,7 @@ window.VACATIONIST_I18N = {
   'footer.privacy': 'Privacy Policy',
   'footer.terms': 'Terms of Service',
   'footer.impressum': 'Impressum',
+  'footer.cookies': 'Cookie settings',
   'footer.contact': 'Contact',
 
   // join.html (invite marketing page)
@@ -198,6 +200,7 @@ window.VACATIONIST_I18N = {
   'join.error.cta': 'Go to Vacationist',
   'join.footer.privacy': 'Privacy',
   'join.footer.terms': 'Terms',
+  'join.footer.cookies': 'Cookie settings',
 
   // scan/android-qr (QR code landing page)
   'scan.nav.getApp': 'Get the App',
@@ -224,13 +227,14 @@ window.VACATIONIST_I18N = {
   'scan.feat.export.name': 'Export your trip',
   'scan.feat.export.desc': 'All trip data in one clear file.',
   'scan.trust.free': 'Free to use',
-  'scan.trust.noAds': 'No ads, no tracking',
+  'scan.trust.noAds': 'No ads, no tracking in the app',
   'scan.trust.swiss': 'Built in Switzerland',
   'scan.cta.title': 'Ready to plan your next trip?',
   'scan.cta.sub': 'Download Vacationist and start organizing together.',
   'scan.cta.getPlay': 'Get it on Google Play',
   'scan.footer.privacy': 'Privacy',
   'scan.footer.terms': 'Terms',
+  'scan.footer.cookies': 'Cookie settings',
 
   // 404 page
   '404.title': 'Page not found',

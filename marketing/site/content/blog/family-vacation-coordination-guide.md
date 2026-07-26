@@ -48,7 +48,7 @@ Family money conversations are harder than friend money conversations — there'
 
 A family trip means one person is usually wrangling passports and IDs for spouses, kids, and sometimes grandparents — and group bookings (flights, rentals) need those details months early. The common workflow — ID photos in the family WhatsApp — means your children's passports live in a chat thread forever.
 
-Do it properly: each household keeps its own documents in [Vacationist's encrypted vault](/features/travel-documents/) (AES-256, biometric unlock), and grants the trip's booking person **temporary access** that gets **revoked** once tickets are issued. The booking still happens; the permanent chat-thread copies don't. For families this is arguably the app's most valuable feature — and one no other travel app has.
+Do it properly: each household keeps its own documents in [Vacationist's encrypted vault](/features/travel-documents/) (encrypted at rest, biometric lock), and grants the trip's booking person **temporary access** that gets **revoked** once tickets are issued. The booking still happens; the permanent chat-thread copies don't. For families this is arguably the app's most valuable feature — and one no other travel app has.
 
 ## The trip itself: structure for humans aged 2 to 82
 

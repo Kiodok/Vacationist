@@ -32,7 +32,7 @@ Live-Listen, die sich sofort auf jedes Handy synchronisieren — plus eine einzi
 
 ### [Verschlüsselte Reisedokumente →](/de/features/travel-documents/)
 
-Reisepässe und Ausweise mit AES-256 verschlüsselt gespeichert, per Biometrie entsperrt, temporär mit dem Organisator teilbar — und jederzeit widerrufbar. [Mehr über den Dokumenten-Tresor.](/de/features/travel-documents/)
+Reisepässe und Ausweise verschlüsselt gespeichert, gesichert durch eine biometrische Sperre, temporär mit dem Organisator teilbar — und jederzeit widerrufbar. [Mehr über den Dokumenten-Tresor.](/de/features/travel-documents/)
 
 ## Und alles drumherum
 

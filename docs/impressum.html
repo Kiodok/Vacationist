@@ -4,21 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Impressum — Vacationist</title>
   <meta name="robots" content="noindex">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --primary: #6C63FF; --bg: #0f0f0f; --border: #2e2e2e; }
@@ -66,7 +59,7 @@
 <header>
   <p class="app-name">Vacationist</p>
   <h1>Impressum</h1>
-  <p class="meta">Legal disclosure pursuant to Swiss law (UWG Art. 3 para. 1 lit. s &amp; nDSG Art. 19) &nbsp;·&nbsp; Last updated: June 2026</p>
+  <p class="meta">Legal disclosure pursuant to Swiss law (UWG Art. 3 para. 1 lit. s &amp; DSG Art. 19) &nbsp;·&nbsp; Last updated: 26 July 2026</p>
 </header>
 
 <main>
@@ -103,13 +96,13 @@
   <section>
     <h2>3. Legal Framework &amp; Jurisdiction</h2>
     <p>
-      The obligation to provide this Impressum arises from <strong>Art. 3 para. 1 lit. s of the Swiss Federal Act against Unfair Competition (UWG)</strong>, which prohibits misleading or withholding identity information in any commercial communication or offer.
+      Because this project currently generates no revenue (see Section 1), it is not yet legally required to provide an Impressum under <strong>Art. 3 para. 1 lit. s of the Swiss Federal Act against Unfair Competition (UWG)</strong> — that provision applies to the electronic offering of goods or services. The operator provides this Impressum voluntarily, in the form Art. 3 para. 1 lit. s UWG prescribes, so that users always know who they are dealing with. Once paid features are introduced, providing this Impressum becomes mandatory.
     </p>
     <p>
-      This Impressum and the related terms are further governed by Swiss law, in particular the Swiss Code of Obligations (OR), the Swiss Federal Act on Data Protection (nDSG, in force since 1 September 2023), and — where EU residents are concerned — the EU General Data Protection Regulation (GDPR).
+      This Impressum and the related terms are further governed by Swiss law, in particular the Swiss Code of Obligations (OR), the Swiss Federal Act on Data Protection (DSG, in force since 1 September 2023), and — where EU residents are concerned — the EU General Data Protection Regulation (GDPR).
     </p>
     <p>
-      Disputes arising from the use of this website or the Vacationist application are subject to the exclusive jurisdiction of the competent Swiss courts at the operator's place of domicile, unless mandatory statutory provisions require otherwise.
+      Disputes arising from the use of this website or the Vacationist application by a <strong>business</strong> counterparty are subject to the exclusive jurisdiction of the competent Swiss courts at the operator's place of domicile. If you are a <strong>consumer</strong>, you additionally retain the statutory right to bring proceedings in the courts of your own place of residence (Art. 32 et seq. Swiss Civil Procedure Code; for EU residents, additionally Art. 15-17 Lugano Convention), which cannot be waived in advance to your disadvantage.
     </p>
   </section>
 
@@ -126,14 +119,14 @@
   <section>
     <h2>5. Data Protection</h2>
     <p>
-      Pursuant to <strong>Art. 19 nDSG</strong>, the responsible party is obliged to inform data subjects about the processing of their personal data. Full details on what data is collected, the purposes of processing, retention periods, and data subject rights are set out in the <a href="./privacy-policy.html">Privacy Policy</a>.
+      Pursuant to <strong>Art. 19 DSG</strong>, the responsible party is obliged to inform data subjects about the processing of their personal data. Full details on what data is collected, the purposes of processing, retention periods, and data subject rights are set out in the <a href="./privacy-policy.html">Privacy Policy</a>.
     </p>
     <p>
       The supervisory authority for data protection matters in Switzerland is the Federal Data Protection and Information Commissioner (FDPIC / EDÖB):
       <a href="https://www.edoeb.admin.ch" target="_blank" rel="noopener">www.edoeb.admin.ch</a>.
     </p>
     <p>
-      Data subjects who believe their rights under the nDSG or GDPR have been infringed may also lodge a complaint with the supervisory authority in the EU member state of their habitual residence, place of work, or place of the alleged infringement (GDPR Art. 77).
+      Data subjects who believe their rights under the DSG or GDPR have been infringed may also lodge a complaint with the supervisory authority in the EU member state of their habitual residence, place of work, or place of the alleged infringement (GDPR Art. 77).
     </p>
   </section>
 
@@ -158,7 +151,7 @@
 </main>
 
 <footer>
-  <p>© 2026 Vacationist · Gary Lude, Switzerland &nbsp;·&nbsp; <a href="./privacy-policy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="#top">Back to top</a></p>
+  <p>© 2026 Vacationist · Gary Lude, Switzerland &nbsp;·&nbsp; <a href="./privacy-policy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="#cookie-settings">Cookie settings</a> &nbsp;·&nbsp; <a href="#top">Back to top</a></p>
 </footer>
 
 </body>

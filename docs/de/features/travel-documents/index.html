@@ -4,17 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Verschlüsselte Reisedokumente — Reisepässe mit Biometrie gesichert | Vacationist</title>
-  <meta name="description" content="Reisepässe, Ausweise und Reisedokumente AES-256-verschlüsselt speichern und per Biometrie entsperren. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.">
+  <meta name="description" content="Reisepässe, Ausweise und Reisedokumente verschlüsselt speichern, gesichert durch eine biometrische Sperre auf deinem Gerät. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.">
   <meta name="keywords" content="Reisedokumente App, Reisepass sicher speichern, verschlüsselte Reisedokumente, Reisedokumente verwalten">
 
   <link rel="canonical" href="https://vacationist.app/de/features/travel-documents/">
@@ -23,14 +17,14 @@
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/travel-documents/">
 
   <meta property="og:title" content="Verschlüsselte Reisedokumente — Reisepässe mit Biometrie gesichert | Vacationist">
-  <meta property="og:description" content="Reisepässe, Ausweise und Reisedokumente AES-256-verschlüsselt speichern und per Biometrie entsperren. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.">
+  <meta property="og:description" content="Reisepässe, Ausweise und Reisedokumente verschlüsselt speichern, gesichert durch eine biometrische Sperre auf deinem Gerät. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.">
   <meta property="og:url" content="https://vacationist.app/de/features/travel-documents/">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://vacationist.app/og-image.png">
   <meta property="og:site_name" content="Vacationist">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Verschlüsselte Reisedokumente — Reisepässe mit Biometrie gesichert | Vacationist">
-  <meta name="twitter:description" content="Reisepässe, Ausweise und Reisedokumente AES-256-verschlüsselt speichern und per Biometrie entsperren. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.">
+  <meta name="twitter:description" content="Reisepässe, Ausweise und Reisedokumente verschlüsselt speichern, gesichert durch eine biometrische Sperre auf deinem Gerät. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.">
   <meta name="twitter:image" content="https://vacationist.app/og-image.png">
 
   <script type="application/ld+json">
@@ -38,7 +32,7 @@
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Verschlüsselte Reisedokumente — Reisepässe mit Biometrie gesichert | Vacationist",
-    "description": "Reisepässe, Ausweise und Reisedokumente AES-256-verschlüsselt speichern und per Biometrie entsperren. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.",
+    "description": "Reisepässe, Ausweise und Reisedokumente verschlüsselt speichern, gesichert durch eine biometrische Sperre auf deinem Gerät. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.",
     "url": "https://vacationist.app/de/features/travel-documents/",
     "inLanguage": "de",
     "isPartOf": {
@@ -84,7 +78,7 @@
         "name": "Kann Vacationist meine Dokumente lesen?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Dokumente werden vor der Speicherung mit AES-256 verschlüsselt. Die Entschlüsselung passiert für dich, abgesichert durch die Biometrie deines Geräts — der Tresor ist so gebaut, dass deine Reisedokumente nicht lesbar auf einem Server liegen."
+          "text": "Sensible Dokumentfelder werden verschlüsselt gespeichert, und der Zugriff ist eingeschränkt und protokolliert. Um ein Dokument in der App anzusehen, brauchst du die Biometrie oder den Code deines Geräts. Wie bei jedem Dienst, der nicht vollständig clientseitig Ende-zu-Ende-verschlüsselt ist, könnten wir technisch auf diese Daten auf unseren Servern zugreifen — wir tun das nicht, und der Zugriff ist auf das für den Betrieb Notwendige beschränkt. Das vollständige Bild findest du in unserer Datenschutzerklärung."
         }
       },
       {
@@ -116,9 +110,8 @@
   </script>
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -148,8 +141,8 @@
 <h1 id="deine-passdaten-verschlüsselt-statt-gescreenshottet">Deine Passdaten. Verschlüsselt statt gescreenshottet.</h1>
 <p class="lede">Jede Gruppenreise erreicht den Moment, in dem der Organisator alle bittet, „mal eben die Passdaten für die Buchung zu schicken" — und plötzlich leben Ausweisfotos für immer in einem WhatsApp-Chat. Vacationist ersetzt das durch einen verschlüsselten Dokumenten-Tresor, der direkt in die Reise eingebaut ist.</p><h2 id="so-funktioniert-der-dokumenten-tresor">So funktioniert der Dokumenten-Tresor</h2>
 <ul>
-<li><strong>AES-256-Verschlüsselung.</strong> Dokumente werden verschlüsselt, bevor sie gespeichert werden — Passnummern, Ausweisdaten und Reisedokumente liegen nie im Klartext.</li>
-<li><strong>Biometrisches Entsperren.</strong> Deine Dokumente öffnen sich per Fingerabdruck oder Gesicht, auf deinem Gerät. Keine geteilten Passwörter.</li>
+<li><strong>Verschlüsselt gespeichert.</strong> Sensible Felder — vollständiger Name, Dokumentnummer, Geburtsdatum — werden verschlüsselt, bevor sie gespeichert werden. Keine geteilten Passwörter.</li>
+<li><strong>Biometrische Sperre.</strong> Um deine Dokumente in der App anzusehen, brauchst du deinen Fingerabdruck, dein Gesicht oder den Geräte-Code.</li>
 <li><strong>Pro Person, pro Reise.</strong> Jeder Reisende verwaltet seine eigenen Dokumente und entscheidet, was er teilt, mit wem und wie lange.</li>
 </ul>
 <h2 id="organisator-zugriff-mit-zustimmung-und-widerruf">Organisator-Zugriff — mit Zustimmung und Widerruf</h2>
@@ -159,7 +152,7 @@
 <ul>
 <li><strong>Familien</strong> — Eltern haben die Reisepässe und Ausweise der ganzen Familie an einem gesicherten Ort, griffbereit an jedem Check-in-Schalter, statt am Gate durch E-Mail-Anhänge zu wühlen.</li>
 <li><strong>Junggesellinnenabschiede und große Gruppen</strong> — eine Organisatorin bucht für zwölf Leute, ohne dass zwölf Ausweisfotos in einem Gruppenchat landen, den es in drei Jahren immer noch gibt.</li>
-<li><strong>Datenschutzbewusste Reisende</strong> — deine Dokumente sind verschlüsselt, die Schlüssel hältst du über die Biometrie deines Geräts, und Zugriff ist etwas, das du gewährst und widerrufst — nicht etwas, worüber du die Kontrolle verlierst, sobald du auf Senden tippst.</li>
+<li><strong>Datenschutzbewusste Reisende</strong> — deine Dokumente sind verschlüsselt gespeichert, das Ansehen setzt die Biometrie deines Geräts voraus, und Zugriff ist etwas, das du gewährst und widerrufst — nicht etwas, worüber du die Kontrolle verlierst, sobald du auf Senden tippst.</li>
 </ul>
 <h2 id="offline-wie-alles-andere">Offline, wie alles andere</h2>
 <p>Deine Dokumente sind auch ohne Verbindung auf deinem Gerät verfügbar — genau dann, wenn du sie typischerweise brauchst: an Grenzen, in Flugzeugen, in Untergeschossen ohne Empfang.</p>
@@ -172,7 +165,7 @@
   </div>
 </div><h2 id="häufige-fragen">Häufige Fragen</h2>
 <h3 id="kann-vacationist-meine-dokumente-lesen">Kann Vacationist meine Dokumente lesen?</h3>
-<p>Dokumente werden vor der Speicherung mit AES-256 verschlüsselt. Die Entschlüsselung passiert für dich, abgesichert durch die Biometrie deines Geräts — der Tresor ist so gebaut, dass deine Reisedokumente nicht lesbar auf einem Server liegen.</p>
+<p>Sensible Dokumentfelder werden verschlüsselt gespeichert, und der Zugriff ist eingeschränkt und protokolliert. Um ein Dokument in der App anzusehen, brauchst du die Biometrie oder den Code deines Geräts. Wie bei jedem Dienst, der nicht vollständig clientseitig Ende-zu-Ende-verschlüsselt ist, könnten wir technisch auf diese Daten auf unseren Servern zugreifen — wir tun das nicht, und der Zugriff ist auf das für den Betrieb Notwendige beschränkt. Das vollständige Bild findest du in unserer <a href="/de/privacy-policy/">Datenschutzerklärung</a>.</p>
 <h3 id="was-passiert-wenn-ich-den-zugriff-des-organisators-widerrufe">Was passiert, wenn ich den Zugriff des Organisators widerrufe?</h3>
 <p>Er verliert sofort die Möglichkeit, das Dokument einzusehen. Anders als ein Foto im Chat ist das Teilen in Vacationist eine Zugriffserlaubnis, keine Kopie — der Widerruf beendet den Zugriff tatsächlich.</p>
 <h3 id="welche-dokumente-kann-ich-speichern">Welche Dokumente kann ich speichern?</h3>
@@ -234,6 +227,7 @@
       <a href="/de/privacy-policy/">Datenschutz</a>
       <a href="/de/terms-of-service/">Nutzungsbedingungen</a>
       <a href="/de/impressum/">Impressum</a>
+      <a href="#cookie-settings">Cookie-Einstellungen</a>
       <a href="mailto:meetdeep.de@gmail.com">Kontakt</a>
     </div>
   </div>

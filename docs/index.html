@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities</title>
   <meta name="description" content="The free group trip planning app. Vote on activities, split travel expenses, share packing lists, and manage accommodations — all in one place. Perfect for group vacations, road trips, and bachelorette trips.">
@@ -119,9 +113,8 @@
 
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -901,7 +894,7 @@
       <div class="feat-card reveal d2">
         <div class="feat-icon">🔒</div>
         <div class="feat-title" data-i18n="feat.5.title">Encrypted travel documents</div>
-        <div class="feat-desc" data-i18n="feat.5.desc">Passport and ID details stored behind biometric authentication, AES-256 encrypted. Share temporary organiser access and revoke it any time.</div>
+        <div class="feat-desc" data-i18n="feat.5.desc">Passport and ID details encrypted at rest and protected by biometric authentication. Share temporary organiser access and revoke it any time.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🗓️</div>
@@ -1105,8 +1098,8 @@
 <!-- TRUST STRIP -->
 <div class="trust">
   <div class="trust-inner">
-    <div class="trust-item"><div class="trust-icon">🔒</div><span data-i18n="trust.aes">AES-256 encrypted documents</span></div>
-    <div class="trust-item"><div class="trust-icon">🚫</div><span data-i18n="trust.noAds">No ads, no tracking</span></div>
+    <div class="trust-item"><div class="trust-icon">🔒</div><span data-i18n="trust.aes">Documents encrypted at rest</span></div>
+    <div class="trust-item"><div class="trust-icon">🚫</div><span data-i18n="trust.noAds">No ads, no tracking in the app</span></div>
     <div class="trust-item"><div class="trust-icon">🇨🇭</div><span data-i18n="trust.swiss">Built in Switzerland</span></div>
     <div class="trust-item"><div class="trust-icon">🆓</div><span data-i18n="trust.free">Free to use</span></div>
     <div class="trust-item"><div class="trust-icon">📱</div><span data-i18n="trust.platform">Android · iOS coming soon</span></div>
@@ -1162,11 +1155,12 @@
 <footer>
   <span class="f-copy" data-i18n="footer.copy">© 2026 Vacationist · Gary Lude, Switzerland</span>
   <div class="f-links">
-    <a href="./features/" data-i18n="footer.features">Features</a>
+    <a href="./features/" data-i18n="footer.features" data-i18n-href="features.href">Features</a>
     <a href="./blog/" data-i18n="footer.blog" data-i18n-href="blog.href">Blog</a>
     <a href="./privacy-policy.html" data-i18n="footer.privacy" data-i18n-href="privacy.href">Privacy Policy</a>
     <a href="./terms-of-service.html" data-i18n="footer.terms" data-i18n-href="terms.href">Terms of Service</a>
     <a href="./impressum.html" data-i18n="footer.impressum" data-i18n-href="impressum.href">Impressum</a>
+    <a href="#cookie-settings" data-i18n="footer.cookies">Cookie settings</a>
     <a href="mailto:meetdeep.de@gmail.com" data-i18n="footer.contact">Contact</a>
   </div>
 </footer>

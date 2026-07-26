@@ -1,0 +1,5 @@
+# Prevent core.autocrlf from corrupting binary font files.
+*.woff2 binary
+*.woff binary
+*.ttf binary
+*.otf binary

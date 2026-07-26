@@ -5,16 +5,14 @@ path: /de/privacy-policy/
 lang: de
 type: legal
 schema: WebPage
-date: 2026-07-21
+date: 2026-07-26
 altPath: /privacy-policy.html
 breadcrumbLabel: Datenschutz
 ---
 
 # Datenschutzerklärung
 
-*Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 21. Juli 2026*
-
-*Hinweis: Diese deutsche Fassung dient der Verständlichkeit. Im Zweifelsfall ist die [englische Fassung](/privacy-policy.html) maßgeblich.*
+*Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 26. Juli 2026*
 
 ## 1. Wer wir sind
 
@@ -38,11 +36,12 @@ Wir erheben nur die Daten, die zur Bereitstellung des Dienstes erforderlich sind
 
 - Reisenamen, Termine, Ziele und Mitgliederlisten
 - Aktivitäten, Stimmen, Ausgaben, Einkaufslisten, Notizen, Unterkünfte und Transferdaten, die du erstellst
+- Chat-Nachrichten innerhalb einer Reise (verschlüsselt gespeichert, siehe unten)
 - Einladungslinks, die du erzeugst oder verwendest
 
 **Reisedokumente**
 
-> Reisedokument-Daten (Reisepass- oder Personalausweisnummer, Ablaufdatum, ausstellendes Land) werden ausschließlich verschlüsselt mit AES-256 (pgcrypto) gespeichert. Die Daten werden nie im Klartext gespeichert, sind für uns zu keinem Zeitpunkt zugänglich und lassen sich nur auf deinem Gerät nach biometrischer Authentifizierung entschlüsseln.
+> Die von dir eingegebenen Reisedokument-Daten (vollständiger Name, Dokumentnummer, Geburtsdatum sowie etwaige Notizen) werden verschlüsselt in unserer Datenbank gespeichert. Staatsangehörigkeit, ausstellendes Land und Ablaufdatum werden unverschlüsselt gespeichert, da sie für Erinnerungen benötigt werden und für sich allein nicht zur Identifikation eines Dokuments ausreichen. Der Zugriff ist durch Row-Level-Security und, auf dem Smartphone, durch eine biometrische Sperre oder Geräte-PIN geschützt. Der Verschlüsselungscode wird von uns verwaltet, nicht aus deinem Gerät oder deiner Biometrie abgeleitet — wir könnten technisch auf diese Daten zugreifen, tun dies aber nur protokolliert und im notwendigen Umfang. Chat-Nachrichten werden mit demselben Verfahren verschlüsselt gespeichert.
 
 **Gerätedaten**
 
@@ -73,9 +72,9 @@ Wir nutzen deine Daten nicht für Werbung, Profiling oder Marketing. Wir verkauf
 
 ## 4. Datenspeicherung & Sicherheit
 
-Deine Daten werden auf Servern von **Supabase Inc.** gespeichert (Infrastruktur in der EU, Region Zentraleuropa / Zürich). Supabase ist ein US-Unternehmen mit EU-gehosteter Infrastruktur; die Datenschutzerklärung ist unter [supabase.com/privacy](https://supabase.com/privacy) abrufbar.
+Deine Daten werden auf Servern von **Supabase Inc.** gespeichert, gehostet in der EU (Paris, Frankreich, AWS-Region eu-west-3). Supabase Inc. ist ein US-Unternehmen; da von den USA aus grundsätzlich auf die EU-gehosteten Daten zugegriffen werden könnte, stützt sich diese Übermittlung auf Standardvertragsklauseln. Die Datenschutzerklärung von Supabase ist unter [supabase.com/privacy](https://supabase.com/privacy) abrufbar.
 
-Alle Daten werden über TLS übertragen. Reisedokumente werden auf Anwendungsebene verschlüsselt, bevor sie in die Datenbank geschrieben werden.
+Alle Daten werden über TLS übertragen. Reisedokumente und Chat-Nachrichten werden auf Datenbankebene verschlüsselt, bevor sie gespeichert werden; was „verschlüsselt" in der Praxis bedeutet, steht im Abschnitt Reisedokumente oben.
 
 Die Authentifizierung übernimmt Supabase Auth. Google-Sign-In-Tokens werden serverseitig ausgetauscht und von uns nicht gespeichert.
 
@@ -84,8 +83,11 @@ Die Authentifizierung übernimmt Supabase Auth. Google-Sign-In-Tokens werden ser
 - **Supabase** — Datenbank, Authentifizierung, Dateispeicher, Edge Functions ([Datenschutzerklärung](https://supabase.com/privacy))
 - **Google Sign-In (Google LLC)** — optionale Anmeldemethode ([Datenschutzerklärung](https://policies.google.com/privacy))
 - **Expo (Expo Inc.)** — Zustelldienst für Push-Benachrichtigungen ([Datenschutzerklärung](https://expo.dev/privacy))
-- **Sentry (Functional Software Inc.)** — anonymisierte Absturzberichte ([Datenschutzerklärung](https://sentry.io/privacy/))
-- **Google Analytics 4 (Google LLC)** — anonymisierte Website-Nutzungsstatistiken (nur Website) ([Datenschutzerklärung](https://policies.google.com/privacy))
+- **Sentry (Functional Software Inc.)** — Absturz- und Fehlerberichte, verknüpft mit deiner Konto-ID; enthält eine maskierte Stichprobe der Sitzungsaktivität und kann einen Screenshot zum Zeitpunkt eines Absturzes enthalten ([Datenschutzerklärung](https://sentry.io/privacy/))
+- **Google Analytics 4 (Google LLC)** — Website-Nutzungsstatistiken, nur mit deiner Einwilligung geladen (nur Website, siehe Abschnitt 6) ([Datenschutzerklärung](https://policies.google.com/privacy))
+- **GitHub (Microsoft Corporation)** — hostet diese Website und verarbeitet Besucheranfragen und IP-Adressen auf Infrastrukturebene ([Datenschutzhinweis](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement))
+- **Vercel Inc.** — hostet die Web-Version der App unter web.vacationist.app und stellt anonymisierte Analyse- und Performance-Daten ausschliesslich innerhalb der Web-Version bereit ([Datenschutzerklärung](https://vercel.com/legal/privacy-policy))
+- **Cloudflare, Inc.** — Bot- und Missbrauchsschutz (Turnstile) bei ausgewählten Formularen ([Datenschutzerklärung](https://www.cloudflare.com/privacypolicy/))
 
 ## 6. Analyse & Cookies
 
@@ -97,13 +99,13 @@ Die Website nutzt **Google Analytics 4**, einen Webanalysedienst der Google LLC,
 
 Google Analytics 4 kürzt IP-Adressen, bevor Daten auf Googles Server geschrieben werden. Deine vollständige IP-Adresse wird nie gespeichert und uns nie zugänglich gemacht. Der aus der gekürzten Adresse abgeleitete ungefähre Standort ist auf Länder- und Stadtebene beschränkt.
 
-**Rechtsgrundlage**
+**Einwilligung**
 
-Die Verarbeitung von Website-Analysedaten stützt sich auf unser **berechtigtes Interesse** (Art. 31 nDSG; Art. 6 Abs. 1 lit. f DSGVO, soweit anwendbar), aggregierte Nutzungsmuster zu verstehen, um die Website zu verbessern. Wir nutzen Google Analytics nicht, um persönliche Profile zu erstellen oder Einzelpersonen anzusprechen.
+Google Analytics wird geladen und die Cookies `_ga`/`_ga_*` werden gesetzt **erst, nachdem du im Cookie-Banner beim ersten Besuch aktiv zugestimmt hast** (Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO / § 25 Abs. 1 TTDSG, soweit anwendbar; Art. 6 DSG für Besucher aus der Schweiz). Lehnst du ab oder triffst du keine Wahl, wird Google Analytics nicht geladen und es wird kein Analyse-Cookie gesetzt. Du kannst deine Wahl jederzeit über [Cookie-Einstellungen](#cookie-settings) in der Fusszeile überprüfen oder widerrufen. Wir nutzen Google Analytics nicht, um persönliche Profile zu erstellen oder Einzelpersonen anzusprechen.
 
 **Internationale Datenübermittlung**
 
-Google LLC hat ihren Hauptsitz in den USA. Von Google Analytics erfasste Daten werden auf Googles Server in den USA übertragen und dort verarbeitet. Diese Übermittlung erfolgt auf Grundlage der von der Europäischen Kommission genehmigten und vom Schweizer EDÖB anerkannten Standardvertragsklauseln (SCCs) sowie Googles Teilnahme am Swiss-US Data Privacy Framework. Googles Schutzmaßnahmen für Datenübermittlungen: [business.safety.google/gdprreference](https://business.safety.google/gdprreference/).
+Google LLC hat ihren Hauptsitz in den USA. Von Google Analytics erfasste Daten werden auf Googles Server in den USA übertragen und dort verarbeitet. Diese Übermittlung erfolgt auf Grundlage der von der Europäischen Kommission genehmigten und vom Schweizer EDÖB anerkannten Standardvertragsklauseln (SCCs) sowie Googles Teilnahme am Swiss-US Data Privacy Framework. Googles Schutzmassnahmen für Datenübermittlungen: [business.safety.google/gdprreference](https://business.safety.google/gdprreference/).
 
 **Aufbewahrung**
 
@@ -111,29 +113,32 @@ Analytics-Ereignisdaten werden in Google Analytics **2 Monate** aufbewahrt (der 
 
 **Widerspruchsmöglichkeiten**
 
-Du hast folgende Möglichkeiten, die Datenerfassung durch Google Analytics zu verhindern:
+Du hast folgende Möglichkeiten, die Datenerfassung durch Google Analytics zu verhindern oder zu beenden:
 
+- Ablehnung oder späterer Widerruf über [Cookie-Einstellungen](#cookie-settings) in der Fusszeile
 - Installation des [Google Analytics Opt-out Browser-Add-ons](https://tools.google.com/dlpage/gaoptout)
 - Aktivierung von „Do Not Track" oder Global Privacy Control (GPC) in deinem Browser
 - Nutzung einer Browser-Erweiterung, die Analyse-Skripte blockiert
 - Verwaltung deiner Google-Dateneinstellungen unter [myaccount.google.com](https://myaccount.google.com/data-and-privacy)
 
-> Die Mobil-App nutzt weder Google Analytics noch ein anderes Drittanbieter-Analyse-SDK. Die Erhebung von Analysedaten ist auf die Website beschränkt.
+Deine Cookie-Wahl wird im lokalen Speicher deines Browsers (Schlüssel `v_consent`) bis zu 12 Monate lang gespeichert; danach wirst du erneut gefragt. Dieser Speichereintrag selbst ist technisch notwendig, um deine Wahl zu merken, und erfordert keine Einwilligung.
+
+> Die native Mobil-App (iOS/Android) nutzt weder Google Analytics noch ein anderes Drittanbieter-Analyse-SDK. Die Web-Version der App unter web.vacationist.app nutzt das datenschutzfreundliche Vercel Analytics zur anonymisierten Performance-Messung — siehe Abschnitt 5. Google Analytics wird ausschliesslich auf dieser Marketing-Website eingesetzt, und nur nach Einwilligung.
 
 ## 7. Aufbewahrungsdauer
 
-Deine Daten werden so lange aufbewahrt, wie dein Konto besteht. Wenn du dein Konto löschst, werden alle personenbezogenen Daten — einschließlich Reisedaten, Reisedokumenten und Push-Tokens — innerhalb von 30 Tagen dauerhaft gelöscht.
+Deine Daten werden so lange aufbewahrt, wie dein Konto besteht. Wenn du dein Konto löschst, werden alle personenbezogenen Daten — einschliesslich Reisedaten, Reisedokumenten und Push-Tokens — innerhalb von 30 Tagen dauerhaft gelöscht.
 
-Anonyme/Gast-Konten, die nie in ein vollwertiges Konto umgewandelt wurden, werden nach 90 Tagen Inaktivität automatisch gelöscht.
+Gast-Konten (über Einladungslink erstellt, ohne E-Mail-Adresse), die nie in ein vollwertiges Konto umgewandelt werden, können nach einer Phase der Inaktivität gelöscht werden; dies ist derzeit kein automatisierter Vorgang. Mit einem Gast-Konto verknüpfte Daten werden nur so lange aufbewahrt, wie das Konto besteht.
 
 ## 8. Deine Rechte
 
-Nach dem Schweizer Datenschutzgesetz (nDSG) und, soweit anwendbar, der EU-Datenschutz-Grundverordnung (DSGVO) hast du folgende Rechte:
+Nach dem Schweizer Datenschutzgesetz (DSG) und, soweit anwendbar, der EU-Datenschutz-Grundverordnung (DSGVO) hast du folgende Rechte:
 
 - **Auskunftsrecht** — du kannst eine Kopie der über dich gespeicherten personenbezogenen Daten anfordern
 - **Recht auf Berichtigung** — du kannst unrichtige Daten jederzeit über den Profil-Bildschirm korrigieren
 - **Recht auf Löschung** — du kannst die Löschung deines Kontos und aller zugehörigen Daten verlangen
-- **Recht auf Datenübertragbarkeit** — du kannst deine Daten in einem strukturierten, maschinenlesbaren Format anfordern
+- **Recht auf Datenübertragbarkeit** — auf Anfrage stellen wir dir deine Daten in einem strukturierten, gängigen Format zur Verfügung. Die App bietet derzeit keinen vollständigen Selbstbedienungs-Export über alle Datenkategorien hinweg; ein Übersichts-Export pro Reise ist direkt in der Reise verfügbar, alles Weitere stellen wir auf Anfrage manuell zusammen
 - **Widerspruchsrecht** — du kannst der Verarbeitung widersprechen, soweit wir uns auf berechtigtes Interesse stützen
 
 Zur Ausübung dieser Rechte kontaktiere uns unter [meetdeep.de@gmail.com](mailto:meetdeep.de@gmail.com). Wir antworten innerhalb von 30 Tagen.

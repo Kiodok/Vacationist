@@ -12,7 +12,7 @@
  * Usage: npm run build:site
  */
 
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, copyFileSync } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
@@ -27,7 +27,7 @@ const OG_IMAGE = `${SITE}/og-image.png`;
 
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-07-21';
+const DE_HOME_LASTMOD = '2026-07-26';
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
@@ -121,6 +121,7 @@ const FOOTER_LINKS = {
       ['/privacy-policy.html', 'Privacy Policy'],
       ['/terms-of-service.html', 'Terms of Service'],
       ['/impressum.html', 'Impressum'],
+      ['#cookie-settings', 'Cookie settings'],
       ['mailto:meetdeep.de@gmail.com', 'Contact'],
     ],
   },
@@ -148,6 +149,7 @@ const FOOTER_LINKS = {
       ['/de/privacy-policy/', 'Datenschutz'],
       ['/de/terms-of-service/', 'Nutzungsbedingungen'],
       ['/de/impressum/', 'Impressum'],
+      ['#cookie-settings', 'Cookie-Einstellungen'],
       ['mailto:meetdeep.de@gmail.com', 'Kontakt'],
     ],
   },
@@ -340,12 +342,17 @@ function jsonLd(page, registry) {
 function navHtml(page) {
   const t = STR[page.lang];
   const isDe = page.lang === 'de';
+  // navAltPath links the language switcher to a hand-authored counterpart page
+  // without pulling it into the hreflang cluster (see altPath / hreflangLinks) —
+  // used by pages like /de/impressum/ whose EN counterpart is deliberately
+  // noindex and hreflang-isolated.
+  const switchPath = page.navAltPath || page.altPath;
   // DE first (primary audience is DACH), current language highlighted.
   const deSide = isDe
     ? '<span class="lp-on">DE</span>'
-    : `<a href="${page.altPath && page.altPath !== '/' ? page.altPath : '/de/'}" title="Deutsche Version">DE</a>`;
+    : `<a href="${switchPath && switchPath !== '/' ? switchPath : '/de/'}" title="Deutsche Version">DE</a>`;
   const enSide = isDe
-    ? `<a href="${page.altPath && page.altPath !== '/' ? page.altPath : '/?lang=en'}" title="English version">EN</a>`
+    ? `<a href="${switchPath && switchPath !== '/' ? switchPath : '/?lang=en'}" title="English version">EN</a>`
     : '<span class="lp-on">EN</span>';
   const home = isDe ? '/de/' : '/';
   return `<nav class="nav">
@@ -452,14 +459,8 @@ function renderPage(page, registry, contentHtml) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>${esc(page.title)}</title>
   <meta name="description" content="${esc(page.description)}">
@@ -480,9 +481,8 @@ ${hreflangLinks(page)}
 ${jsonLd(page, registry)}
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -793,11 +793,23 @@ function main() {
   const css = readFileSync(join(ROOT, 'marketing', 'site', 'site.css'), 'utf8');
   writeOut(join(DOCS_DIR, 'assets', 'site.css'), css);
 
+  // Shared consent/analytics script (text — safe through writeOut, which normalizes CRLF)
+  const consentJs = readFileSync(join(ROOT, 'marketing', 'site', 'consent.js'), 'utf8');
+  writeOut(join(DOCS_DIR, 'assets', 'consent.js'), consentJs);
+
+  // Self-hosted font — BINARY. Must NOT go through writeOut(): its \r\n -> \n
+  // normalization would corrupt the woff2. Byte-for-byte copy keeps the build idempotent.
+  const fontDir = join(DOCS_DIR, 'assets', 'fonts');
+  mkdirSync(fontDir, { recursive: true });
+  for (const f of ['InterVariable-latin.woff2', 'OFL.txt', 'inter-face.css']) {
+    copyFileSync(join(ROOT, 'marketing', 'site', 'fonts', f), join(fontDir, f));
+  }
+
   // Sitemap (all generated pages + blog indexes + German home + static entries)
   const allPages = [...pages, blogIndex.page, deBlogIndex.page, deHome];
   writeOut(join(DOCS_DIR, 'sitemap.xml'), renderSitemap(allPages));
 
-  console.log(`Done — ${pages.length + 3} pages, sitemap, stylesheet.`);
+  console.log(`Done — ${pages.length + 3} pages, sitemap, stylesheet, consent script, fonts.`);
 }
 
 main();

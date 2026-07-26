@@ -46,7 +46,7 @@ Geldgespräche in der Familie sind schwieriger als unter Freunden — da sind Ge
 
 Eine Familienreise heißt: Meist wrangelt eine Person die Reisepässe und Ausweise von Partnern, Kindern und manchmal Großeltern — und Gruppenbuchungen (Flüge, Mietwagen) brauchen diese Daten Monate im Voraus. Der übliche Workflow — Ausweisfotos im Familien-WhatsApp — bedeutet: Die Pässe deiner Kinder leben für immer in einem Chat-Verlauf.
 
-Mach es richtig: Jeder Haushalt bewahrt seine Dokumente in [Vacationists verschlüsseltem Tresor](/de/features/travel-documents/) auf (AES-256, biometrisches Entsperren) und gewährt der buchenden Person der Reise **temporären Zugriff**, der **widerrufen** wird, sobald die Tickets ausgestellt sind. Die Buchung passiert trotzdem; die permanenten Chat-Kopien nicht. Für Familien ist das wohl die wertvollste Funktion der App — und eine, die keine andere Reise-App hat.
+Mach es richtig: Jeder Haushalt bewahrt seine Dokumente in [Vacationists verschlüsseltem Tresor](/de/features/travel-documents/) auf (verschlüsselt gespeichert, biometrische Sperre) und gewährt der buchenden Person der Reise **temporären Zugriff**, der **widerrufen** wird, sobald die Tickets ausgestellt sind. Die Buchung passiert trotzdem; die permanenten Chat-Kopien nicht. Für Familien ist das wohl die wertvollste Funktion der App — und eine, die keine andere Reise-App hat.
 
 ## Die Reise selbst: Struktur für Menschen von 2 bis 82
 

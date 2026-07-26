@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Vacationist Features — Everything a Group Trip Needs in One App</title>
   <meta name="description" content="Activity voting, expense splitting, shared lists, encrypted travel documents, group chat, and offline sync — explore every Vacationist feature for group travel.">
@@ -102,9 +96,8 @@
   </script>
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -140,7 +133,7 @@
 <h3 id="shared-shopping-packing-lists"><a href="/features/shopping-lists/">Shared shopping &amp; packing lists →</a></h3>
 <p>Live lists that sync to every phone instantly — plus a unique recipe-to-shopping-list sync for group cooking. <a href="/features/shopping-lists/">Explore shared lists.</a></p>
 <h3 id="encrypted-travel-documents"><a href="/features/travel-documents/">Encrypted travel documents →</a></h3>
-<p>Passports and IDs stored with AES-256 encryption, unlocked by biometrics, shareable with the organizer temporarily — and revocable anytime. <a href="/features/travel-documents/">Read about the document vault.</a></p>
+<p>Passports and IDs stored encrypted at rest, protected by a biometric lock, shareable with the organizer temporarily — and revocable anytime. <a href="/features/travel-documents/">Read about the document vault.</a></p>
 <h2 id="and-everything-around-them">And everything around them</h2>
 <ul>
 <li><strong>Guest access without an account</strong> — send one link and the whole group is in. Nobody has to sign up to vote, edit lists, or be part of expenses.</li>
@@ -220,6 +213,7 @@
       <a href="/privacy-policy.html">Privacy Policy</a>
       <a href="/terms-of-service.html">Terms of Service</a>
       <a href="/impressum.html">Impressum</a>
+      <a href="#cookie-settings">Cookie settings</a>
       <a href="mailto:meetdeep.de@gmail.com">Contact</a>
     </div>
   </div>

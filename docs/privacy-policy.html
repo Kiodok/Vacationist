@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Privacy Policy — Vacationist</title>
   <meta name="description" content="Privacy policy for Vacationist - how we collect, use, and protect your personal data in our collaborative trip planning app.">
@@ -20,9 +14,8 @@
   <link rel="alternate" hreflang="de" href="https://vacationist.app/de/privacy-policy/">
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/privacy-policy.html">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -138,7 +131,7 @@
 <header>
   <p class="app-name">Vacationist</p>
   <h1>Privacy Policy</h1>
-  <p class="meta">Effective date: 1 June 2026 &nbsp;·&nbsp; Last updated: 17 July 2026</p>
+  <p class="meta">Effective date: 1 June 2026 &nbsp;·&nbsp; Last updated: 26 July 2026</p>
 </header>
 
 <main>
@@ -173,12 +166,13 @@
     <ul>
       <li>Trip names, dates, destinations, and member lists</li>
       <li>Activities, votes, expenses, shopping lists, notes, accommodations, and transfer details you create</li>
+      <li>Trip chat messages (encrypted at rest, see below)</li>
       <li>Invitation links you generate or use</li>
     </ul>
 
     <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">Travel Documents</h2>
     <div class="highlight">
-      Travel document details (passport or national ID number, expiry date, issuing country) are stored exclusively in encrypted form using AES-256 encryption (pgcrypto). The data is never stored in plain text, is never accessible to us, and is only decryptable on your device after biometric authentication.
+      Travel document details you enter (full legal name, document number, date of birth, and any notes) are encrypted at rest in our database before being written. Nationality, issuing country, and expiry date are stored unencrypted, since they are needed to power reminders and are not sufficient on their own to identify a document. Access is restricted by row-level security and, on mobile, by a device biometric or passcode prompt. The encryption key is held by us, not derived from your device or biometrics — we could technically access this data, but access is logged and restricted to what is necessary to operate the service. Trip chat messages are encrypted using the same at-rest method.
     </div>
 
     <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">Device Data</h2>
@@ -214,10 +208,10 @@
   <section>
     <h2>4. Data Storage & Security</h2>
     <p>
-      Your data is stored on servers provided by <strong>Supabase Inc.</strong> (infrastructure hosted in the EU, Central Europe / Zurich region). Supabase is a US-based company operating EU-hosted infrastructure; their privacy policy is available at
+      Your data is stored on servers provided by <strong>Supabase Inc.</strong>, hosted in the EU (Paris, France, AWS region eu-west-3). Supabase Inc. is a US-based company; because it could access EU-hosted data from the US, this transfer is carried out on the basis of Standard Contractual Clauses. Supabase's privacy policy is available at
       <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a>.
     </p>
-    <p>All data is transmitted over TLS. Travel documents are encrypted at the application layer before being written to the database.</p>
+    <p>All data is transmitted over TLS. Travel documents and trip chat messages are encrypted at the database layer before being written; see the Travel Documents section above for what "encrypted" means in practice.</p>
     <p>
       Authentication is handled by Supabase Auth. Google Sign-In tokens are exchanged server-side and are not stored by us.
     </p>
@@ -239,12 +233,24 @@
         (<a href="https://expo.dev/privacy" target="_blank" rel="noopener">Privacy Policy</a>)
       </li>
       <li>
-        <strong>Sentry (Functional Software Inc.)</strong> — anonymised crash reporting
+        <strong>Sentry (Functional Software Inc.)</strong> — crash and error reporting, linked to your account ID; includes a masked sample of session activity and may include a screenshot at the time of a crash
         (<a href="https://sentry.io/privacy/" target="_blank" rel="noopener">Privacy Policy</a>)
       </li>
       <li>
-        <strong>Google Analytics 4 (Google LLC)</strong> — anonymised website usage statistics (Website only)
+        <strong>Google Analytics 4 (Google LLC)</strong> — website usage statistics, loaded only with your consent (Website only, see Section 6)
         (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>)
+      </li>
+      <li>
+        <strong>GitHub (Microsoft Corporation)</strong> — hosts this website and processes visitor requests and IP addresses at the infrastructure level
+        (<a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener">Privacy Statement</a>)
+      </li>
+      <li>
+        <strong>Vercel Inc.</strong> — hosts the web version of the App at web.vacationist.app, and provides anonymised analytics and performance monitoring within the web version only
+        (<a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>)
+      </li>
+      <li>
+        <strong>Cloudflare, Inc.</strong> — bot/abuse protection (Turnstile) on selected forms
+        (<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy Policy</a>)
       </li>
     </ul>
   </section>
@@ -262,9 +268,9 @@
       Google Analytics 4 truncates IP addresses before any data is written to Google's servers. Your full IP address is never stored or made available to us. The approximate location derived from the truncated address is limited to country and city level.
     </p>
 
-    <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">Legal basis</h2>
+    <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">Consent</h2>
     <p>
-      Processing of Website analytics data is based on our <strong>legitimate interest</strong> (Art. 31 nDSG; Art. 6(1)(f) GDPR where applicable) in understanding aggregate usage patterns to improve the Website. We do not use Google Analytics to build personal profiles or target individuals.
+      Google Analytics is loaded, and the <code>_ga</code> / <code>_ga_*</code> cookies are set, <strong>only after you actively accept</strong> via the cookie banner shown on your first visit (legal basis: Art. 6(1)(a) GDPR / § 25(1) TTDSG where applicable; Art. 6 DSG for Swiss visitors). If you decline or do not respond, Google Analytics does not load and no analytics cookie is set. You can review or withdraw your choice at any time via <a href="#cookie-settings">Cookie settings</a> in the footer. We do not use Google Analytics to build personal profiles or target individuals.
     </p>
 
     <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">International data transfer</h2>
@@ -279,16 +285,20 @@
     </p>
 
     <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">How to opt out</h2>
-    <p>You have the following options to prevent Google Analytics from collecting data about your visit:</p>
+    <p>You have the following options to prevent or stop Google Analytics from collecting data about your visit:</p>
     <ul>
+      <li>Decline, or later withdraw, consent via <a href="#cookie-settings">Cookie settings</a> in the footer</li>
       <li>Install the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out Browser Add-on</a></li>
       <li>Enable "Do Not Track" or Global Privacy Control (GPC) in your browser</li>
       <li>Use a browser extension that blocks analytics scripts</li>
       <li>Manage your Google data controls at <a href="https://myaccount.google.com/data-and-privacy" target="_blank" rel="noopener">myaccount.google.com</a></li>
     </ul>
+    <p>
+      Your cookie choice is remembered in your browser's local storage (key <code>v_consent</code>) for up to 12 months, after which you will be asked again. This storage entry itself is strictly necessary to remember your choice and does not require consent.
+    </p>
 
     <div class="highlight">
-      The mobile App does not use Google Analytics or any third-party analytics SDK. Analytics data collection is limited to the Website only.
+      The native mobile App (iOS/Android) does not use Google Analytics or any third-party analytics SDK. The web version of the App, at web.vacationist.app, uses privacy-focused Vercel Analytics for anonymised performance monitoring — see Section 5. Google Analytics is used on this marketing website only, and only after consent.
     </div>
   </section>
 
@@ -297,19 +307,19 @@
     <p>
       Your data is retained for as long as your account exists. If you delete your account, all personal data — including trip data, travel documents, and push tokens — is permanently deleted within 30 days.
     </p>
-    <p>Anonymous/guest accounts that have never been upgraded are automatically purged after 90 days of inactivity.</p>
+    <p>Guest accounts (created via an invitation link, without an email address) that are never upgraded to a full account may be deleted after a period of inactivity; this is not currently an automated process. Data associated with a guest account is retained only as long as the account exists.</p>
   </section>
 
   <section>
     <h2>8. Your Rights</h2>
     <p>
-      Under the Swiss Federal Act on Data Protection (nDSG) and, where applicable, the EU General Data Protection Regulation (GDPR), you have the following rights:
+      Under the Swiss Federal Act on Data Protection (DSG) and, where applicable, the EU General Data Protection Regulation (GDPR), you have the following rights:
     </p>
     <ul>
       <li><strong>Right of access</strong> — you may request a copy of the personal data we hold about you</li>
       <li><strong>Right to rectification</strong> — you may correct inaccurate data at any time via the Profile screen</li>
       <li><strong>Right to erasure</strong> — you may request deletion of your account and all associated data</li>
-      <li><strong>Right to data portability</strong> — you may request your data in a structured, machine-readable format</li>
+      <li><strong>Right to data portability</strong> — on request, we will provide your data to you in a structured, commonly used format. The App does not currently offer a fully self-service export covering all data categories; a per-trip summary export is available from within a trip, and we will compile anything not covered by it manually</li>
       <li><strong>Right to object</strong> — you may object to processing where we rely on legitimate interest</li>
     </ul>
     <p>
@@ -349,7 +359,7 @@
 </main>
 
 <footer>
-  <p>© 2026 Vacationist &nbsp;·&nbsp; <a href="#">Back to top</a></p>
+  <p>© 2026 Vacationist &nbsp;·&nbsp; <a href="#cookie-settings">Cookie settings</a> &nbsp;·&nbsp; <a href="#">Back to top</a></p>
 </footer>
 
 </body>

@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Vacationist - Beste Gruppenreise-Planer App | Ausgaben teilen &amp; Aktivitäten abstimmen</title>
   <meta name="description" content="Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und Unterkünfte verwalten — alles an einem Ort. Perfekt für Gruppenreisen, Roadtrips und Junggesellinnenabschiede.">
@@ -137,9 +131,8 @@
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -917,7 +910,7 @@
       <div class="feat-card reveal d2">
         <div class="feat-icon">🔒</div>
         <div class="feat-title" data-i18n="feat.5.title">Verschlüsselte Reisedokumente</div>
-        <div class="feat-desc" data-i18n="feat.5.desc">Reisepass- und Ausweisdaten, gesichert durch biometrische Authentifizierung, AES-256 verschlüsselt. Temporären Organisatorzugriff gewähren und jederzeit widerrufen.</div>
+        <div class="feat-desc" data-i18n="feat.5.desc">Reisepass- und Ausweisdaten verschlüsselt gespeichert und gesichert durch biometrische Authentifizierung. Temporären Organisatorzugriff gewähren und jederzeit widerrufen.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🗓️</div>
@@ -1121,8 +1114,8 @@
 <!-- TRUST STRIP -->
 <div class="trust">
   <div class="trust-inner">
-    <div class="trust-item"><div class="trust-icon">🔒</div><span data-i18n="trust.aes">AES-256 verschlüsselte Dokumente</span></div>
-    <div class="trust-item"><div class="trust-icon">🚫</div><span data-i18n="trust.noAds">Keine Werbung, kein Tracking</span></div>
+    <div class="trust-item"><div class="trust-icon">🔒</div><span data-i18n="trust.aes">Dokumente verschlüsselt gespeichert</span></div>
+    <div class="trust-item"><div class="trust-icon">🚫</div><span data-i18n="trust.noAds">Keine Werbung, kein Tracking in der App</span></div>
     <div class="trust-item"><div class="trust-icon">🇨🇭</div><span data-i18n="trust.swiss">In der Schweiz entwickelt</span></div>
     <div class="trust-item"><div class="trust-icon">🆓</div><span data-i18n="trust.free">Kostenlos nutzbar</span></div>
     <div class="trust-item"><div class="trust-icon">📱</div><span data-i18n="trust.platform">Android · iOS demnächst</span></div>
@@ -1178,11 +1171,12 @@
 <footer>
   <span class="f-copy" data-i18n="footer.copy">© 2026 Vacationist · Gary Lude, Schweiz</span>
   <div class="f-links">
-    <a href="/features/" data-i18n="footer.features">Funktionen</a>
+    <a href="/de/features/" data-i18n="footer.features" data-i18n-href="features.href">Funktionen</a>
     <a href="/de/blog/" data-i18n="footer.blog" data-i18n-href="blog.href">Blog</a>
     <a href="/de/privacy-policy/" data-i18n="footer.privacy" data-i18n-href="privacy.href">Datenschutzerklärung</a>
     <a href="/de/terms-of-service/" data-i18n="footer.terms" data-i18n-href="terms.href">Nutzungsbedingungen</a>
     <a href="/de/impressum/" data-i18n="footer.impressum" data-i18n-href="impressum.href">Impressum</a>
+    <a href="#cookie-settings" data-i18n="footer.cookies">Cookie-Einstellungen</a>
     <a href="mailto:meetdeep.de@gmail.com" data-i18n="footer.contact">Kontakt</a>
   </div>
 </footer>

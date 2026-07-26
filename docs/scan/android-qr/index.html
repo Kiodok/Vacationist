@@ -4,14 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <base href="/">
   <title>Vacationist – Kostenloser Gruppenreise-Planer</title>
@@ -286,7 +280,7 @@
     <div class="trust-strip">
       <span class="trust-item" data-i18n="scan.trust.free">Kostenlos nutzbar</span>
       <span class="trust-sep" aria-hidden="true">·</span>
-      <span class="trust-item" data-i18n="scan.trust.noAds">Keine Werbung, kein Tracking</span>
+      <span class="trust-item" data-i18n="scan.trust.noAds">Keine Werbung, kein Tracking in der App</span>
       <span class="trust-sep" aria-hidden="true">·</span>
       <span class="trust-item" data-i18n="scan.trust.swiss">In der Schweiz entwickelt</span>
     </div>
@@ -304,6 +298,7 @@
   <footer class="footer">
     <a href="https://vacationist.app/privacy-policy.html" data-i18n="scan.footer.privacy">Datenschutz</a>
     <a href="https://vacationist.app/terms-of-service.html" data-i18n="scan.footer.terms">Nutzungsbedingungen</a>
+    <a href="#cookie-settings" data-i18n="scan.footer.cookies">Cookie-Einstellungen</a>
     <span>© 2026 Vacationist</span>
   </footer>
 

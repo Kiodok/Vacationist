@@ -4,17 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Encrypted Travel Document Storage — Passports Secured with Biometrics | Vacationist</title>
-  <meta name="description" content="Store passports, IDs, and travel documents encrypted with AES-256 and unlocked by biometrics. Grant the trip organizer temporary access — and revoke it anytime.">
+  <meta name="description" content="Store passports, IDs, and travel documents encrypted at rest, behind a biometric lock on your device. Grant the trip organizer temporary access — and revoke it anytime.">
   <meta name="keywords" content="travel document organizer app, store passport details securely, encrypted travel documents, travel document wallet">
 
   <link rel="canonical" href="https://vacationist.app/features/travel-documents/">
@@ -23,14 +17,14 @@
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/travel-documents/">
 
   <meta property="og:title" content="Encrypted Travel Document Storage — Passports Secured with Biometrics | Vacationist">
-  <meta property="og:description" content="Store passports, IDs, and travel documents encrypted with AES-256 and unlocked by biometrics. Grant the trip organizer temporary access — and revoke it anytime.">
+  <meta property="og:description" content="Store passports, IDs, and travel documents encrypted at rest, behind a biometric lock on your device. Grant the trip organizer temporary access — and revoke it anytime.">
   <meta property="og:url" content="https://vacationist.app/features/travel-documents/">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://vacationist.app/og-image.png">
   <meta property="og:site_name" content="Vacationist">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Encrypted Travel Document Storage — Passports Secured with Biometrics | Vacationist">
-  <meta name="twitter:description" content="Store passports, IDs, and travel documents encrypted with AES-256 and unlocked by biometrics. Grant the trip organizer temporary access — and revoke it anytime.">
+  <meta name="twitter:description" content="Store passports, IDs, and travel documents encrypted at rest, behind a biometric lock on your device. Grant the trip organizer temporary access — and revoke it anytime.">
   <meta name="twitter:image" content="https://vacationist.app/og-image.png">
 
   <script type="application/ld+json">
@@ -38,7 +32,7 @@
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Encrypted Travel Document Storage — Passports Secured with Biometrics | Vacationist",
-    "description": "Store passports, IDs, and travel documents encrypted with AES-256 and unlocked by biometrics. Grant the trip organizer temporary access — and revoke it anytime.",
+    "description": "Store passports, IDs, and travel documents encrypted at rest, behind a biometric lock on your device. Grant the trip organizer temporary access — and revoke it anytime.",
     "url": "https://vacationist.app/features/travel-documents/",
     "inLanguage": "en",
     "isPartOf": {
@@ -84,7 +78,7 @@
         "name": "Can Vacationist read my documents?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Documents are encrypted with AES-256 before storage. Decryption happens for you, gated by your device biometrics — the vault is designed so your travel documents aren't sitting readable on a server."
+          "text": "Sensitive document fields are encrypted at rest and access is restricted and logged. Viewing a document in the app requires your device's biometrics or passcode. Like any service that isn't fully client-side end-to-end encrypted, we technically hold the means to access this data on our servers — we don't, and access is limited to what's necessary to run the service. See our Privacy Policy for the full picture."
         }
       },
       {
@@ -116,9 +110,8 @@
   </script>
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -148,8 +141,8 @@
 <h1 id="your-passport-details-encrypted-not-screenshotted">Your passport details. Encrypted, not screenshotted.</h1>
 <p class="lede">Every group trip reaches the moment where the organizer asks everyone to "just send your passport details for the booking" — and suddenly ID photos live forever in a WhatsApp chat. Vacationist replaces that with an encrypted travel document vault built into the trip itself.</p><h2 id="how-the-document-vault-works">How the document vault works</h2>
 <ul>
-<li><strong>AES-256 encryption.</strong> Documents are encrypted before they&#39;re stored — passport numbers, ID details, and travel documents are never saved in plain text.</li>
-<li><strong>Biometric unlock.</strong> Your documents open with your fingerprint or face, on your device. No shared passwords.</li>
+<li><strong>Encrypted at rest.</strong> Sensitive fields — full name, document number, date of birth — are encrypted before they&#39;re stored. No shared passwords.</li>
+<li><strong>Biometric lock.</strong> Viewing your documents in the app requires your fingerprint, face, or device passcode.</li>
 <li><strong>Per-person, per-trip.</strong> Each traveler manages their own documents and decides what to share, with whom, for how long.</li>
 </ul>
 <h2 id="organizer-access-with-consent-and-revocation">Organizer access — with consent and revocation</h2>
@@ -159,7 +152,7 @@
 <ul>
 <li><strong>Families</strong> — parents keep the whole family&#39;s passports and IDs in one secured place, ready at every check-in counter, instead of digging through email attachments at the gate.</li>
 <li><strong>Bachelorette and large groups</strong> — one organizer books for twelve people without twelve ID photos landing in a group chat that still exists three years later.</li>
-<li><strong>Privacy-conscious travelers</strong> — your documents are encrypted, you hold the keys via your device&#39;s biometrics, and access is something you grant and revoke — not something you lose control of the moment you hit send.</li>
+<li><strong>Privacy-conscious travelers</strong> — your documents are encrypted at rest, viewing them requires your device&#39;s biometrics, and access is something you grant and revoke — not something you lose control of the moment you hit send.</li>
 </ul>
 <h2 id="offline-like-everything-else">Offline, like everything else</h2>
 <p>Your documents are available on your device even without a connection — exactly when you tend to need them: at borders, on planes, in basements with no signal.</p>
@@ -172,7 +165,7 @@
   </div>
 </div><h2 id="frequently-asked-questions">Frequently asked questions</h2>
 <h3 id="can-vacationist-read-my-documents">Can Vacationist read my documents?</h3>
-<p>Documents are encrypted with AES-256 before storage. Decryption happens for you, gated by your device biometrics — the vault is designed so your travel documents aren&#39;t sitting readable on a server.</p>
+<p>Sensitive document fields are encrypted at rest and access is restricted and logged. Viewing a document in the app requires your device&#39;s biometrics or passcode. Like any service that isn&#39;t fully client-side end-to-end encrypted, we technically hold the means to access this data on our servers — we don&#39;t, and access is limited to what&#39;s necessary to run the service. See our <a href="/privacy-policy.html">Privacy Policy</a> for the full picture.</p>
 <h3 id="what-happens-when-i-revoke-the-organizers-access">What happens when I revoke the organizer&#39;s access?</h3>
 <p>They immediately lose the ability to view the document. Unlike sending a photo in chat, sharing in Vacationist is an access grant, not a copy — revoking it actually ends it.</p>
 <h3 id="which-documents-can-i-store">Which documents can I store?</h3>
@@ -234,6 +227,7 @@
       <a href="/privacy-policy.html">Privacy Policy</a>
       <a href="/terms-of-service.html">Terms of Service</a>
       <a href="/impressum.html">Impressum</a>
+      <a href="#cookie-settings">Cookie settings</a>
       <a href="mailto:meetdeep.de@gmail.com">Contact</a>
     </div>
   </div>

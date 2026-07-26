@@ -71,7 +71,7 @@ window.VACATIONIST_I18N = {
   'feat.4.title': 'Transfer & Flüge',
   'feat.4.desc': 'Flüge vorschlagen, über Optionen abstimmen, Buchungen erfassen, Mietwagen verwalten und zuweisen, wer mit wem fährt — alles an einem Ort.',
   'feat.5.title': 'Verschlüsselte Reisedokumente',
-  'feat.5.desc': 'Reisepass- und Ausweisdaten, gesichert durch biometrische Authentifizierung, AES-256 verschlüsselt. Temporären Organisatorzugriff gewähren und jederzeit widerrufen.',
+  'feat.5.desc': 'Reisepass- und Ausweisdaten verschlüsselt gespeichert und gesichert durch biometrische Authentifizierung. Temporären Organisatorzugriff gewähren und jederzeit widerrufen.',
   'feat.6.title': 'Urlaubsverfolgung & Kalender',
   'feat.6.desc': 'Eine visuelle Zeitleiste aller geplanten Aktivitäten, Transfers und Check-ins — deine Urlaubsverfolgung in der Zeitzone der Reise. Jeden freien Tag auf einen Blick.',
   'feat.7.title': 'Gruppenchat',
@@ -133,8 +133,8 @@ window.VACATIONIST_I18N = {
   'faq.6.a': 'Jede Reise in Vacationist ist ein gemeinsamer Arbeitsbereich. Per Link einladen — alle treten sofort bei, kein Konto zum Mitmachen nötig. Die Urlaubsübersicht zeigt die gesamte Reise-Zeitleiste, alle Termine außerhalb des Kalenders und Ausgaben auf einen Blick. Änderungen synchronisieren sich in Echtzeit, sodass alle immer auf dem neuesten Stand sind.',
 
   // Trust strip
-  'trust.aes': 'AES-256 verschlüsselte Dokumente',
-  'trust.noAds': 'Keine Werbung, kein Tracking',
+  'trust.aes': 'Dokumente verschlüsselt gespeichert',
+  'trust.noAds': 'Keine Werbung, kein Tracking in der App',
   'trust.swiss': 'In der Schweiz entwickelt',
   'trust.free': 'Kostenlos nutzbar',
   'trust.platform': 'Android · iOS demnächst',
@@ -158,6 +158,7 @@ window.VACATIONIST_I18N = {
   'strip.2.href': '/de/blog/how-to-split-travel-expenses/',
   'strip.3.href': '/de/blog/best-group-travel-apps-2026/',
   'strip.4.href': '/de/alternatives/splitwise/',
+  'features.href': '/de/features/',
   'blog.href': '/de/blog/',
   'privacy.href': '/de/privacy-policy/',
   'terms.href': '/de/terms-of-service/',
@@ -170,6 +171,7 @@ window.VACATIONIST_I18N = {
   'footer.privacy': 'Datenschutzerklärung',
   'footer.terms': 'Nutzungsbedingungen',
   'footer.impressum': 'Impressum',
+  'footer.cookies': 'Cookie-Einstellungen',
   'footer.contact': 'Kontakt',
 
   // join.html (invite marketing page)
@@ -198,6 +200,7 @@ window.VACATIONIST_I18N = {
   'join.error.cta': 'Zu Vacationist',
   'join.footer.privacy': 'Datenschutz',
   'join.footer.terms': 'Nutzungsbedingungen',
+  'join.footer.cookies': 'Cookie-Einstellungen',
 
   // scan/android-qr (QR-Code-Landingpage)
   'scan.nav.getApp': 'App holen',
@@ -224,13 +227,14 @@ window.VACATIONIST_I18N = {
   'scan.feat.export.name': 'Export der Reise',
   'scan.feat.export.desc': 'Alle Reisedaten in einer übersichtlichen Datei.',
   'scan.trust.free': 'Kostenlos nutzbar',
-  'scan.trust.noAds': 'Keine Werbung, kein Tracking',
+  'scan.trust.noAds': 'Keine Werbung, kein Tracking in der App',
   'scan.trust.swiss': 'In der Schweiz entwickelt',
   'scan.cta.title': 'Bereit für die nächste Reise?',
   'scan.cta.sub': 'Lade Vacationist herunter und plane gemeinsam.',
   'scan.cta.getPlay': 'Im Play Store holen',
   'scan.footer.privacy': 'Datenschutz',
   'scan.footer.terms': 'Nutzungsbedingungen',
+  'scan.footer.cookies': 'Cookie-Einstellungen',
 
   // 404 page
   '404.title': 'Seite nicht gefunden',

@@ -1,11 +1,11 @@
 ---
 title: Verschlüsselte Reisedokumente — Reisepässe mit Biometrie gesichert | Vacationist
-description: Reisepässe, Ausweise und Reisedokumente AES-256-verschlüsselt speichern und per Biometrie entsperren. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.
+description: Reisepässe, Ausweise und Reisedokumente verschlüsselt speichern, gesichert durch eine biometrische Sperre auf deinem Gerät. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.
 path: /de/features/travel-documents/
 lang: de
 type: feature
 schema: WebPage
-date: 2026-07-21
+date: 2026-07-26
 altPath: /features/travel-documents/
 keywords: Reisedokumente App, Reisepass sicher speichern, verschlüsselte Reisedokumente, Reisedokumente verwalten
 related: /de/features/expenses/, /de/blog/family-vacation-coordination-guide/, /de/blog/how-to-plan-a-group-trip/
@@ -18,8 +18,8 @@ breadcrumbLabel: Reisedokumente
 
 ## So funktioniert der Dokumenten-Tresor
 
-- **AES-256-Verschlüsselung.** Dokumente werden verschlüsselt, bevor sie gespeichert werden — Passnummern, Ausweisdaten und Reisedokumente liegen nie im Klartext.
-- **Biometrisches Entsperren.** Deine Dokumente öffnen sich per Fingerabdruck oder Gesicht, auf deinem Gerät. Keine geteilten Passwörter.
+- **Verschlüsselt gespeichert.** Sensible Felder — vollständiger Name, Dokumentnummer, Geburtsdatum — werden verschlüsselt, bevor sie gespeichert werden. Keine geteilten Passwörter.
+- **Biometrische Sperre.** Um deine Dokumente in der App anzusehen, brauchst du deinen Fingerabdruck, dein Gesicht oder den Geräte-Code.
 - **Pro Person, pro Reise.** Jeder Reisende verwaltet seine eigenen Dokumente und entscheidet, was er teilt, mit wem und wie lange.
 
 ## Organisator-Zugriff — mit Zustimmung und Widerruf
@@ -32,7 +32,7 @@ In Vacationist gewährst du dem Reiseorganisator **temporären Zugriff** auf bes
 
 - **Familien** — Eltern haben die Reisepässe und Ausweise der ganzen Familie an einem gesicherten Ort, griffbereit an jedem Check-in-Schalter, statt am Gate durch E-Mail-Anhänge zu wühlen.
 - **Junggesellinnenabschiede und große Gruppen** — eine Organisatorin bucht für zwölf Leute, ohne dass zwölf Ausweisfotos in einem Gruppenchat landen, den es in drei Jahren immer noch gibt.
-- **Datenschutzbewusste Reisende** — deine Dokumente sind verschlüsselt, die Schlüssel hältst du über die Biometrie deines Geräts, und Zugriff ist etwas, das du gewährst und widerrufst — nicht etwas, worüber du die Kontrolle verlierst, sobald du auf Senden tippst.
+- **Datenschutzbewusste Reisende** — deine Dokumente sind verschlüsselt gespeichert, das Ansehen setzt die Biometrie deines Geräts voraus, und Zugriff ist etwas, das du gewährst und widerrufst — nicht etwas, worüber du die Kontrolle verlierst, sobald du auf Senden tippst.
 
 ## Offline, wie alles andere
 
@@ -44,7 +44,7 @@ Deine Dokumente sind auch ohne Verbindung auf deinem Gerät verfügbar — genau
 
 ### Kann Vacationist meine Dokumente lesen?
 
-Dokumente werden vor der Speicherung mit AES-256 verschlüsselt. Die Entschlüsselung passiert für dich, abgesichert durch die Biometrie deines Geräts — der Tresor ist so gebaut, dass deine Reisedokumente nicht lesbar auf einem Server liegen.
+Sensible Dokumentfelder werden verschlüsselt gespeichert, und der Zugriff ist eingeschränkt und protokolliert. Um ein Dokument in der App anzusehen, brauchst du die Biometrie oder den Code deines Geräts. Wie bei jedem Dienst, der nicht vollständig clientseitig Ende-zu-Ende-verschlüsselt ist, könnten wir technisch auf diese Daten auf unseren Servern zugreifen — wir tun das nicht, und der Zugriff ist auf das für den Betrieb Notwendige beschränkt. Das vollständige Bild findest du in unserer [Datenschutzerklärung](/de/privacy-policy/).
 
 ### Was passiert, wenn ich den Zugriff des Organisators widerrufe?
 

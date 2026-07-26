@@ -4,6 +4,10 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Inter's @font-face rule lives in marketing/site/fonts/inter-face.css (single source of
+   truth, linked separately by every page — see build.mjs renderPage()) so it is never
+   duplicated inline again. */
+
 :root {
   --bg:       #0F0F0F;
   --surface:  #1A1A1A;

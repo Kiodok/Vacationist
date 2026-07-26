@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Family Vacation Coordination — Planning Trips Across Multiple Households (2026)</title>
   <meta name="description" content="How to coordinate a family vacation across households — grandparents, in-laws, kids and all. Shared calendars, fair cost splitting between families, and travel documents done safely.">
@@ -135,9 +129,8 @@
   </script>
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -190,7 +183,7 @@
 </ul>
 <h2 id="documents-the-family-sized-problem">Documents: the family-sized problem</h2>
 <p>A family trip means one person is usually wrangling passports and IDs for spouses, kids, and sometimes grandparents — and group bookings (flights, rentals) need those details months early. The common workflow — ID photos in the family WhatsApp — means your children&#39;s passports live in a chat thread forever.</p>
-<p>Do it properly: each household keeps its own documents in <a href="/features/travel-documents/">Vacationist&#39;s encrypted vault</a> (AES-256, biometric unlock), and grants the trip&#39;s booking person <strong>temporary access</strong> that gets <strong>revoked</strong> once tickets are issued. The booking still happens; the permanent chat-thread copies don&#39;t. For families this is arguably the app&#39;s most valuable feature — and one no other travel app has.</p>
+<p>Do it properly: each household keeps its own documents in <a href="/features/travel-documents/">Vacationist&#39;s encrypted vault</a> (encrypted at rest, biometric lock), and grants the trip&#39;s booking person <strong>temporary access</strong> that gets <strong>revoked</strong> once tickets are issued. The booking still happens; the permanent chat-thread copies don&#39;t. For families this is arguably the app&#39;s most valuable feature — and one no other travel app has.</p>
 <h2 id="the-trip-itself-structure-for-humans-aged-2-to-82">The trip itself: structure for humans aged 2 to 82</h2>
 <ul>
 <li><strong>Anchor mornings OR evenings, not both.</strong> One shared meal a day as the family constant (usually dinner), one optional group activity most days — and explicit permission for subgroups: teens to the beach, grandparents to the café, toddler shift naps. Families that mandate 100% togetherness get 100% friction by day three.</li>
@@ -224,7 +217,7 @@
   <div class="related-grid">
     <a class="related-card" href="/features/travel-documents/">
       <span class="related-title">Travel documents</span>
-      <span class="related-desc">Store passports, IDs, and travel documents encrypted with AES-256 and unlocked by biometrics. Grant the trip organizer temporary access — and revoke it anytime.</span>
+      <span class="related-desc">Store passports, IDs, and travel documents encrypted at rest, behind a biometric lock on your device. Grant the trip organizer temporary access — and revoke it anytime.</span>
     </a>
     <a class="related-card" href="/blog/how-to-split-travel-expenses/">
       <span class="related-title">Expense splitting guide</span>
@@ -271,6 +264,7 @@
       <a href="/privacy-policy.html">Privacy Policy</a>
       <a href="/terms-of-service.html">Terms of Service</a>
       <a href="/impressum.html">Impressum</a>
+      <a href="#cookie-settings">Cookie settings</a>
       <a href="mailto:meetdeep.de@gmail.com">Contact</a>
     </div>
   </div>

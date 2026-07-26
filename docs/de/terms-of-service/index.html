@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Nutzungsbedingungen — Vacationist</title>
   <meta name="description" content="Nutzungsbedingungen für die Vacationist-App — die Regeln für die Nutzung unserer kollaborativen Reiseplanungs-App.">
@@ -69,9 +63,8 @@
   </script>
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -99,11 +92,10 @@
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/de/">Startseite</a> <span class="crumb-sep">/</span> <span aria-current="page">Nutzungsbedingungen</span></nav>
   <article class="article">
 <h1 id="nutzungsbedingungen">Nutzungsbedingungen</h1>
-<p><em>Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 21. Juli 2026</em></p>
-<p><em>Hinweis: Diese deutsche Fassung dient der Verständlichkeit. Im Zweifelsfall ist die <a href="/terms-of-service.html">englische Fassung</a> maßgeblich.</em></p>
+<p><em>Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 26. Juli 2026</em></p>
 <h2 id="1-annahme-der-bedingungen">1. Annahme der Bedingungen</h2>
-<p>Durch das Herunterladen, Installieren oder Nutzen der Vacationist-Mobil-App („die App&quot;) erklärst du dich mit diesen Nutzungsbedingungen („Bedingungen&quot;) einverstanden. Wenn du nicht einverstanden bist, nutze die App nicht.</p>
-<p>Die App wird als persönliches Nebenprojekt von <strong>Gary Lude</strong> mit Sitz in der Schweiz betrieben („wir&quot;, „uns&quot; oder „der Entwickler&quot;). Diese Bedingungen bilden die gesamte Vereinbarung zwischen dir und dem Entwickler bezüglich deiner Nutzung der App.</p>
+<p>Durch das Herunterladen, Installieren oder Nutzen der Vacationist-Mobil-App oder der Website unter <a href="https://vacationist.app">vacationist.app</a> (zusammen „die App&quot;) erklärst du dich mit diesen Nutzungsbedingungen („Bedingungen&quot;) einverstanden. Wenn du nicht einverstanden bist, nutze die App nicht.</p>
+<p>Die App wird als persönliches Nebenprojekt von <strong>Gary Lude</strong> mit Sitz in der Schweiz betrieben („wir&quot;, „uns&quot; oder „der Entwickler&quot;). Diese Bedingungen bilden die gesamte Vereinbarung zwischen dir und dem Entwickler bezüglich deiner Nutzung der App und der Website.</p>
 <h2 id="2-beschreibung-des-dienstes">2. Beschreibung des Dienstes</h2>
 <p>Vacationist ist eine kollaborative Reiseplanungs-App, mit der Nutzer gemeinsam Reisen organisieren können. Zu den Funktionen gehören das Vorschlagen von und Abstimmen über Aktivitäten, gemeinsames Ausgaben-Tracking, Echtzeit-Einkaufslisten, gemeinsame Notizen, Unterkunfts- und Transferverwaltung sowie die sichere Speicherung persönlicher Reisedokumente.</p>
 <p>Die App wird kostenlos bereitgestellt. Wir behalten uns vor, künftig kostenpflichtige Funktionen einzuführen; solche Änderungen werden im Voraus kommuniziert.</p>
@@ -122,34 +114,34 @@
 <li>Die Integrität oder Leistung der App oder ihrer Server zu stören oder zu beeinträchtigen</li>
 </ul>
 <h2 id="5-nutzergenerierte-inhalte">5. Nutzergenerierte Inhalte</h2>
-<p>Du behältst das Eigentum an allen Inhalten, die du in der App erstellst (Reisedetails, Aktivitäten, Notizen, Ausgaben-Einträge usw.). Mit dem Einreichen von Inhalten gewährst du uns eine beschränkte, nicht-exklusive Lizenz, diese Inhalte zu speichern und zu verarbeiten — ausschließlich zum Zweck der Bereitstellung des Dienstes für dich und deine Reisemitglieder.</p>
-<p>Du bist allein verantwortlich für die Richtigkeit und Rechtmäßigkeit der von dir eingereichten Inhalte. Wir prüfen oder moderieren keine Nutzerinhalte.</p>
+<p>Du behältst das Eigentum an allen Inhalten, die du in der App erstellst (Reisedetails, Aktivitäten, Notizen, Ausgaben-Einträge usw.). Mit dem Einreichen von Inhalten gewährst du uns eine beschränkte, nicht-exklusive Lizenz, diese Inhalte zu speichern und zu verarbeiten — ausschliesslich zum Zweck der Bereitstellung des Dienstes für dich und deine Reisemitglieder.</p>
+<p>Du bist allein verantwortlich für die Richtigkeit und Rechtmässigkeit der von dir eingereichten Inhalte. Wir prüfen oder moderieren keine Nutzerinhalte.</p>
 <h2 id="6-reisedokumente">6. Reisedokumente</h2>
 <blockquote>
-<p>In der App gespeicherte Reisedokumente (Passnummern, Ausweisdaten) sind verschlüsselt und dienen ausschließlich deiner persönlichen Bequemlichkeit. Die App ist kein zertifiziertes Identitätsmanagement-System. Verlasse dich nicht auf die App als einzige Aufzeichnung deiner Reisedokument-Daten. Führe auf Reisen immer deine physischen Dokumente mit.</p>
+<p>In der App gespeicherte Reisedokumente (Passnummern, Ausweisdaten) sind verschlüsselt gespeichert und dienen ausschliesslich deiner persönlichen Bequemlichkeit. Die App ist kein zertifiziertes Identitätsmanagement-System. Verlasse dich nicht auf die App als einzige Aufzeichnung deiner Reisedokument-Daten. Führe auf Reisen immer deine physischen Dokumente mit.</p>
 </blockquote>
 <p>Wenn du einem anderen Reisemitglied temporären Zugriff auf dein Reisedokument gewährst, tust du das freiwillig und auf eigenes Risiko. Wir sind nicht dafür verantwortlich, wie der Empfänger diese Informationen verwendet.</p>
 <h2 id="7-geistiges-eigentum">7. Geistiges Eigentum</h2>
-<p>Alle Rechte an der App — einschließlich, aber nicht beschränkt auf Design, Software, Marken und Grafiken — gehören dem Entwickler oder sind an ihn lizenziert. Diese Bedingungen übertragen dir keine Rechte an geistigem Eigentum. Du darfst die App ohne ausdrückliche schriftliche Erlaubnis nicht kopieren, verändern, verbreiten oder abgeleitete Werke erstellen.</p>
+<p>Alle Rechte an der App — einschliesslich, aber nicht beschränkt auf Design, Software, Marken und Grafiken — gehören dem Entwickler oder sind an ihn lizenziert. Diese Bedingungen übertragen dir keine Rechte an geistigem Eigentum. Du darfst die App ohne ausdrückliche schriftliche Erlaubnis nicht kopieren, verändern, verbreiten oder abgeleitete Werke erstellen.</p>
 <h2 id="8-gewährleistungsausschluss">8. Gewährleistungsausschluss</h2>
 <blockquote>
 <p>Die App wird „wie besehen&quot; und „wie verfügbar&quot; ohne jegliche ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Wir gewährleisten nicht, dass die App unterbrechungsfrei, fehlerfrei oder frei von Viren oder anderen schädlichen Komponenten ist. Die Nutzung der App erfolgt auf dein alleiniges Risiko.</p>
 </blockquote>
-<p>Wir übernehmen keine Gewähr für die Richtigkeit, Zuverlässigkeit oder Vollständigkeit von Informationen, die über die App bereitgestellt werden — einschließlich Ausgaben-Berechnungen, Reisedokument-Speicherung oder Benachrichtigungen.</p>
+<p>Wir übernehmen keine Gewähr für die Richtigkeit, Zuverlässigkeit oder Vollständigkeit von Informationen, die über die App bereitgestellt werden — einschliesslich Ausgaben-Berechnungen, Reisedokument-Speicherung oder Benachrichtigungen.</p>
 <h2 id="9-haftungsbeschränkung">9. Haftungsbeschränkung</h2>
-<p>Soweit gesetzlich zulässig, haftet der Entwickler nicht für indirekte, zufällige, besondere, Folge- oder Strafschäden — einschließlich Datenverlust, Reiseunterbrechung, finanzieller Verluste oder Ähnlichem — die aus deiner Nutzung oder der Unmöglichkeit der Nutzung der App entstehen.</p>
-<p>In Rechtsordnungen, die den Ausschluss bestimmter Gewährleistungen oder die Beschränkung der Haftung nicht zulassen, ist unsere Haftung auf das gesetzlich zulässige Höchstmaß beschränkt.</p>
+<p>Soweit gesetzlich zulässig, haftet der Entwickler nicht für indirekte, zufällige, besondere, Folge- oder Strafschäden — einschliesslich Datenverlust, Reiseunterbrechung, finanzieller Verluste oder Ähnlichem — die aus deiner Nutzung oder der Unmöglichkeit der Nutzung der App entstehen.</p>
+<p>In Rechtsordnungen, die den Ausschluss bestimmter Gewährleistungen oder die Beschränkung der Haftung nicht zulassen, ist unsere Haftung auf das gesetzlich zulässige Höchstmass beschränkt. Unberührt bleibt in jedem Fall die Haftung für Vorsatz und grobe Fahrlässigkeit sowie für Personenschäden (Art. 100 Abs. 1 OR).</p>
 <h2 id="10-verfügbarkeit-und-änderungen-des-dienstes">10. Verfügbarkeit und Änderungen des Dienstes</h2>
 <p>Wir behalten uns das Recht vor, die App (oder Teile davon) jederzeit mit oder ohne Ankündigung zu ändern, auszusetzen oder einzustellen. Wir bemühen uns, Nutzer über wesentliche Änderungen per In-App-Benachrichtigung zu informieren.</p>
 <p>Wir garantieren keine bestimmte Verfügbarkeit oder Betriebszeit. Geplante Wartung kann zu vorübergehender Nichtverfügbarkeit führen.</p>
 <h2 id="11-beendigung">11. Beendigung</h2>
-<p>Du kannst die Nutzung der App jederzeit beenden und dein Konto über den Profil-Bildschirm löschen. Nach der Kontolöschung werden deine Daten gemäß unserer <a href="/de/privacy-policy/">Datenschutzerklärung</a> innerhalb von 30 Tagen dauerhaft entfernt.</p>
-<p>Wir behalten uns das Recht vor, deinen Zugang zur App ohne Ankündigung auszusetzen oder zu beenden, wenn wir glauben, dass du gegen diese Bedingungen verstoßen hast.</p>
+<p>Du kannst die Nutzung der App jederzeit beenden und dein Konto über den Profil-Bildschirm löschen. Nach der Kontolöschung werden deine Daten gemäss unserer <a href="/de/privacy-policy/">Datenschutzerklärung</a> innerhalb von 30 Tagen dauerhaft entfernt.</p>
+<p>Wir behalten uns das Recht vor, deinen Zugang zur App auszusetzen oder zu beenden, wenn du nachweislich gegen diese Bedingungen verstossen hast — insbesondere gegen Ziffer 4 (Verhalten der Nutzer). Wo die Umstände es zulassen, informieren wir dich vorab und geben dir Gelegenheit, dazu Stellung zu nehmen; bei schwerwiegenden Verstössen oder einer Gefährdung anderer Nutzer können wir den Zugang ohne vorherige Ankündigung sofort aussetzen.</p>
 <h2 id="12-änderungen-dieser-bedingungen">12. Änderungen dieser Bedingungen</h2>
-<p>Wir können diese Bedingungen von Zeit zu Zeit aktualisieren. Das Datum „Zuletzt aktualisiert&quot; oben auf dieser Seite spiegelt Änderungen wider. Über wesentliche Änderungen informieren wir per In-App-Benachrichtigung mindestens 14 Tage vor Inkrafttreten. Die weitere Nutzung der App nach dem Stichtag gilt als Annahme der überarbeiteten Bedingungen.</p>
+<p>Wir können diese Bedingungen von Zeit zu Zeit aktualisieren. Das Datum „Zuletzt aktualisiert&quot; oben auf dieser Seite spiegelt Änderungen wider. Über wesentliche Änderungen informieren wir per In-App-Benachrichtigung mindestens 14 Tage vor Inkrafttreten. Bist du mit einer wesentlichen Änderung nicht einverstanden, kannst du dein Konto vor deren Inkrafttreten kostenlos und ohne Nachteil löschen. Die weitere Nutzung der App nach dem Stichtag gilt als Annahme der überarbeiteten Bedingungen.</p>
 <h2 id="13-anwendbares-recht-und-streitbeilegung">13. Anwendbares Recht und Streitbeilegung</h2>
 <p>Diese Bedingungen unterliegen dem Recht der Schweiz und werden nach diesem ausgelegt, unter Ausschluss der Kollisionsnormen. Das Übereinkommen der Vereinten Nationen über Verträge über den internationalen Warenkauf findet keine Anwendung.</p>
-<p>Für Streitigkeiten aus oder im Zusammenhang mit diesen Bedingungen sind ausschließlich die Gerichte der Schweiz zuständig. Wenn du Verbraucher in der Europäischen Union bist, können dir zusätzlich zwingende Verbraucherschutzbestimmungen deines Wohnsitzlandes zugutekommen.</p>
+<p>Für Streitigkeiten aus oder im Zusammenhang mit diesen Bedingungen mit <strong>Unternehmen</strong> sind ausschliesslich die Gerichte der Schweiz zuständig. Bist du <strong>Konsument:in</strong>, steht dir zusätzlich der gesetzliche Gerichtsstand an deinem eigenen Wohnsitz zu (Art. 32 f. ZPO; für Personen mit Wohnsitz in der EU zusätzlich Art. 15-17 Lugano-Übereinkommen); dieser kann nicht im Voraus zu deinen Ungunsten wegbedungen werden. Wenn du Verbraucher in der Europäischen Union bist, können dir zusätzlich zwingende Verbraucherschutzbestimmungen deines Wohnsitzlandes zugutekommen.</p>
 <h2 id="14-kontakt">14. Kontakt</h2>
 <p>Bei Fragen oder Anliegen zu diesen Bedingungen erreichst du den Entwickler unter: <a href="mailto:meetdeep.de@gmail.com">meetdeep.de@gmail.com</a></p>
 <p>Unsere <a href="/de/privacy-policy/">Datenschutzerklärung</a> ist durch Verweis Bestandteil dieser Bedingungen.</p>
@@ -192,6 +184,7 @@
       <a href="/de/privacy-policy/">Datenschutz</a>
       <a href="/de/terms-of-service/">Nutzungsbedingungen</a>
       <a href="/de/impressum/">Impressum</a>
+      <a href="#cookie-settings">Cookie-Einstellungen</a>
       <a href="mailto:meetdeep.de@gmail.com">Kontakt</a>
     </div>
   </div>

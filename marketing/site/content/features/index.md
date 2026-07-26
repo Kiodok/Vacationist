@@ -32,7 +32,7 @@ Live lists that sync to every phone instantly — plus a unique recipe-to-shoppi
 
 ### [Encrypted travel documents →](/features/travel-documents/)
 
-Passports and IDs stored with AES-256 encryption, unlocked by biometrics, shareable with the organizer temporarily — and revocable anytime. [Read about the document vault.](/features/travel-documents/)
+Passports and IDs stored encrypted at rest, protected by a biometric lock, shareable with the organizer temporarily — and revocable anytime. [Read about the document vault.](/features/travel-documents/)
 
 ## And everything around them
 

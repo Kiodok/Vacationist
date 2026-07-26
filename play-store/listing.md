@@ -39,7 +39,7 @@ Keep all hotel and rental details in one place: booking reference, check-in time
 Log every flight and transfer so the group knows when and where to be. No more "what time does your flight land?"
 
 **🔒 Encrypted travel documents**
-Store your passport or ID card details inside the app, protected by biometric authentication and end-to-end encryption. Grant temporary access to a travel companion when needed — revoke it any time.
+Store your passport or ID card details inside the app, encrypted at rest and protected by biometric authentication. Grant temporary access to a travel companion when needed — revoke it any time.
 
 **🔔 Smart notifications**
 Get notified when a teammate suggests an activity, logs an expense, or the group reaches a vote decision. Stay in the loop without being overwhelmed.
@@ -49,7 +49,7 @@ Share a single invite link — no accounts required to join. Guests can particip
 
 ---
 
-Built with privacy in mind: your travel documents are encrypted with pgcrypto and never stored in plain text. Push notifications are handled via Expo's secure push service.
+Built with privacy in mind: sensitive travel document fields (full name, document number, date of birth) are encrypted at rest with pgcrypto. Push notifications are handled via Expo's secure push service.
 
 Open an account with Google or a magic link — no passwords to remember.
 

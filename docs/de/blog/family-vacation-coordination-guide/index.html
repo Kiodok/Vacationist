@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Familienurlaub über mehrere Haushalte koordinieren (2026)</title>
   <meta name="description" content="Großeltern, Geschwister-Familien, Kinder: wie man einen Familienurlaub über mehrere Haushalte plant — mit gemeinsamen Kalendern, fairer Kostenteilung zwischen Familien und sicher geteilten Reisedokumenten.">
@@ -135,9 +129,8 @@
   </script>
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -190,7 +183,7 @@
 </ul>
 <h2 id="dokumente-das-problem-in-familiengröße">Dokumente: das Problem in Familiengröße</h2>
 <p>Eine Familienreise heißt: Meist wrangelt eine Person die Reisepässe und Ausweise von Partnern, Kindern und manchmal Großeltern — und Gruppenbuchungen (Flüge, Mietwagen) brauchen diese Daten Monate im Voraus. Der übliche Workflow — Ausweisfotos im Familien-WhatsApp — bedeutet: Die Pässe deiner Kinder leben für immer in einem Chat-Verlauf.</p>
-<p>Mach es richtig: Jeder Haushalt bewahrt seine Dokumente in <a href="/de/features/travel-documents/">Vacationists verschlüsseltem Tresor</a> auf (AES-256, biometrisches Entsperren) und gewährt der buchenden Person der Reise <strong>temporären Zugriff</strong>, der <strong>widerrufen</strong> wird, sobald die Tickets ausgestellt sind. Die Buchung passiert trotzdem; die permanenten Chat-Kopien nicht. Für Familien ist das wohl die wertvollste Funktion der App — und eine, die keine andere Reise-App hat.</p>
+<p>Mach es richtig: Jeder Haushalt bewahrt seine Dokumente in <a href="/de/features/travel-documents/">Vacationists verschlüsseltem Tresor</a> auf (verschlüsselt gespeichert, biometrische Sperre) und gewährt der buchenden Person der Reise <strong>temporären Zugriff</strong>, der <strong>widerrufen</strong> wird, sobald die Tickets ausgestellt sind. Die Buchung passiert trotzdem; die permanenten Chat-Kopien nicht. Für Familien ist das wohl die wertvollste Funktion der App — und eine, die keine andere Reise-App hat.</p>
 <h2 id="die-reise-selbst-struktur-für-menschen-von-2-bis-82">Die Reise selbst: Struktur für Menschen von 2 bis 82</h2>
 <ul>
 <li><strong>Verankere Vormittage ODER Abende, nicht beides.</strong> Eine gemeinsame Mahlzeit pro Tag als Familien-Konstante (meist das Abendessen), eine optionale Gruppenaktivität an den meisten Tagen — und ausdrückliche Erlaubnis für Untergruppen: die Teenager an den Strand, die Großeltern ins Café, Kleinkind-Schlaf im Schichtbetrieb. Familien, die 100 % Zusammensein verordnen, bekommen ab Tag drei 100 % Reibung.</li>
@@ -224,7 +217,7 @@
   <div class="related-grid">
     <a class="related-card" href="/de/features/travel-documents/">
       <span class="related-title">Reisedokumente</span>
-      <span class="related-desc">Reisepässe, Ausweise und Reisedokumente AES-256-verschlüsselt speichern und per Biometrie entsperren. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.</span>
+      <span class="related-desc">Reisepässe, Ausweise und Reisedokumente verschlüsselt speichern, gesichert durch eine biometrische Sperre auf deinem Gerät. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.</span>
     </a>
     <a class="related-card" href="/de/blog/how-to-split-travel-expenses/">
       <span class="related-title">Kostenteilungs-Guide</span>
@@ -271,6 +264,7 @@
       <a href="/de/privacy-policy/">Datenschutz</a>
       <a href="/de/terms-of-service/">Nutzungsbedingungen</a>
       <a href="/de/impressum/">Impressum</a>
+      <a href="#cookie-settings">Cookie-Einstellungen</a>
       <a href="mailto:meetdeep.de@gmail.com">Kontakt</a>
     </div>
   </div>

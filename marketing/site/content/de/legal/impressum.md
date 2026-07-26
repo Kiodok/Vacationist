@@ -5,13 +5,14 @@ path: /de/impressum/
 lang: de
 type: legal
 schema: WebPage
-date: 2026-07-21
+date: 2026-07-26
+navAltPath: /impressum.html
 breadcrumbLabel: Impressum
 ---
 
 # Impressum
 
-*Anbieterkennzeichnung nach Schweizer Recht (UWG Art. 3 Abs. 1 lit. s & nDSG Art. 19) · Zuletzt aktualisiert: Juli 2026*
+*Anbieterkennzeichnung nach Schweizer Recht (UWG Art. 3 Abs. 1 lit. s & DSG Art. 19) · Zuletzt aktualisiert: 26. Juli 2026*
 
 ## 1. Verantwortliche Person
 
@@ -42,11 +43,11 @@ Diese Website und die Vacationist-Mobil-App werden als persönliches Nebenprojek
 
 ## 3. Rechtsrahmen & Gerichtsstand
 
-Die Pflicht zur Führung dieses Impressums ergibt sich aus **Art. 3 Abs. 1 lit. s des Bundesgesetzes gegen den unlauteren Wettbewerb (UWG)**, der irreführende oder vorenthaltene Identitätsangaben in kommerzieller Kommunikation untersagt.
+Da dieses Projekt derzeit keine Einnahmen erzielt (siehe Ziffer 1), besteht keine gesetzliche Pflicht zur Führung eines Impressums nach **Art. 3 Abs. 1 lit. s des Bundesgesetzes gegen den unlauteren Wettbewerb (UWG)** — diese Bestimmung betrifft das elektronische Anbieten von Waren oder Dienstleistungen. Der Betreiber stellt dieses Impressum freiwillig und in der von Art. 3 Abs. 1 lit. s UWG vorgesehenen Form zur Verfügung, damit Nutzerinnen und Nutzer jederzeit wissen, mit wem sie es zu tun haben. Sobald kostenpflichtige Funktionen eingeführt werden, wird die Pflicht zur Führung dieses Impressums verbindlich.
 
-Dieses Impressum und die zugehörigen Bedingungen unterliegen im Übrigen Schweizer Recht, insbesondere dem Obligationenrecht (OR), dem Bundesgesetz über den Datenschutz (nDSG, in Kraft seit 1. September 2023) und — soweit EU-Ansässige betroffen sind — der EU-Datenschutz-Grundverordnung (DSGVO).
+Dieses Impressum und die zugehörigen Bedingungen unterliegen im Übrigen Schweizer Recht, insbesondere dem Obligationenrecht (OR), dem Bundesgesetz über den Datenschutz (DSG, in Kraft seit 1. September 2023) und — soweit EU-Ansässige betroffen sind — der EU-Datenschutz-Grundverordnung (DSGVO).
 
-Für Streitigkeiten aus der Nutzung dieser Website oder der Vacationist-App sind ausschließlich die zuständigen Schweizer Gerichte am Wohnsitz des Betreibers zuständig, soweit nicht zwingende gesetzliche Bestimmungen etwas anderes vorschreiben.
+Für Streitigkeiten aus der Nutzung dieser Website oder der Vacationist-App durch **Unternehmen** sind ausschliesslich die zuständigen Schweizer Gerichte am Wohnsitz des Betreibers zuständig. Bist du **Konsument:in**, steht dir zusätzlich der gesetzliche Gerichtsstand an deinem eigenen Wohnsitz zu (Art. 32 f. ZPO; für Personen mit Wohnsitz in der EU zusätzlich Art. 15-17 Lugano-Übereinkommen); diese gesetzlichen Gerichtsstände können nicht zu deinen Ungunsten wegbedungen werden.
 
 ## 4. Haftungsausschluss
 
@@ -56,11 +57,11 @@ Die Vacationist-App wird kostenlos und „wie besehen" ohne jegliche Gewährleis
 
 ## 5. Datenschutz
 
-Gemäß **Art. 19 nDSG** ist die verantwortliche Person verpflichtet, betroffene Personen über die Bearbeitung ihrer Personendaten zu informieren. Alle Angaben dazu, welche Daten erhoben werden, zu den Bearbeitungszwecken, Aufbewahrungsfristen und Betroffenenrechten stehen in der [Datenschutzerklärung](/de/privacy-policy/).
+Gemäss **Art. 19 DSG** ist die verantwortliche Person verpflichtet, betroffene Personen über die Bearbeitung ihrer Personendaten zu informieren. Alle Angaben dazu, welche Daten erhoben werden, zu den Bearbeitungszwecken, Aufbewahrungsfristen und Betroffenenrechten stehen in der [Datenschutzerklärung](/de/privacy-policy/).
 
 Die Aufsichtsbehörde für Datenschutzfragen in der Schweiz ist der Eidgenössische Datenschutz- und Öffentlichkeitsbeauftragte (EDÖB): [www.edoeb.admin.ch](https://www.edoeb.admin.ch).
 
-Betroffene Personen, die ihre Rechte nach nDSG oder DSGVO verletzt sehen, können zusätzlich Beschwerde bei der Aufsichtsbehörde des EU-Mitgliedstaats ihres gewöhnlichen Aufenthalts, Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes einreichen (DSGVO Art. 77).
+Betroffene Personen, die ihre Rechte nach DSG oder DSGVO verletzt sehen, können zusätzlich Beschwerde bei der Aufsichtsbehörde des EU-Mitgliedstaats ihres gewöhnlichen Aufenthalts, Arbeitsplatzes oder des Orts des mutmasslichen Verstosses einreichen (DSGVO Art. 77).
 
 ## 6. Streitbeilegung
 
@@ -70,4 +71,4 @@ Nur zur Information: EU-Verbraucher können auch die Online-Streitbeilegungsplat
 
 ## 7. Urheberrecht
 
-Alle Inhalte dieser Website und der Vacationist-App — einschließlich, aber nicht beschränkt auf Design, Code, Logos und Texte — sind geistiges Eigentum von Gary Lude, soweit nicht anders angegeben. Vervielfältigung oder Verbreitung ohne vorherige schriftliche Zustimmung ist nicht gestattet.
+Alle Inhalte dieser Website und der Vacationist-App — einschliesslich, aber nicht beschränkt auf Design, Code, Logos und Texte — sind geistiges Eigentum von Gary Lude, soweit nicht anders angegeben. Vervielfältigung oder Verbreitung ohne vorherige schriftliche Zustimmung ist nicht gestattet.

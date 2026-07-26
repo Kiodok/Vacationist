@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DRBWGQHE3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-4DRBWGQHE3');
-  </script>
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
 
   <title>Impressum — Vacationist</title>
   <meta name="description" content="Impressum und Anbieterkennzeichnung nach Schweizer Recht für die Vacationist-App und -Website.">
@@ -66,9 +60,8 @@
   </script>
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
   <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
@@ -88,7 +81,7 @@
     <a href="/de/blog/">Blog</a>
     <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web-App</a>
     <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer">App holen</a>
-    <span class="lang-pair" aria-label="Sprache"><span class="lp-on">DE</span><a href="/?lang=en" title="English version">EN</a></span>
+    <span class="lang-pair" aria-label="Sprache"><span class="lp-on">DE</span><a href="/impressum.html" title="English version">EN</a></span>
   </div>
 </nav>
 
@@ -96,7 +89,7 @@
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/de/">Startseite</a> <span class="crumb-sep">/</span> <span aria-current="page">Impressum</span></nav>
   <article class="article">
 <h1 id="impressum">Impressum</h1>
-<p><em>Anbieterkennzeichnung nach Schweizer Recht (UWG Art. 3 Abs. 1 lit. s &amp; nDSG Art. 19) · Zuletzt aktualisiert: Juli 2026</em></p>
+<p><em>Anbieterkennzeichnung nach Schweizer Recht (UWG Art. 3 Abs. 1 lit. s &amp; DSG Art. 19) · Zuletzt aktualisiert: 26. Juli 2026</em></p>
 <h2 id="1-verantwortliche-person">1. Verantwortliche Person</h2>
 <p>Diese Website und die Vacationist-Mobil-App werden als persönliches Nebenprojekt (Nebenerwerb, nicht gewinnorientiert) betrieben von:</p>
 <table>
@@ -172,21 +165,21 @@
 </tr>
 </tbody></table>
 <h2 id="3-rechtsrahmen-gerichtsstand">3. Rechtsrahmen &amp; Gerichtsstand</h2>
-<p>Die Pflicht zur Führung dieses Impressums ergibt sich aus <strong>Art. 3 Abs. 1 lit. s des Bundesgesetzes gegen den unlauteren Wettbewerb (UWG)</strong>, der irreführende oder vorenthaltene Identitätsangaben in kommerzieller Kommunikation untersagt.</p>
-<p>Dieses Impressum und die zugehörigen Bedingungen unterliegen im Übrigen Schweizer Recht, insbesondere dem Obligationenrecht (OR), dem Bundesgesetz über den Datenschutz (nDSG, in Kraft seit 1. September 2023) und — soweit EU-Ansässige betroffen sind — der EU-Datenschutz-Grundverordnung (DSGVO).</p>
-<p>Für Streitigkeiten aus der Nutzung dieser Website oder der Vacationist-App sind ausschließlich die zuständigen Schweizer Gerichte am Wohnsitz des Betreibers zuständig, soweit nicht zwingende gesetzliche Bestimmungen etwas anderes vorschreiben.</p>
+<p>Da dieses Projekt derzeit keine Einnahmen erzielt (siehe Ziffer 1), besteht keine gesetzliche Pflicht zur Führung eines Impressums nach <strong>Art. 3 Abs. 1 lit. s des Bundesgesetzes gegen den unlauteren Wettbewerb (UWG)</strong> — diese Bestimmung betrifft das elektronische Anbieten von Waren oder Dienstleistungen. Der Betreiber stellt dieses Impressum freiwillig und in der von Art. 3 Abs. 1 lit. s UWG vorgesehenen Form zur Verfügung, damit Nutzerinnen und Nutzer jederzeit wissen, mit wem sie es zu tun haben. Sobald kostenpflichtige Funktionen eingeführt werden, wird die Pflicht zur Führung dieses Impressums verbindlich.</p>
+<p>Dieses Impressum und die zugehörigen Bedingungen unterliegen im Übrigen Schweizer Recht, insbesondere dem Obligationenrecht (OR), dem Bundesgesetz über den Datenschutz (DSG, in Kraft seit 1. September 2023) und — soweit EU-Ansässige betroffen sind — der EU-Datenschutz-Grundverordnung (DSGVO).</p>
+<p>Für Streitigkeiten aus der Nutzung dieser Website oder der Vacationist-App durch <strong>Unternehmen</strong> sind ausschliesslich die zuständigen Schweizer Gerichte am Wohnsitz des Betreibers zuständig. Bist du <strong>Konsument:in</strong>, steht dir zusätzlich der gesetzliche Gerichtsstand an deinem eigenen Wohnsitz zu (Art. 32 f. ZPO; für Personen mit Wohnsitz in der EU zusätzlich Art. 15-17 Lugano-Übereinkommen); diese gesetzlichen Gerichtsstände können nicht zu deinen Ungunsten wegbedungen werden.</p>
 <h2 id="4-haftungsausschluss">4. Haftungsausschluss</h2>
 <p>Der Betreiber übernimmt keine Gewähr für die Richtigkeit, Vollständigkeit oder Aktualität der Inhalte dieser Website. Links zu externen Websites dienen nur der Information; für die Inhalte verlinkter externer Seiten ist der Betreiber nicht verantwortlich.</p>
 <p>Die Vacationist-App wird kostenlos und „wie besehen&quot; ohne jegliche Gewährleistung bereitgestellt. Der vollständige Haftungsausschluss steht in den <a href="/de/terms-of-service/">Nutzungsbedingungen</a>.</p>
 <h2 id="5-datenschutz">5. Datenschutz</h2>
-<p>Gemäß <strong>Art. 19 nDSG</strong> ist die verantwortliche Person verpflichtet, betroffene Personen über die Bearbeitung ihrer Personendaten zu informieren. Alle Angaben dazu, welche Daten erhoben werden, zu den Bearbeitungszwecken, Aufbewahrungsfristen und Betroffenenrechten stehen in der <a href="/de/privacy-policy/">Datenschutzerklärung</a>.</p>
+<p>Gemäss <strong>Art. 19 DSG</strong> ist die verantwortliche Person verpflichtet, betroffene Personen über die Bearbeitung ihrer Personendaten zu informieren. Alle Angaben dazu, welche Daten erhoben werden, zu den Bearbeitungszwecken, Aufbewahrungsfristen und Betroffenenrechten stehen in der <a href="/de/privacy-policy/">Datenschutzerklärung</a>.</p>
 <p>Die Aufsichtsbehörde für Datenschutzfragen in der Schweiz ist der Eidgenössische Datenschutz- und Öffentlichkeitsbeauftragte (EDÖB): <a href="https://www.edoeb.admin.ch">www.edoeb.admin.ch</a>.</p>
-<p>Betroffene Personen, die ihre Rechte nach nDSG oder DSGVO verletzt sehen, können zusätzlich Beschwerde bei der Aufsichtsbehörde des EU-Mitgliedstaats ihres gewöhnlichen Aufenthalts, Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes einreichen (DSGVO Art. 77).</p>
+<p>Betroffene Personen, die ihre Rechte nach DSG oder DSGVO verletzt sehen, können zusätzlich Beschwerde bei der Aufsichtsbehörde des EU-Mitgliedstaats ihres gewöhnlichen Aufenthalts, Arbeitsplatzes oder des Orts des mutmasslichen Verstosses einreichen (DSGVO Art. 77).</p>
 <h2 id="6-streitbeilegung">6. Streitbeilegung</h2>
 <p>Der Betreiber ist nicht verpflichtet und grundsätzlich nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen. In der Schweiz können sich Verbraucher in Zivilsachen an die zuständige kantonale Schlichtungsbehörde nach der Schweizerischen Zivilprozessordnung (ZPO) wenden.</p>
 <p>Nur zur Information: EU-Verbraucher können auch die Online-Streitbeilegungsplattform (OS) der Europäischen Kommission nutzen: <a href="https://ec.europa.eu/consumers/odr">ec.europa.eu/consumers/odr</a>. Der Betreiber sitzt in der Schweiz (Nicht-EU) und ist rechtlich nicht zur Teilnahme an EU-Streitbeilegungsverfahren verpflichtet, wird angemessene Anfragen an <a href="mailto:meetdeep.de@gmail.com">meetdeep.de@gmail.com</a> aber prüfen.</p>
 <h2 id="7-urheberrecht">7. Urheberrecht</h2>
-<p>Alle Inhalte dieser Website und der Vacationist-App — einschließlich, aber nicht beschränkt auf Design, Code, Logos und Texte — sind geistiges Eigentum von Gary Lude, soweit nicht anders angegeben. Vervielfältigung oder Verbreitung ohne vorherige schriftliche Zustimmung ist nicht gestattet.</p>
+<p>Alle Inhalte dieser Website und der Vacationist-App — einschliesslich, aber nicht beschränkt auf Design, Code, Logos und Texte — sind geistiges Eigentum von Gary Lude, soweit nicht anders angegeben. Vervielfältigung oder Verbreitung ohne vorherige schriftliche Zustimmung ist nicht gestattet.</p>
 
   </article>
 
@@ -226,6 +219,7 @@
       <a href="/de/privacy-policy/">Datenschutz</a>
       <a href="/de/terms-of-service/">Nutzungsbedingungen</a>
       <a href="/de/impressum/">Impressum</a>
+      <a href="#cookie-settings">Cookie-Einstellungen</a>
       <a href="mailto:meetdeep.de@gmail.com">Kontakt</a>
     </div>
   </div>
