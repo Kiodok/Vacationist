@@ -1,6 +1,168 @@
 # Supabase Changes Log
 
+## 2026-07-27 — Fix delete_own_account(): wrong column name + missing chat reassignment
+
+### Migration: `20260727130000_fix_delete_own_account_joined_at_and_chat`
+
+**Why:** Reported error `42703 column "created_at" does not exist` on account deletion. Two
+independent pre-existing bugs in `public.delete_own_account()`, neither introduced this session:
+
+1. **Bug 1 (the reported error).** The last-organizer promotion subquery did
+   `ORDER BY created_at ASC` against `public.trip_members`, which has never had a `created_at`
+   column — only `joined_at` (`20260511000002_create_trips_members_invites.sql`). Fired whenever
+   the deleting user was the sole organizer of a trip that still had other members. Unrelated to
+   chat specifically — the correlation with chat users was coincidental (both require a shared
+   trip). The RPC is one transaction, so the error rolled back cleanly with no partial state.
+2. **Bug 2 (next failure once Bug 1 is fixed).** `trip_messages.created_by` (added
+   `20260716100000`, nine days after this RPC was written) has no `ON DELETE` clause and was never
+   added to the sentinel-reassignment list. Any user who had sent a chat message would hit a
+   foreign-key violation (`23503`) on the final `DELETE FROM auth.users`. Audited every
+   `REFERENCES public.users(id)` FK across all migrations — `trip_messages` was the only
+   non-CASCADE one missing from the list.
+
+**Changes:**
+1. Promotion subquery now orders by `(role = 'guest'), joined_at ASC` — prefers the earliest-joined
+   **participant**, falling back to a guest only if no participant remains (Tech Lead decision:
+   guests are restricted from managing trips everywhere else in the app).
+2. `UPDATE public.trip_messages SET created_by = v_sentinel WHERE created_by = v_caller` added
+   alongside `trip_notes` / `activity_notes` / `accommodation_notes`. Chat messages survive account
+   deletion, attributed to "Deleted User" with text intact (Tech Lead decision: consistent with how
+   every other authored content is already handled, not soft-deleted).
+
+Everything else — guest guard, `session_replication_role` replica/origin window, explicit
+`trip_members` delete before the reset — carried over verbatim from `20260707110000`.
+
+**New rule added to CLAUDE.md:** when a new table gets a non-CASCADE FK to `public.users`, add it
+to `delete_own_account()`'s reassignment list in the same migration — this is the exact gap that
+caused Bug 2.
+
+**Non-destructive** (`CREATE OR REPLACE FUNCTION`, no schema change). Applied to: dev, then prod.
+
+---
+
 > **Schema dumps without Docker (this machine has no Docker):** `supabase db dump` always shells into a Docker `pg_dump` and fails here — but `npx supabase db dump --linked --dry-run` needs no Docker and prints the complete dump script, **including ephemeral login-role credentials** (`PGHOST`/`PGUSER`/`PGPASSWORD` for a temporary `cli_login_postgres.<ref>` role) plus the exact pg_dump flags and sed filters the CLI would run. Replay it with the locally installed PostgreSQL 17 client (`C:\Program Files\PostgreSQL\17\bin\pg_dump.exe`, matches both projects' Postgres 17.6): set the printed `PG*` env vars, then run `pg_dump --schema-only --quote-all-identifiers --role postgres --exclude-schema "<list from the script>"` (note: the local binary wants `--quote-all-identifiers`, plural — the script prints the singular form). For dev↔prod diffs, strip `^\\(un)?restrict` lines (random per dump) and `^--` comments from both outputs before diffing. Quick alternative without dumps: compare `supabase migration list` ledgers on both projects.
+
+## 2026-07-27 — Security review fixes: chat plaintext leak, trip_messages RLS gap, real AES-256
+
+A focused security review of the travel-document and chat-message encryption (`/security-review`,
+2026-07-27) found three gaps, all fixed in this session. See `engineering/software_engineering_guide.md`
+Section 14 for the updated encryption rule.
+
+### Migration: `20260727100000_chat_notification_no_plaintext`
+
+**Why:** `notify_on_new_chat_message()` was decrypting every new chat message and storing the first 200
+chars in `notifications.context_entity` (plain TEXT, no retention job, broadcast via Realtime with
+`REPLICA IDENTITY FULL`) — completely defeating the AES encryption added to `trip_messages.text` in
+`20260719100000_encrypt_trip_messages`.
+
+**Changes:**
+1. `notify_on_new_chat_message()` recreated — passes `NULL` for `p_context_entity`; `context_trip` /
+   `context_creator` (trip title, sender name — not sensitive) are unchanged.
+2. Backfill: `UPDATE notifications SET context_entity = NULL WHERE type = 'new_chat_message'` — purges
+   plaintext already written to existing rows.
+3. New RPC `get_chat_push_preview(p_message_id)` — decrypts a 200-char preview on demand, at push-send
+   time only. No `auth.uid()` check (there is no caller session); locked down instead via
+   `REVOKE EXECUTE ... FROM PUBLIC, anon, authenticated` / `GRANT ... TO service_role`. Returns `NULL`
+   if the message is missing or soft-deleted before delivery.
+
+**Client changes (same session):**
+- `supabase/functions/push-notification/index.ts` — new `resolveChatPreview()` calls the RPC once per
+  invocation (per-recipient in `handleSingle`, once per batch in `handleBatch`, after the preference
+  filter) and injects the result as `context.entity`. New `new_chat_message_generic` template (no
+  `{{entity}}`) used when the preview comes back null.
+- `apps/mobile/src/features/notifications/components/NotificationItem.tsx` — `new_chat_message` body
+  template changed to a generic `'{{creator}} sent a message.'`. **Deliberately diverges** from the
+  edge function's template now (that one still interpolates a decrypted preview for the push only) —
+  both files' "keep in sync" comments updated to say so.
+
+**Applied to:** dev (push before testing), prod (after dev verification).
+
+---
+
+### Migration: `20260727110000_lock_down_trip_messages_rls`
+
+**Why:** `trip_messages_insert_member` / `trip_messages_update_owner` (from `20260716100000`) still let
+any authenticated trip member write directly via PostgREST/supabase-js, bypassing
+`create_trip_message` / `update_trip_message` entirely — RLS, not "the app only calls the RPC", is the
+actual trust boundary. A trip member could insert/update the BYTEA `text` column with raw un-encrypted
+bytes, and any other member's direct `SELECT` would read it back as plaintext with no key needed. This
+is the same class of gap `user_travel_documents` was already locked down against
+(`20260525000002`) — chat never got the equivalent policy.
+
+**Changes:**
+1. Dropped `trip_messages_insert_member` / `trip_messages_update_owner`; replaced with
+   `trip_messages_no_direct_insert` / `trip_messages_no_direct_update` (`WITH CHECK (false)`), mirroring
+   `user_travel_documents`. `trip_messages_select_member` (Realtime dependency) untouched.
+2. New RPC `seed_trip_message(p_trip_id, p_user_id, p_text)` — service-role-only (same REVOKE/GRANT
+   pattern as above), for `create-example-trip`. `create_trip_message` reads `auth.uid()`, which is
+   `NULL` under the service_role key that function uses, so it couldn't be reused directly.
+
+**Verified safe:** `packages/api/src/messages.ts` has zero direct `.from('trip_messages')` writes; all
+three chat mutations (`create`/`update`/`deleteTripMessage`) already route through the SECURITY DEFINER
+RPCs via `mutationDefaults.ts`, which are unaffected by RLS.
+
+**Applied to:** dev, then prod.
+
+---
+
+### `create-example-trip` fix (same session, no migration)
+
+**Why:** `supabase/functions/create-example-trip/index.ts` still did a direct
+`.from('trip_messages').insert([...])` with a plaintext string. Since `trip_messages.text` became BYTEA
+in `20260719100000`, the `AFTER INSERT` decrypt trigger aborted every one of these inserts with `Wrong
+key or corrupt data` — and because the call never destructured `{ error }`, the failure was swallowed:
+the function still returned `200 { trip_id }`. **New users have been getting example trips with zero
+chat messages, silently, since the encryption migration shipped.**
+
+**Fix:** replaced the direct insert with two `supabase.rpc('seed_trip_message', ...)` calls, with
+`error` checked and logged (non-fatal — this function seeds best-effort). While in the file, added the
+same `error`-check-and-log pattern to every other previously-unchecked insert (trip_members, activities,
+accommodations, transfer_flights/vehicles/rentals, shopping, recipes, expenses/splits, packing items,
+lost & found, trip notes) so a future regression is visible in Edge Function logs instead of invisible.
+None of those were failing today — only `trip_messages` was — but there was no way to know that before
+this pass, since nothing was logged.
+
+**Redeployed to:** dev, then prod.
+
+---
+
+### Migration: `20260727120000_encrypt_aes256`
+
+**Why:** Every `pgp_sym_encrypt()` call (travel documents and chat messages) was made with no `options`
+argument. pgcrypto defaults `cipher-algo` to `aes128` when none is supplied — every comment, prior
+migration note, and `engineering/software_engineering_guide.md` claimed "AES-256 column encryption",
+but the actual cipher in use had been AES-128 since inception. Not a break (AES-128 remains sound), but
+a documented-vs-actual mismatch worth closing given the explicit compliance-style claim.
+
+**Changes:**
+1. Recreated `upsert_travel_document`, `create_trip_message`, `update_trip_message`,
+   `seed_trip_message` with `'cipher-algo=aes256'` as the third `pgp_sym_encrypt()` argument. No
+   `pgp_sym_decrypt()` changes needed — it reads the algorithm from the PGP packet header, so AES-128
+   and AES-256 rows decrypt identically; safe to apply live, no coordinated deploy needed.
+2. Re-encrypted all existing rows in `user_travel_documents` (`full_legal_name`, `document_number`,
+   `date_of_birth`, `notes`) and `trip_messages` (`text`) — decrypt with the old default, re-encrypt
+   with `cipher-algo=aes256` — so the AES-256 claim is retroactively true, not just for new rows.
+   `user_travel_documents_updated_at` / `trip_messages_updated_at` triggers disabled for the backfill
+   `UPDATE`s so the re-encryption doesn't appear as a user edit (`on_trip_message_update_restrict` left
+   enabled — it only guards `trip_id`/`created_by`/`created_at`, none of which this touches).
+
+**Non-destructive.** Applied to: dev, then prod.
+
+---
+
+### Types
+
+`packages/api/src/database.types.ts` — added `seed_trip_message` and `get_chat_push_preview` to the
+`Functions` block for schema-truth parity (hand-edited; no Docker on this machine, per the header
+note above). Neither is called from `packages/api` — both are service-role-only and used exclusively
+by their respective Edge Functions — so this doesn't change any typed client call site.
+
+Deliberately did **not** special-case `trip_messages`' `Insert`/`Update` `text` typing away from plain
+`string`: `user_travel_documents`'s BYTEA columns (already RLS-locked the same way) keep the same plain
+`string` shape, and a hand-divergence here would silently revert on the next `supabase gen types` run
+while giving false confidence — RLS (Fix 2 above) is the actual enforcement, not the generated type.
+
+---
 
 ## 2026-07-19 — Fix ambiguous id in create_trip_message
 

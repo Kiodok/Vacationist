@@ -121,9 +121,22 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'Shared Packing Update', body: '{{creator}} claimed "{{entity}}" for "{{trip}}".' },
     de: { title: 'Geteilte Packliste', body: '{{creator}} hat "{{entity}}" für "{{trip}}" beansprucht.' },
   },
+  // {{entity}} here is filled from resolveChatPreview() (decrypted on demand, never
+  // persisted) — NOT from context_entity, which is always null for this type. This is
+  // the one entry that deliberately diverges from BODY_TEMPLATES in
+  // apps/mobile/src/features/notifications/components/NotificationItem.tsx, which
+  // always renders the generic body below since it only has the stored (null) value.
   new_chat_message: {
     en: { title: 'New chat message in {{trip}}', body: '{{creator}}: {{entity}}' },
     de: { title: 'Neue Chat-Nachricht in {{trip}}', body: '{{creator}}: {{entity}}' },
+  },
+  // Virtual key: used when the message preview could not be decrypted at send time
+  // (message was deleted/removed before delivery, or the preview RPC failed). Chat
+  // content is never persisted in context_entity — see resolveChatPreview() below —
+  // so this is also the template used whenever a preview genuinely isn't available.
+  new_chat_message_generic: {
+    en: { title: 'New chat message in {{trip}}', body: '{{creator}} sent a message.' },
+    de: { title: 'Neue Chat-Nachricht in {{trip}}', body: '{{creator}} hat eine Nachricht gesendet.' },
   },
 };
 
@@ -170,6 +183,11 @@ function translateNotification(
     type === 'reminder' && relatedType === 'guest_nudge' ? 'guest_nudge' :
     type === 'reminder' && relatedType === 'review_nudge' ? 'review_nudge' :
     type === 'member_left' && context?.entity === 'removed' ? 'member_left_removed' :
+    // Chat content is never stored in context_entity (see resolveChatPreview()) — it is
+    // resolved on demand right before this function is called. If that resolution came
+    // back empty (message deleted before delivery, or decryption failed), fall back to
+    // the entity-free generic template instead of rendering a dangling "Alice: ".
+    type === 'new_chat_message' && !context?.entity ? 'new_chat_message_generic' :
     type;
 
   const map = NOTIFICATION_TRANSLATIONS[effectiveType];
@@ -206,6 +224,30 @@ const supabase = createClient(
   JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')!)['default'],
   { auth: { persistSession: false } },
 );
+
+// Chat message content is never persisted in notifications.context_entity (see
+// 20260727100000_chat_notification_no_plaintext.sql) — trip_messages.text stays
+// encrypted at rest at all times. Instead, right before a new_chat_message push is
+// sent, this decrypts a short preview on demand via get_chat_push_preview(), a
+// SECURITY DEFINER RPC granted to service_role only. This client authenticates with
+// the service_role key, so it is the only caller allowed to invoke that RPC.
+// Returns null when the type isn't chat, there's no related message id, the message
+// was deleted before delivery, or decryption failed — callers must fall back to the
+// entity-free "new_chat_message_generic" template in that case.
+async function resolveChatPreview(type: string, relatedId: string | null): Promise<string | null> {
+  if (type !== 'new_chat_message' || !relatedId) return null;
+
+  const { data, error } = await supabase.rpc('get_chat_push_preview', {
+    p_message_id: relatedId,
+  });
+
+  if (error) {
+    console.error('[push] get_chat_push_preview failed:', error.message);
+    return null;
+  }
+
+  return (data as string | null) ?? null;
+}
 
 interface SingleNotificationPayload {
   batch?: false;
@@ -363,13 +405,19 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
     .eq('id', payload.user_id)
     .single();
   const locale = (userRow as { locale?: string } | null)?.locale ?? 'en';
+
+  // Chat previews are decrypted on demand right before sending — never read from
+  // payload.context_entity, which is always null for new_chat_message (see
+  // resolveChatPreview() above). For every other type this is a no-op (returns null
+  // immediately) and payload.context_entity is used as-is.
+  const chatPreview = await resolveChatPreview(payload.type, payload.related_id);
   const { title, body: translatedBody } = translateNotification(
     payload.type,
     locale,
     payload.title,
     payload.body,
     {
-      entity: payload.context_entity,
+      entity: payload.type === 'new_chat_message' ? chatPreview : payload.context_entity,
       trip: payload.context_trip,
       creator: payload.context_creator,
     },
@@ -424,7 +472,6 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
     notification_ids, user_ids,
     context_entity, context_trip, context_creator,
   } = payload;
-  const context: NotifContext = { entity: context_entity, trip: context_trip, creator: context_creator };
 
   if (user_ids.length === 0) return jsonResponse({ sent: 0, reason: 'no_recipients' });
 
@@ -448,6 +495,17 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
     await markPushSent(notification_ids);
     return jsonResponse({ sent: 0, reason: 'all_preferences_off' });
   }
+
+  // All recipients in a batch share the same underlying message (related_id) — resolve
+  // the decrypted preview once here rather than per recipient, and only once we know at
+  // least one recipient will actually receive the push. See resolveChatPreview() above:
+  // context_entity is always null for new_chat_message, by design.
+  const chatPreview = await resolveChatPreview(type, related_id);
+  const context: NotifContext = {
+    entity: type === 'new_chat_message' ? chatPreview : context_entity,
+    trip: context_trip,
+    creator: context_creator,
+  };
 
   // Fetch tokens and user locales for all eligible users in parallel.
   const [{ data: allTokens }, { data: userLocales }] = await Promise.all([

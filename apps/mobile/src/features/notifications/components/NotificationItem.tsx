@@ -5,7 +5,9 @@ import type { Notification } from '@vacationist/types';
 import { colors, NOTIFICATION_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 import { safeFromNow } from '@vacationist/utils';
 
-// Keep in sync with NOTIFICATION_TRANSLATIONS in supabase/functions/push-notification/index.ts.
+// Keep in sync with NOTIFICATION_TRANSLATIONS in supabase/functions/push-notification/index.ts —
+// EXCEPT new_chat_message, which deliberately diverges (see its comment below: this file
+// always renders a generic body, the edge function decrypts a preview for push only).
 // shared_packing_self is a virtual key used to distinguish i_got_it notifications
 // (DB body starts with 'For "') from 'everyone' notifications — they share the same
 // DB type but have different semantics. This avoids a DB schema change.
@@ -80,9 +82,16 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '"{{entity}}" in "{{trip}}" starts in 1 hour!',
     de: '"{{entity}}" in "{{trip}}" beginnt in 1 Stunde!',
   },
+  // Chat message content is never decrypted into notification rows (context_entity is
+  // always null for this type) — trip_messages.text stays encrypted at rest at all
+  // times, so this body is intentionally generic. The push notification's lock-screen
+  // preview is decrypted on demand instead — see resolveChatPreview() in
+  // supabase/functions/push-notification/index.ts. This is a deliberate divergence
+  // from that file's NOTIFICATION_TRANSLATIONS['new_chat_message'] template — do not
+  // "fix" it back to interpolate {{entity}}.
   new_chat_message: {
-    en: '{{creator}}: {{entity}}',
-    de: '{{creator}}: {{entity}}',
+    en: '{{creator}} sent a message.',
+    de: '{{creator}} hat eine Nachricht gesendet.',
   },
   trip_deleted: {
     en: '{{creator}} deleted "{{trip}}".',

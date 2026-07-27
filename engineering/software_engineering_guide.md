@@ -1726,18 +1726,19 @@ Use this pattern whenever a feature stores personally identifiable information (
 ## Database Layer Rules
 
 ### Encryption
-- Encrypt sensitive fields as `BYTEA` using `extensions.pgp_sym_encrypt(value, key)`
+- Encrypt sensitive fields as `BYTEA` using `extensions.pgp_sym_encrypt(value, key, 'cipher-algo=aes256')` — **the `cipher-algo=aes256` option is mandatory and must be passed explicitly.** pgcrypto silently defaults to `aes128` when no options string is given; a bare `pgp_sym_encrypt(value, key)` call does not match this document's "AES-256" claim even though it looks correct. (`pgp_sym_decrypt(value, key)` needs no matching option — it reads the cipher from the PGP packet header — so this has no effect on read paths or on rows encrypted before this rule existed.)
 - Store the encryption key in `vault.secrets` via `vault.create_secret()` (NOT direct `INSERT INTO vault.secrets`)
 - Access the key through a `private.get_X_encryption_key()` SECURITY DEFINER helper that reads `vault.decrypted_secrets`
+- Never write a decrypted value into a *different*, non-encrypted table or column — e.g. a notification preview, an audit log free-text field, an analytics event. Doing so leaks the plaintext outside the encrypted column even though the original column is untouched, defeating the entire control. If a decrypted preview must be surfaced elsewhere (push notification body, etc.), decrypt it on demand at the point of use and never persist the result — see `get_chat_push_preview()` (`supabase/migrations/20260727100000_chat_notification_no_plaintext.sql`) for the pattern.
 
 ### RLS — Deny Direct Writes
-Tables with encrypted columns must have INSERT/UPDATE/DELETE policies that deny all direct writes:
+Tables with encrypted columns must have INSERT/UPDATE/DELETE policies that deny all direct writes, with **no exceptions** — this must be done in the same migration that introduces the encrypted column, not deferred:
 ```sql
 -- Prevent direct writes — all mutations go through SECURITY DEFINER RPCs
 CREATE POLICY "deny_direct_insert" ON public.sensitive_table
   FOR INSERT WITH CHECK (false);
 ```
-This forces all writes through vetted SECURITY DEFINER functions.
+This forces all writes through vetted SECURITY DEFINER functions. RLS — not "the app only calls the RPC" — is the actual trust boundary: anyone holding a valid session can call PostgREST/`supabase-js` directly, bypassing the app entirely. Without this policy, a client can write raw, un-encrypted bytes straight into the "encrypted" column, and any other row-owner's direct `SELECT` reads it back as plaintext with no key needed. This exact gap previously existed on `trip_messages` (encrypted in `20260719100000` but not locked down until `20260727110000` — the table was retrofitted with encryption without adding the matching deny-write policies from this rule) — when retrofitting encryption onto an existing table, this policy change is not optional just because the table "already has RLS".
 
 ### SECURITY DEFINER RPCs
 Every RPC that reads or writes encrypted data must use:

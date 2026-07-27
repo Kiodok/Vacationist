@@ -183,6 +183,14 @@ Every new non-guest user automatically gets a pre-populated demo trip via the `c
 
 ---
 
+## Account Deletion (`delete_own_account`)
+
+`public.delete_own_account()` (`supabase/migrations/20260707110000_fix_delete_own_account_cascade.sql`, most recently patched by `20260727130000_fix_delete_own_account_joined_at_and_chat.sql`) anonymizes a user's content by reassigning every non-cascading FK to `public.users` over to the sentinel `00000000-0000-0000-0000-000000000000` ("Deleted User") before deleting the `auth.users` row.
+
+**When adding a new table with a `created_by` / `paid_by` / `user_id` (etc.) FK to `public.users` that is NOT `ON DELETE CASCADE`:** add a reassignment line for it to `delete_own_account()` in the same migration. Missing this blocks account deletion with a foreign-key violation for any user who has a row in that table — this exact gap is what happened when `trip_messages` shipped without a matching update (fixed 2026-07-27, see `engineering/supabase.md`). To check for gaps, run the query in that log entry's migration verification section against `pg_constraint`.
+
+---
+
 ## Marketing Site (docs/ — vacationist.app)
 
 GitHub Pages serves `docs/` directly (no CI). SEO pages are **generated** — never edit generated HTML by hand.

@@ -2474,6 +2474,13 @@ export type Database = {
           sender: Json
         }[]
       }
+      // service_role only — REVOKE'd from anon/authenticated. Called exclusively by
+      // supabase/functions/create-example-trip (Deno, not this typed client), listed
+      // here for schema-truth parity with the DB.
+      seed_trip_message: {
+        Args: { p_trip_id: string; p_user_id: string; p_text: string }
+        Returns: string
+      }
       get_trip_messages: {
         Args: { p_trip_id: string; p_cursor?: string | null; p_limit?: number }
         Returns: {
@@ -2499,6 +2506,13 @@ export type Database = {
           deleted_at: string | null
           sender: Json
         }[]
+      }
+      // service_role only — REVOKE'd from anon/authenticated. Called exclusively by
+      // supabase/functions/push-notification (Deno, not this typed client), listed
+      // here for schema-truth parity with the DB.
+      get_chat_push_preview: {
+        Args: { p_message_id: string }
+        Returns: string | null
       }
     }
     Enums: {

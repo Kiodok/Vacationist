@@ -6,6 +6,7 @@ lang: en
 type: listicle
 schema: Article
 date: 2026-07-17
+updated: 2026-07-27
 altPath: /de/alternatives/splitwise/
 keywords: splitwise alternative, best splitwise alternative, apps like splitwise, splitwise alternative for travel
 related: /vs/splitwise/, /features/expenses/, /blog/best-group-travel-apps-2026/
@@ -94,6 +95,10 @@ The honest bottom line: every app above except Vacationist and Wanderlog is a be
 <!--CTA-->
 
 ## Frequently asked questions
+
+### What are the best alternatives to Splitwise?
+
+The most well-known alternatives are Vacationist, Tricount, Settle Up, Splid, Kittysplit, Spliito, and Wanderlog. For pure cost-splitting with no accounts, Tricount or Splid work best. For group trips where you're also planning together — activities, accommodations, shopping lists — Vacationist is the most complete option.
 
 ### Why do people leave Splitwise?
 

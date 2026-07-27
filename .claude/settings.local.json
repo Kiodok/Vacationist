@@ -170,7 +170,10 @@
       "PowerShell(cd \"F:\\\\Expo Projects\\\\Vacationist\" && npm run typecheck 2>&1 | Where-Object { $_ -match \"error TS\" } | Select-Object -First 5)",
       "Bash(python *)",
       "Bash(curl -sH 'User-Agent: Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) Chrome/130 Safari/537.36' 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap')",
-      "Bash(grep -A8 \"/\\\\* latin \\\\*/\")"
+      "Bash(grep -A8 \"/\\\\* latin \\\\*/\")",
+      "Bash(export PGHOST=\"aws-1-eu-west-3.pooler.supabase.com\" PGPORT=\"5432\" PGUSER=\"cli_login_postgres.aejywkbkcwyanhyzhrle\" PGPASSWORD=\"RYnnUSawvvcJXbWqNCqKJmtuzIZhcpkW\" PGDATABASE=\"postgres\")",
+      "Bash('/c/Program Files/PostgreSQL/17/bin/psql.exe' -X -q -v ON_ERROR_STOP=1 -c ' *)",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -X -q -v ON_ERROR_STOP=1)"
     ]
   },
   "model": "opusplan",
