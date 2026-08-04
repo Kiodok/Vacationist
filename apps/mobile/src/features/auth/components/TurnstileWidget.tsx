@@ -49,12 +49,12 @@ async function openTurnstileInBrowser(): Promise<string | null> {
 
 // Widget must settle (token/error/expired) within this window, or we treat it as
 // hung — some devices silently drop the request to challenges.cloudflare.com with
-// no network error and no Turnstile callback ever firing. Kept low (2 attempts,
-// ~30s) since the failure mode observed in practice (stale/incompatible system
-// WebView) is deterministic, not transient — extra embedded retries just delay
-// reaching the working system-browser fallback.
+// no network error and no Turnstile callback ever firing. No embedded retries: the
+// failure mode observed in practice (stale/incompatible system WebView) is
+// deterministic, not transient, so a retry just delays reaching the working
+// system-browser fallback — fall back after the first failed attempt.
 const WATCHDOG_MS = 15000;
-const MAX_ATTEMPTS = 2;
+const MAX_ATTEMPTS = 1;
 
 const HTML = `<!DOCTYPE html>
 <html>

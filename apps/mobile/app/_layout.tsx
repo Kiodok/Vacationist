@@ -170,6 +170,17 @@ function AuthGate() {
     if (isLoading) return;
 
     const inAuth = segments[0] === '(auth)';
+    // captcha-redirect is a standalone target for the native CAPTCHA browser
+    // fallback (see TurnstileWidget.tsx) — it must never redirect away, even if
+    // this browser tab already has a session (Chrome Custom Tabs share cookies
+    // with the device's regular browser, so a previously-logged-in session can
+    // easily be present here). It has to stay put long enough to redirect the
+    // token back to the native app itself.
+    const isCaptchaRedirect = inAuth && segments[1] === 'captcha-redirect';
+
+    if (isCaptchaRedirect) {
+      return;
+    }
 
     if (!hasSession && !inAuth) {
       router.replace('/(auth)/login');
