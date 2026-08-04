@@ -3,49 +3,16 @@ import { StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 import type { WebViewMessageEvent } from 'react-native-webview';
 import type { WebViewErrorEvent } from 'react-native-webview/lib/WebViewTypes';
+import { usePathname, useLocalSearchParams } from 'expo-router';
 import * as Sentry from '@sentry/react-native';
-import * as WebBrowser from 'expo-web-browser';
-import { makeRedirectUri } from 'expo-auth-session';
+import { useCaptchaFallbackStore } from '../../../stores/captchaFallbackStore';
+import type { CaptchaReturnTarget } from '../../../stores/captchaFallbackStore';
+import { startCaptchaBrowserFallback } from '../utils/captchaBrowserFallback';
 
 const SITE_KEY = '0x4AAAAAADmlpH4qVMwb-i5j';
 
 // baseUrl makes Cloudflare domain validation pass against the configured origin.
 const BASE_URL = 'https://web.vacationist.app';
-
-// Fallback target when the embedded WebView can't render Turnstile at all (e.g. a
-// device stuck on a very old system WebView). Runs the challenge in the device's
-// real, independently-updated browser engine (Custom Tabs / ASWebAuthenticationSession)
-// instead. Uses a distinct `turnstile_token` query param — not `token` — so it can
-// never collide with the app's own invite-token deep-link handler in app/_layout.tsx.
-const CAPTCHA_PAGE_URL = 'https://web.vacationist.app/captcha-redirect';
-
-// Avoids relying on the WHATWG URL/URLSearchParams globals, which aren't used
-// elsewhere in this codebase's native paths and aren't guaranteed complete on
-// Hermes without a polyfill this app doesn't include.
-function getQueryParam(url: string, key: string): string | null {
-  const queryStart = url.indexOf('?');
-  if (queryStart === -1) return null;
-  const query = url.slice(queryStart + 1).split('#')[0];
-  for (const pair of query.split('&')) {
-    const [k, v] = pair.split('=');
-    if (decodeURIComponent(k) === key) return v ? decodeURIComponent(v) : '';
-  }
-  return null;
-}
-
-async function openTurnstileInBrowser(): Promise<string | null> {
-  const redirectUri = makeRedirectUri({ path: 'captcha-callback' });
-  const authUrl = `${CAPTCHA_PAGE_URL}?redirect_uri=${encodeURIComponent(redirectUri)}`;
-  try {
-    const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
-    if (result.type === 'success' && result.url) {
-      return getQueryParam(result.url, 'turnstile_token');
-    }
-  } catch {
-    // Fall through to null — treated as a failed fallback by the caller.
-  }
-  return null;
-}
 
 // Widget must settle (token/error/expired) within this window, or we treat it as
 // hung — some devices silently drop the request to challenges.cloudflare.com with
@@ -109,37 +76,79 @@ interface Props {
   onError?: () => void;
 }
 
+// Flattens expo-router's string | string[] param values, drops undefined
+// entries, and strips turnstile_token so a stray query param never gets echoed
+// back into itself when returnTo is later replayed via router.replace.
+function normalizeParams(raw: Record<string, unknown>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(raw)) {
+    if (key === 'turnstile_token') continue;
+    if (Array.isArray(value)) {
+      if (value[0] !== undefined) out[key] = String(value[0]);
+    } else if (value !== undefined) {
+      out[key] = String(value);
+    }
+  }
+  return out;
+}
+
 export function TurnstileWidget({ onToken, onExpired, onError }: Props) {
   const [attempt, setAttempt] = useState(0);
+  // Once a result has been delivered, stay rendered as null forever — otherwise
+  // consuming a resolved token (which flips the store back to idle) would let
+  // the embedded WebView mount again and start a second challenge.
+  const [delivered, setDelivered] = useState<'none' | 'token' | 'failed'>('none');
   const lastDetail = useRef<string | undefined>(undefined);
-  const mounted = useRef(true);
-  useEffect(() => () => { mounted.current = false; }, []);
+  const fallenBack = useRef(false);
 
-  function retryOrFail(reason: string) {
+  // Call sites pass inline arrow functions, so these are captured in a ref
+  // (updated every render) rather than depended on directly by effects below.
+  const callbacks = useRef({ onToken, onExpired, onError });
+  callbacks.current = { onToken, onExpired, onError };
+
+  const pathname = usePathname();
+  const localParams = useLocalSearchParams();
+  const returnTarget = useRef<CaptchaReturnTarget>({ pathname, params: {} });
+  returnTarget.current = { pathname, params: normalizeParams(localParams as Record<string, unknown>) };
+
+  const status = useCaptchaFallbackStore((s) => s.status);
+
+  // Reconciles this (possibly freshly mounted) instance against a browser
+  // fallback result that may have been produced by an entirely different,
+  // now-unmounted instance — the state lives in the store precisely so this
+  // works regardless of which instance is around when the result arrives.
+  useEffect(() => {
+    if (delivered !== 'none') return;
+    if (status === 'resolved') {
+      const token = useCaptchaFallbackStore.getState().consumeToken();
+      if (token) {
+        setDelivered('token');
+        callbacks.current.onToken(token);
+      }
+    } else if (status === 'failed') {
+      useCaptchaFallbackStore.getState().consumeFailure();
+      setDelivered('failed');
+      callbacks.current.onError?.();
+    }
+  }, [status, delivered]);
+
+  async function retryOrFail(reason: string) {
+    if (fallenBack.current) return;
     if (attempt + 1 < MAX_ATTEMPTS) {
       setAttempt((a) => a + 1);
       return;
     }
+    fallenBack.current = true;
     Sentry.captureMessage('turnstile_widget_failed', {
       level: 'warning',
       tags: { source: 'turnstile', reason },
       extra: { detail: lastDetail.current },
     });
-    fallbackToBrowser();
-  }
 
-  async function fallbackToBrowser() {
-    const token = await openTurnstileInBrowser();
-    if (!mounted.current) return;
-    if (token) {
-      onToken(token);
-    } else {
-      Sentry.captureMessage('turnstile_browser_fallback_failed', {
-        level: 'warning',
-        tags: { source: 'turnstile' },
-      });
-      onError?.();
-    }
+    const result = await startCaptchaBrowserFallback(returnTarget.current);
+    if (result === 'started' || result === 'busy') return; // outcome arrives via the store effect above
+    setDelivered('failed');
+    callbacks.current.onError?.();
   }
 
   function handleMessage(e: WebViewMessageEvent) {
@@ -151,9 +160,10 @@ export function TurnstileWidget({ onToken, onExpired, onError }: Props) {
         detail?: string;
       };
       if (msg.type === 'token' && msg.token) {
-        onToken(msg.token);
+        setDelivered('token');
+        callbacks.current.onToken(msg.token);
       } else if (msg.type === 'expired') {
-        onExpired?.();
+        callbacks.current.onExpired?.();
       } else if (msg.type === 'error') {
         retryOrFail('cloudflare-error-callback');
       } else if (msg.type === 'diagnostic') {
@@ -167,6 +177,12 @@ export function TurnstileWidget({ onToken, onExpired, onError }: Props) {
     lastDetail.current = JSON.stringify(e.nativeEvent);
     retryOrFail('webview-error');
   }
+
+  // Nothing to render once a result has been delivered, while a browser
+  // fallback is in flight (status 'pending'), or once one has just resolved but
+  // hasn't been consumed by the effect yet — in every one of these cases the
+  // embedded WebView must not mount (or re-mount) a fresh challenge.
+  if (delivered !== 'none' || status === 'pending' || status === 'resolved') return null;
 
   return (
     <WebView

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { NativeModules, Platform } from 'react-native';
 import { signInWithGoogleIdToken } from '@vacationist/api';
 import { i18n } from '@vacationist/i18n';
+import { tryStartGoogleSignIn, endGoogleSignIn } from '../utils/googleSignInGuard';
 
 type GoogleSigninType =
   typeof import('@react-native-google-signin/google-signin').GoogleSignin;
@@ -48,6 +49,7 @@ export function useGoogleSignIn(
   }, []);
 
   const signIn = useCallback(async () => {
+    if (!tryStartGoogleSignIn()) return;
     setLoading(true);
     try {
       if (Platform.OS === 'web') {
@@ -97,6 +99,7 @@ export function useGoogleSignIn(
       }
       onError(i18n.t('auth:login.googleFailed'));
     } finally {
+      endGoogleSignIn();
       setLoading(false);
     }
   }, [onError]);

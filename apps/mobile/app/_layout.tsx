@@ -176,9 +176,18 @@ function AuthGate() {
     // with the device's regular browser, so a previously-logged-in session can
     // easily be present here). It has to stay put long enough to redirect the
     // token back to the native app itself.
-    const isCaptchaRedirect = inAuth && segments[1] === 'captcha-redirect';
+    //
+    // captcha-callback is the deep-link landing point for that same fallback
+    // (see captchaBrowserFallback.ts) — it performs its own router.replace to
+    // the stored return target once it has recorded the token, and this guard
+    // must not race that. This matters most for the guest-upgrade case, where
+    // hasSession is already true: without this exemption, the `hasSession &&
+    // inAuth` branch below would fire its own competing router.replace(
+    // '/(tabs)') and drop the return target before captcha-callback gets to use it.
+    const isCaptchaScreen =
+      inAuth && (segments[1] === 'captcha-redirect' || segments[1] === 'captcha-callback');
 
-    if (isCaptchaRedirect) {
+    if (isCaptchaScreen) {
       return;
     }
 

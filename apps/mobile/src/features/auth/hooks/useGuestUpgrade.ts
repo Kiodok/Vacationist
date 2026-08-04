@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { linkGuestWithGoogle, linkGuestWithMagicLink } from '@vacationist/api';
+import { tryStartGoogleSignIn, endGoogleSignIn } from '../utils/googleSignInGuard';
 
 type GoogleSigninType = typeof import('@react-native-google-signin/google-signin').GoogleSignin;
 let GoogleSignin: GoogleSigninType | null = null;
@@ -15,7 +16,7 @@ export function useGuestUpgrade() {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
   const upgradeWithGoogle = useCallback(async () => {
-    if (!GoogleSignin) return;
+    if (!GoogleSignin || !tryStartGoogleSignIn()) return;
     setIsPending(true);
     setError(null);
     try {
@@ -28,6 +29,7 @@ export function useGuestUpgrade() {
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Sign-in failed');
     } finally {
+      endGoogleSignIn();
       setIsPending(false);
     }
   }, []);
