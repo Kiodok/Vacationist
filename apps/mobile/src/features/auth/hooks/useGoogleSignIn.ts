@@ -31,7 +31,9 @@ if (Platform.OS === 'web') {
 }
 
 interface GoogleSignInResult {
-  signIn: () => Promise<void>;
+  // captchaToken: only meaningful on native — the web path below is an OAuth
+  // redirect (signInWithOAuth), which Supabase captcha protection doesn't gate.
+  signIn: (captchaToken?: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -48,7 +50,7 @@ export function useGoogleSignIn(
     }
   }, []);
 
-  const signIn = useCallback(async () => {
+  const signIn = useCallback(async (captchaToken?: string) => {
     if (!tryStartGoogleSignIn()) return;
     setLoading(true);
     try {
@@ -80,7 +82,7 @@ export function useGoogleSignIn(
         throw new Error(i18n.t('auth:login.googleNoToken'));
       }
 
-      await signInWithGoogleIdToken(response.idToken);
+      await signInWithGoogleIdToken(response.idToken, captchaToken);
 
       if (__DEV__) {
         console.log('[GoogleSignIn] Supabase signInWithIdToken succeeded');

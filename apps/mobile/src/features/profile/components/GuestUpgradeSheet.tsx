@@ -27,6 +27,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
   const [email, setEmail] = useState('');
   const [captchaReady, setCaptchaReady] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
+  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
   const turnstileToken = useRef<string | undefined>(undefined);
   const { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError } =
     useGuestUpgrade();
@@ -40,11 +41,32 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
     onClose();
   }
 
+  // Turnstile tokens are single-use — every attempt that consumes one, whether
+  // it succeeds or fails, must clear it and request a fresh challenge before
+  // the user can submit again.
+  function consumeCaptcha() {
+    turnstileToken.current = undefined;
+    setCaptchaReady(false);
+    setCaptchaResetNonce((n) => n + 1);
+  }
+
+  async function handleGoogleUpgrade() {
+    const captchaToken = turnstileToken.current;
+    try {
+      await upgradeWithGoogle(captchaToken);
+    } finally {
+      consumeCaptcha();
+    }
+  }
+
   async function handleMagicLink() {
     const trimmed = email.trim().toLowerCase();
     if (!trimmed || !captchaReady) return;
-    const success = await upgradeWithMagicLink(trimmed, turnstileToken.current);
-    if (success) turnstileToken.current = undefined;
+    try {
+      await upgradeWithMagicLink(trimmed);
+    } finally {
+      consumeCaptcha();
+    }
   }
 
   const magicLinkDisabled = isPending || !email.trim() || !captchaReady;
@@ -94,7 +116,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
                 {captchaReady && (
                   <>
                     <GoogleAuthButton
-                      onPress={upgradeWithGoogle}
+                      onPress={handleGoogleUpgrade}
                       loading={isPending}
                       disabled={isPending}
                     />
@@ -139,6 +161,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
                 </Pressable>
 
                 <TurnstileWidget
+                  resetNonce={captchaResetNonce}
                   onToken={(token) => {
                     turnstileToken.current = token;
                     setCaptchaReady(true);

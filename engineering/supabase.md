@@ -1,5 +1,53 @@
 # Supabase Changes Log
 
+## 2026-08-04 — Wire up Turnstile CAPTCHA verification (dashboard config, no migration)
+
+**Why:** The Turnstile widget (`0x4AAAAAADmlpH4qVMwb-i5j`) has rendered on login, guest join, and
+guest upgrade since `e197589` (2026), and the client has always passed the resulting token into
+supabase-js as `options.captchaToken`. Nothing was ever verifying it: Auth → Attack Protection was
+never enabled on either project, so GoTrue received every token in `gotrue_meta_security` and
+silently discarded it. The widget provided zero actual bot protection. There is no custom backend
+in this request path — GoTrue itself performs the canonical
+`POST challenges.cloudflare.com/turnstile/v0/siteverify` once CAPTCHA protection is enabled with
+the widget's secret, so enabling it *is* the fix. No Edge Function, no new infrastructure.
+
+**Config change (Dashboard only, not a migration):**
+Auth → Attack Protection → CAPTCHA protection → provider **Turnstile** → secret pasted directly
+from the Cloudflare dashboard. The secret was never entered into this repo, this chat, or any env
+file that ships — `supabase/config.toml` carries a commented `[auth.captcha]` block for
+documentation only, since `supabase config push` is never run against this project (it would
+clobber the remote `site_url` with the local `http://localhost:8081` value).
+
+- **Enabled: dev (`aejywkbkcwyanhyzhrle`).**
+- **Not yet enabled: prod (`fsfsqghbejwvgxujoyne`)** — pending a device-tested build with the code
+  fixes below (magic link, guest join, and Google Sign-In all re-verified against dev first, since
+  the switch rejects any request without a valid token the instant it's flipped).
+
+**Code fixes made alongside (all pre-existing bugs, invisible until the switch above is live):**
+1. **Token reuse.** Turnstile tokens are single-use, but `TurnstileWidget` rendered `null` forever
+   after delivering one and callers never requested a fresh challenge after consuming it — a
+   second submit on the same screen had no token, and a failed submit retried the same
+   already-redeemed token (`timeout-or-duplicate`). Added a `resetNonce` prop; `login.tsx`,
+   `join.tsx`, and `GuestUpgradeSheet.tsx` now bump it in a `finally` around every consumption
+   attempt, success or failure.
+2. **Google Sign-In sent no token.** `signInWithGoogleIdToken` / `linkGuestWithGoogle` never
+   forwarded `captchaToken` to `supabase.auth.signInWithIdToken`, even though auth-js supports it
+   on that grant. Threaded through `packages/api/src/auth.ts` → `useGoogleSignIn` /
+   `useGuestUpgrade` → the login/guest-upgrade screens.
+3. **Guest-upgrade token is unverifiable.** `linkGuestWithMagicLink` passed `captchaToken` to
+   `supabase.auth.updateUser()`, but `PUT /user` (what `updateUser` calls) has no captcha support
+   in auth-js at all — the options type accepts only `emailRedirectTo`. It typechecked only
+   because a conditional object spread dodges excess-property checking. **This path cannot be
+   server-verified with the current Supabase Auth API.** Removed the dead argument rather than
+   pretend it does something; the Turnstile widget stays in `GuestUpgradeSheet` as a UI-consistency
+   gate only. This flow requires an existing authenticated (anonymous) session and is already
+   rate-limited, so the residual bot-abuse surface is low. Revisit if Supabase ever adds captcha
+   support to the user-update endpoint.
+
+**Non-destructive.** Auth config toggle only; no schema, no data change. No new migration file.
+
+---
+
 ## 2026-07-27 — Fix delete_own_account(): wrong column name + missing chat reassignment
 
 ### Migration: `20260727130000_fix_delete_own_account_joined_at_and_chat`

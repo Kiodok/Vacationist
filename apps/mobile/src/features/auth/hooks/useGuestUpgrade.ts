@@ -15,7 +15,7 @@ export function useGuestUpgrade() {
   const [error, setError] = useState<string | null>(null);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
-  const upgradeWithGoogle = useCallback(async () => {
+  const upgradeWithGoogle = useCallback(async (captchaToken?: string) => {
     if (!GoogleSignin || !tryStartGoogleSignIn()) return;
     setIsPending(true);
     setError(null);
@@ -24,7 +24,7 @@ export function useGuestUpgrade() {
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.idToken;
       if (!idToken) throw new Error('No ID token from Google');
-      await linkGuestWithGoogle(idToken);
+      await linkGuestWithGoogle(idToken, captchaToken);
       // Auth state change will update the store via onAuthStateChange listener
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Sign-in failed');
@@ -34,12 +34,12 @@ export function useGuestUpgrade() {
     }
   }, []);
 
-  const upgradeWithMagicLink = useCallback(async (email: string, captchaToken?: string): Promise<boolean> => {
+  const upgradeWithMagicLink = useCallback(async (email: string): Promise<boolean> => {
     setIsPending(true);
     setError(null);
     try {
       const redirectTo = Platform.OS === 'web' ? window.location.origin : 'vacationist://';
-      await linkGuestWithMagicLink(email, redirectTo, captchaToken);
+      await linkGuestWithMagicLink(email, redirectTo);
       setMagicLinkSent(true);
       return true;
     } catch (e: unknown) {

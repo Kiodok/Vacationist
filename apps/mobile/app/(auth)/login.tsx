@@ -21,11 +21,30 @@ export default function LoginScreen() {
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [captchaReady, setCaptchaReady] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
+  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
   const turnstileToken = useRef<string | undefined>(undefined);
 
   const colors = useThemeColors();
   const { signIn: handleGoogleSignIn, loading: googleLoading } =
     useGoogleSignIn((msg) => addToast('error', msg));
+
+  // Turnstile tokens are single-use — every attempt that consumes one, whether
+  // it succeeds or fails, must clear it and request a fresh challenge before
+  // the user can submit again.
+  function consumeCaptcha() {
+    turnstileToken.current = undefined;
+    setCaptchaReady(false);
+    setCaptchaResetNonce((n) => n + 1);
+  }
+
+  async function handleGoogleUpgrade() {
+    const captchaToken = turnstileToken.current;
+    try {
+      await handleGoogleSignIn(captchaToken);
+    } finally {
+      consumeCaptcha();
+    }
+  }
 
   async function handleMagicLink() {
     if (!captchaReady) return;
@@ -38,10 +57,10 @@ export default function LoginScreen() {
     }
 
     setMagicLinkLoading(true);
+    const captchaToken = turnstileToken.current;
     try {
       const redirectTo = makeRedirectUri();
-      await signInWithMagicLink(trimmed, redirectTo, turnstileToken.current);
-      turnstileToken.current = undefined;
+      await signInWithMagicLink(trimmed, redirectTo, captchaToken);
       router.push({
         pathname: '/(auth)/magic-link-sent',
         params: { email: trimmed },
@@ -49,6 +68,7 @@ export default function LoginScreen() {
     } catch {
       addToast('error', t('login.magicLinkFailed'));
     } finally {
+      consumeCaptcha();
       setMagicLinkLoading(false);
     }
   }
@@ -70,7 +90,7 @@ export default function LoginScreen() {
           {captchaReady ? (
             <>
               <GoogleAuthButton
-                onPress={handleGoogleSignIn}
+                onPress={handleGoogleUpgrade}
                 loading={googleLoading}
                 disabled={magicLinkLoading}
               />
@@ -113,6 +133,7 @@ export default function LoginScreen() {
           />
 
           <TurnstileWidget
+            resetNonce={captchaResetNonce}
             onToken={(token) => {
               turnstileToken.current = token;
               setCaptchaReady(true);

@@ -50,6 +50,17 @@ enable_anonymous_sign_ins = true
 enable_manual_linking = true
 minimum_password_length = 6
 
+# Turnstile CAPTCHA protection (widget 0x4AAAAAADmlpH4qVMwb-i5j) — configured
+# via Supabase Dashboard → Auth → Attack Protection, not by the CLI. This
+# block is documentation only: `supabase config push` must never be run
+# against this project (it would overwrite the remote site_url with the
+# localhost value above and break every auth redirect), so uncommenting
+# this has no effect remotely — go through the Dashboard instead.
+# [auth.captcha]
+# enabled = true
+# provider = "turnstile"
+# secret = "env(TURNSTILE_SECRET)"
+
 [auth.email]
 enable_signup = true
 double_confirm_changes = true

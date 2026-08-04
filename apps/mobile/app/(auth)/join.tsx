@@ -23,6 +23,7 @@ export default function JoinScreen() {
   const [loading, setLoading] = useState(false);
   const [captchaReady, setCaptchaReady] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
+  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
   const turnstileToken = useRef<string | undefined>(undefined);
   const [tripPreview, setTripPreview] = useState<{ trip_title: string; start_date: string; end_date: string } | null>(null);
   const [tokenInvalid, setTokenInvalid] = useState(false);
@@ -37,6 +38,15 @@ export default function JoinScreen() {
       setPreviewLoading(false);
     });
   }, [token]);
+
+  // Turnstile tokens are single-use — every attempt that consumes one, whether
+  // it succeeds or fails, must clear it and request a fresh challenge before
+  // the user can submit again.
+  function consumeCaptcha() {
+    turnstileToken.current = undefined;
+    setCaptchaReady(false);
+    setCaptchaResetNonce((n) => n + 1);
+  }
 
   // A session already exists (route-guard race, or stale tab): never create a
   // second anonymous account — hand the token to the authenticated join flow.
@@ -72,8 +82,12 @@ export default function JoinScreen() {
     }
 
     try {
-      await signInAnonymously({ name: trimmed }, turnstileToken.current);
-      turnstileToken.current = undefined;
+      const captchaToken = turnstileToken.current;
+      try {
+        await signInAnonymously({ name: trimmed }, captchaToken);
+      } finally {
+        consumeCaptcha();
+      }
 
       if (token) {
         try {
@@ -171,6 +185,7 @@ export default function JoinScreen() {
           />
 
           <TurnstileWidget
+            resetNonce={captchaResetNonce}
             onToken={(token) => {
               turnstileToken.current = token;
               setCaptchaReady(true);

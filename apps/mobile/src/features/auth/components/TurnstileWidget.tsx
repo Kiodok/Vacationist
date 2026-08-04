@@ -74,6 +74,10 @@ interface Props {
   onToken: (token: string) => void;
   onExpired?: () => void;
   onError?: () => void;
+  // Bump to discard a delivered/failed result and mount a fresh challenge.
+  // Turnstile tokens are single-use, so callers must request a new one after
+  // every consumption attempt (success or failure) before submitting again.
+  resetNonce?: number;
 }
 
 // Flattens expo-router's string | string[] param values, drops undefined
@@ -92,7 +96,7 @@ function normalizeParams(raw: Record<string, unknown>): Record<string, string> {
   return out;
 }
 
-export function TurnstileWidget({ onToken, onExpired, onError }: Props) {
+export function TurnstileWidget({ onToken, onExpired, onError, resetNonce }: Props) {
   const [attempt, setAttempt] = useState(0);
   // Once a result has been delivered, stay rendered as null forever — otherwise
   // consuming a resolved token (which flips the store back to idle) would let
@@ -131,6 +135,21 @@ export function TurnstileWidget({ onToken, onExpired, onError }: Props) {
       callbacks.current.onError?.();
     }
   }, [status, delivered]);
+
+  // Caller bumped resetNonce (after consuming or failing to consume a
+  // delivered token) — remount for a fresh challenge. Skipped while a browser
+  // fallback is pending/resolved so this can't race the reconciliation effect
+  // above or open a second Custom Tab.
+  const prevResetNonce = useRef(resetNonce);
+  useEffect(() => {
+    if (resetNonce === undefined || resetNonce === prevResetNonce.current) return;
+    prevResetNonce.current = resetNonce;
+    if (status === 'pending' || status === 'resolved') return;
+    fallenBack.current = false;
+    lastDetail.current = undefined;
+    setDelivered('none');
+    setAttempt((a) => a + 1);
+  }, [resetNonce, status]);
 
   async function retryOrFail(reason: string) {
     if (fallenBack.current) return;

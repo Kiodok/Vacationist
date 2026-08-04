@@ -73,19 +73,20 @@ export async function setSessionFromUrl(url: string) {
   return data;
 }
 
-export async function signInWithGoogleIdToken(idToken: string) {
+export async function signInWithGoogleIdToken(idToken: string, captchaToken?: string) {
   if (!idToken) {
     throw new Error('Google ID token is required');
   }
   const { data, error } = await supabase.auth.signInWithIdToken({
     provider: 'google',
     token: idToken,
+    ...(captchaToken ? { options: { captchaToken } } : {}),
   });
   if (error) throw error;
   return data;
 }
 
-export async function linkGuestWithGoogle(idToken: string) {
+export async function linkGuestWithGoogle(idToken: string, captchaToken?: string) {
   // signInWithIdToken while an anonymous session is active: Supabase server
   // merges the anonymous identity into the Google-linked user when the Google
   // account is new. If the Google account already exists the user is signed
@@ -93,17 +94,22 @@ export async function linkGuestWithGoogle(idToken: string) {
   const { data, error } = await supabase.auth.signInWithIdToken({
     provider: 'google',
     token: idToken,
+    ...(captchaToken ? { options: { captchaToken } } : {}),
   });
   if (error) throw error;
   return data;
 }
 
-export async function linkGuestWithMagicLink(email: string, redirectTo: string, captchaToken?: string) {
+export async function linkGuestWithMagicLink(email: string, redirectTo: string) {
   // updateUser adds an email identity to the currently signed-in anonymous
   // user. The UUID is preserved so all existing trip data stays intact.
+  // No captchaToken param: PUT /user (what updateUser calls) has no captcha
+  // support in auth-js — its options type only accepts emailRedirectTo. This
+  // path cannot be Turnstile-verified server-side; the Turnstile widget still
+  // shown in GuestUpgradeSheet is a UI-consistency gate only, not a real check.
   const { data, error } = await supabase.auth.updateUser(
     { email },
-    { emailRedirectTo: redirectTo, ...(captchaToken ? { captchaToken } : {}) },
+    { emailRedirectTo: redirectTo },
   );
   if (error) throw error;
   return data;
