@@ -37,11 +37,11 @@ Key use cases:
 
 ## Comparisons
 
-- **Vacationist vs. Splitwise:** Splitwise is a mature, excellent pure expense tracker for ongoing shared finances (roommates, couples). Vacationist covers the same expense splitting plus trip planning, activity voting, shared lists, and no-account guest joins — built specifically for group trips, not everyday shared costs.
-- **Vacationist vs. Wanderlog:** Wanderlog is the stronger itinerary-research tool — maps, place discovery, route optimization. Vacationist is the stronger group-coordination tool — voting, expense splitting, shared lists, and guests who join without an account.
-- **Vacationist vs. TripIt:** TripIt automatically builds an itinerary from forwarded confirmation emails for one traveler. Vacationist has no email parsing, but adds what TripIt lacks entirely: group voting, expense splitting, shared lists, and no-account participation.
-- **Vacationist vs. Tricount:** Tricount is a fast, focused, and popular (especially in Europe) expense-splitting app with strong multi-currency support. Vacationist matches its expense splitting and no-account participation, then adds trip planning, activity voting, shared lists, and encrypted travel documents.
-- **Vacationist vs. Troupe:** Both are group-first trip coordination apps with polls and expense splitting. Vacationist differentiates on AES-256 encrypted travel document storage, offline-first sync for every user, and a fully free core app with no ads.
+- **[Vacationist vs. Splitwise](https://vacationist.app/vs/splitwise/):** Splitwise is a mature, excellent pure expense tracker for ongoing shared finances (roommates, couples). Vacationist covers the same expense splitting plus trip planning, activity voting, shared lists, and no-account guest joins — built specifically for group trips, not everyday shared costs.
+- **[Vacationist vs. Wanderlog](https://vacationist.app/vs/wanderlog/):** Wanderlog is the stronger itinerary-research tool — maps, place discovery, route optimization. Vacationist is the stronger group-coordination tool — voting, expense splitting, shared lists, and guests who join without an account.
+- **[Vacationist vs. TripIt](https://vacationist.app/vs/tripit/):** TripIt automatically builds an itinerary from forwarded confirmation emails for one traveler. Vacationist has no email parsing, but adds what TripIt lacks entirely: group voting, expense splitting, shared lists, and no-account participation.
+- **[Vacationist vs. Tricount](https://vacationist.app/vs/tricount/):** Tricount is a fast, focused, and popular (especially in Europe) expense-splitting app with strong multi-currency support. Vacationist matches its expense splitting and no-account participation, then adds trip planning, activity voting, shared lists, and encrypted travel documents.
+- **[Vacationist vs. Troupe](https://vacationist.app/vs/troupe/):** Both are group-first trip coordination apps with polls and expense splitting. Vacationist differentiates on AES-256 encrypted travel document storage, offline-first sync for every user, and a fully free core app with no ads.
 
 ## Technology
 
@@ -54,44 +54,82 @@ Key use cases:
 
 group trip planner, group vacation planning app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, vacation tracker, shared trip organizer, holiday planner group, travel expense splitting, group travel app, trip planning app, van life trip planner, ski trip group budget, stag do planner
 
-## URLs
+## Product
 
-- Landing page: https://vacationist.app/
-- German landing page: https://vacationist.app/de/
-- Web app: https://web.vacationist.app/
-- Android app: https://play.google.com/store/apps/details?id=com.vacationist.mobile
-- Features overview: https://vacationist.app/features/ (German: https://vacationist.app/de/features/)
-  - Activity voting: https://vacationist.app/features/voting/ (German: https://vacationist.app/de/features/voting/)
-  - Expense splitting: https://vacationist.app/features/expenses/ (German: https://vacationist.app/de/features/expenses/)
-  - Shared lists: https://vacationist.app/features/shopping-lists/ (German: https://vacationist.app/de/features/shopping-lists/)
-  - Encrypted travel documents: https://vacationist.app/features/travel-documents/ (German: https://vacationist.app/de/features/travel-documents/)
-- Use cases: https://vacationist.app/use-cases/ (German: https://vacationist.app/de/use-cases/)
-  - Bachelorette party planner: https://vacationist.app/use-cases/bachelorette-party-planner/ (German: https://vacationist.app/de/use-cases/bachelorette-party-planner/)
-  - Van life trip planner: https://vacationist.app/use-cases/van-life-trip-planner/ (German: https://vacationist.app/de/use-cases/van-life-trip-planner/)
-  - Ski trip group budget: https://vacationist.app/use-cases/ski-trip-group-budget/ (German: https://vacationist.app/de/use-cases/ski-trip-group-budget/)
-  - Family reunion planner: https://vacationist.app/use-cases/family-reunion-planner/ (German: https://vacationist.app/de/use-cases/family-reunion-planner/)
-  - Group camping trip: https://vacationist.app/use-cases/group-camping-trip/ (German: https://vacationist.app/de/use-cases/group-camping-trip/)
-  - Stag do planner: https://vacationist.app/use-cases/stag-do-planner/ (German: https://vacationist.app/de/use-cases/stag-do-planner/)
-- Blog (group travel guides): https://vacationist.app/blog/ (German: https://vacationist.app/de/blog/)
-  - RSS feed: https://vacationist.app/blog/feed.xml (German: https://vacationist.app/de/blog/feed.xml)
-  - How to plan a group trip: https://vacationist.app/blog/how-to-plan-a-group-trip/ (German: https://vacationist.app/de/blog/how-to-plan-a-group-trip/)
-  - How to split travel expenses: https://vacationist.app/blog/how-to-split-travel-expenses/ (German: https://vacationist.app/de/blog/how-to-split-travel-expenses/)
-  - Best group travel apps 2026: https://vacationist.app/blog/best-group-travel-apps-2026/ (German: https://vacationist.app/de/blog/best-group-travel-apps-2026/)
-  - Bachelorette trip planning guide: https://vacationist.app/blog/bachelorette-trip-planning-guide/ (German: https://vacationist.app/de/blog/bachelorette-trip-planning-guide/)
-  - Family vacation coordination guide: https://vacationist.app/blog/family-vacation-coordination-guide/ (German: https://vacationist.app/de/blog/family-vacation-coordination-guide/)
-  - Travel document safety guide: https://vacationist.app/blog/travel-document-safety-guide/ (German: https://vacationist.app/de/blog/travel-document-safety-guide/)
-  - Group camping trip planner: https://vacationist.app/blog/group-camping-trip-planner/ (German: https://vacationist.app/de/blog/group-camping-trip-planner/)
-- Comparisons:
-  - Vacationist vs. Splitwise: https://vacationist.app/vs/splitwise/ (German: https://vacationist.app/de/vs/splitwise/)
-  - Vacationist vs. Wanderlog: https://vacationist.app/vs/wanderlog/ (German: https://vacationist.app/de/vs/wanderlog/)
-  - Vacationist vs. TripIt: https://vacationist.app/vs/tripit/ (German: https://vacationist.app/de/vs/tripit/)
-  - Vacationist vs. Troupe: https://vacationist.app/vs/troupe/ (German: https://vacationist.app/de/vs/troupe/)
-  - Vacationist vs. Tricount: https://vacationist.app/vs/tricount/ (German: https://vacationist.app/de/vs/tricount/)
-  - Splitwise alternatives: https://vacationist.app/alternatives/splitwise/ (German: https://vacationist.app/de/alternatives/splitwise/)
-  - Wanderlog alternatives: https://vacationist.app/alternatives/wanderlog/ (German: https://vacationist.app/de/alternatives/wanderlog/)
-  - TripIt alternatives: https://vacationist.app/alternatives/tripit/ (German: https://vacationist.app/de/alternatives/tripit/)
-- Privacy policy: https://vacationist.app/privacy-policy.html (German: https://vacationist.app/de/privacy-policy/)
-- Terms of service: https://vacationist.app/terms-of-service.html (German: https://vacationist.app/de/terms-of-service/)
+- [Vacationist landing page](https://vacationist.app/): English home page.
+- [Vacationist Startseite](https://vacationist.app/de/): German home page.
+- [Web app](https://web.vacationist.app/): Use Vacationist in a browser, no install.
+- [Android app on Google Play](https://play.google.com/store/apps/details?id=com.vacationist.mobile): Free Android download.
+
+## Features
+
+- [Features overview](https://vacationist.app/features/): All Vacationist features in one page.
+- [Activity voting](https://vacationist.app/features/voting/): Five-tier group voting, must do → group blocker.
+- [Expense splitting](https://vacationist.app/features/expenses/): Log costs, split, track live balances, settle up.
+- [Shared lists](https://vacationist.app/features/shopping-lists/): Real-time shopping and packing lists.
+- [Encrypted travel documents](https://vacationist.app/features/travel-documents/): AES-256 vault with biometric unlock.
+- [Funktionsübersicht](https://vacationist.app/de/features/): German features overview.
+- [Aktivitäten-Abstimmung](https://vacationist.app/de/features/voting/): German version of activity voting.
+- [Kostenteilung](https://vacationist.app/de/features/expenses/): German version of expense splitting.
+- [Geteilte Listen](https://vacationist.app/de/features/shopping-lists/): German version of shared lists.
+- [Verschlüsselte Reisedokumente](https://vacationist.app/de/features/travel-documents/): German version of encrypted travel documents.
+
+## Use cases
+
+- [Use cases overview](https://vacationist.app/use-cases/): All Vacationist use cases in one page.
+- [Bachelorette party planner](https://vacationist.app/use-cases/bachelorette-party-planner/): Planning a bachelorette trip with Vacationist.
+- [Van life trip planner](https://vacationist.app/use-cases/van-life-trip-planner/): Route planning and expense splitting for road trips.
+- [Ski trip group budget](https://vacationist.app/use-cases/ski-trip-group-budget/): Splitting chalet, lift pass, and gear costs.
+- [Family reunion planner](https://vacationist.app/use-cases/family-reunion-planner/): Coordinating a multi-generation family trip.
+- [Group camping trip](https://vacationist.app/use-cases/group-camping-trip/): Planning a group camping or van life trip.
+- [Stag do planner](https://vacationist.app/use-cases/stag-do-planner/): Planning a stag or bachelor party trip.
+- [Anwendungsfälle](https://vacationist.app/de/use-cases/): German use cases overview.
+- [Junggesellinnenabschied planen](https://vacationist.app/de/use-cases/bachelorette-party-planner/): German version of the bachelorette party planner guide.
+- [Van-Life-Reiseplaner](https://vacationist.app/de/use-cases/van-life-trip-planner/): German version of the van life trip planner guide.
+- [Skireise-Gruppenbudget](https://vacationist.app/de/use-cases/ski-trip-group-budget/): German version of the ski trip group budget guide.
+- [Familientreffen planen](https://vacationist.app/de/use-cases/family-reunion-planner/): German version of the family reunion planner guide.
+- [Gruppen-Campingtrip](https://vacationist.app/de/use-cases/group-camping-trip/): German version of the group camping trip guide.
+- [Junggesellenabschied planen](https://vacationist.app/de/use-cases/stag-do-planner/): German version of the stag do planner guide.
+
+## Blog
+
+- [Blog — group travel guides](https://vacationist.app/blog/): Index of all Vacationist blog posts.
+- [Blog RSS feed](https://vacationist.app/blog/feed.xml): RSS feed for the English blog.
+- [How to plan a group trip](https://vacationist.app/blog/how-to-plan-a-group-trip/): Step-by-step group trip planning guide.
+- [How to split travel expenses](https://vacationist.app/blog/how-to-split-travel-expenses/): Guide to splitting costs fairly in a group.
+- [Best group travel apps 2026](https://vacationist.app/blog/best-group-travel-apps-2026/): Comparison of group travel planning apps.
+- [Bachelorette trip planning guide](https://vacationist.app/blog/bachelorette-trip-planning-guide/): End-to-end bachelorette trip planning guide.
+- [Family vacation coordination guide](https://vacationist.app/blog/family-vacation-coordination-guide/): Coordinating a family vacation across generations.
+- [Travel document safety guide](https://vacationist.app/blog/travel-document-safety-guide/): Keeping passports and IDs safe while traveling.
+- [Group camping trip planner guide](https://vacationist.app/blog/group-camping-trip-planner/): Planning a group camping trip step by step.
+- [Blog (Deutsch)](https://vacationist.app/de/blog/): German blog index (article bodies are in English).
+- [Blog-RSS-Feed (Deutsch)](https://vacationist.app/de/blog/feed.xml): RSS feed for the German blog index.
+
+## Comparisons and alternatives
+
+- [Vacationist vs. Splitwise](https://vacationist.app/vs/splitwise/): Feature comparison against Splitwise.
+- [Vacationist vs. Wanderlog](https://vacationist.app/vs/wanderlog/): Feature comparison against Wanderlog.
+- [Vacationist vs. TripIt](https://vacationist.app/vs/tripit/): Feature comparison against TripIt.
+- [Vacationist vs. Troupe](https://vacationist.app/vs/troupe/): Feature comparison against Troupe.
+- [Vacationist vs. Tricount](https://vacationist.app/vs/tricount/): Feature comparison against Tricount.
+- [Splitwise alternatives](https://vacationist.app/alternatives/splitwise/): Alternatives to Splitwise for group trips.
+- [Wanderlog alternatives](https://vacationist.app/alternatives/wanderlog/): Alternatives to Wanderlog for group trips.
+- [TripIt alternatives](https://vacationist.app/alternatives/tripit/): Alternatives to TripIt for group trips.
+- [Vacationist vs. Splitwise (Deutsch)](https://vacationist.app/de/vs/splitwise/): German version of the Splitwise comparison.
+- [Vacationist vs. Wanderlog (Deutsch)](https://vacationist.app/de/vs/wanderlog/): German version of the Wanderlog comparison.
+- [Vacationist vs. TripIt (Deutsch)](https://vacationist.app/de/vs/tripit/): German version of the TripIt comparison.
+- [Vacationist vs. Troupe (Deutsch)](https://vacationist.app/de/vs/troupe/): German version of the Troupe comparison.
+- [Vacationist vs. Tricount (Deutsch)](https://vacationist.app/de/vs/tricount/): German version of the Tricount comparison.
+- [Splitwise-Alternativen](https://vacationist.app/de/alternatives/splitwise/): German version of the Splitwise alternatives page.
+- [Wanderlog-Alternativen](https://vacationist.app/de/alternatives/wanderlog/): German version of the Wanderlog alternatives page.
+- [TripIt-Alternativen](https://vacationist.app/de/alternatives/tripit/): German version of the TripIt alternatives page.
+
+## Legal
+
+- [Privacy policy](https://vacationist.app/privacy-policy.html): English privacy policy.
+- [Terms of service](https://vacationist.app/terms-of-service.html): English terms of service.
+- [Datenschutzerklärung](https://vacationist.app/de/privacy-policy/): German privacy policy.
+- [Nutzungsbedingungen](https://vacationist.app/de/terms-of-service/): German terms of service.
 
 ## Pricing
 

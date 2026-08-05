@@ -180,7 +180,10 @@
       "Bash(cp docs/index.html /tmp/index_run2.html)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/assets/og/vs-tricount.png)",
       "Bash(python3 -c ' *)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/assets/og/de-vs-tricount.png)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/assets/og/de-vs-tricount.png)",
+      "Bash(pkill -f \"http.server 3001\")",
+      "Bash(npx --yes marked docs/llms.txt)",
+      "Bash(npx --yes marked apps/mobile/public/llms.txt)"
     ]
   },
   "model": "opusplan",
