@@ -9,7 +9,7 @@ date: 2026-07-21
 altPath: /blog/how-to-plan-a-group-trip/
 keywords: Gruppenreise planen, Gruppenreise planen App, Reise mit Freunden planen, Gruppenreise organisieren
 blogIndex: true
-related: /de/blog/how-to-split-travel-expenses/, /de/features/voting/, /de/blog/best-group-travel-apps-2026/
+related: /de/blog/how-to-split-travel-expenses/, /de/features/voting/, /de/blog/best-group-travel-apps-2026/, /de/blog/travel-document-safety-guide/
 breadcrumbLabel: Gruppenreise-Planungs-Guide
 ---
 

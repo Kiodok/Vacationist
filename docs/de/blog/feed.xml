@@ -5,8 +5,15 @@
     <link>https://vacationist.app/de/blog/</link>
     <description>Praktische Guides rund um Gruppenreisen: Planung, Kostenteilung, Abstimmungen und Koordination — auf Deutsch und Englisch.</description>
     <language>de-de</language>
-    <lastBuildDate>Tue, 21 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 05 Aug 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://vacationist.app/de/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Musst du dein Passfoto wirklich in den Gruppenchat schicken?</title>
+      <link>https://vacationist.app/de/blog/travel-document-safety-guide/</link>
+      <guid isPermaLink="true">https://vacationist.app/de/blog/travel-document-safety-guide/</guid>
+      <description>Der übliche Weg, wie Gruppenreisen Reisedokumente teilen — Chat-Screenshots, Fotoalben — ist der unsicherste. So funktioniert Verschlüsselung „at rest&quot; wirklich, und so macht man es richtig.</description>
+      <pubDate>Wed, 05 Aug 2026 00:00:00 GMT</pubDate>
+    </item>
     <item>
       <title>Reisekosten fair teilen — der komplette Guide (2026)</title>
       <link>https://vacationist.app/de/blog/how-to-split-travel-expenses/</link>

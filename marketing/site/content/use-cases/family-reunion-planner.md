@@ -9,7 +9,7 @@ appLd: true
 date: 2026-08-05
 altPath: /de/use-cases/family-reunion-planner/
 keywords: family reunion planning app, large family trip coordination, multi-generational trip planner
-related: /features/voting/, /blog/family-vacation-coordination-guide/, /features/expenses/
+related: /features/voting/, /blog/family-vacation-coordination-guide/, /features/expenses/, /blog/travel-document-safety-guide/
 breadcrumbLabel: Family reunion planner
 ---
 

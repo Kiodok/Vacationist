@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://vacationist.app/</loc>
     <lastmod>2026-07-21</lastmod>
@@ -9,6 +10,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/og-image.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/scan/android-qr</loc>
@@ -42,6 +46,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/splitwise/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/splitwise/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/splitwise/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/alternatives-splitwise.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/alternatives/tripit/</loc>
@@ -51,6 +58,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/tripit/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/tripit/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/tripit/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/alternatives-tripit.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/alternatives/wanderlog/</loc>
@@ -60,15 +70,21 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/wanderlog/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/wanderlog/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/wanderlog/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/alternatives-wanderlog.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/blog/</loc>
-    <lastmod>2026-07-17</lastmod>
+    <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/blog.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/blog/bachelorette-trip-planning-guide/</loc>
@@ -78,6 +94,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/bachelorette-trip-planning-guide/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/bachelorette-trip-planning-guide/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/bachelorette-trip-planning-guide/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/blog-bachelorette-trip-planning-guide.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/blog/best-group-travel-apps-2026/</loc>
@@ -87,6 +106,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/best-group-travel-apps-2026/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/best-group-travel-apps-2026/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/best-group-travel-apps-2026/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/blog-best-group-travel-apps-2026.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/blog/family-vacation-coordination-guide/</loc>
@@ -96,6 +118,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/family-vacation-coordination-guide/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/family-vacation-coordination-guide/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/family-vacation-coordination-guide/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/blog-family-vacation-coordination-guide.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/blog/group-camping-trip-planner/</loc>
@@ -105,6 +130,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/group-camping-trip-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/group-camping-trip-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/group-camping-trip-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/blog-group-camping-trip-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/blog/how-to-plan-a-group-trip/</loc>
@@ -114,6 +142,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/how-to-plan-a-group-trip/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/how-to-plan-a-group-trip/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/how-to-plan-a-group-trip/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/blog-how-to-plan-a-group-trip.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/blog/how-to-split-travel-expenses/</loc>
@@ -123,6 +154,21 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/how-to-split-travel-expenses/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/how-to-split-travel-expenses/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/how-to-split-travel-expenses/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/blog-how-to-split-travel-expenses.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://vacationist.app/blog/travel-document-safety-guide/</loc>
+    <lastmod>2026-08-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/travel-document-safety-guide/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/travel-document-safety-guide/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/travel-document-safety-guide/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/blog-travel-document-safety-guide.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/</loc>
@@ -132,6 +178,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/og-image.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/alternatives/splitwise/</loc>
@@ -141,6 +190,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/splitwise/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/splitwise/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/splitwise/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-alternatives-splitwise.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/alternatives/tripit/</loc>
@@ -150,6 +202,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/tripit/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/tripit/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/tripit/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-alternatives-tripit.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/alternatives/wanderlog/</loc>
@@ -159,15 +214,21 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/wanderlog/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/wanderlog/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/wanderlog/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-alternatives-wanderlog.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/blog/</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-blog.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/blog/bachelorette-trip-planning-guide/</loc>
@@ -177,6 +238,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/bachelorette-trip-planning-guide/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/bachelorette-trip-planning-guide/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/bachelorette-trip-planning-guide/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-blog-bachelorette-trip-planning-guide.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/blog/best-group-travel-apps-2026/</loc>
@@ -186,6 +250,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/best-group-travel-apps-2026/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/best-group-travel-apps-2026/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/best-group-travel-apps-2026/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-blog-best-group-travel-apps-2026.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/blog/family-vacation-coordination-guide/</loc>
@@ -195,6 +262,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/family-vacation-coordination-guide/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/family-vacation-coordination-guide/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/family-vacation-coordination-guide/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-blog-family-vacation-coordination-guide.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/blog/group-camping-trip-planner/</loc>
@@ -204,6 +274,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/group-camping-trip-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/group-camping-trip-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/group-camping-trip-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-blog-group-camping-trip-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/blog/how-to-plan-a-group-trip/</loc>
@@ -213,6 +286,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/how-to-plan-a-group-trip/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/how-to-plan-a-group-trip/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/how-to-plan-a-group-trip/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-blog-how-to-plan-a-group-trip.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/blog/how-to-split-travel-expenses/</loc>
@@ -222,6 +298,21 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/how-to-split-travel-expenses/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/how-to-split-travel-expenses/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/how-to-split-travel-expenses/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-blog-how-to-split-travel-expenses.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/blog/travel-document-safety-guide/</loc>
+    <lastmod>2026-08-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/blog/travel-document-safety-guide/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/travel-document-safety-guide/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/travel-document-safety-guide/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-blog-travel-document-safety-guide.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/features/</loc>
@@ -231,6 +322,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-features.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/features/expenses/</loc>
@@ -240,6 +334,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/expenses/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/expenses/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/expenses/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-features-expenses.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/features/shopping-lists/</loc>
@@ -249,6 +346,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/shopping-lists/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/shopping-lists/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/shopping-lists/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-features-shopping-lists.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/features/travel-documents/</loc>
@@ -258,6 +358,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/travel-documents/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/travel-documents/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/travel-documents/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-features-travel-documents.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/features/voting/</loc>
@@ -267,12 +370,18 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/voting/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/voting/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/voting/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-features-voting.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/impressum/</loc>
     <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-impressum.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/privacy-policy/</loc>
@@ -282,6 +391,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/privacy-policy.html"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/privacy-policy/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/privacy-policy.html"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-privacy-policy.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/terms-of-service/</loc>
@@ -291,6 +403,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/terms-of-service.html"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/terms-of-service/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/terms-of-service.html"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-terms-of-service.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/use-cases/</loc>
@@ -300,6 +415,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-use-cases.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/use-cases/bachelorette-party-planner/</loc>
@@ -309,6 +427,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/bachelorette-party-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/bachelorette-party-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/bachelorette-party-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-use-cases-bachelorette-party-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/use-cases/family-reunion-planner/</loc>
@@ -318,6 +439,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/family-reunion-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/family-reunion-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/family-reunion-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-use-cases-family-reunion-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/use-cases/group-camping-trip/</loc>
@@ -327,6 +451,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/group-camping-trip/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/group-camping-trip/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/group-camping-trip/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-use-cases-group-camping-trip.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/use-cases/ski-trip-group-budget/</loc>
@@ -336,6 +463,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/ski-trip-group-budget/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/ski-trip-group-budget/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/ski-trip-group-budget/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-use-cases-ski-trip-group-budget.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/use-cases/stag-do-planner/</loc>
@@ -345,6 +475,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/stag-do-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/stag-do-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/stag-do-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-use-cases-stag-do-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/use-cases/van-life-trip-planner/</loc>
@@ -354,6 +487,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/van-life-trip-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/van-life-trip-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/van-life-trip-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-use-cases-van-life-trip-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/vs/splitwise/</loc>
@@ -363,6 +499,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/splitwise/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/splitwise/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/splitwise/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-vs-splitwise.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/vs/tricount/</loc>
@@ -372,6 +511,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/tricount/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/tricount/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/tricount/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-vs-tricount.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/vs/tripit/</loc>
@@ -381,6 +523,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/tripit/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/tripit/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/tripit/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-vs-tripit.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/vs/troupe/</loc>
@@ -390,6 +535,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/troupe/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/troupe/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/troupe/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-vs-troupe.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/de/vs/wanderlog/</loc>
@@ -399,6 +547,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/wanderlog/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/wanderlog/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/wanderlog/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-vs-wanderlog.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/features/</loc>
@@ -408,6 +559,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/features.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/features/expenses/</loc>
@@ -417,6 +571,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/expenses/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/expenses/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/expenses/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/features-expenses.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/features/shopping-lists/</loc>
@@ -426,6 +583,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/shopping-lists/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/shopping-lists/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/shopping-lists/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/features-shopping-lists.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/features/travel-documents/</loc>
@@ -435,6 +595,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/travel-documents/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/travel-documents/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/travel-documents/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/features-travel-documents.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/features/voting/</loc>
@@ -444,6 +607,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/features/voting/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/voting/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/voting/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/features-voting.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/use-cases/</loc>
@@ -453,6 +619,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/use-cases.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/use-cases/bachelorette-party-planner/</loc>
@@ -462,6 +631,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/bachelorette-party-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/bachelorette-party-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/bachelorette-party-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/use-cases-bachelorette-party-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/use-cases/family-reunion-planner/</loc>
@@ -471,6 +643,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/family-reunion-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/family-reunion-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/family-reunion-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/use-cases-family-reunion-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/use-cases/group-camping-trip/</loc>
@@ -480,6 +655,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/group-camping-trip/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/group-camping-trip/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/group-camping-trip/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/use-cases-group-camping-trip.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/use-cases/ski-trip-group-budget/</loc>
@@ -489,6 +667,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/ski-trip-group-budget/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/ski-trip-group-budget/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/ski-trip-group-budget/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/use-cases-ski-trip-group-budget.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/use-cases/stag-do-planner/</loc>
@@ -498,6 +679,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/stag-do-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/stag-do-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/stag-do-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/use-cases-stag-do-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/use-cases/van-life-trip-planner/</loc>
@@ -507,6 +691,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/van-life-trip-planner/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/van-life-trip-planner/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/van-life-trip-planner/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/use-cases-van-life-trip-planner.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/vs/splitwise/</loc>
@@ -516,6 +703,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/splitwise/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/splitwise/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/splitwise/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/vs-splitwise.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/vs/tricount/</loc>
@@ -525,6 +715,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/tricount/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/tricount/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/tricount/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/vs-tricount.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/vs/tripit/</loc>
@@ -534,6 +727,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/tripit/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/tripit/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/tripit/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/vs-tripit.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/vs/troupe/</loc>
@@ -543,6 +739,9 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/troupe/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/troupe/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/troupe/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/vs-troupe.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/vs/wanderlog/</loc>
@@ -552,5 +751,8 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/wanderlog/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/wanderlog/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/wanderlog/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/vs-wanderlog.png</image:loc>
+    </image:image>
   </url>
 </urlset>

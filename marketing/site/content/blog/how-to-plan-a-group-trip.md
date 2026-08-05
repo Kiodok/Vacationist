@@ -11,7 +11,7 @@ keywords: how to plan a group trip, group trip planning, group trip planning app
 blogIndex: true
 titleDe: Gruppenreise planen ohne Chaos — der komplette Guide
 descriptionDe: Der ausführliche Guide zur Gruppenreise-Planung: Termine finden, Budget klären, Entscheidungen ohne Streit treffen, Kosten fair teilen — und als Organisator überleben.
-related: /blog/how-to-split-travel-expenses/, /features/voting/, /blog/best-group-travel-apps-2026/
+related: /blog/how-to-split-travel-expenses/, /features/voting/, /blog/best-group-travel-apps-2026/, /blog/travel-document-safety-guide/
 breadcrumbLabel: Group trip planning guide
 ---
 

@@ -5,8 +5,15 @@
     <link>https://vacationist.app/blog/</link>
     <description>Practical guides on planning group trips, splitting travel expenses, and coordinating friends, families, and teams — from the makers of Vacationist.</description>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 05 Aug 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://vacationist.app/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Do You Really Need to Send Your Passport Photo in the Group Chat?</title>
+      <link>https://vacationist.app/blog/travel-document-safety-guide/</link>
+      <guid isPermaLink="true">https://vacationist.app/blog/travel-document-safety-guide/</guid>
+      <description>The default way group trips share travel documents — chat screenshots, photo albums — is the least safe way. Here's what encrypted-at-rest actually means and how to do this properly.</description>
+      <pubDate>Wed, 05 Aug 2026 00:00:00 GMT</pubDate>
+    </item>
     <item>
       <title>How to Split Travel Expenses Fairly — The Complete Guide (2026)</title>
       <link>https://vacationist.app/blog/how-to-split-travel-expenses/</link>

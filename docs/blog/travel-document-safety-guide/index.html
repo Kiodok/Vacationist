@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+
+  <title>Do You Really Need to Send Your Passport Photo in the Group Chat?</title>
+  <meta name="description" content="The default way group trips share travel documents — chat screenshots, photo albums — is the least safe way. Here's what encrypted-at-rest actually means and how to do this properly.">
+  <meta name="keywords" content="share travel documents safely, encrypted passport storage, travel document app, passport photo group chat risk">
+
+  <link rel="canonical" href="https://vacationist.app/blog/travel-document-safety-guide/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/blog/travel-document-safety-guide/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/blog/travel-document-safety-guide/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/blog/travel-document-safety-guide/">
+
+  <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/blog/feed.xml">
+  <meta property="og:title" content="Do You Really Need to Send Your Passport Photo in the Group Chat?">
+  <meta property="og:description" content="The default way group trips share travel documents — chat screenshots, photo albums — is the least safe way. Here's what encrypted-at-rest actually means and how to do this properly.">
+  <meta property="og:url" content="https://vacationist.app/blog/travel-document-safety-guide/">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://vacationist.app/assets/og/blog-travel-document-safety-guide.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Do You Really Need to Send Your Passport Photo in the Group Chat?">
+  <meta name="twitter:description" content="The default way group trips share travel documents — chat screenshots, photo albums — is the least safe way. Here's what encrypted-at-rest actually means and how to do this properly.">
+  <meta name="twitter:image" content="https://vacationist.app/assets/og/blog-travel-document-safety-guide.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Do You Really Need to Send Your Passport Photo in the Group Chat?",
+    "description": "The default way group trips share travel documents — chat screenshots, photo albums — is the least safe way. Here's what encrypted-at-rest actually means and how to do this properly.",
+    "url": "https://vacationist.app/blog/travel-document-safety-guide/",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://vacationist.app/blog/travel-document-safety-guide/"
+    },
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "datePublished": "2026-08-05",
+    "dateModified": "2026-08-05",
+    "inLanguage": "en",
+    "author": {
+      "@type": "Person",
+      "name": "Gary Lude",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CH"
+      }
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://vacationist.app/favicon.svg"
+      }
+    },
+    "image": "https://vacationist.app/assets/og/blog-travel-document-safety-guide.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://vacationist.app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://vacationist.app/blog/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Travel document safety guide",
+        "item": "https://vacationist.app/blog/travel-document-safety-guide/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is it safe to text a photo of my passport to a friend organizing the trip?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not really, even to someone you trust completely — the risk isn't your friend, it's everywhere that photo gets copied afterward: chat backups, cloud sync, and every other device in the thread that can now forward it further. The safer pattern is granting temporary, revocable access to just the fields a booking needs, rather than sending a permanent image."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens to my documents if I leave a trip?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "If you used a chat or shared album, nothing happens automatically — copies of your documents remain on every device that ever received them, indefinitely. With Vacationist's encrypted vault, your documents were never shared by default; any temporary access you granted an organizer can be revoked immediately, and your documents stay encrypted on your own device regardless of trip membership."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can the trip organizer see my documents at all times?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No — by default, nobody can see your documents except you. An organizer only sees what you explicitly grant them, only for the time window you choose, and you can revoke that access whenever you want. This is different from a shared folder or chat, where anyone with access can see everything, indefinitely, with no way for you to take it back."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this GDPR compliant?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Document encryption at rest with user-controlled, revocable access is exactly the kind of data-minimization and access-control practice GDPR is designed to encourage — you control what's shared, with whom, and for how long, rather than a third party holding permanent copies of your ID by default. Vacationist is built and hosted with Swiss/EU privacy standards in mind from the ground up, not retrofitted after the fact."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#2D1B69"/><stop offset="100%" stop-color="#09060F"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/features/">Features</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web app</a>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer">Get the app</a>
+    <span class="lang-pair" aria-label="Language"><a href="/de/blog/travel-document-safety-guide/" title="Deutsche Version">DE</a><span class="lp-on">EN</span></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span class="crumb-sep">/</span> <a href="/blog/">Blog</a> <span class="crumb-sep">/</span> <span aria-current="page">Travel document safety guide</span></nav>
+  <article class="article">
+    <p class="article-meta">Updated <time datetime="2026-08-05">2026-08-05</time></p>
+<h1 id="do-you-really-need-to-send-your-passport-photo-in-the-group-chat">Do you really need to send your passport photo in the group chat?</h1>
+<p class="lede">It happens on almost every group trip: someone needs everyone's passport details for a booking, so a phone comes out at dinner and photos of passports start landing in the group chat, one by one. Nobody thinks twice about it — until you actually think about where those photos end up.</p><h2 id="what-group-trips-actually-require-sharing">What group trips actually require sharing</h2>
+<p>Group bookings genuinely need document details more often than people expect. A villa rental in the EU wants every guest&#39;s passport number for the local tourism registry. A multi-name flight booking needs full legal names and dates of birth exactly as they appear on the passport. Some destinations want proof of travel insurance before check-in, and a few still ask about vaccination records. None of this is optional paperwork the organizer is being precious about — it&#39;s what the booking actually requires.</p>
+<p>The problem was never <em>whether</em> to share this information. It&#39;s <em>how</em>.</p>
+<h2 id="the-default-bad-pattern">The default bad pattern</h2>
+<p>Three ways this normally happens, and why each one is worse than it looks:</p>
+<ul>
+<li><strong>Chat screenshots.</strong> The moment a passport photo lands in a group chat, it exists in permanent form on every member&#39;s phone, in every device&#39;s chat backup (iCloud, Google Drive, WhatsApp&#39;s own backup), and in any cloud sync those backups feed into. Nobody &quot;has&quot; the photo anymore in any meaningful sense — it&#39;s copied across ten-plus devices and backups, unencrypted, with no way to know who&#39;s actually looked at it since.</li>
+<li><strong>Shared photo albums.</strong> Slightly more organized, structurally identical. A shared album with &quot;documents&quot; in the name is still an unencrypted collection of passport photos that every member can screenshot, forward, or accidentally leave open on a shared or lost device.</li>
+<li><strong>Email attachments.</strong> The organizer collects everyone&#39;s passport photo by email to forward to the booking platform. Now the documents exist in the organizer&#39;s inbox indefinitely, in whatever email provider&#39;s storage, plus a copy in the booking platform&#39;s own system — a third party the traveler never agreed to trust directly.</li>
+</ul>
+<p>The common thread in all three: once a passport photo is sent, there&#39;s no way to un-send it, no encryption protecting it at rest, and no way to revoke access later — say, if that person leaves the trip, or the trip is over and there&#39;s no reason for anyone to still have it.</p>
+<h2 id="what-encrypted-at-rest-actually-means">What &quot;encrypted at rest&quot; actually means</h2>
+<p>&quot;Encrypted at rest&quot; gets thrown around as a feature-list bullet point, so here&#39;s what it actually means in plain terms: the document isn&#39;t stored as a viewable photo at all. It&#39;s stored as scrambled data that&#39;s mathematically useless without the correct key — and that key lives only on your device, unlocked by your biometrics (fingerprint or face), not on a server somewhere waiting to be breached.</p>
+<p>Concretely, in Vacationist: when you add a passport or ID to your <a href="/features/travel-documents/">encrypted travel document vault</a>, it&#39;s encrypted with AES-256 — the same encryption standard used for classified government data — before it ever leaves your device. Nobody, including Vacationist, can view the raw document without your device&#39;s biometric unlock. That&#39;s a structurally different guarantee than &quot;we promise not to look,&quot; which is what you&#39;re actually trusting with a chat screenshot or an email attachment.</p>
+<h2 id="how-temporary-revocable-organizer-access-works">How temporary, revocable organizer access works</h2>
+<p>The part that actually matters for group bookings isn&#39;t the encryption on its own — it&#39;s what happens when the organizer genuinely needs to see your passport details to complete a booking. This is where most &quot;secure&quot; document tools quietly fail: they either don&#39;t support sharing at all (so people fall back to screenshots anyway) or they share permanently once granted.</p>
+<p>The workflow that actually solves the group-trip problem looks like this:</p>
+<ol>
+<li>Each person adds their own documents to their own encrypted vault — nobody else can see them by default.</li>
+<li>When a booking genuinely requires it, that person grants the organizer <strong>temporary</strong> access — not a permanent share, a time-boxed one.</li>
+<li>The organizer sees exactly what they need to complete the booking, and nothing more.</li>
+<li>Access can be <strong>revoked at any time</strong> — the moment the booking is done, or if the person changes their mind, or simply because the trip is over and there&#39;s no more reason for anyone else to see it.</li>
+</ol>
+<p>Compare that to a chat screenshot: there&#39;s no step 4. Once it&#39;s sent, it&#39;s sent, permanently, to everyone in the thread, forever.</p>
+<h2 id="a-simple-checklist-before-your-next-group-trip">A simple checklist before your next group trip</h2>
+<p>Save this one — it&#39;s meant to be skimmed and shared with whoever&#39;s organizing:</p>
+<ul>
+<li><strong>Never send a passport, ID, or insurance photo directly in a group chat</strong> — even &quot;just to the organizer&quot; via DM. DMs get backed up too.</li>
+<li><strong>Ask whether the booking platform actually requires the full document image</strong>, or just specific fields (name, passport number, expiry date). Often it&#39;s the latter, and typing those fields is safer than sending a photo.</li>
+<li><strong>If a document genuinely needs to be shared, use a tool where access is temporary and revocable</strong>, not a permanent copy.</li>
+<li><strong>Set a reminder to revoke organizer access once the booking is confirmed</strong> — don&#39;t leave it open &quot;just in case.&quot;</li>
+<li><strong>After the trip, check that nobody still has standing access</strong> to documents that were only needed for one booking.</li>
+</ul>
+<h2 id="what-it-costs">What it costs</h2>
+<p>This isn&#39;t a paid feature tier — <a href="/features/travel-documents/">encrypted travel documents</a> are part of Vacationist&#39;s free core app, the same as voting and expense splitting. Privacy shouldn&#39;t be the thing you have to upgrade for.</p>
+<div class="cta-band">
+  <h3>Plan your next group trip with Vacationist</h3>
+  <p>Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on Android and the web today; iOS is in development.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Get it on Google Play</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Open the Web App</a>
+  </div>
+</div><h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="is-it-safe-to-text-a-photo-of-my-passport-to-a-friend-organizing-the-trip">Is it safe to text a photo of my passport to a friend organizing the trip?</h3>
+<p>Not really, even to someone you trust completely — the risk isn&#39;t your friend, it&#39;s everywhere that photo gets copied afterward: chat backups, cloud sync, and every other device in the thread that can now forward it further. The safer pattern is granting temporary, revocable access to just the fields a booking needs, rather than sending a permanent image.</p>
+<h3 id="what-happens-to-my-documents-if-i-leave-a-trip">What happens to my documents if I leave a trip?</h3>
+<p>If you used a chat or shared album, nothing happens automatically — copies of your documents remain on every device that ever received them, indefinitely. With Vacationist&#39;s encrypted vault, your documents were never shared by default; any temporary access you granted an organizer can be revoked immediately, and your documents stay encrypted on your own device regardless of trip membership.</p>
+<h3 id="can-the-trip-organizer-see-my-documents-at-all-times">Can the trip organizer see my documents at all times?</h3>
+<p>No — by default, nobody can see your documents except you. An organizer only sees what you explicitly grant them, only for the time window you choose, and you can revoke that access whenever you want. This is different from a shared folder or chat, where anyone with access can see everything, indefinitely, with no way for you to take it back.</p>
+<h3 id="is-this-gdpr-compliant">Is this GDPR compliant?</h3>
+<p>Document encryption at rest with user-controlled, revocable access is exactly the kind of data-minimization and access-control practice GDPR is designed to encourage — you control what&#39;s shared, with whom, and for how long, rather than a third party holding permanent copies of your ID by default. Vacationist is built and hosted with Swiss/EU privacy standards in mind from the ground up, not retrofitted after the fact.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Keep reading</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/features/travel-documents/">
+      <span class="related-title">Travel documents</span>
+      <span class="related-desc">Store passports, IDs, and travel documents encrypted at rest, behind a biometric lock on your device. Grant the trip organizer temporary access — and revoke it anytime.</span>
+    </a>
+    <a class="related-card" href="/use-cases/family-reunion-planner/">
+      <span class="related-title">Family reunion planner</span>
+      <span class="related-desc">Plan a family reunion without forty group texts a day. Invite every generation with one link, split costs by household, and vote on activities that work for everyone.</span>
+    </a>
+    <a class="related-card" href="/blog/how-to-plan-a-group-trip/">
+      <span class="related-title">Group trip planning guide</span>
+      <span class="related-desc">The definitive guide to planning a group trip: picking dates, choosing a destination, making decisions without arguments, splitting costs fairly, and surviving as the organizer.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>The free group trip planner — vote on activities, split expenses, share lists, and keep everyone in sync.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="/features/">All features</a>
+      <a href="/features/voting/">Activity voting</a>
+      <a href="/features/expenses/">Expense splitting</a>
+      <a href="/features/shopping-lists/">Shared lists</a>
+      <a href="/features/travel-documents/">Travel documents</a>
+      <a href="/use-cases/">Use cases</a>
+      <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
+      <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Compare</h4>
+      <a href="/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/alternatives/splitwise/">Splitwise alternatives</a>
+      <a href="/alternatives/wanderlog/">Wanderlog alternatives</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="/blog/">Blog</a>
+      <a href="/blog/how-to-plan-a-group-trip/">Group trip planning guide</a>
+      <a href="/blog/best-group-travel-apps-2026/">Best group travel apps</a>
+      <a href="/blog/how-to-split-travel-expenses/">Expense splitting guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="#cookie-settings">Cookie settings</a>
+      <a href="mailto:meetdeep.de@gmail.com">Contact</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Switzerland</div>
+</footer>
+
+</body>
+</html>

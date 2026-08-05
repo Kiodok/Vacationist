@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-07-26
 altPath: /features/travel-documents/
 keywords: Reisedokumente App, Reisepass sicher speichern, verschlüsselte Reisedokumente, Reisedokumente verwalten
-related: /de/features/expenses/, /de/blog/family-vacation-coordination-guide/, /de/blog/how-to-plan-a-group-trip/
+related: /de/features/expenses/, /de/blog/family-vacation-coordination-guide/, /de/blog/how-to-plan-a-group-trip/, /de/blog/travel-document-safety-guide/
 breadcrumbLabel: Reisedokumente
 ---
 

@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-07-26
 altPath: /de/features/travel-documents/
 keywords: travel document organizer app, store passport details securely, encrypted travel documents, travel document wallet
-related: /features/expenses/, /blog/family-vacation-coordination-guide/, /blog/how-to-plan-a-group-trip/
+related: /features/expenses/, /blog/family-vacation-coordination-guide/, /blog/how-to-plan-a-group-trip/, /blog/travel-document-safety-guide/
 breadcrumbLabel: Travel documents
 ---
 

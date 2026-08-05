@@ -895,8 +895,17 @@ function renderSitemap(allPages) {
         { hreflang: 'x-default', href: SITE + en },
       ];
     }
+    // Every allPages entry gets a generated per-page image (main()'s OG-image
+    // loop covers exactly this set) except /de/, which — like the homepage —
+    // keeps the bespoke og-image.png rather than a generated one.
+    entry.image = p.path === '/de/' ? `${SITE}/og-image.png` : `${SITE}/assets/og/${ogImagePath(p)}`;
     entries.push(entry);
   }
+
+  // Homepage lives in STATIC_SITEMAP_ENTRIES, not the loop above, but shares
+  // the same bespoke image as /de/.
+  const home = entries.find((e) => e.loc === `${SITE}/`);
+  if (home) home.image = `${SITE}/og-image.png`;
 
   const urlXml = entries.map((e) => {
     let xml = `  <url>\n    <loc>${e.loc}</loc>\n    <lastmod>${e.lastmod}</lastmod>\n    <changefreq>${e.changefreq}</changefreq>\n    <priority>${e.priority}</priority>\n`;
@@ -905,12 +914,16 @@ function renderSitemap(allPages) {
         xml += `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}"/>\n`;
       }
     }
+    if (e.image) {
+      xml += `    <image:image>\n      <image:loc>${esc(e.image)}</image:loc>\n    </image:image>\n`;
+    }
     return xml + '  </url>';
   }).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urlXml}
 </urlset>
 `;
