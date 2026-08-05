@@ -8,7 +8,7 @@ schema: Article
 date: 2026-07-21
 altPath: /alternatives/wanderlog/
 keywords: Wanderlog Alternative, Wanderlog Alternativen 2026, Apps wie Wanderlog, Gruppenreise planen App
-related: /de/vs/wanderlog/, /de/features/voting/, /de/blog/best-group-travel-apps-2026/
+related: /de/vs/wanderlog/, /de/features/voting/, /de/blog/best-group-travel-apps-2026/, /de/alternatives/tripit/
 breadcrumbLabel: Wanderlog-Alternativen
 ---
 

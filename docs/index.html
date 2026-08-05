@@ -33,23 +33,43 @@
   <meta name="twitter:image" content="https://vacationist.app/og-image.png">
 
   <!-- JSON-LD: separate blocks for maximum parser compatibility -->
+  <!-- SoftwareApplication + WebSite blocks below are rewritten by `npm run build:site`
+       from APP_LD.en / APP_VERSION in marketing/site/build.mjs — edit there, not here. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
+    "@id": "https://vacationist.app/#app",
     "name": "Vacationist",
     "applicationCategory": "TravelApplication",
+    "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, Web",
+    "softwareVersion": "1.26.0",
     "description": "The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations, and keep the whole group in sync — from the first idea to the last flight home.",
     "url": "https://vacationist.app/",
+    "installUrl": "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
     "downloadUrl": "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+    "inLanguage": [
+      "en",
+      "de"
+    ],
+    "isAccessibleForFree": true,
     "featureList": "Group activity voting, Travel expense splitting, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Transfer & flight management, Encrypted travel documents, Real-time sync, Offline support, Guest access without account",
-    "keywords": "group trip planner, group vacation planning app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, shared trip organizer, holiday planner group, vacation tracker",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
     "author": {
       "@type": "Person",
       "name": "Gary Lude",
-      "address": { "@type": "PostalAddress", "addressCountry": "CH" }
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CH"
+      }
+    },
+    "publisher": {
+      "@id": "https://vacationist.app/#org"
     }
   }
   </script>
@@ -59,17 +79,23 @@
     "@type": "WebSite",
     "name": "Vacationist",
     "url": "https://vacationist.app/",
-    "description": "The free group trip planner — vote on activities, split travel expenses, share packing lists, and keep everyone in sync."
+    "description": "The free group trip planner — vote on activities, split travel expenses, share packing lists, and keep everyone in sync.",
+    "inLanguage": "en"
   }
   </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": "https://vacationist.app/#org",
     "name": "Vacationist",
     "url": "https://vacationist.app/",
     "logo": "https://vacationist.app/favicon.svg",
-    "foundingLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressCountry": "CH" } }
+    "slogan": "Plan trips together, effortlessly.",
+    "email": "meetdeep.de@gmail.com",
+    "founder": { "@type": "Person", "name": "Gary Lude" },
+    "foundingLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressCountry": "CH" } },
+    "knowsAbout": ["group travel planning", "travel expense splitting", "trip itinerary coordination", "shared packing lists"]
   }
   </script>
   <script type="application/ld+json">
@@ -289,8 +315,27 @@
 
     .hero-sub {
       font-size: 1.1rem; line-height: 1.65; color: var(--text2);
-      max-width: 470px; margin-bottom: 2.5rem;
+      max-width: 470px; margin-bottom: 0.75rem;
     }
+
+    /* Single-sentence entity definition — the "X is a Y that Z" form LLMs
+       reliably lift for "what is Vacationist" answers. */
+    .entity-def { font-size: 0.9rem; color: var(--text3); max-width: 460px; margin-bottom: 2rem; }
+
+    /* TL;DR direct-answer callout, shown just above the FAQ section. Selector
+       is also referenced by SpeakableSpecification in generated-page JSON-LD. */
+    .tldr-section { padding-bottom: 0; }
+    .tldr {
+      max-width: 760px; margin: 0 auto;
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--primary); border-radius: 0 14px 14px 0;
+      padding: 1.25rem 1.6rem;
+    }
+    .tldr-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 0.4rem;
+    }
+    .tldr p { color: var(--text); font-size: 1rem; line-height: 1.6; margin: 0; }
 
     .hero-actions { display: flex; flex-direction: column; gap: 0.9rem; align-items: flex-start; }
 
@@ -746,6 +791,10 @@
         The group trip planning app that does it all — vote on activities, split travel expenses, share packing lists, and keep everyone in sync. From the first idea to the last flight home.
       </p>
 
+      <p class="entity-def" data-i18n="entity.def">
+        Vacationist is a free group trip planning app for Android and web that lets a group vote on activities, split travel expenses, and share packing and shopping lists together — no account required to join.
+      </p>
+
       <div class="hero-actions">
         <div class="btn-row">
           <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">
@@ -1025,6 +1074,16 @@
           <span class="alt-tag" data-i18n="use.6.tag2">Vacation tracking</span>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- TL;DR direct-answer block -->
+<section class="section tldr-section">
+  <div class="wrap">
+    <div class="tldr">
+      <p class="tldr-label" data-i18n="tldr.label">TL;DR</p>
+      <p data-i18n="tldr.text">Vacationist is free, has no ads, and encrypts travel documents with AES-256. It's built in Switzerland, and anyone can join a trip via a single link without creating an account. Available today on Android and the web; iOS is in development.</p>
     </div>
   </div>
 </section>

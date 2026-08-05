@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+
+  <title>Vacationist für Gruppen-Camping — Kostenloser Camping-Reiseplaner</title>
+  <meta name="description" content="Plane einen Gruppen-Campingtrip ohne das Ausrüstungs- und Einkaufs-Ratespiel. Campingplatzgebühren und Einkäufe sofort teilen, Ausrüstung mit einer gemeinsamen Packliste koordinieren.">
+  <meta name="keywords" content="Gruppen-Camping-Planer, gemeinsame Campingliste, Camping-Ausgaben-App">
+
+  <link rel="canonical" href="https://vacationist.app/de/use-cases/group-camping-trip/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/group-camping-trip/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/group-camping-trip/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/group-camping-trip/">
+
+  <meta property="og:title" content="Vacationist für Gruppen-Camping — Kostenloser Camping-Reiseplaner">
+  <meta property="og:description" content="Plane einen Gruppen-Campingtrip ohne das Ausrüstungs- und Einkaufs-Ratespiel. Campingplatzgebühren und Einkäufe sofort teilen, Ausrüstung mit einer gemeinsamen Packliste koordinieren.">
+  <meta property="og:url" content="https://vacationist.app/de/use-cases/group-camping-trip/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/og-image.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vacationist für Gruppen-Camping — Kostenloser Camping-Reiseplaner">
+  <meta name="twitter:description" content="Plane einen Gruppen-Campingtrip ohne das Ausrüstungs- und Einkaufs-Ratespiel. Campingplatzgebühren und Einkäufe sofort teilen, Ausrüstung mit einer gemeinsamen Packliste koordinieren.">
+  <meta name="twitter:image" content="https://vacationist.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Vacationist für Gruppen-Camping — Kostenloser Camping-Reiseplaner",
+    "description": "Plane einen Gruppen-Campingtrip ohne das Ausrüstungs- und Einkaufs-Ratespiel. Campingplatzgebühren und Einkäufe sofort teilen, Ausrüstung mit einer gemeinsamen Packliste koordinieren.",
+    "url": "https://vacationist.app/de/use-cases/group-camping-trip/",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "inLanguage": "de",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Startseite",
+        "item": "https://vacationist.app/de/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Anwendungsfälle",
+        "item": "https://vacationist.app/de/use-cases/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Gruppen-Campingtrip",
+        "item": "https://vacationist.app/de/use-cases/group-camping-trip/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Funktioniert die Rezept-zu-Einkaufsliste-Übernahme wirklich für Camping-Mahlzeiten?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja — ein Rezept für ein geplantes Camping-Abendessen hinzufügen, und die Zutaten werden in die gemeinsame Einkaufsliste übernommen, sodass der Einkauf zu dem passt, was die Gruppe tatsächlich kocht."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Funktioniert es auf einem Campingplatz ohne Empfang?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja. Vacationist ist offline-first — Abstimmungen, Ausgaben und Listenänderungen werden ohne Verbindung lokal gespeichert und synchronisieren automatisch, sobald ein Handy wieder Verbindung hat."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Können wir die Kosten für gemeinsam gemietete Ausrüstung wie ein Kanu oder Extra-Zelte teilen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja — als eigene Ausgabe erfassen und mit eigenen Beträgen teilen, getrennt von Campingplatzgebühren und Einkäufen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Können wir eine Reise mit mehreren Campingplätzen verfolgen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja — der gemeinsame Kalender verfolgt jeden Stopp, sodass eine mehrnächtige Reise über verschiedene Campingplätze in einer Zeitleiste bleibt statt in separaten Plänen pro Stopp."
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": "https://vacationist.app/#app",
+    "name": "Vacationist",
+    "applicationCategory": "TravelApplication",
+    "applicationSubCategory": "Group Trip Planner",
+    "operatingSystem": "Android, Web",
+    "softwareVersion": "1.26.0",
+    "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen, Unterkünfte verwalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
+    "url": "https://vacationist.app/",
+    "installUrl": "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+    "downloadUrl": "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+    "inLanguage": [
+      "en",
+      "de"
+    ],
+    "isAccessibleForFree": true,
+    "featureList": "Aktivitäten-Abstimmung, Reisekosten teilen, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Transfer- & Flugverwaltung, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Gary Lude",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CH"
+      }
+    },
+    "publisher": {
+      "@id": "https://vacationist.app/#org"
+    }
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/de/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#2D1B69"/><stop offset="100%" stop-color="#09060F"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/de/features/">Funktionen</a>
+    <a href="/de/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web-App</a>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer">App holen</a>
+    <span class="lang-pair" aria-label="Sprache"><span class="lp-on">DE</span><a href="/use-cases/group-camping-trip/" title="English version">EN</a></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/de/">Startseite</a> <span class="crumb-sep">/</span> <a href="/de/use-cases/">Anwendungsfälle</a> <span class="crumb-sep">/</span> <span aria-current="page">Gruppen-Campingtrip</span></nav>
+  <article class="article">
+<h1 id="plane-einen-gruppen-campingtrip-ohne-das-ausrüstungs--und-einkaufs-ratespiel">Plane einen Gruppen-Campingtrip ohne das Ausrüstungs- und Einkaufs-Ratespiel</h1>
+<div class="tldr">
+  <p class="tldr-label">Kurz gesagt</p>
+  <p>Vacationist koordiniert mit einer gemeinsamen Packliste, wer Zelt und Kocher mitbringt, teilt Campingplatzgebühren und Einkäufe sofort, wenn sie anfallen, und funktioniert offline-first, wenn der Platz keinen Empfang hat.</p>
+</div><h2 id="das-problem-beim-planen-eines-gruppen-campingtrips">Das Problem beim Planen eines Gruppen-Campingtrips</h2>
+<p>Gruppen-Camping läuft über gemeinsame Ausrüstung und eine gemeinsame Küche, und bei beidem geht ohne einen für alle sichtbaren Plan leicht etwas schief. Jemand denkt, jemand anderes bringt den Kocher mit; niemand tut es. Der Einkauf fürs gemeinsame Abendessen wird von der Person bezahlt, die zufällig im Laden war, und die Rückerstattung wird zur Nebensache, um die sich niemand kümmert. Essensplanung für eine Gruppe ist ein eigenes Puzzle — wer kocht an welchem Abend was, und welche Zutaten braucht das wirklich. Und Campingplätze sind meist genau dort, wo der Handyempfang verschwindet, also muss die genutzte App auch ohne funktionieren.</p>
+<h2 id="so-löst-vacationist-das">So löst Vacationist das</h2>
+<h3 id="eine-gemeinsame-packliste-die-verhindert-dass-ausrüstung-doppelt-oder-gar-nicht-mitkommt">Eine gemeinsame Packliste, die verhindert, dass Ausrüstung doppelt oder gar nicht mitkommt</h3>
+<p>Eine Echtzeit-Liste für Zelte, Kocher, Kühlboxen und Essen — damit die Gruppe nicht mit drei Laternen und keinem Flaschenöffner endet. Rezepte für gemeinsame Camping-Mahlzeiten lassen sich direkt in die Einkaufsliste übernehmen, sodass der Einkauf zu dem passt, was tatsächlich gekocht wird. <a href="/de/features/shopping-lists/">Gemeinsame Listen entdecken</a>.</p>
+<h3 id="campingplatzgebühren-und-einkäufe-sofort-aufteilen">Campingplatzgebühren und Einkäufe sofort aufteilen</h3>
+<p>Campingplatzbuchung, Feuerholz und jeden Einkauf als eigene Ausgabe erfassen, gleichmäßig oder mit eigenen Beträgen teilen. Salden aktualisieren sich live, sodass wer den großen Einkauf vorstreckt, nicht bis Reiseende in Vorleistung bleibt. Mehr dazu: <a href="/de/features/expenses/">wie Kostenteilung funktioniert</a>.</p>
+<h3 id="über-campingplatz-oder-wochenende-gemeinsam-abstimmen">Über Campingplatz oder Wochenende gemeinsam abstimmen</h3>
+<p>Einen Campingplatz oder ein Datum vorschlagen und die Gruppe mit einem 5-Stufen-System abstimmen lassen — von „Muss sein&quot; bis „Gruppenhindernis&quot; —, nützlich, wenn die Hälfte der Gruppe einen See-Platz will und die andere Hälfte die Berge.</p>
+<h3 id="funktioniert-offline-first-genau-dort-wo-der-empfang-meist-verschwindet">Funktioniert offline-first, genau dort, wo der Empfang meist verschwindet</h3>
+<p>Abstimmungen, Ausgaben und Listenänderungen werden ohne Verbindung lokal gespeichert und synchronisieren automatisch, sobald ein Handy wieder Empfang findet — das ist auf fast jedem Campingplatz relevant.</p>
+<h2 id="was-es-kostet">Was es kostet</h2>
+<p>Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang sind für die ganze Gruppe kostenlos. Ein Pro-Tarif existiert für Organisatoren mit häufigen Reisen, ist aber für ein einzelnes Camping-Wochenende nicht nötig.</p>
+<div class="cta-band">
+  <h3>Plane deine nächste Gruppenreise mit Vacationist</h3>
+  <p>Über Aktivitäten abstimmen, Kosten teilen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Heute für Android und im Web verfügbar; die iOS-Version ist in Entwicklung.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Bei Google Play laden</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Web-App öffnen</a>
+  </div>
+</div><h2 id="häufige-fragen">Häufige Fragen</h2>
+<h3 id="funktioniert-die-rezept-zu-einkaufsliste-übernahme-wirklich-für-camping-mahlzeiten">Funktioniert die Rezept-zu-Einkaufsliste-Übernahme wirklich für Camping-Mahlzeiten?</h3>
+<p>Ja — ein Rezept für ein geplantes Camping-Abendessen hinzufügen, und die Zutaten werden in die gemeinsame Einkaufsliste übernommen, sodass der Einkauf zu dem passt, was die Gruppe tatsächlich kocht.</p>
+<h3 id="funktioniert-es-auf-einem-campingplatz-ohne-empfang">Funktioniert es auf einem Campingplatz ohne Empfang?</h3>
+<p>Ja. Vacationist ist offline-first — Abstimmungen, Ausgaben und Listenänderungen werden ohne Verbindung lokal gespeichert und synchronisieren automatisch, sobald ein Handy wieder Verbindung hat.</p>
+<h3 id="können-wir-die-kosten-für-gemeinsam-gemietete-ausrüstung-wie-ein-kanu-oder-extra-zelte-teilen">Können wir die Kosten für gemeinsam gemietete Ausrüstung wie ein Kanu oder Extra-Zelte teilen?</h3>
+<p>Ja — als eigene Ausgabe erfassen und mit eigenen Beträgen teilen, getrennt von Campingplatzgebühren und Einkäufen.</p>
+<h3 id="können-wir-eine-reise-mit-mehreren-campingplätzen-verfolgen">Können wir eine Reise mit mehreren Campingplätzen verfolgen?</h3>
+<p>Ja — der gemeinsame Kalender verfolgt jeden Stopp, sodass eine mehrnächtige Reise über verschiedene Campingplätze in einer Zeitleiste bleibt statt in separaten Plänen pro Stopp.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Weiterlesen</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/de/blog/group-camping-trip-planner/">
+      <span class="related-title">Gruppen-Camping-Planer</span>
+      <span class="related-desc">Der komplette Gruppen-Camping-Planer: gemeinsame Ausrüstungslisten gegen vergessene Zelte, Essensplanung, die zur Einkaufsliste wird, faire Kostenteilung und Koordination ganz ohne Netz.</span>
+    </a>
+    <a class="related-card" href="/de/features/shopping-lists/">
+      <span class="related-title">Gemeinsame Listen</span>
+      <span class="related-desc">Gemeinsame Einkaufs- und Packlisten, die sich sofort auf allen Handys aktualisieren. Gruppenmahlzeiten planen, Rezepte in Einkaufslisten übernehmen und nie wieder doppelt kaufen.</span>
+    </a>
+    <a class="related-card" href="/de/features/expenses/">
+      <span class="related-title">Kostenteilung</span>
+      <span class="related-desc">Jede Reiseausgabe mit der Gruppe teilen — Hotels, Abendessen, Sprit, alles. Vacationist verfolgt, wer gezahlt hat, wer wem was schuldet, und rechnet mit einem Tipp ab. Kostenlos.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen, Listen gemeinsam führen.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produkt</h4>
+      <a href="/de/features/">Alle Funktionen</a>
+      <a href="/de/features/voting/">Aktivitäten-Voting</a>
+      <a href="/de/features/expenses/">Kosten teilen</a>
+      <a href="/de/features/shopping-lists/">Gemeinsame Listen</a>
+      <a href="/de/features/travel-documents/">Reisedokumente</a>
+      <a href="/de/use-cases/">Anwendungsfälle</a>
+      <a href="/de/use-cases/bachelorette-party-planner/">Junggesellinnenabschied planen</a>
+      <a href="/de/use-cases/van-life-trip-planner/">Van-Life-Reiseplaner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Vergleiche</h4>
+      <a href="/de/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/de/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/de/alternatives/splitwise/">Splitwise-Alternativen</a>
+      <a href="/de/alternatives/wanderlog/">Wanderlog-Alternativen</a>
+    </div>
+    <div class="footer-col">
+      <h4>Ressourcen</h4>
+      <a href="/de/blog/">Blog</a>
+      <a href="/de/blog/how-to-plan-a-group-trip/">Gruppenreise-Planungs-Guide</a>
+      <a href="/de/blog/best-group-travel-apps-2026/">Beste Gruppenreise-Apps</a>
+      <a href="/de/blog/how-to-split-travel-expenses/">Reisekosten-Guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Rechtliches</h4>
+      <a href="/de/privacy-policy/">Datenschutz</a>
+      <a href="/de/terms-of-service/">Nutzungsbedingungen</a>
+      <a href="/de/impressum/">Impressum</a>
+      <a href="#cookie-settings">Cookie-Einstellungen</a>
+      <a href="mailto:meetdeep.de@gmail.com">Kontakt</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Schweiz</div>
+</footer>
+
+</body>
+</html>

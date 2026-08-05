@@ -173,7 +173,11 @@
       "Bash(grep -A8 \"/\\\\* latin \\\\*/\")",
       "Bash(export PGHOST=\"aws-1-eu-west-3.pooler.supabase.com\" PGPORT=\"5432\" PGUSER=\"cli_login_postgres.aejywkbkcwyanhyzhrle\" PGPASSWORD=\"RYnnUSawvvcJXbWqNCqKJmtuzIZhcpkW\" PGDATABASE=\"postgres\")",
       "Bash('/c/Program Files/PostgreSQL/17/bin/psql.exe' -X -q -v ON_ERROR_STOP=1 -c ' *)",
-      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -X -q -v ON_ERROR_STOP=1)"
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -X -q -v ON_ERROR_STOP=1)",
+      "Bash(xargs -I{} md5sum {})",
+      "Bash(xargs md5sum)",
+      "Bash(gh pr *)",
+      "Bash(cp docs/index.html /tmp/index_run2.html)"
     ]
   },
   "model": "opusplan",

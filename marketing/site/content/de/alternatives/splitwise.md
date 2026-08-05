@@ -9,7 +9,7 @@ date: 2026-07-17
 updated: 2026-07-27
 altPath: /alternatives/splitwise/
 keywords: Splitwise Alternative, Splitwise Alternative Deutsch, Kosten teilen Urlaub App, Reisekosten teilen App
-related: /de/vs/splitwise/, /de/features/expenses/, /de/alternatives/wanderlog/
+related: /de/vs/splitwise/, /de/features/expenses/, /de/alternatives/wanderlog/, /de/vs/tricount/
 breadcrumbLabel: Splitwise-Alternativen
 ---
 

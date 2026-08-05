@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+
+  <title>Vacationist for Ski Trips — Free Group Trip Budget Planner</title>
+  <meta name="description" content="Plan a ski trip group budget without the chalet math headache. Split lift passes, gear rental, and the chalet fairly, and vote on rest days versus resort days.">
+  <meta name="keywords" content="ski trip planner group, split ski trip costs, chalet group booking, ski trip budget app">
+
+  <link rel="canonical" href="https://vacationist.app/use-cases/ski-trip-group-budget/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/ski-trip-group-budget/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/ski-trip-group-budget/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/ski-trip-group-budget/">
+
+  <meta property="og:title" content="Vacationist for Ski Trips — Free Group Trip Budget Planner">
+  <meta property="og:description" content="Plan a ski trip group budget without the chalet math headache. Split lift passes, gear rental, and the chalet fairly, and vote on rest days versus resort days.">
+  <meta property="og:url" content="https://vacationist.app/use-cases/ski-trip-group-budget/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/og-image.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vacationist for Ski Trips — Free Group Trip Budget Planner">
+  <meta name="twitter:description" content="Plan a ski trip group budget without the chalet math headache. Split lift passes, gear rental, and the chalet fairly, and vote on rest days versus resort days.">
+  <meta name="twitter:image" content="https://vacationist.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Vacationist for Ski Trips — Free Group Trip Budget Planner",
+    "description": "Plan a ski trip group budget without the chalet math headache. Split lift passes, gear rental, and the chalet fairly, and vote on rest days versus resort days.",
+    "url": "https://vacationist.app/use-cases/ski-trip-group-budget/",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "inLanguage": "en",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://vacationist.app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Use cases",
+        "item": "https://vacationist.app/use-cases/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Ski trip group budget",
+        "item": "https://vacationist.app/use-cases/ski-trip-group-budget/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can we split the chalet cost unevenly if rooms are different sizes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Every expense supports custom splits, so the chalet cost can be divided by room size or however the group agrees, not just evenly across everyone."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can we track gear rental costs separately from meals and lift passes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — log each cost as its own expense (chalet, lift passes, gear rental, meals) so the group can see exactly what each category costs, not just one lump total."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can the group vote on which days to ski versus rest?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, using the same five-tier activity voting used for any trip decision — it works just as well for \"who wants a rest day\" as it does for choosing a restaurant."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work if some of the group is on iPhone?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The native app is available for Android today, with iOS in development. iPhone users can join and fully participate through the web app via the invite link — no app-store detour needed."
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": "https://vacationist.app/#app",
+    "name": "Vacationist",
+    "applicationCategory": "TravelApplication",
+    "applicationSubCategory": "Group Trip Planner",
+    "operatingSystem": "Android, Web",
+    "softwareVersion": "1.26.0",
+    "description": "The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations, and keep the whole group in sync — from the first idea to the last flight home.",
+    "url": "https://vacationist.app/",
+    "installUrl": "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+    "downloadUrl": "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+    "inLanguage": [
+      "en",
+      "de"
+    ],
+    "isAccessibleForFree": true,
+    "featureList": "Group activity voting, Travel expense splitting, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Transfer & flight management, Encrypted travel documents, Real-time sync, Offline support, Guest access without account",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Gary Lude",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CH"
+      }
+    },
+    "publisher": {
+      "@id": "https://vacationist.app/#org"
+    }
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#2D1B69"/><stop offset="100%" stop-color="#09060F"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/features/">Features</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web app</a>
+    <a href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" class="nav-cta" target="_blank" rel="noopener noreferrer">Get the app</a>
+    <span class="lang-pair" aria-label="Language"><a href="/de/use-cases/ski-trip-group-budget/" title="Deutsche Version">DE</a><span class="lp-on">EN</span></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span class="crumb-sep">/</span> <a href="/use-cases/">Use cases</a> <span class="crumb-sep">/</span> <span aria-current="page">Ski trip group budget</span></nav>
+  <article class="article">
+<h1 id="plan-a-ski-trip-group-budget-without-the-chalet-math-headache">Plan a ski trip group budget without the chalet math headache</h1>
+<div class="tldr">
+  <p class="tldr-label">Short answer</p>
+  <p>Vacationist splits the chalet, lift passes, and gear rental fairly even when everyone's paying for different things, and lets the group vote on rest days versus resort days before it turns into a group-chat debate.</p>
+</div><h2 id="the-problem-with-planning-a-ski-trip-group-budget">The problem with planning a ski trip group budget</h2>
+<p>A ski trip has more moving cost pieces than most group trips: the chalet or Airbnb split by room size, lift passes that some people buy for the full week and others only need for three days, gear rental for the two people who didn&#39;t bring their own skis, and the après-ski dinner bill that always runs longer than planned. None of these split evenly, but group chats default to &quot;let&#39;s just split it evenly&quot; because doing the actual math is annoying — which quietly annoys the people paying more than their share. On top of that, deciding who wants a rest day versus another day on the slopes usually gets settled by whoever complains loudest.</p>
+<h2 id="how-vacationist-handles-it">How Vacationist handles it</h2>
+<h3 id="vote-on-rest-days-and-aprs-ski-plans-as-a-group">Vote on rest days and après-ski plans as a group</h3>
+<p>Suggest a rest day, a different resort, or the après-ski spot, and let the group vote with a five-tier system — from &quot;must do&quot; to &quot;group blocker&quot; — so the plan reflects what people actually want, not just who spoke up first. See <a href="/features/voting/">how activity voting works</a>.</p>
+<h3 id="split-the-chalet-lift-passes-and-gear-rental-fairly">Split the chalet, lift passes, and gear rental fairly</h3>
+<p>Log the chalet cost, lift passes, and gear rental separately, and split each one with custom amounts — because the person who rented skis and bought a 6-day pass shouldn&#39;t owe the same as the one who brought their own gear and skied two days. Balances update live. See <a href="/features/expenses/">how expense splitting works</a>.</p>
+<h3 id="a-shared-packing-list-for-gear">A shared packing list for gear</h3>
+<p>One shared list for goggles, gloves, base layers, and who&#39;s bringing the first-aid kit — updated in real time so nothing gets left off because it was mentioned once in a group chat three weeks ago.</p>
+<h3 id="real-time-balances-so-nobodys-chasing-chalet-mates-after-the-trip">Real-time balances so nobody&#39;s chasing chalet-mates after the trip</h3>
+<p>Every cost updates the group&#39;s balances immediately, so settling up happens naturally throughout the week instead of becoming an awkward post-trip conversation about who still owes for the gear rental.</p>
+<h2 id="what-it-costs">What it costs</h2>
+<p>Free, with no ads. Voting, expense splitting, shared lists, and guest access are free for the whole group. A Pro tier exists for organizers running multiple trips a year, but it isn&#39;t required for a single ski week.</p>
+<div class="cta-band">
+  <h3>Plan your next group trip with Vacationist</h3>
+  <p>Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on Android and the web today; iOS is in development.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Get it on Google Play</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Open the Web App</a>
+  </div>
+</div><h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="can-we-split-the-chalet-cost-unevenly-if-rooms-are-different-sizes">Can we split the chalet cost unevenly if rooms are different sizes?</h3>
+<p>Yes. Every expense supports custom splits, so the chalet cost can be divided by room size or however the group agrees, not just evenly across everyone.</p>
+<h3 id="can-we-track-gear-rental-costs-separately-from-meals-and-lift-passes">Can we track gear rental costs separately from meals and lift passes?</h3>
+<p>Yes — log each cost as its own expense (chalet, lift passes, gear rental, meals) so the group can see exactly what each category costs, not just one lump total.</p>
+<h3 id="can-the-group-vote-on-which-days-to-ski-versus-rest">Can the group vote on which days to ski versus rest?</h3>
+<p>Yes, using the same five-tier activity voting used for any trip decision — it works just as well for &quot;who wants a rest day&quot; as it does for choosing a restaurant.</p>
+<h3 id="does-it-work-if-some-of-the-group-is-on-iphone">Does it work if some of the group is on iPhone?</h3>
+<p>The native app is available for Android today, with iOS in development. iPhone users can join and fully participate through the web app via the invite link — no app-store detour needed.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Keep reading</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/features/expenses/">
+      <span class="related-title">Expense splitting</span>
+      <span class="related-desc">Split every trip cost with your group — hotels, dinners, fuel, anything. Vacationist tracks who paid, who owes whom, and settles up in one tap. Free.</span>
+    </a>
+    <a class="related-card" href="/features/voting/">
+      <span class="related-title">Activity voting</span>
+      <span class="related-desc">Vacationist's 5-tier activity voting lets your whole group decide what to do — must-do, like, open, skip, or group blocker. No more endless chat debates.</span>
+    </a>
+    <a class="related-card" href="/blog/how-to-plan-a-group-trip/">
+      <span class="related-title">Group trip planning guide</span>
+      <span class="related-desc">The definitive guide to planning a group trip: picking dates, choosing a destination, making decisions without arguments, splitting costs fairly, and surviving as the organizer.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>The free group trip planner — vote on activities, split expenses, share lists, and keep everyone in sync.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="/features/">All features</a>
+      <a href="/features/voting/">Activity voting</a>
+      <a href="/features/expenses/">Expense splitting</a>
+      <a href="/features/shopping-lists/">Shared lists</a>
+      <a href="/features/travel-documents/">Travel documents</a>
+      <a href="/use-cases/">Use cases</a>
+      <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
+      <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Compare</h4>
+      <a href="/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/alternatives/splitwise/">Splitwise alternatives</a>
+      <a href="/alternatives/wanderlog/">Wanderlog alternatives</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="/blog/">Blog</a>
+      <a href="/blog/how-to-plan-a-group-trip/">Group trip planning guide</a>
+      <a href="/blog/best-group-travel-apps-2026/">Best group travel apps</a>
+      <a href="/blog/how-to-split-travel-expenses/">Expense splitting guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="#cookie-settings">Cookie settings</a>
+      <a href="mailto:meetdeep.de@gmail.com">Contact</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Switzerland</div>
+</footer>
+
+</body>
+</html>

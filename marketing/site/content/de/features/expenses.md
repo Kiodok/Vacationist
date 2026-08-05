@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-07-21
 altPath: /features/expenses/
 keywords: Reisekosten teilen App, Kosten teilen Urlaub App, Hotelkosten teilen App, Urlaubsausgaben Tracker
-related: /de/features/voting/, /de/vs/splitwise/, /de/blog/how-to-split-travel-expenses/
+related: /de/features/voting/, /de/vs/splitwise/, /de/blog/how-to-split-travel-expenses/, /de/vs/tricount/
 breadcrumbLabel: Kostenteilung
 ---
 

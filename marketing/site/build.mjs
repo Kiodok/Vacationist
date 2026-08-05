@@ -25,6 +25,84 @@ const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.vacationist.
 const WEB_APP_URL = 'https://web.vacationist.app';
 const OG_IMAGE = `${SITE}/og-image.png`;
 
+/* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
+   release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
+const APP_VERSION = '1.26.0';
+
+/**
+ * Single source of truth for the SoftwareApplication/WebSite JSON-LD text,
+ * shared by the hand-authored homepage's German transform (renderGermanHome)
+ * and by generated pages that opt in via `appLd: true` front matter. Kept
+ * here rather than in docs/i18n/*.js because generated content pages never
+ * load docs/i18n — only the hand-authored homepage does.
+ */
+const APP_LD = {
+  en: {
+    description: 'The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations, and keep the whole group in sync — from the first idea to the last flight home.',
+    featureList: 'Group activity voting, Travel expense splitting, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Transfer & flight management, Encrypted travel documents, Real-time sync, Offline support, Guest access without account',
+    siteDescription: 'The free group trip planner — vote on activities, split travel expenses, share packing lists, and keep everyone in sync.',
+  },
+  de: {
+    description: 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen, Unterkünfte verwalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.',
+    featureList: 'Aktivitäten-Abstimmung, Reisekosten teilen, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Transfer- & Flugverwaltung, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto',
+    siteDescription: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und alle synchron halten.',
+  },
+};
+
+// For fresh insertion into head templates where the calling template literal
+// has no indentation of its own (see jsonLd()'s block array, joined at column
+// 0) — bakes in a 2-space indent so blocks align with surrounding <meta> tags.
+const ldScript = (obj) =>
+  `  <script type="application/ld+json">\n  ${JSON.stringify(obj, null, 2).split('\n').join('\n  ')}\n  </script>`;
+
+// For regex-replacing a <script> block that's already indented in existing
+// HTML (renderGermanHome, syncEnglishHomepageAppLd): the match starts at
+// "<script", so the original file's leading whitespace before it is left
+// untouched and must NOT be duplicated here — otherwise output indentation
+// grows by two spaces every time the build re-reads its own prior output.
+const ldScriptInPlace = (obj) =>
+  `<script type="application/ld+json">\n  ${JSON.stringify(obj, null, 2).split('\n').join('\n  ')}\n  </script>`;
+
+function softwareApplicationLd(lang) {
+  const a = APP_LD[lang];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    '@id': `${SITE}/#app`,
+    name: 'Vacationist',
+    applicationCategory: 'TravelApplication',
+    applicationSubCategory: 'Group Trip Planner',
+    operatingSystem: 'Android, Web',
+    softwareVersion: APP_VERSION,
+    description: a.description,
+    url: `${SITE}/`,
+    installUrl: PLAY_URL,
+    downloadUrl: PLAY_URL,
+    inLanguage: ['en', 'de'],
+    isAccessibleForFree: true,
+    featureList: a.featureList,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+    author: {
+      '@type': 'Person',
+      name: 'Gary Lude',
+      address: { '@type': 'PostalAddress', addressCountry: 'CH' },
+    },
+    publisher: { '@id': `${SITE}/#org` },
+  };
+}
+
+function webSiteLd(lang) {
+  const a = APP_LD[lang];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Vacationist',
+    url: `${SITE}/`,
+    description: a.siteDescription,
+    inLanguage: lang,
+  };
+}
+
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
 const DE_HOME_LASTMOD = '2026-07-26';
@@ -65,7 +143,7 @@ const STATIC_SITEMAP_ENTRIES = [
 const STR = {
   en: {
     navFeatures: 'Features', navBlog: 'Blog', navWebApp: '🌐 Web app', navGetApp: 'Get the app',
-    breadcrumbHome: 'Home', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Features',
+    breadcrumbHome: 'Home', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Features', breadcrumbUseCases: 'Use cases',
     ctaTitle: 'Plan your next group trip with Vacationist',
     ctaText: 'Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on Android and the web today; iOS is in development.',
     ctaPlay: 'Get it on Google Play', ctaWeb: 'Open the Web App',
@@ -80,7 +158,7 @@ const STR = {
   },
   de: {
     navFeatures: 'Funktionen', navBlog: 'Blog', navWebApp: '🌐 Web-App', navGetApp: 'App holen',
-    breadcrumbHome: 'Startseite', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Funktionen',
+    breadcrumbHome: 'Startseite', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Funktionen', breadcrumbUseCases: 'Anwendungsfälle',
     ctaTitle: 'Plane deine nächste Gruppenreise mit Vacationist',
     ctaText: 'Über Aktivitäten abstimmen, Kosten teilen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Heute für Android und im Web verfügbar; die iOS-Version ist in Entwicklung.',
     ctaPlay: 'Bei Google Play laden', ctaWeb: 'Web-App öffnen',
@@ -104,6 +182,14 @@ const FOOTER_LINKS = {
       ['/features/expenses/', 'Expense splitting'],
       ['/features/shopping-lists/', 'Shared lists'],
       ['/features/travel-documents/', 'Travel documents'],
+      // Only 2 of 6 /use-cases/ niches are footer-linked sitewide (space —
+      // the product column is already 5 features + these). Bachelorette +
+      // van-life chosen as the broadest-appeal pair; revisit once Search
+      // Console shows which niches are actually ranking (see
+      // marketing/seo-strategy.md, Pillar 5 "next niches to scale").
+      ['/use-cases/', 'Use cases'],
+      ['/use-cases/bachelorette-party-planner/', 'Bachelorette party planner'],
+      ['/use-cases/van-life-trip-planner/', 'Van life trip planner'],
     ],
     compare: [
       ['/vs/splitwise/', 'Vacationist vs. Splitwise'],
@@ -132,6 +218,11 @@ const FOOTER_LINKS = {
       ['/de/features/expenses/', 'Kosten teilen'],
       ['/de/features/shopping-lists/', 'Gemeinsame Listen'],
       ['/de/features/travel-documents/', 'Reisedokumente'],
+      // Same provisional 2-of-6 selection as FOOTER_LINKS.en.product above —
+      // see that comment for the rationale.
+      ['/de/use-cases/', 'Anwendungsfälle'],
+      ['/de/use-cases/bachelorette-party-planner/', 'Junggesellinnenabschied planen'],
+      ['/de/use-cases/van-life-trip-planner/', 'Van-Life-Reiseplaner'],
     ],
     compare: [
       ['/de/vs/splitwise/', 'Vacationist vs. Splitwise'],
@@ -253,6 +344,7 @@ function loadPages() {
       updated: meta.updated || meta.date,
       schema: meta.schema || 'WebPage',
       blogIndex: meta.blogIndex === 'true',
+      appLd: meta.appLd === 'true',
       related: meta.related ? meta.related.split(',').map((s) => s.trim()).filter(Boolean) : [],
       body,
       faqs: extractFaq(body),
@@ -281,6 +373,7 @@ function breadcrumbs(page, registry) {
   const rel = segs[0] === 'de' ? segs.slice(1) : segs;
   if (rel[0] === 'blog' && rel.length > 1) crumbs.push({ name: t.breadcrumbBlog, path: isDe ? '/de/blog/' : '/blog/' });
   if (rel[0] === 'features' && rel.length > 1) crumbs.push({ name: t.breadcrumbFeatures, path: isDe ? '/de/features/' : '/features/' });
+  if (rel[0] === 'use-cases' && rel.length > 1) crumbs.push({ name: t.breadcrumbUseCases, path: isDe ? '/de/use-cases/' : '/use-cases/' });
   const label = page.breadcrumbLabel || page.title.split(/[:|—|]/)[0].trim();
   crumbs.push({ name: label, path: page.path });
   return crumbs;
@@ -291,6 +384,14 @@ function jsonLd(page, registry) {
   const url = SITE + page.path;
   const crumbs = breadcrumbs(page, registry);
 
+  // Extractable by AI answer engines / voice assistants — points at the
+  // .lede short-answer paragraph (comparison/listicle pages) and .tldr
+  // callouts (use-case pages), both already present in the rendered body.
+  const speakable = {
+    '@type': 'SpeakableSpecification',
+    cssSelector: ['.lede', '.tldr'],
+  };
+
   if (page.schema === 'Article' || page.schema === 'BlogPosting') {
     blocks.push({
       '@context': 'https://schema.org',
@@ -299,6 +400,7 @@ function jsonLd(page, registry) {
       description: page.description,
       url,
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+      speakable,
       datePublished: page.date,
       dateModified: page.updated,
       inLanguage: page.lang,
@@ -313,6 +415,7 @@ function jsonLd(page, registry) {
       name: page.title,
       description: page.description,
       url,
+      speakable,
       inLanguage: page.lang,
       isPartOf: { '@type': 'WebSite', 'name': 'Vacationist', 'url': `${SITE}/` },
     });
@@ -336,7 +439,12 @@ function jsonLd(page, registry) {
     });
   }
 
-  return blocks.map((b) => `  <script type="application/ld+json">\n  ${JSON.stringify(b, null, 2).split('\n').join('\n  ')}\n  </script>`).join('\n');
+  // Commercial-intent pages (features, use-cases) carry the product entity
+  // alongside their own page schema, so AI engines can resolve "what is this
+  // page about" -> "what is the product" in one hop.
+  if (page.appLd) blocks.push(softwareApplicationLd(page.lang));
+
+  return blocks.map((b) => ldScript(b)).join('\n');
 }
 
 function navHtml(page) {
@@ -564,6 +672,16 @@ function renderGermanHome() {
     /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "FAQPage"[\s\S]*?<\/script>/,
     `<script type="application/ld+json">\n  ${JSON.stringify(faqLd, null, 2).split('\n').join('\n  ')}\n  </script>`);
 
+  // 4b. SoftwareApplication / WebSite JSON-LD → German description text.
+  // These previously stayed English on /de/ because only the FAQ block above
+  // was rebuilt from translated strings.
+  html = html.replace(
+    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "SoftwareApplication"[\s\S]*?<\/script>/,
+    ldScriptInPlace(softwareApplicationLd('de')));
+  html = html.replace(
+    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "WebSite"[\s\S]*?<\/script>/,
+    ldScriptInPlace(webSiteLd('de')));
+
   // 5. Root-relative URLs (page lives one level deeper), then German-specific links
   html = html.replace(/href="\.\//g, 'href="/').replace(/src="\.\//g, 'src="/');
   html = html.replace('class="nav-logo" href="/"', 'class="nav-logo" href="/de/"');
@@ -585,6 +703,23 @@ function renderGermanHome() {
   html = html.replace(/<script src="\/i18n\.js"><\/script>\s*/, '');
 
   return html;
+}
+
+/* Keeps docs/index.html's own SoftwareApplication/WebSite JSON-LD in sync
+   with APP_LD.en / APP_VERSION at build time, mirroring what step 4b of
+   renderGermanHome() already does for 'de'. Without this, the EN homepage
+   is a third hand-written copy of the same text that can silently drift —
+   which is exactly the bug class this file's DE fix addressed. */
+function syncEnglishHomepageAppLd() {
+  const file = join(DOCS_DIR, 'index.html');
+  let html = readFileSync(file, 'utf8');
+  html = html.replace(
+    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "SoftwareApplication"[\s\S]*?<\/script>/,
+    ldScriptInPlace(softwareApplicationLd('en')));
+  html = html.replace(
+    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "WebSite"[\s\S]*?<\/script>/,
+    ldScriptInPlace(webSiteLd('en')));
+  writeOut(file, html);
 }
 
 function germanHomePage(t) {
@@ -785,6 +920,10 @@ function main() {
   const deBlogIndex = renderGermanBlogIndex(pages, registry);
   registry.set('/de/blog/', deBlogIndex.page);
   writeOut(outPathFor('/de/blog/'), deBlogIndex.html);
+
+  // English homepage: keep its own SoftwareApplication/WebSite JSON-LD in
+  // sync with APP_LD.en / APP_VERSION (see syncEnglishHomepageAppLd).
+  syncEnglishHomepageAppLd();
 
   // German homepage: full transform of the English landing page
   writeOut(outPathFor('/de/'), renderGermanHome());

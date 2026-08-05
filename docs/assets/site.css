@@ -135,6 +135,29 @@ body {
 .article .lede { font-size: 1.12rem; color: var(--text2); margin-bottom: 2rem; }
 .article-meta { font-size: 0.8rem; color: var(--text3); margin-bottom: 1.5rem; }
 
+/* TL;DR direct-answer callout — extractable by AI answer engines (see
+   SpeakableSpecification.cssSelector in build.mjs jsonLd()). Used on the
+   homepage and every /use-cases/ page. */
+.tldr {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  border-radius: 0 12px 12px 0;
+  padding: 1.1rem 1.4rem;
+  margin: 0 0 2rem;
+}
+.tldr-label {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--primary);
+  margin-bottom: 0.4rem;
+}
+.tldr p { color: var(--text); font-size: 1rem; line-height: 1.6; margin: 0; }
+.article .tldr p { margin: 0; }
+
+/* Single-sentence entity definition under the hero — the "X is a Y that Z"
+   form LLMs reliably lift for "what is Vacationist" answers. */
+.entity-def { font-size: 0.95rem; color: var(--text3); margin-top: 0.75rem; max-width: 46ch; }
+
 .article a { color: var(--pri-lite); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
 .article a:hover { border-bottom-color: var(--pri-lite); }
 

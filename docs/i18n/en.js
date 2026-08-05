@@ -26,6 +26,11 @@ window.VACATIONIST_I18N = {
   'hero.openWeb': 'Open Web App',
   'hero.appSoon': 'App Store — Coming Soon',
   'hero.note': 'Free · No ads · No account needed to join',
+  'entity.def': 'Vacationist is a free group trip planning app for Android and web that lets a group vote on activities, split travel expenses, and share packing and shopping lists together — no account required to join.',
+
+  // TL;DR direct-answer block (above FAQ)
+  'tldr.label': 'TL;DR',
+  'tldr.text': 'Vacationist is free, has no ads, and encrypts travel documents with AES-256. It\'s built in Switzerland, and anyone can join a trip via a single link without creating an account. Available today on Android and the web; iOS is in development.',
 
   // Floating chips
   'chip.a.main': '4 votes cast',

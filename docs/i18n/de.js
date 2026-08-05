@@ -26,6 +26,11 @@ window.VACATIONIST_I18N = {
   'hero.openWeb': 'Web-App öffnen',
   'hero.appSoon': 'App Store — Demnächst',
   'hero.note': 'Kostenlos · Keine Werbung · Kein Konto zum Beitreten nötig',
+  'entity.def': 'Vacationist ist eine kostenlose Gruppenreise-App für Android und Web, mit der eine Gruppe gemeinsam über Aktivitäten abstimmt, Reisekosten teilt und Pack- sowie Einkaufslisten teilt — ohne Konto zum Beitreten.',
+
+  // TL;DR-Direktantwort (oberhalb der FAQ)
+  'tldr.label': 'Kurz gesagt',
+  'tldr.text': 'Vacationist ist kostenlos, ohne Werbung, und verschlüsselt Reisedokumente mit AES-256. Die App wird in der Schweiz entwickelt, und jeder kann per Link einer Reise beitreten, ohne ein Konto zu erstellen. Heute verfügbar für Android und im Web; die iOS-Version ist in Entwicklung.',
 
   // Floating chips
   'chip.a.main': '4 Stimmen abgegeben',

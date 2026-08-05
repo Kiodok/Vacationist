@@ -9,7 +9,7 @@ date: 2026-07-17
 updated: 2026-07-27
 altPath: /de/alternatives/splitwise/
 keywords: splitwise alternative, best splitwise alternative, apps like splitwise, splitwise alternative for travel
-related: /vs/splitwise/, /features/expenses/, /blog/best-group-travel-apps-2026/
+related: /vs/splitwise/, /features/expenses/, /blog/best-group-travel-apps-2026/, /vs/tricount/
 breadcrumbLabel: Splitwise alternatives
 ---
 
