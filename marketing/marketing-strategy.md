@@ -673,10 +673,12 @@ These searchers are already product-aware and actively looking to switch.
 - Group camping trip planner
 
 **Technical SEO fixes needed:**
-- The current landing page has strong structured data but weak internal linking (only one page)
-- Build a blog at `vacationist.app/blog/`
-- Add a `/features/` page with individual feature landing pages (voting, expenses, shopping-lists, travel-documents) for keyword targeting
-- The German translation in `docs/i18n/de.js` suggests multilingual intent — add `hreflang` tags and build German content pages at `/de/`
+- ~~The current landing page has strong structured data but weak internal linking (only one page)~~ — done: 58+ pages with a build-time-validated `related:` internal-linking web (see `marketing/seo-strategy.md`, Pillar 2).
+- ~~Build a blog at `vacationist.app/blog/`~~ — done: 6 posts, EN + DE, plus RSS feeds.
+- ~~Add a `/features/` page with individual feature landing pages (voting, expenses, shopping-lists, travel-documents) for keyword targeting~~ — done, both languages.
+- ~~The German translation in `docs/i18n/de.js` suggests multilingual intent — add `hreflang` tags and build German content pages at `/de/`~~ — done: build-time-validated bidirectional hreflang across every clustered page.
+
+**Status (2026-08-05):** all four items above are shipped. This whole section (keyword clusters, competitor research, screenshot/ASO recommendations) is still valid as the original **research and prioritization** brief — the parts of it that turned into pages (comparison pages, alternatives listicles, trip-type pillar content) match what's now live almost 1:1. For current implementation status, exact file locations, and what's still open, see `marketing/seo-strategy.md` — that's the living reference going forward; this document is the historical strategy/research doc that prompted it.
 
 ---
 

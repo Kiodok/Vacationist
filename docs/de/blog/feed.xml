@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vacationist Blog — Guides für Gruppenreisen</title>
+    <link>https://vacationist.app/de/blog/</link>
+    <description>Praktische Guides rund um Gruppenreisen: Planung, Kostenteilung, Abstimmungen und Koordination — auf Deutsch und Englisch.</description>
+    <language>de-de</language>
+    <lastBuildDate>Tue, 21 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://vacationist.app/de/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Reisekosten fair teilen — der komplette Guide (2026)</title>
+      <link>https://vacationist.app/de/blog/how-to-split-travel-expenses/</link>
+      <guid isPermaLink="true">https://vacationist.app/de/blog/how-to-split-travel-expenses/</guid>
+      <description>Der komplette Guide zur Kostenteilung in der Gruppe: was als gemeinsam zählt, faire Methoden bei ungleichen Situationen, Tracking-Systeme — und Abrechnen ohne Peinlichkeit.</description>
+      <pubDate>Tue, 21 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Gruppenreise planen ohne Chaos — der komplette Guide (2026)</title>
+      <link>https://vacationist.app/de/blog/how-to-plan-a-group-trip/</link>
+      <guid isPermaLink="true">https://vacationist.app/de/blog/how-to-plan-a-group-trip/</guid>
+      <description>Der ausführliche Guide zur Gruppenreise-Planung: Termine finden, Reiseziel wählen, Entscheidungen ohne Streit treffen, Kosten fair teilen — und als Organisator überleben.</description>
+      <pubDate>Tue, 21 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Camping mit der Gruppe planen — Ausrüstung, Essen und Kosten für die ganze Crew (2026)</title>
+      <link>https://vacationist.app/de/blog/group-camping-trip-planner/</link>
+      <guid isPermaLink="true">https://vacationist.app/de/blog/group-camping-trip-planner/</guid>
+      <description>Der komplette Gruppen-Camping-Planer: gemeinsame Ausrüstungslisten gegen vergessene Zelte, Essensplanung, die zur Einkaufsliste wird, faire Kostenteilung und Koordination ganz ohne Netz.</description>
+      <pubDate>Tue, 21 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Familienurlaub über mehrere Haushalte koordinieren (2026)</title>
+      <link>https://vacationist.app/de/blog/family-vacation-coordination-guide/</link>
+      <guid isPermaLink="true">https://vacationist.app/de/blog/family-vacation-coordination-guide/</guid>
+      <description>Großeltern, Geschwister-Familien, Kinder: wie man einen Familienurlaub über mehrere Haushalte plant — mit gemeinsamen Kalendern, fairer Kostenteilung zwischen Familien und sicher geteilten Reisedokumenten.</description>
+      <pubDate>Tue, 21 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Die 8 besten Gruppenreise-Apps 2026 im ehrlichen Vergleich</title>
+      <link>https://vacationist.app/de/blog/best-group-travel-apps-2026/</link>
+      <guid isPermaLink="true">https://vacationist.app/de/blog/best-group-travel-apps-2026/</guid>
+      <description>Die besten Apps zur Planung von Gruppenreisen 2026, ehrlich verglichen — Vacationist, Splitwise, Wanderlog, TripIt, Tricount, Polarsteps und mehr, nach echtem Anwendungsfall.</description>
+      <pubDate>Tue, 21 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Junggesellinnenabschied für eine große Gruppe planen — das komplette Playbook (2026)</title>
+      <link>https://vacationist.app/de/blog/bachelorette-trip-planning-guide/</link>
+      <guid isPermaLink="true">https://vacationist.app/de/blog/bachelorette-trip-planning-guide/</guid>
+      <description>Der komplette Guide für Trauzeuginnen: 12 Leute zur Zusage bringen, ohne Drama über Pläne abstimmen, Kosten fair teilen und die Braut glücklich machen.</description>
+      <pubDate>Tue, 21 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

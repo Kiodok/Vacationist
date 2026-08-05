@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, copyFile
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
+import { generateOgImage, ogImagePath } from './og-image.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CONTENT_DIR = join(ROOT, 'marketing', 'site', 'content');
@@ -23,7 +24,11 @@ const DOCS_DIR = join(ROOT, 'docs');
 const SITE = 'https://vacationist.app';
 const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
 const WEB_APP_URL = 'https://web.vacationist.app';
-const OG_IMAGE = `${SITE}/og-image.png`;
+/* Per-page social-preview image (see og-image.mjs) — every generated content
+   page gets its own, so shared links show a page-specific card instead of
+   a generic one. The homepage (docs/index.html, hand-authored) keeps its
+   own bespoke /og-image.png, untouched by this. */
+const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
 
 /* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
    release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
@@ -406,7 +411,7 @@ function jsonLd(page, registry) {
       inLanguage: page.lang,
       author: { '@type': 'Person', 'name': 'Gary Lude', 'address': { '@type': 'PostalAddress', 'addressCountry': 'CH' } },
       publisher: { '@type': 'Organization', 'name': 'Vacationist', 'url': `${SITE}/`, 'logo': { '@type': 'ImageObject', 'url': `${SITE}/favicon.svg` } },
-      image: OG_IMAGE,
+      image: pageOgImage(page),
     });
   } else {
     blocks.push({
@@ -575,16 +580,17 @@ function renderPage(page, registry, contentHtml) {
 ${page.keywords ? `  <meta name="keywords" content="${esc(page.keywords)}">\n` : ''}
   <link rel="canonical" href="${url}">
 ${hreflangLinks(page)}
+  <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="${page.lang === 'de' ? `${SITE}/de/blog/feed.xml` : `${SITE}/blog/feed.xml`}">
   <meta property="og:title" content="${esc(page.title)}">
   <meta property="og:description" content="${esc(page.description)}">
   <meta property="og:url" content="${url}">
   <meta property="og:type" content="${ogType}">
-  <meta property="og:image" content="${OG_IMAGE}">
+  <meta property="og:image" content="${pageOgImage(page)}">
   <meta property="og:site_name" content="Vacationist">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(page.title)}">
   <meta name="twitter:description" content="${esc(page.description)}">
-  <meta name="twitter:image" content="${OG_IMAGE}">
+  <meta name="twitter:image" content="${pageOgImage(page)}">
 
 ${jsonLd(page, registry)}
 
@@ -655,6 +661,7 @@ function renderGermanHome() {
   html = html.replace(/(<meta name="twitter:title" content=")[^"]*(">)/, `$1${esc(t['meta.twitter_title'])}$2`);
   html = html.replace(/(<meta name="twitter:description" content=")[^"]*(">)/, `$1${esc(t['meta.twitter_description'])}$2`);
   html = html.replace('<link rel="canonical" href="https://vacationist.app/">', `<link rel="canonical" href="${SITE}/de/">`);
+  html = html.replace('href="https://vacationist.app/blog/feed.xml"', `href="${SITE}/de/blog/feed.xml"`);
   html = html.replace('<meta property="og:url" content="https://vacationist.app/">', `<meta property="og:url" content="${SITE}/de/">`);
 
   // 4. FAQPage JSON-LD → rebuild from German FAQ strings so it matches the page
@@ -829,6 +836,44 @@ ${cards}
   return { page, html: renderPage(page, registry, content) };
 }
 
+/* ────────────────────────────── RSS feed ────────────────────────────── */
+
+/**
+ * RSS 2.0 feed for /blog/ posts only (the actual publishing cadence — not
+ * the evergreen /vs/, /alternatives/, /use-cases/ pages). `lastBuildDate`
+ * derives from the newest post's front-matter `updated` date, never
+ * `Date.now()` — the build must stay idempotent (see file header).
+ */
+function renderRssFeed(posts, lang) {
+  const t = STR[lang];
+  const base = lang === 'de' ? `${SITE}/de/blog/` : `${SITE}/blog/`;
+  const feedUrl = `${base}feed.xml`;
+
+  const items = posts.map((p) => `    <item>
+      <title>${esc(p.title)}</title>
+      <link>${SITE}${p.path}</link>
+      <guid isPermaLink="true">${SITE}${p.path}</guid>
+      <description>${esc(p.description)}</description>
+      <pubDate>${new Date(p.date).toUTCString()}</pubDate>
+    </item>`).join('\n');
+
+  const lastBuildDate = new Date(posts.length ? posts[0].updated : '2026-01-01').toUTCString();
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${esc(t.blogIndexTitle)}</title>
+    <link>${base}</link>
+    <description>${esc(t.blogIndexDesc)}</description>
+    <language>${lang === 'de' ? 'de-de' : 'en-us'}</language>
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>
+    <atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>
+${items}
+  </channel>
+</rss>
+`;
+}
+
 /* ────────────────────────────── sitemap ────────────────────────────── */
 
 function renderSitemap(allPages) {
@@ -883,7 +928,15 @@ function writeOut(file, content) {
   console.log(`  ✓ ${relative(ROOT, file).replace(/\\/g, '/')}`);
 }
 
-function main() {
+// Binary sibling of writeOut() — no CRLF normalization, same reasoning as
+// the font copy below (normalizing would corrupt PNG bytes).
+function writeBinary(file, buf) {
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, buf);
+  console.log(`  ✓ ${relative(ROOT, file).replace(/\\/g, '/')}`);
+}
+
+async function main() {
   console.log('Building marketing site…');
 
   const pages = loadPages();
@@ -905,21 +958,32 @@ function main() {
     }
   }
 
-  // Content pages
+  // Content pages, each with its own generated social-preview image (og-image.mjs)
   for (const page of pages) {
     let body = page.body.replace(/<!--CTA-->/g, ctaHtml(page.lang));
     const contentHtml = marked.parse(body);
     writeOut(outPathFor(page.path), renderPage(page, registry, contentHtml));
+    writeBinary(join(DOCS_DIR, 'assets', 'og', ogImagePath(page)), await generateOgImage(page));
   }
 
-  // Blog indexes (generated, no md source)
+  // Blog indexes (generated, no md source) — also rendered via renderPage(),
+  // so they reference pageOgImage() too and need their own generated image.
   const blogIndex = renderBlogIndex(pages, registry);
   registry.set('/blog/', blogIndex.page);
   writeOut(outPathFor('/blog/'), blogIndex.html);
+  writeBinary(join(DOCS_DIR, 'assets', 'og', ogImagePath(blogIndex.page)), await generateOgImage(blogIndex.page));
 
   const deBlogIndex = renderGermanBlogIndex(pages, registry);
   registry.set('/de/blog/', deBlogIndex.page);
   writeOut(outPathFor('/de/blog/'), deBlogIndex.html);
+  writeBinary(join(DOCS_DIR, 'assets', 'og', ogImagePath(deBlogIndex.page)), await generateOgImage(deBlogIndex.page));
+
+  // RSS feeds — same post filters renderBlogIndex()/renderGermanBlogIndex() use
+  const enPosts = pages.filter((p) => p.blogIndex && p.lang === 'en').sort((a, b) => (a.date < b.date ? 1 : -1));
+  writeOut(join(DOCS_DIR, 'blog', 'feed.xml'), renderRssFeed(enPosts, 'en'));
+
+  const dePosts = pages.filter((p) => p.lang === 'de' && p.path.startsWith('/de/blog/')).sort((a, b) => (a.date < b.date ? 1 : -1));
+  writeOut(join(DOCS_DIR, 'de', 'blog', 'feed.xml'), renderRssFeed(dePosts, 'de'));
 
   // English homepage: keep its own SoftwareApplication/WebSite JSON-LD in
   // sync with APP_LD.en / APP_VERSION (see syncEnglishHomepageAppLd).
@@ -948,7 +1012,7 @@ function main() {
   const allPages = [...pages, blogIndex.page, deBlogIndex.page, deHome];
   writeOut(join(DOCS_DIR, 'sitemap.xml'), renderSitemap(allPages));
 
-  console.log(`Done — ${pages.length + 3} pages, sitemap, stylesheet, consent script, fonts.`);
+  console.log(`Done — ${pages.length + 3} pages, ${pages.length + 2} OG images, sitemap, stylesheet, consent script, fonts.`);
 }
 
-main();
+main().catch((err) => { console.error(err); process.exit(1); });

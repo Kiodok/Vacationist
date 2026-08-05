@@ -33,6 +33,7 @@
   "devDependencies": {
     "marked": "^18.0.6",
     "qrcode": "^1.5.4",
+    "sharp": "^0.34.2",
     "sharp-cli": "^5.2.0",
     "zxing-wasm": "^3.1.0"
   },

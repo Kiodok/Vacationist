@@ -73,6 +73,7 @@ group trip planner, group vacation planning app, split travel expenses, activity
   - Group camping trip: https://vacationist.app/use-cases/group-camping-trip/ (German: https://vacationist.app/de/use-cases/group-camping-trip/)
   - Stag do planner: https://vacationist.app/use-cases/stag-do-planner/ (German: https://vacationist.app/de/use-cases/stag-do-planner/)
 - Blog (group travel guides): https://vacationist.app/blog/ (German: https://vacationist.app/de/blog/)
+  - RSS feed: https://vacationist.app/blog/feed.xml (German: https://vacationist.app/de/blog/feed.xml)
   - How to plan a group trip: https://vacationist.app/blog/how-to-plan-a-group-trip/ (German: https://vacationist.app/de/blog/how-to-plan-a-group-trip/)
   - How to split travel expenses: https://vacationist.app/blog/how-to-split-travel-expenses/ (German: https://vacationist.app/de/blog/how-to-split-travel-expenses/)
   - Best group travel apps 2026: https://vacationist.app/blog/best-group-travel-apps-2026/ (German: https://vacationist.app/de/blog/best-group-travel-apps-2026/)
