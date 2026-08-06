@@ -16,7 +16,7 @@
     ? window.I18N_DEFAULT_LANG
     : 'en';
   var STORAGE_KEY = 'v_lang';
-  var CACHE_VER = '20260805a';
+  var CACHE_VER = '20260806a';
 
   function detect() {
     // Explicit ?lang= override (used by static pages linking back, e.g. /de/ → /?lang=en)

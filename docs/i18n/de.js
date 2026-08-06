@@ -1,11 +1,11 @@
 window.VACATIONIST_I18N = {
   __lang: 'de',
 
-  'meta.title': 'Vacationist - Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
-  'meta.description': 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und Unterkünfte verwalten — alles an einem Ort. Perfekt für Gruppenreisen, Roadtrips und Junggesellinnenabschiede.',
-  'meta.og_title': 'Vacationist - Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
+  'meta.title': 'Gruppenreise-Planer App — Ausgaben teilen | Vacationist',
+  'meta.description': 'Gruppenreisen gemeinsam planen — über Aktivitäten abstimmen, Kosten teilen und Packlisten führen. Kostenlos, Beitritt ohne Konto.',
+  'meta.og_title': 'Gruppenreise-Planer App — Ausgaben teilen | Vacationist',
   'meta.og_description': 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen, Unterkünfte verwalten — alles an einem Ort. Kein Konto zum Beitreten nötig.',
-  'meta.twitter_title': 'Vacationist - Beste Gruppenreise-Planer App | Ausgaben teilen & Aktivitäten abstimmen',
+  'meta.twitter_title': 'Gruppenreise-Planer App — Ausgaben teilen | Vacationist',
   'meta.twitter_description': 'Der kostenlose Gruppenreise-Planer. Aktivitäten abstimmen, Kosten teilen, Packlisten — perfekt für Gruppenurlaub, Roadtrips und Junggesellinnenabschiede.',
 
   // Nav

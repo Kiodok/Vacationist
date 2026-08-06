@@ -183,7 +183,21 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/assets/og/de-vs-tricount.png)",
       "Bash(pkill -f \"http.server 3001\")",
       "Bash(npx --yes marked docs/llms.txt)",
-      "Bash(npx --yes marked apps/mobile/public/llms.txt)"
+      "Bash(npx --yes marked apps/mobile/public/llms.txt)",
+      "Bash(command -v wrangler)",
+      "Bash(env)",
+      "Bash(git stash *)",
+      "Bash(echo \"build1 exit: $?\")",
+      "Bash(diff /tmp_before_second_build.diff /tmp_after_second_build.diff)",
+      "Bash(grep -n \"^### Rules$\\\\|^## Marketing Site\" CLAUDE.md)",
+      "Bash(curl -s http://localhost:3001/)",
+      "Bash(curl -s http://localhost:3001/de/)",
+      "Bash(pkill -f \"serve docs\")",
+      "WebFetch(domain:developers.cloudflare.com)",
+      "Bash(claude plugin *)",
+      "mcp__plugin_cloudflare_cloudflare-api__execute",
+      "mcp__plugin_cloudflare_cloudflare-api__search",
+      "mcp__plugin_cloudflare_cloudflare-api__docs"
     ]
   },
   "model": "opusplan",

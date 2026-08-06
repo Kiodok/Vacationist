@@ -110,12 +110,12 @@ function webSiteLd(lang) {
 
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-07-26';
+const DE_HOME_LASTMOD = '2026-08-06';
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
   {
-    loc: `${SITE}/`, lastmod: '2026-07-21', changefreq: 'monthly', priority: '1.0',
+    loc: `${SITE}/`, lastmod: '2026-08-06', changefreq: 'monthly', priority: '1.0',
     alternates: [
       { hreflang: 'en', href: `${SITE}/` },
       { hreflang: 'de', href: `${SITE}/de/` },
@@ -340,6 +340,12 @@ function loadPages() {
     const { meta, body } = parseFrontMatter(raw, relative(ROOT, file));
     for (const key of ['title', 'description', 'path', 'lang', 'type', 'date']) {
       if (!meta[key]) throw new Error(`Missing "${key}" in ${relative(ROOT, file)}`);
+    }
+    if (meta.title.length > 60) {
+      console.warn(`[seo] title ${meta.title.length} chars (>60) in ${relative(ROOT, file)}`);
+    }
+    if (meta.description.length > 160) {
+      console.warn(`[seo] description ${meta.description.length} chars (>160) in ${relative(ROOT, file)}`);
     }
     if (!meta.path.startsWith('/') || !meta.path.endsWith('/')) {
       throw new Error(`path must start and end with "/" in ${relative(ROOT, file)}`);

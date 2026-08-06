@@ -3167,3 +3167,36 @@ Three purely additive RPCs. No table changes, no data mutations. Applied to both
 **Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`)
 
 **Local migration file:** `supabase/migrations/20260603000001_add_trip_notes_is_done.sql`
+
+---
+
+## 2026-08-06 — Correction: Resend domain verification + apex SPF/DMARC
+
+Not a database migration — no `supabase/migrations/` file. Logged here because it corrects a stale claim in the 2026-05-11 entry above and documents DNS state relevant to Supabase Auth email delivery.
+
+**Correction to the 2026-05-11 "Config: Custom SMTP via Resend" entry:** that entry's "Known Limitation" section is stale. `vacationist.app` **is now domain-verified with Resend** — confirmed live via DNS: DKIM TXT record at `resend._domainkey.vacationist.app`, and SPF `v=spf1 include:amazonses.com ~all` at `send.vacationist.app` (Resend sends through Amazon SES). The Supabase SMTP sender email should be using a `@vacationist.app` address, not the free-tier `onboarding@resend.dev` fallback described in that entry — verify this in Supabase Dashboard → Authentication → SMTP Settings and update if it still shows the old sender.
+
+**Why (this change):** An external site audit flagged vacationist.app as failing email authentication — no SPF or DMARC record existed at the domain apex, meaning nothing prevented a third party from sending spoofed mail claiming to be `@vacationist.app`. The `send.vacationist.app` subdomain SPF record (Resend's) was already correct; the apex had no record of its own at all.
+
+**DNS records added** (Cloudflare, `vacationist.app` zone — DNS only, not a migration):
+
+| Name | Type | Value |
+|---|---|---|
+| `vacationist.app` | TXT | `v=spf1 include:amazonses.com ~all` |
+| `_dmarc.vacationist.app` | TXT | `v=DMARC1; p=none; sp=none; adkim=r; aspf=r;` |
+
+`p=none` is a deliberate monitoring-only posture — no `rua=` reporting address, since the domain has no MX record and third-party DMARC report senders require an authorization record at the *receiving* domain, which cannot be published for a Gmail address. Tightening to `p=quarantine`/`p=reject` is a future step, not blocked by this record.
+
+**Also:** the missing security response headers (HSTS, X-Content-Type-Options, X-Frame-Options, CSP, Referrer-Policy) flagged by the same audit are delivered via a Cloudflare Transform Rule on the `vacationist.app` zone, not via any file in this repo — see the note in `CLAUDE.md`'s Marketing Site section. GitHub Pages (which serves `docs/`) has no mechanism for custom response headers.
+
+### Update 2026-08-06 (same day): Cloudflare proxy + headers deployed live
+
+The above was executed via the Cloudflare API (authenticated MCP access), not the dashboard. Two things worth recording precisely, since a hand-written "plan" for this work (including an earlier draft of this session's own plan) got some of the mechanism wrong and would not have worked as written:
+
+- **The ACME HTTP-01 exemption is a custom Redirect Rule, not a Configuration Rule.** Cloudflare's Configuration Rules have no field that can carve a path-level exemption out of the "Always Use HTTPS" toggle — `action_parameters` for `set_config` accepts `automatic_https_rewrites`, `ssl`, `security_level`, etc., but nothing named `always_use_https`. The legacy Page Rules `always_use_https` action is presence-only (it can force HTTPS for a matched pattern, it cannot un-force it) — no built-in mechanism grants a path-level opt-out from the zone-wide toggle. The zone's built-in "Always Use HTTPS" setting is left `off` permanently; instead, a custom Redirect Rule (phase `http_request_dynamic_redirect`, rule ref `force_https_except_acme`, ruleset ID `a781e92778834bca898fe315547ed4f6`) does the redirect itself: `not ssl and not starts_with(http.request.uri.path, "/.well-known/acme-challenge/")` → 301 to the HTTPS equivalent, `preserve_query_string: true`. **Do not enable the zone's built-in Always Use HTTPS toggle** — this custom rule fully replaces it; turning the toggle on too would be redundant (harmless, since the ACME path already skips both) but adds a second thing to keep in sync.
+- **The response-header Transform Rule** (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, CSP) lives in ruleset phase `http_response_headers_transform` (not `http_response_headers` — that phase name doesn't exist), action `rewrite` (not `set_response_headers` — that action doesn't exist either). Ruleset ID `4722ba5424cc4b409525deabe507800a`, rule ref `security_headers_for_audit`.
+- **Live-verified** post-deploy: `curl -I https://vacationist.app/` shows `Server: cloudflare` and all five headers; `http://vacationist.app/.well-known/acme-challenge/<token>` returns without a redirect (404, since no real token exists — the point is it did *not* 301); `http://vacationist.app/` correctly 301s to https; `/.well-known/assetlinks.json` still serves 200.
+- HSTS: zone setting `security_header.value.strict_transport_security` — `enabled: true, max_age: 31536000, include_subdomains: true, preload: false`.
+- All four apex A records are now `proxied: true` (previously DNS-only). Zone SSL/TLS mode was already `strict` before this session.
+
+**Still outstanding (not yet done):** send a real magic-link auth email and confirm delivery — this is the one check in the original verification plan that requires a live email round-trip and wasn't performed as part of this change.

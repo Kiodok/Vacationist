@@ -1,11 +1,11 @@
 window.VACATIONIST_I18N = {
   __lang: 'en',
 
-  'meta.title': 'Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities',
-  'meta.description': 'The free group trip planning app. Vote on activities, split travel expenses, share packing lists, and manage accommodations — all in one place. Perfect for group vacations, road trips, and bachelorette trips.',
-  'meta.og_title': 'Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities',
+  'meta.title': 'Group Trip Planner — Vote & Split Expenses | Vacationist',
+  'meta.description': 'Plan group trips together: vote on activities, split travel expenses, and share packing lists. Free, and no account needed to join.',
+  'meta.og_title': 'Group Trip Planner — Vote & Split Expenses | Vacationist',
   'meta.og_description': 'The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations — all in one place. No account needed to join.',
-  'meta.twitter_title': 'Vacationist - Best Group Trip Planner App | Split Expenses & Vote on Activities',
+  'meta.twitter_title': 'Group Trip Planner — Vote & Split Expenses | Vacationist',
   'meta.twitter_description': 'The free group trip planner. Vote on activities, split expenses, share packing lists — perfect for group vacations, road trips, and bachelorette trips.',
 
   // Nav
