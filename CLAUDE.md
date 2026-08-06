@@ -284,6 +284,10 @@ For confirmed PATCH hotfixes: skip staging, go straight to 100%.
 ### Web Deployment (Vercel)
 Every push to `main` triggers an automatic production deployment to `web.vacationist.app`. Vercel config is in `vercel.json` — do not override in the dashboard.
 
+**`web.vacationist.app` is deliberately noindexed** (`public/robots.txt` full `Disallow: /`, `<meta name="robots" content="noindex, nofollow">` in `apps/mobile/app/+html.tsx`, `X-Robots-Tag` header in `vercel.json`) — it's the authenticated app, not a marketing surface; `vacationist.app` (GitHub Pages) is the sole SEO target. Don't add it back to any sitemap or loosen the robots rules without a Tech Lead call.
+
+**Known LCP issue (unresolved):** the web export ships as one monolithic Metro bundle (~1.4MB Brotli-compressed, ~5.8MB raw) with no route-level code-splitting, despite `app.config.ts` already setting `web.output: 'static'`. Since this is a pure client-rendered SPA, LCP is fully gated on that bundle downloading + parsing + executing — this is the confirmed root cause of a ~10s LCP under throttled conditions. Fixing it requires verified research into Expo Router SDK 55's route-level lazy-bundling options (do not guess at Metro/Expo config flags — verify against current docs first) and isn't done yet. Immutable-asset caching (`/_expo/static/(.*)` → `max-age=31536000, immutable` in `vercel.json`) is already fixed and helps repeat visits, but not first-load LCP.
+
 ---
 
 ## Key IDs & References

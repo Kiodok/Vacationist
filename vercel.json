@@ -3,7 +3,6 @@
   "outputDirectory": "apps/mobile/dist",
   "framework": null,
   "rewrites": [
-    { "source": "/sitemap", "destination": "/sitemap.xml" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
@@ -14,7 +13,14 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'" }
+        { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
+    {
+      "source": "/_expo/static/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
   ]

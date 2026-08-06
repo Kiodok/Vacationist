@@ -11,6 +11,8 @@ import { storage } from '../src/utils/mmkvStorage';
 
 try { initSentry(); } catch { /* never let Sentry init abort module evaluation */ }
 import { Slot, useGlobalSearchParams, usePathname, useRouter, useSegments } from 'expo-router';
+import Head from 'expo-router/head';
+import { WEB_TITLE } from '../src/constants/seo';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
@@ -341,6 +343,13 @@ function RootLayoutInner() {
 
   return (
     <ThemeProvider value={resolvedTheme}>
+      {/* Populates Expo Router's own Helmet-managed <title data-rh="true"> tag,
+          which the web export otherwise leaves empty ahead of +html.tsx's static
+          <title> — an empty first <title> in source order reads as "missing" to
+          simplistic crawlers even though a real one follows it. */}
+      <Head>
+        <title>{WEB_TITLE}</title>
+      </Head>
       <ThemeController />
       <OfflineBanner />
       <ForceUpdateGate />

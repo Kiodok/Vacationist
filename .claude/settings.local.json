@@ -198,7 +198,8 @@
       "mcp__plugin_cloudflare_cloudflare-api__execute",
       "mcp__plugin_cloudflare_cloudflare-api__search",
       "mcp__plugin_cloudflare_cloudflare-api__docs",
-      "WebFetch(domain:artbrain.com.ua)"
+      "WebFetch(domain:artbrain.com.ua)",
+      "Bash(echo \"---exit: $?---\")"
     ]
   },
   "model": "opusplan",

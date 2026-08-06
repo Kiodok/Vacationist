@@ -1,8 +1,2 @@
 User-agent: *
-Allow: /login
-Disallow: /trip/
-Disallow: /calendar
-Disallow: /notifications
-Disallow: /profile
-
-Sitemap: https://web.vacationist.app/sitemap.xml
+Disallow: /

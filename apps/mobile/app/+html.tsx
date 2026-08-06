@@ -1,5 +1,6 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import type { PropsWithChildren } from 'react';
+import { WEB_TITLE, WEB_DESCRIPTION } from '../src/constants/seo';
 
 export default function Root({ children }: PropsWithChildren) {
   return (
@@ -11,13 +12,17 @@ export default function Root({ children }: PropsWithChildren) {
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
         />
-        <title>Vacationist - Group Trip Planner | Split Expenses &amp; Vote on Activities</title>
-        <meta name="description" content="The free group trip planning app. Vote on activities, split travel expenses, share packing lists, and manage accommodations — all in one place. No account needed to join." />
+        <title>{WEB_TITLE}</title>
+        <meta name="description" content={WEB_DESCRIPTION} />
         <meta name="keywords" content="group trip planner, group vacation planning app, split travel expenses, activity voting app, bachelorette trip planning, family vacation app, group road trip planner, vacation tracker, shared trip organizer" />
+        {/* web.vacationist.app is the authenticated app, not a marketing surface —
+            vacationist.app owns SEO. Reinforced by the X-Robots-Tag header in
+            vercel.json and the full Disallow in public/robots.txt. */}
+        <meta name="robots" content="noindex, nofollow" />
         <meta name="theme-color" content="#0F0F0F" />
         <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
         <link rel="canonical" href="https://web.vacationist.app/" />
-        <meta property="og:title" content="Vacationist - Group Trip Planner | Split Expenses &amp; Vote on Activities" />
+        <meta property="og:title" content={WEB_TITLE} />
         <meta property="og:description" content="The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations — all in one place. No account needed to join." />
         <meta property="og:url" content="https://web.vacationist.app/" />
         <meta property="og:type" content="website" />
@@ -26,7 +31,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="Vacationist" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Vacationist - Group Trip Planner | Split Expenses &amp; Vote on Activities" />
+        <meta name="twitter:title" content={WEB_TITLE} />
         <meta name="twitter:description" content="The free group trip planner. Vote on activities, split expenses, share packing lists — perfect for group vacations, road trips, and bachelorette trips." />
         <meta name="twitter:image" content="https://vacationist.app/og-image.png" />
         <script
