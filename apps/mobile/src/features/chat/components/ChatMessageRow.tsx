@@ -1,7 +1,8 @@
 import { memo } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TripMessageWithSender } from '@vacationist/types';
+import { colors, useResolvedTheme } from '@vacationist/ui';
 import { MemberAvatar } from '../../trips/components/MemberAvatar';
 import { formatMessageTimeParts } from '../utils/formatMessageTime';
 
@@ -19,6 +20,8 @@ export const ChatMessageRow = memo(function ChatMessageRow({
   onLongPress,
 }: Readonly<ChatMessageRowProps>) {
   const { t } = useTranslation('chat');
+  const theme = useResolvedTheme();
+  const isColorful = theme === 'colorful';
   const senderName = message.sender?.name ?? t('unknownSender');
   const hasActions = isOwn || canDelete;
 
@@ -40,23 +43,29 @@ export const ChatMessageRow = memo(function ChatMessageRow({
           <Text className="text-body-small font-semibold text-text-primary" numberOfLines={1}>
             {senderName}
           </Text>
-          <Text
-            className={`text-body text-text-primary ${isOwn ? 'text-right' : 'text-left'}`}
-            selectable
+          <View
+            className={`rounded-md px-sm py-xs ${isOwn ? 'bg-primary/15' : 'bg-surface-elevated'}`}
+            style={{
+              borderWidth: isColorful ? 1 : 0,
+              borderColor: colors.border,
+              ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
+            }}
           >
-            {message.text}
-          </Text>
-          {(() => {
-            const { datePart, timePart } = formatMessageTimeParts(message.created_at);
-            return (
-              <View className="flex-row gap-[4px] items-baseline">
-                {datePart && (
-                  <Text className="text-label text-text-muted">{datePart}</Text>
-                )}
-                <Text className="text-label text-text-muted">{timePart}</Text>
-              </View>
-            );
-          })()}
+            <Text className="text-body text-text-primary text-left" selectable>
+              {message.text}
+            </Text>
+            {(() => {
+              const { datePart, timePart } = formatMessageTimeParts(message.created_at);
+              return (
+                <View className="flex-row gap-[4px] items-baseline self-end mt-[2px]">
+                  {datePart && (
+                    <Text className="text-label text-text-muted">{datePart}</Text>
+                  )}
+                  <Text className="text-label text-text-muted">{timePart}</Text>
+                </View>
+              );
+            })()}
+          </View>
         </View>
       </View>
     </Pressable>

@@ -30,7 +30,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
     () => createActivitySchemaForTrip(tripStartDate, tripEndDate),
     [tripStartDate, tripEndDate],
   );
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateActivityInput>({
+  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<CreateActivityInput>({
     resolver: zodResolver(schema),
     defaultValues: { title: '', reservation_required: false, auto_close: false },
   });
@@ -158,10 +158,18 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                     label={t('field.date')}
                     mode="date"
                     value={value}
-                    onChange={onChange}
+                    onChange={(v) => {
+                      onChange(v);
+                      // A date-less activity can't meaningfully carry a time of day.
+                      if (v === null) {
+                        setValue('start_time', null);
+                        setValue('end_time', null);
+                      }
+                    }}
                     error={errors.activity_date?.message}
                     minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
                     maximumDate={tripEndDate ? new Date(tripEndDate + 'T00:00:00') : undefined}
+                    clearable
                   />
                 )}
               />
@@ -178,6 +186,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                         mode="time"
                         value={value}
                         onChange={onChange}
+                        clearable
                       />
                     )}
                   />
@@ -192,6 +201,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                         mode="time"
                         value={value}
                         onChange={onChange}
+                        clearable
                       />
                     )}
                   />

@@ -62,6 +62,10 @@ export default function TransferTab() {
   const flightListRef = useRef<SectionList<TransferFlight>>(null);
   const vehicleListRef = useRef<SectionList<TransferVehicle>>(null);
   const rentalListRef = useRef<FlashListRef<TransferRental>>(null);
+  const flightScrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
+  const flightScrollRetriedRef = useRef(false);
+  const vehicleScrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
+  const vehicleScrollRetriedRef = useRef(false);
 
   // Flights
   const flightsQuery = useTransferFlights(tripId!);
@@ -146,6 +150,8 @@ export default function TransferTab() {
         for (let si = 0; si < flightSections.length; si++) {
           const ii = flightSections[si].data.findIndex((f) => f.id === highlightId);
           if (ii >= 0) {
+            flightScrollTargetRef.current = { sectionIndex: si, itemIndex: ii };
+            flightScrollRetriedRef.current = false;
             flightListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii, animated: true, viewOffset: 80 });
             break;
           }
@@ -154,6 +160,8 @@ export default function TransferTab() {
         for (let si = 0; si < vehicleSections.length; si++) {
           const ii = vehicleSections[si].data.findIndex((v) => v.id === highlightId);
           if (ii >= 0) {
+            vehicleScrollTargetRef.current = { sectionIndex: si, itemIndex: ii };
+            vehicleScrollRetriedRef.current = false;
             vehicleListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii, animated: true, viewOffset: 80 });
             break;
           }
@@ -283,6 +291,14 @@ export default function TransferTab() {
             windowSize={5}
             maxToRenderPerBatch={10}
             initialNumToRender={10}
+            onScrollToIndexFailed={() => {
+              const target = flightScrollTargetRef.current;
+              if (!target || flightScrollRetriedRef.current) return;
+              flightScrollRetriedRef.current = true;
+              requestAnimationFrame(() => {
+                flightListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+              });
+            }}
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
             renderItem={({ item }) => (
@@ -334,6 +350,14 @@ export default function TransferTab() {
             windowSize={5}
             maxToRenderPerBatch={10}
             initialNumToRender={10}
+            onScrollToIndexFailed={() => {
+              const target = vehicleScrollTargetRef.current;
+              if (!target || vehicleScrollRetriedRef.current) return;
+              vehicleScrollRetriedRef.current = true;
+              requestAnimationFrame(() => {
+                vehicleListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+              });
+            }}
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
             renderItem={({ item }) => (

@@ -17,7 +17,11 @@ import { EditActivitySheet } from '../../../src/features/activities/components/E
 import { colors } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 
-export default function CalendarTab() {
+interface CalendarTabProps {
+  onTabChange?: (tab: string) => void;
+}
+
+export default function CalendarTab({ onTabChange }: Readonly<CalendarTabProps>) {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data: trip, isLoading: tripLoading } = useTrip(tripId!);
@@ -129,10 +133,8 @@ export default function CalendarTab() {
         }}
         onViewFullDetails={(activityId) => {
           setPreviewActivity(null);
-          router.push({
-            pathname: '/trip/[id]',
-            params: { id: tripId!, tab: 'Activities', activityId },
-          } as never);
+          router.setParams({ activityId } as never);
+          onTabChange?.('Activities');
         }}
       />
 

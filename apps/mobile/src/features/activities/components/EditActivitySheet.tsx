@@ -32,7 +32,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
     [tripStartDate, tripEndDate],
   );
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateActivityInput>({
+  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<UpdateActivityInput>({
     resolver: zodResolver(schema),
   });
 
@@ -43,9 +43,12 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
         description: activity.description ?? undefined,
         category: activity.category ?? undefined,
         cost_estimate: activity.cost_estimate ?? undefined,
-        activity_date: activity.activity_date ?? undefined,
-        start_time: activity.start_time ? activity.start_time.slice(0, 5) : undefined,
-        end_time: activity.end_time ? activity.end_time.slice(0, 5) : undefined,
+        // Explicit null (not undefined) so a cleared value is actually sent on
+        // submit — JSON.stringify drops undefined keys from the update payload,
+        // which would silently leave the previous DB value in place.
+        activity_date: activity.activity_date ?? null,
+        start_time: activity.start_time ? activity.start_time.slice(0, 5) : null,
+        end_time: activity.end_time ? activity.end_time.slice(0, 5) : null,
         external_url: activity.external_url ?? undefined,
         reservation_required: activity.reservation_required,
       });
@@ -169,10 +172,18 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                     label={t('field.date')}
                     mode="date"
                     value={value}
-                    onChange={onChange}
+                    onChange={(v) => {
+                      onChange(v);
+                      // A date-less activity can't meaningfully carry a time of day.
+                      if (v === null) {
+                        setValue('start_time', null);
+                        setValue('end_time', null);
+                      }
+                    }}
                     error={errors.activity_date?.message}
                     minimumDate={tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined}
                     maximumDate={tripEndDate ? new Date(tripEndDate + 'T00:00:00') : undefined}
+                    clearable
                   />
                 )}
               />
@@ -189,6 +200,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                         mode="time"
                         value={value}
                         onChange={onChange}
+                        clearable
                       />
                     )}
                   />
@@ -203,6 +215,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                         mode="time"
                         value={value}
                         onChange={onChange}
+                        clearable
                       />
                     )}
                   />

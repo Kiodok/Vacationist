@@ -57,6 +57,16 @@ export function initSentry() {
         return null;
       }
 
+      // The Turnstile fallback chain (embedded widget -> browser tab) is a working,
+      // by-design recovery path, not a bug — see TurnstileWidget.tsx / captchaBrowserFallback.ts.
+      // Downgrade both messages so they stop surfacing as issues needing triage. A
+      // dismissed fallback (user backed out of the browser tab) is normal user
+      // behavior, not a fault, so drop it entirely rather than just downgrading it.
+      if (event.message === 'turnstile_widget_failed' || event.message === 'turnstile_browser_fallback_failed') {
+        if (event.tags?.reason === 'dismissed') return null;
+        event.level = 'info';
+      }
+
       // Strip invite tokens that could appear in fetch breadcrumb URLs.
       if (event.breadcrumbs) {
         event.breadcrumbs = event.breadcrumbs.map((bc) => {

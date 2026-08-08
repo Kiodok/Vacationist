@@ -45,6 +45,7 @@
   "forceUpdate.message": "A new version of Vacationist is available. Please update to continue using the app.",
   "forceUpdate.button": "Update Now",
   "button.info": "Info",
+  "button.clear": "Clear selection",
   "placeholder.date": "Date",
   "placeholder.time": "Time",
   "placeholder.selectDate": "Select date",

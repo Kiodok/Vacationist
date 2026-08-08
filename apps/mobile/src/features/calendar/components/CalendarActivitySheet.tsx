@@ -7,7 +7,8 @@ import { formatActivityTime, dayjs } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
 import { VoteSummary } from '../../activities/components/VoteChip';
 import { useActivityVotes } from '../../activities/hooks/useVotes';
-import { useTripMembers } from '../../trips/hooks/useMembers';
+import { useTripMembers, useCurrentMemberRole } from '../../trips/hooks/useMembers';
+import { useAuthStore } from '../../../stores/authStore';
 import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 
@@ -34,7 +35,13 @@ export function CalendarActivitySheet({
   const isColorful = theme === 'colorful';
   const { data: votes, isLoading: votesLoading } = useActivityVotes(activity?.id ?? '');
   const { data: members } = useTripMembers(activity?.trip_id ?? '');
+  const { data: role } = useCurrentMemberRole(activity?.trip_id ?? '');
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const [showVotes, setShowVotes] = useState(false);
+
+  const canEdit =
+    role === 'organizer' ||
+    (role === 'participant' && activity?.created_by === currentUserId);
 
   const { attendees, voterDetails } = useMemo(() => {
     if (!members) return { attendees: [], voterDetails: [] };
@@ -172,7 +179,7 @@ export function CalendarActivitySheet({
 
           {/* Action buttons */}
           <View className="flex-row gap-sm">
-            {onEdit && (
+            {onEdit && canEdit && (
               <Pressable
                 onPress={() => onEdit(activity)}
                 className="bg-primary/10 rounded-md py-md items-center justify-center px-md"

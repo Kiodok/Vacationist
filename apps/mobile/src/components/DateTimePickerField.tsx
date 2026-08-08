@@ -20,6 +20,9 @@ interface DateTimePickerFieldProps {
   placeholder?: string;
   minimumDate?: Date;
   maximumDate?: Date;
+  // Opt-in: many call sites (trip create/edit) treat this field as required and
+  // must not offer a clear affordance.
+  clearable?: boolean;
 }
 
 const LOCALE_MAP: Record<string, string> = {
@@ -88,6 +91,7 @@ export function DateTimePickerField({
   placeholder,
   minimumDate,
   maximumDate,
+  clearable = false,
 }: DateTimePickerFieldProps) {
   const [show, setShow] = useState(false);
   const webInputRef = useRef<HTMLInputElement>(null);
@@ -160,6 +164,23 @@ export function DateTimePickerField({
               <ThemedIcon name="time-outline" size={20} color={colors.textSecondary} />
             </button>
           )}
+          {clearable && value && (
+            <button
+              type="button"
+              aria-label={i18n.t('common:button.clear')}
+              onClick={() => onChange(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                padding: 0,
+              }}
+            >
+              <ThemedIcon name="close-circle" size={20} color={colors.textMuted} />
+            </button>
+          )}
         </div>
         {error && (
           <Text className="text-danger text-body-small">{error}</Text>
@@ -187,22 +208,34 @@ export function DateTimePickerField({
       {label && (
         <Text className="text-label text-text-muted uppercase">{label}</Text>
       )}
-      <Pressable
-        onPress={() => setShow(true)}
-        className="bg-surface border border-border rounded-sm px-md min-h-[48px] flex-row items-center justify-between"
-        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-      >
-        <Text
-          className={`text-body flex-1 ${value ? 'text-text-primary' : 'text-text-muted'}`}
+      <View className="bg-surface border border-border rounded-sm px-md min-h-[48px] flex-row items-center gap-sm">
+        <Pressable
+          onPress={() => setShow(true)}
+          className="flex-1 flex-row items-center justify-between py-md"
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
         >
-          {displayText}
-        </Text>
-        <ThemedIcon
-          name={mode === 'date' ? 'calendar-outline' : 'time-outline'}
-          size={20}
-          color={colors.textMuted}
-        />
-      </Pressable>
+          <Text
+            className={`text-body flex-1 ${value ? 'text-text-primary' : 'text-text-muted'}`}
+          >
+            {displayText}
+          </Text>
+          <ThemedIcon
+            name={mode === 'date' ? 'calendar-outline' : 'time-outline'}
+            size={20}
+            color={colors.textMuted}
+          />
+        </Pressable>
+        {clearable && value && (
+          <Pressable
+            onPress={() => onChange(null)}
+            hitSlop={8}
+            accessibilityLabel={i18n.t('common:button.clear')}
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          >
+            <ThemedIcon name="close-circle" size={20} color={colors.textMuted} />
+          </Pressable>
+        )}
+      </View>
 
       {error && (
         <Text className="text-danger text-body-small">{error}</Text>

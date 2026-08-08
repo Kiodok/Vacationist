@@ -196,6 +196,11 @@ export default function ActivitiesTab() {
   );
 
   const sectionListRef = useRef<SectionList>(null);
+  // Target for the pending deep-link scroll, and whether a retry has already been
+  // attempted for it — onScrollToIndexFailed must not retry more than once, or a
+  // target that can never be measured (e.g. filtered out mid-scroll) would loop forever.
+  const scrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
+  const scrollRetriedRef = useRef(false);
 
   useEffect(() => {
     if (!activityId || rawSections.length === 0) return;
@@ -206,6 +211,8 @@ export default function ActivitiesTab() {
         if (itemIndex >= 0) {
           expand(rawSections[sectionIndex].key);
           scrollTimer = setTimeout(() => {
+            scrollTargetRef.current = { sectionIndex, itemIndex };
+            scrollRetriedRef.current = false;
             sectionListRef.current?.scrollToLocation({ sectionIndex, itemIndex, animated: true, viewOffset: 80 });
           }, 100);
           break;
@@ -256,6 +263,14 @@ export default function ActivitiesTab() {
           windowSize={5}
           maxToRenderPerBatch={10}
           initialNumToRender={10}
+          onScrollToIndexFailed={() => {
+            const target = scrollTargetRef.current;
+            if (!target || scrollRetriedRef.current) return;
+            scrollRetriedRef.current = true;
+            requestAnimationFrame(() => {
+              sectionListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+            });
+          }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
           ListHeaderComponent={
             <View className="mb-sm">

@@ -64,6 +64,8 @@ export default function ExpensesTab() {
   const settleAllExpensesMutation = useSettleAllExpenses();
   const settlingRef = useRef(false);
   const sectionListRef = useRef<SectionList<ExpenseWithSplits>>(null);
+  const scrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
+  const scrollRetriedRef = useRef(false);
   useExpensesRealtime(tripId!);
   const { toggle, isCollapsed } = useCollapsibleSections();
 
@@ -139,6 +141,8 @@ export default function ExpensesTab() {
       const si = sections.findIndex((s) => s.key === key);
       if (si < 0) return;
       const timer = setTimeout(() => {
+        scrollTargetRef.current = { sectionIndex: si, itemIndex: ii + 1 };
+        scrollRetriedRef.current = false;
         sectionListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
       }, 300);
       return () => clearTimeout(timer);
@@ -170,6 +174,14 @@ export default function ExpensesTab() {
           windowSize={5}
           maxToRenderPerBatch={10}
           initialNumToRender={10}
+          onScrollToIndexFailed={() => {
+            const target = scrollTargetRef.current;
+            if (!target || scrollRetriedRef.current) return;
+            scrollRetriedRef.current = true;
+            requestAnimationFrame(() => {
+              sectionListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+            });
+          }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
           ListHeaderComponent={
             <View className="gap-sm mb-xs">

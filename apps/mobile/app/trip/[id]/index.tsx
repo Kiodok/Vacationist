@@ -147,7 +147,7 @@ export default function TripDetailScreen() {
       case 'Prework':
         return <PreworkTab />;
       case 'Calendar':
-        return <CalendarTab />;
+        return <CalendarTab onTabChange={(tab) => handleTabChange(tab as Tab)} />;
       case 'Activities':
         return <ActivitiesTab />;
       case 'Base':
