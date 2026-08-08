@@ -1,8 +1,10 @@
-/* Vacationist — cookie consent (Consent Mode v2) + Google Analytics loader.
+/* Vacationist — cookie consent (Consent Mode v2) + Google Analytics + Reddit Pixel loader.
  *
- * Google Analytics is never requested until the visitor actively accepts.
- * This file is copied byte-for-byte to docs/assets/consent.js by build.mjs
- * and is the ONLY place GA is loaded from — see CLAUDE.md "Marketing Site".
+ * Neither GA nor the Reddit Pixel is ever requested until the visitor actively accepts —
+ * one combined Accept/Decline covers both. This file is copied byte-for-byte to
+ * docs/assets/consent.js by build.mjs and is the ONLY place GA/Reddit are loaded from — see
+ * CLAUDE.md "Marketing Site". track.js (loaded right after this file) reads window.__vConsent
+ * / the "v:consent" event set here instead of duplicating any consent logic.
  *
  * Loaded with <script defer src="/assets/consent.js"> on all 43 site pages
  * (36 generated + 7 hand-authored). Banner copy lives here, not in
@@ -13,15 +15,20 @@
   'use strict';
 
   var GA_ID = 'G-4DRBWGQHE3';
+  var RDT_ID = 'a2_jcz7aqtl8eua';
   var STORAGE_KEY = 'v_consent';
-  var SCHEMA = 1;
+  // Bumped 1 -> 2: existing stored decisions were given under analytics-only copy. Reusing
+  // them to also enable advertising cookies (Reddit Pixel) would not be valid consent, so the
+  // schema bump invalidates them and every returning visitor is re-prompted once under the
+  // new combined Analytics + Advertising copy below.
+  var SCHEMA = 2;
   var MAX_AGE_DAYS = 365;
 
   var COPY = {
     en: {
       aria: 'Cookie consent',
       title: 'Cookies on this site',
-      body: 'We use Google Analytics to understand how visitors use this site. It only runs if you accept — nothing is set beforehand.',
+      body: 'We use Google Analytics and the Reddit Pixel to understand how visitors use this site and how our ads perform. Both only run if you accept — nothing is set beforehand.',
       accept: 'Accept',
       decline: 'Decline',
       privacy: 'Privacy policy',
@@ -30,7 +37,7 @@
     de: {
       aria: 'Cookie-Einwilligung',
       title: 'Cookies auf dieser Website',
-      body: 'Wir nutzen Google Analytics, um zu verstehen, wie Besucher diese Website nutzen. Das läuft nur, wenn du zustimmst — vorher wird nichts gesetzt.',
+      body: 'Wir nutzen Google Analytics und das Reddit-Pixel, um zu verstehen, wie Besucher diese Website nutzen und wie unsere Anzeigen wirken. Beide laufen nur, wenn du zustimmst — vorher wird nichts gesetzt.',
       accept: 'Akzeptieren',
       decline: 'Ablehnen',
       privacy: 'Datenschutzerklärung',
@@ -63,6 +70,38 @@
     s.async = true;
     s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
     document.head.appendChild(s);
+  }
+
+  /* ── 2b. Reddit Pixel loader — same guard shape and script-injection style as loadGa
+   * (document.head.appendChild, not the getElementsByTagName/insertBefore form some of
+   * Reddit's own docs show — functionally identical, but keeps both loaders consistent and
+   * testable against the same minimal DOM shim in consent.test.js), called only after
+   * opt-in. ── */
+  var rdtLoaded = false;
+  function loadRdt() {
+    if (rdtLoaded) return;
+    rdtLoaded = true;
+    if (!window.rdt) {
+      var p = window.rdt = function () {
+        p.sendEvent ? p.sendEvent.apply(p, arguments) : p.callQueue.push(arguments);
+      };
+      p.callQueue = [];
+      var t = document.createElement('script');
+      t.async = true;
+      t.src = 'https://www.redditstatic.com/ads/pixel.js';
+      document.head.appendChild(t);
+    }
+    window.rdt('init', RDT_ID);
+    window.rdt('track', 'PageVisit');
+  }
+
+  /* ── 2c. Consent state for track.js — the single source of truth it reads instead of
+   * duplicating storage/schema logic. Set on every decision and once at initial load. ── */
+  function publishConsent(decision) {
+    window.__vConsent = decision;
+    try {
+      document.dispatchEvent(new CustomEvent('v:consent', { detail: decision }));
+    } catch (e) { /* older browsers without CustomEvent — track.js falls back to no-op */ }
   }
 
   /* ── 3. Storage — deliberately localStorage, not a cookie, so nothing is set pre-consent ── */
@@ -127,12 +166,12 @@
     return 'en';
   }
 
-  /* ── 5. Cookie cleanup on withdrawal ── */
-  function clearGaCookies() {
+  /* ── 5. Cookie cleanup on withdrawal (GA + Reddit) ── */
+  function clearTrackingCookies() {
     var names = [];
     document.cookie.split(';').forEach(function (part) {
       var name = part.split('=')[0].trim();
-      if (/^_ga/.test(name) || name === '_gid') names.push(name);
+      if (/^_ga/.test(name) || name === '_gid' || /^_rdt/.test(name)) names.push(name);
     });
     var domains = [undefined, window.location.hostname, '.' + window.location.hostname];
     names.forEach(function (name) {
@@ -246,23 +285,37 @@
     buildBanner(decline, accept, false);
   }
 
-  /* ── 7. Decisions ── */
+  /* ── 7. Decisions — one Accept/Decline covers Analytics and Advertising together ── */
   function accept() {
     write('granted');
-    gtag('consent', 'update', { analytics_storage: 'granted' });
+    gtag('consent', 'update', {
+      analytics_storage: 'granted',
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted'
+    });
     loadGa();
+    loadRdt();
+    publishConsent('granted');
     removeBanner();
   }
 
   function decline() {
     write('denied');
+    publishConsent('denied');
     removeBanner();
   }
 
   function withdraw() {
     write('denied');
-    gtag('consent', 'update', { analytics_storage: 'denied' });
-    clearGaCookies();
+    gtag('consent', 'update', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied'
+    });
+    clearTrackingCookies();
+    publishConsent('denied');
     window.location.reload();
   }
 
@@ -286,9 +339,18 @@
   /* ── 9. Entry ── */
   var decision = read();
   if (decision === 'granted') {
-    gtag('consent', 'update', { analytics_storage: 'granted' });
+    gtag('consent', 'update', {
+      analytics_storage: 'granted',
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted'
+    });
     loadGa();
-  } else if (decision !== 'denied') {
+    loadRdt();
+    publishConsent('granted');
+  } else if (decision === 'denied') {
+    publishConsent('denied');
+  } else {
     render();
   }
 })();

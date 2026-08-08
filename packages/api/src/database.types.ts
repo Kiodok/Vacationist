@@ -400,6 +400,65 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          path: string | null
+          rdt_cid: string | null
+          referrer_host: string | null
+          surface: string
+          user_agent: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          visitor_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          path?: string | null
+          rdt_cid?: string | null
+          referrer_host?: string | null
+          surface: string
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          path?: string | null
+          rdt_cid?: string | null
+          referrer_host?: string | null
+          surface?: string
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_access_audit_log: {
         Row: {
           accessed_at: string
@@ -800,6 +859,7 @@ export type Database = {
           id: string
           lost_found: boolean
           new_activity: boolean
+          new_chat_message: boolean
           new_member: boolean
           reminder: boolean
           schedule_change: boolean
@@ -814,6 +874,7 @@ export type Database = {
           id?: string
           lost_found?: boolean
           new_activity?: boolean
+          new_chat_message?: boolean
           new_member?: boolean
           reminder?: boolean
           schedule_change?: boolean
@@ -828,6 +889,7 @@ export type Database = {
           id?: string
           lost_found?: boolean
           new_activity?: boolean
+          new_chat_message?: boolean
           new_member?: boolean
           reminder?: boolean
           schedule_change?: boolean
@@ -2099,6 +2161,7 @@ export type Database = {
           is_guest: boolean
           locale: string | null
           name: string
+          signup_attribution_claimed_at: string | null
           timezone: string
           updated_at: string
         }
@@ -2110,6 +2173,7 @@ export type Database = {
           is_guest?: boolean
           locale?: string | null
           name: string
+          signup_attribution_claimed_at?: string | null
           timezone?: string
           updated_at?: string
         }
@@ -2121,6 +2185,7 @@ export type Database = {
           is_guest?: boolean
           locale?: string | null
           name?: string
+          signup_attribution_claimed_at?: string | null
           timezone?: string
           updated_at?: string
         }
@@ -2196,6 +2261,19 @@ export type Database = {
         }
         Returns: string
       }
+      create_trip_message: {
+        Args: { p_text: string; p_trip_id: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          deleted_at: string
+          id: string
+          sender: Json
+          text: string
+          trip_id: string
+          updated_at: string
+        }[]
+      }
       delete_all_notifications: {
         Args: { p_trip_id?: string }
         Returns: undefined
@@ -2230,6 +2308,7 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_chat_push_preview: { Args: { p_message_id: string }; Returns: string }
       get_my_active_grants: {
         Args: never
         Returns: {
@@ -2300,6 +2379,32 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_trip_message_by_id: {
+        Args: { p_message_id: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          deleted_at: string
+          id: string
+          sender: Json
+          text: string
+          trip_id: string
+          updated_at: string
+        }[]
+      }
+      get_trip_messages: {
+        Args: { p_cursor?: string; p_limit?: number; p_trip_id: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          deleted_at: string
+          id: string
+          sender: Json
+          text: string
+          trip_id: string
+          updated_at: string
+        }[]
+      }
       get_unread_notification_count: {
         Args: { p_trip_id?: string }
         Returns: number
@@ -2354,6 +2459,10 @@ export type Database = {
       revoke_document_access: {
         Args: { p_request_id: string }
         Returns: undefined
+      }
+      seed_trip_message: {
+        Args: { p_text: string; p_trip_id: string; p_user_id: string }
+        Returns: string
       }
       send_organizer_nudge: {
         Args: { p_body: string; p_title: string; p_trip_id: string }
@@ -2431,6 +2540,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_trip_message: {
+        Args: { p_message_id: string; p_text: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          deleted_at: string
+          id: string
+          sender: Json
+          text: string
+          trip_id: string
+          updated_at: string
+        }[]
+      }
       upsert_push_token: {
         Args: { p_platform: string; p_push_token: string }
         Returns: undefined
@@ -2447,72 +2569,6 @@ export type Database = {
           p_notes?: string
         }
         Returns: string
-      }
-      create_trip_message: {
-        Args: { p_trip_id: string; p_text: string }
-        Returns: {
-          id: string
-          trip_id: string
-          created_by: string
-          text: string
-          created_at: string
-          updated_at: string
-          deleted_at: string | null
-          sender: Json
-        }[]
-      }
-      update_trip_message: {
-        Args: { p_message_id: string; p_text: string }
-        Returns: {
-          id: string
-          trip_id: string
-          created_by: string
-          text: string
-          created_at: string
-          updated_at: string
-          deleted_at: string | null
-          sender: Json
-        }[]
-      }
-      // service_role only — REVOKE'd from anon/authenticated. Called exclusively by
-      // supabase/functions/create-example-trip (Deno, not this typed client), listed
-      // here for schema-truth parity with the DB.
-      seed_trip_message: {
-        Args: { p_trip_id: string; p_user_id: string; p_text: string }
-        Returns: string
-      }
-      get_trip_messages: {
-        Args: { p_trip_id: string; p_cursor?: string | null; p_limit?: number }
-        Returns: {
-          id: string
-          trip_id: string
-          created_by: string
-          text: string
-          created_at: string
-          updated_at: string
-          deleted_at: string | null
-          sender: Json
-        }[]
-      }
-      get_trip_message_by_id: {
-        Args: { p_message_id: string }
-        Returns: {
-          id: string
-          trip_id: string
-          created_by: string
-          text: string
-          created_at: string
-          updated_at: string
-          deleted_at: string | null
-          sender: Json
-        }[]
-      }
-      // service_role only — REVOKE'd from anon/authenticated. Called exclusively by
-      // supabase/functions/push-notification (Deno, not this typed client), listed
-      // here for schema-truth parity with the DB.
-      get_chat_push_preview: {
-        Args: { p_message_id: string }
-        Returns: string | null
       }
     }
     Enums: {

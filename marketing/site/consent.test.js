@@ -139,6 +139,14 @@ function load(opts) {
       };
       return find(head) || find(body);
     },
+    rdtScript: () => {
+      const find = (el) => {
+        if (el.tagName === 'SCRIPT' && el.attrs.src && el.attrs.src.includes('redditstatic.com')) return el;
+        for (const c of el.children) { const r = find(c); if (r) return r; }
+        return null;
+      };
+      return find(head) || find(body);
+    },
     cookies: () => cookieJar,
     reloaded: () => reloaded,
   };
@@ -159,6 +167,7 @@ console.log('Fresh visit — no GA request until interaction:');
   assert(env.windowObj.dataLayer[0][1] === 'default' && env.windowObj.dataLayer[0][2].analytics_storage === 'denied',
     'pushes Consent Mode v2 defaults (analytics_storage: denied) before anything else');
   assert(!env.gaScript(), 'requests no GA script before any interaction');
+  assert(!env.rdtScript(), 'requests no Reddit Pixel script before any interaction');
   assert(!!env.banner(), 'renders the banner');
 }
 
@@ -186,6 +195,8 @@ console.log('\nAccept flow:');
   bannerButtons(env).accept.click();
   assert(!!env.gaScript(), 'GA script is requested only after Accept');
   assert(env.gaScript().attrs.src.includes('G-4DRBWGQHE3'), 'requests the correct GA measurement ID');
+  assert(!!env.rdtScript(), 'Reddit Pixel script is requested only after Accept');
+  assert(typeof env.windowObj.rdt === 'function', 'window.rdt is installed after Accept');
   assert(JSON.parse(env.storage['v_consent']).analytics === 'granted', 'localStorage records granted');
   assert(!env.banner(), 'banner is removed after Accept');
 }
@@ -195,25 +206,38 @@ console.log('\nDecline flow:');
   const env = load({ htmlLang: 'en' });
   bannerButtons(env).decline.click();
   assert(!env.gaScript(), 'GA script is never requested after Decline');
+  assert(!env.rdtScript(), 'Reddit Pixel script is never requested after Decline');
   assert(JSON.parse(env.storage['v_consent']).analytics === 'denied', 'localStorage records denied');
   assert(!env.banner(), 'banner is removed after Decline');
 }
 
 console.log('\nRepeat visits (no re-prompt flash):');
 {
-  let env = load({ htmlLang: 'en', preset: { v: 1, analytics: 'granted', ts: new Date().toISOString() } });
+  let env = load({ htmlLang: 'en', preset: { v: 2, analytics: 'granted', ts: new Date().toISOString() } });
   assert(!!env.gaScript(), 'prior grant loads GA immediately, no click needed');
+  assert(!!env.rdtScript(), 'prior grant loads the Reddit Pixel immediately, no click needed');
   assert(!env.banner(), 'prior grant does not render the banner (no flash)');
 
-  env = load({ htmlLang: 'en', preset: { v: 1, analytics: 'denied', ts: new Date().toISOString() } });
+  env = load({ htmlLang: 'en', preset: { v: 2, analytics: 'denied', ts: new Date().toISOString() } });
   assert(!env.gaScript(), 'prior denial never loads GA');
+  assert(!env.rdtScript(), 'prior denial never loads the Reddit Pixel');
   assert(!env.banner(), 'prior denial does not render the banner');
+}
+
+console.log('\nSchema migration (analytics-only consent must not silently cover advertising):');
+{
+  // Schema bumped 1 -> 2 when the Reddit Pixel was added: a decision recorded under the old
+  // analytics-only banner copy must not be reused to also enable advertising cookies.
+  const env = load({ htmlLang: 'en', preset: { v: 1, analytics: 'granted', ts: new Date().toISOString() } });
+  assert(!!env.banner(), 'a v1 (pre-Reddit-Pixel) grant re-prompts under the new combined banner');
+  assert(!env.gaScript(), 'GA stays gated until the visitor re-consents under the new schema');
+  assert(!env.rdtScript(), 'Reddit Pixel stays gated until the visitor re-consents under the new schema');
 }
 
 console.log('\nExpiry and corrupt-storage safety:');
 {
   const old = new Date(Date.now() - 400 * 24 * 60 * 60 * 1000).toISOString();
-  const env = load({ htmlLang: 'en', preset: { v: 1, analytics: 'granted', ts: old } });
+  const env = load({ htmlLang: 'en', preset: { v: 2, analytics: 'granted', ts: old } });
   assert(!!env.banner(), 'consent older than 365 days re-prompts');
   assert(!env.gaScript(), 'GA stays gated until fresh consent is given');
 }
@@ -258,10 +282,11 @@ console.log('\nWithdrawal flow:');
 {
   const env = load({
     htmlLang: 'en',
-    preset: { v: 1, analytics: 'granted', ts: new Date().toISOString() },
-    presetCookies: '_ga=GA1.1.123; _ga_4DRBWGQHE3=GS1.1.456; unrelated=keep-me',
+    preset: { v: 2, analytics: 'granted', ts: new Date().toISOString() },
+    presetCookies: '_ga=GA1.1.123; _ga_4DRBWGQHE3=GS1.1.456; _rdt_uuid=1786190000.abc123; unrelated=keep-me',
   });
   assert(!!env.gaScript(), 'sanity: GA loaded on entry from prior grant');
+  assert(!!env.rdtScript(), 'sanity: Reddit Pixel loaded on entry from prior grant');
 
   const footerLink = { attrs: { href: '#cookie-settings' }, parentNode: null };
   footerLink.closest = function (sel) { return this.attrs.href === '#cookie-settings' ? this : null; };
@@ -273,8 +298,8 @@ console.log('\nWithdrawal flow:');
 
   btns.decline.click();
   assert(JSON.parse(env.storage['v_consent']).analytics === 'denied', 'withdrawal records denied');
-  assert(env.cookies() === 'unrelated=keep-me', 'withdrawal sweeps only _ga*/_gid cookies, leaves unrelated cookies untouched');
-  assert(env.reloaded(), 'withdrawal triggers a page reload (only way to guarantee no further GA hits)');
+  assert(env.cookies() === 'unrelated=keep-me', 'withdrawal sweeps _ga*/_gid/_rdt* cookies, leaves unrelated cookies untouched');
+  assert(env.reloaded(), 'withdrawal triggers a page reload (only way to guarantee no further GA/Reddit hits)');
 }
 
 console.log('\nReopen on a fresh visit (no prior decision):');

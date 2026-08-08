@@ -20,6 +20,10 @@ export async function ensureUserProfile(session: Session): Promise<User> {
     .eq('id', session.user.id)
     .single();
 
+  // In practice this branch is almost never reached: the on_auth_user_created
+  // trigger (20260511000001) already inserts the row server-side before the
+  // client gets here. It stays as a defensive fallback in case that trigger
+  // is ever removed or a row is somehow missing.
   if (existing) return existing as User;
 
   const metadata = session.user.user_metadata;
@@ -37,6 +41,27 @@ export async function ensureUserProfile(session: Session): Promise<User> {
 
   if (error) throw error;
   return data as User;
+}
+
+// Atomically claims "we have not reported this account's sign-up attribution
+// before" — returns true exactly once per account, race-safe under Postgres
+// row locking even if called concurrently (see useAuthInit.ts, where
+// loadSession() and onAuthStateChange can both resolve for the same fresh
+// sign-in). Do NOT infer novelty from whether a public.users row exists —
+// the on_auth_user_created trigger always creates it first, so that check is
+// always true and was the root cause of the Reddit SignUp conversion never
+// firing (see 20260808120000_add_signup_attribution_claim.sql).
+export async function claimSignupAttribution(userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('users')
+    .update({ signup_attribution_claimed_at: new Date().toISOString() })
+    .eq('id', userId)
+    .is('signup_attribution_claimed_at', null)
+    .select('id')
+    .maybeSingle();
+
+  if (error) throw error;
+  return !!data;
 }
 
 export async function uploadAvatar(

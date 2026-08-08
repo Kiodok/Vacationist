@@ -4,3 +4,4 @@ export * from './schemas';
 export * from './auth';
 export * from './calendar';
 export * from './notifications';
+export * from './analytics';

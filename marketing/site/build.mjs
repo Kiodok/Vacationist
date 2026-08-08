@@ -580,6 +580,8 @@ function renderPage(page, registry, contentHtml) {
 
   <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
   <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
 
   <title>${esc(page.title)}</title>
   <meta name="description" content="${esc(page.description)}">
@@ -1019,6 +1021,10 @@ async function main() {
   const consentJs = readFileSync(join(ROOT, 'marketing', 'site', 'consent.js'), 'utf8');
   writeOut(join(DOCS_DIR, 'assets', 'consent.js'), consentJs);
 
+  // Shared funnel-tracking script (text — same writeOut rationale as consent.js above)
+  const trackJs = readFileSync(join(ROOT, 'marketing', 'site', 'track.js'), 'utf8');
+  writeOut(join(DOCS_DIR, 'assets', 'track.js'), trackJs);
+
   // Self-hosted font — BINARY. Must NOT go through writeOut(): its \r\n -> \n
   // normalization would corrupt the woff2. Byte-for-byte copy keeps the build idempotent.
   const fontDir = join(DOCS_DIR, 'assets', 'fonts');
@@ -1031,7 +1037,7 @@ async function main() {
   const allPages = [...pages, blogIndex.page, deBlogIndex.page, deHome];
   writeOut(join(DOCS_DIR, 'sitemap.xml'), renderSitemap(allPages));
 
-  console.log(`Done — ${pages.length + 3} pages, ${pages.length + 2} OG images, sitemap, stylesheet, consent script, fonts.`);
+  console.log(`Done — ${pages.length + 3} pages, ${pages.length + 2} OG images, sitemap, stylesheet, consent + track scripts, fonts.`);
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });

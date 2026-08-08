@@ -63,9 +63,9 @@ export default function TransferTab() {
   const vehicleListRef = useRef<SectionList<TransferVehicle>>(null);
   const rentalListRef = useRef<FlashListRef<TransferRental>>(null);
   const flightScrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
-  const flightScrollRetriedRef = useRef(false);
+  const flightScrollAttemptsRef = useRef(0);
   const vehicleScrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
-  const vehicleScrollRetriedRef = useRef(false);
+  const vehicleScrollAttemptsRef = useRef(0);
 
   // Flights
   const flightsQuery = useTransferFlights(tripId!);
@@ -150,9 +150,11 @@ export default function TransferTab() {
         for (let si = 0; si < flightSections.length; si++) {
           const ii = flightSections[si].data.findIndex((f) => f.id === highlightId);
           if (ii >= 0) {
-            flightScrollTargetRef.current = { sectionIndex: si, itemIndex: ii };
-            flightScrollRetriedRef.current = false;
-            flightListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii, animated: true, viewOffset: 80 });
+            // +1: within a section, flat index 0 is the section header itself
+            // (see VirtualizedSectionList.scrollToLocation) — data row n sits at n + 1.
+            flightScrollTargetRef.current = { sectionIndex: si, itemIndex: ii + 1 };
+            flightScrollAttemptsRef.current = 0;
+            flightListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
             break;
           }
         }
@@ -160,9 +162,9 @@ export default function TransferTab() {
         for (let si = 0; si < vehicleSections.length; si++) {
           const ii = vehicleSections[si].data.findIndex((v) => v.id === highlightId);
           if (ii >= 0) {
-            vehicleScrollTargetRef.current = { sectionIndex: si, itemIndex: ii };
-            vehicleScrollRetriedRef.current = false;
-            vehicleListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii, animated: true, viewOffset: 80 });
+            vehicleScrollTargetRef.current = { sectionIndex: si, itemIndex: ii + 1 };
+            vehicleScrollAttemptsRef.current = 0;
+            vehicleListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
             break;
           }
         }
@@ -291,13 +293,17 @@ export default function TransferTab() {
             windowSize={5}
             maxToRenderPerBatch={10}
             initialNumToRender={10}
-            onScrollToIndexFailed={() => {
+            onScrollToIndexFailed={(info) => {
               const target = flightScrollTargetRef.current;
-              if (!target || flightScrollRetriedRef.current) return;
-              flightScrollRetriedRef.current = true;
-              requestAnimationFrame(() => {
-                flightListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+              if (!target || flightScrollAttemptsRef.current >= 3) return;
+              flightScrollAttemptsRef.current += 1;
+              flightListRef.current?.getScrollResponder()?.scrollTo({
+                y: Math.max(0, info.averageItemLength * info.index - 80),
+                animated: false,
               });
+              setTimeout(() => {
+                flightListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+              }, 80);
             }}
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
@@ -350,13 +356,17 @@ export default function TransferTab() {
             windowSize={5}
             maxToRenderPerBatch={10}
             initialNumToRender={10}
-            onScrollToIndexFailed={() => {
+            onScrollToIndexFailed={(info) => {
               const target = vehicleScrollTargetRef.current;
-              if (!target || vehicleScrollRetriedRef.current) return;
-              vehicleScrollRetriedRef.current = true;
-              requestAnimationFrame(() => {
-                vehicleListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+              if (!target || vehicleScrollAttemptsRef.current >= 3) return;
+              vehicleScrollAttemptsRef.current += 1;
+              vehicleListRef.current?.getScrollResponder()?.scrollTo({
+                y: Math.max(0, info.averageItemLength * info.index - 80),
+                animated: false,
               });
+              setTimeout(() => {
+                vehicleListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+              }, 80);
             }}
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}

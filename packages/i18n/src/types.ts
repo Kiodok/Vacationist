@@ -19,6 +19,7 @@ import type enValidation from './locales/en/validation.json';
 import type enSharing from './locales/en/sharing.json';
 import type enTutorial from './locales/en/tutorial.json';
 import type enChat from './locales/en/chat.json';
+import type enConsent from './locales/en/consent.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -45,6 +46,7 @@ declare module 'i18next' {
       sharing: typeof enSharing;
       tutorial: typeof enTutorial;
       chat: typeof enChat;
+      consent: typeof enConsent;
     };
   }
 }

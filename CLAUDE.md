@@ -55,6 +55,14 @@ npm run web:export && npm run web:serve
 
 ---
 
+## Browser Testing
+
+Claude Code has access to a real Chrome browser via the `claude-in-chrome` skill (Load with the Skill tool if the `mcp__claude-in-chrome__*` tools aren't already loaded). Use it for local UI verification instead of guessing from code alone — e.g. serving `docs/` and clicking through the consent-banner flow, watching `read_network_requests` to confirm a pixel/tracking script only fires after opt-in, or exercising `web.vacationist.app` end to end. This is the concrete mechanism for the "start the dev server and use the feature in a browser before reporting complete" rule above — don't skip it for UI/frontend changes just because no browser tool was explicitly requested.
+
+Known quirk: the extension's network-request capture occasionally mis-reports a `503` for `keepalive: true` beacon-style POSTs (observed identically on Google Analytics' own long-established endpoint during Phase 14 testing) — treat that specific pattern as a capture artifact, not a real server error, and cross-check with a direct `curl` before concluding a beacon endpoint is actually broken.
+
+---
+
 ## Monorepo Structure
 
 npm workspaces. Packages are symlinked under `node_modules/@vacationist/`.

@@ -204,7 +204,8 @@
       "Bash(mkdir -p \"F:/Expo Projects/Vacationist/social-media/reddit/ads\")",
       "Bash(cp \"E:/Temp/claude/F--Expo-Projects-Vacationist/0f66fe95-3226-44a0-a16c-4fe51a3214e8/scratchpad/reddit-video/reddit_ad_gruppenchat_chaos_9x16.mp4\" \"F:/Expo Projects/Vacationist/social-media/reddit/ads/2026-07-13_gruppenchat-chaos-dach.mp4\")",
       "Bash(node_modules/ffmpeg-static/ffmpeg.exe -i \"F:/Expo Projects/Vacationist/social-media/reddit/ads/2026-07-13_gruppenchat-chaos-dach.mp4\")",
-      "Bash(npm exec *)"
+      "Bash(npm exec *)",
+      "WebFetch(domain:business.reddithelp.com)"
     ]
   },
   "model": "opusplan",

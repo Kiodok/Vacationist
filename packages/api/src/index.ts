@@ -15,7 +15,7 @@ export {
   onAuthStateChange,
 } from './auth';
 
-export { getUserProfile, ensureUserProfile, updateUserProfile, uploadAvatar, getUsersByIds } from './users';
+export { getUserProfile, ensureUserProfile, claimSignupAttribution, updateUserProfile, uploadAvatar, getUsersByIds } from './users';
 
 export { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip, TripNotFoundError, subscribeToTripRealtime, unsubscribeFromTrip } from './trips';
 export type { TripRealtimeCallbacks } from './trips';
@@ -258,3 +258,5 @@ export {
   revokeDocumentAccess,
   getMyActiveGrants,
 } from './travelDocuments';
+
+export { logAnalyticsEvent, reportSignUpAttribution } from './analytics';

@@ -4,6 +4,7 @@ dist/
 *.tsbuildinfo
 .env
 .env.local
+.env.production
 *.log
 .DS_Store
 
@@ -15,3 +16,6 @@ dist/
 
 # Claude Code session artifacts
 .claude/scheduled_tasks.lock
+
+# Local-only funnel report (scripts/analytics-report.mjs) — regenerated on demand, never committed
+/analytics-reports/

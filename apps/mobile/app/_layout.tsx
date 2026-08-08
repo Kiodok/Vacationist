@@ -37,6 +37,14 @@ import VercelWebTools from '../src/components/VercelWebTools';
 import { ForceUpdateGate } from '../src/components/ForceUpdateGate';
 import { colors, ThemeProvider, setLiveColors } from '@vacationist/ui';
 import type { ResolvedTheme } from '@vacationist/ui';
+import { ConsentBanner } from '../src/features/consent/components/ConsentBanner';
+import { useConsentPixel } from '../src/features/consent/hooks/useConsentPixel';
+import { captureInstallReferrerOnce } from '../src/features/attribution/utils/installReferrer';
+import { captureWebAttributionOnce } from '../src/features/consent/utils/webAttribution';
+
+// Module-level, not a component effect — must run before AuthGate's redirect effect can send
+// an unauthenticated visitor to /login and strip rdt_cid/utm_* off the URL. No-ops on native.
+captureWebAttributionOnce();
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -114,7 +122,7 @@ function AuthGate() {
   // all architectures). Re-renders update systemColorScheme, which ThemeVarsProvider
   // in the tab layout reads via useNWColorScheme() to push new CSS variables.
   useNWColorScheme();
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     ...Ionicons.font,
     'Nunito-Regular': require('../assets/fonts/Nunito-Regular.ttf'),
     'Nunito-SemiBold': require('../assets/fonts/Nunito-SemiBold.ttf'),
@@ -133,6 +141,12 @@ function AuthGate() {
 
   useAuthInit();
   usePushNotificationHandler();
+
+  // Fire-and-forget, as early as possible so it's ready before any sign-in flow completes.
+  // Android + Play Store installs only; no-ops everywhere else. See installReferrer.ts.
+  useEffect(() => {
+    captureInstallReferrerOnce();
+  }, []);
 
   const appState = useRef(AppState.currentState);
   const initialUrlHandled = useRef(false);
@@ -271,10 +285,20 @@ function AuthGate() {
   }, [hasSession, isLoading, user, pendingInviteToken, router]);
 
   useEffect(() => {
-    if (!isLoading && fontsLoaded) {
+    // Web never gates on font-load confirmation: the @font-face rules for the Nunito/Ionicons
+    // fonts are injected into the stylesheet synchronously the moment useFonts() runs, well
+    // before expo-font's own FontFaceObserver-based confirmation resolves — the browser applies
+    // them via the normal CSS cascade as soon as they're available regardless of whether that
+    // confirmation ever succeeds. Waiting for it here only adds a wasted delay (observed:
+    // fontfaceobserver can burn its full internal timeout on some browser/font combinations,
+    // e.g. local dev — see git history for the investigation). Native has no such CSS fallback
+    // and genuinely needs fontsLoaded (or a definitive fontError) before rendering text.
+    // fontError also unblocks on native: a font failing to load must never leave the app stuck
+    // behind the splash screen — text just renders in the system fallback font instead.
+    if (!isLoading && (Platform.OS === 'web' || fontsLoaded || fontError)) {
       SplashScreen.hideAsync();
     }
-  }, [isLoading, fontsLoaded]);
+  }, [isLoading, fontsLoaded, fontError]);
 
   return <Slot />;
 }
@@ -341,6 +365,10 @@ function RootLayoutInner() {
         ? (rnScheme === 'dark' ? 'dark' : 'light')
         : theme;
 
+  // web.vacationist.app only — loads the Reddit Pixel once consent is (or becomes) granted.
+  // No-ops on native.
+  useConsentPixel();
+
   return (
     <ThemeProvider value={resolvedTheme}>
       {/* Populates Expo Router's own Helmet-managed <title data-rh="true"> tag,
@@ -356,6 +384,7 @@ function RootLayoutInner() {
       <AuthGate />
       <ToastContainer />
       <VercelWebTools />
+      <ConsentBanner />
     </ThemeProvider>
   );
 }

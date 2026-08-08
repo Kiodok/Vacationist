@@ -12,6 +12,7 @@ import { saveUserToCache, loadUserFromCache, clearUserCache } from '../../../uti
 import { persistLocale, SUPPORTED_LOCALES } from '@vacationist/i18n';
 import { setSentryUser, clearSentryUser } from '../../../utils/sentry';
 import type { SupportedLocale } from '@vacationist/types';
+import { maybeTrackSignUp } from '../../consent/utils/trackSignUp';
 
 export function useAuthInit() {
   const setUser = useAuthStore((s) => s.setUser);
@@ -60,6 +61,7 @@ export function useAuthInit() {
             setUser(profile);
             saveUserToCache(profile);
             setSentryUser(profile.id, profile.locale);
+            maybeTrackSignUp(profile);
             // Sync all locale singletons from the server-saved preference.
             // Only fires when profile.locale is non-null (null = new user, use device locale).
             // persistLocale propagates to dayjs + formatCurrency via the registered callback.
@@ -157,12 +159,15 @@ export function useAuthInit() {
             setUser(profile);
             saveUserToCache(profile);
             setSentryUser(profile.id, profile.locale);
+            maybeTrackSignUp(profile);
             if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
               persistLocale(profile.locale as SupportedLocale);
             }
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          // Profile fetch failed — nothing actionable here besides leaving state as-is.
+        });
     });
 
     return () => {

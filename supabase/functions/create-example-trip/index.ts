@@ -78,13 +78,15 @@ Deno.serve(async (req: Request) => {
 
     const tripId = trip.id;
 
-    // 2. Add user as organizer
-    const { error: memberErr } = await supabase.from('trip_members').insert({
-      trip_id: tripId,
-      user_id: userId,
-      role: 'organizer',
-    });
-    logIfError('trip_members', memberErr);
+    // Step 2 used to explicitly insert the organizer trip_members row here, but
+    // public.trips has an AFTER INSERT trigger (on_trip_created -> handle_new_trip(),
+    // see 20260511000002_create_trips_members_invites.sql) that already does this for every
+    // trip, any caller — the explicit insert above was a redundant duplicate of the exact
+    // same (trip_id, user_id) row the trigger had already created moments earlier as part of
+    // the INSERT INTO trips statement itself, and it violated trip_members' unique
+    // constraint on every single invocation (logIfError swallowed it, so it never broke
+    // signup, but it logged a real error on every fresh sign-up). Removed — the trigger
+    // already covers this.
 
     // 3. Activities
     const { data: activities, error: activitiesErr } = await supabase

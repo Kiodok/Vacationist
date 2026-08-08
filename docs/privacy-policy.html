@@ -6,6 +6,8 @@
 
   <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
   <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
 
   <title>Privacy Policy — Vacationist</title>
   <meta name="description" content="Privacy policy for Vacationist - how we collect, use, and protect your personal data in our collaborative trip planning app.">
@@ -131,7 +133,7 @@
 <header>
   <p class="app-name">Vacationist</p>
   <h1>Privacy Policy</h1>
-  <p class="meta">Effective date: 1 June 2026 &nbsp;·&nbsp; Last updated: 26 July 2026</p>
+  <p class="meta">Effective date: 1 June 2026 &nbsp;·&nbsp; Last updated: 8 August 2026</p>
 </header>
 
 <main>
@@ -181,16 +183,20 @@
       <li>IP address (collected by Supabase infrastructure at the network level, not stored by us in application data)</li>
     </ul>
 
-    <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">Website Analytics Data</h2>
-    <p>When you visit the Website, Google Analytics 4 automatically collects the following data via cookies and similar technologies:</p>
+    <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">Website Analytics & Advertising Measurement Data</h2>
+    <p>When you visit the Website, and only after you actively accept via the cookie banner, Google Analytics 4 and the <strong>Reddit Pixel</strong> automatically collect the following data via cookies and similar technologies:</p>
     <ul>
       <li>Pages visited, time on page, and navigation path</li>
       <li>Referring website or search query that brought you to the Website</li>
       <li>Browser type, operating system, and device category</li>
-      <li>Approximate geographic location (country and city level only — derived from a truncated IP address; the full IP address is <strong>never stored</strong> by Google Analytics)</li>
-      <li>Session and user counts (using anonymised identifiers stored in first-party cookies <code>_ga</code> and <code>_ga_*</code>)</li>
+      <li>Approximate geographic location (country and city level only — derived from a truncated IP address; the full IP address is <strong>never stored</strong> by Google Analytics, by Reddit, or by us)</li>
+      <li>Session and user counts, using anonymised identifiers in first-party cookies (<code>_ga</code>/<code>_ga_*</code>) and Reddit's own <code>_rdt_uuid</code> cookie</li>
+      <li>If you arrived via a Reddit ad, a Reddit-generated click identifier — used only to measure whether that specific ad led to an app install or sign-up, never for profiling</li>
     </ul>
-    <p>This data is collected only on the Website, not within the mobile App.</p>
+    <p>
+      We also operate a minimal first-party analytics log of our own, for the same purpose (understanding which marketing channels lead to sign-ups). It intentionally <strong>never stores an IP address</strong> — see "Our own analytics" in Section 6.
+    </p>
+    <p>This data is collected only on the Website, not by anything embedded in the mobile App itself. However, if you install the App after clicking a Reddit ad and then sign up, a single sign-up confirmation — carrying the same click identifier, if one was captured — is reported from our server to Reddit for ad-measurement purposes. See "Attribution for app installs" in Section 6.</p>
   </section>
 
   <section>
@@ -200,9 +206,10 @@
       <li>To provide the collaborative trip planning features of the App</li>
       <li>To send push notifications about activity relevant to your trips (only with your device's permission)</li>
       <li>To authenticate you securely (via Supabase Auth)</li>
-      <li>To understand how visitors use the Website so we can improve content and performance (via Google Analytics)</li>
+      <li>To understand how visitors use the Website so we can improve content and performance (via Google Analytics and our own first-party analytics)</li>
+      <li>To measure whether our own advertising campaigns (currently: Reddit Ads) are effective — limited to whether a click on one of our ads led to a Website visit, app install, or sign-up (via the Reddit Pixel and Conversions API, see Section 6)</li>
     </ul>
-    <p>We do not use your data for advertising, profiling, or marketing purposes. We do not sell your data.</p>
+    <p>We do not sell your data, and we do not build cross-service advertising profiles or use your data to target you with ads on other services. We do not use your data for general profiling or marketing beyond the narrow ad-measurement purpose described above.</p>
   </section>
 
   <section>
@@ -239,6 +246,10 @@
       <li>
         <strong>Google Analytics 4 (Google LLC)</strong> — website usage statistics, loaded only with your consent (Website only, see Section 6)
         (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>)
+      </li>
+      <li>
+        <strong>Reddit, Inc.</strong> — advertising measurement: the Reddit Pixel on the Website (loaded only with your consent), and server-side sign-up attribution via Reddit's Conversions API when the App is installed following a Reddit ad click — see Section 6
+        (<a href="https://www.redditinc.com/policies/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>)
       </li>
       <li>
         <strong>GitHub (Microsoft Corporation)</strong> — hosts this website and processes visitor requests and IP addresses at the infrastructure level
@@ -297,8 +308,36 @@
       Your cookie choice is remembered in your browser's local storage (key <code>v_consent</code>) for up to 12 months, after which you will be asked again. This storage entry itself is strictly necessary to remember your choice and does not require consent.
     </p>
 
+    <h2 style="font-size:0.95rem; border:none; margin-top:1.5rem; padding:0; color:#9ca3af;">Reddit Pixel</h2>
+    <p>
+      The Website (<a href="https://vacationist.app">vacationist.app</a>) and the web version of the App (web.vacationist.app) use the <strong>Reddit Pixel</strong>, an advertising measurement tool provided by Reddit, Inc., 548 Market St, San Francisco, CA 94104, USA ("Reddit"). It places a first-party cookie (<code>_rdt_uuid</code>) and, if you arrived via a Reddit ad, reads the Reddit-generated click identifier from the page URL. This is used solely to measure whether our Reddit ad campaigns lead to Website visits, app installs, or sign-ups — never to build a profile of your browsing beyond that.
+    </p>
+    <p>
+      Like Google Analytics, the Reddit Pixel is loaded — and the <code>_rdt_uuid</code> cookie is set — <strong>only after you actively accept</strong> via the cookie banner (legal basis: Art. 6(1)(a) GDPR / § 25(1) TTDSG where applicable; Art. 6 DSG for Swiss visitors). One Accept/Decline choice covers both Google Analytics and the Reddit Pixel together. If you decline, or later withdraw consent via <a href="#cookie-settings">Cookie settings</a>, neither loads and both are cleared.
+    </p>
+    <p>
+      Reddit, Inc. is a US company; Reddit's Conversions API transfer (described below) and Pixel data are processed on Reddit's servers in the US, on the basis of Standard Contractual Clauses. Reddit's data practices are described at
+      <a href="https://www.redditinc.com/policies/privacy-policy" target="_blank" rel="noopener">redditinc.com/policies/privacy-policy</a>.
+    </p>
+
+    <h2 style="font-size:0.95rem; border:none; margin-top:1.5rem; padding:0; color:#9ca3af;">Attribution for app installs (Conversions API)</h2>
+    <p>
+      There is no Reddit SDK or pixel embedded in the mobile App itself. Instead, if you click a Reddit ad, the click identifier is temporarily encoded into the Google Play install link you land on. When you sign up in the App for the first time, our server (not Reddit) reads that identifier — if present — from the Play Store's own install-referrer mechanism, and reports a single "sign-up" confirmation back to Reddit via its Conversions API, together with the click identifier. If you installed the App without clicking a Reddit ad, there is no click identifier and nothing is reported to Reddit — your sign-up is still recorded in our own first-party analytics below, but only as an unattributed (organic) event.
+    </p>
+
+    <h2 style="font-size:0.95rem; border:none; margin-top:1.5rem; padding:0; color:#9ca3af;">Our own analytics</h2>
+    <p>
+      Alongside Google Analytics and the Reddit Pixel, we operate a small first-party analytics log on our own infrastructure, recording Website page visits, clicks on the Play Store / web-app links, and app sign-ups. It exists only so we can see the same marketing funnel Google Analytics and Reddit show us, in one place, without depending on either.
+    </p>
+    <p>
+      It deliberately stores less than a typical analytics tool: <strong>no IP address is ever stored</strong>, in raw or truncated form. Where a coarse per-visitor identifier is needed to avoid double-counting the same visit, we compute a one-way hash from your IP address, browser, and a secret salt that changes daily — your IP address itself is used only for that instant and is never written to a database. We store: the page path, the Reddit click identifier and campaign parameters if present, the referring site's domain (not the full URL), your browser's user-agent string, and — for sign-ups only — that a sign-up occurred and, where applicable, the same click identifier reported to Reddit.
+    </p>
+    <p>
+      Like Google Analytics and the Reddit Pixel, nothing is recorded until you accept via the cookie banner on the Website. This log is retained for <strong>14 months</strong>, after which entries are automatically deleted.
+    </p>
+
     <div class="highlight">
-      The native mobile App (iOS/Android) does not use Google Analytics or any third-party analytics SDK. The web version of the App, at web.vacationist.app, uses privacy-focused Vercel Analytics for anonymised performance monitoring — see Section 5. Google Analytics is used on this marketing website only, and only after consent.
+      Neither Google Analytics, the Reddit Pixel, nor any third-party analytics SDK is embedded in the native mobile App (iOS/Android). The web version of the App, at web.vacationist.app, has its own separate cookie-consent banner covering the Reddit Pixel and our own first-party analytics (both described above), and uses privacy-focused Vercel Analytics for anonymised performance monitoring — see Section 5. The only data ever sent to Reddit from a native app sign-up is the single, server-side Conversions API report described above — never a raw IP address, and never anything beyond what's needed to confirm that one sign-up.
     </div>
   </section>
 

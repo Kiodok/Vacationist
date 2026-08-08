@@ -42,7 +42,7 @@ export async function getTripMessages(
 ): Promise<TripMessagesPage> {
   const { data, error } = await supabase.rpc('get_trip_messages', {
     p_trip_id: tripId,
-    p_cursor: cursor ?? null,
+    p_cursor: cursor,
     p_limit: MESSAGE_PAGE_SIZE,
   });
 

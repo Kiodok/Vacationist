@@ -196,34 +196,43 @@ export default function ActivitiesTab() {
   );
 
   const sectionListRef = useRef<SectionList>(null);
-  // Target for the pending deep-link scroll, and whether a retry has already been
-  // attempted for it — onScrollToIndexFailed must not retry more than once, or a
-  // target that can never be measured (e.g. filtered out mid-scroll) would loop forever.
+  // Target for the pending deep-link scroll, and how many onScrollToIndexFailed retries have
+  // been attempted for it — bounded so a target that can never be measured (e.g. filtered out
+  // mid-scroll) can't retry forever.
   const scrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
-  const scrollRetriedRef = useRef(false);
+  const scrollAttemptsRef = useRef(0);
+  // Activity id we've already scrolled to. Prevents a later unrelated re-render (e.g. the
+  // batched votes query resolving and reshuffling sections) from yanking the user back after
+  // they've scrolled away on their own.
+  const scrolledForRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!activityId || rawSections.length === 0) return;
-    let scrollTimer: ReturnType<typeof setTimeout>;
-    const timer = setTimeout(() => {
-      for (let sectionIndex = 0; sectionIndex < rawSections.length; sectionIndex++) {
-        const itemIndex = rawSections[sectionIndex].data.findIndex((a) => a.id === activityId);
-        if (itemIndex >= 0) {
-          expand(rawSections[sectionIndex].key);
-          scrollTimer = setTimeout(() => {
-            scrollTargetRef.current = { sectionIndex, itemIndex };
-            scrollRetriedRef.current = false;
-            sectionListRef.current?.scrollToLocation({ sectionIndex, itemIndex, animated: true, viewOffset: 80 });
-          }, 100);
-          break;
-        }
+    if (!activityId || activityId === scrolledForRef.current || rawSections.length === 0) return;
+    for (let sectionIndex = 0; sectionIndex < rawSections.length; sectionIndex++) {
+      const itemIndex = rawSections[sectionIndex].data.findIndex((a) => a.id === activityId);
+      if (itemIndex < 0) continue;
+      const sectionKey = rawSections[sectionIndex].key;
+      if (isCollapsed(sectionKey)) {
+        expand(sectionKey);
+        return; // effect re-fires once the section is no longer collapsed
       }
-    }, 200);
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(scrollTimer);
-    };
-  }, [activityId, rawSections, expand]);
+      // +1: within a section, flat index 0 is the section header itself
+      // (see VirtualizedSectionList.scrollToLocation) — data row n sits at n + 1.
+      const target = { sectionIndex, itemIndex: itemIndex + 1 };
+      const timer = setTimeout(() => {
+        scrolledForRef.current = activityId;
+        scrollTargetRef.current = target;
+        scrollAttemptsRef.current = 0;
+        sectionListRef.current?.scrollToLocation({ ...target, animated: true, viewOffset: 80 });
+        // The scrolled-to card renders expanded and grows asynchronously as its notes load;
+        // re-issue the scroll once things have settled so it doesn't drift off-target.
+        setTimeout(() => {
+          sectionListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+        }, 650);
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [activityId, rawSections, isCollapsed, expand]);
 
   const handleCreate = (input: CreateActivityInput) => {
     setShowCreate(false);
@@ -263,13 +272,19 @@ export default function ActivitiesTab() {
           windowSize={5}
           maxToRenderPerBatch={10}
           initialNumToRender={10}
-          onScrollToIndexFailed={() => {
+          onScrollToIndexFailed={(info) => {
             const target = scrollTargetRef.current;
-            if (!target || scrollRetriedRef.current) return;
-            scrollRetriedRef.current = true;
-            requestAnimationFrame(() => {
-              sectionListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+            if (!target || scrollAttemptsRef.current >= 3) return;
+            scrollAttemptsRef.current += 1;
+            // Jump to the estimated offset first so more rows mount and measure, then
+            // re-issue the precise scroll — repeating the identical failed call does nothing.
+            sectionListRef.current?.getScrollResponder()?.scrollTo({
+              y: Math.max(0, info.averageItemLength * info.index - 80),
+              animated: false,
             });
+            setTimeout(() => {
+              sectionListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+            }, 80);
           }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
           ListHeaderComponent={

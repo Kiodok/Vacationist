@@ -28,7 +28,8 @@
     "test": "npm run test --workspace=@vacationist/utils && npm run test --workspace=@vacationist/mobile && npm run test:site",
     "test:site": "node marketing/site/consent.test.js",
     "serve:docs": "npx serve docs -p 3001",
-    "build:site": "node marketing/site/build.mjs"
+    "build:site": "node marketing/site/build.mjs",
+    "analytics:report": "node scripts/analytics-report.mjs"
   },
   "devDependencies": {
     "marked": "^18.0.6",

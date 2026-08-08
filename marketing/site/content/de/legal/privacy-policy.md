@@ -5,14 +5,14 @@ path: /de/privacy-policy/
 lang: de
 type: legal
 schema: WebPage
-date: 2026-07-26
+date: 2026-08-08
 altPath: /privacy-policy.html
 breadcrumbLabel: Datenschutz
 ---
 
 # Datenschutzerklärung
 
-*Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 26. Juli 2026*
+*Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 8. August 2026*
 
 ## 1. Wer wir sind
 
@@ -48,17 +48,20 @@ Wir erheben nur die Daten, die zur Bereitstellung des Dienstes erforderlich sind
 - Push-Benachrichtigungs-Token (um dir In-App-Benachrichtigungen zu senden; gespeichert, bis du dich abmeldest oder die App deinstallierst)
 - IP-Adresse (auf Netzwerkebene von der Supabase-Infrastruktur erfasst; wird von uns nicht in Anwendungsdaten gespeichert)
 
-**Website-Analysedaten**
+**Website-Analyse- & Werbemessdaten**
 
-Beim Besuch der Website erfasst Google Analytics 4 automatisch die folgenden Daten über Cookies und ähnliche Technologien:
+Beim Besuch der Website erfassen Google Analytics 4 und das **Reddit-Pixel** automatisch die folgenden Daten über Cookies und ähnliche Technologien — jedoch erst, nachdem du im Cookie-Banner aktiv zugestimmt hast:
 
 - Besuchte Seiten, Verweildauer und Navigationspfad
 - Verweisende Website oder Suchanfrage, über die du die Website gefunden hast
 - Browsertyp, Betriebssystem und Gerätekategorie
-- Ungefährer Standort (nur auf Länder- und Stadtebene — abgeleitet aus einer gekürzten IP-Adresse; die vollständige IP-Adresse wird von Google Analytics **niemals gespeichert**)
-- Sitzungs- und Nutzerzahlen (über anonymisierte Kennungen in den First-Party-Cookies `_ga` und `_ga_*`)
+- Ungefährer Standort (nur auf Länder- und Stadtebene — abgeleitet aus einer gekürzten IP-Adresse; die vollständige IP-Adresse wird von Google Analytics, von Reddit oder von uns **niemals gespeichert**)
+- Sitzungs- und Nutzerzahlen über anonymisierte Kennungen in First-Party-Cookies (`_ga`/`_ga_*`) sowie Reddits eigenem `_rdt_uuid`-Cookie
+- Falls du über eine Reddit-Anzeige gekommen bist: eine von Reddit erzeugte Klick-Kennung — genutzt ausschliesslich zur Messung, ob diese Anzeige zu einer App-Installation oder Anmeldung geführt hat, niemals zum Profiling
 
-Diese Daten werden nur auf der Website erhoben, nicht in der Mobil-App.
+Zusätzlich betreiben wir eine eigene, minimale Analyse-Erfassung für denselben Zweck (Verständnis, welche Marketingkanäle zu Anmeldungen führen). Diese speichert bewusst **niemals eine IP-Adresse** — siehe „Unsere eigene Analyse" in Abschnitt 6.
+
+Diese Daten werden nur auf der Website erhoben, nicht durch etwas, das in die Mobil-App eingebettet ist. Installierst du die App jedoch nach dem Klick auf eine Reddit-Anzeige und meldest dich an, wird eine einzelne Anmeldebestätigung — mit derselben Klick-Kennung, falls vorhanden — von unserem Server an Reddit übermittelt. Siehe „Zuordnung von App-Installationen (Conversions API)" in Abschnitt 6.
 
 ## 3. Wie wir deine Daten nutzen
 
@@ -66,9 +69,10 @@ Diese Daten werden nur auf der Website erhoben, nicht in der Mobil-App.
 - Zur Bereitstellung der kollaborativen Reiseplanungs-Funktionen der App
 - Zum Versand von Push-Benachrichtigungen über Aktivitäten in deinen Reisen (nur mit Erlaubnis deines Geräts)
 - Zur sicheren Authentifizierung (über Supabase Auth)
-- Um zu verstehen, wie Besucher die Website nutzen, damit wir Inhalte und Performance verbessern können (über Google Analytics)
+- Um zu verstehen, wie Besucher die Website nutzen, damit wir Inhalte und Performance verbessern können (über Google Analytics und unsere eigene Analyse-Erfassung)
+- Um zu messen, ob unsere eigenen Werbekampagnen (derzeit: Reddit Ads) wirksam sind — beschränkt auf die Frage, ob ein Klick auf eine unserer Anzeigen zu einem Website-Besuch, einer App-Installation oder einer Anmeldung geführt hat (über das Reddit-Pixel und die Conversions API, siehe Abschnitt 6)
 
-Wir nutzen deine Daten nicht für Werbung, Profiling oder Marketing. Wir verkaufen deine Daten nicht.
+Wir verkaufen deine Daten nicht und erstellen keine dienstübergreifenden Werbeprofile oder nutzen deine Daten, um dich auf anderen Diensten mit Werbung anzusprechen. Wir nutzen deine Daten nicht für allgemeines Profiling oder Marketing über den oben beschriebenen, eng begrenzten Werbemesszweck hinaus.
 
 ## 4. Datenspeicherung & Sicherheit
 
@@ -85,6 +89,7 @@ Die Authentifizierung übernimmt Supabase Auth. Google-Sign-In-Tokens werden ser
 - **Expo (Expo Inc.)** — Zustelldienst für Push-Benachrichtigungen ([Datenschutzerklärung](https://expo.dev/privacy))
 - **Sentry (Functional Software Inc.)** — Absturz- und Fehlerberichte, verknüpft mit deiner Konto-ID; enthält eine maskierte Stichprobe der Sitzungsaktivität und kann einen Screenshot zum Zeitpunkt eines Absturzes enthalten ([Datenschutzerklärung](https://sentry.io/privacy/))
 - **Google Analytics 4 (Google LLC)** — Website-Nutzungsstatistiken, nur mit deiner Einwilligung geladen (nur Website, siehe Abschnitt 6) ([Datenschutzerklärung](https://policies.google.com/privacy))
+- **Reddit, Inc.** — Werbemessung: das Reddit-Pixel auf der Website (nur mit deiner Einwilligung geladen) sowie serverseitige Anmeldezuordnung über die Reddit Conversions API, wenn die App nach dem Klick auf eine Reddit-Anzeige installiert wird — siehe Abschnitt 6 ([Datenschutzerklärung](https://www.redditinc.com/policies/privacy-policy))
 - **GitHub (Microsoft Corporation)** — hostet diese Website und verarbeitet Besucheranfragen und IP-Adressen auf Infrastrukturebene ([Datenschutzhinweis](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement))
 - **Vercel Inc.** — hostet die Web-Version der App unter web.vacationist.app und stellt anonymisierte Analyse- und Performance-Daten ausschliesslich innerhalb der Web-Version bereit ([Datenschutzerklärung](https://vercel.com/legal/privacy-policy))
 - **Cloudflare, Inc.** — Bot- und Missbrauchsschutz (Turnstile) bei ausgewählten Formularen ([Datenschutzerklärung](https://www.cloudflare.com/privacypolicy/))
@@ -123,7 +128,27 @@ Du hast folgende Möglichkeiten, die Datenerfassung durch Google Analytics zu ve
 
 Deine Cookie-Wahl wird im lokalen Speicher deines Browsers (Schlüssel `v_consent`) bis zu 12 Monate lang gespeichert; danach wirst du erneut gefragt. Dieser Speichereintrag selbst ist technisch notwendig, um deine Wahl zu merken, und erfordert keine Einwilligung.
 
-> Die native Mobil-App (iOS/Android) nutzt weder Google Analytics noch ein anderes Drittanbieter-Analyse-SDK. Die Web-Version der App unter web.vacationist.app nutzt das datenschutzfreundliche Vercel Analytics zur anonymisierten Performance-Messung — siehe Abschnitt 5. Google Analytics wird ausschliesslich auf dieser Marketing-Website eingesetzt, und nur nach Einwilligung.
+**Reddit-Pixel**
+
+Die Website ([vacationist.app](https://vacationist.app)) und die Web-Version der App (web.vacationist.app) nutzen das **Reddit-Pixel**, ein Werbemesswerkzeug von Reddit, Inc., 548 Market St, San Francisco, CA 94104, USA („Reddit"). Es setzt ein First-Party-Cookie (`_rdt_uuid`) und liest, falls du über eine Reddit-Anzeige gekommen bist, die von Reddit erzeugte Klick-Kennung aus der Seiten-URL. Dies dient ausschliesslich der Messung, ob unsere Reddit-Werbekampagnen zu Website-Besuchen, App-Installationen oder Anmeldungen führen — niemals der Erstellung eines Profils deines Surfverhaltens darüber hinaus.
+
+Wie Google Analytics wird das Reddit-Pixel geladen — und das `_rdt_uuid`-Cookie gesetzt — **erst, nachdem du im Cookie-Banner aktiv zugestimmt hast** (Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO / § 25 Abs. 1 TTDSG, soweit anwendbar; Art. 6 DSG für Besucher aus der Schweiz). Eine einzige Annahme/Ablehnung deckt sowohl Google Analytics als auch das Reddit-Pixel ab. Lehnst du ab, oder widerrufst du deine Einwilligung später über [Cookie-Einstellungen](#cookie-settings), wird keines von beiden geladen bzw. beide werden entfernt.
+
+Reddit, Inc. ist ein US-Unternehmen; die unten beschriebene Conversions-API-Übermittlung sowie Pixel-Daten werden auf Reddits Servern in den USA verarbeitet, auf Grundlage von Standardvertragsklauseln. Reddits Datenpraktiken sind beschrieben unter [redditinc.com/policies/privacy-policy](https://www.redditinc.com/policies/privacy-policy).
+
+**Zuordnung von App-Installationen (Conversions API)**
+
+In der Mobil-App selbst ist kein Reddit-SDK und kein Reddit-Pixel eingebettet. Klickst du stattdessen auf eine Reddit-Anzeige, wird die Klick-Kennung vorübergehend in den Google-Play-Installationslink codiert, auf dem du landest. Meldest du dich in der App zum ersten Mal an, liest unser Server (nicht Reddit) diese Kennung — falls vorhanden — über den eigenen Installations-Referrer-Mechanismus des Play Stores aus und übermittelt eine einzelne Anmeldebestätigung zusammen mit der Klick-Kennung über die Conversions API an Reddit. Hast du die App ohne Klick auf eine Reddit-Anzeige installiert, gibt es keine Klick-Kennung, und es wird nichts an Reddit übermittelt — deine Anmeldung wird trotzdem in unserer eigenen Analyse-Erfassung unten erfasst, jedoch nur als nicht zugeordnetes (organisches) Ereignis.
+
+**Unsere eigene Analyse**
+
+Neben Google Analytics und dem Reddit-Pixel betreiben wir eine kleine, eigene Analyse-Erfassung auf unserer eigenen Infrastruktur, die Website-Seitenaufrufe, Klicks auf die Play-Store-/Web-App-Links sowie App-Anmeldungen erfasst. Sie existiert nur, damit wir denselben Marketing-Trichter, den uns Google Analytics und Reddit zeigen, an einem Ort sehen können, unabhängig von beiden.
+
+Sie speichert bewusst weniger als ein typisches Analyse-Tool: **es wird niemals eine IP-Adresse gespeichert**, weder vollständig noch gekürzt. Wo eine grobe Besucherkennung nötig ist, um denselben Besuch nicht doppelt zu zählen, berechnen wir einen Einweg-Hash aus deiner IP-Adresse, deinem Browser und einem geheimen, täglich wechselnden Salt — deine IP-Adresse selbst wird nur für diesen Moment verwendet und niemals in eine Datenbank geschrieben. Wir speichern: den Seitenpfad, die Reddit-Klick-Kennung und Kampagnenparameter, falls vorhanden, die Domain der verweisenden Seite (nicht die vollständige URL), den User-Agent-String deines Browsers sowie — nur bei Anmeldungen — dass eine Anmeldung stattgefunden hat und, falls zutreffend, dieselbe an Reddit übermittelte Klick-Kennung.
+
+Wie bei Google Analytics und dem Reddit-Pixel wird nichts erfasst, bevor du im Cookie-Banner auf der Website zugestimmt hast. Diese Erfassung wird **14 Monate** lang aufbewahrt, danach werden Einträge automatisch gelöscht.
+
+> Weder Google Analytics noch das Reddit-Pixel noch ein anderes Drittanbieter-Analyse-SDK ist in die native Mobil-App (iOS/Android) eingebettet. Die Web-Version der App unter web.vacationist.app hat ein eigenes, separates Cookie-Consent-Banner für das Reddit-Pixel und unsere eigene Analyse-Erfassung (beide oben beschrieben) und nutzt das datenschutzfreundliche Vercel Analytics zur anonymisierten Performance-Messung — siehe Abschnitt 5. Das Einzige, was bei einer App-Anmeldung an Reddit übermittelt wird, ist die eine, serverseitige Conversions-API-Meldung wie oben beschrieben — niemals eine rohe IP-Adresse, und niemals mehr, als zur Bestätigung dieser einen Anmeldung nötig ist.
 
 ## 7. Aufbewahrungsdauer
 

@@ -1,5 +1,258 @@
 # Supabase Changes Log
 
+## 2026-08-08 — Two bugs found while chasing "attribution-capi never succeeds on dev"
+
+Both pre-existing/newly-introduced-this-phase, neither related to the CAPI auth fix below —
+found while trying to reproduce a real signed-in call and reading actual Edge Function/Postgres
+logs together with the Tech Lead rather than guessing further.
+
+### Bug 1 (real, pre-existing, unrelated to Phase 14): `create-example-trip` duplicate trip_members insert
+
+**Not actually the reason attribution-capi never fired** (see Bug 2), but found in the logs
+while investigating and worth fixing regardless per the "always fix pre-existing issues you
+find" rule.
+
+`public.trips` has an `AFTER INSERT FOR EACH ROW` trigger (`on_trip_created` →
+`public.handle_new_trip()`, `20260511000002_create_trips_members_invites.sql`) that already
+inserts `trip_members(NEW.id, NEW.created_by, 'organizer')` for **every** trip, from **any**
+caller — `packages/api/src/trips.ts`'s real in-app `createTrip()` relies on exactly this and
+never touches `trip_members` itself. `supabase/functions/create-example-trip/index.ts`'s old
+step 2 explicitly inserted the identical `(trip_id, user_id, 'organizer')` row a second time,
+colliding with `trip_members_trip_id_user_id_key` on **every single invocation** — not a race,
+reproduces every time. `logIfError` swallowed it (best-effort seeding, by design), so it never
+broke signup, but it logged a real `23505` error on every fresh non-guest sign-up since this
+function existed.
+
+**Fix:** deleted the redundant explicit insert; the trigger already covers it. Redeployed
+`create-example-trip` (with `--no-verify-jwt`, matching how it's always been deployed — no
+`supabase/config.toml` entry for it) to dev, then prod.
+
+**Non-destructive** (Edge Function code only, no schema/data change). Applied to: dev, then
+prod (2026-08-08).
+
+### Bug 2 (introduced this phase, the actual reason attribution-capi never fired): module-level tracking guard wasn't scoped to a user
+
+`maybeTrackSignUp()`'s dedup guard (`apps/mobile/src/features/consent/utils/trackSignUp.ts`)
+was a bare module-level `let signUpTracked = false`, intended only to stop
+`useAuthInit.ts`'s `loadSession()` and its `onAuthStateChange` listener from double-firing for
+*the same* fresh sign-in race. In practice it silently blocked **every subsequent distinct
+sign-up in the same app session** too: delete an account and sign up again without reloading
+the app (exactly the Tech Lead's test), and the second, genuinely new account's `maybeTrackSignUp`
+call returns at the very first guard check — no network call is ever attempted, which is why
+dev's Edge Function logs showed no request at all (not even a 401) for that second sign-up.
+
+**Fix:** guard now keyed by `profile.id` (`let trackedUserId: string | null = null`) instead of
+a plain boolean — dedupes the same account's own race exactly as before, but a later, distinct
+account's sign-up still tracks correctly.
+
+**Client-side only, no deploy needed** beyond the app itself picking up the new build.
+
+---
+
+## 2026-08-08 — Phase 14: attribution-capi always returned 401 on dev (no migration)
+
+**Why:** Tech Lead reported `attribution-capi` had never been successfully called on dev —
+every invocation returned 401, including from real signed-in sessions in the app, not just
+unauthenticated test calls.
+
+**Root cause:** `reportSignUpAttribution()` called `supabase.functions.invoke()` and relied on
+`@supabase/supabase-js`'s internal `fetchWithAuth` wrapper to *implicitly* inject the current
+session's access token as the Authorization header. That mechanism re-reads
+`auth.getSession()` at fetch time via a fresh `FunctionsClient` created on every access to the
+`.functions` getter — undocumented-enough behavior, and timing-sensitive enough right after a
+sign-in event resolves, that it could not be trusted to reliably carry the live session into
+the request. (Traced through the actual installed `@supabase/supabase-js` and
+`@supabase/functions-js` source — `SupabaseClient.ts`, `functions-js/FunctionsClient.ts`,
+`supabase-js/lib/fetch.ts` — rather than guessed from library docs, which describe the
+intended behavior but not this edge case.)
+
+**Fix:**
+1. `reportSignUpAttribution()` now calls `supabase.auth.getSession()` itself and attaches
+   `Authorization: Bearer <access_token>` explicitly on the `functions.invoke()` call, instead
+   of relying on implicit injection. Matches this repo's existing Auth Pattern rule (read
+   `getSession()` directly rather than depend on implicit client behavior).
+2. `attribution-capi` now logs *why* a 401 happened (missing/malformed header vs. what
+   `auth.getUser()` rejected it for — never the token itself) — previously both paths returned
+   a bare 401 with zero server-side signal, which is exactly what made this bug invisible.
+
+**Not fully re-verified this session** — same CAPTCHA wall on both dev and prod blocks
+generating a real test JWT from this environment; the fix is grounded in a full trace of the
+actual client-library code path (not a guess) and in the explicit-token pattern already proven
+to work in `useAuthInit.ts`'s `getSession()` usage elsewhere in the app, but the *authenticated
+happy path against attribution-capi specifically* still needs the deferred next-release
+verification already noted in the 2026-08-08 entries below.
+
+**Non-destructive.** Applied to: dev, then prod (2026-08-08).
+
+---
+
+## 2026-08-08 — Phase 14: attribution-capi — pixel/CAPI deduplication + web CAPI (no migration)
+
+**Why:** Walking through Reddit Ads Manager's "Get started" checklist surfaced two real gaps
+in the initial `attribution-capi` build:
+
+1. **No deduplication.** Reddit dedupes a client-pixel event and a server (CAPI) event for the
+   same real-world conversion only when they share a `conversionId`/`conversion_id` and event
+   name. Neither channel had ever generated or passed one.
+2. **Web signups never got a CAPI report at all** — only the client pixel. Standard practice
+   (and what Reddit's own wizard nudges toward) is both channels for the same event: the pixel
+   alone isn't resilient to ad blockers, and CAPI alone can't see traffic the same way a
+   browser can. Native was always CAPI-only by necessity (no pixel is possible there).
+
+**Changes:**
+1. **`attribution-capi` now accepts `surface` (`web_app` | `native_app`, was hardcoded
+   `'native_app'`) and a required `conversion_id`** (client-generated via
+   `expo-crypto`'s `randomUUID()` — confirmed to have a real web implementation, not
+   native-only, before relying on it). Forwarded to Reddit as `conversion_id` on the CAPI
+   event; on web, the same value is also passed to the client pixel call
+   (`window.rdt('track', 'SignUp', { conversionId })`) so Reddit can match the two into one
+   conversion. `packages/api/src/analytics.ts`'s `reportNativeSignUp` renamed
+   `reportSignUpAttribution` to reflect it's no longer native-only.
+2. **Web-side attribution capture added** — `web.vacationist.app` is a different origin from
+   `vacationist.app`, so `rdt_cid` never crossed that boundary before. `marketing/site/track.js`
+   gained `rewriteWebAppLinks()` (plain query params, unlike the Play Store link's
+   Android-specific `referrer=` encoding) and the app gained
+   `apps/mobile/src/features/consent/utils/webAttribution.ts`, which captures the landing query
+   string **at module load** (before `AuthGate`'s redirect effect can strip it from the URL on
+   an unauthenticated visit) and holds it in memory only — never written to durable storage
+   until consent is granted, matching the existing "log nothing without consent" rule.
+3. Endpoint/body shape for `conversion_id` cross-referenced the same way as the rest of the
+   CAPI payload (no official Reddit reference is public) — same caveat as `event_at` in the
+   original entry below: verify in Reddit Events Manager's "Test Events" tool after the next
+   real release.
+
+**Verified this session:** auth rejection (`401` for missing/invalid session) unchanged on both
+dev and prod after the contract change. **Not verifiable this session** — same CAPTCHA wall as
+the original `attribution-capi` entry below; the authenticated happy path (including whether
+Reddit actually dedupes the pixel+CAPI pair) is deferred to the next real release.
+
+**Non-destructive** (no schema change). Applied to: dev, then prod (2026-08-08).
+
+---
+
+## 2026-08-08 — Phase 14: analytics_events retention cron
+
+### Migration: `20260808110000_create_analytics_events_retention_cron.sql`
+
+**Why:** `analytics_events` (created earlier this phase) had no stated retention limit —
+GDPR's storage-limitation principle expects one, and the migration that created the table
+explicitly left this open for a Tech Lead decision. Decided: **14 months**, matching common
+ad-industry / GA4-style retention. `docs/privacy-policy.html` and the German legal source
+state this same figure — if this value ever changes, both need updating together.
+
+**Changes:**
+1. **`private.prune_analytics_events()`** — `DELETE ... WHERE created_at < NOW() - INTERVAL
+   '14 months'`, mirrors the `private.create_activity_reminders()` cron pattern
+   (`20260708100000`).
+2. **pg_cron job `prune-analytics-events`** — daily at `03:00 UTC`, unschedule-then-schedule
+   idiom for idempotency.
+
+**Non-destructive** (deletes only rows already past the stated retention window; none exist
+yet). Applied to: dev, then prod (2026-08-08).
+
+---
+
+## 2026-08-08 — Phase 14: attribution-capi Edge Function (no migration)
+
+**Why:** Real sign-up happens inside the native Expo app — there is no client-side pixel that
+can see it. `attribution-capi` is the server-to-server counterpart to the web `SignUp` pixel
+event added earlier this phase: it reports a genuine new sign-up (or guest→full-account
+upgrade) to Reddit's Conversions API when the install carried a `rdt_cid` captured from the
+Play Store install referrer (see `apps/mobile/src/features/attribution/utils/installReferrer.ts`
+and `marketing/site/track.js`'s Play Store link rewrite).
+
+**New Edge Function `attribution-capi`:** unlike `track-event`, this one requires a real
+authenticated caller — `verify_jwt` is left at the platform default (`true`, no
+`supabase/config.toml` override), and the function additionally re-derives the caller's
+identity via `auth.getUser(jwt)` rather than trusting the platform gate alone (an anon/
+publishable-key-only request also satisfies `verify_jwt=true` but is not a real user session).
+Always logs to `analytics_events` (`surface: 'native_app'`); only calls Reddit's CAPI when
+`rdt_cid` is present — an organic native install has nothing for Reddit to attribute, and per
+the no-raw-IP decision there is no IP+user-agent fallback signal to send instead. A Reddit-side
+failure is logged and swallowed, never surfaced to the caller — sign-up itself has already
+succeeded by the time this function is called.
+
+**New secrets** (dev + prod): `REDDIT_AD_ACCOUNT_ID` (`a2_jcz7aqtl8eua` — confirmed by the Tech
+Lead to be identical to the Pixel ID for this account), `REDDIT_CAPI_ACCESS_TOKEN` (non-expiring
+Conversions API access token from Reddit Ads Manager).
+
+**CAPI request shape not independently confirmed against an official Reddit reference** — Reddit
+does not publish a public interactive API reference; the endpoint
+(`https://ads-api.reddit.com/api/v2.0/conversions/events/{account_id}`) and body shape
+(`{ test_mode, events: [{ event_at, event_type: { tracking_type }, click_id }] }`) were
+cross-referenced across multiple third-party CAPI integration docs (PostHog, CommandersAct,
+Segment) that converged on the same shape. `event_at` as ISO 8601 is a guess (not confirmed) —
+first thing to check in Reddit Events Manager's "Test Events" tool after the next real release
+if events show as rejected.
+
+**Verified this session (curl):** unauthenticated request (no/garbage/anon-key-only
+Authorization header) → `401` on both dev and prod. **Not verifiable this session:** the
+authenticated happy path — dev has Turnstile CAPTCHA protection on sign-in/anonymous-sign-in
+(enabled 2026-08-04), and prod does too as of this deploy, so no valid user JWT could be
+obtained without completing a CAPTCHA, which is out of scope regardless of testing intent.
+Full end-to-end verification (install from Play Store internal testing → sign up → confirm in
+Reddit Events Manager + a `analytics_events` row) is deferred to the next real release, per
+Tech Lead decision.
+
+**Non-destructive** (no schema change — writes to the existing `analytics_events` table from
+the migration above). Applied to: dev, then prod (2026-08-08).
+
+---
+
+## 2026-08-08 — Phase 14: analytics_events table + track-event Edge Function
+
+### Migration: `20260808100000_create_analytics_events.sql`
+
+**Why:** Reddit Ads is now running and needs conversion signal fed back to it, and the Tech
+Lead wants a first-party view of the whole customer journey (paid Reddit + organic) that
+survives ad blockers and doesn't depend on Reddit's own reporting. This is the data layer for
+that — a local funnel event log, populated by the new `track-event` Edge Function and read by
+a local-only dashboard script (`scripts/analytics-report.mjs`, not yet built).
+
+**Changes:**
+1. **New table `public.analytics_events`** — append-only funnel log: `event_name` (CHECK
+   allowlist: `page_visit`, `play_store_click`, `web_app_click`, `app_store_interest`,
+   `sign_up`), `surface` (`marketing` / `web_app` / `native_app`), `path`, `rdt_cid`, four
+   `utm_*` columns, `referrer_host`, `user_agent`, `visitor_hash`, `user_id` (nullable FK).
+   **Deliberately has no raw-IP column** — see `engineering/software_engineering_guide.md`
+   Section 14 for the project's PII-minimization stance; `visitor_hash` is a same-day rotating
+   salted hash computed inside the Edge Function (IP used only as ephemeral hash input inside
+   `track-event`, never persisted).
+2. **`user_id` uses `ON DELETE SET NULL`**, not a bare non-cascading FK — chosen specifically
+   so `delete_own_account()` needs no companion change, unlike the `trip_messages` gap fixed
+   2026-07-27 (see that entry below). Verified against `pg_constraint` after applying: the FK
+   already shows `confdeltype = 'n'` (SET NULL) on both dev and prod, so no reassignment line
+   is needed in `delete_own_account()`.
+3. **RLS**: enabled, with explicit deny-all INSERT/UPDATE/DELETE policies for `anon` and
+   `authenticated` (mirroring the `trip_messages` deny-write pattern). **No SELECT policy
+   exists for either role at all** — reads are `service_role`-only by omission, exercised only
+   by the local dashboard script via the service-role key, never by a client.
+
+### Edge Function: `track-event`
+
+The repo's **first browser-facing** Edge Function — `push-notification` and
+`create-example-trip` are both server-to-server (`pg_net` / DB trigger), with zero CORS
+handling. This one is called directly from anonymous marketing-site visitors and the web app,
+so it adds an `OPTIONS` preflight branch and an origin allowlist
+(`vacationist.app`, `web.vacationist.app`, plus three localhost dev ports) that those two
+never needed. Validates `event_name`/`surface` against the same allowlist as the table's CHECK
+constraints, caps payload size at 4KB, drops any field not on the known list, and rejects the
+whole request if any string field looks IP-shaped (defense in depth on top of the schema
+already having no IP column). `verify_jwt = false` in `supabase/config.toml`, same as
+`push-notification`.
+
+New secret **`ANALYTICS_VISITOR_HASH_SALT`** — set independently on dev and prod (not shared),
+used only as hash input for the daily-rotating `visitor_hash`; never logged, never exposed to
+clients.
+
+**Verified on both dev and prod** (curl): valid payload → `204`; unknown `event_name` → `400`;
+disallowed `Origin` → `403`; IP-shaped field value → `400`; `OPTIONS` preflight → `204`; direct
+anon `SELECT` → empty result set; direct anon `INSERT` → RLS `42501` violation, `401`.
+
+**Non-destructive.** Applied to: dev, then prod (2026-08-08).
+
+---
+
 ## 2026-08-04 — Wire up Turnstile CAPTCHA verification (dashboard config, no migration)
 
 **Why:** The Turnstile widget (`0x4AAAAAADmlpH4qVMwb-i5j`) has rendered on login, guest join, and
@@ -3200,3 +3453,43 @@ The above was executed via the Cloudflare API (authenticated MCP access), not th
 - All four apex A records are now `proxied: true` (previously DNS-only). Zone SSL/TLS mode was already `strict` before this session.
 
 **Still outstanding (not yet done):** send a real magic-link auth email and confirm delivery — this is the one check in the original verification plan that requires a live email round-trip and wasn't performed as part of this change.
+
+---
+
+## 2026-08-08 — Fix: `ensureUserProfile`'s `isNew` was structurally always false
+
+**Why:** During Phase 14 live testing, the Reddit `attribution-capi` Edge Function never fired for a genuinely new sign-up — including with a completely fresh, never-before-seen email on dev. Root cause: `public.users` has had a trigger since Phase 1 (`on_auth_user_created` → `handle_new_user()`, `20260511000001_create_users_table.sql:67-70`) that inserts the profile row server-side the instant `auth.users` gets a new row — **before** the client ever calls `ensureUserProfile()`. `ensureUserProfile`'s `SELECT ... WHERE id = ...` therefore always found an existing row and always returned `isNew: false`, for every sign-up, ever. This was not a race condition or a symptom of the account-deletion/`trackedUserId` bugs fixed earlier in this same investigation — those were real bugs too, but this is the actual root cause underneath them, present since the table was created.
+
+Considered inferring novelty from `session.user.created_at` vs `last_sign_in_at` (a commonly cited trick) but Supabase's docs don't document the exact timing guarantee for magic-link flows, so it was rejected as an unverified guess for something that drives real ad-spend attribution.
+
+**Changes:**
+
+| Change | Detail |
+|---|---|
+| New column `public.users.signup_attribution_claimed_at` | `TIMESTAMPTZ`, nullable, no default |
+| `packages/api/src/users.ts` | `ensureUserProfile()` no longer returns `isNew` (removed `EnsureUserProfileResult`, now just returns `User`). New `claimSignupAttribution(userId)` atomically claims the column via `UPDATE ... WHERE signup_attribution_claimed_at IS NULL RETURNING id` — race-safe under Postgres row locking even when `loadSession()` and `onAuthStateChange` resolve concurrently for the same sign-in. |
+| `apps/mobile/src/features/consent/utils/trackSignUp.ts` | `maybeTrackSignUp(profile)` — dropped the `isNew`/`previousIsGuest` params entirely. Guest exclusion still via `profile.is_guest`; guest-upgrade-to-real-account is now handled for free (guests never claim while still guests, so the column stays unclaimed until they convert). Consent check (web) still happens before claiming, so an unclaimed attribution stays available for a retry on a later resolve if consent wasn't granted yet. |
+| `apps/mobile/src/features/auth/hooks/useAuthInit.ts` | Both `ensureUserProfile()` call sites updated for the new signature; `maybeTrackSignUp` calls simplified. |
+| `packages/api/src/messages.ts` | Unrelated fix surfaced by regenerating types against actual current dev schema (the committed `database.types.ts` had drifted): `get_trip_messages`'s `p_cursor` RPC arg is `string \| undefined`, not `string \| null` — `cursor ?? null` → `cursor`. |
+
+**Verification:** `npm run typecheck` exits 0; `npm test` — 94/94 mobile tests + full `consent.test.js` suite pass. End-to-end confirmation that a genuinely new sign-up now produces a successful `attribution-capi` call is still pending a real test (tracked as an open item below).
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`) — additive nullable column, non-destructive, backwards-compatible.
+
+**Local migration file:** `supabase/migrations/20260808120000_add_signup_attribution_claim.sql`
+
+---
+
+## 2026-08-08 (same day) — Fix: `attribution-capi` had no CORS handling — a second, independent blocker
+
+**Why:** After the `isNew` fix above, a live retest against dev showed `claimSignupAttribution` correctly returning `true`, but the actual Reddit-attribution report still never landed. The dev Edge Function logs showed the real request: `OPTIONS | 405 | .../attribution-capi`. `attribution-capi`'s handler started with `if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 })` and had no CORS handling at all — no `OPTIONS` branch, no `Access-Control-Allow-*` headers anywhere. Since the function is called directly from a browser (`reportSignUpAttribution()` in `packages/api/src/analytics.ts`, via `supabase.functions.invoke()`) with a `POST` + custom `Authorization` header + JSON `Content-Type`, the browser is required to send a CORS preflight `OPTIONS` request first — and this function 405'd it, so the real POST was never even attempted. This is a genuinely separate bug from the `isNew` one: it was invisible all session because the `isNew` bug meant the call was never attempted in the first place, so this CORS gap was never exercised until today's fix let a real attempt reach the network.
+
+Confirmed via `console.error` placement in the function: it only logs on failure paths (auth rejection, DB insert failure, Reddit CAPI rejection) — a fully successful run is silent by design, which is why the Boot → Shutdown (`EarlyDrop`) log pair for the one claim-succeeding call earlier in this investigation showed no application log lines; that read as ambiguous until the actual `OPTIONS | 405` request line was found in the logs.
+
+**Fix:** added an origin-allowlisted CORS layer, mirroring `track-event`'s pattern but narrower (this function is only ever called from an authenticated app session, never the marketing site): `https://web.vacationist.app` + `http://localhost:8081` (the Expo web dev server) in `ALLOWED_ORIGINS`; `Access-Control-Allow-Headers: authorization, content-type, apikey, x-client-info` (the actual header set `supabase.functions.invoke()` sends); an `OPTIONS` branch returning `204` before the method check; every existing response updated to carry the CORS headers. Native callers are unaffected — CORS is browser-only, and the function's own `auth.getUser()` check (not origin) is what actually protects the endpoint.
+
+**Verification:** `curl -X OPTIONS` with `Origin: http://localhost:8081` against dev now returns `204` with the correct `Access-Control-Allow-*` headers (previously `405`).
+
+**Applied to:** dev (`aejywkbkcwyanhyzhrle`) and prod (`fsfsqghbejwvgxujoyne`) via `supabase functions deploy attribution-capi` — code-only change, no migration file.
+
+**Confirmed end-to-end (same day):** a real sign-up on dev now produces `claimSignupAttribution => true` → `reportSignUpAttribution` → `attribution-capi` `POST | 204` (authenticated, `x-client-info: supabase-js-web/2.105.4`) → a matching row in `analytics_events` (`event_name: 'sign_up'`, `surface: 'web_app'`, correct `user_id`/`created_at`). That test had no `rdt_cid` (direct localhost sign-up, not via a real Reddit click), so it exercised the log-write path but not the Reddit CAPI POST branch itself — that still awaits a real ad-click-driven test. The temporary `debugTrail()` instrumentation added during this investigation (`trackSignUp.ts`, `useAuthInit.ts`) has been removed now that the fix is confirmed working.
