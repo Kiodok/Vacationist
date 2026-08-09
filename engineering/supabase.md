@@ -1,5 +1,139 @@
 # Supabase Changes Log
 
+## 2026-08-09 — Turnstile fallback stability fixes (code-only, no migration)
+
+**Why:** Tech Lead ran the invisible-mode + real-origin fix (entry directly below) on a physical
+Android device and found three real problems:
+
+1. After the browser fallback resolved and returned to the app, the Google button had to be
+   tapped a **second time** to actually open the account picker — the first tap only fetched the
+   token.
+2. After signing out and trying again, verification **always failed until a full app restart**.
+3. On one attempt, the browser fallback opened `web.vacationist.app/captcha-redirect` and **hung
+   indefinitely** on "Verifying…" with no way to recover short of closing the tab — and closing it
+   didn't help either.
+
+**Root causes, traced through the actual code (not guessed):**
+
+1. `useCaptchaToken.getToken()` deliberately returned `undefined` the instant it kicked off the
+   browser fallback, by design (see the entry below) — the caller's submit handler just stopped,
+   so nothing auto-continued when the fallback later resolved. **This was a considered decision at
+   the time** (avoiding an auto-resume across an Android background/foreground cycle), but real
+   device testing showed the resulting "tap again" step is worse UX than the fragility that
+   decision was trying to avoid.
+2. `captchaFallbackStore`'s `FALLBACK_COOLDOWN_MS` (60s) blocked **any** new fallback attempt for
+   60 seconds after the *previous* one — including a fully successful one, since nothing ever
+   reset `lastFallbackAt`. Combined with (3) below, a user who signed out and retried within that
+   window got silently blocked (`startCaptchaBrowserFallback` returning `'cooldown'` with no
+   browser opening) on every attempt until the in-memory Zustand store was wiped by a process
+   restart — exactly "always fails until app restart." The cooldown was written as a "remount
+   storm" circuit breaker from when the fallback could still be triggered automatically; that
+   trigger path no longer exists (it's exclusively a submit-time user action now), and the
+   existing `status === 'pending'` guard already fully prevents two Custom Tabs opening at once —
+   so the cooldown was redundant with a correct guard and only added the harmful blocking.
+3. `login.tsx` / `join.tsx` / `GuestUpgradeSheet.tsx` only called `consumeToken()` (which resets
+   `failedRef` and remounts the embedded widget) inside the `finally` around an *actual* sign-in
+   attempt — never on the "not ready yet, fallback just started" early-return branch. So after a
+   failed/blocked attempt, the embedded widget was never given a fresh mount and stayed marked as
+   already-failed, compounding with (2).
+4. `apps/mobile/app/(auth)/captcha-redirect.tsx` (the fallback's target page) had **zero timeout
+   handling** — if the invisible Turnstile challenge there hung (no token, no error, ever), the
+   page just sat on "Verifying…" forever with no retry affordance.
+
+**Fixes:**
+
+- `useCaptchaToken.getToken()` now **awaits the full browser-fallback round trip** (Custom Tab /
+  auth session + deep-link return) instead of returning early, resolving with the real token once
+  the app regains focus. No screen-level changes were needed for this — `login.tsx` / `join.tsx` /
+  `GuestUpgradeSheet.tsx` already do `await captcha.getToken(); if (!captchaToken) return; ...` in
+  their handlers, so the existing code just continues straight into `handleGoogleSignIn(...)` etc.
+  the moment the token arrives. This works because Expo Router reuses the screen instance that
+  started the fallback (`captcha-callback.tsx`'s `router.back()`), so the async handler awaiting
+  `getToken()` is still alive when it resolves. `getToken()` also now recovers a token left behind
+  by a fallback that resolved with nobody awaiting it (e.g. the OS killed the app while the tab was
+  open and the deep link cold-started a fresh instance).
+- Removed the `FALLBACK_COOLDOWN_MS` / `isCoolingDown()` / `lastFallbackAt` mechanism entirely
+  from `captchaFallbackStore.ts` and `captchaBrowserFallback.ts`. Concurrency safety is fully
+  covered by the pre-existing `status === 'pending'` → `'busy'` guard, which doesn't have the
+  false-positive problem a wall-clock cooldown does.
+- `captcha-redirect.tsx` gained a 12s watchdog: if neither a token nor an error arrives in time, it
+  shows `captchaRedirect.stalled` with a `captchaRedirect.retry` link that remounts the widget for
+  a fresh attempt, instead of hanging on `captchaRedirect.verifying` forever. New `en`/`de` keys in
+  `auth.json`.
+
+**Not fixed, out of scope for this pass:** *why* the embedded widget or the fallback page's
+invisible challenge sometimes doesn't settle within its window at all (network conditions, a
+particular device's WebView, or a genuine Cloudflare-side hiccup weren't distinguished) — the fix
+here is making that failure mode recoverable and non-sticky, not eliminating it.
+
+**Verified:** `npm run typecheck` exits 0, `npm test` passes (227 tests). Not yet re-verified on
+the physical Android device that surfaced these bugs — that's the next step before considering
+this closed.
+
+---
+
+## 2026-08-09 — Turnstile widget mode `managed` → `invisible` (Dashboard/API only, no migration)
+
+**Why:** Tech Lead reported the Android sign-in funnel was broken by CAPTCHA latency: the
+embedded native Turnstile widget (added 2026-08-04, see below) took up to ~10s, then handed off
+to a Chrome Custom Tab on `web.vacationist.app` for several more seconds, before the Google
+Sign-In button or magic-link field became usable. New users were closing the app immediately
+after install rather than waiting through it.
+
+**Two verified root causes**, not both fixed the same way:
+
+1. `TurnstileWidget.tsx` loaded the challenge via `source={{ html: HTML, baseUrl:
+   'https://web.vacationist.app' }}` — on Android that's `loadDataWithBaseURL`, which does not
+   give the document a normal security origin. Turnstile has no official WebView support, and
+   this exact pattern is widely reported (Cloudflare community threads, GitHub issues) to break
+   its cookie handling and cross-origin frame access. **Fixed in code**: the challenge now loads
+   by URI from a real hosted page, `apps/mobile/public/captcha-embed.html`
+   (`https://web.vacationist.app/captcha-embed.html`), which Vercel serves as a static file ahead
+   of the SPA rewrite — same mechanism already proven by `apps/mobile/public/robots.txt`.
+2. The widget (sitekey `0x4AAAAAADmlpH4qVMwb-i5j`) was in `managed` mode, confirmed via
+   `GET /accounts/{account_id}/challenges/widgets` — meaning it could escalate to a checkbox the
+   user must click, and the widget is reported non-interactive on some Android devices, so the
+   challenge could hang indefinitely (the old 15s watchdog covered exactly this). **Fixed via the
+   Cloudflare API**: `PUT /accounts/{account_id}/challenges/widgets/0x4AAAAAADmlpH4qVMwb-i5j`
+   with `mode: "invisible"`. This is a single shared widget/secret — Supabase Auth's CAPTCHA
+   config only supports one Turnstile secret per project, so the mode change applies to web too.
+   Sanity-checked immediately after (production `web.vacationist.app/login`): Google button, email
+   field, and submit button all interactive within ~4s of page load, no visible widget, no console
+   errors.
+
+Invisible mode requires referencing Cloudflare's [Turnstile Privacy
+Addendum](https://www.cloudflare.com/turnstile-privacy-policy/) in the privacy policy — updated
+both `docs/privacy-policy.html` and `marketing/site/content/de/legal/privacy-policy.md`.
+
+**Code changes alongside:**
+- `login.tsx`, `join.tsx`, `GuestUpgradeSheet.tsx` no longer gate the Google/magic-link controls
+  behind `captchaReady` — they render immediately and interactively; the embedded (now invisible)
+  widget resolves in the background. On submit, `useCaptchaToken`'s `getToken()` returns
+  immediately if a token is already there, otherwise waits up to 5s before deferring to the
+  browser fallback — which is now **only** triggered from a submit handler on a definite widget
+  failure or that 5s timeout, never automatically on a mount-time watchdog. The user taps once
+  more if a fallback was needed; no auto-resume across the app background/foreground cycle.
+- `TurnstileWidget.tsx` (native) simplified accordingly: no more watchdog/retry/attempt loop or
+  fallback-store reconciliation — that orchestration moved to the new
+  `features/auth/hooks/useCaptchaToken.ts`, shared across all three screens above.
+- `GuestUpgradeSheet`'s magic-link path no longer calls `getToken()` at all — it never forwarded
+  a captcha token to `linkGuestWithMagicLink` in the first place (`PUT /user` has no captcha
+  support in auth-js), so waiting on it there only risked an unnecessary browser hand-off for zero
+  server-side benefit.
+
+**Server-side enforcement is unchanged** — Auth → Attack Protection stays **ON** on dev and prod
+(see the 2026-08-04 entry below); this was a client-side latency/UX fix, not a decision to weaken
+verification.
+
+**Not yet device-verified this session** — the fix needs a preview APK on a physical Android
+device to confirm the actual before/after timing improvement; verified so far only against
+production web and a code review of the message-passing contract between
+`captcha-embed.html` ↔ `TurnstileWidget.tsx` ↔ `useCaptchaToken.ts`.
+
+App version bumped `1.29.0` → `1.29.1` (PATCH — bug fix, no native/plugin changes, OTA-eligible).
+
+---
+
 ## 2026-08-09 — `attribution-capi` migrated to Reddit CAPI v3; fires on every sign-up (code-only, no migration)
 
 **Why:** Tech Lead reported the Reddit Conversions API access token showed as never accessed,

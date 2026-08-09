@@ -32,7 +32,7 @@ export function TurnstileWidget({ onToken, onExpired, onError, resetNonce }: Pro
         onSuccess={onToken}
         onExpire={onExpired}
         onError={onError}
-        options={{ size: 'normal', refreshExpired: 'auto' }}
+        options={{ refreshExpired: 'auto' }}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -8,6 +8,7 @@ import { Button, Input, colors, ThemedIcon } from '@vacationist/ui';
 import { signInAnonymously, redeemInviteToken, previewInviteToken, getSession } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useAuthStore } from '../../src/stores/authStore';
+import { useCaptchaToken } from '../../src/features/auth/hooks/useCaptchaToken';
 import { TurnstileWidget } from '../../src/features/auth/components/TurnstileWidget';
 
 export default function JoinScreen() {
@@ -21,10 +22,7 @@ export default function JoinScreen() {
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [captchaReady, setCaptchaReady] = useState(false);
-  const [captchaError, setCaptchaError] = useState(false);
-  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
-  const turnstileToken = useRef<string | undefined>(undefined);
+  const captcha = useCaptchaToken();
   const [tripPreview, setTripPreview] = useState<{ trip_title: string; start_date: string; end_date: string } | null>(null);
   const [tokenInvalid, setTokenInvalid] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(!!token);
@@ -39,15 +37,6 @@ export default function JoinScreen() {
     });
   }, [token]);
 
-  // Turnstile tokens are single-use — every attempt that consumes one, whether
-  // it succeeds or fails, must clear it and request a fresh challenge before
-  // the user can submit again.
-  function consumeCaptcha() {
-    turnstileToken.current = undefined;
-    setCaptchaReady(false);
-    setCaptchaResetNonce((n) => n + 1);
-  }
-
   // A session already exists (route-guard race, or stale tab): never create a
   // second anonymous account — hand the token to the authenticated join flow.
   function redirectSignedInUser() {
@@ -59,7 +48,7 @@ export default function JoinScreen() {
   }
 
   async function handleJoinAsGuest() {
-    if (!captchaReady || authLoading) return;
+    if (authLoading) return;
     setNameError('');
     const trimmed = name.trim();
 
@@ -81,12 +70,17 @@ export default function JoinScreen() {
       return;
     }
 
+    const captchaToken = await captcha.getToken();
+    if (!captchaToken) {
+      setLoading(false);
+      return;
+    }
+
     try {
-      const captchaToken = turnstileToken.current;
       try {
         await signInAnonymously({ name: trimmed }, captchaToken);
       } finally {
-        consumeCaptcha();
+        captcha.consumeToken();
       }
 
       if (token) {
@@ -181,27 +175,18 @@ export default function JoinScreen() {
             variant="secondary"
             onPress={handleJoinAsGuest}
             loading={loading}
-            disabled={loading || !captchaReady || authLoading}
+            disabled={loading || authLoading || captcha.verifying}
           />
 
-          <TurnstileWidget
-            resetNonce={captchaResetNonce}
-            onToken={(token) => {
-              turnstileToken.current = token;
-              setCaptchaReady(true);
-              setCaptchaError(false);
-            }}
-            onExpired={() => {
-              turnstileToken.current = undefined;
-              setCaptchaReady(false);
-            }}
-            onError={() => {
-              setCaptchaReady(false);
-              setCaptchaError(true);
-            }}
-          />
+          <TurnstileWidget {...captcha.widgetProps} />
 
-          {captchaError && (
+          {captcha.verifying && (
+            <Text className="text-body-small text-text-muted text-center">
+              {tCommon('captcha.verifying')}
+            </Text>
+          )}
+
+          {captcha.error && (
             <Text className="text-body-small text-danger text-center">
               {tCommon('captcha.error')}
             </Text>

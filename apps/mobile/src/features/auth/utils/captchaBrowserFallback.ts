@@ -7,10 +7,13 @@ import * as Sentry from '@sentry/react-native';
 import { useCaptchaFallbackStore } from '../../../stores/captchaFallbackStore';
 import type { CaptchaReturnTarget } from '../../../stores/captchaFallbackStore';
 
-// Fallback target when the embedded native WebView can't render Turnstile at all
-// (e.g. a device stuck on a very old system WebView). Runs the challenge in the
-// device's real, independently-updated browser engine instead. The web page here
-// is unrelated to this platform split below — it's the same page either way.
+// Fallback target for a rare embedded-widget failure (e.g. a device stuck on
+// a very old system WebView that still can't render even the real-origin,
+// invisible-mode challenge). Runs it in the device's real, independently-
+// updated browser engine instead. Only ever called from useCaptchaToken's
+// getToken() — after a definite widget failure or a short wait times out on
+// submit, never automatically on mount. The web page here is unrelated to
+// this platform split below — it's the same page either way.
 const CAPTCHA_PAGE_URL = 'https://web.vacationist.app/captcha-redirect';
 const CALLBACK_PATH = 'captcha-callback';
 
@@ -24,7 +27,7 @@ const DISMISS_GRACE_MS = 2000;
 // Safety net in case AppState events are ever missed entirely.
 const ABSOLUTE_TIMEOUT_MS = 300_000;
 
-export type StartFallbackResult = 'started' | 'busy' | 'cooldown' | 'open-failed';
+export type StartFallbackResult = 'started' | 'busy' | 'open-failed';
 
 // Extracts a query param from a redirect URL without relying on the WHATWG
 // URL/URLSearchParams globals, which aren't guaranteed complete on Hermes
@@ -115,8 +118,13 @@ export async function startCaptchaBrowserFallback(
 ): Promise<StartFallbackResult> {
   const store = useCaptchaFallbackStore.getState();
 
+  // Concurrency guard against a genuine double-invoke (e.g. two hook
+  // instances both deciding to fall back at once) — a second Custom Tab
+  // never opens while one is already pending. There is no time-based
+  // cooldown on top of this: the fallback is exclusively triggered from a
+  // deliberate submit tap (see useCaptchaToken.ts), so a fresh call here is
+  // always a fresh, legitimate user attempt, not a runaway retry loop.
   if (store.status === 'pending') return 'busy';
-  if (store.isCoolingDown()) return 'cooldown';
 
   store.begin(returnTo);
 

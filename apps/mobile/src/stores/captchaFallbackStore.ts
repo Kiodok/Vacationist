@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 
+// Backs the browser-tab fallback for the embedded native Turnstile challenge
+// (see useCaptchaToken.ts / captchaBrowserFallback.ts). As of the invisible-
+// mode + real-origin rewrite (see TurnstileWidget.tsx), this fallback is
+// triggered only from a submit handler — never automatically on a mount-time
+// timer — so it stays a rare recovery path rather than the default flow.
 export type CaptchaFallbackStatus = 'idle' | 'pending' | 'resolved' | 'failed';
 
 export interface CaptchaReturnTarget {
@@ -10,9 +15,6 @@ export interface CaptchaReturnTarget {
 // Turnstile tokens are single-use and short-lived server-side — no point holding
 // on to a resolved token indefinitely if nothing consumes it right away.
 const TOKEN_TTL_MS = 120_000;
-// Last-resort circuit breaker: if something we haven't anticipated still causes a
-// remount storm, this stops a second Custom Tab from opening within this window.
-const FALLBACK_COOLDOWN_MS = 60_000;
 
 interface CaptchaFallbackState {
   status: CaptchaFallbackStatus;
@@ -20,7 +22,6 @@ interface CaptchaFallbackState {
   resolvedAt: number | null;
   returnTo: CaptchaReturnTarget | null;
   failureReason: string | null;
-  lastFallbackAt: number | null;
   // Survives consumeToken()'s reset to idle, unlike `token` — guards against a
   // duplicate/delayed signal (e.g. more than one Linking 'url' event firing for
   // the same redirect) re-opening a token that's already been handed out once.
@@ -31,7 +32,6 @@ interface CaptchaFallbackState {
   fail: (reason: string) => void;
   consumeToken: () => string | null;
   consumeFailure: () => string | null;
-  isCoolingDown: () => boolean;
   reset: () => void;
 }
 
@@ -45,11 +45,10 @@ const initialState = {
 
 export const useCaptchaFallbackStore = create<CaptchaFallbackState>((set, get) => ({
   ...initialState,
-  lastFallbackAt: null,
   lastHandledToken: null,
 
   begin: (returnTo) => {
-    set({ ...initialState, status: 'pending', returnTo, lastFallbackAt: Date.now(), lastHandledToken: null });
+    set({ ...initialState, status: 'pending', returnTo, lastHandledToken: null });
   },
 
   resolve: (token) => {
@@ -74,21 +73,16 @@ export const useCaptchaFallbackStore = create<CaptchaFallbackState>((set, get) =
     const { status, token, resolvedAt } = get();
     if (status !== 'resolved' || !token) return null;
     const stale = resolvedAt !== null && Date.now() - resolvedAt > TOKEN_TTL_MS;
-    set({ ...initialState, lastFallbackAt: get().lastFallbackAt });
+    set({ ...initialState });
     return stale ? null : token;
   },
 
   consumeFailure: () => {
     const { status, failureReason } = get();
     if (status !== 'failed') return null;
-    set({ ...initialState, lastFallbackAt: get().lastFallbackAt });
+    set({ ...initialState });
     return failureReason;
   },
 
-  isCoolingDown: () => {
-    const { lastFallbackAt } = get();
-    return lastFallbackAt !== null && Date.now() - lastFallbackAt < FALLBACK_COOLDOWN_MS;
-  },
-
-  reset: () => set({ ...initialState, lastFallbackAt: null, lastHandledToken: null }),
+  reset: () => set({ ...initialState, lastHandledToken: null }),
 }));

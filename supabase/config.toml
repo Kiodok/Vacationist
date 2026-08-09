@@ -56,6 +56,9 @@ minimum_password_length = 6
 # against this project (it would overwrite the remote site_url with the
 # localhost value above and break every auth redirect), so uncommenting
 # this has no effect remotely — go through the Dashboard instead.
+# Widget mode is `invisible` as of 2026-08-09 (set via the Cloudflare API,
+# not the Dashboard UI) — see engineering/supabase.md for why. This is the
+# same widget/secret for both the web and native clients.
 # [auth.captcha]
 # enabled = true
 # provider = "turnstile"

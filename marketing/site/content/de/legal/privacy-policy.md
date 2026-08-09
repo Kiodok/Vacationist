@@ -92,7 +92,7 @@ Die Authentifizierung übernimmt Supabase Auth. Google-Sign-In-Tokens werden ser
 - **Reddit, Inc.** — Werbemessung: das Reddit-Pixel auf der Website (nur mit deiner Einwilligung geladen) sowie serverseitige Anmeldezuordnung über die Reddit Conversions API, wenn die App nach dem Klick auf eine Reddit-Anzeige installiert wird — siehe Abschnitt 6 ([Datenschutzerklärung](https://www.redditinc.com/policies/privacy-policy))
 - **GitHub (Microsoft Corporation)** — hostet diese Website und verarbeitet Besucheranfragen und IP-Adressen auf Infrastrukturebene ([Datenschutzhinweis](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement))
 - **Vercel Inc.** — hostet die Web-Version der App unter web.vacationist.app und stellt anonymisierte Analyse- und Performance-Daten ausschliesslich innerhalb der Web-Version bereit ([Datenschutzerklärung](https://vercel.com/legal/privacy-policy))
-- **Cloudflare, Inc.** — Bot- und Missbrauchsschutz (Turnstile) bei ausgewählten Formularen ([Datenschutzerklärung](https://www.cloudflare.com/privacypolicy/))
+- **Cloudflare, Inc.** — Bot- und Missbrauchsschutz (Turnstile, läuft unsichtbar im Hintergrund) bei ausgewählten Formularen, gemäß Cloudflares [Turnstile-Datenschutzzusatz](https://www.cloudflare.com/turnstile-privacy-policy/) und [Datenschutzerklärung](https://www.cloudflare.com/privacypolicy/)
 
 ## 6. Analyse & Cookies
 

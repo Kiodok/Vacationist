@@ -9,11 +9,13 @@ import { useCaptchaFallbackStore } from '../../src/stores/captchaFallbackStore';
 
 // Authoritative landing point for the native CAPTCHA browser fallback's deep
 // link (vacationist://captcha-callback?turnstile_token=...) — see
-// TurnstileWidget.tsx / captchaBrowserFallback.ts. Registering this as a real
-// route (instead of letting it fall through to +not-found) is what stops the
-// browser-fallback loop: without it, Expo Router's own automatic deep-link
-// navigation tears down whatever screen started the CAPTCHA request before the
-// token can be delivered.
+// useCaptchaToken.ts / captchaBrowserFallback.ts. This fallback only ever
+// starts from a submit handler now (a definite embedded-widget failure, or a
+// short wait timing out), never automatically on mount. Registering this as
+// a real route (instead of letting it fall through to +not-found) is what
+// stops the browser-fallback loop: without it, Expo Router's own automatic
+// deep-link navigation tears down whatever screen started the CAPTCHA
+// request before the token can be delivered.
 export default function CaptchaCallbackScreen() {
   const { t } = useTranslation('auth');
   const router = useRouter();

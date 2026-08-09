@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verifying…</title>
+<style>body{margin:0;background:transparent}</style>
+</head>
+<body>
+<!--
+  Real-origin target for the embedded native Turnstile challenge (see
+  TurnstileWidget.tsx). Loaded by URI (source={{ uri: ... }}), NOT injected as
+  inline html+baseUrl — Turnstile has no official WebView support, and
+  loadDataWithBaseURL does not give the document a normal security origin,
+  which is what broke Turnstile's cookie handling and cross-origin frame
+  access on Android. A real HTTPS origin on an already-allowlisted Turnstile
+  domain (web.vacationist.app) avoids that class of failure entirely.
+
+  Deliberately does NOT load /assets/consent.js, unlike every other
+  hand-authored page on this host (see CLAUDE.md's Marketing Site section):
+  this is a functional endpoint for the native app, not a page a person
+  browses to, it renders inside a hidden 1x1 WebView, and it loads no
+  analytics. Do not add the consent script here.
+-->
+<div id="c"></div>
+<script>
+var settled = false;
+function post(msg){window.ReactNativeWebView.postMessage(JSON.stringify(msg))}
+function markSettled(){settled = true}
+
+window.onerror = function(message){
+  post({type:'diagnostic', reason:'js-error', detail: String(message)});
+};
+
+function onReady(){
+  try {
+    turnstile.render('#c',{
+      sitekey:'0x4AAAAAADmlpH4qVMwb-i5j',
+      'refresh-expired':'auto',
+      callback:function(t){markSettled();post({type:'token',token:t})},
+      'error-callback':function(){markSettled();post({type:'error'})},
+      'expired-callback':function(){markSettled();post({type:'expired'})}
+    });
+  } catch (err) {
+    post({type:'diagnostic', reason:'render-threw', detail: String(err && err.message || err)});
+  }
+}
+
+var s = document.createElement('script');
+s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onReady&render=explicit';
+s.async = true;
+s.onerror = function(){
+  post({type:'diagnostic', reason:'script-load-error'});
+};
+document.body.appendChild(s);
+</script>
+</body>
+</html>

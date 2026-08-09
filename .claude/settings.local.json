@@ -211,7 +211,8 @@
       "WebFetch(domain:posthog.com)",
       "WebFetch(domain:segment.com)",
       "WebFetch(domain:docs.tealium.com)",
-      "WebFetch(domain:hightouch.com)"
+      "WebFetch(domain:hightouch.com)",
+      "mcp__plugin_cloudflare_cloudflare-docs__search_cloudflare_documentation"
     ]
   },
   "model": "opusplan",

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   View,
@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { colors, ThemedIcon } from '@vacationist/ui';
 import { GoogleAuthButton } from '../../auth/components/GoogleAuthButton';
 import { useGuestUpgrade } from '../../auth/hooks/useGuestUpgrade';
+import { useCaptchaToken } from '../../auth/hooks/useCaptchaToken';
 import { TurnstileWidget } from '../../auth/components/TurnstileWidget';
 
 interface GuestUpgradeSheetProps {
@@ -25,51 +26,40 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation('common');
   const [email, setEmail] = useState('');
-  const [captchaReady, setCaptchaReady] = useState(false);
-  const [captchaError, setCaptchaError] = useState(false);
-  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
-  const turnstileToken = useRef<string | undefined>(undefined);
+  const captcha = useCaptchaToken();
   const { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError } =
     useGuestUpgrade();
 
   function handleClose() {
     setEmail('');
     clearError();
-    setCaptchaReady(false);
-    setCaptchaError(false);
-    turnstileToken.current = undefined;
+    captcha.consumeToken();
     onClose();
   }
 
-  // Turnstile tokens are single-use — every attempt that consumes one, whether
-  // it succeeds or fails, must clear it and request a fresh challenge before
-  // the user can submit again.
-  function consumeCaptcha() {
-    turnstileToken.current = undefined;
-    setCaptchaReady(false);
-    setCaptchaResetNonce((n) => n + 1);
-  }
-
   async function handleGoogleUpgrade() {
-    const captchaToken = turnstileToken.current;
+    const captchaToken = await captcha.getToken();
+    if (!captchaToken) return;
     try {
       await upgradeWithGoogle(captchaToken);
     } finally {
-      consumeCaptcha();
+      captcha.consumeToken();
     }
   }
 
+  // No captchaToken here: linkGuestWithMagicLink calls Supabase's PUT /user
+  // (updateUser), which has no captcha support in auth-js at all — see
+  // packages/api/src/auth.ts. The Turnstile widget below still mounts for
+  // this screen (UI consistency with the Google path), but this submit never
+  // waits on it — doing so would open a browser fallback for a token that is
+  // never actually verified.
   async function handleMagicLink() {
     const trimmed = email.trim().toLowerCase();
-    if (!trimmed || !captchaReady) return;
-    try {
-      await upgradeWithMagicLink(trimmed);
-    } finally {
-      consumeCaptcha();
-    }
+    if (!trimmed) return;
+    await upgradeWithMagicLink(trimmed);
   }
 
-  const magicLinkDisabled = isPending || !email.trim() || !captchaReady;
+  const magicLinkDisabled = isPending || !email.trim();
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
@@ -112,22 +102,17 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
               </View>
             ) : (
               <View className="gap-md">
-                {/* Google Sign-In — only shown after CAPTCHA succeeds */}
-                {captchaReady && (
-                  <>
-                    <GoogleAuthButton
-                      onPress={handleGoogleUpgrade}
-                      loading={isPending}
-                      disabled={isPending}
-                    />
+                <GoogleAuthButton
+                  onPress={handleGoogleUpgrade}
+                  loading={isPending}
+                  disabled={isPending || captcha.verifying}
+                />
 
-                    <View className="flex-row items-center gap-md">
-                      <View className="flex-1 h-[1px] bg-border" />
-                      <Text className="text-body-small text-text-muted">{t('guest.sheet.or')}</Text>
-                      <View className="flex-1 h-[1px] bg-border" />
-                    </View>
-                  </>
-                )}
+                <View className="flex-row items-center gap-md">
+                  <View className="flex-1 h-[1px] bg-border" />
+                  <Text className="text-body-small text-text-muted">{t('guest.sheet.or')}</Text>
+                  <View className="flex-1 h-[1px] bg-border" />
+                </View>
 
                 {/* Magic link email input */}
                 <TextInput
@@ -160,25 +145,15 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
                   )}
                 </Pressable>
 
-                <TurnstileWidget
-                  resetNonce={captchaResetNonce}
-                  onToken={(token) => {
-                    turnstileToken.current = token;
-                    setCaptchaReady(true);
-                    setCaptchaError(false);
-                  }}
-                  onExpired={() => {
-                    turnstileToken.current = undefined;
-                    setCaptchaReady(false);
-                  }}
-                  onError={() => {
-                    setCaptchaReady(false);
-                    setCaptchaError(true);
-                  }}
-                />
+                <TurnstileWidget {...captcha.widgetProps} />
 
-                {/* Captcha error */}
-                {captchaError && (
+                {captcha.verifying && (
+                  <Text className="text-body-small text-text-muted text-center">
+                    {tCommon('captcha.verifying')}
+                  </Text>
+                )}
+
+                {captcha.error && (
                   <Text className="text-body-small text-danger text-center">
                     {tCommon('captcha.error')}
                   </Text>

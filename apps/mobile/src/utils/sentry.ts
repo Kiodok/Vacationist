@@ -58,7 +58,9 @@ export function initSentry() {
       }
 
       // The Turnstile fallback chain (embedded widget -> browser tab) is a working,
-      // by-design recovery path, not a bug — see TurnstileWidget.tsx / captchaBrowserFallback.ts.
+      // by-design recovery path, not a bug — see TurnstileWidget.tsx / useCaptchaToken.ts /
+      // captchaBrowserFallback.ts. It's now triggered only from a submit handler
+      // (never automatically on mount), so these events should be rare.
       // Downgrade both messages so they stop surfacing as issues needing triage. A
       // dismissed fallback (user backed out of the browser tab) is normal user
       // behavior, not a fault, so drop it entirely rather than just downgrading it.

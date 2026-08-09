@@ -1,13 +1,14 @@
-import { useState, useRef } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { useState } from 'react';
+import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { makeRedirectUri } from 'expo-auth-session';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Button, Input, useThemeColors } from '@vacationist/ui';
+import { Button, Input } from '@vacationist/ui';
 import { signInWithMagicLink } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useGoogleSignIn } from '../../src/features/auth/hooks/useGoogleSignIn';
+import { useCaptchaToken } from '../../src/features/auth/hooks/useCaptchaToken';
 import { GoogleAuthButton } from '../../src/features/auth/components/GoogleAuthButton';
 import { TurnstileWidget } from '../../src/features/auth/components/TurnstileWidget';
 
@@ -19,35 +20,22 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
-  const [captchaReady, setCaptchaReady] = useState(false);
-  const [captchaError, setCaptchaError] = useState(false);
-  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
-  const turnstileToken = useRef<string | undefined>(undefined);
+  const captcha = useCaptchaToken();
 
-  const colors = useThemeColors();
   const { signIn: handleGoogleSignIn, loading: googleLoading } =
     useGoogleSignIn((msg) => addToast('error', msg));
 
-  // Turnstile tokens are single-use — every attempt that consumes one, whether
-  // it succeeds or fails, must clear it and request a fresh challenge before
-  // the user can submit again.
-  function consumeCaptcha() {
-    turnstileToken.current = undefined;
-    setCaptchaReady(false);
-    setCaptchaResetNonce((n) => n + 1);
-  }
-
   async function handleGoogleUpgrade() {
-    const captchaToken = turnstileToken.current;
+    const captchaToken = await captcha.getToken();
+    if (!captchaToken) return;
     try {
       await handleGoogleSignIn(captchaToken);
     } finally {
-      consumeCaptcha();
+      captcha.consumeToken();
     }
   }
 
   async function handleMagicLink() {
-    if (!captchaReady) return;
     setEmailError('');
     const trimmed = email.trim().toLowerCase();
 
@@ -57,7 +45,11 @@ export default function LoginScreen() {
     }
 
     setMagicLinkLoading(true);
-    const captchaToken = turnstileToken.current;
+    const captchaToken = await captcha.getToken();
+    if (!captchaToken) {
+      setMagicLinkLoading(false);
+      return;
+    }
     try {
       const redirectTo = makeRedirectUri();
       await signInWithMagicLink(trimmed, redirectTo, captchaToken);
@@ -68,7 +60,7 @@ export default function LoginScreen() {
     } catch {
       addToast('error', t('login.magicLinkFailed'));
     } finally {
-      consumeCaptcha();
+      captcha.consumeToken();
       setMagicLinkLoading(false);
     }
   }
@@ -87,27 +79,19 @@ export default function LoginScreen() {
         </View>
 
         <View className="gap-md" style={{ alignSelf: 'center', width: 240 }}>
-          {captchaReady ? (
-            <>
-              <GoogleAuthButton
-                onPress={handleGoogleUpgrade}
-                loading={googleLoading}
-                disabled={magicLinkLoading}
-              />
+          <GoogleAuthButton
+            onPress={handleGoogleUpgrade}
+            loading={googleLoading}
+            disabled={magicLinkLoading || captcha.verifying}
+          />
 
-              <View className="flex-row items-center gap-md my-sm">
-                <View className="flex-1 h-[1px] bg-border" />
-                <Text className="text-body-small text-text-muted">
-                  {t('login.orContinueWith')}
-                </Text>
-                <View className="flex-1 h-[1px] bg-border" />
-              </View>
-            </>
-          ) : !captchaError ? (
-            <View style={{ height: 48, justifyContent: 'center', alignItems: 'center' }}>
-              <ActivityIndicator size="small" color={colors.textSecondary} />
-            </View>
-          ) : null}
+          <View className="flex-row items-center gap-md my-sm">
+            <View className="flex-1 h-[1px] bg-border" />
+            <Text className="text-body-small text-text-muted">
+              {t('login.orContinueWith')}
+            </Text>
+            <View className="flex-1 h-[1px] bg-border" />
+          </View>
 
           <Input
             placeholder={t('login.emailPlaceholder')}
@@ -129,27 +113,18 @@ export default function LoginScreen() {
             variant="secondary"
             onPress={handleMagicLink}
             loading={magicLinkLoading}
-            disabled={googleLoading || magicLinkLoading || !captchaReady}
+            disabled={googleLoading || magicLinkLoading || captcha.verifying}
           />
 
-          <TurnstileWidget
-            resetNonce={captchaResetNonce}
-            onToken={(token) => {
-              turnstileToken.current = token;
-              setCaptchaReady(true);
-              setCaptchaError(false);
-            }}
-            onExpired={() => {
-              turnstileToken.current = undefined;
-              setCaptchaReady(false);
-            }}
-            onError={() => {
-              setCaptchaReady(false);
-              setCaptchaError(true);
-            }}
-          />
+          <TurnstileWidget {...captcha.widgetProps} />
 
-          {captchaError && (
+          {captcha.verifying && (
+            <Text className="text-body-small text-text-muted text-center">
+              {tCommon('captcha.verifying')}
+            </Text>
+          )}
+
+          {captcha.error && (
             <Text className="text-body-small text-danger text-center">
               {tCommon('captcha.error')}
             </Text>

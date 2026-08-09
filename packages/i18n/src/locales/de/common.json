@@ -49,5 +49,6 @@
   "placeholder.time": "Uhrzeit",
   "placeholder.selectDate": "Datum wählen",
   "placeholder.selectTime": "Uhrzeit wählen",
-  "captcha.error": "Sicherheitsüberprüfung fehlgeschlagen. Bitte lade die Seite neu und versuche es erneut."
+  "captcha.error": "Sicherheitsüberprüfung fehlgeschlagen. Bitte lade die Seite neu und versuche es erneut.",
+  "captcha.verifying": "Wir prüfen, ob du ein Mensch bist…"
 }
