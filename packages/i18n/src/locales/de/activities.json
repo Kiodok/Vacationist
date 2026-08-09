@@ -78,5 +78,7 @@
   "toast.voteFailed": "Stimme konnte nicht abgegeben werden.",
   "toast.removeVoteFailed": "Stimme konnte nicht entfernt werden.",
   "search.placeholder": "Aktivitäten suchen...",
-  "search.noResults": "Keine Aktivitäten für \"{{query}}\""
+  "search.noResults": "Keine Aktivitäten für \"{{query}}\"",
+  "search.loadingAll": "Alle Aktivitäten werden durchsucht…",
+  "loadMore": "Mehr laden"
 }

@@ -2,19 +2,78 @@ import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Activity, ActivityVote, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 
-export async function getActivities(tripId: string): Promise<Activity[]> {
+export const ACTIVITY_PAGE_SIZE = 50;
+
+export interface ActivitiesPage {
+  items: Activity[];
+  hasMore: boolean;
+}
+
+/**
+ * Paged feed for the activities tab. Ordered created_at DESC (NOT NULL, so
+ * .range() page boundaries are stable — activity_date/start_time are
+ * nullable and would make offsets wobble between pages if used here), with
+ * id as a deterministic tiebreaker. This means server order is NOT display
+ * order: display order is re-derived client-side (see
+ * compareActivitiesForDisplay), and this ordering also guarantees a newly
+ * created activity always lands on page 0. Whole-trip consumers (calendar,
+ * export, highlights, search) use getAllActivities instead, never this.
+ */
+export async function getActivitiesPage(
+  tripId: string,
+  offset = 0,
+): Promise<ActivitiesPage> {
   const { data, error } = await supabase
     .from('activities')
     .select('*')
     .eq('trip_id', tripId)
     .is('deleted_at', null)
-    .order('activity_date', { ascending: true, nullsFirst: false })
-    .order('start_time', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false })
-    .limit(200);
+    .order('id', { ascending: false })
+    .range(offset, offset + ACTIVITY_PAGE_SIZE - 1);
 
   if (error) throw error;
-  return data as unknown as Activity[];
+  const items = (data as unknown as Activity[]) ?? [];
+  return { items, hasMore: items.length === ACTIVITY_PAGE_SIZE };
+}
+
+const ALL_ACTIVITIES_BATCH_SIZE = 500;
+// Hard ceiling on internal batches (10,000 activities) purely as a runaway
+// guard — this loop is not a substitute for real pagination on the caller
+// side, it exists so whole-trip consumers (calendar, export, highlights,
+// search) never silently see a truncated list the way the old flat
+// `.limit(200)` did.
+const ALL_ACTIVITIES_MAX_BATCHES = 20;
+
+/**
+ * Every non-deleted activity for a trip, in display order (activity_date ASC
+ * nulls-last, start_time ASC nulls-last, created_at DESC), fetched via
+ * internal batching so no row is silently dropped by a client- or
+ * server-side row cap. Whole-trip consumers — calendar grouping, markdown
+ * export, highlight selection, full-list search — use this; the paged
+ * activities-tab feed (getActivitiesPage) is a separate, smaller fetch.
+ */
+export async function getAllActivities(tripId: string): Promise<Activity[]> {
+  const all: Activity[] = [];
+  for (let i = 0; i < ALL_ACTIVITIES_MAX_BATCHES; i++) {
+    const offset = i * ALL_ACTIVITIES_BATCH_SIZE;
+    const { data, error } = await supabase
+      .from('activities')
+      .select('*')
+      .eq('trip_id', tripId)
+      .is('deleted_at', null)
+      .order('activity_date', { ascending: true, nullsFirst: false })
+      .order('start_time', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .range(offset, offset + ALL_ACTIVITIES_BATCH_SIZE - 1);
+
+    if (error) throw error;
+    const batch = (data as unknown as Activity[]) ?? [];
+    all.push(...batch);
+    if (batch.length < ALL_ACTIVITIES_BATCH_SIZE) break;
+  }
+  return all;
 }
 
 export async function getActivity(activityId: string): Promise<Activity> {
@@ -88,13 +147,30 @@ export async function getActivityVotes(activityId: string): Promise<ActivityVote
   return data as unknown as ActivityVote[];
 }
 
-export async function getActivityVotesBatch(activityIds: string[]): Promise<ActivityVote[]> {
-  if (activityIds.length === 0) return [];
+// Trip-scoped (not activity-id-list-scoped): the query key this backs is
+// ['trips', tripId, 'activity-votes'] — stable per trip, so paging or adding
+// activities never mints a new cache key or triggers a full refetch, unlike
+// the old id-list-keyed batch query it replaces.
+export async function getTripActivityVotes(tripId: string): Promise<ActivityVote[]> {
+  const { data, error } = await supabase
+    .from('activity_votes')
+    .select('*')
+    .eq('trip_id', tripId);
+
+  if (error) throw error;
+  return data as unknown as ActivityVote[];
+}
+
+// Cross-trip variant for the global (all-trips) calendar screen, keyed by the
+// user's trip id list — small and stable (bounded by trip membership count),
+// not by activity count.
+export async function getActivityVotesForTrips(tripIds: string[]): Promise<ActivityVote[]> {
+  if (tripIds.length === 0) return [];
 
   const { data, error } = await supabase
     .from('activity_votes')
     .select('*')
-    .in('activity_id', activityIds);
+    .in('trip_id', tripIds);
 
   if (error) throw error;
   return data as unknown as ActivityVote[];

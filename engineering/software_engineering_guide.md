@@ -1124,12 +1124,12 @@ When every `trip_members` entry for the given trip has a corresponding vote row 
 ### After Finalization
 - `voting_open` is set to `FALSE`
 - A notification of type `vote_finalized` is dispatched to all trip members
-- The vote summary (breakdown by vote type) becomes visible to all participants
 - The organizer may then take action based on the result (e.g., change `status` to `reserved`)
 
 ### Vote Summary Display Logic
-During active voting: members see only their own vote to avoid influence.
-After finalization: full vote breakdown is visible to all members.
+Voting is transparent throughout: any trip member can see the full vote breakdown (who voted what, and aggregate counts/summary) at any time, including while voting is still open — not just after finalization. This is a deliberate product decision, not a gap: `VoteSheet`'s breakdown, `VoteSummary` chips, and card border colors are never gated on `voting_open`, and the `activity_votes`/`accommodation_votes`/`transfer_flight_votes` SELECT policies grant every trip member every vote row unconditionally (comment: "visibility filtering is app-level" — there is deliberately no app-level filtering to apply). `voting_open` still gates two things: whether the *casting* controls are shown (`VoteSheet`'s cast buttons only render while `voting_open`), and the winner badge/border on transfer flights (`computeFlightWinner`, only shown once voting is closed, so a flight can't appear "chosen" mid-vote).
+
+One exception, by design: `group_blocker` votes intentionally surface immediately regardless of `voting_open` — this powers the "Discuss" escalation workflow (an item with an active blocker moves to its own section so the group can address it before voting closes; see `20260620000000_blocker_as_workflow_escalation.sql`). This is consistent with the rest of this section, not a special case within it — nothing in the vote system is hidden from members during active voting.
 
 ---
 
@@ -1420,13 +1420,42 @@ downgrade from using `getSession()` for `created_by` population.
 
 ## Known Tech Debt / Future Scaling Concerns
 
-### Pagination (not yet implemented)
-All list queries (`getActivities`, `getShoppingItems`, `getExpenses`, etc.) fetch **all rows**.
-For trips with >200 activities or >500 expenses this will be noticeable. Proper fix requires
-cursor-based infinite scroll in the UI. Do NOT add a silent server-side `.limit()` cap — that
-would truncate data without telling the user.
+### Pagination — the house pattern (activities, expenses)
+`activities` and `expenses` both use a two-query split, not a single unpaginated fetch:
+- **Paged tab feed** (`getActivitiesPage(tripId, offset)` / `getExpenses(tripId, offset)`, offset
+  `.range()`, `ACTIVITY_PAGE_SIZE = 50` / `EXPENSE_PAGE_SIZE = 30`) backs `useInfiniteQuery` on
+  `['trips', tripId, 'activities']` / `['trips', tripId, 'expenses']` — this is what the
+  activities/expenses tab screens render, with a "Load more" footer button.
+- **Whole-trip fetch** (`getAllActivities(tripId)`, internally batched at 500 rows/request with a
+  20-batch ceiling so nothing is silently truncated) backs `useAllActivities` on
+  `['trips', tripId, 'activities', 'all']` — used by consumers that are semantically whole-trip
+  and must never see a partial list: the calendar tab (`useCalendarActivities` shares this exact
+  query, just adds a `select` to group by date), markdown export, highlight selection, and
+  activities-tab search (switches to this cache the moment a search starts, since client-side
+  filtering over only the loaded pages would silently miss matches on later pages).
 
-**When to address:** When any list reaches sustained usage above ~200 items per trip.
+Because the two keys nest (`['trips', tripId, 'activities', 'all']` is a child of
+`['trips', tripId, 'activities']`), `invalidateQueries(['trips', tripId, 'activities'])` refreshes
+both with no extra call sites, while `setQueryData`/`getQueryData` stay exact-key and can never
+collide. Do NOT add a silent server-side `.limit()` cap with no pagination path — that truncates
+data without telling the user, which is exactly the bug this pattern replaced (the old flat
+`getActivities` had a bare `.limit(200)`; removed once nothing referenced it).
+
+Other list queries (`getShoppingItems`, etc.) still fetch all rows unpaginated — apply this same
+two-query pattern to any of them once a trip's row count for that entity reaches sustained usage
+above ~200 items.
+
+### Notifications — read pagination and retention (not yet implemented)
+`getNotifications`/`getTripNotifications` (`packages/api/src/notifications.ts`) fetch a fixed
+`limit = 50` with no offset/cursor — a user only ever sees their newest 50 notifications, with no
+"load more" and no indication older ones exist. There is also no retention/cleanup cron on the
+`notifications` table (only an unrelated 24h `push_sent_at` auto-expiry, which just stops retrying
+push delivery — it never deletes rows), so a long-lived, active trip accumulates notification rows
+indefinitely per user. Proper fix: convert to the paged-feed pattern above, plus a retention cron
+(the `analytics_events` table already has a working precedent —
+`private.prune_analytics_events()` — to model it on).
+
+**When to address:** When notification volume per user starts regularly exceeding 50 on active trips.
 
 ### Rate limiting (not yet implemented)
 There is no per-user rate limiting on RPC calls or mutations. The app uses `isPending` to
@@ -1552,9 +1581,14 @@ Guests access Vacationist via an invite link without creating a full account. Th
 - Guests can upgrade to a full account at any time, preserving all their contributed data
 
 #### Guest Data Retention:
-- Guest user records are retained for 90 days after the trip end date
-- After 90 days, guest users and their associated content are anonymized (name → "Former Guest")
-- Their votes and expenses are preserved for data integrity
+Guest accounts (created via an invitation link, without an email address) that are never
+upgraded to a full account may be deleted after a period of inactivity — but **this is not
+currently an automated process** (no cron job or scheduled function performs it; matches
+`docs/privacy-policy.html`'s "Data Retention" section, which is the source of truth here — keep
+this section in sync with it, not the other way around). There is no fixed retention window and
+no automatic anonymization today. If/when an automated retention job is built, this section
+should be updated to describe the actual implementation (migration + cron job reference) rather
+than a target policy.
 
 ---
 

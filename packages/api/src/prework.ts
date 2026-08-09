@@ -184,7 +184,7 @@ export function subscribeToPreworkTopicsRealtime(
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'prework_topics' },
+      { event: 'DELETE', schema: 'public', table: 'prework_topics', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onDelete(payload.old as { id: string; trip_id?: string }),
     )
     .subscribe((status) => onStatus?.(status));
@@ -222,7 +222,7 @@ export function subscribeToPreworkRealtime(
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'prework_preferences' },
+      { event: 'DELETE', schema: 'public', table: 'prework_preferences', filter: `trip_id=eq.${tripId}` },
       (payload) => callbacks.onDelete(payload.old as { id: string; trip_id?: string; topic_id?: string; user_id?: string }),
     )
     .subscribe((status) => onStatus?.(status));

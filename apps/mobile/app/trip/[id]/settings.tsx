@@ -22,6 +22,7 @@ import { NotificationPreferencesSection } from '../../../src/features/notificati
 import { NudgeSheet } from '../../../src/features/notifications/components/NudgeSheet';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { BoundedVirtualList } from '../../../src/components/BoundedVirtualList';
 
 
 export default function SettingsTab() {
@@ -121,71 +122,75 @@ export default function SettingsTab() {
       <View>
         <Text className="text-label text-text-muted uppercase mb-sm">{t('settings.members')}</Text>
         <View className="bg-surface border border-border rounded-md">
-          {members?.map((member, index) => {
-            const canRemove = isOrganizer && member.user_id !== currentUser?.id;
-            const isPending = pendingRemovalId === member.user_id;
-            const isRemoving = removeMember.isPending && isPending;
+          <BoundedVirtualList
+            data={members ?? []}
+            keyExtractor={(member) => member.id}
+            itemHeight={73}
+            renderItem={(member, index) => {
+              const canRemove = isOrganizer && member.user_id !== currentUser?.id;
+              const isPending = pendingRemovalId === member.user_id;
+              const isRemoving = removeMember.isPending && isPending;
 
-            return (
-              <View
-                key={member.id}
-                className={`flex-row items-center p-md gap-md ${
-                  index > 0 ? 'border-t border-border' : ''
-                }`}
-              >
-                <MemberAvatar
-                  name={member.user.name}
-                  avatarUrl={member.user.avatar_url}
-                  size="md"
-                />
-                <View className="flex-1">
-                  <Text className="text-body text-text-primary">{member.user.name}</Text>
-                  <Text className="text-body-small text-text-secondary">
-                    {ROLE_LABELS[member.role]}
-                  </Text>
-                </View>
-
-                {canRemove && !isPending && (
-                  <Pressable
-                    onPress={() => setPendingRemovalId(member.user_id)}
-                    hitSlop={12}
-                    style={{ padding: 4 }}
-                  >
-                    <ThemedIcon name="close-circle-outline" size={22} color={colors.danger} />
-                  </Pressable>
-                )}
-
-                {canRemove && isPending && (
-                  <View className="flex-row gap-xs items-center">
-                    {isRemoving ? (
-                      <ActivityIndicator size="small" color={colors.primary} />
-                    ) : (
-                      <>
-                        <Pressable
-                          onPress={() => setPendingRemovalId(null)}
-                          hitSlop={8}
-                          className="px-sm py-xs rounded-sm bg-surface-elevated"
-                        >
-                          <Text className="text-body-small text-text-secondary">{tCommon('button.cancel')}</Text>
-                        </Pressable>
-                        <Pressable
-                          onPress={() => {
-                            removeMember.mutate(member.user_id, {
-                              onSettled: () => setPendingRemovalId(null),
-                            });
-                          }}
-                          hitSlop={8}
-                          className="px-sm py-xs rounded-sm bg-danger"
-                        >
-                          <Text className="text-body-small text-white font-semibold">{tCommon('button.remove')}</Text>
-                        </Pressable>
-                      </>
-                    )}
+              return (
+                <View
+                  className={`flex-row items-center p-md gap-md ${
+                    index > 0 ? 'border-t border-border' : ''
+                  }`}
+                >
+                  <MemberAvatar
+                    name={member.user.name}
+                    avatarUrl={member.user.avatar_url}
+                    size="md"
+                  />
+                  <View className="flex-1">
+                    <Text className="text-body text-text-primary">{member.user.name}</Text>
+                    <Text className="text-body-small text-text-secondary">
+                      {ROLE_LABELS[member.role]}
+                    </Text>
                   </View>
-                )}
-              </View>
-            );
-          })}
+
+                  {canRemove && !isPending && (
+                    <Pressable
+                      onPress={() => setPendingRemovalId(member.user_id)}
+                      hitSlop={12}
+                      style={{ padding: 4 }}
+                    >
+                      <ThemedIcon name="close-circle-outline" size={22} color={colors.danger} />
+                    </Pressable>
+                  )}
+
+                  {canRemove && isPending && (
+                    <View className="flex-row gap-xs items-center">
+                      {isRemoving ? (
+                        <ActivityIndicator size="small" color={colors.primary} />
+                      ) : (
+                        <>
+                          <Pressable
+                            onPress={() => setPendingRemovalId(null)}
+                            hitSlop={8}
+                            className="px-sm py-xs rounded-sm bg-surface-elevated"
+                          >
+                            <Text className="text-body-small text-text-secondary">{tCommon('button.cancel')}</Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={() => {
+                              removeMember.mutate(member.user_id, {
+                                onSettled: () => setPendingRemovalId(null),
+                              });
+                            }}
+                            hitSlop={8}
+                            className="px-sm py-xs rounded-sm bg-danger"
+                          >
+                            <Text className="text-body-small text-white font-semibold">{tCommon('button.remove')}</Text>
+                          </Pressable>
+                        </>
+                      )}
+                    </View>
+                  )}
+                </View>
+              );
+            }}
+          />
         </View>
       </View>
 

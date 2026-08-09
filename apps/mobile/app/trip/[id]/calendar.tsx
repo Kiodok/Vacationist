@@ -5,8 +5,8 @@ import { generateDateRange } from '@vacationist/utils';
 import type { Activity, UpdateActivityInput, Currency } from '@vacationist/types';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers } from '../../../src/features/trips/hooks/useMembers';
-import { useActivities, useUpdateActivity } from '../../../src/features/activities/hooks/useActivities';
-import { useActivityVotesBatch } from '../../../src/features/activities/hooks/useVotes';
+import { useUpdateActivity } from '../../../src/features/activities/hooks/useActivities';
+import { useTripActivityVotes } from '../../../src/features/activities/hooks/useVotes';
 import { useCalendarActivities } from '../../../src/features/calendar/hooks/useCalendarActivities';
 import { useCalendarRealtime } from '../../../src/features/calendar/hooks/useCalendarRealtime';
 import { useCalendarNavigation } from '../../../src/features/calendar/hooks/useCalendarNavigation';
@@ -26,11 +26,9 @@ export default function CalendarTab({ onTabChange }: Readonly<CalendarTabProps>)
   const router = useRouter();
   const { data: trip, isLoading: tripLoading } = useTrip(tripId!);
   const { data: activitiesByDate, isLoading: activitiesLoading } = useCalendarActivities(tripId!);
-  const { data: allActivities } = useActivities(tripId!);
   useCalendarRealtime(tripId!);
 
-  const allActivityIds = useMemo(() => (allActivities ?? []).map((a) => a.id), [allActivities]);
-  const { data: allTripVotes } = useActivityVotesBatch(allActivityIds);
+  const { data: allTripVotes } = useTripActivityVotes(tripId!);
   const blockedActivityIds = useMemo(() => {
     if (!allTripVotes) return new Set<string>();
     const blocked = new Set<string>();
@@ -62,11 +60,12 @@ export default function CalendarTab({ onTabChange }: Readonly<CalendarTabProps>)
     return counts;
   }, [activitiesByDate, blockedActivityIds]);
 
-  const selectedActivityIds = useMemo(
-    () => selectedActivities.map((a) => a.id),
-    [selectedActivities],
-  );
-  const { data: batchVotes } = useActivityVotesBatch(selectedActivityIds);
+  // Derived from the already-fetched trip-wide vote list — no second query needed.
+  const batchVotes = useMemo(() => {
+    if (!allTripVotes) return allTripVotes;
+    const selectedIds = new Set(selectedActivities.map((a) => a.id));
+    return allTripVotes.filter((v) => selectedIds.has(v.activity_id));
+  }, [allTripVotes, selectedActivities]);
   const { data: members } = useTripMembers(tripId!);
 
   const attendeesByActivity = useMemo(() => {

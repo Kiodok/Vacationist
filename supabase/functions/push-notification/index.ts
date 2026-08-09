@@ -351,7 +351,26 @@ async function markPushSent(notificationIds: string[]): Promise<void> {
     .in('id', notificationIds);
 }
 
-async function sendToExpo(
+// Expo's push API is designed around requests of at most 100 messages. Sending
+// a single oversized array (e.g. a trip with a few hundred devices registered)
+// risks partial/silent failure or request-size issues outside Expo's documented
+// sizing. sendToExpo() chunks internally and accumulates results, so every
+// caller (handleSingle, handleBatch) gets one {sent, staleTokens} pair for the
+// full input regardless of size — no call-site changes needed.
+const EXPO_PUSH_CHUNK_SIZE = 100;
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+// One HTTP request to Expo for a single chunk. `tickets[idx]` corresponds to
+// `tokens[idx]` — Expo returns tickets in request order — so `tokens` must be
+// the exact same slice (same bounds) as the `messages` it was built from.
+async function sendChunkToExpo(
   messages: ExpoPushMessage[],
   tokens: string[],
 ): Promise<{ sent: number; staleTokens: string[] }> {
@@ -380,6 +399,28 @@ async function sendToExpo(
   });
 
   return { sent: tickets.filter((t) => t.status === 'ok').length, staleTokens };
+}
+
+async function sendToExpo(
+  messages: ExpoPushMessage[],
+  tokens: string[],
+): Promise<{ sent: number; staleTokens: string[] }> {
+  const messageChunks = chunk(messages, EXPO_PUSH_CHUNK_SIZE);
+  const tokenChunks = chunk(tokens, EXPO_PUSH_CHUNK_SIZE);
+
+  let sent = 0;
+  const staleTokens: string[] = [];
+
+  // Sequential, not Promise.all — keeps behavior identical to today's single-
+  // request call under Expo rate limits, and callers already tolerate the
+  // latency of one synchronous await here.
+  for (let i = 0; i < messageChunks.length; i++) {
+    const result = await sendChunkToExpo(messageChunks[i], tokenChunks[i]);
+    sent += result.sent;
+    staleTokens.push(...result.staleTokens);
+  }
+
+  return { sent, staleTokens };
 }
 
 async function handleSingle(payload: SingleNotificationPayload): Promise<Response> {

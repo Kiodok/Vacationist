@@ -209,7 +209,8 @@ queryClient.setMutationDefaults(['closeActivityVoting'], {
   onSuccess: (_data: void, { activityId, tripId }: CloseActivityVotingVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
     queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
-    queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activity-votes'] });
+    queryClient.invalidateQueries({ queryKey: ['activity-votes', 'trips'] });
     useToastStore.getState().addToast('success', i18n.t('activities:toast.votingClosed'));
   },
 });

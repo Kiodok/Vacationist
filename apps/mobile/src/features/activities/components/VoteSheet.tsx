@@ -1,8 +1,9 @@
-import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import { View, Text, Pressable, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { VOTE_TYPE, type VoteType } from '@vacationist/types';
 import { VoteChip } from './VoteChip';
+import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 
 interface VoteRecord {
   user_id: string;
@@ -123,28 +124,32 @@ function VoteBreakdown({
 }) {
   const { t } = useTranslation('activities');
   if (memberMap && memberMap.size > 0) {
+    const orderedVotes = VOTE_ORDER.flatMap((voteType) =>
+      votes.filter((v) => v.vote === voteType).map((v) => ({ ...v, vote: voteType })),
+    );
     return (
-      <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 280 }}>
-        <View className="gap-xs">
-          {VOTE_ORDER.flatMap((voteType) =>
-            votes
-              .filter((v) => v.vote === voteType)
-              .map((v) => (
-                <View key={v.user_id} className="flex-row items-center gap-sm py-xs">
-                  <VoteChip vote={voteType} size="sm" />
-                  <Text className="text-body-small text-text-primary flex-1">
-                    {memberMap.get(v.user_id) ?? 'Unknown'}
-                  </Text>
-                </View>
-              ))
+      <View>
+        <BoundedVirtualList
+          data={orderedVotes}
+          keyExtractor={(v) => v.user_id}
+          itemHeight={32}
+          scrollable
+          style={{ maxHeight: 280 }}
+          renderItem={(v) => (
+            <View className="flex-row items-center gap-sm py-xs">
+              <VoteChip vote={v.vote} size="sm" />
+              <Text className="text-body-small text-text-primary flex-1">
+                {memberMap.get(v.user_id) ?? 'Unknown'}
+              </Text>
+            </View>
           )}
-          <View className="border-t border-border pt-sm mt-xs">
-            <Text className="text-text-secondary text-body-small text-center">
-              {t('vote.totalCount', { count: votes.length })}
-            </Text>
-          </View>
+        />
+        <View className="border-t border-border pt-sm mt-xs">
+          <Text className="text-text-secondary text-body-small text-center">
+            {t('vote.totalCount', { count: votes.length })}
+          </Text>
         </View>
-      </ScrollView>
+      </View>
     );
   }
 

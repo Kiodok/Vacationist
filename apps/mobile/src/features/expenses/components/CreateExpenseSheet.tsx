@@ -12,6 +12,7 @@ import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
 import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/useCurrencies';
 import { getLastUsedCurrency, setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
+import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 
 interface CreateExpenseSheetProps {
   visible: boolean;
@@ -360,17 +361,19 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
               {splitMethod === 'cover' ? (
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">{t('field.coveredFor')}</Text>
-                  <View className="gap-sm">
-                    {othersForCover.map((m) => {
+                  <BoundedVirtualList
+                    data={othersForCover}
+                    keyExtractor={(m) => m.user_id}
+                    itemHeight={44}
+                    renderItem={(m) => {
                       const isSelected = coveredFor === m.user_id;
                       return (
                         <Pressable
-                          key={m.user_id}
                           onPress={() => {
                             setCoveredFor(m.user_id);
                             setValue('paid_by', m.user_id);
                           }}
-                          className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary border-primary' : 'bg-surface border border-border'}`}
+                          className={`flex-row items-center gap-xs px-md py-sm mb-sm rounded-full ${isSelected ? 'bg-primary border-primary' : 'bg-surface border border-border'}`}
                           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                         >
                           <ThemedIcon
@@ -390,8 +393,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                           )}
                         </Pressable>
                       );
-                    })}
-                  </View>
+                    }}
+                  />
                 </View>
               ) : (
                 /* Normal split among section */
@@ -399,8 +402,11 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                   <Text className="text-label text-text-muted uppercase">
                     {t('field.splitAmong', { selected: selectedMembers.size, total: members.length })}
                   </Text>
-                  <View className="gap-sm">
-                    {members.map((m) => {
+                  <BoundedVirtualList
+                    data={members}
+                    keyExtractor={(m) => m.user_id}
+                    itemHeight={56}
+                    renderItem={(m) => {
                       const isSelected = selectedMembers.has(m.user_id);
                       const perPerson = splitMethod === 'even' && totalAmount > 0 && selectedMembers.size > 0
                         ? roundCurrency(totalAmount / selectedMembers.size)
@@ -411,7 +417,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                         : 0;
 
                       return (
-                        <View key={m.user_id} className="gap-xs">
+                        <View className="gap-xs mb-sm">
                           <Pressable
                             onPress={() => toggleMember(m.user_id)}
                             className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
@@ -482,8 +488,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                           )}
                         </View>
                       );
-                    })}
-                  </View>
+                    }}
+                  />
                 </View>
               )}
 

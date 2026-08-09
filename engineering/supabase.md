@@ -3862,3 +3862,25 @@ Confirmed via `console.error` placement in the function: it only logs on failure
 **Final verified state on prod, same as dev:** `currency_catalog` — every currency `is_rate_available = true` except the one `is_active = false` row (BGN, correctly retired). `npm run typecheck` clean.
 
 **Not yet done:** the app update carrying the new multi-currency UI (ships via OTA, no native changes needed) — decoupled from this DB/infra push by design (the backward-compat RPC fix exists specifically so this isn't a blocking dependency). Device/browser re-check of the currency picker on prod not yet performed.
+
+---
+
+## 2026-08-09 (same day) — Set-based notification fan-out (dev + prod)
+
+**Why:** production-hardening audit flagged `private.create_trip_notification()` as looping `trip_members` and issuing one single-row `INSERT ... RETURNING` per recipient, synchronously inside the same transaction as whatever triggered it (new activity, new expense, new member, vote finalized, schedule change, member left, etc.) — latency on ordinary writes that scaled linearly with trip size. Part of a broader remediation plan for trips that grow well past the 4–12-person range the app was designed and tested around (member cap itself deliberately deferred per Tech Lead decision — Phase 11 stays gated on ~500 MAU).
+
+**Migration `20260809140000_set_based_notification_fanout.sql`:** `CREATE OR REPLACE FUNCTION private.create_trip_notification(...)` — identical 10-param signature, only the body changed. The per-row `FOR v_member IN SELECT ... LOOP INSERT ... RETURNING id INTO v_notification_id` loop became a single `INSERT INTO public.notifications (...) SELECT ... FROM public.trip_members WHERE trip_id = p_trip_id AND user_id != p_exclude_user_id RETURNING id, user_id`, wrapped in a CTE. `v_notification_ids`/`v_user_ids` are now built via `array_agg(id ORDER BY user_id)` / `array_agg(user_id ORDER BY user_id)` over that one CTE — both aggregates ordered by the identical key over the identical row set, which is what keeps them positionally aligned (the push-notification edge function maps each Expo push back to its `notification_id` via this pairing). Everything else preserved exactly: the `app.batch_push_pending` GUC still brackets the insert (the per-row `trg_dispatch_push_notification` AFTER INSERT trigger still fires once per row even on a set-based insert — the GUC is what suppresses its per-row HTTP dispatch), `!=` (not `IS DISTINCT FROM`) on the exclude comparison, and the three early exits in the same order (no recipients / `pg_trigger_depth() >= 1` / missing vault secret).
+
+**Verified on dev before prod push:** wrote a `BEGIN; ... ROLLBACK;` script against a real trip with 3 members (`2bf87b32-9ed0-485f-8d78-feae41cb6e5c`) — called the function excluding one member, asserted exactly 2 notification rows were created, exactly for the 2 non-excluded members, no duplicates, and confirmed the transaction actually rolled back (0 matching rows left afterward). All assertions passed (no `RAISE EXCEPTION` surfaced — confirmed the harness does surface those as CLI errors, since an earlier attempt using synthetic UUIDs correctly failed loudly on `users_id_fkey`, which is why the real-trip approach was used instead). `npm run typecheck` / `npm test` unaffected (Postgres-only change, no client code touched).
+
+**Prod push:** signature-identical `CREATE OR REPLACE`, non-destructive, no data migration — pushed immediately per the standard "safe, backwards-compatible" criteria. `supabase migration list --linked` against prod confirms `local == remote` for every migration through `20260809140000` with no gaps. (`supabase db dump --schema-only` is not available in this CLI version/environment — see the "No Docker on this machine" note; migration-ledger parity was used instead, sufficient here since this is a single deterministic function replacement applied via the identical migration file to both environments.)
+
+**Not changed, deliberately:** the ~19 call sites (triggers, RPCs, pg_cron jobs) that invoke this function — only its internals changed. The push-notification edge function's own `sendToExpo` chunking (100 messages/request) was fixed separately in the same remediation pass, client-side only, no migration.
+
+---
+
+## 2026-08-09 (same day) — push-notification edge function deployed (dev + prod)
+
+**Why:** the `sendToExpo` chunking fix (100-message batches, see above) existed only in the repo — never actually deployed this remediation pass. Closing that gap now that the rest of the session's changes (recipe→shopping-list sync fix, activities pagination, this migration) were manually re-verified.
+
+**Deployed:** `supabase functions deploy push-notification` — dev (`aejywkbkcwyanhyzhrle`, v36→v37), then prod (`fsfsqghbejwvgxujoyne`, v36→v37). Confirmed via `supabase functions list` on both (version bump + `updated_at`). No secrets, no signature, no payload-shape change — purely internal chunking of the outbound Expo array, so no coordinated app-side change was needed. Re-linked to dev afterward per the standard workflow.

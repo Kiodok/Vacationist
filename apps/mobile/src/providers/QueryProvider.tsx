@@ -7,7 +7,7 @@ import { AppState } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import type { ReactNode } from 'react';
 import { mmkvStorageAdapter } from '../utils/mmkvStorage';
-import { isOptimisticId } from '../utils/optimisticId';
+import { stripOptimisticRows } from '../utils/persistOptimistic';
 import { queryClient, isPersistedMutationKey } from '../utils/queryClient';
 import '../utils/mutationDefaults';
 
@@ -26,35 +26,33 @@ function serializeWithoutOptimisticEntries(client: PersistedClient): string {
     ...client,
     clientState: {
       ...client.clientState,
-      queries: client.clientState.queries.map((q) => {
-        if (Array.isArray(q.state.data)) {
-          return {
-            ...q,
-            state: {
-              ...q.state,
-              data: q.state.data.filter(
-                (item: unknown) =>
-                  !(
-                    item &&
-                    typeof item === 'object' &&
-                    'id' in item &&
-                    typeof (item as { id: unknown }).id === 'string' &&
-                    isOptimisticId((item as { id: string }).id)
-                  ),
-              ),
-            },
-          };
-        }
-        return q;
-      }),
+      queries: client.clientState.queries.map((q) => ({
+        ...q,
+        state: {
+          ...q.state,
+          // Handles both a plain array and InfiniteData<{items}, PageParam> —
+          // the latter previously fell through this guard untouched, so
+          // optimistic rows in any paginated query (chat, expenses, and soon
+          // activities) were persisted to disk and rehydrated as phantoms on
+          // cold start.
+          data: stripOptimisticRows(q.state.data),
+        },
+      })),
     },
   };
   return JSON.stringify(cleaned);
 }
 
+// v2: the activities-tab query (['trips', tripId, 'activities']) changed
+// shape from a flat Activity[] to a paginated InfiniteData<{items}> — an app
+// already installed on a device has that key persisted in the OLD shape, and
+// rehydrating it straight into useInfiniteQuery would crash (`.pages` on a
+// plain array is undefined). Bumping the storage key forces one clean
+// full-cache refetch on first launch after this update instead of rehydrating
+// mismatched shapes. Every other persisted query pays the same one-time cost.
 const persister = createSyncStoragePersister({
   storage: mmkvStorageAdapter,
-  key: 'REACT_QUERY_CACHE',
+  key: 'REACT_QUERY_CACHE_v2',
   serialize: serializeWithoutOptimisticEntries,
 });
 

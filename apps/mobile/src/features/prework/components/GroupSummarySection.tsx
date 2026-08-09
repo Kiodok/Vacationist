@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { colors , ThemedIcon } from '@vacationist/ui';
 import type { AggregatedFilter } from '../utils/aggregateFilters';
+import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 
 interface MemberNameMap {
   [userId: string]: string;
@@ -80,17 +81,22 @@ export function GroupSummarySection({ aggregated, totalMembers, memberNames }: G
 
               {/* Expanded breakdown */}
               {isExpanded && (
-                <View className="border-t border-border px-md py-sm gap-xs">
-                  {filter.breakdown.map((entry) => (
-                    <View key={entry.userId} className="flex-row items-center justify-between">
-                      <Text className="text-body-small text-text-secondary" numberOfLines={1}>
-                        {memberNames[entry.userId] ?? 'Unknown'}
-                      </Text>
-                      <Text className="text-body-small text-text-primary font-medium">
-                        {entry.weight}
-                      </Text>
-                    </View>
-                  ))}
+                <View className="border-t border-border px-md py-sm">
+                  <BoundedVirtualList
+                    data={filter.breakdown}
+                    keyExtractor={(entry) => entry.userId}
+                    itemHeight={28}
+                    renderItem={(entry) => (
+                      <View className="flex-row items-center justify-between mb-xs">
+                        <Text className="text-body-small text-text-secondary" numberOfLines={1}>
+                          {memberNames[entry.userId] ?? 'Unknown'}
+                        </Text>
+                        <Text className="text-body-small text-text-primary font-medium">
+                          {entry.weight}
+                        </Text>
+                      </View>
+                    )}
+                  />
                 </View>
               )}
             </Pressable>

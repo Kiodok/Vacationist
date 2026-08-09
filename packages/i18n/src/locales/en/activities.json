@@ -78,5 +78,7 @@
   "toast.voteFailed": "Failed to cast vote.",
   "toast.removeVoteFailed": "Failed to remove vote.",
   "search.placeholder": "Search activities...",
-  "search.noResults": "No activities matching \"{{query}}\""
+  "search.noResults": "No activities matching \"{{query}}\"",
+  "search.loadingAll": "Searching all activities…",
+  "loadMore": "Load more"
 }

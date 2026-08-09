@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl, Switch, Platform } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, SectionList, Linking, RefreshControl, Switch, Platform, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
@@ -7,8 +7,8 @@ import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSection
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput, Currency } from '@vacationist/types';
-import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
-import { useActivityVotes, useCastVote, useRemoveVote, useActivityVotesBatch } from '../../../src/features/activities/hooks/useVotes';
+import { useActivities, useAllActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
+import { useActivityVotes, useCastVote, useRemoveVote, useTripActivityVotes } from '../../../src/features/activities/hooks/useVotes';
 import { useActivityVotesRealtime } from '../../../src/features/activities/hooks/useActivityVotesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useCurrentMemberRole, useTripMembers } from '../../../src/features/trips/hooks/useMembers';
@@ -26,6 +26,8 @@ import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import { SearchInput } from '../../../src/components/SearchInput';
+import { flattenActivities, type ActivitiesData } from '../../../src/features/activities/utils/activityCache';
+import { compareActivitiesForDisplay } from '../../../src/features/activities/utils/activityOrder';
 
 function isTripLocked(endDate: string | null | undefined): boolean {
   if (!endDate) return false;
@@ -79,15 +81,6 @@ function isOngoing(activity: Activity, timezone: string): boolean {
   return dayjs().tz(timezone).isSame(dayjs.tz(date, timezone), 'day');
 }
 
-function sortByDate(a: Activity, b: Activity): number {
-  const dateA = a.activity_date ?? '';
-  const dateB = b.activity_date ?? '';
-  if (dateA === dateB) return 0;
-  if (!dateA) return 1;
-  if (!dateB) return -1;
-  return dateA < dateB ? -1 : 1;
-}
-
 export default function ActivitiesTab() {
   const { t } = useTranslation('activities');
   const { t: tCommon } = useTranslation("common");
@@ -98,12 +91,31 @@ export default function ActivitiesTab() {
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
   const currency = (trip?.base_currency ?? 'EUR') as Currency;
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchActive = searchQuery.trim().length > 0;
+
   const activitiesQuery = useActivities(tripId!);
-  const { data: activities, refetch } = activitiesQuery;
+  const { data: pagedData, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = activitiesQuery;
   const ux = getQueryDisplayState(activitiesQuery);
+  // useInfiniteQuery's inferred TPageParam widens to `unknown` here (same
+  // pre-existing quirk expenses.ts works around with `pageParam as number`
+  // inside its queryFn) — cast to the concrete shape the pure helpers expect.
+  const pagedActivities = useMemo(
+    () => flattenActivities(pagedData as ActivitiesData | undefined),
+    [pagedData],
+  );
+
+  // Client-side search only covers loaded pages, which would silently miss
+  // activities on later pages — so switch the corpus to the whole-trip 'all'
+  // cache entry the moment a search starts (usually already warm from the
+  // calendar tab). Falls back to searching just the loaded pages until that
+  // fetch resolves.
+  const allActivitiesQuery = useAllActivities(tripId!, searchActive);
+  const searchCorpusReady = !searchActive || allActivitiesQuery.data !== undefined;
+  const activities = searchActive && allActivitiesQuery.data ? allActivitiesQuery.data : pagedActivities;
+
   const { data: role } = useCurrentMemberRole(tripId!);
-  const allActivityIds = useMemo(() => (activities ?? []).map((a) => a.id), [activities]);
-  const { data: allVotes } = useActivityVotesBatch(allActivityIds);
+  const { data: allVotes } = useTripActivityVotes(tripId!);
   const blockedActivityIds = useMemo(() => {
     if (!allVotes) return new Set<string>();
     const blocked = new Set<string>();
@@ -124,12 +136,11 @@ export default function ActivitiesTab() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredActivities = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return activities ?? [];
-    return (activities ?? []).filter(
+    if (!q) return activities;
+    return activities.filter(
       (a) =>
         a.title.toLowerCase().includes(q) ||
         a.description?.toLowerCase().includes(q),
@@ -158,11 +169,11 @@ export default function ActivitiesTab() {
         planned.push(a);
       }
     }
-    inPlanning.sort(sortByDate);
-    planned.sort(sortByDate);
-    blocked.sort(sortByDate);
-    ongoing.sort(sortByDate);
-    completed.sort(sortByDate);
+    inPlanning.sort(compareActivitiesForDisplay);
+    planned.sort(compareActivitiesForDisplay);
+    blocked.sort(compareActivitiesForDisplay);
+    ongoing.sort(compareActivitiesForDisplay);
+    completed.sort(compareActivitiesForDisplay);
     return { inPlanningList: inPlanning, plannedList: planned, blockedList: blocked, ongoingList: ongoing, completedList: completed };
   }, [filteredActivities, blockedActivityIds, trip?.timezone]);
 
@@ -234,6 +245,17 @@ export default function ActivitiesTab() {
     }
   }, [activityId, rawSections, isCollapsed, expand]);
 
+  // A deep-linked activity (from a notification, the calendar, or a shared
+  // highlight) may not be on a loaded page yet — the scroll effect above only
+  // searches rawSections, which is built from the paged feed. Advance page by
+  // page until the target appears or the feed is exhausted; the effect above
+  // re-runs on its own once rawSections changes.
+  const targetOnLoadedPage = !activityId || pagedActivities.some((a) => a.id === activityId);
+  useEffect(() => {
+    if (!activityId || targetOnLoadedPage || !hasNextPage || isFetchingNextPage) return;
+    fetchNextPage();
+  }, [activityId, targetOnLoadedPage, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   const handleCreate = (input: CreateActivityInput) => {
     setShowCreate(false);
     createActivity.mutate({ tripId: tripId!, input });
@@ -252,9 +274,12 @@ export default function ActivitiesTab() {
     return <OfflineEmptyState onRetry={refetch} />;
   }
 
-  const isEmpty = !activities || activities.length === 0;
-  const searchActive = searchQuery.trim().length > 0;
-  const searchNoResults = searchActive && sections.length === 0;
+  // Whether the trip has any activities at all — deliberately based on the
+  // paged feed, not the search-affected `activities` list, so a search that
+  // hasn't resolved yet never flashes the "no activities in this trip" empty
+  // state for a trip that actually has some.
+  const isEmpty = pagedActivities.length === 0 && !searchActive;
+  const searchNoResults = searchActive && searchCorpusReady && sections.length === 0;
 
   return (
     <View className="flex-1">
@@ -346,6 +371,27 @@ export default function ActivitiesTab() {
               tintColor={colors.primary}
               colors={[colors.primary]}
             />
+          }
+          // No onEndReached here, deliberately — this is a collapsible SectionList
+          // (same reasoning as expenses.tsx), so scroll-driven paging would fire
+          // spuriously as sections collapse/expand. "Load more" is a footer button.
+          ListFooterComponent={
+            searchActive && !searchCorpusReady ? (
+              <View className="py-md items-center flex-row justify-center gap-sm">
+                <ActivityIndicator color={colors.primary} size="small" />
+                <Text className="text-text-secondary text-body-small">{t('search.loadingAll')}</Text>
+              </View>
+            ) : !searchActive && hasNextPage ? (
+              <Pressable
+                onPress={() => fetchNextPage()}
+                className="py-md items-center"
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage
+                  ? <ActivityIndicator color={colors.primary} />
+                  : <Text className="text-primary text-body font-semibold">{t('loadMore')}</Text>}
+              </Pressable>
+            ) : null
           }
         />
       )}

@@ -5,7 +5,7 @@ import { generateTripMarkdown, computeSettlements } from '@vacationist/utils';
 import type { TripMarkdownMember } from '@vacationist/utils';
 import { useTrip } from '../../trips/hooks/useTrips';
 import { useTripMembers } from '../../trips/hooks/useMembers';
-import { useActivities } from '../../activities/hooks/useActivities';
+import { useAllActivities } from '../../activities/hooks/useActivities';
 import { useAccommodations } from '../../accommodations/hooks/useAccommodations';
 import { useTransferFlights } from '../../transfer/hooks/useTransferFlights';
 import { useTransferVehicles } from '../../transfer/hooks/useTransferVehicles';
@@ -21,7 +21,7 @@ import { i18n } from '@vacationist/i18n';
 export function useTripExport(tripId: string) {
   const { data: trip } = useTrip(tripId);
   const { data: members = [] } = useTripMembers(tripId);
-  const { data: activities = [] } = useActivities(tripId);
+  const { data: activities = [] } = useAllActivities(tripId);
   const { data: accommodations = [] } = useAccommodations(tripId);
   const { data: flights = [] } = useTransferFlights(tripId);
   const { data: vehicles = [] } = useTransferVehicles(tripId);

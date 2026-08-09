@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Activity, SupportedTimezone, UpdateActivityInput, Currency } from '@vacationist/types';
 import { useUpdateActivity } from '../../src/features/activities/hooks/useActivities';
-import { useActivityVotesBatch } from '../../src/features/activities/hooks/useVotes';
+import { useActivityVotesForTrips } from '../../src/features/activities/hooks/useVotes';
 import { EditActivitySheet } from '../../src/features/activities/components/EditActivitySheet';
 import { useTrips } from '../../src/features/trips/hooks/useTrips';
 import { useGlobalCalendarActivities } from '../../src/features/calendar/hooks/useGlobalCalendarActivities';
@@ -27,11 +27,7 @@ export default function GlobalCalendarScreen() {
 
   const tripIds = useMemo(() => (trips?.map((t) => t.id) ?? []), [trips]);
 
-  const allGlobalActivityIds = useMemo(() => {
-    if (!globalData) return [];
-    return globalData.flatMap((gt) => gt.activities.map((a) => a.id));
-  }, [globalData]);
-  const { data: allGlobalVotes } = useActivityVotesBatch(allGlobalActivityIds);
+  const { data: allGlobalVotes } = useActivityVotesForTrips(tripIds);
   const blockedActivityIds = useMemo(() => {
     if (!allGlobalVotes) return new Set<string>();
     const blocked = new Set<string>();

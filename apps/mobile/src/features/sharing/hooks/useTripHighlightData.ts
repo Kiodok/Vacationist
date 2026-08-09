@@ -3,7 +3,7 @@ import type { Activity, TransferFlight } from '@vacationist/types';
 import { dayjs } from '@vacationist/utils';
 import { useTrip } from '../../trips/hooks/useTrips';
 import { useTripMembers } from '../../trips/hooks/useMembers';
-import { useActivities } from '../../activities/hooks/useActivities';
+import { useAllActivities } from '../../activities/hooks/useActivities';
 import { useAccommodations } from '../../accommodations/hooks/useAccommodations';
 import { useTransferFlights } from '../../transfer/hooks/useTransferFlights';
 import { useTransferVehicles } from '../../transfer/hooks/useTransferVehicles';
@@ -45,7 +45,7 @@ export function useHighlightCandidates(tripId: string): {
 } {
   const tripQuery = useTrip(tripId);
   const membersQuery = useTripMembers(tripId);
-  const activitiesQuery = useActivities(tripId);
+  const activitiesQuery = useAllActivities(tripId);
   const accommodationsQuery = useAccommodations(tripId);
   const flightsQuery = useTransferFlights(tripId);
   const vehiclesQuery = useTransferVehicles(tripId);

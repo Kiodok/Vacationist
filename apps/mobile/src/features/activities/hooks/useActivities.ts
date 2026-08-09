@@ -1,6 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getActivities,
+  getActivitiesPage,
+  ACTIVITY_PAGE_SIZE,
+  getAllActivities,
   getActivity,
   createActivity,
   updateActivity,
@@ -21,13 +23,45 @@ import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { activitiesPageKey, allActivitiesKey } from '../utils/activityKeys';
+import {
+  applyActivityCacheOp,
+  snapshotActivityCaches,
+  restoreActivityCaches,
+  type ActivityCacheSnapshot,
+} from '../utils/activityCache';
 
+/** Paged feed for the activities tab. Not for whole-trip consumers — see useAllActivities. */
 export function useActivities(tripId: string) {
-  return useQuery({
-    queryKey: ['trips', tripId, 'activities'],
-    queryFn: () => getActivities(tripId),
+  return useInfiniteQuery({
+    queryKey: activitiesPageKey(tripId),
+    // The `as number` cast matches the established pattern in useExpenses.ts —
+    // TanStack's inferred TPageParam widens to `unknown` in this codebase's
+    // version pairing even with a typed initialPageParam.
+    queryFn: ({ pageParam }) => getActivitiesPage(tripId, (pageParam as number) ?? 0),
+    initialPageParam: 0,
+    // Offset from page COUNT, not summed item lengths — an optimistic
+    // insert/remove mutates a page's items[] and would otherwise corrupt the
+    // next offset.
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasMore ? allPages.length * ACTIVITY_PAGE_SIZE : undefined,
     retry: 2,
     enabled: !!tripId,
+  });
+}
+
+/**
+ * Every non-deleted activity for a trip, unpaginated. For consumers that are
+ * semantically whole-trip — calendar grouping, markdown export, highlight
+ * selection, full-list search — never the paged activities-tab feed
+ * (`useActivities`), so they never silently see only the first page.
+ */
+export function useAllActivities(tripId: string, enabled = true) {
+  return useQuery({
+    queryKey: allActivitiesKey(tripId),
+    queryFn: () => getAllActivities(tripId),
+    retry: 2,
+    enabled: !!tripId && enabled,
   });
 }
 
@@ -44,12 +78,12 @@ export function useCreateActivity() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation<Activity, Error, CreateActivityVariables, { previous: Activity[] | undefined }>({
+  return useMutation<Activity, Error, CreateActivityVariables, { snapshot: ActivityCacheSnapshot }>({
     mutationKey: ['createActivity'],
     mutationFn: ({ tripId, input }) => createActivity(tripId, input),
     onMutate: async ({ tripId, input }) => {
-      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
-      const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
+      await queryClient.cancelQueries({ queryKey: activitiesPageKey(tripId) });
+      const snapshot = snapshotActivityCaches(queryClient, tripId);
 
       const userId = useAuthStore.getState().user?.id ?? '';
       const optimistic: Activity = {
@@ -73,16 +107,13 @@ export function useCreateActivity() {
         deleted_at: null,
       };
 
-      queryClient.setQueryData<Activity[]>(
-        ['trips', tripId, 'activities'],
-        (old) => [...(old ?? []), optimistic],
-      );
+      applyActivityCacheOp(queryClient, tripId, { kind: 'insert', activity: optimistic });
 
-      return { previous };
+      return { snapshot };
     },
     onError: (err, { tripId }, context) => {
       if (context !== undefined) {
-        queryClient.setQueryData<Activity[]>(['trips', tripId, 'activities'], context.previous);
+        restoreActivityCaches(queryClient, tripId, context.snapshot);
       }
       if (__DEV__) console.error('[createActivity]', err);
       addToast('error', i18n.t('activities:toast.createFailed'));
@@ -98,21 +129,18 @@ export function useUpdateActivity() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation<Activity, Error, UpdateActivityVariables, { previous: Activity[] | undefined }>({
+  return useMutation<Activity, Error, UpdateActivityVariables, { snapshot: ActivityCacheSnapshot }>({
     mutationKey: ['updateActivity'],
     mutationFn: ({ activityId, input }) => updateActivity(activityId, input),
     onMutate: async ({ activityId, tripId, input }) => {
-      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
-      const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
-      queryClient.setQueryData<Activity[]>(
-        ['trips', tripId, 'activities'],
-        (old) => old?.map((a) => (a.id === activityId ? { ...a, ...input } : a)),
-      );
-      return { previous };
+      await queryClient.cancelQueries({ queryKey: activitiesPageKey(tripId) });
+      const snapshot = snapshotActivityCaches(queryClient, tripId);
+      applyActivityCacheOp(queryClient, tripId, { kind: 'patch', id: activityId, patch: input });
+      return { snapshot };
     },
     onError: (_err, { tripId }, context) => {
       if (context !== undefined) {
-        queryClient.setQueryData(['trips', tripId, 'activities'], context.previous);
+        restoreActivityCaches(queryClient, tripId, context.snapshot);
       }
       addToast('error', i18n.t('activities:toast.updateFailed'));
     },
@@ -123,21 +151,18 @@ export function useDeleteActivity() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation<void, Error, DeleteActivityVariables, { previous: Activity[] | undefined }>({
+  return useMutation<void, Error, DeleteActivityVariables, { snapshot: ActivityCacheSnapshot }>({
     mutationKey: ['deleteActivity'],
     mutationFn: ({ activityId }) => softDeleteActivity(activityId),
     onMutate: async ({ activityId, tripId }) => {
-      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
-      const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
-      queryClient.setQueryData<Activity[]>(
-        ['trips', tripId, 'activities'],
-        (old) => old?.filter((a) => a.id !== activityId),
-      );
-      return { previous };
+      await queryClient.cancelQueries({ queryKey: activitiesPageKey(tripId) });
+      const snapshot = snapshotActivityCaches(queryClient, tripId);
+      applyActivityCacheOp(queryClient, tripId, { kind: 'remove', id: activityId });
+      return { snapshot };
     },
     onError: (error, { tripId }, context) => {
       if (context !== undefined) {
-        queryClient.setQueryData(['trips', tripId, 'activities'], context.previous);
+        restoreActivityCaches(queryClient, tripId, context.snapshot);
       }
       addToast('error', error.message || i18n.t('activities:toast.deleteFailed'));
     },
@@ -151,19 +176,20 @@ function useSetVotingOpen(
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  type Context = { previous: Activity[] | undefined; previousVotes: ActivityVote[] | undefined };
+  type Context = { snapshot: ActivityCacheSnapshot; previousVotes: ActivityVote[] | undefined };
 
   return useMutation<void, Error, CloseActivityVotingVariables, Context>({
     mutationKey: [mutationKey],
     mutationFn: ({ activityId }) =>
       votingOpen ? reopenActivityVoting(activityId) : closeActivityVoting(activityId),
     onMutate: async ({ activityId, tripId }) => {
-      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'activities'] });
-      const previous = queryClient.getQueryData<Activity[]>(['trips', tripId, 'activities']);
-      queryClient.setQueryData<Activity[]>(
-        ['trips', tripId, 'activities'],
-        (old) => old?.map((a) => (a.id === activityId ? { ...a, voting_open: votingOpen } : a)),
-      );
+      await queryClient.cancelQueries({ queryKey: activitiesPageKey(tripId) });
+      const snapshot = snapshotActivityCaches(queryClient, tripId);
+      applyActivityCacheOp(queryClient, tripId, {
+        kind: 'patch',
+        id: activityId,
+        patch: { voting_open: votingOpen },
+      });
 
       let previousVotes: ActivityVote[] | undefined;
       if (!votingOpen) {
@@ -175,11 +201,11 @@ function useSetVotingOpen(
         );
       }
 
-      return { previous, previousVotes };
+      return { snapshot, previousVotes };
     },
     onError: (_err, { activityId, tripId }, context) => {
       if (context !== undefined) {
-        queryClient.setQueryData(['trips', tripId, 'activities'], context.previous);
+        restoreActivityCaches(queryClient, tripId, context.snapshot);
         if (context.previousVotes !== undefined) {
           queryClient.setQueryData(['activities', activityId, 'votes'], context.previousVotes);
         }

@@ -26,7 +26,9 @@ export type { TripMemberWithUser } from './members';
 export { createInviteToken, getActiveInvites, revokeInvite, redeemInviteToken, previewInviteToken, getTripInviteStats } from './invites';
 
 export {
-  getActivities,
+  getAllActivities,
+  getActivitiesPage,
+  ACTIVITY_PAGE_SIZE,
   getActivity,
   createActivity,
   updateActivity,
@@ -34,7 +36,8 @@ export {
   closeActivityVoting,
   reopenActivityVoting,
   getActivityVotes,
-  getActivityVotesBatch,
+  getTripActivityVotes,
+  getActivityVotesForTrips,
   castActivityVote,
   removeActivityVote,
   subscribeToActivityVotingRealtime,
@@ -43,7 +46,7 @@ export {
   subscribeToCalendarActivitiesRealtime,
   unsubscribeFromCalendarActivities,
 } from './activities';
-export type { ActivityVotingRealtimeCallbacks, CalendarActivityRealtimeCallbacks } from './activities';
+export type { ActivityVotingRealtimeCallbacks, CalendarActivityRealtimeCallbacks, ActivitiesPage } from './activities';
 
 export {
   getAccommodations,

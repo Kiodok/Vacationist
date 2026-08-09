@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, Text, Pressable, Modal, ScrollView, Switch } from 'react-native';
+import { View, Text, Pressable, Modal, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 
 interface PassengerSelectSheetProps {
   visible: boolean;
@@ -66,44 +67,45 @@ export function PassengerSelectSheet({
             </Pressable>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View className="gap-xs">
-              {members.map((member) => {
-                const isSelected = selected.has(member.user_id);
-                const isDriver = driverUserIds.includes(member.user_id);
-                return (
-                  <Pressable
-                    key={member.user_id}
-                    onPress={() => toggle(member.user_id)}
-                    className={`flex-row items-center px-md py-sm rounded-md border ${
-                      isSelected ? 'border-primary bg-primary/10' : 'border-border bg-surface'
-                    }`}
-                    style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                  >
-                    <View className={`w-[20px] h-[20px] rounded-sm border-2 items-center justify-center mr-md ${
-                      isSelected ? 'bg-primary border-primary' : 'border-border'
-                    }`}>
-                      {isSelected && <ThemedIcon name="checkmark" size={14} color={isColorful ? colors.surface : '#FFFFFF'} />}
+          <BoundedVirtualList
+            data={members}
+            keyExtractor={(member) => member.user_id}
+            itemHeight={56}
+            scrollable
+            renderItem={(member) => {
+              const isSelected = selected.has(member.user_id);
+              const isDriver = driverUserIds.includes(member.user_id);
+              return (
+                <Pressable
+                  onPress={() => toggle(member.user_id)}
+                  className={`flex-row items-center px-md py-sm rounded-md border mb-xs ${
+                    isSelected ? 'border-primary bg-primary/10' : 'border-border bg-surface'
+                  }`}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                >
+                  <View className={`w-[20px] h-[20px] rounded-sm border-2 items-center justify-center mr-md ${
+                    isSelected ? 'bg-primary border-primary' : 'border-border'
+                  }`}>
+                    {isSelected && <ThemedIcon name="checkmark" size={14} color={isColorful ? colors.surface : '#FFFFFF'} />}
+                  </View>
+                  <Text className="text-body text-text-primary flex-1">
+                    {member.user?.name ?? 'Unknown'}
+                  </Text>
+                  {showDriverToggle && isSelected && onDriverToggle && (
+                    <View className="flex-row items-center gap-xs">
+                      <Text className="text-body-small text-text-muted">Driver</Text>
+                      <Switch
+                        value={isDriver}
+                        onValueChange={(val) => onDriverToggle(member.user_id, val)}
+                        trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                        thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                      />
                     </View>
-                    <Text className="text-body text-text-primary flex-1">
-                      {member.user?.name ?? 'Unknown'}
-                    </Text>
-                    {showDriverToggle && isSelected && onDriverToggle && (
-                      <View className="flex-row items-center gap-xs">
-                        <Text className="text-body-small text-text-muted">Driver</Text>
-                        <Switch
-                          value={isDriver}
-                          onValueChange={(val) => onDriverToggle(member.user_id, val)}
-                          trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
-                          thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
-                        />
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
+                  )}
+                </Pressable>
+              );
+            }}
+          />
 
           <Pressable
             onPress={handleConfirm}

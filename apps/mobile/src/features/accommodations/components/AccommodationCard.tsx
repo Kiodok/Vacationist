@@ -23,7 +23,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
   const dateFormat = i18n.language?.startsWith('de') ? 'DD.MM.YYYY' : 'DD/MM/YYYY';
   const formatDate = (d: string) => dayjs(d).format(dateFormat);
   const myVote = votes.find((v) => v.user_id === currentUserId);
-  const showBreakdown = !accommodation.voting_open;
+  const votingClosed = !accommodation.voting_open;
   const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
   const borderColor = getVoteBorderColor(votes, isColorful);
 
@@ -91,7 +91,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
         <View className="mt-xs gap-xs">
           <View className="flex-row items-center gap-sm">
             {votes.length > 0 && <VoteSummary votes={votes} />}
-            {showBreakdown ? null : myVote ? (
+            {votingClosed ? null : myVote ? (
               <VoteChip vote={myVote.vote} size="sm" onPress={onVotePress} />
             ) : (
               <Pressable

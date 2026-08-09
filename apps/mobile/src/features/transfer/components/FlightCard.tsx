@@ -34,7 +34,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const myVote = votes.find((v) => v.user_id === currentUserId);
-  const showBreakdown = !flight.voting_open;
+  const votingClosed = !flight.voting_open;
   const winnerBorderColor = isColorful ? '#00A864' : colors.success;
   const borderColor = isWinner && !flight.voting_open ? winnerBorderColor : getVoteBorderColor(votes, isColorful);
 
@@ -146,7 +146,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         <View className="mt-xs gap-xs">
           <View className="flex-row items-center gap-sm">
             {votes.length > 0 && <VoteSummary votes={votes} />}
-            {showBreakdown ? null : myVote ? (
+            {votingClosed ? null : myVote ? (
               <VoteChip vote={myVote.vote} size="sm" onPress={onVotePress} />
             ) : (
               <Pressable

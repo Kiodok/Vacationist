@@ -25,7 +25,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const myVote = votes.find((v) => v.user_id === currentUserId);
-  const showBreakdown = !activity.voting_open;
+  const votingClosed = !activity.voting_open;
   const borderColor = getVoteBorderColor(votes, isColorful);
 
   const { animatedBorderColor } = useHighlightAnimation(highlight, borderColor);
@@ -109,7 +109,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
       <View className="mt-xs gap-xs">
         <View className="flex-row items-center gap-sm">
           {votes.length > 0 && <VoteSummary votes={votes} />}
-          {showBreakdown ? null : myVote ? (
+          {votingClosed ? null : myVote ? (
             <VoteChip vote={myVote.vote} size="sm" onPress={onVotePress} />
           ) : (
             <Pressable

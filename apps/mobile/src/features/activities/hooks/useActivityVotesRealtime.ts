@@ -3,7 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAppForeground } from '../../../hooks/useAppForeground';
 import { subscribeToActivityVotingRealtime, unsubscribeFromActivityVoting } from '@vacationist/api';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import type { Activity, ActivityVote } from '@vacationist/types';
+import type { ActivityVote } from '@vacationist/types';
+import { applyActivityCacheOp } from '../utils/activityCache';
 
 const BACKOFF_DELAYS = [2000, 5000, 10000, 30000];
 
@@ -45,7 +46,8 @@ export function useActivityVotesRealtime(tripId: string) {
               return [...withoutUser, vote];
             },
           );
-          queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
+          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activity-votes'] });
+          queryClient.invalidateQueries({ queryKey: ['activity-votes', 'trips'] });
         },
         onVoteUpdate: (vote) => {
           queryClient.setQueryData<ActivityVote[]>(
@@ -57,7 +59,8 @@ export function useActivityVotesRealtime(tripId: string) {
               return [...withoutUser, vote];
             },
           );
-          queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
+          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activity-votes'] });
+          queryClient.invalidateQueries({ queryKey: ['activity-votes', 'trips'] });
         },
         onVoteDelete: (oldVote) => {
           if (oldVote.activity_id) {
@@ -71,13 +74,17 @@ export function useActivityVotesRealtime(tripId: string) {
           } else {
             queryClient.invalidateQueries({ queryKey: ['activities'] });
           }
-          queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
+          queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activity-votes'] });
+          queryClient.invalidateQueries({ queryKey: ['activity-votes', 'trips'] });
         },
         onActivityUpdate: (activity) => {
-          queryClient.setQueryData<Activity[]>(
-            ['trips', tripId, 'activities'],
-            (old) => old?.map((a) => (a.id === activity.id ? activity : a)),
-          );
+          // Patches the paged feed, the whole-trip 'all' cache, and the
+          // single-row ['activities', id] cache in one call. The old
+          // `setQueryData<Activity[]>` here assumed a flat array — against
+          // the paginated InfiniteData shape, `old?.map` would be
+          // `old.pages.map` territory and throw, since InfiniteData has no
+          // top-level `.map`.
+          applyActivityCacheOp(queryClient, tripId, { kind: 'replace', activity });
         },
       },
       (status) => {

@@ -167,19 +167,40 @@ export async function deleteIngredient(ingredientId: string): Promise<void> {
 // Ingredient → Shopping List propagation helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * Infers the scale factor previously applied to `shoppingListId` for this
+ * recipe, by comparing an already-synced OTHER item's current quantity to
+ * its recipe_ingredient's quantity.
+ *
+ * `excludeIngredientId` MUST be passed as the ingredient currently being
+ * added/updated, whenever the caller has one in hand. Without it, this can
+ * self-reference: during an update, recipe_ingredients.quantity for that
+ * ingredient is already the NEW (just-committed) value, while its own
+ * shopping_items row still holds the OLD (not-yet-propagated) quantity —
+ * dividing the two yields a "correction factor" that, reapplied to the new
+ * quantity, silently reproduces the OLD quantity and makes the edit a no-op.
+ * Excluding it forces the scale to be derived from a genuinely independent
+ * reference item (falling back to 1 if none exists in this list).
+ */
 async function deriveRecipeScale(
   recipeId: string,
   shoppingListId: string,
+  excludeIngredientId?: string,
 ): Promise<number> {
-  const { data: items } = await supabase
+  let query = supabase
     .from('shopping_items')
     .select('quantity, source_ingredient_id')
     .eq('shopping_list_id', shoppingListId)
     .eq('source_recipe_id', recipeId)
     .not('source_ingredient_id', 'is', null)
     .not('quantity', 'is', null)
-    .is('deleted_at', null)
-    .limit(5);
+    .is('deleted_at', null);
+
+  if (excludeIngredientId) {
+    query = query.neq('source_ingredient_id', excludeIngredientId);
+  }
+
+  const { data: items } = await query.limit(5);
 
   if (!items?.length) return 1;
 
@@ -216,6 +237,63 @@ async function getLinkedShoppingListIds(recipeId: string): Promise<string[]> {
   return data.map((r: { shopping_list_id: string }) => r.shopping_list_id);
 }
 
+async function propagateIngredientAddToList(
+  recipeId: string,
+  listId: string,
+  ingredient: RecipeIngredient,
+  userId: string,
+): Promise<void> {
+  const scale = await deriveRecipeScale(recipeId, listId, ingredient.id);
+  const scaledQty =
+    ingredient.quantity != null ? ingredient.quantity * scale : null;
+
+  // Check for orphaned items (source_ingredient_id set to null by FK ON DELETE SET NULL)
+  const { data: orphaned } = await supabase
+    .from('shopping_items')
+    .select('id')
+    .eq('shopping_list_id', listId)
+    .eq('source_recipe_id', recipeId)
+    .eq('title', ingredient.title)
+    .is('source_ingredient_id', null)
+    .is('deleted_at', null)
+    .limit(1)
+    .single();
+
+  if (orphaned) {
+    await supabase
+      .from('shopping_items')
+      .update({
+        title: ingredient.title,
+        quantity: scaledQty,
+        unit: ingredient.unit ?? null,
+        source_ingredient_id: ingredient.id,
+      })
+      .eq('id', orphaned.id);
+  } else {
+    const { data: maxRow } = await supabase
+      .from('shopping_items')
+      .select('position')
+      .eq('shopping_list_id', listId)
+      .is('deleted_at', null)
+      .order('position', { ascending: false })
+      .limit(1)
+      .single();
+
+    const nextPosition = (maxRow?.position ?? -1) + 1;
+
+    await supabase.from('shopping_items').insert({
+      shopping_list_id: listId,
+      title: ingredient.title,
+      quantity: scaledQty,
+      unit: ingredient.unit ?? null,
+      position: nextPosition,
+      source_recipe_id: recipeId,
+      source_ingredient_id: ingredient.id,
+      created_by: userId,
+    });
+  }
+}
+
 async function propagateIngredientAdd(
   recipeId: string,
   ingredient: RecipeIngredient,
@@ -227,57 +305,14 @@ async function propagateIngredientAdd(
   if (!session?.user) return;
   const user = session.user;
 
-  for (const listId of listIds) {
-    const scale = await deriveRecipeScale(recipeId, listId);
-    const scaledQty =
-      ingredient.quantity != null ? ingredient.quantity * scale : null;
-
-    // Check for orphaned items (source_ingredient_id set to null by FK ON DELETE SET NULL)
-    const { data: orphaned } = await supabase
-      .from('shopping_items')
-      .select('id')
-      .eq('shopping_list_id', listId)
-      .eq('source_recipe_id', recipeId)
-      .eq('title', ingredient.title)
-      .is('source_ingredient_id', null)
-      .is('deleted_at', null)
-      .limit(1)
-      .single();
-
-    if (orphaned) {
-      await supabase
-        .from('shopping_items')
-        .update({
-          title: ingredient.title,
-          quantity: scaledQty,
-          unit: ingredient.unit ?? null,
-          source_ingredient_id: ingredient.id,
-        })
-        .eq('id', orphaned.id);
-    } else {
-      const { data: maxRow } = await supabase
-        .from('shopping_items')
-        .select('position')
-        .eq('shopping_list_id', listId)
-        .is('deleted_at', null)
-        .order('position', { ascending: false })
-        .limit(1)
-        .single();
-
-      const nextPosition = (maxRow?.position ?? -1) + 1;
-
-      await supabase.from('shopping_items').insert({
-        shopping_list_id: listId,
-        title: ingredient.title,
-        quantity: scaledQty,
-        unit: ingredient.unit ?? null,
-        position: nextPosition,
-        source_recipe_id: recipeId,
-        source_ingredient_id: ingredient.id,
-        created_by: user.id,
-      });
-    }
-  }
+  // Each linked list is independent (distinct shopping_list_id, its own
+  // position counter scoped inside propagateIngredientAddToList) — safe to
+  // run concurrently instead of sequentially awaiting one list at a time,
+  // so a recipe linked to several lists doesn't turn one "add ingredient"
+  // button press into N serial round-trips.
+  await Promise.all(
+    listIds.map((listId) => propagateIngredientAddToList(recipeId, listId, ingredient, user.id)),
+  );
 }
 
 type LinkedShoppingItem = {
@@ -287,29 +322,46 @@ type LinkedShoppingItem = {
   source_ingredient_id: string | null;
 };
 
+/**
+ * Finds, per linked shopping list, the one item representing this ingredient
+ * — its properly-linked (source_ingredient_id) row if one exists, otherwise
+ * an orphaned (title-matched, source_ingredient_id IS NULL) row in that same
+ * list. Both queries run across ALL lists and are merged BY LIST, not
+ * globally: a global "if any byId match exists anywhere, never even look for
+ * byTitle matches" short-circuit would silently skip every list that only
+ * has an orphaned item while a DIFFERENT list has a properly-linked one —
+ * that list's item would never be found, updated, or deleted.
+ */
 async function findLinkedShoppingItems(
   ingredientId: string,
   recipeId: string,
   title: string,
 ): Promise<LinkedShoppingItem[]> {
-  const { data: byId } = await supabase
-    .from('shopping_items')
-    .select('id, shopping_list_id, source_recipe_id, source_ingredient_id')
-    .eq('source_ingredient_id', ingredientId)
-    .is('deleted_at', null);
+  const [{ data: byId }, { data: byTitle }] = await Promise.all([
+    supabase
+      .from('shopping_items')
+      .select('id, shopping_list_id, source_recipe_id, source_ingredient_id')
+      .eq('source_ingredient_id', ingredientId)
+      .is('deleted_at', null),
+    supabase
+      .from('shopping_items')
+      .select('id, shopping_list_id, source_recipe_id, source_ingredient_id')
+      .eq('source_recipe_id', recipeId)
+      .eq('title', title)
+      .is('source_ingredient_id', null)
+      .is('deleted_at', null),
+  ]);
 
-  const found = (byId ?? []) as LinkedShoppingItem[];
-  if (found.length > 0) return found;
-
-  const { data: byTitle } = await supabase
-    .from('shopping_items')
-    .select('id, shopping_list_id, source_recipe_id, source_ingredient_id')
-    .eq('source_recipe_id', recipeId)
-    .eq('title', title)
-    .is('source_ingredient_id', null)
-    .is('deleted_at', null);
-
-  return (byTitle ?? []) as LinkedShoppingItem[];
+  // byId entries win per list — insert the (weaker) title matches first so a
+  // later byId entry for the same list overwrites it.
+  const byListId = new Map<string, LinkedShoppingItem>();
+  for (const item of (byTitle ?? []) as LinkedShoppingItem[]) {
+    byListId.set(item.shopping_list_id, item);
+  }
+  for (const item of (byId ?? []) as LinkedShoppingItem[]) {
+    byListId.set(item.shopping_list_id, item);
+  }
+  return [...byListId.values()];
 }
 
 async function propagateIngredientUpdate(
@@ -326,24 +378,46 @@ async function propagateIngredientUpdate(
 
   if (!linkedItems.length) return;
 
-  for (const item of linkedItems) {
-    const scale = item.source_recipe_id
-      ? await deriveRecipeScale(item.source_recipe_id, item.shopping_list_id)
-      : 1;
+  // Multiple linked items commonly share the same shopping_list_id (a
+  // heavily-subdivided trip's lists each pull several ingredients from the
+  // same recipe) — deriveRecipeScale's result only depends on
+  // (recipeId, shoppingListId), so cache it per unique pair instead of
+  // re-querying it once per item. Always exclude `ingredient.id` (the one
+  // being updated) — see deriveRecipeScale's own doc comment for why this is
+  // required for correctness, not just an optimization.
+  const scaleCache = new Map<string, Promise<number>>();
+  const scaleFor = (recipeId: string, listId: string): Promise<number> => {
+    const key = `${recipeId}:${listId}`;
+    let cached = scaleCache.get(key);
+    if (!cached) {
+      cached = deriveRecipeScale(recipeId, listId, ingredient.id);
+      scaleCache.set(key, cached);
+    }
+    return cached;
+  };
 
-    const scaledQty =
-      ingredient.quantity != null ? ingredient.quantity * scale : null;
+  // Each linked item's update is independent — run them concurrently rather
+  // than one at a time.
+  await Promise.all(
+    linkedItems.map(async (item) => {
+      const scale = item.source_recipe_id
+        ? await scaleFor(item.source_recipe_id, item.shopping_list_id)
+        : 1;
 
-    await supabase
-      .from('shopping_items')
-      .update({
-        title: ingredient.title,
-        quantity: scaledQty,
-        unit: ingredient.unit ?? null,
-        source_ingredient_id: ingredient.id,
-      })
-      .eq('id', item.id);
-  }
+      const scaledQty =
+        ingredient.quantity != null ? ingredient.quantity * scale : null;
+
+      await supabase
+        .from('shopping_items')
+        .update({
+          title: ingredient.title,
+          quantity: scaledQty,
+          unit: ingredient.unit ?? null,
+          source_ingredient_id: ingredient.id,
+        })
+        .eq('id', item.id);
+    }),
+  );
 }
 
 async function propagateIngredientDelete(ingredientId: string): Promise<void> {

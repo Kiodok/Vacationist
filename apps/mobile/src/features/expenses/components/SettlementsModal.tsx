@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator, Platform, Linking } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
@@ -8,6 +8,7 @@ import { formatCurrency, isNegligible, computeSettlements, formatSettlementShare
 import { colors , ThemedIcon } from '@vacationist/ui';
 import { shareText } from '../../../utils/share';
 import { useToastStore } from '../../../stores/toastStore';
+import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 
 interface SettlementsModalProps {
   visible: boolean;
@@ -50,7 +51,7 @@ export function SettlementsModal({
   const { t: tCommon } = useTranslation('common');
   const addToast = useToastStore((s) => s.addToast);
   const [confirmingSettle, setConfirmingSettle] = useState(false);
-  const settlements = computeSettlements(balances);
+  const settlements = useMemo(() => computeSettlements(balances), [balances]);
   const allSettled = settlements.length === 0;
 
   const isForeignDisplay = !!displayCurrency && displayCurrency !== currency && !!convert;
@@ -95,13 +96,17 @@ export function SettlementsModal({
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Per-member balances */}
             <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.memberBalances')}</Text>
-            <View className="gap-xs mb-lg">
-              {balances.map((b) => {
+            <BoundedVirtualList
+              data={balances}
+              keyExtractor={(b) => b.user_id}
+              itemHeight={56}
+              style={{ marginBottom: 24 }}
+              renderItem={(b) => {
                 const user = members.get(b.user_id);
                 const isPositive = !isNegligible(b.net_balance) && b.net_balance > 0;
                 const isNegative = !isNegligible(b.net_balance) && b.net_balance < 0;
                 return (
-                  <View key={b.user_id} className="py-sm px-sm rounded-md bg-surface gap-xs">
+                  <View className="py-sm px-sm rounded-md bg-surface gap-xs mb-xs">
                     <View className="flex-row items-center justify-between">
                       <View className="flex-row items-center gap-sm flex-1">
                         <View className="w-[28px] h-[28px] rounded-full bg-primary/15 items-center justify-center">
@@ -119,8 +124,8 @@ export function SettlementsModal({
                     </View>
                   </View>
                 );
-              })}
-            </View>
+              }}
+            />
             {isForeignDisplay && (
               <>
                 <Text className="text-label text-text-muted -mt-md">
@@ -141,27 +146,32 @@ export function SettlementsModal({
                 <Text className="text-body-small text-text-muted">{t('modal.noPayments')}</Text>
               </View>
             ) : (
-              <View className="gap-sm mb-md">
-                {settlements.map((s, i) => {
-                  const fromUser = members.get(s.from);
-                  const toUser = members.get(s.to);
-                  return (
-                    <View key={i} className="flex-row items-center py-sm px-sm rounded-md bg-surface gap-sm">
-                      <View className="flex-1 flex-row items-center gap-xs flex-wrap">
-                        <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
-                          {fromUser?.name ?? 'Unknown'}
-                        </Text>
-                        <ThemedIcon name="arrow-forward" size={14} color={colors.primary} />
-                        <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
-                          {toUser?.name ?? 'Unknown'}
-                        </Text>
-                        <Text className="text-body text-primary font-semibold">
-                          {formatCurrency(displayAmount(s.amount), effectiveCurrency)}
-                        </Text>
+              <View className="mb-md">
+                <BoundedVirtualList
+                  data={settlements}
+                  keyExtractor={(s, i) => `${s.from}_${s.to}_${i}`}
+                  itemHeight={48}
+                  renderItem={(s) => {
+                    const fromUser = members.get(s.from);
+                    const toUser = members.get(s.to);
+                    return (
+                      <View className="flex-row items-center py-sm px-sm rounded-md bg-surface gap-sm mb-sm">
+                        <View className="flex-1 flex-row items-center gap-xs flex-wrap">
+                          <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
+                            {fromUser?.name ?? 'Unknown'}
+                          </Text>
+                          <ThemedIcon name="arrow-forward" size={14} color={colors.primary} />
+                          <Text className="text-body text-text-primary font-medium" numberOfLines={1}>
+                            {toUser?.name ?? 'Unknown'}
+                          </Text>
+                          <Text className="text-body text-primary font-semibold">
+                            {formatCurrency(displayAmount(s.amount), effectiveCurrency)}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
-                  );
-                })}
+                    );
+                  }}
+                />
                 <Text className="text-label text-text-muted text-center mt-xs">
                   {t('modal.paymentsCount', { count: settlements.length })}
                 </Text>
@@ -223,14 +233,17 @@ export function SettlementsModal({
                 <Text className="text-body-small text-text-muted">{t('modal.noReceipts')}</Text>
               </View>
             ) : (
-              <View className="gap-sm mb-md">
-                {receipts.map((receipt) => {
+              <BoundedVirtualList
+                data={receipts}
+                keyExtractor={(receipt) => receipt.id}
+                itemHeight={64}
+                style={{ marginBottom: 16 }}
+                renderItem={(receipt) => {
                   const settledByMember = receipt.snapshot.members.find((m) => m.user_id === receipt.settled_by);
                   return (
                     <Pressable
-                      key={receipt.id}
                       onPress={() => onViewReceipt?.(receipt.id)}
-                      className="py-sm px-sm rounded-md bg-surface gap-xs"
+                      className="py-sm px-sm rounded-md bg-surface gap-xs mb-sm"
                       style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                     >
                       <View className="flex-row items-center justify-between">
@@ -261,8 +274,8 @@ export function SettlementsModal({
                       </View>
                     </Pressable>
                   );
-                })}
-              </View>
+                }}
+              />
             )}
           </ScrollView>
         </View>

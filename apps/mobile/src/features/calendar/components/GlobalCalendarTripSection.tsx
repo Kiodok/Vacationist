@@ -5,7 +5,7 @@ import type { Activity, SupportedTimezone } from '@vacationist/types';
 import { colors , ThemedIcon } from '@vacationist/ui';
 import { AgendaItem } from './AgendaItem';
 import { useTripMembers } from '../../trips/hooks/useMembers';
-import { useActivityVotesBatch } from '../../activities/hooks/useVotes';
+import { useTripActivityVotes } from '../../activities/hooks/useVotes';
 
 interface GlobalCalendarTripSectionProps {
   trip: { id: string; title: string; start_date: string; end_date: string; timezone: SupportedTimezone };
@@ -20,8 +20,7 @@ export function GlobalCalendarTripSection({
   onActivityPress,
   onTripPress,
 }: GlobalCalendarTripSectionProps) {
-  const activityIds = useMemo(() => activities.map((a) => a.id), [activities]);
-  const { data: batchVotes } = useActivityVotesBatch(activityIds);
+  const { data: batchVotes } = useTripActivityVotes(trip.id);
   const { data: members } = useTripMembers(trip.id);
 
   const attendeesByActivity = useMemo(() => {

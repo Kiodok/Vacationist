@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getActivityVotes, getActivityVotesBatch, castActivityVote, removeActivityVote } from '@vacationist/api';
+import { getActivityVotes, getTripActivityVotes, getActivityVotesForTrips, castActivityVote, removeActivityVote } from '@vacationist/api';
 import type { ActivityVote, CastActivityVoteVariables } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
@@ -15,13 +15,28 @@ export function useActivityVotes(activityId: string) {
   });
 }
 
-export function useActivityVotesBatch(activityIds: string[]) {
-  const sortedIds = [...activityIds].sort();
+/** Every vote for every activity in one trip. Key is stable per trip — unlike
+ *  the old activity-id-list-keyed batch query, adding/paging activities never
+ *  mints a new cache key or forces a refetch. */
+export function useTripActivityVotes(tripId: string) {
   return useQuery({
-    queryKey: ['activity-votes-batch', ...sortedIds],
-    queryFn: () => getActivityVotesBatch(sortedIds),
+    queryKey: ['trips', tripId, 'activity-votes'],
+    queryFn: () => getTripActivityVotes(tripId),
     retry: 2,
-    enabled: sortedIds.length > 0,
+    enabled: !!tripId,
+  });
+}
+
+/** Cross-trip variant for the global (all-trips) calendar. Keyed by trip id
+ *  list, which is bounded by the user's trip membership count, not activity
+ *  count. */
+export function useActivityVotesForTrips(tripIds: string[]) {
+  const sortedTripIds = [...tripIds].sort();
+  return useQuery({
+    queryKey: ['activity-votes', 'trips', ...sortedTripIds],
+    queryFn: () => getActivityVotesForTrips(sortedTripIds),
+    retry: 2,
+    enabled: sortedTripIds.length > 0,
   });
 }
 
@@ -49,7 +64,8 @@ export function useCastVote() {
     onSuccess: (_data, { activityId, tripId }) => {
       queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activity-votes'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-votes', 'trips'] });
     },
     onError: (_error, { activityId }, context) => {
       if (context?.previous) {
@@ -69,7 +85,8 @@ export function useRemoveVote(tripId: string, activityId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      queryClient.invalidateQueries({ queryKey: ['activity-votes-batch'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activity-votes'] });
+      queryClient.invalidateQueries({ queryKey: ['activity-votes', 'trips'] });
     },
     onError: () => {
       addToast('error', i18n.t('activities:toast.removeVoteFailed'));
