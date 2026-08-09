@@ -292,6 +292,12 @@ export default function ActivitiesTab() {
           ref={sectionListRef}
           sections={sections}
           keyExtractor={(item) => item.id}
+          // renderItem closes over activityId/role/currency/locked, none of
+          // which live inside `sections` itself — without extraData, an
+          // already-mounted row is not guaranteed to re-invoke renderItem
+          // just because one of those closed-over values changed (a
+          // documented RN FlatList/SectionList gotcha).
+          extraData={{ activityId, role, currency, locked }}
           removeClippedSubviews={false}
           stickySectionHeadersEnabled={false}
           windowSize={5}
@@ -470,6 +476,17 @@ function ActivityCardWithVotes({
   const removeVote = useRemoveVote(tripId, activity.id);
   const [showVoteSheet, setShowVoteSheet] = useState(false);
   const [showDetail, setShowDetail] = useState(initialExpanded ?? false);
+  // Frozen at mount, exactly like showDetail above — deliberately NOT read
+  // live from `initialExpanded` on every render. `initialExpanded` is
+  // recomputed each render from the route's `activityId` param, which can
+  // change (or momentarily stop matching) for reasons unrelated to this
+  // card — e.g. a parent re-render right after mount. showDetail is immune
+  // to that because useState's initializer only runs once; `highlight` used
+  // to read the live value directly, so a single post-mount flip to false
+  // fired useHighlightAnimation's cleanup and cancelled the pending blink
+  // timer before it ever ran — while the (frozen) expanded state stayed
+  // open, masking that anything had gone wrong.
+  const [shouldHighlight] = useState(initialExpanded ?? false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmingCloseVoting, setConfirmingCloseVoting] = useState(false);
   const [confirmingCancel, setConfirmingCancel] = useState(false);
@@ -689,7 +706,7 @@ function ActivityCardWithVotes({
         onVotePress={() => setShowVoteSheet(true)}
         detail={detailContent}
         displayStatus={isBlocked ? 'blocked' : undefined}
-        highlight={initialExpanded}
+        highlight={shouldHighlight}
       />
 
       <VoteSheet

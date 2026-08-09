@@ -13,6 +13,11 @@ export function useActivityVotesRealtime(tripId: string) {
   const channelRef = useRef<RealtimeChannel | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const backoffIndexRef = useRef(0);
+  // Whether we've ever reached SUBSCRIBED before, for this hook instance —
+  // distinguishes the initial subscribe (right after a fresh mount, which
+  // already did its own fresh query fetch) from a genuine reconnect
+  // (recovering from a disconnect, where missed updates need reconciling).
+  const hasSubscribedBeforeRef = useRef(false);
 
   const cleanup = useCallback(() => {
     if (channelRef.current) {
@@ -90,7 +95,18 @@ export function useActivityVotesRealtime(tripId: string) {
       (status) => {
         if (status === 'SUBSCRIBED') {
           backoffIndexRef.current = 0;
-          reconcile();
+          // Only reconcile (invalidate + refetch the activities list) on an
+          // actual reconnect. The very first subscribe after mount races
+          // against the query's own just-completed fresh fetch — invalidating
+          // again here was a redundant refetch on every single mount, for no
+          // benefit (nothing could have been missed before the channel even
+          // existed). It also risked interrupting the deep-link scroll/highlight
+          // sequence, which schedules its own delayed visual cues right in this
+          // same post-mount window.
+          if (hasSubscribedBeforeRef.current) {
+            reconcile();
+          }
+          hasSubscribedBeforeRef.current = true;
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           const delay = BACKOFF_DELAYS[Math.min(backoffIndexRef.current, BACKOFF_DELAYS.length - 1)];
           backoffIndexRef.current++;
