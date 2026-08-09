@@ -139,6 +139,14 @@ const STATIC_SITEMAP_ENTRIES = [
       { hreflang: 'x-default', href: `${SITE}/terms-of-service.html` },
     ],
   },
+  {
+    loc: `${SITE}/delete-account.html`, lastmod: '2026-08-09', changefreq: 'yearly', priority: '0.4',
+    alternates: [
+      { hreflang: 'en', href: `${SITE}/delete-account.html` },
+      { hreflang: 'de', href: `${SITE}/de/delete-account/` },
+      { hreflang: 'x-default', href: `${SITE}/delete-account.html` },
+    ],
+  },
 ];
 /* Note: /impressum.html is noindex — deliberately absent from the sitemap and
    from any hreflang cluster. The German /de/impressum/ page stands alone. */
@@ -212,6 +220,7 @@ const FOOTER_LINKS = {
       ['/privacy-policy.html', 'Privacy Policy'],
       ['/terms-of-service.html', 'Terms of Service'],
       ['/impressum.html', 'Impressum'],
+      ['/delete-account.html', 'Delete Account'],
       ['#cookie-settings', 'Cookie settings'],
       ['mailto:meetdeep.de@gmail.com', 'Contact'],
     ],
@@ -245,6 +254,7 @@ const FOOTER_LINKS = {
       ['/de/privacy-policy/', 'Datenschutz'],
       ['/de/terms-of-service/', 'Nutzungsbedingungen'],
       ['/de/impressum/', 'Impressum'],
+      ['/de/delete-account/', 'Konto löschen'],
       ['#cookie-settings', 'Cookie-Einstellungen'],
       ['mailto:meetdeep.de@gmail.com', 'Kontakt'],
     ],

@@ -5,14 +5,14 @@ path: /de/privacy-policy/
 lang: de
 type: legal
 schema: WebPage
-date: 2026-08-08
+date: 2026-08-09
 altPath: /privacy-policy.html
 breadcrumbLabel: Datenschutz
 ---
 
 # Datenschutzerklärung
 
-*Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 8. August 2026*
+*Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 9. August 2026*
 
 ## 1. Wer wir sind
 
@@ -152,7 +152,7 @@ Wie bei Google Analytics und dem Reddit-Pixel wird nichts erfasst, bevor du im C
 
 ## 7. Aufbewahrungsdauer
 
-Deine Daten werden so lange aufbewahrt, wie dein Konto besteht. Wenn du dein Konto löschst, werden alle personenbezogenen Daten — einschliesslich Reisedaten, Reisedokumenten und Push-Tokens — innerhalb von 30 Tagen dauerhaft gelöscht.
+Deine Daten werden so lange aufbewahrt, wie dein Konto besteht. Wenn du dein Konto löschst, werden deine direkt zugeordneten personenbezogenen Daten — Anmeldeidentität, Name, E-Mail-Adresse, Profilbild, Push-Tokens, Reisedokumente, Stimmen und Benachrichtigungen — sofort gelöscht; Datenbank-Backups laufen innerhalb von 30 Tagen aus. Da Vacationist kollaborativ ist, werden Inhalte, die du innerhalb einer gemeinsamen Reise erstellt hast (Aktivitäten, Ausgaben, Notizen, Chat-Nachrichten und Ähnliches), **nicht** zusammen mit deinem Konto gelöscht — sie bleiben für die anderen Mitglieder dieser Reise sichtbar, zugeordnet zu einem generischen „Gelöschter Nutzer" ohne Verknüpfung zu dir. Warst du das einzige Mitglied einer Reise, wird diese Reise zusammen mit deinem Konto gelöscht. Die vollständige Aufschlüsselung, was gelöscht und was aufbewahrt wird, sowie wie du die Löschung beantragst, findest du unter [Konto löschen](/de/delete-account/).
 
 Gast-Konten (über Einladungslink erstellt, ohne E-Mail-Adresse), die nie in ein vollwertiges Konto umgewandelt werden, können nach einer Phase der Inaktivität gelöscht werden; dies ist derzeit kein automatisierter Vorgang. Mit einem Gast-Konto verknüpfte Daten werden nur so lange aufbewahrt, wie das Konto besteht.
 
@@ -162,7 +162,7 @@ Nach dem Schweizer Datenschutzgesetz (DSG) und, soweit anwendbar, der EU-Datensc
 
 - **Auskunftsrecht** — du kannst eine Kopie der über dich gespeicherten personenbezogenen Daten anfordern
 - **Recht auf Berichtigung** — du kannst unrichtige Daten jederzeit über den Profil-Bildschirm korrigieren
-- **Recht auf Löschung** — du kannst die Löschung deines Kontos und aller zugehörigen Daten verlangen
+- **Recht auf Löschung** — du kannst die Löschung deines Kontos und deiner direkt zugeordneten Daten jederzeit verlangen; siehe [Konto löschen](/de/delete-account/) für den Ablauf und dafür, was auf gemeinsamen Reisen anonymisiert erhalten bleibt
 - **Recht auf Datenübertragbarkeit** — auf Anfrage stellen wir dir deine Daten in einem strukturierten, gängigen Format zur Verfügung. Die App bietet derzeit keinen vollständigen Selbstbedienungs-Export über alle Datenkategorien hinweg; ein Übersichts-Export pro Reise ist direkt in der Reise verfügbar, alles Weitere stellen wir auf Anfrage manuell zusammen
 - **Widerspruchsrecht** — du kannst der Verarbeitung widersprechen, soweit wir uns auf berechtigtes Interesse stützen
 

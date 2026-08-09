@@ -168,6 +168,7 @@ window.VACATIONIST_I18N = {
   'privacy.href': './privacy-policy.html',
   'terms.href': './terms-of-service.html',
   'impressum.href': './impressum.html',
+  'deleteAccount.href': './delete-account.html',
 
   // Footer
   'footer.copy': '© 2026 Vacationist · Gary Lude, Switzerland',
@@ -176,6 +177,7 @@ window.VACATIONIST_I18N = {
   'footer.privacy': 'Privacy Policy',
   'footer.terms': 'Terms of Service',
   'footer.impressum': 'Impressum',
+  'footer.deleteAccount': 'Delete Account',
   'footer.cookies': 'Cookie settings',
   'footer.contact': 'Contact',
 

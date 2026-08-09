@@ -1,5 +1,61 @@
 # Supabase Changes Log
 
+## 2026-08-09 — Google Play Data Safety rejection: account-deletion URL + declaration audit (docs-only, no migration)
+
+**Why:** v1.29.1 was rejected by Google Play under the User Data policy's Data safety section —
+invalid form. Google's notice named the **email address** as an undeclared collected data type,
+and separately required the "Konto-URL löschen" (account deletion URL) field in Play Console,
+which was empty. Full requirements confirmed against
+[Google's account deletion policy page](https://support.google.com/googleplay/android-developer/answer/13327111):
+the web resource must be functional, reference the developer/app name shown on the store listing,
+prominently show deletion steps, work without re-installing the app, and state what's deleted vs.
+retained plus any extra retention period.
+
+**Root cause:** Vacationist already has a complete in-app deletion path
+(`apps/mobile/app/(tabs)/profile.tsx` → `useDeleteAccount` → `delete_own_account()` RPC), but no
+corresponding **web** resource — Play requires both, not just the in-app one. Separately, an audit
+of the Android bundle (prompted by the "undeclared data" wording) found the Data Safety form was
+very likely also missing declarations for Sentry (crash/session-replay, always-on, no consent
+gate), Cloudflare Turnstile (auth-flow anti-abuse), and the Reddit Conversions API sign-up report
+fired from native (`trackSignUp.ts`, no on-device consent gate on Android — `ConsentBanner` is
+`Platform.OS === 'web'`-only).
+
+**Fix — documentation and marketing-site changes only, no app code touched, no new build, no
+migration:**
+
+- New `docs/delete-account.html` (EN, hand-authored, carries `consent.js`) and
+  `marketing/site/content/de/legal/delete-account.md` (DE, generated to `/de/delete-account/`) —
+  three deletion routes (in-app, web.vacationist.app, email), and an explicit breakdown of what
+  `delete_own_account()` actually destroys vs. anonymizes-and-retains on shared trips.
+- Wired into `marketing/site/build.mjs`: sitemap entry with EN/DE/x-default hreflang, and
+  `FOOTER_LINKS.en.legal` / `.de.legal` (appears on all 36 generated pages). Footer link also
+  added by hand to `docs/index.html`, `docs/privacy-policy.html`, `docs/terms-of-service.html`,
+  `docs/impressum.html` (plus `docs/i18n/en.js` / `de.js` keys and a `CACHE_VER` bump in
+  `docs/i18n.js`).
+- Corrected `docs/privacy-policy.html` §7/§8 (and the German counterpart) — the prior text claimed
+  "all personal data … permanently deleted within 30 days" with no mention of the anonymized
+  retention on shared trips, which doesn't match `delete_own_account()`'s actual behavior. Now
+  links to `/delete-account.html`. Pre-existing inaccuracy, not introduced by this change.
+- New `engineering/play_data_safety.md` — the full audited data-flow table (7 flows, what's
+  collected, what's shared, with whom, for what purpose) mapped onto Play's Data Safety taxonomy,
+  plus the exact Play Console steps. Two items flagged for a Tech Lead call rather than resolved
+  here: whether Sentry session-replay/screenshot capture on the travel-documents screen needs
+  masking, and whether the native Reddit CAPI report needs a consent gate for GDPR (separate from
+  Play's requirement, which is satisfied by honest declaration alone).
+- `CLAUDE.md` updated: the hand-authored consent.js page count is now 8 (added
+  `docs/delete-account.html`), and the Account Deletion section now cross-references the new
+  disclosure pages so future changes to the sentinel-reassignment list stay in sync.
+
+**Verified:** `npm run build:site` run twice with zero diff on the second run; new pages and footer
+links checked in-browser at `localhost:3001` (light/dark not applicable — marketing site is a
+fixed dark theme); consent-gating on `/delete-account.html` confirmed via `read_network_requests`
+(no GA request before accepting the cookie banner). No migration was applied — dev/prod schema
+parity is unaffected. `apps/mobile`, `packages/*`, and `supabase/` were not touched, so no build or
+OTA update is required; the v1.29.1 binary is resubmitted to Play Console as-is once the Tech Lead
+completes the manual form entry in `engineering/play_data_safety.md`'s final section.
+
+---
+
 ## 2026-08-09 — Turnstile fallback stability fixes (code-only, no migration)
 
 **Why:** Tech Lead ran the invisible-mode + real-origin fix (entry directly below) on a physical

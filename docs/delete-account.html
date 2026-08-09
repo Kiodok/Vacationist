@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
+
+  <title>Delete Your Account — Vacationist</title>
+  <meta name="description" content="How to delete your Vacationist account and data — in the app, in your browser, or by email. What is deleted, what is kept, and for how long.">
+  <link rel="canonical" href="https://vacationist.app/delete-account.html">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/delete-account.html">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/delete-account/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/delete-account.html">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      line-height: 1.7;
+      padding: 0 1rem 4rem;
+    }
+
+    header {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 0 2rem;
+      border-bottom: 1px solid #2e2e2e;
+    }
+
+    .app-name {
+      font-size: 1.1rem;
+      color: #6C63FF;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .meta {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding-top: 2.5rem;
+    }
+
+    section { margin-bottom: 2.5rem; }
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid #2e2e2e;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    p { margin-bottom: 0.75rem; color: #c9c9c9; }
+
+    ul, ol {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 0.75rem;
+    }
+
+    ul li, ol li {
+      padding: 0.25rem 0 0.25rem 1.25rem;
+      position: relative;
+      color: #c9c9c9;
+    }
+
+    ul li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #6C63FF;
+    }
+
+    ol { counter-reset: step; }
+    ol li::before {
+      counter-increment: step;
+      content: counter(step) ".";
+      position: absolute;
+      left: 0;
+      color: #6C63FF;
+      font-weight: 600;
+    }
+
+    a { color: #6C63FF; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .highlight {
+      background: #1a1a1a;
+      border-left: 3px solid #6C63FF;
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      margin: 0.75rem 0;
+      color: #c9c9c9;
+      font-size: 0.9rem;
+    }
+
+    .route-card {
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 8px;
+      padding: 1.25rem 1.25rem 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    footer {
+      max-width: 760px;
+      margin: 3rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid #2e2e2e;
+      font-size: 0.8rem;
+      color: #6b7280;
+      text-align: center;
+    }
+    .site-nav {
+      max-width: 760px; margin: 0 auto;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid #2e2e2e;
+    }
+    .site-nav a { color: #6C63FF; text-decoration: none; font-size: 0.875rem; font-weight: 500; }
+    .site-nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="site-nav"><a href="./">← Back to Vacationist</a> &nbsp;·&nbsp; <a href="/de/delete-account/">Deutsch</a></div>
+
+<header>
+  <p class="app-name">Vacationist</p>
+  <h1>Delete Your Account</h1>
+  <p class="meta">Effective date: 9 August 2026 &nbsp;·&nbsp; Last updated: 9 August 2026</p>
+</header>
+
+<main>
+
+  <section>
+    <p>
+      Vacationist is developed by <strong>Gary Lude</strong>, based in Switzerland — the same
+      developer name shown on the Vacationist listing in the Google Play Store. This page explains
+      how to permanently delete your Vacationist account and what happens to your data when you do.
+    </p>
+  </section>
+
+  <section>
+    <h2>How to request deletion</h2>
+
+    <div class="route-card">
+      <h3>1. In the app</h3>
+      <p>Open Vacationist, go to the <strong>Profile</strong> tab, tap <strong>Delete Account</strong>, and confirm. Your account is deleted immediately.</p>
+    </div>
+
+    <div class="route-card">
+      <h3>2. In your browser — no app install required</h3>
+      <p>
+        Go to <a href="https://web.vacationist.app" target="_blank" rel="noopener">web.vacationist.app</a>,
+        sign in with the same Google account or magic-link email you use in the app, then go to
+        <strong>Profile → Delete Account</strong> and confirm. This works even if you never
+        installed, or have already uninstalled, the mobile app.
+      </p>
+    </div>
+
+    <div class="route-card">
+      <h3>3. By email</h3>
+      <p>
+        If you can't sign in (lost access to your email, or any other issue), email
+        <a href="mailto:meetdeep.de@gmail.com">meetdeep.de@gmail.com</a> from the address associated
+        with your account, with the subject line "Account deletion". We will verify your request and
+        delete your account within <strong>30 days</strong>.
+      </p>
+    </div>
+
+    <div class="highlight">
+      <strong>Guest accounts</strong> (created by joining a trip via an invite link, without an
+      email address) cannot use the in-app or web self-service flow above — request deletion by
+      email instead, or upgrade to a full account first and then delete it yourself.
+    </div>
+  </section>
+
+  <section>
+    <h2>What is permanently deleted</h2>
+    <ul>
+      <li>Your account and sign-in identity (Google Sign-In / magic-link email)</li>
+      <li>Your name, email address, and avatar image</li>
+      <li>Your preferred locale and timezone</li>
+      <li>Push notification tokens registered to your devices</li>
+      <li>Travel documents you entered, including encrypted fields (document number, date of birth, full legal name, notes)</li>
+      <li>Your votes and in-app notifications</li>
+      <li>Your membership in every trip</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>What is kept, and why</h2>
+    <p>
+      Vacationist is a collaborative app — trips, activities, expenses, and shopping lists are
+      shared with other people. Deleting your account does not delete content that other trip
+      members still depend on:
+    </p>
+    <ul>
+      <li>Trips, activities, accommodations, expenses and expense splits, shopping lists, notes, and trip chat messages you created remain visible to the other members of trips you shared</li>
+      <li>This content is re-attributed to a generic <strong>"Deleted User"</strong> — it is no longer linked to your name, email, or account in any way</li>
+      <li>If you were the sole member of a trip, that trip is deleted along with your account instead of being kept</li>
+    </ul>
+    <p>
+      We do this so that other travelers' shared plans and expense settlements aren't broken by one
+      person leaving.
+    </p>
+  </section>
+
+  <section>
+    <h2>Retention periods</h2>
+    <ul>
+      <li>Account and personal data (listed above) are deleted <strong>immediately</strong> when you confirm deletion in the app or on the web; email requests are processed within <strong>30 days</strong></li>
+      <li>Database backups containing your data roll off within <strong>30 days</strong> of deletion</li>
+      <li>Our first-party analytics log (page visits and sign-up events, which never stores an IP address or any account identifier) is retained for <strong>14 months</strong> regardless of account deletion, since it cannot be traced back to your account</li>
+      <li>We do not retain any of your personal data for regulatory, security, or fraud-prevention purposes beyond what's described above</li>
+    </ul>
+  </section>
+
+  <section>
+    <p>
+      For the full picture of what we collect and why, see the
+      <a href="./privacy-policy.html">Privacy Policy</a>. For questions about this process, contact
+      <a href="mailto:meetdeep.de@gmail.com">meetdeep.de@gmail.com</a>.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <p>© 2026 Vacationist &nbsp;·&nbsp; <a href="./privacy-policy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="#cookie-settings">Cookie settings</a> &nbsp;·&nbsp; <a href="#">Back to top</a></p>
+</footer>
+
+</body>
+</html>
