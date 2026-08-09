@@ -1,5 +1,145 @@
 # Supabase Changes Log
 
+## 2026-08-09 — Bot registrations via web Google Sign-In: restored the client-side captcha gate (code-only, no migration)
+
+**Why:** Tech Lead reported bot registrations on Web again — real bulk-registered Gmail
+accounts (`namexy.12345@gmail.com` pattern, genuine `lh3.googleusercontent.com` avatars),
+arriving while a paid Reddit ad campaign is running.
+
+**Root cause, traced through the actual code, not the widget-mode change that got the
+initial attention:** `c608f55` (same day, entry above) made two changes at once. The
+`invisible` mode switch was one of them, but the actual regression is the other half —
+`login.tsx` used to render the Google button only after `captchaReady`:
+
+```tsx
+{captchaReady ? (
+  <><GoogleAuthButton ... /> ...</>
+) : !captchaError ? (
+  <ActivityIndicator ... />
+) : null}
+```
+
+That gate was removed; the button became interactive from first paint on every platform.
+
+This matters specifically for web because **the web Google path has no server-side CAPTCHA
+at all, and never has** — confirmed this session:
+- `curl 'https://fsfsqghbejwvgxujoyne.supabase.co/auth/v1/authorize?provider=google&redirect_to=...'`
+  → `302` straight to Google's consent screen, no token required, no app UI involved.
+- `useGoogleSignIn.ts` (web branch): `signIn()` ignores its `captchaToken` argument entirely
+  and does `window.location.href = url` — the token `useCaptchaToken.getToken()` fetches is
+  never forwarded. `supabase.auth.signInWithOAuth` has no `captchaToken` option in the first
+  place; Supabase's docs confirm CAPTCHA protection covers only the sign-in/sign-up/password-reset
+  *forms*, not OAuth redirects, and no rate limit is documented for `/authorize` either.
+
+Every other signup path **was and is** server-verified — confirmed by `curl` against both
+dev and prod, both returning `{"error_code":"captcha_failed"}` for missing and for garbage
+tokens: native Google (`signInWithIdToken` + `captchaToken`), magic link on both platforms
+(`signInWithOtp` + `captchaToken`), and guest sign-in on both platforms
+(`signInAnonymously` + `captchaToken`). So the removed client-side gate was the *only*
+protection the web Google button ever had.
+
+(The `invisible` mode switch itself is unrelated to this bug and stays as-is — confirmed
+live on `web.vacationist.app/login` that the widget still delivers a valid token silently
+within a couple seconds of page load; a `managed` revert would only add friction to paths
+that were never the hole.)
+
+**Fix:** `useCaptchaToken.ts` gained a sticky `passed` flag (true from the first delivered
+token onward, never reset by `consumeToken()` — unlike `tokenRef`, which is cleared after
+every submit). `login.tsx` gates the Google button (and its divider) behind
+`Platform.OS !== 'web' || captcha.passed`, showing the same fixed-height spinner
+placeholder the pre-`c608f55` code used while waiting, so there's no layout jump.
+
+**Deliberately scoped to web only:**
+- Native Google sign-in is untouched — it already has a server-verified token via
+  `signInWithIdToken`, so a client gate adds no security, only latency (and would have
+  reintroduced the exact WebView hang the `invisible` switch was fixing, per the Oukitel
+  WP28 report that prompted this session).
+- Magic-link and guest controls stay ungated on both platforms — already server-verified.
+- `GuestUpgradeSheet`'s Google upgrade path needs no change: `useGuestUpgrade.upgradeWithGoogle`
+  returns early when `GoogleSignin` is null, which is always true on web, so it never reaches
+  `/authorize`.
+- No change to the Turnstile widget config (mode, domains) or to Supabase Attack Protection.
+
+**Residual risk, not addressed this session:** this restores a *client-side* gate only —
+`/authorize` itself stays publicly reachable to anything that skips the UI. The same gate
+held from launch until 2026-08-09, so the bar is empirically reasonable, but if bots start
+hitting `/authorize` directly the next escalation is Supabase's **Before User Created**
+auth hook (confirmed available on this project's plan, confirmed to fire for OAuth
+signups — payload includes `app_metadata.provider`, `user_metadata`, and
+`metadata.ip_address`) as the only server-side enforcement point Supabase offers for this
+path. Not implemented now — no rejection heuristic (email-pattern, IP-velocity) has been
+agreed on, and building the hook without one ready to configure isn't useful yet.
+
+Existing bot accounts were not cleaned up this session — each already triggered
+`trg_create_example_trip` (a full demo trip write across ~20 tables), and `auth.admin.deleteUser`
+bypasses `delete_own_account()`'s sentinel reassignment, so bulk deletion will hit the same
+non-cascading-FK class of failure that function exists to handle. Needs a read-only audit
+pass first.
+
+**Verified:** `npm run typecheck` exits 0; `npm test` passes (229 tests across
+`apps/mobile`, `packages/utils`, and the marketing-site consent suite). Live-verified via
+`npm run web` + Chrome on `localhost:8081/login`: on fresh load the Google button and its
+divider are absent (only "Vacationist / Group Trip Planner / Send Magic Link" render), the
+magic-link field and button are interactive immediately, and the Google button appears
+(`aria-label="Sign in with Google"`) within ~1s once the invisible widget resolves. Not yet
+device-verified — still needs a preview build check that native Google sign-in is unaffected
+(expected, since no native code path changed).
+
+**Unrelated pre-existing issue found and fixed while verifying this session:** the web dev
+server (`npm run web` / `npm run start`) was broken — Metro failed with `Unable to resolve
+module @expo/metro-runtime` and then, after a stray manual fix attempt, with `Invalid call...
+process.env.EXPO_ROUTER_APP_ROOT`. Root cause: `packages/api`'s `expo-crypto`/`expo-secure-store`
+declare `"expo": "*"` as a peer dependency; since they're dependencies of a workspace other
+than `apps/mobile`, npm couldn't see `apps/mobile`'s `expo@55.0.28` to satisfy that peer and
+silently installed a second, phantom `expo@57.0.11` tree at the workspace root instead
+(reproduced identically from a from-scratch `npm install`, confirming it predates this
+session — not something this session's edits caused). Metro then picked up the mismatched
+SDK-57 `@expo/router-server`/`babel-preset-expo` in some resolution paths, breaking the
+`require.context(process.env.EXPO_ROUTER_APP_ROOT, ...)` transform. Fixed with an `overrides`
+entry in the root `package.json` (`"expo": "^55.0.28"`) forcing a single deduped version
+tree-wide, followed by a full `node_modules` + `package-lock.json` regeneration. Verified via
+`npm ls expo` (single `55.0.28`, no `invalid` markers), `npm run typecheck` (exit 0), and
+`npm test` (229 tests). Not migration-related, but worth knowing if `npm run start` breaks
+again after adding a new dependency to `packages/api` or `packages/utils` with a loose `expo`
+peer range.
+
+**Second-order regression from the fix above, caught on-device (Tech Lead's Oukitel WP28):**
+regenerating `package-lock.json` also re-resolved two OTHER unpinned dependencies to whatever
+was newest on npm today, both of which are native modules whose compiled binary is baked into
+the already-built dev-client APK on-device — a JS-level `npm install` cannot update them:
+- `react-native-nitro-modules` (a transitive dep of `react-native-mmkv`, declared as `"*"` by
+  mmkv) moved `0.35.7` → `0.36.5`, producing the "native Nitro Modules core runtime version
+  is 0.35.7, but the JS code is using version 0.36.5" warning.
+- `react-native-mmkv` itself moved `4.3.1` → `4.3.2` (still within `apps/mobile/package.json`'s
+  unpinned `^4.3.1`), and 4.3.2's JS wrapper (`addContentChangedListener.js`) calls a native
+  method (`checkContentChanged`, added in `HybridMMKV.cpp`) that doesn't exist in whatever
+  mmkv version the current dev-client binary was actually compiled against — crashing with
+  `TypeError: mmkv.checkContentChanged is not a function`.
+
+Fixed by pinning both back to exactly what the pre-session lockfile (backed up before the
+first regeneration) had resolved — `react-native-nitro-modules: "0.35.7"` and
+`react-native-mmkv: "4.3.1"` — added to the same root `package.json` `overrides` block as
+`expo`, followed by another full `node_modules` + `package-lock.json` regeneration. `npm ls`
+confirms all three now resolve to a single version each, tree-wide, with no `invalid`
+markers; `npm run typecheck` and `npm test` (229 tests) both clean.
+
+**General lesson, not just this instance:** a full lockfile regeneration in this monorepo is
+not safe by default — any dependency with an unpinned/wildcard range (`"*"`, or a `^range`
+that's drifted since the lockfile was last generated) can silently jump to a newer version,
+and for **native modules** (anything with compiled Android/iOS code — Nitro-based packages,
+`expo-*` native modules, etc.) that JS-level version bump has no matching native binary until
+the next actual build. A plain `npm install`/`typecheck`/`npm test` pass looks completely
+clean in this failure mode — the break only surfaces at runtime on a real device. The three
+overrides now in root `package.json` pin the packages this session found drifting; if a
+`node_modules` wipe is ever needed again, diff the resulting `package-lock.json` against the
+previous one for any OTHER native-module version changes before trusting it on-device, not
+just the ones already known to be pinned here.
+
+App version intentionally left at `1.29.3` — JS-only change, OTA-eligible, no version bump
+requested.
+
+---
+
 ## 2026-08-09 — Google Play Data Safety rejection: account-deletion URL + declaration audit (docs-only, no migration)
 
 **Why:** v1.29.1 was rejected by Google Play under the User Data policy's Data safety section —

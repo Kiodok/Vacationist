@@ -155,8 +155,8 @@ function defsAndBg(accent) {
       <stop offset="100%" stop-color="#0F0F0F" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="logo-grad" cx="42%" cy="38%" r="72%">
-      <stop offset="0%" stop-color="#2D1B69"/>
-      <stop offset="100%" stop-color="#09060F"/>
+      <stop offset="0%" stop-color="#6C63FF"/>
+      <stop offset="100%" stop-color="#18162D"/>
     </radialGradient>
   </defs>
 

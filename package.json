@@ -39,7 +39,12 @@
     "zxing-wasm": "^3.1.0"
   },
   "allowScripts": {
-    "@sentry/cli@3.4.2": true,
-    "sharp@0.34.2": true
+    "sharp@0.34.2": true,
+    "@sentry/cli": false
+  },
+  "overrides": {
+    "expo": "^55.0.28",
+    "react-native-nitro-modules": "0.35.7",
+    "react-native-mmkv": "4.3.1"
   }
 }

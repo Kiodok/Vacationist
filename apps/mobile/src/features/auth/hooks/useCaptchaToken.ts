@@ -4,11 +4,14 @@ import { useCaptchaFallbackStore } from '../../../stores/captchaFallbackStore';
 import type { CaptchaReturnTarget } from '../../../stores/captchaFallbackStore';
 import { startCaptchaBrowserFallback } from '../utils/captchaBrowserFallback';
 
-// Sign-in controls are never gated on the captcha anymore (see login.tsx /
-// join.tsx / GuestUpgradeSheet.tsx) — the embedded widget runs invisibly in
-// the background from mount, so by the time a user actually taps submit a
-// token is very often already sitting in tokenRef. This budget only covers
-// the rare case where it isn't there yet.
+// Most sign-in controls are not gated on the captcha (see join.tsx /
+// GuestUpgradeSheet.tsx, and the magic-link controls in login.tsx) — the
+// embedded widget runs invisibly in the background from mount, so by the
+// time a user actually taps submit a token is very often already sitting in
+// tokenRef. This budget only covers the rare case where it isn't there yet.
+// The web Google button in login.tsx is the one exception — it stays gated
+// on `passed` below, because the web OAuth redirect it triggers has no
+// server-side captcha check at all.
 const EMBEDDED_WAIT_MS = 5000;
 
 // Flattens expo-router's string | string[] param values, drops undefined
@@ -44,6 +47,14 @@ export interface UseCaptchaTokenResult {
   verifying: boolean;
   // True once verification has failed with no automatic recovery in flight.
   error: boolean;
+  // True from the first successful embedded-widget or fallback token onward,
+  // for the life of this hook instance — never reset by consumeToken(). Web
+  // only: gates the Google button (see login.tsx) so it isn't reachable
+  // before Turnstile has run at all, since Supabase's captcha protection
+  // does not cover the OAuth redirect endpoint. Deliberately sticky rather
+  // than tied to tokenRef, which consumeToken() clears after every submit —
+  // otherwise the button would vanish again after a dismissed Google popup.
+  passed: boolean;
   // Call at the top of a submit handler. Resolves with a token once one
   // becomes available — immediately if already in hand, after the embedded
   // widget delivers one, or after the browser fallback completes. Resolves
@@ -60,6 +71,7 @@ export function useCaptchaToken(): UseCaptchaTokenResult {
   const [resetNonce, setResetNonce] = useState(0);
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState(false);
+  const [passed, setPassed] = useState(false);
 
   const tokenRef = useRef<string | undefined>(undefined);
   const failedRef = useRef(false);
@@ -81,7 +93,10 @@ export function useCaptchaToken(): UseCaptchaTokenResult {
   const onToken = useCallback((token: string) => {
     tokenRef.current = token;
     failedRef.current = false;
-    if (mountedRef.current) setError(false);
+    if (mountedRef.current) {
+      setError(false);
+      setPassed(true);
+    }
     if (waiterRef.current) {
       waiterRef.current(token);
       waiterRef.current = null;
@@ -193,6 +208,7 @@ export function useCaptchaToken(): UseCaptchaTokenResult {
     widgetProps: { resetNonce, onToken, onExpired, onError },
     verifying,
     error,
+    passed,
     getToken,
     consumeToken,
   };

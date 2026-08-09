@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { makeRedirectUri } from 'expo-auth-session';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Button, Input } from '@vacationist/ui';
+import { Button, Input, useThemeColors } from '@vacationist/ui';
 import { signInWithMagicLink } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useGoogleSignIn } from '../../src/features/auth/hooks/useGoogleSignIn';
@@ -21,6 +21,8 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState('');
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const captcha = useCaptchaToken();
+  const colors = useThemeColors();
+  const showGoogleButton = Platform.OS !== 'web' || captcha.passed;
 
   const { signIn: handleGoogleSignIn, loading: googleLoading } =
     useGoogleSignIn((msg) => addToast('error', msg));
@@ -79,19 +81,27 @@ export default function LoginScreen() {
         </View>
 
         <View className="gap-md" style={{ alignSelf: 'center', width: 240 }}>
-          <GoogleAuthButton
-            onPress={handleGoogleUpgrade}
-            loading={googleLoading}
-            disabled={magicLinkLoading || captcha.verifying}
-          />
+          {showGoogleButton ? (
+            <>
+              <GoogleAuthButton
+                onPress={handleGoogleUpgrade}
+                loading={googleLoading}
+                disabled={magicLinkLoading || captcha.verifying}
+              />
 
-          <View className="flex-row items-center gap-md my-sm">
-            <View className="flex-1 h-[1px] bg-border" />
-            <Text className="text-body-small text-text-muted">
-              {t('login.orContinueWith')}
-            </Text>
-            <View className="flex-1 h-[1px] bg-border" />
-          </View>
+              <View className="flex-row items-center gap-md my-sm">
+                <View className="flex-1 h-[1px] bg-border" />
+                <Text className="text-body-small text-text-muted">
+                  {t('login.orContinueWith')}
+                </Text>
+                <View className="flex-1 h-[1px] bg-border" />
+              </View>
+            </>
+          ) : !captcha.error ? (
+            <View style={{ height: 48, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="small" color={colors.textSecondary} />
+            </View>
+          ) : null}
 
           <Input
             placeholder={t('login.emailPlaceholder')}

@@ -16,11 +16,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   updates: {
     url: 'https://u.expo.dev/a1dc4172-7c41-4aa9-a44d-afb1a0088278',
   },
-  splash: {
-    image: './assets/images/splash-icon.png',
-    resizeMode: 'contain',
-    backgroundColor: '#0F0F0F',
-  },
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.vacationist.mobile',
@@ -28,7 +23,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',
-      backgroundColor: '#0F0F0F',
+      backgroundImage: './assets/images/adaptive-icon-background.png',
     },
     // @ts-expect-error — SDK 55 property, types not yet updated
     edgeToEdgeEnabled: true,
@@ -55,6 +50,25 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/images/favicon.png',
   },
   plugins: [
+    [
+      'expo-splash-screen',
+      {
+        // Android's native SplashScreen API (12+) only supports a solid background
+        // color plus a small centered icon — no full-bleed image — so it gets a
+        // glyph-only asset. iOS's storyboard has no such limit, so it gets the
+        // full gradient background from play-store/icon.svg for a true full-bleed look.
+        android: {
+          image: './assets/images/splash-icon-android.png',
+          resizeMode: 'contain',
+          backgroundColor: '#18162D',
+        },
+        ios: {
+          image: './assets/images/splash-icon-ios.png',
+          resizeMode: 'cover',
+          backgroundColor: '#18162D',
+        },
+      },
+    ],
     'expo-router',
     'expo-updates',
     'expo-localization',

@@ -61,6 +61,8 @@ Claude Code has access to a real Chrome browser via the `claude-in-chrome` skill
 
 Known quirk: the extension's network-request capture occasionally mis-reports a `503` for `keepalive: true` beacon-style POSTs (observed identically on Google Analytics' own long-established endpoint during Phase 14 testing) — treat that specific pattern as a capture artifact, not a real server error, and cross-check with a direct `curl` before concluding a beacon endpoint is actually broken.
 
+**For app UI changes (not the marketing site), prefer `npm run web` (Expo's web dev server, live-reloading) over `npm run web:export && npm run web:serve`.** The export/serve pair produces a static production build — slow to rebuild after every edit, and easy to end up screenshotting a stale bundle. Reach for export/serve only when the thing under test is genuinely about the production build itself (e.g. verifying `vercel.json` cache headers, or the exported bundle size).
+
 ---
 
 ## Monorepo Structure
