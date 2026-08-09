@@ -459,6 +459,66 @@ export type Database = {
           },
         ]
       }
+      currency_catalog: {
+        Row: {
+          code: string
+          created_at: string
+          is_active: boolean
+          is_rate_available: boolean
+          missing_since: string | null
+          name: string
+          symbol: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          is_active?: boolean
+          is_rate_available?: boolean
+          missing_since?: string | null
+          name: string
+          symbol?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          is_active?: boolean
+          is_rate_available?: boolean
+          missing_since?: string | null
+          name?: string
+          symbol?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      currency_drift_alerts: {
+        Row: {
+          change_type: string
+          created_at: string
+          currency_code: string
+          details: string | null
+          emailed_at: string | null
+          id: string
+        }
+        Insert: {
+          change_type: string
+          created_at?: string
+          currency_code: string
+          details?: string | null
+          emailed_at?: string | null
+          id?: string
+        }
+        Update: {
+          change_type?: string
+          created_at?: string
+          currency_code?: string
+          details?: string | null
+          emailed_at?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       document_access_audit_log: {
         Row: {
           accessed_at: string
@@ -589,9 +649,42 @@ export type Database = {
           },
         ]
       }
+      exchange_rates: {
+        Row: {
+          as_of: string
+          currency: string
+          fetched_at: string
+          id: string
+          rate: number
+        }
+        Insert: {
+          as_of: string
+          currency: string
+          fetched_at?: string
+          id?: string
+          rate: number
+        }
+        Update: {
+          as_of?: string
+          currency?: string
+          fetched_at?: string
+          id?: string
+          rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchange_rates_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       expense_splits: {
         Row: {
           amount_owed: number
+          amount_owed_original_currency: number | null
           covered_by: string | null
           expense_id: string
           id: string
@@ -602,6 +695,7 @@ export type Database = {
         }
         Insert: {
           amount_owed: number
+          amount_owed_original_currency?: number | null
           covered_by?: string | null
           expense_id: string
           id?: string
@@ -612,6 +706,7 @@ export type Database = {
         }
         Update: {
           amount_owed?: number
+          amount_owed_original_currency?: number | null
           covered_by?: string | null
           expense_id?: string
           id?: string
@@ -655,9 +750,11 @@ export type Database = {
         Row: {
           amount: number
           archived_at: string | null
+          converted_amount: number
           created_at: string
           created_by: string
           currency: string
+          exchange_rate: number
           id: string
           paid_by: string
           related_id: string | null
@@ -671,9 +768,11 @@ export type Database = {
         Insert: {
           amount: number
           archived_at?: string | null
+          converted_amount: number
           created_at?: string
           created_by: string
           currency?: string
+          exchange_rate?: number
           id?: string
           paid_by: string
           related_id?: string | null
@@ -687,9 +786,11 @@ export type Database = {
         Update: {
           amount?: number
           archived_at?: string | null
+          converted_amount?: number
           created_at?: string
           created_by?: string
           currency?: string
+          exchange_rate?: number
           id?: string
           paid_by?: string
           related_id?: string | null
@@ -707,6 +808,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "expenses_paid_by_fkey"
@@ -1283,6 +1391,13 @@ export type Database = {
           trip_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "settlement_receipts_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
+          },
           {
             foreignKeyName: "settlement_receipts_settled_by_fkey"
             columns: ["settled_by"]
@@ -2056,6 +2171,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "trips_base_currency_fkey"
+            columns: ["base_currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
+          },
+          {
             foreignKeyName: "trips_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
@@ -2161,6 +2283,7 @@ export type Database = {
           is_guest: boolean
           locale: string | null
           name: string
+          preferred_currency: string | null
           signup_attribution_claimed_at: string | null
           timezone: string
           updated_at: string
@@ -2173,6 +2296,7 @@ export type Database = {
           is_guest?: boolean
           locale?: string | null
           name: string
+          preferred_currency?: string | null
           signup_attribution_claimed_at?: string | null
           timezone?: string
           updated_at?: string
@@ -2185,11 +2309,20 @@ export type Database = {
           is_guest?: boolean
           locale?: string | null
           name?: string
+          preferred_currency?: string | null
           signup_attribution_claimed_at?: string | null
           timezone?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_preferred_currency_fkey"
+            columns: ["preferred_currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
+          },
+        ]
       }
     }
     Views: {
@@ -2532,6 +2665,7 @@ export type Database = {
       update_expense_with_splits: {
         Args: {
           p_amount: number
+          p_currency: string
           p_expense_id: string
           p_paid_by: string
           p_split_method: string

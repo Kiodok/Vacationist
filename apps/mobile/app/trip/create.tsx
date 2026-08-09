@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, TextInput } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -7,20 +7,30 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, ThemedIcon, useThemeColors, useResolvedTheme } from '@vacationist/ui';
-import { createTripSchema, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
+import { createTripSchema, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { CreateTripInput } from '@vacationist/types';
 import { useCreateTrip } from '../../src/features/trips/hooks/useTrips';
+import { useCurrencies } from '../../src/features/currencies/hooks/useCurrencies';
 import { DateTimePickerField } from '../../src/components/DateTimePickerField';
 
 export default function CreateTripScreen() {
   const { t } = useTranslation('trips');
-  const { t: tCommon } = useTranslation("common");
   const router = useRouter();
   const createTrip = useCreateTrip();
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [currencyQuery, setCurrencyQuery] = useState('');
+  const { data: currencies = [] } = useCurrencies();
   const theme = useResolvedTheme();
   const colors = useThemeColors();
   const isColorful = theme === 'colorful';
+
+  const filteredCurrencies = currencyQuery.trim()
+    ? currencies.filter(
+        (c) =>
+          c.code.toLowerCase().includes(currencyQuery.trim().toLowerCase()) ||
+          c.name.toLowerCase().includes(currencyQuery.trim().toLowerCase()),
+      )
+    : currencies;
 
   const { control, handleSubmit, formState: { errors } } = useForm<CreateTripInput>({
     resolver: zodResolver(createTripSchema),
@@ -60,6 +70,7 @@ export default function CreateTripScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               label={t('field.tripName')}
+              required
               placeholder={t('create.namePlaceholder')}
               value={value}
               onChangeText={onChange}
@@ -75,7 +86,7 @@ export default function CreateTripScreen() {
           name="description"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label={`${t('field.description')} ${tCommon('label.optional')}`}
+              label={t('field.description')}
               placeholder={t('create.descriptionPlaceholder')}
               value={value ?? ''}
               onChangeText={onChange}
@@ -95,6 +106,7 @@ export default function CreateTripScreen() {
               render={({ field: { onChange, value } }) => (
                 <DateTimePickerField
                   label={t('field.startDate')}
+                  required
                   mode="date"
                   value={value}
                   onChange={(v) => onChange(v ?? '')}
@@ -110,6 +122,7 @@ export default function CreateTripScreen() {
               render={({ field: { onChange, value } }) => (
                 <DateTimePickerField
                   label={t('field.endDate')}
+                  required
                   mode="date"
                   value={value}
                   onChange={(v) => onChange(v ?? '')}
@@ -127,7 +140,7 @@ export default function CreateTripScreen() {
               name="budget_per_person"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  label={`${t('field.budget')} ${tCommon('label.optional')}`}
+                  label={t('field.budget')}
                   placeholder={t('create.budgetPlaceholder')}
                   value={value != null ? String(value) : ''}
                   onChangeText={(text) => {
@@ -146,29 +159,47 @@ export default function CreateTripScreen() {
               control={control}
               name="base_currency"
               render={({ field: { value, onChange } }) => (
-                <View>
-                  <Text className="text-label text-text-muted uppercase mb-xs">{t('field.currency')}</Text>
+                <View className="gap-sm">
+                  <Text className="text-label text-text-secondary uppercase">
+                    {t('field.currency')}<Text className="text-danger"> *</Text>
+                  </Text>
                   <Pressable
                     onPress={() => setShowCurrencyPicker((v) => !v)}
                     className="bg-surface border border-border rounded-sm px-md flex-row items-center justify-between min-h-[48px]"
                     style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   >
                     <Text className="text-body font-semibold text-text-primary">{value}</Text>
-                    <ThemedIcon name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color="#9E9E9E" />
+                    <ThemedIcon name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textSecondary} />
                   </Pressable>
                   {showCurrencyPicker && (
                     <View className="bg-surface border border-border rounded-sm mt-xs overflow-hidden">
-                      {CURRENCY.map((c) => (
-                        <Pressable
-                          key={c}
-                          onPress={() => { onChange(c); setShowCurrencyPicker(false); }}
-                          className="px-md py-sm flex-row items-center justify-between"
-                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, backgroundColor: value === c ? 'rgba(108,99,255,0.12)' : 'transparent' })}
-                        >
-                          <Text className={`text-body ${value === c ? 'text-primary font-semibold' : 'text-text-primary'}`}>{c}</Text>
-                          {value === c && <ThemedIcon name="checkmark" size={16} color="#6C63FF" />}
-                        </Pressable>
-                      ))}
+                      <View className="px-sm py-xs border-b border-border">
+                        <TextInput
+                          className="text-body-small text-text-primary px-sm py-xs"
+                          placeholder={t('field.currencySearch')}
+                          placeholderTextColor={colors.textMuted}
+                          value={currencyQuery}
+                          onChangeText={setCurrencyQuery}
+                          autoCapitalize="characters"
+                          autoCorrect={false}
+                        />
+                      </View>
+                      <ScrollView style={{ maxHeight: 240 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                        {filteredCurrencies.map((c) => (
+                          <Pressable
+                            key={c.code}
+                            onPress={() => { onChange(c.code); setShowCurrencyPicker(false); setCurrencyQuery(''); }}
+                            className="px-md py-sm flex-row items-center justify-between"
+                            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, backgroundColor: value === c.code ? `${colors.primary}1F` : 'transparent' })}
+                          >
+                            <View className="flex-1 flex-row items-center gap-xs">
+                              <Text className={`text-body ${value === c.code ? 'text-primary font-semibold' : 'text-text-primary'}`}>{c.code}</Text>
+                              <Text className="text-body-small text-text-secondary flex-1" numberOfLines={1}>{c.name}</Text>
+                            </View>
+                            {value === c.code && <ThemedIcon name="checkmark" size={16} color={colors.primary} />}
+                          </Pressable>
+                        ))}
+                      </ScrollView>
                     </View>
                   )}
                 </View>
@@ -181,8 +212,10 @@ export default function CreateTripScreen() {
           control={control}
           name="timezone"
           render={({ field: { value, onChange } }) => (
-            <View>
-              <Text className="text-label text-text-muted uppercase mb-xs">{t('field.timezone')}</Text>
+            <View className="gap-sm">
+              <Text className="text-label text-text-muted uppercase">
+                {t('field.timezone')}<Text className="text-danger"> *</Text>
+              </Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}

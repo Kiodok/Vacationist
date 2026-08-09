@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { updateProfileSchema, type UpdateProfileInput, SUPPORTED_TIMEZONES } fro
 import type { User } from '@vacationist/types';
 import { useTranslation } from 'react-i18next';
 import { LOCALE_LABELS, SUPPORTED_LOCALES, getCurrentLocale } from '@vacationist/i18n';
+import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
 
 interface EditProfileSheetProps {
   visible: boolean;
@@ -23,15 +24,23 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation("common");
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateProfileInput>({
+  const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
+  const { control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<UpdateProfileInput>({
     resolver: zodResolver(updateProfileSchema),
   });
 
   useEffect(() => {
     if (visible) {
-      reset({ name: user.name, locale: (user.locale ?? getCurrentLocale()) as 'en' | 'de', timezone: user.timezone as typeof SUPPORTED_TIMEZONES[number] });
+      reset({
+        name: user.name,
+        locale: (user.locale ?? getCurrentLocale()) as 'en' | 'de',
+        timezone: user.timezone as typeof SUPPORTED_TIMEZONES[number],
+        preferred_currency: user.preferred_currency,
+      });
     }
   }, [visible, user]);
+
+  const preferredCurrency = watch('preferred_currency');
 
   const onValid = (data: UpdateProfileInput) => {
     Keyboard.dismiss();
@@ -146,8 +155,33 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
                     />
                   </ScrollView>
                 </View>
+
+                <View className="gap-xs">
+                  <Text className="text-label text-text-muted uppercase">{t('edit.preferredCurrency')}</Text>
+                  <Pressable
+                    onPress={() => setCurrencyPickerVisible(true)}
+                    className="bg-surface border border-border rounded-sm px-md min-h-[44px] flex-row items-center justify-between"
+                  >
+                    <Text className="text-body text-text-primary">
+                      {preferredCurrency ?? t('edit.preferredCurrencyNone')}
+                    </Text>
+                    {preferredCurrency && (
+                      <Pressable onPress={() => setValue('preferred_currency', null)} hitSlop={8}>
+                        <Text className="text-body-small text-text-secondary">{tCommon('button.clear')}</Text>
+                      </Pressable>
+                    )}
+                  </Pressable>
+                </View>
               </View>
             </ScrollView>
+
+            <CurrencyPickerSheet
+              visible={currencyPickerVisible}
+              selectedCode={preferredCurrency ?? null}
+              onSelect={(code) => setValue('preferred_currency', code)}
+              onClose={() => setCurrencyPickerVisible(false)}
+              onlyRateAvailable
+            />
 
             <Pressable
               onPress={handleSubmit(onValid)}

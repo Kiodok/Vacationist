@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator, Platform, Linking } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,10 @@ interface SettlementsModalProps {
   receipts?: SettlementReceipt[];
   isLoadingReceipts?: boolean;
   onViewReceipt?: (receiptId: string) => void;
+  /** "Show in X" — live balances/settlements are shown converted into this currency (display only, never affects settlement status). Receipts (immutable history) always stay in `currency` regardless. */
+  displayCurrency?: Currency | null;
+  convert?: (amount: number, from: Currency, to: Currency) => number | null;
+  ratesAsOf?: string | null;
 }
 
 export function SettlementsModal({
@@ -37,6 +41,9 @@ export function SettlementsModal({
   receipts = [],
   isLoadingReceipts,
   onViewReceipt,
+  displayCurrency,
+  convert,
+  ratesAsOf,
 }: SettlementsModalProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
@@ -45,6 +52,13 @@ export function SettlementsModal({
   const [confirmingSettle, setConfirmingSettle] = useState(false);
   const settlements = computeSettlements(balances);
   const allSettled = settlements.length === 0;
+
+  const isForeignDisplay = !!displayCurrency && displayCurrency !== currency && !!convert;
+  const effectiveCurrency = isForeignDisplay ? (displayCurrency as Currency) : currency;
+  const displayAmount = (amount: number): number => {
+    if (!isForeignDisplay) return amount;
+    return convert!(amount, currency, displayCurrency as Currency) ?? amount;
+  };
 
   async function handleShare() {
     const text = formatSettlementShareText({ settlements, members, currency, tripId, tripTitle });
@@ -100,13 +114,23 @@ export function SettlementsModal({
                         </Text>
                       </View>
                       <Text className={`text-body font-semibold ${isPositive ? 'text-success' : isNegative ? 'text-danger' : 'text-text-muted'}`}>
-                        {isPositive ? '+' : ''}{formatCurrency(b.net_balance, currency)}
+                        {isPositive ? '+' : ''}{formatCurrency(displayAmount(b.net_balance), effectiveCurrency)}
                       </Text>
                     </View>
                   </View>
                 );
               })}
             </View>
+            {isForeignDisplay && (
+              <>
+                <Text className="text-label text-text-muted -mt-md">
+                  {t('modal.ratesAsOf', { date: ratesAsOf ?? '—', currency })}
+                </Text>
+                <Pressable onPress={() => Linking.openURL('https://www.exchangerate-api.com')} className="mb-lg">
+                  <Text className="text-label text-text-muted underline">{t('field.ratesAttribution')}</Text>
+                </Pressable>
+              </>
+            )}
 
             {/* Simplified settlements (read-only) */}
             <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.simplifiedSettlements')}</Text>
@@ -132,7 +156,7 @@ export function SettlementsModal({
                           {toUser?.name ?? 'Unknown'}
                         </Text>
                         <Text className="text-body text-primary font-semibold">
-                          {formatCurrency(s.amount, currency)}
+                          {formatCurrency(displayAmount(s.amount), effectiveCurrency)}
                         </Text>
                       </View>
                     </View>

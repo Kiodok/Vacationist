@@ -3,11 +3,13 @@ import { TextInput, View, Text, type TextInputProps } from 'react-native';
 
 interface InputProps extends Omit<TextInputProps, 'className'> {
   label?: string;
+  /** Appends a red asterisk to the label instead of relying on "(optional)" suffix text — mark only genuinely required fields. */
+  required?: boolean;
   error?: string;
   className?: string;
 }
 
-export function Input({ label, error, className = '', ...props }: InputProps) {
+export function Input({ label, required = false, error, className = '', ...props }: InputProps) {
   const [focused, setFocused] = useState(false);
 
   const borderColor = error
@@ -19,7 +21,9 @@ export function Input({ label, error, className = '', ...props }: InputProps) {
   return (
     <View className={`gap-sm ${className}`}>
       {label && (
-        <Text className="text-label text-text-secondary uppercase">{label}</Text>
+        <Text className="text-label text-text-secondary uppercase">
+          {label}{required && <Text className="text-danger"> *</Text>}
+        </Text>
       )}
       <TextInput
         className={`min-h-[48px] rounded-sm bg-surface border ${borderColor} px-md text-body text-text-primary`}

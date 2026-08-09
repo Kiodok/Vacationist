@@ -4,6 +4,8 @@
   "edit.namePlaceholder": "Your name",
   "edit.language": "Language",
   "edit.timezone": "Timezone",
+  "edit.preferredCurrency": "Preferred currency",
+  "edit.preferredCurrencyNone": "Not set — falls back to each trip's currency",
   "edit.saveButton": "Save Changes",
   "edit.saving": "Saving…",
   "section.travelDocuments": "Travel Documents",

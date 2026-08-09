@@ -63,8 +63,13 @@ export function ExpenseSplitBreakdown({
           <Text className="text-body-small text-text-secondary mb-md">
             {expense.split_method === 'cover'
               ? t('card.coveredFor', { name: payer?.name ?? 'Unknown' })
-              : t('split.paidBy', { amount: formatCurrency(Number(expense.amount), currency), name: payer?.name ?? 'Unknown' })}
+              : t('split.paidBy', { amount: formatCurrency(Number(expense.amount), expense.currency), name: payer?.name ?? 'Unknown' })}
           </Text>
+          {expense.currency !== currency && (
+            <Text className="text-body-small text-text-muted mb-md -mt-xs">
+              ≈ {formatCurrency(Number(expense.converted_amount), currency)}
+            </Text>
+          )}
 
           <View className="gap-sm">
             {owerSplits.map((split) => {
@@ -112,7 +117,10 @@ export function ExpenseSplitBreakdown({
                       }`}>
                         {isCovered
                           ? t('split.coveredBy', { name: coveredByUser?.name ?? 'Unknown' })
-                          : `${formatCurrency(Number(split.amount_owed), currency)} · ${isSettled ? t('split.settled') : t('split.open')}`}
+                          : `${formatCurrency(
+                              split.amount_owed_original_currency != null ? Number(split.amount_owed_original_currency) : Number(split.amount_owed),
+                              split.amount_owed_original_currency != null ? expense.currency : currency,
+                            )} · ${isSettled ? t('split.settled') : t('split.open')}`}
                       </Text>
                     </View>
                   </View>

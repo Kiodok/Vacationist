@@ -17,6 +17,7 @@
   "field.endDate": "End date",
   "field.budget": "Budget per person",
   "field.currency": "Currency",
+  "field.currencySearch": "Search currencies...",
   "field.timezone": "Timezone",
   "status.planning": "Planning",
   "status.active": "Active",

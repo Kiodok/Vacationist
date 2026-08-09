@@ -56,8 +56,13 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
           </View>
           <View className="items-end gap-xs">
             <Text className="text-body text-text-primary font-semibold">
-              {formatCurrency(Number(expense.amount), currency)}
+              {formatCurrency(Number(expense.amount), expense.currency)}
             </Text>
+            {expense.currency !== currency && (
+              <Text className="text-body-small text-text-muted">
+                ≈ {formatCurrency(Number(expense.converted_amount), currency)}
+              </Text>
+            )}
             <SettlementBadge allSettled={allSettled} settledCount={settledCount} totalCount={owerSplits.length} />
           </View>
         </View>

@@ -35,8 +35,8 @@ npm test
 # Run tests in watch mode (from apps/mobile)
 cd apps/mobile && npm run test:watch
 
-# Run a single test file
-cd apps/mobile && npx vitest run src/features/expenses/utils/settlements.test.ts
+# Run a single test file (pure business logic tests live in packages/utils, not apps/mobile)
+cd packages/utils && npx vitest run src/settlements.test.ts
 
 # Generate Supabase TypeScript types from local DB
 npm run supabase:types

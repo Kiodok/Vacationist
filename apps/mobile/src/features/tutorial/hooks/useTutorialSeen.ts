@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { storage } from '../../../utils/mmkvStorage';
 
-const KEY = 'tutorial_seen_v2';
+const KEY = 'tutorial_seen_v3';
 
 function readSeen(): boolean {
   if (Platform.OS === 'web') return localStorage.getItem(KEY) === 'true';

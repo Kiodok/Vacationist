@@ -16,7 +16,6 @@
   "label.notes": "Notizen",
   "label.currency": "Währung",
   "label.timezone": "Zeitzone",
-  "label.optional": "(optional)",
   "label.membersCount": "{{count}} Mitglied",
   "label.membersCount_other": "{{count}} Mitglieder",
   "label.daysCount": "{{count}} Tag",

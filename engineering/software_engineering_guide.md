@@ -739,20 +739,22 @@ UNIQUE (activity_id, user_id)
 ### expenses
 
 ```sql
-id              UUID PRIMARY KEY
-trip_id         UUID REFERENCES trips(id) ON DELETE CASCADE
-related_type    TEXT CHECK (related_type IN ('accommodation', 'activity', 'transport', 'shopping', 'manual'))
-related_id      UUID
-title           TEXT NOT NULL
-amount          NUMERIC(10,2) NOT NULL
-currency        TEXT DEFAULT 'EUR' CHECK (currency IN ('EUR', 'CHF', 'USD'))
-paid_by         UUID REFERENCES users(id)
-created_by      UUID REFERENCES users(id)
-created_at      TIMESTAMPTZ DEFAULT NOW()
-archived_at     TIMESTAMPTZ DEFAULT NULL
+id                UUID PRIMARY KEY
+trip_id           UUID REFERENCES trips(id) ON DELETE CASCADE
+related_type      TEXT CHECK (related_type IN ('accommodation', 'activity', 'transport', 'shopping', 'manual'))
+related_id        UUID
+title             TEXT NOT NULL
+amount            NUMERIC(10,2) NOT NULL
+currency          TEXT DEFAULT 'EUR' REFERENCES currency_catalog(code)
+exchange_rate     NUMERIC(18,8) NOT NULL DEFAULT 1
+converted_amount  NUMERIC(10,2) NOT NULL
+paid_by           UUID REFERENCES users(id)
+created_by        UUID REFERENCES users(id)
+created_at        TIMESTAMPTZ DEFAULT NOW()
+archived_at       TIMESTAMPTZ DEFAULT NULL
 ```
 
-`currency` must match or align with `trips.base_currency`. Display is always normalized to the trip's base currency.
+`currency` may differ from `trips.base_currency` (Phase 15, multi-currency). `exchange_rate` (multiplier from `currency` → `base_currency`) and `converted_amount` (`amount * exchange_rate`, rounded) are resolved once at write time and frozen — never recalculated. All balance/settlement math sums `converted_amount`, not `amount`. When `currency === base_currency`, `exchange_rate` is always exactly `1` and no FX lookup happens.
 
 `related_type` values:
 - `accommodation`
@@ -766,16 +768,49 @@ archived_at     TIMESTAMPTZ DEFAULT NULL
 ### expense_splits
 
 ```sql
-id              UUID PRIMARY KEY
-expense_id      UUID REFERENCES expenses(id) ON DELETE CASCADE
-user_id         UUID REFERENCES users(id)
-amount_owed     NUMERIC(10,2) NOT NULL
-status          TEXT DEFAULT 'open' CHECK (status IN ('open', 'settled'))
+id                              UUID PRIMARY KEY
+expense_id                      UUID REFERENCES expenses(id) ON DELETE CASCADE
+user_id                         UUID REFERENCES users(id)
+amount_owed                     NUMERIC(10,2) NOT NULL
+amount_owed_original_currency   NUMERIC(10,2)
+status                          TEXT DEFAULT 'open' CHECK (status IN ('open', 'settled'))
 ```
+
+`amount_owed` is always in the trip's base currency (what balance math uses). `amount_owed_original_currency` is only populated when the parent expense's `currency` differs from the trip's base currency — it holds what the user actually typed/sees, in the expense's own currency.
 
 Status values:
 - `open`
 - `settled`
+
+---
+
+### currency_catalog (Phase 15)
+
+```sql
+code                TEXT PRIMARY KEY   -- ISO 4217, e.g. 'EUR'
+name                TEXT NOT NULL
+symbol              TEXT
+is_rate_available   BOOLEAN DEFAULT FALSE
+is_active           BOOLEAN DEFAULT TRUE
+missing_since       TIMESTAMPTZ
+```
+
+Reference table replacing the old hardcoded `CURRENCY` enum + duplicated `CHECK` constraints — the supported currency list is now DB-driven so it can change (a currency added/removed from the FX feed) without an app deploy. Readable by any authenticated user; writable only by the `fetch-exchange-rates` Edge Function's service-role client.
+
+---
+
+### exchange_rates (Phase 15)
+
+```sql
+id           UUID PRIMARY KEY
+currency     TEXT REFERENCES currency_catalog(code)
+rate         NUMERIC(18,8) NOT NULL   -- value of 1 EUR in `currency`
+as_of        DATE NOT NULL
+fetched_at   TIMESTAMPTZ DEFAULT NOW()
+UNIQUE (currency, as_of)
+```
+
+One row per currency per day, populated by the daily `fetch-exchange-rates-daily` pg_cron job. Full history is kept (tiny volume) rather than a single mutable "latest" row.
 
 ---
 
@@ -1607,20 +1642,26 @@ The system only handles:
 
 ---
 
-## Base Currency
+## Base Currency & Multi-Currency Expenses (Phase 15)
 
 Every trip must have a base currency defined at creation.
 
 ```txt
 Default: EUR (Euro)
-Alternatives: CHF (Swiss Franc), USD (US Dollar)
+Alternatives: any active row in public.currency_catalog — a curated set of ~25
+European currencies (EUR, GBP, CHF, NOK, SEK, DKK, ISK, PLN, CZK, HUF, RON, BGN,
+RSD, BAM, MKD, ALL, TRY, UAH, MDL, BYN, GEL, AMD, AZN, GIP) plus USD.
 ```
 
-The base currency cannot be changed after the first expense is added to the trip.
+The base currency cannot be changed after the first expense is added to the trip — enforced at the DB level by a `BEFORE UPDATE` trigger on `trips` (`restrict_trip_base_currency_update`), not just the UI.
 
-All expenses are recorded in the trip's base currency. If a real-world cost was paid in a different currency, the member must manually convert before entering the amount. Vacationist does not perform currency conversion.
+**Each expense may be entered in its own currency**, independent of the trip's base currency (e.g. a hotel paid in GBP on a EUR-denominated trip). The exchange rate is resolved from `public.exchange_rates` and **frozen** into `expenses.exchange_rate` / `expenses.converted_amount` at creation/edit time — never recalculated retroactively. All balance and settlement math (`get_trip_balances`, `settle_all_expenses`, debt simplification) operates on `converted_amount`/`amount_owed`, always in the trip's base currency. Same-currency expenses (`currency === base_currency`, the common case and every trip that existed before this phase) always use `exchange_rate = 1` and never depend on the FX feed being populated.
 
-Expense display always shows the base currency symbol.
+Rates are sourced from a **daily cron job** (not live per-request calls — this app is offline-first and rates don't move meaningfully within a day for group-trip splitting), pulling from the free, no-key, ECB-based [Frankfurter](https://frankfurter.dev) API into `public.exchange_rates`. Currencies the feed doesn't price (`currency_catalog.is_rate_available = false`) are still selectable for entry, but conversion features are disabled for them until a rate appears. A currency losing or gaining feed coverage (e.g. a country adopting the euro) triggers an email alert to the Tech Lead — see `supabase/functions/fetch-exchange-rates/index.ts` and `public.currency_drift_alerts`.
+
+A **"Show in ⟨currency⟩"** toggle (Expenses tab + Settlements modal) converts already-computed balances/settlements into a member's preferred currency for display only — using the latest cached rate, never mutating stored data or settlement status. Defaults to `users.preferred_currency` when set (Profile settings).
+
+Expense cards show the original-currency amount as primary, with a muted converted-to-base-currency line when they differ.
 
 ---
 

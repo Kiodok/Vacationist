@@ -27,6 +27,7 @@ export interface User {
   locale: string | null;
   timezone: string;
   is_guest: boolean;
+  preferred_currency: Currency | null;
   created_at: string;
   updated_at: string;
 }
@@ -170,6 +171,10 @@ export interface Expense {
   title: string;
   amount: number;
   currency: Currency;
+  /** Multiplier from `currency` to the trip's base_currency, frozen at creation/edit time. 1 when currency === base_currency. */
+  exchange_rate: number;
+  /** `amount * exchange_rate`, rounded — what balance/settlement math sums, not `amount`. */
+  converted_amount: number;
   split_method: ExpenseSplitMethod;
   paid_by: string;
   created_by: string;
@@ -188,6 +193,8 @@ export interface ExpenseSplit {
   status: ExpenseSplitStatus;
   covered_by: string | null;
   original_amount: number | null;
+  /** Split amount in the expense's own currency; only set when currency !== trip base_currency. */
+  amount_owed_original_currency: number | null;
   split_user?: { id: string; name: string; avatar_url: string | null } | null;
 }
 
@@ -561,6 +568,23 @@ export interface SettlementReceipt {
   splits_count: number;
   snapshot: SettlementSnapshot;
   created_at: string;
+}
+
+export interface CurrencyCatalogEntry {
+  code: string;
+  name: string;
+  symbol: string | null;
+  is_rate_available: boolean;
+  is_active: boolean;
+}
+
+export interface ExchangeRate {
+  currency: string;
+  /** Value of 1 EUR in `currency`. */
+  rate: number;
+  as_of: string;
+  /** Which feed priced this currency that day — 'ecb' (Frankfurter, primary) or 'exchangerate-api' (gap-filler, Phase 15b). */
+  source?: string;
 }
 
 export interface LostFoundCase {

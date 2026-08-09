@@ -129,6 +129,14 @@ verify_jwt = false
 [functions.track-event]
 verify_jwt = false
 
+# Server-to-server only (called by the fetch-exchange-rates-daily pg_cron job via
+# net.http_post), same shared-secret pattern as push-notification. This entry is
+# documentation only for the remote project (see the warning above `supabase config push`
+# must never be run against this project) — deploy remotely with
+# `supabase functions deploy fetch-exchange-rates --no-verify-jwt`.
+[functions.fetch-exchange-rates]
+verify_jwt = false
+
 [edge_runtime]
 enabled = true
 policy = "per_worker"

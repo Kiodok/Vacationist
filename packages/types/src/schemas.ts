@@ -1,6 +1,11 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, SUPPORTED_LOCALES, CURRENCY, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE, SHARED_PACKING_ITEM_TYPE, LOST_FOUND_CASE_TYPE, HIGHLIGHT_FORMAT } from './enums';
+import { SUPPORTED_TIMEZONES, SUPPORTED_LOCALES, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE, SHARED_PACKING_ITEM_TYPE, LOST_FOUND_CASE_TYPE, HIGHLIGHT_FORMAT } from './enums';
 import type { VOTE_TYPE } from './enums';
+
+// Structural ISO-4217 shape check only — Currency is DB-driven (public.currency_catalog),
+// so Zod can't validate membership against a compile-time list. Authoritative validation
+// (is this currency active/known?) happens inside the create/update_expense_with_splits RPCs.
+export const currencyCodeSchema = z.string().length(3).regex(/^[A-Z]{3}$/, 'Must be a 3-letter ISO 4217 currency code');
 
 export const userSchema = z.object({
   id: z.string().uuid(),
@@ -18,6 +23,7 @@ export const updateProfileSchema = z.object({
   avatar_url: z.string().url().max(2048).nullable().optional(),
   locale: z.enum(SUPPORTED_LOCALES).optional(),
   timezone: z.enum(SUPPORTED_TIMEZONES).optional(),
+  preferred_currency: currencyCodeSchema.nullable().optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
@@ -30,7 +36,7 @@ export const createTripSchema = z.object({
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   budget_per_person: z.number().positive().nullable().optional(),
-  base_currency: z.enum(CURRENCY),
+  base_currency: currencyCodeSchema,
   timezone: z.enum(SUPPORTED_TIMEZONES),
 }).refine(
   (data) => data.end_date >= data.start_date,
@@ -43,7 +49,7 @@ export const updateTripSchema = z.object({
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   budget_per_person: z.number().positive().nullable().optional(),
-  base_currency: z.enum(CURRENCY).optional(),
+  base_currency: currencyCodeSchema.optional(),
   timezone: z.enum(SUPPORTED_TIMEZONES).optional(),
   status: z.enum(TRIP_STATUS).optional(),
 }).refine(
@@ -177,7 +183,7 @@ export type SplitEntry = z.infer<typeof splitEntrySchema>;
 export const createExpenseSchema = z.object({
   title: z.string().min(1).max(100),
   amount: z.number().positive(),
-  currency: z.enum(CURRENCY),
+  currency: currencyCodeSchema,
   paid_by: z.string().uuid(),
   related_type: z.enum(EXPENSE_RELATED_TYPE),
   related_id: z.string().uuid().nullable().optional(),
@@ -185,9 +191,13 @@ export const createExpenseSchema = z.object({
   splits: z.array(splitEntrySchema).min(1),
 });
 
+// currency was added in Phase 15 (multi-currency support) — editing an expense can now
+// also correct its currency, re-freezing the exchange rate at edit time (see
+// update_expense_with_splits in supabase/migrations/20260809100006_update_expense_rpcs_fx.sql).
 export const updateExpenseWithSplitsSchema = z.object({
   title: z.string().min(1).max(100),
   amount: z.number().positive(),
+  currency: currencyCodeSchema,
   paid_by: z.string().uuid(),
   split_method: z.enum(EXPENSE_SPLIT_METHOD),
   splits: z.array(splitEntrySchema).min(1),

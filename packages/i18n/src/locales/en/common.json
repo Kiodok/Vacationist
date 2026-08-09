@@ -16,7 +16,6 @@
   "label.notes": "Notes",
   "label.currency": "Currency",
   "label.timezone": "Timezone",
-  "label.optional": "(optional)",
   "label.membersCount": "{{count}} member",
   "label.membersCount_other": "{{count}} members",
   "label.daysCount": "{{count}} day",

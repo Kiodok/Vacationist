@@ -25,8 +25,15 @@ export type ExpenseSplitStatus = (typeof EXPENSE_SPLIT_STATUS)[number];
 export const SHOPPING_ITEM_STATUS = ['open', 'bought'] as const;
 export type ShoppingItemStatus = (typeof SHOPPING_ITEM_STATUS)[number];
 
-export const CURRENCY = ['EUR', 'CHF', 'USD'] as const;
-export type Currency = (typeof CURRENCY)[number];
+// Currency is now DB-driven (public.currency_catalog), not a compile-time literal union —
+// the whole point of Phase 15's multi-currency support is that the supported currency list
+// changes (a currency added/removed from the daily FX feed, e.g. a country adopting the
+// euro) without an app deploy. Client currency pickers fetch the live list via
+// useCurrencies() (apps/mobile/src/features/currencies/hooks) instead of iterating a
+// hardcoded array. Authoritative validation lives in the create/update_expense_with_splits
+// RPCs (checked against currency_catalog.is_active); Zod only checks the ISO-4217 shape —
+// see createExpenseSchema / createTripSchema in schemas.ts.
+export type Currency = string;
 
 export const NOTIFICATION_TYPE = [
   'new_activity',

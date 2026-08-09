@@ -25,6 +25,8 @@ import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { CurrencyPickerSheet } from '../../../src/features/currencies/components/CurrencyPickerSheet';
+import { useCurrencyConversion } from '../../../src/features/currencies/hooks/useCurrencies';
 
 const SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: string; textClass: string }> = {
   active:    { icon: 'wallet-outline',         iconColor: colors.textPrimary, textClass: 'text-text-primary' },
@@ -71,17 +73,20 @@ export default function ExpensesTab() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [showSettlements, setShowSettlements] = useState(false);
+  const [displayCurrency, setDisplayCurrency] = useState<string | null>(user?.preferred_currency ?? null);
+  const [showDisplayCurrencyPicker, setShowDisplayCurrencyPicker] = useState(false);
+  const { convert, ratesAsOf } = useCurrencyConversion();
 
   const memberMap = useMemo(() => {
     const map = new Map<string, User>();
     members.forEach((m) => map.set(m.user_id, m.user));
     for (const e of expenses) {
       if (e.payer && !map.has(e.payer.id)) {
-        map.set(e.payer.id, { id: e.payer.id, name: e.payer.name, avatar_url: e.payer.avatar_url, email: null, locale: null, timezone: 'UTC', is_guest: false, created_at: '', updated_at: '' });
+        map.set(e.payer.id, { id: e.payer.id, name: e.payer.name, avatar_url: e.payer.avatar_url, email: null, locale: null, timezone: 'UTC', is_guest: false, preferred_currency: null, created_at: '', updated_at: '' });
       }
       for (const s of e.expense_splits) {
         if (s.split_user && !map.has(s.split_user.id)) {
-          map.set(s.split_user.id, { id: s.split_user.id, name: s.split_user.name, avatar_url: s.split_user.avatar_url, email: null, locale: null, timezone: 'UTC', is_guest: false, created_at: '', updated_at: '' });
+          map.set(s.split_user.id, { id: s.split_user.id, name: s.split_user.name, avatar_url: s.split_user.avatar_url, email: null, locale: null, timezone: 'UTC', is_guest: false, preferred_currency: null, created_at: '', updated_at: '' });
         }
       }
     }
@@ -189,10 +194,20 @@ export default function ExpensesTab() {
                 balances={balances}
                 onPress={() => setShowSettlements(true)}
               />
-              <View className="py-sm px-sm">
+              <View className="py-sm px-sm flex-row items-center justify-between">
                 <Text className="text-body-small text-text-secondary">
                   {t('summary.stats', { active: activeExpenses.length, completed: completedExpenses.length })}
                 </Text>
+                <Pressable
+                  onPress={() => setShowDisplayCurrencyPicker(true)}
+                  className="flex-row items-center gap-xs px-sm py-xs rounded-full bg-primary/10"
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                >
+                  <ThemedIcon name="swap-horizontal-outline" size={13} color={colors.primary} />
+                  <Text className="text-primary text-label font-medium">
+                    {t('summary.showIn', { currency: displayCurrency ?? currency })}
+                  </Text>
+                </Pressable>
               </View>
             </View>
           }
@@ -263,6 +278,14 @@ export default function ExpensesTab() {
         />
       )}
 
+      <CurrencyPickerSheet
+        visible={showDisplayCurrencyPicker}
+        selectedCode={displayCurrency ?? currency}
+        onSelect={setDisplayCurrency}
+        onClose={() => setShowDisplayCurrencyPicker(false)}
+        onlyRateAvailable
+      />
+
       {showSettlements && (
         <SettlementsModal
           visible
@@ -270,6 +293,9 @@ export default function ExpensesTab() {
           balances={balances}
           members={memberMap}
           currency={currency}
+          displayCurrency={displayCurrency}
+          convert={convert}
+          ratesAsOf={ratesAsOf}
           tripId={tripId!}
           tripTitle={trip?.title ?? ''}
           onSettleAllExpenses={() => {

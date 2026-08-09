@@ -5,10 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { updateTripSchema, type UpdateTripInput, CURRENCY, SUPPORTED_TIMEZONES } from '@vacationist/types';
+import { updateTripSchema, type UpdateTripInput, SUPPORTED_TIMEZONES } from '@vacationist/types';
 import type { Trip } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { ThemedIcon, colors, useResolvedTheme } from '@vacationist/ui';
+import { useCurrencies } from '../../currencies/hooks/useCurrencies';
+import { useExpenses } from '../../expenses/hooks/useExpenses';
 
 interface EditTripSheetProps {
   visible: boolean;
@@ -25,12 +27,27 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [currencyQuery, setCurrencyQuery] = useState('');
+  const { data: currencies = [] } = useCurrencies();
+  // base_currency is locked once the trip has any expenses (enforced DB-side by
+  // restrict_trip_base_currency_update — see 20260809100005_lock_base_currency_after_expense.sql).
+  // This is the UX-side heads-up so the picker never shows a value the server will reject.
+  const { data: expensesData } = useExpenses(trip.id);
+  const hasExpenses = (expensesData?.pages[0]?.items.length ?? 0) > 0;
   const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTripInput>({
     resolver: zodResolver(updateTripSchema),
   });
 
+  const filteredCurrencies = currencyQuery.trim()
+    ? currencies.filter(
+        (c) =>
+          c.code.toLowerCase().includes(currencyQuery.trim().toLowerCase()) ||
+          c.name.toLowerCase().includes(currencyQuery.trim().toLowerCase()),
+      )
+    : currencies;
+
   useEffect(() => {
-    if (!visible) setShowCurrencyPicker(false);
+    if (!visible) { setShowCurrencyPicker(false); setCurrencyQuery(''); }
   }, [visible]);
 
   useEffect(() => {
@@ -41,7 +58,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
         start_date: trip.start_date,
         end_date: trip.end_date,
         budget_per_person: trip.budget_per_person ?? null,
-        base_currency: trip.base_currency as typeof CURRENCY[number],
+        base_currency: trip.base_currency,
         timezone: trip.timezone as typeof SUPPORTED_TIMEZONES[number],
       });
     }
@@ -69,7 +86,9 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
               <View className="gap-md">
                 {/* Title */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">{t('field.tripName')} *</Text>
+                  <Text className="text-label text-text-muted uppercase">
+                    {t('field.tripName')}<Text className="text-danger"> *</Text>
+                  </Text>
                   <Controller
                     control={control}
                     name="title"
@@ -123,6 +142,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                       render={({ field: { onChange, value } }) => (
                         <DateTimePickerField
                           label={t('field.startDate')}
+                          required
                           mode="date"
                           value={value}
                           onChange={(v) => onChange(v ?? '')}
@@ -138,6 +158,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                       render={({ field: { onChange, value } }) => (
                         <DateTimePickerField
                           label={t('field.endDate')}
+                          required
                           mode="date"
                           value={value}
                           onChange={(v) => onChange(v ?? '')}
@@ -158,7 +179,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                         name="budget_per_person"
                         render={({ field: { onChange, onBlur, value } }) => (
                           <TextInput
-                            className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                            className="min-h-[48px] bg-surface border border-border rounded-sm px-md text-text-primary text-body"
                             placeholderTextColor="#5C5C5C"
                             placeholder="0.00"
                             value={value != null ? String(value) : ''}
@@ -182,29 +203,56 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                       name="base_currency"
                       render={({ field: { value, onChange } }) => (
                         <View className="gap-xs">
-                          <Text className="text-label text-text-muted uppercase">{t('field.currency')}</Text>
-                          <Pressable
-                            onPress={() => setShowCurrencyPicker((v) => !v)}
-                            className="bg-surface border border-border rounded-sm px-md flex-row items-center justify-between min-h-[48px]"
-                            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                          >
-                            <Text className="text-body font-semibold text-text-primary">{value}</Text>
-                            <ThemedIcon name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color="#9E9E9E" />
-                          </Pressable>
-                          {showCurrencyPicker && (
-                            <View className="bg-surface border border-border rounded-sm mt-xs overflow-hidden">
-                              {CURRENCY.map((c) => (
-                                <Pressable
-                                  key={c}
-                                  onPress={() => { onChange(c); setShowCurrencyPicker(false); }}
-                                  className="px-md py-sm flex-row items-center justify-between"
-                                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, backgroundColor: value === c ? 'rgba(108,99,255,0.12)' : 'transparent' })}
-                                >
-                                  <Text className={`text-body ${value === c ? 'text-primary font-semibold' : 'text-text-primary'}`}>{c}</Text>
-                                  {value === c && <ThemedIcon name="checkmark" size={16} color="#6C63FF" />}
-                                </Pressable>
-                              ))}
+                          <Text className="text-label text-text-muted uppercase">
+                            {t('field.currency')}<Text className="text-danger"> *</Text>
+                          </Text>
+                          {hasExpenses ? (
+                            <View className="bg-surface border border-border rounded-sm px-md flex-row items-center justify-between min-h-[48px] opacity-60">
+                              <Text className="text-body font-semibold text-text-primary">{value}</Text>
+                              <ThemedIcon name="lock-closed-outline" size={14} color={colors.textMuted} />
                             </View>
+                          ) : (
+                            <>
+                              <Pressable
+                                onPress={() => setShowCurrencyPicker((v) => !v)}
+                                className="bg-surface border border-border rounded-sm px-md flex-row items-center justify-between min-h-[48px]"
+                                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                              >
+                                <Text className="text-body font-semibold text-text-primary">{value}</Text>
+                                <ThemedIcon name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textSecondary} />
+                              </Pressable>
+                              {showCurrencyPicker && (
+                                <View className="bg-surface border border-border rounded-sm mt-xs overflow-hidden">
+                                  <View className="px-sm py-xs border-b border-border">
+                                    <TextInput
+                                      className="text-body-small text-text-primary px-sm py-xs"
+                                      placeholder={t('field.currencySearch')}
+                                      placeholderTextColor={colors.textMuted}
+                                      value={currencyQuery}
+                                      onChangeText={setCurrencyQuery}
+                                      autoCapitalize="characters"
+                                      autoCorrect={false}
+                                    />
+                                  </View>
+                                  <ScrollView style={{ maxHeight: 240 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                                    {filteredCurrencies.map((c) => (
+                                      <Pressable
+                                        key={c.code}
+                                        onPress={() => { onChange(c.code); setShowCurrencyPicker(false); setCurrencyQuery(''); }}
+                                        className="px-md py-sm flex-row items-center justify-between"
+                                        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, backgroundColor: value === c.code ? `${colors.primary}1F` : 'transparent' })}
+                                      >
+                                        <View className="flex-1 flex-row items-center gap-xs">
+                                          <Text className={`text-body ${value === c.code ? 'text-primary font-semibold' : 'text-text-primary'}`}>{c.code}</Text>
+                                          <Text className="text-body-small text-text-secondary flex-1" numberOfLines={1}>{c.name}</Text>
+                                        </View>
+                                        {value === c.code && <ThemedIcon name="checkmark" size={16} color={colors.primary} />}
+                                      </Pressable>
+                                    ))}
+                                  </ScrollView>
+                                </View>
+                              )}
+                            </>
                           )}
                         </View>
                       )}
@@ -218,7 +266,9 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                   name="timezone"
                   render={({ field: { value, onChange } }) => (
                     <View className="gap-xs">
-                      <Text className="text-label text-text-muted uppercase">{t('field.timezone')}</Text>
+                      <Text className="text-label text-text-muted uppercase">
+                        {t('field.timezone')}<Text className="text-danger"> *</Text>
+                      </Text>
                       <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}

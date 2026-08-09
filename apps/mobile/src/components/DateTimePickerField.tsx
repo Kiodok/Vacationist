@@ -13,6 +13,8 @@ if (Platform.OS !== 'web') {
 
 interface DateTimePickerFieldProps {
   label?: string;
+  /** Appends a red asterisk to the label instead of relying on "(optional)" suffix text — mark only genuinely required fields. */
+  required?: boolean;
   value: string | null | undefined;
   onChange: (value: string | null) => void;
   error?: string;
@@ -84,6 +86,7 @@ function getDisplayText(
 
 export function DateTimePickerField({
   label,
+  required = false,
   value,
   onChange,
   error,
@@ -107,7 +110,9 @@ export function DateTimePickerField({
     return (
       <View className="gap-xs">
         {label && (
-          <Text className="text-label text-text-muted uppercase">{label}</Text>
+          <Text className="text-label text-text-muted uppercase">
+            {label}{required && <Text className="text-danger"> *</Text>}
+          </Text>
         )}
         <div style={{
           backgroundColor: themeColors.surface,

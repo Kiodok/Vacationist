@@ -1,10 +1,15 @@
 import { dayjs } from './dayjs';
 import type { Currency } from '@vacationist/types';
 
-const CURRENCY_SYMBOLS: Record<Currency, string> = {
+// Currency is DB-driven (public.currency_catalog) as of Phase 15, so this can no longer be a
+// total Record over every possible code \u2014 it's a display nicety for the handful of
+// currencies whose symbol Intl-less fallback rendering cares about; anything else falls back
+// to the ISO code itself (see getCurrencySymbol/formatCurrency below).
+const CURRENCY_SYMBOLS: Partial<Record<string, string>> = {
   EUR: '\u20AC',
   CHF: 'CHF',
   USD: '$',
+  GBP: '\u00A3',
 };
 
 // Set once at app startup (and on locale change) via setDefaultFormatLocale.
@@ -16,7 +21,7 @@ export function setDefaultFormatLocale(bcp47Locale: string): void {
 }
 
 export function getCurrencySymbol(currency: Currency): string {
-  return CURRENCY_SYMBOLS[currency];
+  return CURRENCY_SYMBOLS[currency] ?? currency;
 }
 
 export function formatCurrency(amount: number, currency: Currency, locale?: string): string {
@@ -24,10 +29,11 @@ export function formatCurrency(amount: number, currency: Currency, locale?: stri
   try {
     return new Intl.NumberFormat(resolvedLocale, { style: 'currency', currency }).format(amount);
   } catch {
-    // Fallback for environments that don't support Intl
-    const symbol = CURRENCY_SYMBOLS[currency];
+    // Fallback for environments that don't support Intl (or an ISO code Intl doesn't
+    // recognize) — a plain "CODE amount" is unambiguous for any currency, known or not.
+    const symbol = getCurrencySymbol(currency);
     const formatted = amount.toFixed(2);
-    return currency === 'CHF' ? `${symbol} ${formatted}` : `${symbol}${formatted}`;
+    return symbol === currency ? `${currency} ${formatted}` : symbol === 'CHF' ? `${symbol} ${formatted}` : `${symbol}${formatted}`;
   }
 }
 

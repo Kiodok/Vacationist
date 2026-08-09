@@ -9,6 +9,9 @@ import { createExpenseSchema, type CreateExpenseInput, EXPENSE_RELATED_TYPE, EXP
 import type { TripMemberWithUser } from '@vacationist/api';
 import { formatCurrency, roundCurrency, isNegligible } from '@vacationist/utils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
+import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/useCurrencies';
+import { getLastUsedCurrency, setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
 
 interface CreateExpenseSheetProps {
   visible: boolean;
@@ -51,13 +54,17 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   const [shareValues, setShareValues] = useState<Record<string, number>>({});
   // coveredFor: the person being covered — stored as the form's paid_by
   const [coveredFor, setCoveredFor] = useState<string | null>(null);
+  const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
+
+  const { data: currencies } = useCurrencies();
+  const { convert, ratesAsOf } = useCurrencyConversion();
 
   const { control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<CreateExpenseInput>({
     resolver: zodResolver(createExpenseSchema),
     defaultValues: {
       title: '',
       amount: undefined,
-      currency,
+      currency: getLastUsedCurrency() ?? currency,
       paid_by: currentUserId,
       related_type: 'manual',
       split_method: 'even',
@@ -67,6 +74,13 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const totalAmount = watch('amount') ?? 0;
   const paidBy = watch('paid_by');
+  const selectedCurrency = watch('currency') || currency;
+  const isForeignCurrency = selectedCurrency !== currency;
+  const selectedCurrencyEntry = (currencies ?? []).find((c) => c.code === selectedCurrency);
+  const canConvert = !isForeignCurrency || selectedCurrencyEntry?.is_rate_available !== false;
+  const convertedPreview = isForeignCurrency && totalAmount > 0
+    ? convert(totalAmount, selectedCurrency, currency)
+    : null;
 
   const toggleMember = (userId: string) => {
     setSelectedMembers((prev) => {
@@ -164,7 +178,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   };
 
   const othersForCover = members.filter((m) => m.user_id !== currentUserId);
-  const canSubmit = !isPending && (splitMethod !== 'cover' || !!coveredFor);
+  const canSubmit = !isPending && (splitMethod !== 'cover' || !!coveredFor) && canConvert;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
@@ -206,30 +220,60 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                 {errors.title && <Text className="text-danger text-body-small">{errors.title.message}</Text>}
               </View>
 
-              {/* Amount */}
+              {/* Amount + currency */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">{t('field.amountLabel', { currency })} *</Text>
-                <Controller
-                  control={control}
-                  name="amount"
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                      placeholderTextColor="#5C5C5C"
-                      placeholder="0.00"
-                      value={amountText}
-                      onChangeText={(text) => {
-                        const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
-                        setAmountText(cleaned);
-                        const num = parseFloat(cleaned);
-                        onChange(isNaN(num) ? undefined : num);
-                      }}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
+                <Text className="text-label text-text-muted uppercase">{t('field.amountLabel', { currency: selectedCurrency })} *</Text>
+                <View className="flex-row gap-xs">
+                  <Controller
+                    control={control}
+                    name="amount"
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        placeholderTextColor="#5C5C5C"
+                        placeholder="0.00"
+                        value={amountText}
+                        onChangeText={(text) => {
+                          const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                          setAmountText(cleaned);
+                          const num = parseFloat(cleaned);
+                          onChange(isNaN(num) ? undefined : num);
+                        }}
+                        keyboardType="decimal-pad"
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="currency"
+                    render={({ field: { value } }) => (
+                      <Pressable
+                        onPress={() => setCurrencyPickerVisible(true)}
+                        className="bg-surface border border-border rounded-sm px-md items-center justify-center min-w-[72px]"
+                        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                      >
+                        <Text className="text-body font-semibold text-text-primary">{value || currency}</Text>
+                      </Pressable>
+                    )}
+                  />
+                </View>
                 {errors.amount && <Text className="text-danger text-body-small">{errors.amount.message}</Text>}
+                {isForeignCurrency && convertedPreview != null && (
+                  <Text className="text-text-secondary text-body-small">
+                    {t('field.convertedPreview', { amount: formatCurrency(convertedPreview, currency), asOf: ratesAsOf ?? '—' })}
+                  </Text>
+                )}
+                {isForeignCurrency && !canConvert && (
+                  <Text className="text-danger text-body-small">{t('field.conversionUnavailable', { currency: selectedCurrency })}</Text>
+                )}
               </View>
+
+              <CurrencyPickerSheet
+                visible={currencyPickerVisible}
+                selectedCode={selectedCurrency}
+                onSelect={(code) => { setValue('currency', code); setLastUsedCurrency(code); }}
+                onClose={() => setCurrencyPickerVisible(false)}
+              />
 
               {/* Category */}
               <View className="gap-xs">
@@ -342,7 +386,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                             {m.user.name}
                           </Text>
                           {isSelected && totalAmount > 0 && (
-                            <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, currency)}</Text>
+                            <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, selectedCurrency)}</Text>
                           )}
                         </Pressable>
                       );
@@ -386,16 +430,16 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                               {m.user.name}
                             </Text>
                             {isSelected && splitMethod === 'even' && totalAmount > 0 && (
-                              <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(perPerson, currency)}</Text>
+                              <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(perPerson, selectedCurrency)}</Text>
                             )}
                             {isSelected && splitMethod === 'exact' && selectedMembers.size === 1 && totalAmount > 0 && (
-                              <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, currency)}</Text>
+                              <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, selectedCurrency)}</Text>
                             )}
                           </Pressable>
 
                           {isSelected && splitMethod === 'exact' && selectedMembers.size > 1 && (
                             <View className="flex-row items-center gap-xs ml-lg">
-                              <Text className="text-text-muted text-body-small">{currency}</Text>
+                              <Text className="text-text-muted text-body-small">{selectedCurrency}</Text>
                               <TextInput
                                 className="flex-1 bg-surface border border-border rounded-sm px-md py-xs text-text-primary text-body-small"
                                 placeholderTextColor="#5C5C5C"
@@ -431,7 +475,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                               </Pressable>
                               {totalAmount > 0 && (
                                 <Text className="text-text-muted text-body-small ml-xs">
-                                  = {formatCurrency(shareAmount, currency)}
+                                  = {formatCurrency(shareAmount, selectedCurrency)}
                                 </Text>
                               )}
                             </View>
@@ -449,10 +493,10 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                   <Text className={`text-body-small ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
                     {isNegligible(exactTotal - totalAmount)
                       ? t('field.amountsMatch')
-                      : t('field.remaining', { amount: formatCurrency(totalAmount - exactTotal, currency) })}
+                      : t('field.remaining', { amount: formatCurrency(totalAmount - exactTotal, selectedCurrency) })}
                   </Text>
                   <Text className={`text-body-small font-medium ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
-                    {formatCurrency(exactTotal, currency)} / {formatCurrency(totalAmount, currency)}
+                    {formatCurrency(exactTotal, selectedCurrency)} / {formatCurrency(totalAmount, selectedCurrency)}
                   </Text>
                 </View>
               )}

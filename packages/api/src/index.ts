@@ -260,3 +260,5 @@ export {
 } from './travelDocuments';
 
 export { logAnalyticsEvent, reportSignUpAttribution } from './analytics';
+
+export { getCurrencies, getLatestExchangeRates } from './currencies';

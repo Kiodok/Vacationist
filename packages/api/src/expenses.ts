@@ -39,10 +39,11 @@ export async function createExpense(tripId: string, input: CreateExpenseInput): 
 }
 
 export async function updateExpenseWithSplits(expenseId: string, input: UpdateExpenseWithSplitsInput): Promise<void> {
-  const { error } = await supabase.rpc('update_expense_with_splits', {
+  const { error } = await (supabase.rpc as Function)('update_expense_with_splits', {
     p_expense_id: expenseId,
     p_title: input.title,
     p_amount: input.amount,
+    p_currency: input.currency,
     p_paid_by: input.paid_by,
     p_split_method: input.split_method,
     p_splits: input.splits as unknown as Json,
