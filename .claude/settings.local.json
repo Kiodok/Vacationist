@@ -206,7 +206,12 @@
       "Bash(node_modules/ffmpeg-static/ffmpeg.exe -i \"F:/Expo Projects/Vacationist/social-media/reddit/ads/2026-07-13_gruppenchat-chaos-dach.mp4\")",
       "Bash(npm exec *)",
       "WebFetch(domain:business.reddithelp.com)",
-      "Bash(curl -s -I \"https://vacationist.app/assets/consent.js\")"
+      "Bash(curl -s -I \"https://vacationist.app/assets/consent.js\")",
+      "WebFetch(domain:ads-api.reddit.com)",
+      "WebFetch(domain:posthog.com)",
+      "WebFetch(domain:segment.com)",
+      "WebFetch(domain:docs.tealium.com)",
+      "WebFetch(domain:hightouch.com)"
     ]
   },
   "model": "opusplan",

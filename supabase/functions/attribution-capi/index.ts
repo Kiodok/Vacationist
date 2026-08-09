@@ -20,8 +20,16 @@ const supabase = createClient(
   { auth: { persistSession: false } },
 );
 
-const REDDIT_AD_ACCOUNT_ID = Deno.env.get('REDDIT_AD_ACCOUNT_ID')!;
+// Secret name predates the CAPI v3 migration (2026-08-09) — the value (`a2_jcz7aqtl8eua`) is
+// actually the Reddit Pixel ID (same value webPixel.ts's REDDIT_PIXEL_ID uses for the client
+// pixel), not an ad account ID. Not renaming the secret itself: the value is already correct
+// and renaming means touching the prod secret for no functional gain.
+const REDDIT_PIXEL_ID = Deno.env.get('REDDIT_AD_ACCOUNT_ID')!;
 const REDDIT_CAPI_ACCESS_TOKEN = Deno.env.get('REDDIT_CAPI_ACCESS_TOKEN')!;
+// Set only on dev, only while verifying via Reddit Events Manager → Event Testing — tags
+// events with a test_id so they show up there without affecting real ad reporting. Must stay
+// unset on prod (see engineering/supabase.md CAPI v3 migration entry).
+const REDDIT_CAPI_TEST_ID = Deno.env.get('REDDIT_CAPI_TEST_ID') || null;
 
 const MAX_LEN = 200;
 
@@ -125,45 +133,51 @@ Deno.serve(async (req: Request) => {
     console.error('[attribution-capi] analytics_events insert failed:', logError.message);
   }
 
-  // No click_id -> organic native install (or a Reddit click whose referrer never made it
-  // through, e.g. a non-Play install path). Nothing for Reddit to attribute — per the
-  // no-raw-IP / click_id-only attribution decision (Phase 14), we do not fall back to
-  // IP+user-agent matching, so there is nothing else to send.
-  if (!rdtCid) {
-    return new Response(null, { status: 204, headers: cors });
-  }
-
+  // Every sign-up is reported to Reddit, not just ad-attributed ones (Tech Lead decision,
+  // 2026-08-09 CAPI v3 migration) — click_id is attached when present, omitted otherwise.
+  // Reddit's schema treats click_id as optional and recommends sending all conversions for
+  // volume/optimization signal, even unattributed ones. No `user` match-key object is sent by
+  // design (Tech Lead decision) — this stays click_id-only, no new personal data leaves the
+  // system.
   try {
-    // Endpoint/body shape cross-referenced from multiple third-party CAPI integration docs
-    // (Reddit does not publish a public interactive API reference) — event_at as ISO 8601 is
-    // the most likely format for a modern JSON REST API but is not independently confirmed.
-    // If Reddit's Events Manager "Test Events" tool shows these being rejected after the next
-    // real release, this is the first thing to check.
+    // Endpoint/body shape confirmed against the official v3 reference at
+    // https://ads-api.reddit.com/docs/v3/api/post-conversion-events (2026-08-09) — not
+    // guessed. See engineering/supabase.md's CAPI v3 migration entry for the full delta from
+    // the deprecated v2 shape this replaced.
+    const event: Record<string, unknown> = {
+      event_at: Date.now(), // int64, Unix epoch MILLISECONDS — v3, not v2's ISO 8601
+      action_source: surface === 'web_app' ? 'WEBSITE' : 'APP',
+      type: { tracking_type: 'SIGN_UP' }, // v3 UPPER_SNAKE_CASE — was 'SignUp' under v2
+      metadata: { conversion_id: conversionId }, // dedup key — nests under metadata in v3
+    };
+    if (rdtCid) event.click_id = rdtCid;
+
     const capiRes = await fetch(
-      `https://ads-api.reddit.com/api/v2.0/conversions/events/${REDDIT_AD_ACCOUNT_ID}`,
+      `https://ads-api.reddit.com/api/v3/pixels/${REDDIT_PIXEL_ID}/conversion_events`,
       {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${REDDIT_CAPI_ACCESS_TOKEN}`,
           'Content-Type': 'application/json',
+          // Reddit throttles default/generic user agents (429) — recommended format is
+          // {platform}:{app id}:{version} (by /u/{username}).
+          'User-Agent': 'vacationist-capi:com.vacationist.mobile:1.29.0 (by /u/vacationist-app)',
         },
         body: JSON.stringify({
-          test_mode: false,
-          events: [
-            {
-              event_at: new Date().toISOString(),
-              event_type: { tracking_type: 'SignUp' },
-              click_id: rdtCid,
-              // Shared with the client pixel call on web (conversionId there) — the actual
-              // deduplication key. Cross-referenced field name, same caveat as event_at above.
-              conversion_id: conversionId,
-            },
-          ],
+          data: {
+            ...(REDDIT_CAPI_TEST_ID ? { test_id: REDDIT_CAPI_TEST_ID } : {}),
+            events: [event],
+          },
         }),
       },
     );
-    if (!capiRes.ok) {
-      console.error('[attribution-capi] Reddit CAPI rejected the event:', capiRes.status, await capiRes.text());
+    const capiText = await capiRes.text();
+    if (capiRes.ok) {
+      // Logged deliberately — a successful run was previously silent by design, which is part
+      // of why this integration's total non-functionality went unnoticed for so long.
+      console.log('[attribution-capi] Reddit CAPI accepted the event:', capiText);
+    } else {
+      console.error('[attribution-capi] Reddit CAPI rejected the event:', capiRes.status, capiText);
     }
   } catch (err) {
     // A Reddit-side failure must never surface to the app — the sign-up itself already

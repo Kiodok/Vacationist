@@ -1,5 +1,74 @@
 # Supabase Changes Log
 
+## 2026-08-09 — `attribution-capi` migrated to Reddit CAPI v3; fires on every sign-up (code-only, no migration)
+
+**Why:** Tech Lead reported the Reddit Conversions API access token showed as never accessed,
+and no `SIGN_UP` events appeared under the CAPI source in Reddit Ads Manager's Events overview.
+
+Two independent, compounding bugs, both from the original Phase 14 build:
+
+1. **The Reddit call was unreachable.** `attribution-capi` returned `204` early whenever
+   `rdt_cid` was absent. Querying `analytics_events` in both dev and prod showed **every**
+   `sign_up` row ever recorded had `rdt_cid = NULL` — no real Reddit ad click had reached a
+   sign-up yet, so the `fetch()` to Reddit had never once executed. This is why the token was
+   untouched: not an auth bug, a reachability bug.
+2. **The payload would have been rejected anyway.** The original entry below states "Reddit
+   does not publish a public interactive API reference." **That claim was wrong** — it exists
+   at `https://ads-api.reddit.com/docs/v3/` (blocked to this session's `WebFetch` tool, but
+   readable via the Chrome browser tool; if a future session hits the same WebFetch block,
+   that's the workaround). Reading the official reference confirmed the Phase 14 request was
+   neither valid v2 nor valid v3: it POSTed a v2 body shape, with a v3-era field name
+   (`event_at`), in v2's format (ISO 8601 string), to the deprecated v2 endpoint.
+
+**Full v2 → v3 delta** (per `https://ads-api.reddit.com/docs/v3/guides/programs/capi/migration`
+and `https://ads-api.reddit.com/docs/v3/api/post-conversion-events`):
+
+| Field | v2 (old code) | v3 (current code) |
+|---|---|---|
+| Endpoint | `/api/v2.0/conversions/events/{id}` | `/api/v3/pixels/{pixel_id}/conversion_events` |
+| Body root | `{ test_mode, events }` | `{ data: { events } }` |
+| Timestamp | `event_at` ISO 8601 string | `event_at` int64 Unix epoch **milliseconds** |
+| Event type | `event_type: { tracking_type: 'SignUp' }` | `type: { tracking_type: 'SIGN_UP' }` |
+| Dedup key | `conversion_id` at event root | `metadata.conversion_id` |
+| Source channel | *(absent)* | `action_source` — **required**: `WEBSITE` \| `APP` |
+| Test mode | `test_mode: false` | *(removed)*; optional `data.test_id` for Events Testing only |
+
+Also confirmed, so recorded here rather than left as an open question for the next session:
+- The `REDDIT_AD_ACCOUNT_ID` secret's value (`a2_jcz7aqtl8eua`) is actually the **Pixel ID** (same
+  value `apps/mobile/src/utils/webPixel.ts`'s `REDDIT_PIXEL_ID` uses for the client pixel) — the
+  secret *name* is misleading but the *value* is correct for the v3 URL path. Left un-renamed
+  (aliased to `REDDIT_PIXEL_ID` in code instead) to avoid touching the prod secret for no
+  functional gain.
+- The existing conversion access token is valid for v3 — Reddit's migration guide states no new
+  token is required.
+
+**Scope change (Tech Lead decision):** the `if (!rdtCid) return 204` early return is removed.
+Reddit is now called for **every** sign-up, not only ones with a click ID — Reddit's own docs
+recommend sending all conversions for volume/optimization signal, and this makes the integration
+observable in Events Manager immediately rather than waiting on a real ad click. `click_id` is
+attached only when `rdt_cid` is present; **no `user` match-key object is sent** (no `external_id`,
+no hashed email) — this stays click_id-only by design, so no new personal data leaves the system
+beyond what Phase 14 already sent.
+
+**Also fixed:** a successful Reddit response is now logged (`console.log`, not just
+`console.error` on failure) — previously a successful run was silent by design, which is part of
+why this integration's total non-functionality went unnoticed since Phase 14.
+
+**Verified this session:** deployed to dev, triggered a real sign-up against dev, confirmed the
+row landed in `analytics_events` (no regression from removing the early return), and confirmed
+with the Tech Lead directly in Reddit Ads Manager's Events Manager that the `SIGN_UP` event now
+appears under the CAPI source. Deployed to prod immediately after (non-destructive, code-only).
+
+**Not done:** an optional `REDDIT_CAPI_TEST_ID` env var was added (tags events with a `test_id`
+so Events Testing verification doesn't pollute real ad metrics) but was never set on either
+environment for this verification — the dev sign-up above posted as a real, non-test conversion
+event. Set it as a dev-only secret before the next manual Events Testing pass, and remember to
+unset it again afterward; it must never be set on prod.
+
+**Non-destructive** (no schema change, code-only). Applied to: dev, then prod (2026-08-09).
+
+---
+
 ## 2026-08-08 — Two bugs found while chasing "attribution-capi never succeeds on dev"
 
 Both pre-existing/newly-introduced-this-phase, neither related to the CAPI auth fix below —
