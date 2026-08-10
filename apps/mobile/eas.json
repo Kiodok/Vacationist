@@ -17,7 +17,8 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://aejywkbkcwyanhyzhrle.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_AW6wXviYNcRa_3n2syxTVw_T4_B8551",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "632483929424-3e5r0g6s6ko2uhgi3tmuhhioaarihn7o.apps.googleusercontent.com"
       }
     },
     "preview": {
@@ -32,7 +33,8 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://fsfsqghbejwvgxujoyne.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_NxseoNjGXujIBuZ5nejvaQ_hS8Geb3I",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "632483929424-3e5r0g6s6ko2uhgi3tmuhhioaarihn7o.apps.googleusercontent.com"
       }
     },
     "production": {
@@ -47,7 +49,8 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://fsfsqghbejwvgxujoyne.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_NxseoNjGXujIBuZ5nejvaQ_hS8Geb3I",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "632483929424-3e5r0g6s6ko2uhgi3tmuhhioaarihn7o.apps.googleusercontent.com"
       }
     },
     "development-simulator": {
@@ -60,7 +63,8 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://aejywkbkcwyanhyzhrle.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_AW6wXviYNcRa_3n2syxTVw_T4_B8551",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "632483929424-80snbqvfadb86eiidc4sfbee8nm30naj.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "632483929424-3e5r0g6s6ko2uhgi3tmuhhioaarihn7o.apps.googleusercontent.com"
       }
     }
   },
@@ -69,6 +73,11 @@
       "android": {
         "serviceAccountKeyPath": "./play-store-service-account.json",
         "track": "internal"
+      },
+      "ios": {
+        "appleId": "Gary-Lude@web.de",
+        "ascAppId": "6800049398",
+        "appleTeamId": "93VX3MQ439"
       }
     }
   }

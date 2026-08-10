@@ -5,6 +5,7 @@ import {
   Text,
   Pressable,
   Modal,
+  Platform,
   TextInput,
   KeyboardAvoidingView,
   ActivityIndicator,
@@ -12,6 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { colors, ThemedIcon } from '@vacationist/ui';
 import { GoogleAuthButton } from '../../auth/components/GoogleAuthButton';
+import { AppleAuthButton } from '../../auth/components/AppleAuthButton';
 import { useGuestUpgrade } from '../../auth/hooks/useGuestUpgrade';
 import { useCaptchaToken } from '../../auth/hooks/useCaptchaToken';
 import { TurnstileWidget } from '../../auth/components/TurnstileWidget';
@@ -27,7 +29,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
   const { t: tCommon } = useTranslation('common');
   const [email, setEmail] = useState('');
   const captcha = useCaptchaToken();
-  const { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError } =
+  const { upgradeWithGoogle, upgradeWithApple, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError } =
     useGuestUpgrade();
 
   function handleClose() {
@@ -42,6 +44,16 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
     if (!captchaToken) return;
     try {
       await upgradeWithGoogle(captchaToken);
+    } finally {
+      captcha.consumeToken();
+    }
+  }
+
+  async function handleAppleUpgrade() {
+    const captchaToken = await captcha.getToken();
+    if (!captchaToken) return;
+    try {
+      await upgradeWithApple(captchaToken);
     } finally {
       captcha.consumeToken();
     }
@@ -102,6 +114,14 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
               </View>
             ) : (
               <View className="gap-md">
+                {Platform.OS === 'ios' && (
+                  <AppleAuthButton
+                    onPress={handleAppleUpgrade}
+                    loading={isPending}
+                    disabled={isPending || captcha.verifying}
+                  />
+                )}
+
                 <GoogleAuthButton
                   onPress={handleGoogleUpgrade}
                   loading={isPending}

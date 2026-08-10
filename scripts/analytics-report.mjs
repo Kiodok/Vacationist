@@ -12,7 +12,7 @@
  *   Point it at dev instead if you're testing the pipeline itself. .env.production is
  *   gitignored.
  *
- * Run:      node scripts/analytics-report.mjs [--days=30]
+ * Run:      node scripts/analytics-report.mjs [--days=7]
  * Output:   analytics-reports/report.html (gitignored — overwritten each run), opened
  *           automatically in your default browser.
  */
@@ -41,7 +41,7 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 }
 
 const daysArg = process.argv.find((a) => a.startsWith('--days='));
-const DAYS = daysArg ? Math.max(1, parseInt(daysArg.slice('--days='.length), 10)) : 30;
+const DAYS = daysArg ? Math.max(1, parseInt(daysArg.slice('--days='.length), 10)) : 7;
 
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
@@ -90,14 +90,20 @@ function sourceBucket(e) {
 // Funnel: three ordered stages. A conservative, non-session-linked count — this is not "N
 // visitors became M clickers", just "N visit events, M click events" in the window. Session-
 // level funnel linking (via visitor_hash) is a reasonable next iteration, not done here.
-const funnel = [
-  { label: 'Page visit', count: events.filter((e) => e.event_name === 'page_visit').length },
-  { label: 'Store / web-app click', count: events.filter(isClick).length },
-  { label: 'Sign up', count: events.filter((e) => e.event_name === 'sign_up').length },
+const stageDefs = [
+  { label: 'Page visit', events: events.filter((e) => e.event_name === 'page_visit') },
+  { label: 'Store / web-app click', events: events.filter(isClick) },
+  { label: 'Sign up', events: events.filter((e) => e.event_name === 'sign_up') },
 ];
+const funnel = stageDefs.map((s) => ({ label: s.label, count: s.events.length }));
+
+const appStoreInterestEvents = events.filter((e) => e.event_name === 'app_store_interest');
 
 // Segmentation: cap at 3 named buckets + "Other" (see dataviz skill — never generate a 4th+
-// hue; fold the tail instead).
+// hue; fold the tail instead). Includes "iOS interest click" as a fourth row alongside the
+// three funnel stages — it's a parallel CTA at the same depth as "Store / web-app click"
+// (visitor wanted iOS instead of Android/web), not part of the ordered conversion funnel
+// itself, so it's shown here rather than folded into the Funnel chart above.
 const bucketTotals = new Map();
 for (const e of events) {
   const b = sourceBucket(e);
@@ -108,13 +114,9 @@ function foldedBucket(e) {
   const b = sourceBucket(e);
   return topBuckets.includes(b) ? b : 'Other';
 }
-const segmentation = funnel.map((stage, i) => {
-  const stageEvents =
-    i === 0 ? events.filter((e) => e.event_name === 'page_visit')
-    : i === 1 ? events.filter(isClick)
-    : events.filter((e) => e.event_name === 'sign_up');
+const segmentation = [...stageDefs, { label: 'iOS interest click', events: appStoreInterestEvents }].map((stage) => {
   const bySource = new Map();
-  for (const e of stageEvents) {
+  for (const e of stage.events) {
     const b = foldedBucket(e);
     bySource.set(b, (bySource.get(b) ?? 0) + 1);
   }
@@ -122,9 +124,16 @@ const segmentation = funnel.map((stage, i) => {
 });
 const segmentBuckets = [...topBuckets, ...(events.some((e) => !topBuckets.includes(foldedBucket(e))) ? ['Other'] : [])];
 
-// Daily trend: same three stages, one row per day in the window.
+// Daily trend: same three stages, one row per calendar day (UTC) in the window — exactly DAYS
+// rows ending today, regardless of what time of day the script runs. (Previously this walked
+// forward from the exact `since` instant in 24h steps while `<= now`, which produced DAYS + 1
+// rows since `since` itself is a partial day — off-by-one, fixed here.)
+const todayUTC = new Date();
+todayUTC.setUTCHours(0, 0, 0, 0);
 const dayKeys = [];
-for (let d = new Date(since); d <= new Date(); d.setDate(d.getDate() + 1)) {
+for (let i = DAYS - 1; i >= 0; i--) {
+  const d = new Date(todayUTC);
+  d.setUTCDate(d.getUTCDate() - i);
   dayKeys.push(d.toISOString().slice(0, 10));
 }
 const trend = dayKeys.map((day) => ({
@@ -162,6 +171,7 @@ const topCampaigns = [...campaignStats.entries()]
 const kpis = {
   visits: funnel[0].count,
   clicks: funnel[1].count,
+  appStoreInterest: appStoreInterestEvents.length,
   signups: funnel[2].count,
   conversionRate: funnel[0].count > 0 ? (funnel[2].count / funnel[0].count) * 100 : 0,
 };
@@ -334,7 +344,7 @@ const html = `<!doctype html>
     padding: 1.5rem; margin-bottom: 1.5rem;
   }
   .card h2 { font-size: 1rem; margin: 0 0 1rem; }
-  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
   .stat-tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; }
   .stat-label { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.35rem; }
   .stat-value { font-size: 1.6rem; font-weight: 600; }
@@ -374,6 +384,7 @@ const html = `<!doctype html>
   <div class="stat-row">
     ${statTile('Page visits', fmt(kpis.visits))}
     ${statTile('Store / web-app clicks', fmt(kpis.clicks))}
+    ${statTile('iOS interest clicks', fmt(kpis.appStoreInterest))}
     ${statTile('Sign-ups', fmt(kpis.signups))}
     ${statTile('Visit → sign-up rate', kpis.conversionRate.toFixed(1) + '%')}
   </div>
@@ -381,12 +392,13 @@ const html = `<!doctype html>
   <div class="card">
     <h2>Funnel</h2>
     ${funnelChart(funnel)}
+    <p class="footnote">"Visit → sign-up" is not a true session-linked conversion rate: the sign-up count includes native-app and web-app sign-ups regardless of whether that user ever visited the marketing site, while the visit count is marketing-site page visits only. Treat it as a rough system-wide ratio, not a per-visitor funnel.</p>
   </div>
 
   <div class="card">
     <h2>Funnel by source</h2>
     ${segmentationChart(segmentation, segmentBuckets)}
-    <p class="footnote">"Reddit (paid)" = events carrying a Reddit click identifier (rdt_cid). Other named buckets are the next-largest utm_source values in this window; everything else folds into "Other".</p>
+    <p class="footnote">"Reddit (paid)" = events carrying a Reddit click identifier (rdt_cid). Other named buckets are the next-largest utm_source values in this window; everything else folds into "Other". "iOS interest click" (Coming Soon badge) is shown alongside the funnel stages but isn't part of the ordered Android/web conversion funnel above.</p>
   </div>
 
   <div class="card">

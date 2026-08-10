@@ -8,8 +8,10 @@ import { Button, Input, useThemeColors } from '@vacationist/ui';
 import { signInWithMagicLink } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useGoogleSignIn } from '../../src/features/auth/hooks/useGoogleSignIn';
+import { useAppleSignIn } from '../../src/features/auth/hooks/useAppleSignIn';
 import { useCaptchaToken } from '../../src/features/auth/hooks/useCaptchaToken';
 import { GoogleAuthButton } from '../../src/features/auth/components/GoogleAuthButton';
+import { AppleAuthButton } from '../../src/features/auth/components/AppleAuthButton';
 import { TurnstileWidget } from '../../src/features/auth/components/TurnstileWidget';
 
 export default function LoginScreen() {
@@ -26,12 +28,24 @@ export default function LoginScreen() {
 
   const { signIn: handleGoogleSignIn, loading: googleLoading } =
     useGoogleSignIn((msg) => addToast('error', msg));
+  const { signIn: handleAppleSignIn, loading: appleLoading } =
+    useAppleSignIn((msg) => addToast('error', msg));
 
   async function handleGoogleUpgrade() {
     const captchaToken = await captcha.getToken();
     if (!captchaToken) return;
     try {
       await handleGoogleSignIn(captchaToken);
+    } finally {
+      captcha.consumeToken();
+    }
+  }
+
+  async function handleAppleUpgrade() {
+    const captchaToken = await captcha.getToken();
+    if (!captchaToken) return;
+    try {
+      await handleAppleSignIn(captchaToken);
     } finally {
       captcha.consumeToken();
     }
@@ -83,10 +97,18 @@ export default function LoginScreen() {
         <View className="gap-md" style={{ alignSelf: 'center', width: 240 }}>
           {showGoogleButton ? (
             <>
+              {Platform.OS === 'ios' && (
+                <AppleAuthButton
+                  onPress={handleAppleUpgrade}
+                  loading={appleLoading}
+                  disabled={googleLoading || magicLinkLoading || captcha.verifying}
+                />
+              )}
+
               <GoogleAuthButton
                 onPress={handleGoogleUpgrade}
                 loading={googleLoading}
-                disabled={magicLinkLoading || captcha.verifying}
+                disabled={appleLoading || magicLinkLoading || captcha.verifying}
               />
 
               <View className="flex-row items-center gap-md my-sm">
@@ -123,7 +145,7 @@ export default function LoginScreen() {
             variant="secondary"
             onPress={handleMagicLink}
             loading={magicLinkLoading}
-            disabled={googleLoading || magicLinkLoading || captcha.verifying}
+            disabled={googleLoading || appleLoading || magicLinkLoading || captcha.verifying}
           />
 
           <TurnstileWidget {...captcha.widgetProps} />

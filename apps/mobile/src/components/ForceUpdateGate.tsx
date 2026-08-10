@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { BackHandler, Linking, Modal, Text, View } from 'react-native';
+import { BackHandler, Linking, Modal, Platform, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import * as ExpoInAppUpdates from 'expo-in-app-updates';
 import { Button, useThemeColors , ThemedIcon } from '@vacationist/ui';
 import { useAppForeground } from '../hooks/useAppForeground';
 import { checkNativeUpdate, setNativeUpdateGateActive } from '../utils/nativeUpdateChecker';
 
-const PLAY_STORE_URL =
-  'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
+const STORE_URL =
+  Platform.OS === 'ios'
+    ? 'https://apps.apple.com/app/id6800049398'
+    : 'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
 
 export function ForceUpdateGate() {
   const { t } = useTranslation('common');
@@ -53,7 +55,7 @@ export function ForceUpdateGate() {
     try {
       await ExpoInAppUpdates.startUpdate(true);
     } catch {
-      Linking.openURL(PLAY_STORE_URL);
+      Linking.openURL(STORE_URL);
     }
   }
 

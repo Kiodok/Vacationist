@@ -11,6 +11,10 @@
     "build:preview": "cd apps/mobile && eas build --profile preview --platform android",
     "build:prod": "cd apps/mobile && eas build --profile production --platform android",
     "submit:prod": "cd apps/mobile && eas submit --profile production --platform android",
+    "build:dev:ios": "cd apps/mobile && eas build --profile development --platform ios",
+    "build:preview:ios": "cd apps/mobile && eas build --profile preview --platform ios",
+    "build:prod:ios": "cd apps/mobile && eas build --profile production --platform ios",
+    "submit:prod:ios": "cd apps/mobile && eas submit --profile production --platform ios",
     "ota:preview": "cd apps/mobile && eas update --branch preview --environment preview --message",
     "ota:prod": "cd apps/mobile && eas update --branch production --environment production --message",
     "start": "npm run start --workspace=@vacationist/mobile",
@@ -33,12 +37,15 @@
   },
   "devDependencies": {
     "marked": "^18.0.6",
+    "node-addon-api": "^8.5.0",
+    "node-gyp": "^11.0.0",
     "qrcode": "^1.5.4",
     "sharp": "^0.34.2",
     "sharp-cli": "^5.2.0",
     "zxing-wasm": "^3.1.0"
   },
   "allowScripts": {
+    "sharp@0.34.5": true,
     "sharp@0.34.2": true,
     "@sentry/cli": false
   },

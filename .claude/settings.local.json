@@ -221,7 +221,13 @@
       "Bash(cp \"E:/Temp/claude/F--Expo-Projects-Vacationist/70044097-d897-42ce-b840-105f235eeb99/scratchpad/gen-icons.js\" \"./gen-icons-tmp.js\")",
       "Bash(rm -f gen-icons-tmp.js)",
       "Bash(npx expo-doctor *)",
-      "Bash(grep -v \"/\\\\.\")"
+      "Bash(grep -v \"/\\\\.\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(xargs cat)",
+      "Bash(xargs grep -ln \"AppStoreID\\\\|iTunes\\\\|itunes\")",
+      "Bash(npm view *)",
+      "Bash(echo \"TYPECHECK EXIT:$?\")",
+      "Bash(echo \"TEST EXIT:$?\")"
     ]
   },
   "model": "opusplan",

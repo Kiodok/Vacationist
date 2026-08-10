@@ -1,5 +1,124 @@
 # Supabase Changes Log
 
+## 2026-08-10 — iOS build prep: Sign in with Apple + token revocation (migration + 2 Edge Functions)
+
+**Why:** Apple Developer Program enrollment completed; first iOS build in progress. Google
+Sign-In is the app's prominent social login, which puts it under App Store Guideline 4.8
+(apps offering third-party social login must offer an equivalent privacy-preserving option) —
+Tech Lead decision was to add Sign in with Apple now rather than risk rejection.
+
+**Migration:** `20260810100000_create_apple_signin_tokens.sql` (additive-only, applied to dev
+then prod same day). Creates `public.user_apple_tokens` (encrypted refresh-token storage, no
+PostgREST-reachable client access — RLS blocks all direct DML, SELECT-own is a safety net
+only), a dedicated `apple_signin_token_encryption_key` vault secret (independent of
+`travel_documents_encryption_key` — different rotation concerns), and three SECURITY DEFINER
+RPCs: `store_apple_refresh_token`, `get_own_apple_refresh_token`,
+`delete_own_apple_refresh_token`.
+
+**Why a whole token-storage table:** App Review Guideline 5.1.1(v) requires revoking the
+user's Apple token on account deletion. Revocation needs a `refresh_token`, only obtainable by
+exchanging the native sign-in's single-use `authorizationCode` — that exchange must happen at
+sign-in time (the code expires in minutes) and the result persisted until whenever the user
+eventually deletes their account, which could be months later.
+
+**Edge Functions (deployed to dev + prod):**
+- `apple-token-exchange` — called once, right after a fresh native Apple sign-in
+  (`useAppleSignIn.ts` / `useGuestUpgrade.ts`), exchanges the `authorizationCode` for a
+  `refresh_token` via Apple's `/auth/token`, stores it encrypted. Best-effort — sign-in has
+  already succeeded via `signInWithIdToken` before this runs.
+- `revoke-apple-token` — called from `useDeleteAccount.ts` right before `deleteOwnAccount()`.
+  Reads the caller's own encrypted token, revokes it via Apple's `/auth/revoke`, then deletes
+  the stored row. No-ops (204) cleanly if the caller never linked Apple. Deliberately NOT
+  folded into `delete_own_account()` itself — kept as a separate client-driven pre-step so that
+  function (already carefully patched more than once, see the Account Deletion section in
+  CLAUDE.md) stays untouched.
+- Both share `supabase/functions/_shared/appleClientSecret.ts` — mints a fresh ES256-signed
+  Apple client-secret JWT per invocation (5 min expiry, never cached), from `APPLE_TEAM_ID` /
+  `APPLE_KEY_ID` / `APPLE_CLIENT_ID` / `APPLE_PRIVATE_KEY` secrets set on both projects.
+  `APPLE_CLIENT_ID` is the app's **bundle ID** (`com.vacationist.mobile`), not the Services
+  ID — native `AuthenticationServices` sign-in mints tokens with `aud` = bundle ID, unlike the
+  web OAuth redirect flow (which this app doesn't use for Apple).
+- Both left at the platform default `verify_jwt = true` (no `config.toml` override), same
+  posture as `attribution-capi` — re-derive identity via `auth.getUser(jwt)` too, since
+  `verify_jwt` alone would also pass a request bearing only the publishable key.
+
+**Dashboard config (not in this repo, done directly):** Apple provider enabled on both
+Supabase projects (Auth → Providers → Apple), Client IDs allow-listing both the Services ID
+(`com.vacationist.mobile.signin`) and the bundle ID (`com.vacationist.mobile` — the one the
+native flow actually validates against), redirect callbacks pointed at both projects'
+`/auth/v1/callback`. `supabase/config.toml`'s `[auth.external.apple]` block updated to match,
+documentation-only per this repo's existing convention (`supabase config push` is never run
+against this project — see the 2026-07 CAPTCHA entry).
+
+**Also this pass (zone config, no migration):** `docs/.well-known/apple-app-site-association`
+added for iOS Universal Links (`/join*` → native app). Served via a new Transform Rule
+(`aasa_content_type`, ruleset `4722ba5424cc4b409525deabe507800a` v3 → v4) forcing
+`Content-Type: application/json` on that one path — GitHub Pages serves extensionless files as
+`application/octet-stream` by default, which Apple's AASA fetcher rejects. Existing
+`security_headers_for_audit` rule (same ruleset) left untouched.
+
+**Verification:** `npm run typecheck` and `npm test` (root) both clean after all of the above.
+Live device verification (Sign in with Apple end-to-end, revoke-on-delete, AASA fetch) pending
+the first iOS build.
+
+**Follow-up same day — `20260810110000_fix_apple_token_key_missing_signal.sql` (dev + prod):**
+code review on the pass above caught that `get_own_apple_refresh_token()` returned `NULL` for
+both "caller never linked Apple" and "encryption key unavailable" — `revoke-apple-token` had no
+way to tell an operational fault apart from the normal case, so a key outage would silently
+produce 204s with no signal that 5.1.1(v) revocation was failing. Fixed to `RAISE EXCEPTION`
+when the key is missing; the Edge Function's existing rpcError-vs-null branching (unchanged)
+now actually distinguishes the two.
+
+## 2026-08-10 — Cloudflare CSP `connect-src` was blocking all real browser analytics traffic (zone config only, no migration)
+
+**Why:** Tech Lead reported two Reddit campaign IDs (`2548274834651639088`, `2565002991285116998`)
+never showing up in `scripts/analytics-report.mjs`'s "Top campaigns" table.
+
+**Root cause:** not a dashboard bug — no real browser visitor's `page_visit`, click, or
+attribution event had reached `analytics_events` at all since Phase 14 shipped (2026-08-08).
+Querying prod directly: 12 rows in the last 30 days, and every row carrying a non-null
+`rdt_cid` was one of the manual `curl` verification tests from the 2026-08-08/09 entries below
+(`verify_test_456`, `test_click_123`), not real traffic.
+
+The `vacationist.app` zone's `Content-Security-Policy` header (set via the
+`security_headers_for_audit` Transform Rule, `http_response_headers_transform` phase — see the
+2026-08-06 entry below for the header pipeline this belongs to) has an explicit `connect-src`
+that never included `https://fsfsqghbejwvgxujoyne.supabase.co` — the endpoint
+`marketing/site/track.js` calls via `fetch()` for every `page_visit`/click/attribution event.
+Because `connect-src` is explicitly declared (no `default-src` fallback applies), every
+CSP-enforcing browser silently blocked the request — no console-visible error reaches our
+tooling, no server-side signal either, which is why this went unnoticed: the only verification
+ever done against `track-event` was via `curl` (explicitly noted in the 2026-08-08 entry below),
+and `curl` isn't subject to a page's CSP. Native app sign-ups were unaffected (go through
+`attribution-capi` from the mobile app, not a browser page, so no CSP applies).
+
+**Also found while investigating:** the same `connect-src` gap (plus a missing `script-src`
+entry) was independently blocking Cloudflare's own Web Analytics (RUM) beacon
+(`static.cloudflareinsights.com`) — enabled on this zone since 2026-07-13, recording zero
+events despite real edge traffic (745–5,032 requests/day in the retained window).
+
+**Fix (Cloudflare zone Transform Rule, not a repo change):** added
+`https://fsfsqghbejwvgxujoyne.supabase.co` and `https://static.cloudflareinsights.com` to
+`connect-src`, and `https://static.cloudflareinsights.com` to `script-src`. Purely additive —
+no existing directive or origin removed. Rule `d70a9fa501ca4423b96195184a5eb0f8` in ruleset
+`4722ba5424cc4b409525deabe507800a`, version 2 → 3. Verified live via
+`curl -sI https://vacationist.app/` immediately after.
+
+**Not yet verified:** that a real browser visit now successfully posts to `track-event`
+end-to-end (would need a live test visit with dev tools open, or waiting for real traffic and
+re-checking `analytics_events`). **Not addressed:** whether the two named Reddit campaigns'
+destination URLs actually carry a `utm_campaign` query parameter — nothing in this codebase
+derives `utm_campaign` from Reddit's own numeric campaign ID automatically, so even with the
+CSP fixed, a campaign only appears by name in "Top campaigns" if Reddit Ads Manager's URL
+parameter template was configured to send one. Without it, that traffic still lands correctly
+(bucketed as "Reddit (paid)" via `rdt_cid` in the Funnel-by-source chart) but won't be named in
+the campaigns table. Worth the Tech Lead confirming in Reddit Ads Manager.
+
+**Non-destructive** (zone header config only, no schema/data change, no repo change). Applied
+to: `vacationist.app` Cloudflare zone (2026-08-10).
+
+---
+
 ## 2026-08-09 — Bot registrations via web Google Sign-In: restored the client-side captcha gate (code-only, no migration)
 
 **Why:** Tech Lead reported bot registrations on Web again — real bulk-registered Gmail

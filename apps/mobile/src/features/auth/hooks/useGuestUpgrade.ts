@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import { Platform } from 'react-native';
-import { linkGuestWithGoogle, linkGuestWithMagicLink } from '@vacationist/api';
+import { linkGuestWithGoogle, linkGuestWithApple, exchangeAppleAuthCode, linkGuestWithMagicLink } from '@vacationist/api';
 import { tryStartGoogleSignIn, endGoogleSignIn } from '../utils/googleSignInGuard';
+import { tryStartAppleSignIn, endAppleSignIn } from '../utils/appleSignInGuard';
+import { performNativeAppleAuth, isAppleSignInCancelled, maybeSaveAppleName } from '../utils/appleAuth';
 
 type GoogleSigninType = typeof import('@react-native-google-signin/google-signin').GoogleSignin;
 let GoogleSignin: GoogleSigninType | null = null;
@@ -34,6 +36,36 @@ export function useGuestUpgrade() {
     }
   }, []);
 
+  const upgradeWithApple = useCallback(async (captchaToken?: string) => {
+    if (Platform.OS !== 'ios' || !tryStartAppleSignIn()) return;
+    setIsPending(true);
+    setError(null);
+    try {
+      const { credential, rawNonce } = await performNativeAppleAuth();
+
+      if (!credential.identityToken) throw new Error('No identity token from Apple');
+
+      const { user } = await linkGuestWithApple(credential.identityToken, rawNonce, captchaToken);
+
+      // Fire-and-forget, started before the awaited name-save below — see the matching
+      // comment in useAppleSignIn.ts.
+      if (credential.authorizationCode) {
+        exchangeAppleAuthCode(credential.authorizationCode).catch(() => {});
+      }
+
+      if (user) {
+        await maybeSaveAppleName(user.id, credential.fullName);
+      }
+      // Auth state change will update the store via onAuthStateChange listener
+    } catch (e: unknown) {
+      if (isAppleSignInCancelled(e)) return;
+      setError(e instanceof Error ? e.message : 'Sign-in failed');
+    } finally {
+      endAppleSignIn();
+      setIsPending(false);
+    }
+  }, []);
+
   const upgradeWithMagicLink = useCallback(async (email: string): Promise<boolean> => {
     setIsPending(true);
     setError(null);
@@ -52,5 +84,5 @@ export function useGuestUpgrade() {
 
   const clearError = useCallback(() => setError(null), []);
 
-  return { upgradeWithGoogle, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError };
+  return { upgradeWithGoogle, upgradeWithApple, upgradeWithMagicLink, isPending, error, magicLinkSent, clearError };
 }

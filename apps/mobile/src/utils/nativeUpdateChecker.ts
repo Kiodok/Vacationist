@@ -18,14 +18,14 @@ export function setNativeUpdateGateActive(active: boolean) {
 
 /**
  * Returns:
- *   true  — a Play Store update is available
+ *   true  — a Play Store / App Store update is available
  *   false — no update available (explicit clean result)
- *   null  — check skipped (cooldown / dev / non-Android) or failed (network /
- *           Play Core error); the caller must leave its current state unchanged
+ *   null  — check skipped (cooldown / dev / web) or failed (network /
+ *           Play Core / iTunes lookup error); the caller must leave its current state unchanged
  */
 export async function checkNativeUpdate(): Promise<boolean | null> {
   if (__DEV__) return false;
-  if (Platform.OS !== 'android') return false;
+  if (Platform.OS === 'web') return false;
   if (Updates.channel !== 'production') return false;
 
   // Deduplicate concurrent calls — e.g. the module-level early start and the

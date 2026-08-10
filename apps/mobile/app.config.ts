@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Vacationist',
   slug: 'vacationist',
-  version: '1.29.3',
+  version: '1.30.0',
   orientation: 'default',
   icon: './assets/images/icon.png',
   scheme: 'vacationist',
@@ -19,6 +19,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.vacationist.mobile',
+    googleServicesFile: './GoogleService-Info.plist',
+    associatedDomains: ['applinks:vacationist.app'],
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+      // Used by expo-in-app-updates' iTunes lookup (ForceUpdateGate) — the numeric
+      // App Store Connect app id, not the bundle identifier.
+      AppStoreID: '6800049398',
+    },
   },
   android: {
     adaptiveIcon: {
@@ -69,7 +77,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       },
     ],
-    'expo-router',
+    // `origin` is the production URL expo-router/head uses to build iOS Handoff (Continuity)
+    // URLs — web.vacationist.app is the live deployment of this same Expo Router app (shared
+    // routes between native and web), not the separate marketing site at vacationist.app.
+    // Without this, native shows a persistent "Add the handoff origin" alert on every
+    // navigation (TestFlight-confirmed 2026-08-10).
+    ['expo-router', { origin: 'https://web.vacationist.app' }],
     'expo-updates',
     'expo-localization',
     'expo-secure-store',
@@ -97,13 +110,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         sounds: [],
       },
     ],
+    // No config props: the installed plugin version derives the iOS URL scheme
+    // exclusively from `ios.googleServicesFile` above — it does not read an
+    // `iosUrlScheme` prop.
+    '@react-native-google-signin/google-signin',
     [
-      '@react-native-google-signin/google-signin',
+      'expo-local-authentication',
       {
-        iosUrlScheme:
-          'com.googleusercontent.apps.632483929424-80snbqvfadb86eiidc4sfbee8nm30naj',
+        faceIDPermission: 'Allow Vacationist to use Face ID to unlock your saved travel documents.',
       },
     ],
+    'expo-apple-authentication',
     [
       '@sentry/react-native/expo',
       {

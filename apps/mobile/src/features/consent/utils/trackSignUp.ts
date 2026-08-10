@@ -62,6 +62,15 @@ export function maybeTrackSignUp(profile: User): void {
     return;
   }
 
+  // iOS: never fires. installReferrer.ts (getStoredAttribution) is Android-only — Play
+  // Install Referrer has no iOS analogue — so an iOS report would carry no rdt_cid and be
+  // unattributable to any campaign. Worse, reporting a first-party user id to Reddit here has
+  // no in-app consent gate (see this file's header comment), which on iOS would require App
+  // Tracking Transparency (NSUserTrackingUsageDescription + a permission prompt) to stay
+  // compliant. Tech Lead decision (iOS build-prep pass): skip native_app reporting on iOS
+  // entirely rather than add ATT for an attribution signal that would be empty anyway.
+  if (Platform.OS === 'ios') return;
+
   claimSignupAttribution(profile.id)
     .then((claimed) => {
       if (!claimed) return; // already reported previously — most common case (returning user)

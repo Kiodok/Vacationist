@@ -86,6 +86,65 @@ export async function signInWithGoogleIdToken(idToken: string, captchaToken?: st
   return data;
 }
 
+export async function signInWithAppleIdToken(idToken: string, nonce: string, captchaToken?: string) {
+  if (!idToken) {
+    throw new Error('Apple identity token is required');
+  }
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'apple',
+    token: idToken,
+    // Raw (unhashed) nonce — Supabase hashes it and compares against the
+    // identityToken's `nonce` claim, which carries the SHA-256 hash we set on
+    // the native AppleAuthentication.signInAsync() request.
+    nonce,
+    ...(captchaToken ? { options: { captchaToken } } : {}),
+  });
+  if (error) throw error;
+  return data;
+}
+
+// Best-effort by contract (matches reportSignUpAttribution's posture): throws here, the
+// caller (useAppleSignIn.ts) must swallow the error — sign-in itself already succeeded via
+// signInWithAppleIdToken before this runs. Exchanges the native sign-in's single-use
+// authorizationCode for an Apple refresh_token via the apple-token-exchange Edge Function,
+// which stores it (encrypted) so revokeAppleToken can revoke it later at account deletion.
+export async function exchangeAppleAuthCode(authorizationCode: string): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('No session — cannot exchange Apple auth code');
+  const { error } = await supabase.functions.invoke('apple-token-exchange', {
+    body: { authorizationCode },
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  });
+  if (error) throw error;
+}
+
+// Best-effort by contract: useDeleteAccount.ts must proceed to deleteOwnAccount() regardless
+// of this call's outcome — a failed Apple-side revocation must never block account deletion.
+// No-ops server-side (204) if the caller never linked Apple.
+export async function revokeAppleToken(): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('No session — cannot revoke Apple token');
+  const { error } = await supabase.functions.invoke('revoke-apple-token', {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  });
+  if (error) throw error;
+}
+
+export async function linkGuestWithApple(idToken: string, nonce: string, captchaToken?: string) {
+  // signInWithIdToken while an anonymous session is active: Supabase server
+  // merges the anonymous identity into the Apple-linked user when the Apple
+  // account is new. If the Apple account already exists the user is signed
+  // into that account instead (the anonymous session is superseded).
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'apple',
+    token: idToken,
+    nonce,
+    ...(captchaToken ? { options: { captchaToken } } : {}),
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function linkGuestWithGoogle(idToken: string, captchaToken?: string) {
   // signInWithIdToken while an anonymous session is active: Supabase server
   // merges the anonymous identity into the Google-linked user when the Google

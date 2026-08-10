@@ -111,8 +111,12 @@ template = "Your code is {{ .Code }}"
 max_frequency = "5s"
 
 [auth.external.apple]
-enabled = false
-client_id = ""
+# Documentation only, like [auth.captcha] above — `supabase config push` is never run against
+# this project (see engineering/supabase.md). Enabled directly in the dev + prod dashboards
+# (2026-08-10), Client IDs allow-listing both the Services ID and the app's bundle ID
+# (com.vacationist.mobile) — the latter is what the native signInWithIdToken flow actually uses.
+enabled = true
+client_id = "com.vacationist.mobile"
 secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
 redirect_uri = ""
 url = ""
