@@ -144,7 +144,7 @@ export default function CreateTripScreen() {
                   placeholder={t('create.budgetPlaceholder')}
                   value={value != null ? String(value) : ''}
                   onChangeText={(text) => {
-                    const num = parseFloat(text);
+                    const num = parseFloat(text.replace(',', '.'));
                     onChange(isNaN(num) ? null : num);
                   }}
                   onBlur={onBlur}

@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createTransferFlightSchema, type CreateTransferFlightInput, TRANSFER_DIRECTION, type Currency } from '@vacationist/types';
-import { getCurrencySymbol } from '@vacationist/utils';
+import { getCurrencySymbol, sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 
@@ -450,7 +450,7 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                         placeholder={t('flight.placeholder.price')}
                         value={priceText}
                         onChangeText={(text) => {
-                          const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                          const cleaned = sanitizeDecimalInput(text);
                           setPriceText(cleaned);
                           const num = parseFloat(cleaned);
                           onChange(isNaN(num) ? null : num);

@@ -51,6 +51,20 @@ export function normalizeBalance(amount: number): number {
   return isNegligible(amount) ? 0 : roundCurrency(amount);
 }
 
+/**
+ * Cleans free-typed decimal input for a numeric TextInput: accepts "," as an
+ * alternate decimal separator (so locale keyboards that produce "," work the
+ * same as "."), strips anything else non-numeric, collapses extra separators
+ * down to the first one, and truncates the fraction to maxDecimals.
+ */
+export function sanitizeDecimalInput(text: string, maxDecimals = 2): string {
+  return text
+    .replaceAll(',', '.')
+    .replace(/[^0-9.]/g, '')
+    .replace(/(\..*)\./g, '$1')
+    .replace(new RegExp(String.raw`(\.\d{${maxDecimals}}).+`), '$1');
+}
+
 export function formatDateRange(start: string, end: string): string {
   const s = dayjs(start);
   const e = dayjs(end);

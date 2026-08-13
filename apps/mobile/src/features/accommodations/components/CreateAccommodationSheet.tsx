@@ -5,6 +5,7 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { createAccommodationSchema, type CreateAccommodationInput } from '@vacationist/types';
+import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 
@@ -153,7 +154,7 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
                       placeholder="0.00"
                       value={priceText}
                       onChangeText={(t) => {
-                        const cleaned = t.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                        const cleaned = sanitizeDecimalInput(t);
                         setPriceText(cleaned);
                         const num = parseFloat(cleaned);
                         onChange(isNaN(num) ? null : num);

@@ -7,7 +7,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createExpenseSchema, type CreateExpenseInput, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
-import { formatCurrency, roundCurrency, isNegligible } from '@vacationist/utils';
+import { formatCurrency, roundCurrency, isNegligible, sanitizeDecimalInput } from '@vacationist/utils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
 import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/useCurrencies';
@@ -235,7 +235,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                         placeholder="0.00"
                         value={amountText}
                         onChangeText={(text) => {
-                          const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                          const cleaned = sanitizeDecimalInput(text);
                           setAmountText(cleaned);
                           const num = parseFloat(cleaned);
                           onChange(isNaN(num) ? undefined : num);
@@ -452,7 +452,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                                 placeholder="0.00"
                                 value={exactAmounts[m.user_id] ?? ''}
                                 onChangeText={(text) => {
-                                  const cleaned = text.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                                  const cleaned = sanitizeDecimalInput(text);
                                   setExactAmounts((prev) => ({ ...prev, [m.user_id]: cleaned }));
                                 }}
                                 keyboardType="decimal-pad"

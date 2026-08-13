@@ -235,7 +235,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                       placeholder="0.00"
                       value={value != null ? String(value) : ''}
                       onChangeText={(t) => {
-                        const num = parseFloat(t);
+                        const num = parseFloat(t.replace(',', '.'));
                         onChange(isNaN(num) ? null : num);
                       }}
                       keyboardType="decimal-pad"

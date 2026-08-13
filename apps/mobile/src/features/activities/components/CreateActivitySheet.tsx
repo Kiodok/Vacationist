@@ -221,7 +221,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                       placeholder="0.00"
                       value={value != null ? String(value) : ''}
                       onChangeText={(t) => {
-                        const num = parseFloat(t);
+                        const num = parseFloat(t.replace(',', '.'));
                         onChange(isNaN(num) ? null : num);
                       }}
                       keyboardType="decimal-pad"

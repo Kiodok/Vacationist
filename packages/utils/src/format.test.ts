@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatCurrency, roundCurrency, isNegligible, normalizeBalance, BALANCE_THRESHOLD } from './format';
+import { formatCurrency, roundCurrency, isNegligible, normalizeBalance, BALANCE_THRESHOLD, sanitizeDecimalInput } from './format';
 
 describe('formatCurrency', () => {
   it('formats EUR with euro symbol prefix', () => {
@@ -124,5 +124,36 @@ describe('normalizeBalance', () => {
 describe('BALANCE_THRESHOLD', () => {
   it('is 0.01', () => {
     expect(BALANCE_THRESHOLD).toBe(0.01);
+  });
+});
+
+describe('sanitizeDecimalInput', () => {
+  it('treats comma as a decimal separator', () => {
+    expect(sanitizeDecimalInput('97,40')).toBe('97.40');
+  });
+
+  it('leaves a period-separated value unchanged', () => {
+    expect(sanitizeDecimalInput('97.40')).toBe('97.40');
+  });
+
+  it('strips non-numeric characters mixed in with the input', () => {
+    expect(sanitizeDecimalInput('97,4a0')).toBe('97.40');
+  });
+
+  it('collapses multiple separators down to one', () => {
+    expect(sanitizeDecimalInput('9,7,40')).toBe('9.74');
+    expect(sanitizeDecimalInput('9.7.40')).toBe('9.74');
+  });
+
+  it('truncates beyond the default 2 decimal places', () => {
+    expect(sanitizeDecimalInput('97,4055')).toBe('97.40');
+  });
+
+  it('respects a custom maxDecimals', () => {
+    expect(sanitizeDecimalInput('1,2345', 3)).toBe('1.234');
+  });
+
+  it('returns an empty string for empty input', () => {
+    expect(sanitizeDecimalInput('')).toBe('');
   });
 });

@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateShoppingItemSchema, type UpdateShoppingItemInput, type ShoppingItem } from '@vacationist/types';
+import { sanitizeDecimalInput } from '@vacationist/utils';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface EditShoppingItemSheetProps {
@@ -114,7 +115,7 @@ export function EditShoppingItemSheet({
                         placeholder="0"
                         value={quantityText}
                         onChangeText={(t) => {
-                          const cleaned = t.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/(\.\d{2}).+/, '$1');
+                          const cleaned = sanitizeDecimalInput(t);
                           setQuantityText(cleaned);
                           const num = parseFloat(cleaned);
                           onChange(isNaN(num) ? null : num);
