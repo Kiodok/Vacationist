@@ -61,7 +61,7 @@ export default function SettingsTab() {
   const [requestDocVisible, setRequestDocVisible] = useState(false);
   const [viewDocsVisible, setViewDocsVisible] = useState(false);
   const [nudgeVisible, setNudgeVisible] = useState(false);
-  const [lastInviteLink, setLastInviteLink] = useState<string | null>(null);
+  const [lastInvite, setLastInvite] = useState<{ id: string; link: string } | null>(null);
 
   const createAccessRequest = useCreateDocumentAccessRequest();
   const { data: memberDocuments = [], isLoading: memberDocsLoading } = useAccessibleMemberDocuments(tripId, isOrganizer);
@@ -101,7 +101,7 @@ export default function SettingsTab() {
       const shareMessage = lines.join('\n');
 
       if (Platform.OS === 'web') {
-        setLastInviteLink(link);
+        setLastInvite({ id: result.id, link });
         try {
           await Clipboard.setStringAsync(shareMessage);
           addToast('success', t('toast.inviteCopied'));
@@ -213,13 +213,13 @@ export default function SettingsTab() {
               icon={<ThemedIcon name="link-outline" size={18} color={colors.primary} />}
             />
 
-            {Platform.OS === 'web' && lastInviteLink && (
+            {Platform.OS === 'web' && lastInvite && (
               <View className="gap-xs">
                 <Text className="text-body-small text-text-secondary">
                   {t('settings.inviteLinkFallbackHint')}
                 </Text>
                 <TextInput
-                  value={lastInviteLink}
+                  value={lastInvite.link}
                   editable={false}
                   selectTextOnFocus
                   accessibilityLabel={t('settings.inviteLink')}
@@ -245,7 +245,13 @@ export default function SettingsTab() {
                       </Text>
                     </View>
                     <Pressable
-                      onPress={() => revokeInvite.mutate(invite.id)}
+                      onPress={() =>
+                        revokeInvite.mutate(invite.id, {
+                          onSuccess: () => {
+                            setLastInvite((current) => (current?.id === invite.id ? null : current));
+                          },
+                        })
+                      }
                       className="p-xs"
                     >
                       <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
