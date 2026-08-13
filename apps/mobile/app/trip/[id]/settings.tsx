@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Platform, Share } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Platform, Share, TextInput } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -61,6 +61,7 @@ export default function SettingsTab() {
   const [requestDocVisible, setRequestDocVisible] = useState(false);
   const [viewDocsVisible, setViewDocsVisible] = useState(false);
   const [nudgeVisible, setNudgeVisible] = useState(false);
+  const [lastInviteLink, setLastInviteLink] = useState<string | null>(null);
 
   const createAccessRequest = useCreateDocumentAccessRequest();
   const { data: memberDocuments = [], isLoading: memberDocsLoading } = useAccessibleMemberDocuments(tripId, isOrganizer);
@@ -100,8 +101,13 @@ export default function SettingsTab() {
       const shareMessage = lines.join('\n');
 
       if (Platform.OS === 'web') {
-        await Clipboard.setStringAsync(shareMessage);
-        addToast('success', t('toast.inviteCopied'));
+        setLastInviteLink(link);
+        try {
+          await Clipboard.setStringAsync(shareMessage);
+          addToast('success', t('toast.inviteCopied'));
+        } catch {
+          addToast('warning', t('toast.inviteCopyFailed'));
+        }
       } else {
         await Share.share({
           message: shareMessage,
@@ -206,6 +212,21 @@ export default function SettingsTab() {
               loading={createInvite.isPending}
               icon={<ThemedIcon name="link-outline" size={18} color={colors.primary} />}
             />
+
+            {Platform.OS === 'web' && lastInviteLink && (
+              <View className="gap-xs">
+                <Text className="text-body-small text-text-secondary">
+                  {t('settings.inviteLinkFallbackHint')}
+                </Text>
+                <TextInput
+                  value={lastInviteLink}
+                  editable={false}
+                  selectTextOnFocus
+                  accessibilityLabel={t('settings.inviteLink')}
+                  className="min-h-[44px] rounded-sm bg-surface-elevated border border-border px-sm text-body-small text-text-primary"
+                />
+              </View>
+            )}
 
             {invites && invites.length > 0 && (
               <View className="gap-sm">
