@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Vacationist',
   slug: 'vacationist',
-  version: '1.30.0',
+  version: '1.30.1',
   orientation: 'default',
   icon: './assets/images/icon.png',
   scheme: 'vacationist',
@@ -17,7 +17,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     url: 'https://u.expo.dev/a1dc4172-7c41-4aa9-a44d-afb1a0088278',
   },
   ios: {
-    supportsTablet: true,
+    supportsTablet: false,
     bundleIdentifier: 'com.vacationist.mobile',
     googleServicesFile: './GoogleService-Info.plist',
     associatedDomains: ['applinks:vacationist.app'],
