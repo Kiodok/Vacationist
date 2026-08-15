@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { PackingItem } from '@vacationist/types';
 import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
 
@@ -47,9 +47,9 @@ export function PackingItemRow({ item, onToggle, onLongPress }: PackingItemRowPr
           {categoryLabel}
         </Text>
         {item.notes ? (
-          <Text className="text-body-small text-text-muted" numberOfLines={1}>
+          <RichText className="text-body-small text-text-muted" numberOfLines={1}>
             {item.notes}
-          </Text>
+          </RichText>
         ) : null}
       </View>
     </Pressable>

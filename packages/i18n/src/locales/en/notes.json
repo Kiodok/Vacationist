@@ -5,6 +5,7 @@
   "info.content": "A shared notepad for your group. Jot down packing reminders, restaurant recommendations, travel tips, or anything useful. Everyone in the trip can see and edit notes. Tap + to create your first note.",
   "create.title": "New Note",
   "edit.title": "Edit Note",
+  "view.title": "Note",
   "field.title": "Title",
   "field.description": "Description",
   "placeholder.title": "e.g. Packing checklist",

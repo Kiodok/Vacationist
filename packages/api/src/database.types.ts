@@ -154,6 +154,7 @@ export type Database = {
           description: string | null
           external_url: string | null
           id: string
+          maps_url: string | null
           notes: string | null
           price_total: number | null
           status: string
@@ -172,6 +173,7 @@ export type Database = {
           description?: string | null
           external_url?: string | null
           id?: string
+          maps_url?: string | null
           notes?: string | null
           price_total?: number | null
           status?: string
@@ -190,6 +192,7 @@ export type Database = {
           description?: string | null
           external_url?: string | null
           id?: string
+          maps_url?: string | null
           notes?: string | null
           price_total?: number | null
           status?: string
@@ -656,6 +659,7 @@ export type Database = {
           fetched_at: string
           id: string
           rate: number
+          source: string
         }
         Insert: {
           as_of: string
@@ -663,6 +667,7 @@ export type Database = {
           fetched_at?: string
           id?: string
           rate: number
+          source?: string
         }
         Update: {
           as_of?: string
@@ -670,6 +675,7 @@ export type Database = {
           fetched_at?: string
           id?: string
           rate?: number
+          source?: string
         }
         Relationships: [
           {
@@ -2186,6 +2192,32 @@ export type Database = {
           },
         ]
       }
+      user_apple_tokens: {
+        Row: {
+          created_at: string
+          encrypted_refresh_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          encrypted_refresh_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          encrypted_refresh_token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_apple_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_push_tokens: {
         Row: {
           created_at: string
@@ -2416,6 +2448,7 @@ export type Database = {
         Returns: undefined
       }
       delete_own_account: { Args: never; Returns: undefined }
+      delete_own_apple_refresh_token: { Args: never; Returns: undefined }
       delete_prework_topic: { Args: { p_topic_id: string }; Returns: undefined }
       delete_push_token: { Args: { p_push_token: string }; Returns: undefined }
       delete_recipe: { Args: { p_recipe_id: string }; Returns: undefined }
@@ -2483,6 +2516,7 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_own_apple_refresh_token: { Args: never; Returns: string }
       get_recipe_linked_lists: {
         Args: { p_recipe_id: string }
         Returns: {
@@ -2536,6 +2570,20 @@ export type Database = {
           text: string
           trip_id: string
           updated_at: string
+        }[]
+      }
+      get_trip_tab_content: {
+        Args: { p_trip_id: string }
+        Returns: {
+          activities: boolean
+          base: boolean
+          chat: boolean
+          expenses: boolean
+          notes: boolean
+          prework: boolean
+          shopping: boolean
+          stuff: boolean
+          transfer: boolean
         }[]
       }
       get_unread_notification_count: {
@@ -2648,6 +2696,10 @@ export type Database = {
         Args: { p_message_id: string }
         Returns: undefined
       }
+      store_apple_refresh_token: {
+        Args: { p_refresh_token: string }
+        Returns: undefined
+      }
       unarchive_expense: { Args: { p_expense_id: string }; Returns: undefined }
       unclaim_shared_packing_item: {
         Args: { p_item_id: string }
@@ -2665,7 +2717,7 @@ export type Database = {
       update_expense_with_splits: {
         Args: {
           p_amount: number
-          p_currency: string
+          p_currency?: string
           p_expense_id: string
           p_paid_by: string
           p_split_method: string

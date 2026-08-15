@@ -2,7 +2,7 @@ import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native'
 import { useTranslation } from 'react-i18next';
 import { dayjs, formatCurrency } from '@vacationist/utils';
 import type { TransferFlight, TransferVehicle, TransferRental, Currency } from '@vacationist/types';
-import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, RichText, ThemedIcon } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 
 export interface AllTransfersViewProps {
@@ -187,9 +187,9 @@ function VehicleSummaryCard({ vehicle }: { vehicle: TransferVehicle }) {
         <DirectionBadge direction={vehicle.direction} />
       </View>
       {vehicle.notes ? (
-        <Text className="text-body-small text-text-secondary">
+        <RichText className="text-body-small text-text-secondary">
           {vehicle.notes}
-        </Text>
+        </RichText>
       ) : null}
     </View>
   );

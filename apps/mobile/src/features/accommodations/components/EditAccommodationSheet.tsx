@@ -47,6 +47,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
         description: accommodation.description ?? undefined,
         price_total: accommodation.price_total ?? undefined,
         external_url: accommodation.external_url ?? undefined,
+        maps_url: accommodation.maps_url ?? undefined,
         notes: accommodation.notes ?? undefined,
         check_in_date: accommodation.check_in_date ?? undefined,
         check_out_date: accommodation.check_out_date ?? undefined,
@@ -175,6 +176,30 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
                 />
                 {errors.external_url && (
                   <Text className="text-danger text-body-small">{errors.external_url.message}</Text>
+                )}
+              </View>
+
+              {/* Maps URL */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.mapsUrl')}</Text>
+                <Controller
+                  control={control}
+                  name="maps_url"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder={t('placeholder.mapsUrl')}
+                      value={value ?? ''}
+                      onChangeText={(t) => onChange(t || null)}
+                      autoCapitalize="none"
+                      keyboardType="url"
+                      maxLength={2048}
+                    />
+                  )}
+                />
+                {errors.maps_url && (
+                  <Text className="text-danger text-body-small">{errors.maps_url.message}</Text>
                 )}
               </View>
 

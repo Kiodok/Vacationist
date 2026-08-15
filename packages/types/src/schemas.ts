@@ -140,6 +140,7 @@ export const createAccommodationSchema = z.object({
   description: z.string().max(1000).optional(),
   price_total: z.number().nonnegative().nullable().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
+  maps_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
   auto_close: z.boolean().optional(),
   check_in_date: z.string().optional(),

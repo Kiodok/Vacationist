@@ -1,7 +1,7 @@
 import { Pressable, View, Text } from 'react-native';
 import { dayjs } from '@vacationist/utils';
 import type { Trip, TripStatus } from '@vacationist/types';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon } from '@vacationist/ui';
 import { StatusBadge } from './StatusBadge';
 
 interface TripCardProps {
@@ -44,9 +44,9 @@ export function TripCard({ trip, onPress }: TripCardProps) {
       </View>
 
       {trip.description ? (
-        <Text className="text-body-small text-text-secondary mb-md" numberOfLines={2}>
+        <RichText className="text-body-small text-text-secondary mb-md" numberOfLines={2}>
           {trip.description}
-        </Text>
+        </RichText>
       ) : null}
 
       <View className="flex-row items-center gap-lg">

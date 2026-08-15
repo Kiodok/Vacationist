@@ -5,6 +5,7 @@
   "info.content": "Ein gemeinsames Notizbuch für deine Gruppe. Schreib Packerinnerungen, Restaurantempfehlungen, Reisetipps oder alles Nützliche auf. Alle Reisemitglieder können Notizen sehen und bearbeiten. Tippe auf +, um deine erste Notiz zu erstellen.",
   "create.title": "Neue Notiz",
   "edit.title": "Notiz bearbeiten",
+  "view.title": "Notiz",
   "field.title": "Titel",
   "field.description": "Beschreibung",
   "placeholder.title": "z.B. Packliste",

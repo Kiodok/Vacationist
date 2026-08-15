@@ -202,6 +202,7 @@ window.VACATIONIST_I18N = {
   'join.cta.title': 'Planning your own trip?',
   'join.cta.sub': 'Get Vacationist for free — no credit card required.',
   'join.cta.getPlay': 'Get it on Google Play',
+  'join.cta.appSoon': 'App Store — Coming Soon',
   'join.error.title': 'Invalid invite link',
   'join.error.sub': 'This invite link is missing a token. Ask the trip organizer to generate a new one.',
   'join.error.cta': 'Go to Vacationist',

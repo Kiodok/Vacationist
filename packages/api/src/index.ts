@@ -21,7 +21,7 @@ export {
 
 export { getUserProfile, ensureUserProfile, claimSignupAttribution, updateUserProfile, uploadAvatar, getUsersByIds } from './users';
 
-export { getTrips, getTrip, createTrip, updateTrip, softDeleteTrip, TripNotFoundError, subscribeToTripRealtime, unsubscribeFromTrip } from './trips';
+export { getTrips, getTrip, getTripTabContent, createTrip, updateTrip, softDeleteTrip, TripNotFoundError, subscribeToTripRealtime, unsubscribeFromTrip } from './trips';
 export type { TripRealtimeCallbacks } from './trips';
 
 export { getTripMembers, removeTripMember, leaveTrip, updateMemberRole, getCurrentMemberRole } from './members';

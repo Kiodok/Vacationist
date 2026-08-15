@@ -1,9 +1,9 @@
-import { View, Text, Pressable, Platform } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, Linking, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import type { Accommodation, AccommodationVote } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
-import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { getVoteBorderColor } from '../../../utils/voteUtils';
 
 interface AccommodationCardProps {
@@ -57,9 +57,9 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
         </View>
 
         {accommodation.description && (
-          <Text className="text-body-small text-text-secondary" numberOfLines={2}>
+          <RichText className="text-body-small text-text-secondary" numberOfLines={2}>
             {accommodation.description}
-          </Text>
+          </RichText>
         )}
 
         {accommodation.check_in_date && accommodation.check_out_date && (
@@ -79,12 +79,29 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
         )}
 
         {accommodation.external_url && (
-          <View className="flex-row items-center gap-xs">
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => accommodation.external_url?.startsWith('https://') && Linking.openURL(accommodation.external_url)}
+            className="flex-row items-center gap-xs"
+          >
             <ThemedIcon name="link-outline" size={14} color={METADATA_ICON_COLORS.link.color} />
-            <Text className="text-body-small text-text-secondary" numberOfLines={1}>
+            <Text className="text-primary text-body-small underline" numberOfLines={1}>
               {t('field.externalLink')}
             </Text>
-          </View>
+          </TouchableOpacity>
+        )}
+
+        {accommodation.maps_url && (
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => accommodation.maps_url?.startsWith('https://') && Linking.openURL(accommodation.maps_url)}
+            className="flex-row items-center gap-xs"
+          >
+            <ThemedIcon name="location-outline" size={14} color={METADATA_ICON_COLORS.location.color} />
+            <Text className="text-primary text-body-small underline" numberOfLines={1}>
+              {t('field.mapsUrl')}
+            </Text>
+          </TouchableOpacity>
         )}
 
         {/* Vote section */}

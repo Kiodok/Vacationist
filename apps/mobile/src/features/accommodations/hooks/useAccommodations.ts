@@ -59,6 +59,7 @@ export function useCreateAccommodation() {
         description: input.description ?? null,
         price_total: input.price_total ?? null,
         external_url: input.external_url ?? null,
+        maps_url: input.maps_url ?? null,
         notes: input.notes ?? null,
         status: 'suggested',
         voting_open: true,

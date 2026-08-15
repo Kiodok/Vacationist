@@ -1,6 +1,6 @@
 import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import type { Trip, CreateTripInput, UpdateTripInput } from '@vacationist/types';
+import type { Trip, CreateTripInput, UpdateTripInput, TripTabContent } from '@vacationist/types';
 
 export class TripNotFoundError extends Error {
   constructor() {
@@ -31,6 +31,25 @@ export async function getTrip(tripId: string): Promise<Trip & { member_count: nu
     throw error;
   }
   return data as unknown as Trip & { member_count: number };
+}
+
+// Backs the tab bar's "has data" border — one boolean per content tab, RLS-scoped
+// to the caller (see the SECURITY INVOKER note on the RPC itself).
+export async function getTripTabContent(tripId: string): Promise<TripTabContent> {
+  const { data, error } = await supabase.rpc('get_trip_tab_content', { p_trip_id: tripId });
+  if (error) throw error;
+  const row = (data as unknown as TripTabContent[])[0];
+  return row ?? {
+    chat: false,
+    prework: false,
+    base: false,
+    transfer: false,
+    expenses: false,
+    activities: false,
+    stuff: false,
+    shopping: false,
+    notes: false,
+  };
 }
 
 export async function createTrip(input: CreateTripInput): Promise<Trip> {

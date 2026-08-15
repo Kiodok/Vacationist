@@ -3,7 +3,7 @@ import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TransferVehicle, TransferVehiclePassenger } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
-import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface VehicleCardProps {
@@ -78,12 +78,12 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
           className="px-md pb-md"
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
         >
-          <Text
+          <RichText
             className="text-body-small text-text-secondary"
             numberOfLines={notesExpanded ? undefined : 2}
           >
             {vehicle.notes}
-          </Text>
+          </RichText>
         </Pressable>
       ) : null}
 

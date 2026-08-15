@@ -7,7 +7,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dayjs } from '@vacationist/utils';
 import { TripNotFoundError } from '@vacationist/api';
-import { useTrip } from '../../../src/features/trips/hooks/useTrips';
+import { useQueryClient } from '@tanstack/react-query';
+import { useTrip, useTripTabContent } from '../../../src/features/trips/hooks/useTrips';
 import { useTripRealtime } from '../../../src/features/trips/hooks/useTripRealtime';
 import { useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
@@ -17,6 +18,7 @@ import { getEffectiveStatus } from '../../../src/features/trips/components/TripC
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import type { TripTabContent } from '@vacationist/types';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import OverviewTab from './overview';
@@ -34,6 +36,23 @@ import ChatTab from './chat';
 
 const TABS = ['Overview', 'Chat', 'Prework', 'Base', 'Transfer', 'Expenses', 'Activities', 'Calendar', 'Stuff', 'Shopping', 'Notes', 'Settings'] as const;
 type Tab = (typeof TABS)[number];
+
+// Maps each tab to its TripTabContent flag for the "has data" border.
+// Overview and Settings are never bordered — Overview is the trip itself
+// (always "populated"), Settings holds no content. Calendar mirrors Activities
+// since it renders the same activity rows in a different layout.
+const TAB_CONTENT_KEY: Partial<Record<Tab, keyof TripTabContent>> = {
+  Chat: 'chat',
+  Prework: 'prework',
+  Base: 'base',
+  Transfer: 'transfer',
+  Expenses: 'expenses',
+  Activities: 'activities',
+  Calendar: 'activities',
+  Stuff: 'stuff',
+  Shopping: 'shopping',
+  Notes: 'notes',
+};
 
 
 function getInitialTab(paramTab?: string): Tab {
@@ -72,6 +91,8 @@ export default function TripDetailScreen() {
   const authLoading = useAuthStore((s) => s.isLoading);
   useTripRealtime(id!);
   const { data: role } = useCurrentMemberRole(id!);
+  const { data: tabContent } = useTripTabContent(id!);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab(tab));
   const tabBarRef = useRef<ScrollView>(null);
   const tabPositions = useRef<Partial<Record<Tab, number>>>({});
@@ -93,6 +114,12 @@ export default function TripDetailScreen() {
   }, []);
 
   const handleTabChange = (newTab: Tab) => {
+    // Only the active tab is ever mounted, so the tab-content flags can only go
+    // stale while the user is looking at (and possibly adding to) the tab they're
+    // about to leave. Invalidate here instead of polling in the background.
+    if (newTab !== activeTab) {
+      queryClient.invalidateQueries({ queryKey: ['trips', id, 'tab-content'] });
+    }
     setActiveTab(newTab);
     tabBarRef.current?.scrollTo({ x: tabPositions.current[newTab] ?? 0, animated: true });
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -199,25 +226,36 @@ export default function TripDetailScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerClassName="gap-xs"
         >
-          {TABS.map((tabKey) => (
+          {TABS.map((tabKey) => {
+            const isActive = activeTab === tabKey;
+            const contentKey = TAB_CONTENT_KEY[tabKey];
+            const hasData = !isActive && !!contentKey && !!tabContent?.[contentKey];
+            return (
             <Pressable
               key={tabKey}
               onPress={() => handleTabChange(tabKey)}
               onLayout={(e) => { tabPositions.current[tabKey] = e.nativeEvent.layout.x; }}
               className={`px-md py-sm rounded-full ${
-                activeTab === tabKey ? 'bg-primary' : 'bg-surface'
+                isActive ? 'bg-primary' : 'bg-surface'
               }`}
+              style={{
+                // Always render a 1px border (transparent when not applicable) so
+                // pill dimensions never shift as the has-data flags load in.
+                borderWidth: 1,
+                borderColor: hasData ? colors.textPrimary : 'transparent',
+              }}
             >
               <Text
                 className={`text-body-small font-semibold ${
-                  activeTab === tabKey ? '' : 'text-text-secondary'
+                  isActive ? '' : 'text-text-secondary'
                 }`}
-                style={activeTab === tabKey ? { color: activeTabTextColor } : undefined}
+                style={isActive ? { color: activeTabTextColor } : undefined}
               >
                 {getTabLabel(tabKey)}
               </Text>
             </Pressable>
-          ))}
+            );
+          })}
         </ScrollView>
       </View>
 

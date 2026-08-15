@@ -254,6 +254,30 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                 )}
               </View>
 
+              {/* Maps URL */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.mapsUrl')}</Text>
+                <Controller
+                  control={control}
+                  name="maps_url"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder={t('placeholder.mapsUrl')}
+                      value={value ?? ''}
+                      onChangeText={(t) => onChange(t || null)}
+                      autoCapitalize="none"
+                      keyboardType="url"
+                      maxLength={2048}
+                    />
+                  )}
+                />
+                {errors.maps_url && (
+                  <Text className="text-danger text-body-small">{errors.maps_url.message}</Text>
+                )}
+              </View>
+
               {/* Reservation Required */}
               <Controller
                 control={control}

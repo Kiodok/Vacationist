@@ -14,5 +14,7 @@ export { EmptyState } from './components/EmptyState';
 export { GoogleSignInButton } from './components/GoogleSignInButton';
 export { ThemedIcon } from './components/ThemedIcon';
 export type { IoniconsName } from './components/ThemedIcon';
+export { RichText } from './components/RichText';
+export type { RichTextProps } from './components/RichText';
 export { ScrollView } from './components/ScrollView';
 export { PersistentScrollView } from './components/PersistentScrollView';

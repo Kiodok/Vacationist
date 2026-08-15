@@ -1,6 +1,6 @@
 import { Animated, Platform, Pressable, View, Text } from 'react-native';
 import { safeFromNow } from '@vacationist/utils';
-import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { TripNote } from '@vacationist/types';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
@@ -50,12 +50,12 @@ export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress,
       </View>
 
       {!!note.description && (
-        <Text
+        <RichText
           className={`text-body-small ${note.is_done ? 'text-text-muted' : 'text-text-secondary'}`}
           numberOfLines={2}
         >
           {note.description}
-        </Text>
+        </RichText>
       )}
 
       <View className="flex-row items-center gap-xs mt-xs">

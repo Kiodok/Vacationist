@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TripMessageWithSender } from '@vacationist/types';
-import { colors, useResolvedTheme } from '@vacationist/ui';
+import { colors, RichText, useResolvedTheme } from '@vacationist/ui';
 import { MemberAvatar } from '../../trips/components/MemberAvatar';
 import { formatMessageTimeParts } from '../utils/formatMessageTime';
 
@@ -51,9 +51,9 @@ export const ChatMessageRow = memo(function ChatMessageRow({
               ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
             }}
           >
-            <Text className="text-body text-text-primary text-left" selectable>
+            <RichText className="text-body text-text-primary text-left" selectable>
               {message.text}
-            </Text>
+            </RichText>
             {(() => {
               const { datePart, timePart } = formatMessageTimeParts(message.created_at);
               return (

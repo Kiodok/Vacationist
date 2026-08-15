@@ -227,7 +227,11 @@
       "Bash(xargs grep -ln \"AppStoreID\\\\|iTunes\\\\|itunes\")",
       "Bash(npm view *)",
       "Bash(echo \"TYPECHECK EXIT:$?\")",
-      "Bash(echo \"TEST EXIT:$?\")"
+      "Bash(echo \"TEST EXIT:$?\")",
+      "Bash(git checkout *)",
+      "Bash(md5sum docs/join.html docs/i18n/en.js docs/i18n/de.js docs/i18n.js)",
+      "Bash(curl *)",
+      "Bash(netstat -ano)"
     ]
   },
   "model": "opusplan",

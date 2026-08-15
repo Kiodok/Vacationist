@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon } from '@vacationist/ui';
 import type { SharedPackingItem } from '@vacationist/types';
 
 interface SharedPackingItemCardProps {
@@ -61,7 +61,7 @@ export function SharedPackingItemCard({ item, memberNameMap, currentUserId, role
 
       {/* Notes */}
       {item.notes ? (
-        <Text className="text-body-small text-text-muted" numberOfLines={2}>{item.notes}</Text>
+        <RichText className="text-body-small text-text-muted" numberOfLines={2} selectable>{item.notes}</RichText>
       ) : null}
 
       {/* Creator / claimer info */}

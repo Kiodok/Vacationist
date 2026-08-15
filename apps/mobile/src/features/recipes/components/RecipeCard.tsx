@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, METADATA_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, RichText, ThemedIcon } from '@vacationist/ui';
 
 interface RecipeCardProps {
   title: string;
@@ -35,9 +35,9 @@ export function RecipeCard({
             {title}
           </Text>
           {description ? (
-            <Text className="text-body-small text-text-secondary mt-xs" numberOfLines={2}>
+            <RichText className="text-body-small text-text-secondary mt-xs" numberOfLines={2}>
               {description}
-            </Text>
+            </RichText>
           ) : null}
           <View className="flex-row items-center gap-md mt-xs">
             <View className="flex-row items-center gap-xs">

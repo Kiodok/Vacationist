@@ -4143,3 +4143,66 @@ Confirmed via `console.error` placement in the function: it only logs on failure
 **Why:** the `sendToExpo` chunking fix (100-message batches, see above) existed only in the repo — never actually deployed this remediation pass. Closing that gap now that the rest of the session's changes (recipe→shopping-list sync fix, activities pagination, this migration) were manually re-verified.
 
 **Deployed:** `supabase functions deploy push-notification` — dev (`aejywkbkcwyanhyzhrle`, v36→v37), then prod (`fsfsqghbejwvgxujoyne`, v36→v37). Confirmed via `supabase functions list` on both (version bump + `updated_at`). No secrets, no signature, no payload-shape change — purely internal chunking of the outbound Expo array, so no coordinated app-side change was needed. Re-linked to dev afterward per the standard workflow.
+
+---
+
+## 2026-08-15 — Add maps_url to accommodations (Base)
+
+**Why:** v1.31.0 adds a location-link field to Base entries (a Google Maps link, alongside the existing booking `external_url`), matching the `maps_url` column `activities` already had (added `20260512200000_create_activities_and_votes.sql`, HTTPS-enforced by `20260512200002_enforce_https_urls.sql`) but that accommodations never got.
+
+**Migration `20260815100000_add_accommodation_maps_url.sql`:**
+```sql
+ALTER TABLE public.accommodations ADD COLUMN maps_url TEXT;
+ALTER TABLE public.accommodations
+  ADD CONSTRAINT accommodations_maps_url_https
+    CHECK (maps_url IS NULL OR maps_url LIKE 'https://%');
+```
+Nullable, additive, no backfill needed. No trigger change — `restrict_accommodation_update_fields()` only guards `trip_id`/`created_by`/`voting_open`/`status`, so `maps_url` updates freely through the normal owner/organizer RLS path. No FK to `users`, so `delete_own_account()` is unaffected.
+
+**Dev push:** `supabase link --project-ref aejywkbkcwyanhyzhrle && supabase db push` — applied cleanly.
+
+**Prod push:** additive nullable column + a `CHECK` that only constrains a column with no existing rows referencing it — meets the standard "safe, backwards-compatible" bar, pushed immediately: `supabase link --project-ref fsfsqghbejwvgxujoyne && supabase db push`. Re-linked to dev afterward per the standard workflow.
+
+**App-side:** `Accommodation` type, `createAccommodationSchema`/`updateAccommodationSchema` (`httpsUrlSchema.nullable().optional()`, mirroring the `activities` schema), `createAccommodation` API, Create/Edit Base sheets, and `AccommodationCard`'s location row. Activities gained the equivalent **UI only** (`CreateActivitySheet`/`EditActivitySheet`/`ActivityCard`) — the column and Zod field already existed but had no form/display wired up.
+
+**Also fixed while here:** `updateAccommodation`/`updateActivity` (`packages/api/src/accommodations.ts`/`activities.ts`) each carried a stale `as any` cast on `.update(...)` with a "TODO: remove after gen types — auto_close not in generated schema yet" comment — `auto_close` has been in the generated schema for a while (confirmed via this migration's fresh `gen types` run), so both casts were removed. Not a behavior change, purely a type-safety cleanup adjacent to the code this migration already touched.
+
+---
+
+## 2026-08-15 (same day) — Tab "has data" indicator RPC
+
+**Why:** v1.31.0 adds a border around trip tab pills (Chat, Prework, Base, Transfer, Expenses, Activities, Stuff, Shopping, Notes) that already contain data, so a member who joins an existing trip can tell at a glance which tabs are worth opening. Needed a single cheap existence check per tab rather than N separate list-count queries fired on every trip-screen mount.
+
+**Migration `20260815110000_get_trip_tab_content.sql`:**
+```sql
+CREATE OR REPLACE FUNCTION public.get_trip_tab_content(p_trip_id UUID)
+RETURNS TABLE(chat BOOLEAN, prework BOOLEAN, base BOOLEAN, transfer BOOLEAN,
+              expenses BOOLEAN, activities BOOLEAN, stuff BOOLEAN, shopping BOOLEAN, notes BOOLEAN)
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+...
+```
+Guarded with the standard `auth.uid() IS NULL` / `private.is_trip_member(p_trip_id, auth.uid())` checks, then one `EXISTS(...)` per flag.
+
+**`SECURITY INVOKER`, not this repo's usual `SECURITY DEFINER` RPC convention — deliberate.** Two source tables have per-caller row visibility that a DEFINER function would silently widen: `packing_items` (SELECT policy `user_id = auth.uid()`, private per user) and `lost_found_cases` (SELECT policy `created_by = auth.uid() OR target_user = auth.uid() OR target_user IS NULL`). Running as INVOKER lets ordinary RLS scope every `EXISTS` to the caller, so the `stuff` flag correctly means "*I* have packing items or visible cases," not "someone on the trip does." `private.is_trip_member` is itself `SECURITY DEFINER` with no explicit `REVOKE`, so it remains callable from an INVOKER context exactly as it already is from every RLS policy that calls it.
+
+**Predicate table** (each source table's delete/archive column differs; several have none — verified against every table's own migration, not assumed):
+
+| Flag | Predicate |
+|---|---|
+| `chat` | `trip_messages` + `deleted_at IS NULL` (RLS deliberately does not filter this — soft-delete arrives as an UPDATE for realtime) |
+| `prework` | `prework_topics` — no soft delete |
+| `base` | `accommodations` + `deleted_at IS NULL` |
+| `transfer` | `transfer_flights` ∪ `transfer_vehicles` ∪ `transfer_rentals`, each `deleted_at IS NULL` |
+| `expenses` | `expenses` + `archived_at IS NULL` (no `deleted_at` on this table) |
+| `activities` | `activities` + `deleted_at IS NULL` |
+| `stuff` | `packing_items` `deleted_at IS NULL` ∪ `shared_packing_items` `deleted_at IS NULL` ∪ `lost_found_cases` (no soft delete) |
+| `shopping` | `shopping_lists` `archived_at IS NULL` ∪ `shopping_items` `deleted_at IS NULL` ∪ `recipes` (no soft delete) |
+| `notes` | `trip_notes` — hard delete only, no filter |
+
+**Dev push:** applied cleanly; `gen types --linked` confirms the RPC signature (`Args: { p_trip_id: string }`, 9-boolean row type) matches exactly.
+
+**Prod push:** new function only, no schema/data change, `SECURITY INVOKER` means it can only ever see what the calling user's own RLS already allows — meets the standard "safe, backwards-compatible" bar, pushed immediately. Re-linked to dev afterward per the standard workflow.
+
+**App-side:** `TripTabContent` type (`packages/types`), `getTripTabContent` in `packages/api/src/trips.ts`, `useTripTabContent` hook (`apps/mobile/src/features/trips/hooks/useTrips.ts`) — invalidated on tab change rather than polled, since only the active tab is ever mounted. Tab bar border in `apps/mobile/app/trip/[id]/index.tsx` uses `colors.textPrimary` (theme-aware: `#F2F2F2` dark / `#1A1A1A` light / `#690F0C` colorful), shown only on inactive, populated tabs.

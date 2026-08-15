@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
+    "@vacationist/utils": "*",
     "nativewind": "^4.1.23",
     "react": "*",
     "react-native": "*"

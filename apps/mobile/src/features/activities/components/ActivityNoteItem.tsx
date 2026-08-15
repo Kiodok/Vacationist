@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { safeFromNow } from '@vacationist/utils';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon } from '@vacationist/ui';
 interface NoteForDisplay {
   content: string;
   created_at: string;
@@ -18,7 +18,7 @@ interface ActivityNoteItemProps {
 export function ActivityNoteItem({ note, authorName, canEdit, canDelete, onEdit, onDelete }: ActivityNoteItemProps) {
   return (
     <View className="bg-surface border border-border rounded-sm p-sm gap-xs">
-      <Text className="text-body-small text-text-secondary">{note.content}</Text>
+      <RichText className="text-body-small text-text-secondary" selectable>{note.content}</RichText>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-xs">
           <Text className="text-label text-text-muted">{authorName}</Text>

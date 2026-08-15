@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { getTrips, getTrip, createTrip, softDeleteTrip, TripNotFoundError } from '@vacationist/api';
+import { getTrips, getTrip, getTripTabContent, createTrip, softDeleteTrip, TripNotFoundError } from '@vacationist/api';
 import type { CreateTripInput, Trip, UpdateTripVariables } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
@@ -47,6 +47,20 @@ export function useTrip(tripId: string) {
   }, [query.error, tripId, qc]);
 
   return query;
+}
+
+// "Has data" flags for the tab bar's populated-tab border. Only the active tab
+// is ever mounted, so background polling would refresh a flag set nobody is
+// looking at — instead this relies on the default staleTime plus an explicit
+// invalidate from handleTabChange (index.tsx) each time the user switches tabs.
+export function useTripTabContent(tripId: string) {
+  const hasSession = useAuthStore((s) => s.hasSession);
+  return useQuery({
+    queryKey: ['trips', tripId, 'tab-content'],
+    queryFn: () => getTripTabContent(tripId),
+    enabled: hasSession && !!tripId,
+    retry: 2,
+  });
 }
 
 export function useCreateTrip() {

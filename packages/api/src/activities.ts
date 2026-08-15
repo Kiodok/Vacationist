@@ -111,9 +111,7 @@ export async function createActivity(tripId: string, input: CreateActivityInput)
 export async function updateActivity(activityId: string, input: UpdateActivityInput): Promise<Activity> {
   const { data, error } = await supabase
     .from('activities')
-    // TODO: remove cast after running `supabase gen types` — auto_close not in generated schema yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .update(input as any)
+    .update(input)
     .eq('id', activityId)
     .select()
     .single();

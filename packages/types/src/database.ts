@@ -117,6 +117,7 @@ export interface Accommodation {
   description: string | null;
   price_total: number | null;
   external_url: string | null;
+  maps_url: string | null;
   notes: string | null;
   status: AccommodationStatus;
   voting_open: boolean;
@@ -599,4 +600,20 @@ export interface LostFoundCase {
   resolved_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// "Has data" flags per trip tab — backs the tab bar's populated-tab border.
+// From public.get_trip_tab_content(p_trip_id). Overview/Settings/Calendar are
+// deliberately absent: Overview and Settings are never "populated" or "empty"
+// in this sense, and Calendar reuses the `activities` flag client-side.
+export interface TripTabContent {
+  chat: boolean;
+  prework: boolean;
+  base: boolean;
+  transfer: boolean;
+  expenses: boolean;
+  activities: boolean;
+  stuff: boolean;
+  shopping: boolean;
+  notes: boolean;
 }

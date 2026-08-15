@@ -1,6 +1,7 @@
 export { dayjs, initDayjs, setDayjsLocale, safeFromNow } from './dayjs';
 export { formatCurrency, getCurrencySymbol, setDefaultFormatLocale, roundCurrency, isNegligible, normalizeBalance, BALANCE_THRESHOLD, formatDateRange, sanitizeDecimalInput } from './format';
-export { isValidUrl } from './validation';
+export { isValidUrl, splitTextIntoLinkSegments } from './validation';
+export type { TextSegment } from './validation';
 export { computeSettlements, isExpenseFullySettled } from './settlements';
 export type { Settlement } from './settlements';
 export { formatSettlementShareText } from './settlementText';

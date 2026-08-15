@@ -23,6 +23,7 @@
   "placeholder.description": "Was ist geplant?",
   "placeholder.cost": "0.00",
   "placeholder.url": "https://...",
+  "placeholder.mapsUrl": "https://maps.google.com/...",
   "action.edit": "Bearbeiten",
   "action.endVoting": "Abstimmung beenden",
   "action.reopenVoting": "Abstimmung wieder öffnen",

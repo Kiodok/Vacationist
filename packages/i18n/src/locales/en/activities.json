@@ -23,6 +23,7 @@
   "placeholder.description": "What's the plan?",
   "placeholder.cost": "0.00",
   "placeholder.url": "https://...",
+  "placeholder.mapsUrl": "https://maps.google.com/...",
   "action.edit": "Edit",
   "action.endVoting": "End voting",
   "action.reopenVoting": "Re-open voting",

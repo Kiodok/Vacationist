@@ -50,6 +50,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
         start_time: activity.start_time ? activity.start_time.slice(0, 5) : null,
         end_time: activity.end_time ? activity.end_time.slice(0, 5) : null,
         external_url: activity.external_url ?? undefined,
+        maps_url: activity.maps_url ?? undefined,
         reservation_required: activity.reservation_required,
       });
     }
@@ -265,6 +266,30 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                 />
                 {errors.external_url && (
                   <Text className="text-danger text-body-small">{errors.external_url.message}</Text>
+                )}
+              </View>
+
+              {/* Maps URL */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.mapsUrl')}</Text>
+                <Controller
+                  control={control}
+                  name="maps_url"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder={t('placeholder.mapsUrl')}
+                      value={value ?? ''}
+                      onChangeText={(t) => onChange(t || null)}
+                      autoCapitalize="none"
+                      keyboardType="url"
+                      maxLength={2048}
+                    />
+                  )}
+                />
+                {errors.maps_url && (
+                  <Text className="text-danger text-body-small">{errors.maps_url.message}</Text>
                 )}
               </View>
 

@@ -9,7 +9,7 @@ import { VoteSummary } from '../../activities/components/VoteChip';
 import { useActivityVotes } from '../../activities/hooks/useVotes';
 import { useTripMembers, useCurrentMemberRole } from '../../trips/hooks/useMembers';
 import { useAuthStore } from '../../../stores/authStore';
-import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 
 interface CalendarActivitySheetProps {
@@ -116,9 +116,9 @@ export function CalendarActivitySheet({
 
           {/* Description */}
           {activity.description ? (
-            <Text className="text-body-small text-text-secondary mb-sm">
+            <RichText className="text-body-small text-text-secondary mb-sm" selectable>
               {activity.description}
-            </Text>
+            </RichText>
           ) : null}
 
           {/* Attendees */}

@@ -202,6 +202,7 @@ window.VACATIONIST_I18N = {
   'join.cta.title': 'Planst du deine eigene Reise?',
   'join.cta.sub': 'Hol dir Vacationist kostenlos — keine Kreditkarte nötig.',
   'join.cta.getPlay': 'Im Play Store holen',
+  'join.cta.appSoon': 'App Store — Demnächst',
   'join.error.title': 'Ungültiger Einladungslink',
   'join.error.sub': 'Diesem Einladungslink fehlt ein Token. Bitte den Reiseorganisator, einen neuen zu erstellen.',
   'join.error.cta': 'Zu Vacationist',

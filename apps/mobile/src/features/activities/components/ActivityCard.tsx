@@ -1,10 +1,10 @@
-import { View, Text, Pressable, Animated, Platform } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { dayjs, formatCurrency } from '@vacationist/utils';
 import type { Activity, ActivityVote, Currency } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
 import { StatusIndicator } from './StatusIndicator';
-import { colors, CATEGORY_ICON_COLORS, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, CATEGORY_ICON_COLORS, METADATA_ICON_COLORS, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 import { getVoteBorderColor } from '../../../utils/voteUtils';
 
@@ -64,9 +64,9 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
       </View>
 
       {activity.description ? (
-        <Text className="text-body-small text-text-secondary" numberOfLines={2}>
+        <RichText className="text-body-small text-text-secondary" numberOfLines={2}>
           {activity.description}
-        </Text>
+        </RichText>
       ) : null}
 
       <View className="flex-row flex-wrap items-center gap-sm">
@@ -102,6 +102,18 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
               {t('field.reservationRequired')}
             </Text>
           </View>
+        )}
+        {activity.maps_url && (
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => activity.maps_url?.startsWith('https://') && Linking.openURL(activity.maps_url)}
+            className="flex-row items-center gap-xs"
+          >
+            <ThemedIcon name="location-outline" size={14} color={METADATA_ICON_COLORS.location.color} />
+            <Text className="text-primary text-body-small underline" numberOfLines={1}>
+              {t('field.mapsUrl')}
+            </Text>
+          </TouchableOpacity>
         )}
       </View>
 

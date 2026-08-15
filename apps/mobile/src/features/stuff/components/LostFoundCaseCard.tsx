@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Animated, Platform, View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { LostFoundCase, LostFoundCaseType } from '@vacationist/types';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
@@ -83,7 +83,7 @@ export function LostFoundCaseCard({ lostFoundCase: c, memberNameMap, currentUser
 
       {/* Description */}
       {c.description ? (
-        <Text className="text-body-small text-text-secondary" numberOfLines={3}>{c.description}</Text>
+        <RichText className="text-body-small text-text-secondary" numberOfLines={3} selectable>{c.description}</RichText>
       ) : null}
 
       {/* Meta */}
