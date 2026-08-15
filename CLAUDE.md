@@ -16,6 +16,22 @@ Source of truth files:
 ### Errors & Issues Found During Work
 When you encounter errors or issues that were **not introduced by the current session** (pre-existing type errors, failing tests, broken imports, lint violations, etc.), **always fix them and explain what you found** — do not leave them in place just because they predate the current task. Briefly tell the user: what the issue was, why it existed, and what you did to fix it.
 
+### 🔴 Persistent Memory — Always Dual-Write: External Memory AND a Skill File
+Every time you save or update a memory (a `feedback`, `project`, `user`, or `reference` note — see the auto-memory instructions), you must persist it **twice, in both places, every time**:
+1. As a memory in the external memory store, exactly as the auto-memory instructions already describe — this step does not change.
+2. **As a corresponding skill file** at `.claude/skills/<slug>/SKILL.md` in this repo — new step, required in addition to #1, never instead of it.
+
+Use standard skill frontmatter (`name`, `description` written as a trigger — when to use this skill and why) and body content structured like the existing memory-derived skills there (rule/fact, then **Why:** and **How to apply:**). Cross-reference related skills with `[[skill-name]]`.
+
+**Why:** The external memory store at `~/.claude/projects/.../memory/` is local to this machine and this Claude Code installation — it is not checked into git and does not travel with the repo. Skill files in `.claude/skills/` are ordinary repo files: they get committed, reviewed in PRs, pulled by every clone, and read by any Claude Code session (or teammate) working in this repo, on any machine. Neither location alone is sufficient — the memory store gives you fast recall within this machine's sessions, the skill file gives the repo (and everyone who clones it) the same knowledge.
+
+**How to apply:**
+- New feedback/correction from the user → save the memory, then also write/update the matching skill file. Same for a new project fact, user fact, or reference worth remembering long-term.
+- Editing an existing memory → edit the memory file, then also edit its matching skill file so the two never drift apart. Treat them as one logical record kept in two locations.
+- If a skill file doesn't yet exist for an older memory you're touching, create it at the same time rather than leaving the pair incomplete.
+- Don't create a skill file for purely ephemeral, single-session context (in-progress task state, current conversation scratch) — same bar as for memory in general; if it's not worth a memory, it's not worth a skill either.
+- Commit new/edited skill files following normal [[commit-discipline]]-style rules — stage them, but only commit when the user explicitly approves (per the git workflow below).
+
 ---
 
 ## Development Commands
