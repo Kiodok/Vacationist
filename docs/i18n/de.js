@@ -23,14 +23,14 @@ window.VACATIONIST_I18N = {
   'hero.h1': 'Reisen<br><em>gemeinsam</em><br>planen.',
   'hero.sub': 'Die Gruppenreise-App für alles — Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und alle synchron halten. Von der ersten Idee bis zum letzten Heimflug.',
   'hero.getPlay': 'Play Store',
+  'hero.getAppStore': 'App Store',
   'hero.openWeb': 'Web-App öffnen',
-  'hero.appSoon': 'App Store — Demnächst',
   'hero.note': 'Kostenlos · Keine Werbung · Kein Konto zum Beitreten nötig',
-  'entity.def': 'Vacationist ist eine kostenlose Gruppenreise-App für Android und Web, mit der eine Gruppe gemeinsam über Aktivitäten abstimmt, Reisekosten teilt und Pack- sowie Einkaufslisten teilt — ohne Konto zum Beitreten.',
+  'entity.def': 'Vacationist ist eine kostenlose Gruppenreise-App für iOS, Android und Web, mit der eine Gruppe gemeinsam über Aktivitäten abstimmt, Reisekosten teilt und Pack- sowie Einkaufslisten teilt — ohne Konto zum Beitreten.',
 
   // TL;DR-Direktantwort (oberhalb der FAQ)
   'tldr.label': 'Kurz gesagt',
-  'tldr.text': 'Vacationist ist kostenlos, ohne Werbung, und verschlüsselt Reisedokumente mit AES-256. Die App wird in der Schweiz entwickelt, und jeder kann per Link einer Reise beitreten, ohne ein Konto zu erstellen. Heute verfügbar für Android und im Web; die iOS-Version ist in Entwicklung.',
+  'tldr.text': 'Vacationist ist kostenlos, ohne Werbung, und verschlüsselt Reisedokumente mit AES-256. Die App wird in der Schweiz entwickelt, und jeder kann per Link einer Reise beitreten, ohne ein Konto zu erstellen. Heute verfügbar für iOS, Android und im Web.',
 
   // Floating chips
   'chip.a.main': '4 Stimmen abgegeben',
@@ -142,13 +142,13 @@ window.VACATIONIST_I18N = {
   'trust.noAds': 'Keine Werbung, kein Tracking in der App',
   'trust.swiss': 'In der Schweiz entwickelt',
   'trust.free': 'Kostenlos nutzbar',
-  'trust.platform': 'Android · iOS demnächst',
+  'trust.platform': 'iOS · Android',
 
   // Download
   'dl.title': 'Deine nächste Reise wartet.',
   'dl.sub': 'Lade Vacationist herunter und plane gemeinsam.',
   'dl.getPlay': 'Play Store',
-  'dl.appSoon': 'App Store — Demnächst',
+  'dl.getAppStore': 'App Store',
   // Blog strip
   'strip.title': 'Guides aus dem Blog',
   'strip.1.title': 'Gruppenreise planen: der komplette Guide',
@@ -202,7 +202,7 @@ window.VACATIONIST_I18N = {
   'join.cta.title': 'Planst du deine eigene Reise?',
   'join.cta.sub': 'Hol dir Vacationist kostenlos — keine Kreditkarte nötig.',
   'join.cta.getPlay': 'Im Play Store holen',
-  'join.cta.appSoon': 'App Store — Demnächst',
+  'join.cta.getAppStore': 'Im App Store holen',
   'join.error.title': 'Ungültiger Einladungslink',
   'join.error.sub': 'Diesem Einladungslink fehlt ein Token. Bitte den Reiseorganisator, einen neuen zu erstellen.',
   'join.error.cta': 'Zu Vacationist',
@@ -216,7 +216,7 @@ window.VACATIONIST_I18N = {
   'scan.hero.title': 'Entdecke Vacationist',
   'scan.hero.sub': 'Der kostenlose Gruppenreise-Planer. Aktivitäten abstimmen, Kosten teilen, Packlisten teilen und alle synchron halten.',
   'scan.hero.getPlay': 'Im Play Store holen',
-  'scan.hero.appSoon': 'App Store — Demnächst',
+  'scan.hero.getAppStore': 'Im App Store holen',
   'scan.hero.note': 'Kostenlos · Keine Werbung · Kein Konto nötig',
   'scan.features.title': 'Warum Gruppen Vacationist lieben',
   'scan.feat.plan.name': 'Reise planen',
@@ -241,7 +241,7 @@ window.VACATIONIST_I18N = {
   'scan.cta.title': 'Bereit für die nächste Reise?',
   'scan.cta.sub': 'Lade Vacationist herunter und plane gemeinsam.',
   'scan.cta.getPlay': 'Im Play Store holen',
-  'scan.cta.appSoon': 'App Store — Demnächst',
+  'scan.cta.getAppStore': 'Im App Store holen',
   'scan.footer.privacy': 'Datenschutz',
   'scan.footer.terms': 'Nutzungsbedingungen',
   'scan.footer.cookies': 'Cookie-Einstellungen',

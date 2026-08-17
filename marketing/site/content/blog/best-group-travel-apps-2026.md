@@ -29,7 +29,7 @@ The core insight for choosing: a group trip has roughly five jobs — **deciding
 
 - **The standout feature:** guests join by one invite link with **no account required** — and still vote, edit lists, and appear in expense splits. The "I'm not installing another app" friend stops being a blocker.
 - **Also notable:** offline-first (works on planes and mountains, syncs later), [encrypted travel document storage](/features/travel-documents/) with revocable organizer access, recipe-to-shopping-list sync.
-- **Honest weaknesses:** no maps or place discovery, basic multi-currency support, a young user base (launched 2026), and Android + web only today — iOS is in development.
+- **Honest weaknesses:** no maps or place discovery, basic multi-currency support, and a young user base (launched 2026).
 - **Price:** free, no ads; optional Pro for more planning days and unlimited members.
 - **Choose it if:** your pain is the *group* — deciding, paying, syncing — rather than destination research.
 
@@ -122,7 +122,7 @@ Our obviously-biased-but-defensible claim: for the actual "group of friends plan
 
 ### What's the best free app for planning a trip with friends?
 
-Vacationist — the core app (voting, expense splitting, shared lists, chat, offline sync) is free with no ads, and friends join via link without creating accounts. The honest caveat: it's Android + web today, with iOS in development (iPhone friends use the web app).
+Vacationist — the core app (voting, expense splitting, shared lists, chat, offline sync) is free with no ads, and friends join via link without creating accounts. It's on iOS, Android, and the web.
 
 ### Do we really need a dedicated app for a group trip?
 

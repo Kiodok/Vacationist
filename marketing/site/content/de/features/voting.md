@@ -52,7 +52,7 @@ Jede Gruppe hat diesen einen Freund, der sagt „Mir egal, was ihr wollt" und da
 
 ### Müssen meine Freunde die App installieren, um abzustimmen?
 
-Nein. Jeder kann über den Einladungslink der Reise beitreten und als Gast abstimmen — in der Web-App, ohne ein Konto zu erstellen. Die Android-App zu installieren macht es nur bequemer.
+Nein. Jeder kann über den Einladungslink der Reise beitreten und als Gast abstimmen — in der Web-App, ohne ein Konto zu erstellen. Die iOS- oder Android-App zu installieren macht es nur bequemer.
 
 ### Was passiert, wenn jemand die Gruppenhindernis-Stimme nutzt?
 

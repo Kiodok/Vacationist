@@ -27,7 +27,7 @@ Zuerst Fairness gegenüber dem Platzhirsch: **Splitwise bleibt hervorragend im r
 
 - **Was es Splitwise voraus hat:** Aktivitäten-Abstimmung (fünf Stufen bis zum „Gruppenhindernis"-Veto), gemeinsamer Reisekalender, Unterkunfts- und Transferverwaltung, Echtzeit-Einkaufslisten mit Rezept-Übernahme, verschlüsselte Reisedokumente, Gruppenchat, Offline-first.
 - **Der Reibungskiller:** Freunde treten per Einladungslink bei — **ganz ohne Konto** — und können trotzdem abstimmen, Listen bearbeiten und bei der Kostenteilung dabei sein. Das „Ich installiere nichts"-Problem verschwindet.
-- **Was ihm gegenüber Splitwise fehlt:** schmalere Multi-Währungs-Unterstützung, keine PayPal-Anbindung, junge Nutzerbasis (Start 2026), und aktuell Android + Web — die iOS-App ist in Entwicklung.
+- **Was ihm gegenüber Splitwise fehlt:** schmalere Multi-Währungs-Unterstützung, keine PayPal-Anbindung, junge Nutzerbasis (Start 2026).
 - **Preis:** kostenlos, ohne Werbung. Optionales Pro für mehr Planungstage und unbegrenzte Mitglieder.
 - **Ideal für:** Freundesgruppen, Familien und Crews, die die ganze Reise — nicht nur die Schulden — in einer App wollen. Und: entwickelt in der Schweiz, mit entsprechendem Datenschutz-Anspruch.
 

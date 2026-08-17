@@ -58,6 +58,10 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '"{{entity}}" has been marked as resolved in "{{trip}}".',
     de: '"{{entity}}" wurde in "{{trip}}" als gelöst markiert.',
   },
+  review_nudge: {
+    en: "Your trip is over — we'd love a quick rating!",
+    de: 'Deine Reise ist vorbei — wir freuen uns über eine Bewertung!',
+  },
   lost_found_reopened: {
     en: '"{{entity}}" has been reopened in "{{trip}}".',
     de: '"{{entity}}" wurde in "{{trip}}" wieder geöffnet.',
@@ -120,6 +124,7 @@ type EffectiveNotificationType =
   | 'lost_found_resolved'
   | 'lost_found_reopened'
   | 'activity_reminder'
+  | 'review_nudge'
   | 'member_left_removed';
 
 function resolveEffectiveType(notification: Notification): EffectiveNotificationType {
@@ -142,6 +147,9 @@ function resolveEffectiveType(notification: Notification): EffectiveNotification
   }
   if (notification.type === 'reminder' && notification.related_type === 'activity_reminder') {
     return 'activity_reminder';
+  }
+  if (notification.type === 'reminder' && notification.related_type === 'review_nudge') {
+    return 'review_nudge';
   }
   if (notification.type === 'member_left' && notification.context_entity === 'removed') {
     return 'member_left_removed';

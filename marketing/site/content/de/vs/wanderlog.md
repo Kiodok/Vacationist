@@ -29,7 +29,7 @@ breadcrumbLabel: vs. Wanderlog
 | Offline-Unterstützung | ✅ Offline-first | ⚠️ Bezahlfunktion (Pro) |
 | Verschlüsselte Reisedokumente | ✅ | ❌ |
 | Gruppenchat in der App | ✅ | ❌ |
-| Plattformen | Android + Web (iOS in Entwicklung) | iOS, Android, Web |
+| Plattformen | iOS, Android, Web | iOS, Android, Web |
 | Preis | Kostenlos, ohne Werbung; optionales Pro | Gratis-Tarif; Pro-Abo |
 
 ## Was Wanderlog besser macht
@@ -38,7 +38,6 @@ Ehre, wem Ehre gebührt — Wanderlog ist ein poliertes Produkt:
 
 - **Karten-Integration und Orts-Entdeckung.** Restaurants und Sehenswürdigkeiten auf der Karte durchstöbern, Bewertungen und Fotos einbinden, eine Roadtrip-Route optimieren — darin ist Wanderlog wirklich gut, und Vacationist macht das nicht.
 - **Reiseplan-Ästhetik und Exporte.** Wanderlogs Tag-für-Tag-Ansicht ist wunderschön, und es kann Hotel- und Flugbestätigungen aus E-Mails einlesen.
-- **iOS heute.** Wanderlog hat ausgereifte Apps auf beiden Plattformen; Vacationists iOS-App ist noch in Entwicklung (iPhone-Nutzer machen per Web-App mit).
 
 Wenn du solo oder als Paar unterwegs bist und deine Hauptaufgabe die *Recherche* eines Ziels ist, ist Wanderlog eine starke Wahl.
 
@@ -54,7 +53,7 @@ Gruppenreisen scheitern selten an der Recherche — sie scheitern an Entscheidun
 
 ## Die realistische Empfehlung
 
-- **Wähle Wanderlog**, wenn du hauptsächlich Orte recherchierst und einen schönen Reiseplan baust — vor allem solo oder als Paar, auf iOS.
+- **Wähle Wanderlog**, wenn du hauptsächlich Orte recherchierst und einen schönen Reiseplan baust — vor allem solo oder als Paar.
 - **Wähle Vacationist**, wenn dein Problem die *Gruppe* ist: sich auf Aktivitäten einigen, Kosten fair teilen, alle informiert halten und Leute ohne Konto-Hürde reinholen.
 
 Viele Organisatoren nutzen beides: Orte recherchieren, wo immer du magst — und die Entscheidungen, das Budget und die Logistik der Gruppe in Vacationist laufen lassen. Denn das war der Teil, den der Gruppenchat ruiniert hat.
@@ -69,7 +68,7 @@ Für Gruppenkoordination ja, und mehr. Für kartenbasierte Orts-Entdeckung und R
 
 ### Können meine Freunde Vacationist auf dem iPhone nutzen?
 
-Über die Web-App, ja — der Einladungslink öffnet sich in jedem Browser, und Gäste brauchen kein Konto. Die native iOS-App ist in Entwicklung.
+Ja — Vacationist hat eine native iOS-App, und Gäste können auch über den Einladungslink der Web-App ohne Konto mitmachen.
 
 ### Hat Vacationist Karten?
 

@@ -54,7 +54,7 @@ Ja — die Kern-App ist kostenlos und werbefrei. Ein Pro-Tarif ergänzt mehr Pla
 
 ### Auf welchen Plattformen läuft die App?
 
-Heute auf Android und im Web; die iOS-App ist in Entwicklung. Freunde können auf jedem Gerät schon jetzt über den Einladungslink per Web-App mitmachen.
+Auf iOS, Android und im Web. Freunde können auf jedem Gerät auch über den Einladungslink per Web-App mitmachen, ganz ohne Installation.
 
 ### Was unterscheidet Vacationist von Splitwise oder Wanderlog?
 

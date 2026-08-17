@@ -19,7 +19,7 @@ Phase 10 (Landing Page) is complete. Hosted on GitHub Pages from the `docs/` fol
 - `docs/implementation_guide.md` — Updated Phase 10 checklist, removed Vercel/Firebase, documented GitHub Pages DNS setup.
 
 **Key details:**
-- Android (Google Play) only; App Store badge shows "Coming Soon".
+- Was Android (Google Play) only at launch; App Store badge showed "Coming Soon". Superseded 2026-08-17 by Phase 16 (iOS App Store rollout, see [[ios-app-store-rollout]]) — iOS shipped, badge is now a live App Store link.
 - QR code generated inline with a self-contained JS Reed-Solomon encoder.
 - `docs/CNAME` already contained `vacationist.app` before this phase.
 

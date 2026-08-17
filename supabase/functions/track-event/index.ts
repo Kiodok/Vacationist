@@ -26,6 +26,7 @@ const ALLOWED_ORIGINS = new Set([
 const EVENT_NAMES = new Set([
   'page_visit',
   'play_store_click',
+  'app_store_click',
   'web_app_click',
   'app_store_interest',
   'sign_up',

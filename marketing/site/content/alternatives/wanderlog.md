@@ -27,7 +27,7 @@ To be fair to Wanderlog first: if your trip is mostly *research* — where to ea
 - **The differentiator:** friends join by one invite link with **no account required** — and can still vote, edit lists, and be in expense splits. Wanderlog collaboration requires everyone to sign up.
 - **Offline:** offline-first for everyone, not a Pro feature.
 - **Also unique:** [encrypted travel document storage](/features/travel-documents/) with revocable organizer access, recipe-to-shopping-list sync, in-app group chat.
-- **What it lacks vs. Wanderlog:** no maps integration or place discovery, no automatic email import of bookings, and it's Android + web today (iOS in development).
+- **What it lacks vs. Wanderlog:** no maps integration or place discovery, no automatic email import of bookings.
 - **Price:** free, no ads; optional Pro.
 - **Best for:** friend groups, families, bachelorette crews — any trip where the coordination is harder than the research.
 
@@ -102,4 +102,4 @@ That's Vacationist's home turf: custom splits, partial participation, live balan
 
 ### What about iPhone users?
 
-TripIt, Polarsteps, and the Google stack all have iOS apps, as does Wanderlog. Vacationist's iOS app is in development — today iPhone users join via the web app through the invite link, no account needed.
+Vacationist has a native iOS app on the App Store, alongside TripIt, Polarsteps, the Google stack, and Wanderlog. Guests can also join a trip through the web app via the invite link, no account needed.

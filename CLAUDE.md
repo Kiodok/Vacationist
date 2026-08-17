@@ -287,12 +287,18 @@ npm run typecheck                        # must exit 0
 eas build --profile preview --platform android   # test on device first
 eas build --profile production --platform android
 eas submit --profile production --platform android
+
+eas build --profile preview --platform ios       # test via TestFlight/internal first
+eas build --profile production --platform ios
+eas submit --profile production --platform ios
 ```
 
 ### Pre-Release Checklist
 - [ ] `npm run typecheck` exits 0
 - [ ] Preview APK tested on a physical Android device
-- [ ] Google Sign-In completes successfully
+- [ ] Preview iOS build tested via TestFlight (or `development-simulator` profile) on a physical device
+- [ ] Google Sign-In completes successfully (Android + iOS)
+- [ ] Sign in with Apple completes successfully, incl. account-deletion token revocation (iOS only — see `engineering/supabase.md` 2026-08-10)
 - [ ] Push notification delivered end-to-end (prod Supabase → device)
 - [ ] Travel document encrypt → biometric unlock → decrypt works
 - [ ] `version` bumped in `app.config.ts` for MINOR or MAJOR releases
@@ -309,6 +315,20 @@ eas submit --profile production --platform android
 
 For confirmed PATCH hotfixes: skip staging, go straight to 100%.
 
+### App Store Rollout
+App Store Connect's phased release is a fixed 7-day ramp (1% → 100% over Days 1–7, non-configurable percentages) rather than Play's manual-gate stages — the only lever is **pausing** it.
+
+| Day | Approx. rollout % (Apple-fixed) | Action |
+|-----|----------------------------------|--------|
+| 1–3 | 1% → 10% | Watch Sentry iOS crash rate + Xcode Organizer closely |
+| 4–7 | 20% → 100% | Continue monitoring; pause if thresholds are crossed |
+
+**Halt immediately if:** Sentry crash rate > 1% of iOS sessions, or Xcode Organizer flags a spike in crashes/hangs for the new build — pause the phased release in App Store Connect (does not remove the app, just freezes the ramp at its current %).
+
+For confirmed PATCH hotfixes: phased release can be disabled per-submission in App Store Connect to go to 100% immediately, same intent as Play's "skip staging" rule above.
+
+**Review turnaround:** unlike Play's near-instant rollout after upload, App Store review typically takes 24–48h before a build is even eligible to start rolling out — factor this into release timing, especially for hotfixes.
+
 ### Web Deployment (Vercel)
 Every push to `main` triggers an automatic production deployment to `web.vacationist.app`. Vercel config is in `vercel.json` — do not override in the dashboard.
 
@@ -324,6 +344,10 @@ Every push to `main` triggers an automatic production deployment to `web.vacatio
 |------|-------|
 | EAS project ID | `a1dc4172-7c41-4aa9-a44d-afb1a0088278` |
 | Android package | `com.vacationist.mobile` |
+| iOS bundle identifier | `com.vacationist.mobile` |
+| App Store Connect app ID (`ascAppId` / `AppStoreID`) | `6800049398` |
+| Apple Team ID (`appleTeamId`) | `93VX3MQ439` |
+| App Store listing | `https://apps.apple.com/us/app/vacationist/id6800049398` |
 | Supabase prod ref | `fsfsqghbejwvgxujoyne` |
 | Supabase dev ref | `aejywkbkcwyanhyzhrle` |
 | Web app | `https://web.vacationist.app` |

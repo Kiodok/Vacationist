@@ -9,6 +9,7 @@ import { NotificationItem } from '../../src/features/notifications/components/No
 import { EmptyNotifications } from '../../src/features/notifications/components/EmptyNotifications';
 import { NotificationListSkeleton } from '../../src/features/notifications/components/NotificationListSkeleton';
 import { resolveNotificationPath } from '../../src/features/notifications/utils/resolveNotificationPath';
+import { openStoreReviewOrFallback } from '../../src/utils/openStoreReview';
 import { colors } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
@@ -27,6 +28,10 @@ export default function NotificationsScreen() {
   const handlePress = (notification: Notification) => {
     if (!notification.is_read) {
       markRead({ notificationId: notification.id });
+    }
+    if (notification.related_type === 'review_nudge') {
+      openStoreReviewOrFallback();
+      return;
     }
     const path = resolveNotificationPath(notification);
     if (path?.startsWith('https://')) {

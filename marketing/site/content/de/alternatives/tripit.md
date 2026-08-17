@@ -27,7 +27,7 @@ Fairerweise zuerst zu TripIt: Wer oft und meist allein reist und Flugalarme plus
 - **Der Unterschied:** Freunde treten per einzelnem Einladungslink bei, **ohne Konto** — und können trotzdem abstimmen, Listen bearbeiten und Teil der Kostenteilung sein. TripIts Teilen-Funktion ist nur lesend; echte Teilnahme braucht für alle ein eigenes Konto.
 - **Geld:** TripIt hat überhaupt keine Kostenteilung. Vacationist verfolgt, wer gezahlt hat, wer wem was schuldet, und gleicht automatisch aus.
 - **Ebenfalls einzigartig:** [verschlüsselte Reisedokumenten-Speicherung](/de/features/travel-documents/) mit widerrufbarem Organisator-Zugriff, Gruppenchat in der App, Offline-first-Synchronisierung für alle.
-- **Was gegenüber TripIt fehlt:** kein automatischer Reiseplan aus weitergeleiteten Bestätigungs-E-Mails, keine Flugverspätungsalarme, keine Punkteverfolgung — Aktivitäten und Buchungen werden manuell hinzugefügt oder von der Gruppe abgestimmt. Aktuell Android + Web (iOS in Entwicklung).
+- **Was gegenüber TripIt fehlt:** kein automatischer Reiseplan aus weitergeleiteten Bestätigungs-E-Mails, keine Flugverspätungsalarme, keine Punkteverfolgung — Aktivitäten und Buchungen werden manuell hinzugefügt oder von der Gruppe abgestimmt.
 - **Preis:** kostenlos, ohne Werbung; optionales Pro.
 - **Am besten für:** Freundesgruppen, Familien, Junggesellinnen- und Junggesellenabschied-Crews — jede Reise, bei der Koordination und Geld die eigentliche Herausforderung sind, nicht der Posteingang.
 

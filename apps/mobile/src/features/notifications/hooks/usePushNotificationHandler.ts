@@ -1,7 +1,9 @@
 import { useEffect, useCallback, useRef } from 'react';
+import { Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { resolveNotificationPath } from '../utils/resolveNotificationPath';
+import { openStoreReviewOrFallback } from '../../../utils/openStoreReview';
 
 export function usePushNotificationHandler() {
   const router = useRouter();
@@ -22,13 +24,20 @@ export function usePushNotificationHandler() {
 
     if (!type) return;
 
+    if (relatedType === 'review_nudge') {
+      openStoreReviewOrFallback();
+      return;
+    }
+
     const path = resolveNotificationPath({
       type: type as never,
       trip_id: tripId as string,
       related_type: relatedType,
       related_id: relatedId,
     });
-    if (path) {
+    if (path?.startsWith('https://')) {
+      Linking.openURL(path);
+    } else if (path) {
       router.push(path as never);
     }
   }, [router]);

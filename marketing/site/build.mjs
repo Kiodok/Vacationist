@@ -23,6 +23,7 @@ const CONTENT_DIR = join(ROOT, 'marketing', 'site', 'content');
 const DOCS_DIR = join(ROOT, 'docs');
 const SITE = 'https://vacationist.app';
 const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
+const APP_STORE_URL = 'https://apps.apple.com/us/app/vacationist/id6800049398';
 const WEB_APP_URL = 'https://web.vacationist.app';
 /* Per-page social-preview image (see og-image.mjs) — every generated content
    page gets its own, so shared links show a page-specific card instead of
@@ -77,12 +78,12 @@ function softwareApplicationLd(lang) {
     name: 'Vacationist',
     applicationCategory: 'TravelApplication',
     applicationSubCategory: 'Group Trip Planner',
-    operatingSystem: 'Android, Web',
+    operatingSystem: 'Android, iOS, Web',
     softwareVersion: APP_VERSION,
     description: a.description,
     url: `${SITE}/`,
-    installUrl: PLAY_URL,
-    downloadUrl: PLAY_URL,
+    installUrl: [PLAY_URL, APP_STORE_URL],
+    downloadUrl: [PLAY_URL, APP_STORE_URL],
     inLanguage: ['en', 'de'],
     isAccessibleForFree: true,
     featureList: a.featureList,
@@ -110,21 +111,21 @@ function webSiteLd(lang) {
 
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-08-06';
+const DE_HOME_LASTMOD = '2026-08-17';
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
   {
-    loc: `${SITE}/`, lastmod: '2026-08-06', changefreq: 'monthly', priority: '1.0',
+    loc: `${SITE}/`, lastmod: '2026-08-17', changefreq: 'monthly', priority: '1.0',
     alternates: [
       { hreflang: 'en', href: `${SITE}/` },
       { hreflang: 'de', href: `${SITE}/de/` },
       { hreflang: 'x-default', href: `${SITE}/` },
     ],
   },
-  { loc: `${SITE}/scan/android-qr`, lastmod: '2026-07-11', changefreq: 'monthly', priority: '0.6' },
+  { loc: `${SITE}/scan/android-qr`, lastmod: '2026-08-17', changefreq: 'monthly', priority: '0.6' },
   {
-    loc: `${SITE}/privacy-policy.html`, lastmod: '2026-05-23', changefreq: 'yearly', priority: '0.4',
+    loc: `${SITE}/privacy-policy.html`, lastmod: '2026-08-17', changefreq: 'yearly', priority: '0.4',
     alternates: [
       { hreflang: 'en', href: `${SITE}/privacy-policy.html` },
       { hreflang: 'de', href: `${SITE}/de/privacy-policy/` },
@@ -140,7 +141,7 @@ const STATIC_SITEMAP_ENTRIES = [
     ],
   },
   {
-    loc: `${SITE}/delete-account.html`, lastmod: '2026-08-09', changefreq: 'yearly', priority: '0.4',
+    loc: `${SITE}/delete-account.html`, lastmod: '2026-08-17', changefreq: 'yearly', priority: '0.4',
     alternates: [
       { hreflang: 'en', href: `${SITE}/delete-account.html` },
       { hreflang: 'de', href: `${SITE}/de/delete-account/` },
@@ -158,8 +159,8 @@ const STR = {
     navFeatures: 'Features', navBlog: 'Blog', navWebApp: '🌐 Web app', navGetApp: 'Get the app',
     breadcrumbHome: 'Home', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Features', breadcrumbUseCases: 'Use cases',
     ctaTitle: 'Plan your next group trip with Vacationist',
-    ctaText: 'Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on Android and the web today; iOS is in development.',
-    ctaPlay: 'Get it on Google Play', ctaWeb: 'Open the Web App',
+    ctaText: 'Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.',
+    ctaPlay: 'Get it on Play Store', ctaAppStore: 'Get it on App Store', ctaWeb: 'Open the Web App',
     related: 'Keep reading',
     footerTagline: 'The free group trip planner — vote on activities, split expenses, share lists, and keep everyone in sync.',
     footerProduct: 'Product', footerCompare: 'Compare', footerResources: 'Resources', footerLegal: 'Legal',
@@ -173,8 +174,8 @@ const STR = {
     navFeatures: 'Funktionen', navBlog: 'Blog', navWebApp: '🌐 Web-App', navGetApp: 'App holen',
     breadcrumbHome: 'Startseite', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Funktionen', breadcrumbUseCases: 'Anwendungsfälle',
     ctaTitle: 'Plane deine nächste Gruppenreise mit Vacationist',
-    ctaText: 'Über Aktivitäten abstimmen, Kosten teilen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Heute für Android und im Web verfügbar; die iOS-Version ist in Entwicklung.',
-    ctaPlay: 'Bei Google Play laden', ctaWeb: 'Web-App öffnen',
+    ctaText: 'Über Aktivitäten abstimmen, Kosten teilen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.',
+    ctaPlay: 'Bei Google Play laden', ctaAppStore: 'Im App Store laden', ctaWeb: 'Web-App öffnen',
     related: 'Weiterlesen',
     footerTagline: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen, Listen gemeinsam führen.',
     footerProduct: 'Produkt', footerCompare: 'Vergleiche', footerResources: 'Ressourcen', footerLegal: 'Rechtliches',
@@ -484,6 +485,12 @@ function navHtml(page) {
     ? `<a href="${switchPath && switchPath !== '/' ? switchPath : '/?lang=en'}" title="English version">EN</a>`
     : '<span class="lp-on">EN</span>';
   const home = isDe ? '/de/' : '/';
+  // #get-app only exists on pages whose source has a <!--CTA--> placeholder (ctaHtml() is
+  // injected there — see the content-page loop). Pages without one (the DE legal pages have
+  // none) fall back to a direct Play Store link so "Get the app" is never a dead anchor.
+  const hasCta = page.body.includes('<!--CTA-->');
+  const getAppHref = hasCta ? '#get-app' : PLAY_URL;
+  const getAppAttrs = hasCta ? '' : ' target="_blank" rel="noopener noreferrer"';
   return `<nav class="nav">
   <a class="nav-logo" href="${home}">
     ${LOGO_SVG}
@@ -493,7 +500,7 @@ function navHtml(page) {
     <a href="${isDe ? '/de/features/' : '/features/'}">${t.navFeatures}</a>
     <a href="${isDe ? '/de/blog/' : '/blog/'}">${t.navBlog}</a>
     <a href="${WEB_APP_URL}" class="nav-cta-web" target="_blank" rel="noopener noreferrer">${t.navWebApp}</a>
-    <a href="${PLAY_URL}" class="nav-cta" target="_blank" rel="noopener noreferrer">${t.navGetApp}</a>
+    <a href="${getAppHref}" class="nav-cta"${getAppAttrs}>${t.navGetApp}</a>
     <span class="lang-pair" aria-label="${isDe ? 'Sprache' : 'Language'}">${deSide}${enSide}</span>
   </div>
 </nav>`;
@@ -501,11 +508,12 @@ function navHtml(page) {
 
 function ctaHtml(lang) {
   const t = STR[lang];
-  return `<div class="cta-band">
+  return `<div class="cta-band" id="get-app">
   <h3>${esc(t.ctaTitle)}</h3>
   <p>${esc(t.ctaText)}</p>
   <div class="cta-actions">
     <a class="btn-white" href="${PLAY_URL}" target="_blank" rel="noopener noreferrer">${esc(t.ctaPlay)}</a>
+    <a class="btn-white" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">${esc(t.ctaAppStore)}</a>
     <a class="btn-outline" href="${WEB_APP_URL}" target="_blank" rel="noopener noreferrer">${esc(t.ctaWeb)}</a>
   </div>
 </div>`;

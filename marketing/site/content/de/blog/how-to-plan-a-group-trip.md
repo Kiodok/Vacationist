@@ -308,7 +308,7 @@ Die ehrliche Werkzeug-Landschaft für Gruppenreisen (der [komplette Vergleich st
 | Dokumente | ❌ Ausweise im Chat, für immer | ❌ | ✅ [Verschlüsselt, widerrufbar](/de/features/travel-documents/) |
 | Beitritts-Reibung | ✅ Keine | ❌ Alle installieren alles | ✅ Ein Link, kein Konto |
 
-Das Muster: Chat ist unschlagbar fürs Reden und unbrauchbar für alles andere. Einzweck-Apps lösen je eine Scheibe und kosten dich einen Installations-Streit pro App. Vacationists Wette ist, dass eine Gruppenreise *ein* Problem ist, nicht fünf — also packt es Abstimmungen, Ausgaben, Listen, Kalender, Chat und Dokumente an einen Ort und lässt deinen app-unwilligsten Freund per Link ohne Konto beitreten. Es ist kostenlos, funktioniert offline und läuft heute auf Android und im Web (iOS ist in Entwicklung).
+Das Muster: Chat ist unschlagbar fürs Reden und unbrauchbar für alles andere. Einzweck-Apps lösen je eine Scheibe und kosten dich einen Installations-Streit pro App. Vacationists Wette ist, dass eine Gruppenreise *ein* Problem ist, nicht fünf — also packt es Abstimmungen, Ausgaben, Listen, Kalender, Chat und Dokumente an einen Ort und lässt deinen app-unwilligsten Freund per Link ohne Konto beitreten. Es ist kostenlos, funktioniert offline und läuft auf iOS, Android und im Web.
 
 Wie auch immer du es bewerkzeugst: Trenne Entscheiden vom Diskutieren, tracke Geld ab dem ersten Euro, plane Anker statt Stundenpläne und rechne innerhalb von 48 Stunden ab. Tu diese vier Dinge, und deine Gruppenreise schlägt 90 % aller Gruppenreisen — möglicherweise inklusive deiner eigenen letzten.
 

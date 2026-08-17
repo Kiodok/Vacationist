@@ -14,7 +14,7 @@ breadcrumbLabel: Konto löschen
 
 *Gültig ab: 9. August 2026 · Zuletzt aktualisiert: 9. August 2026*
 
-Vacationist wird von **Gary Lude** entwickelt, mit Sitz in der Schweiz — derselbe Entwicklername, der im Google Play Store beim Vacationist-Eintrag angezeigt wird. Diese Seite erklärt, wie du dein Vacationist-Konto dauerhaft löschst und was mit deinen Daten passiert, wenn du das tust.
+Vacationist wird von **Gary Lude** entwickelt, mit Sitz in der Schweiz — derselbe Entwicklername, der im Google Play Store und im Apple App Store beim Vacationist-Eintrag angezeigt wird. Diese Seite erklärt, wie du dein Vacationist-Konto dauerhaft löschst und was mit deinen Daten passiert, wenn du das tust.
 
 ## So beantragst du die Löschung
 

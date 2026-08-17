@@ -27,7 +27,7 @@ Zuerst Fairness gegenüber Wanderlog: Wenn deine Reise vor allem *Recherche* ist
 - **Der Unterschied:** Freunde treten per Einladungslink bei — **ganz ohne Konto** — und können trotzdem abstimmen, Listen bearbeiten und in Kostensplits auftauchen. Wanderlog-Zusammenarbeit verlangt von allen eine Registrierung.
 - **Offline:** offline-first für alle, keine Pro-Funktion.
 - **Ebenfalls einzigartig:** [verschlüsselte Reisedokumente](/de/features/travel-documents/) mit widerrufbarem Organisator-Zugriff, Rezept-zu-Einkaufsliste-Übernahme, Gruppenchat in der App.
-- **Was ihm gegenüber Wanderlog fehlt:** keine Karten-Integration oder Orts-Entdeckung, kein automatischer E-Mail-Import von Buchungen, und heute Android + Web (iOS in Entwicklung).
+- **Was ihm gegenüber Wanderlog fehlt:** keine Karten-Integration oder Orts-Entdeckung, kein automatischer E-Mail-Import von Buchungen.
 - **Preis:** kostenlos, ohne Werbung; optionales Pro.
 - **Ideal für:** Freundesgruppen, Familien, JGA-Crews — jede Reise, bei der die Koordination schwieriger ist als die Recherche.
 
@@ -102,4 +102,4 @@ Das ist Vacationists Heimrevier: eigene Splits, teilweise Teilnahme, Live-Salden
 
 ### Und iPhone-Nutzer?
 
-TripIt, Polarsteps und der Google-Stack haben iOS-Apps, Wanderlog auch. Vacationists iOS-App ist in Entwicklung — heute machen iPhone-Nutzer per Web-App über den Einladungslink mit, ohne Konto.
+Vacationist hat eine native iOS-App im App Store, genau wie TripIt, Polarsteps, der Google-Stack und Wanderlog. Gäste können auch per Web-App über den Einladungslink mitmachen, ohne Konto.

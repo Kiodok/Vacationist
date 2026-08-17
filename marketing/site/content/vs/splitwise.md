@@ -30,7 +30,7 @@ breadcrumbLabel: vs. Splitwise
 | Multi-currency | ⚠️ Basic | ✅ Extensive |
 | Payment integrations (PayPal, Venmo) | ❌ | ✅ |
 | Established user base | ⚠️ New (2026) | ✅ 50M+ users |
-| Platforms | Android + web (iOS in development) | iOS, Android, web |
+| Platforms | iOS, Android, web | iOS, Android, web |
 | Price | Free, no ads; optional Pro | Free with ads/limits; Splitwise Pro |
 
 ## What Splitwise does better
@@ -71,7 +71,7 @@ No, there's no Splitwise import. Vacationist trips start fresh, which in practic
 
 ### Does Vacationist work on iPhone?
 
-The iOS app is in development. Today, iPhone users join via the web app — the invite link works in any browser, no account needed.
+Yes — Vacationist has a native iOS app on the App Store, alongside Android and the web app.
 
 ### Which app is better for splitting a hotel bill?
 

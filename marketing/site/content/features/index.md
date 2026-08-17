@@ -54,7 +54,7 @@ Yes — the core app is free with no ads. A Pro tier adds more planning days per
 
 ### What platforms does it run on?
 
-Android and the web today; the iOS app is in development. Friends on any device can already participate through the web app via invite link.
+iOS, Android, and the web. Friends on any device can also participate through the web app via invite link, no install required.
 
 ### How is Vacationist different from Splitwise or Wanderlog?
 

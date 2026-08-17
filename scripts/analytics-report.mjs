@@ -79,7 +79,10 @@ console.log(`Fetched ${events.length} events.`);
 // 2. Aggregate
 // ─────────────────────────────────────────────────────────────────────────
 
-const isClick = (e) => e.event_name === 'play_store_click' || e.event_name === 'web_app_click';
+const isClick = (e) =>
+  e.event_name === 'play_store_click' ||
+  e.event_name === 'app_store_click' ||
+  e.event_name === 'web_app_click';
 
 function sourceBucket(e) {
   if (e.rdt_cid) return 'Reddit (paid)';
@@ -97,13 +100,13 @@ const stageDefs = [
 ];
 const funnel = stageDefs.map((s) => ({ label: s.label, count: s.events.length }));
 
-const appStoreInterestEvents = events.filter((e) => e.event_name === 'app_store_interest');
+// app_store_interest tracked clicks on the old dead "App Store — Coming Soon" placeholder
+// divs (no href, matched by class). Now that iOS is GA and those divs are real links, new
+// clicks land in isClick()/app_store_click instead — app_store_interest stops accumulating
+// going forward but is kept in the CHECK constraint for historical rows already in the table.
 
 // Segmentation: cap at 3 named buckets + "Other" (see dataviz skill — never generate a 4th+
-// hue; fold the tail instead). Includes "iOS interest click" as a fourth row alongside the
-// three funnel stages — it's a parallel CTA at the same depth as "Store / web-app click"
-// (visitor wanted iOS instead of Android/web), not part of the ordered conversion funnel
-// itself, so it's shown here rather than folded into the Funnel chart above.
+// hue; fold the tail instead).
 const bucketTotals = new Map();
 for (const e of events) {
   const b = sourceBucket(e);
@@ -114,7 +117,7 @@ function foldedBucket(e) {
   const b = sourceBucket(e);
   return topBuckets.includes(b) ? b : 'Other';
 }
-const segmentation = [...stageDefs, { label: 'iOS interest click', events: appStoreInterestEvents }].map((stage) => {
+const segmentation = stageDefs.map((stage) => {
   const bySource = new Map();
   for (const e of stage.events) {
     const b = foldedBucket(e);
@@ -171,7 +174,6 @@ const topCampaigns = [...campaignStats.entries()]
 const kpis = {
   visits: funnel[0].count,
   clicks: funnel[1].count,
-  appStoreInterest: appStoreInterestEvents.length,
   signups: funnel[2].count,
   conversionRate: funnel[0].count > 0 ? (funnel[2].count / funnel[0].count) * 100 : 0,
 };
@@ -384,7 +386,6 @@ const html = `<!doctype html>
   <div class="stat-row">
     ${statTile('Page visits', fmt(kpis.visits))}
     ${statTile('Store / web-app clicks', fmt(kpis.clicks))}
-    ${statTile('iOS interest clicks', fmt(kpis.appStoreInterest))}
     ${statTile('Sign-ups', fmt(kpis.signups))}
     ${statTile('Visit → sign-up rate', kpis.conversionRate.toFixed(1) + '%')}
   </div>
@@ -398,7 +399,7 @@ const html = `<!doctype html>
   <div class="card">
     <h2>Funnel by source</h2>
     ${segmentationChart(segmentation, segmentBuckets)}
-    <p class="footnote">"Reddit (paid)" = events carrying a Reddit click identifier (rdt_cid). Other named buckets are the next-largest utm_source values in this window; everything else folds into "Other". "iOS interest click" (Coming Soon badge) is shown alongside the funnel stages but isn't part of the ordered Android/web conversion funnel above.</p>
+    <p class="footnote">"Reddit (paid)" = events carrying a Reddit click identifier (rdt_cid). Other named buckets are the next-largest utm_source values in this window; everything else folds into "Other".</p>
   </div>
 
   <div class="card">

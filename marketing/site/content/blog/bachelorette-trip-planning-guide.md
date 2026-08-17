@@ -98,7 +98,7 @@ The most common convention: the group splits the bride's costs among themselves,
 
 ### What's the best app for planning a bachelorette party trip?
 
-We're biased, but the bachelorette case is genuinely where Vacationist shines: one invite link gets 14 people of wildly varying app-tolerance into the trip without accounts, graded voting cuts through group-chat politeness, and expenses — including the bride's split-across-everyone share — net out live instead of in a post-trip spreadsheet séance. It's free, on Android and web (iOS in development).
+We're biased, but the bachelorette case is genuinely where Vacationist shines: one invite link gets 14 people of wildly varying app-tolerance into the trip without accounts, graded voting cuts through group-chat politeness, and expenses — including the bride's split-across-everyone share — net out live instead of in a post-trip spreadsheet séance. It's free, on iOS, Android, and the web.
 
 ### How do you handle very different budgets in a bachelorette group?
 

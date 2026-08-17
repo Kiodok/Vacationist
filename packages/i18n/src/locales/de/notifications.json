@@ -56,6 +56,7 @@
   "type.lost_found_reopened": "Fall wieder geöffnet",
   "type.expense_settlement": "Ausgaben beglichen",
   "type.activity_reminder": "Aktivität beginnt bald",
+  "type.review_nudge": "Gefällt dir Vacationist?",
   "type.trip_deleted": "Reise gelöscht",
   "type.member_left": "{{name}} hat die Reise verlassen",
   "type.member_left_removed": "{{name}} wurde entfernt",

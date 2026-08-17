@@ -30,7 +30,7 @@ breadcrumbLabel: vs. Tricount
 | Offline-Unterstützung | ✅ Offline-first | ⚠️ Eingeschränkt |
 | Multi-Währung | ⚠️ Einfach | ✅ Stark, eine Kernstärke |
 | Verbreitung in Europa | ⚠️ Neu (2026) | ✅ Sehr hoch, besonders DACH |
-| Plattformen | Android + Web (iOS in Entwicklung) | iOS, Android, Web |
+| Plattformen | iOS, Android, Web | iOS, Android, Web |
 | Preis | Kostenlos, ohne Werbung; optionales Pro | Kostenlos, mit einigen Premium-Extras |
 
 ## Was Tricount besser macht

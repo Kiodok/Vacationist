@@ -149,7 +149,7 @@
       Contact: <a href="mailto:meetdeep.de@gmail.com">meetdeep.de@gmail.com</a>
     </p>
     <p>
-      This privacy policy applies to the Vacationist mobile application ("the App") available on the Google Play Store and to the Vacationist website at <a href="https://vacationist.app">vacationist.app</a> ("the Website").
+      This privacy policy applies to the Vacationist mobile application ("the App") available on the Google Play Store and the Apple App Store, and to the Vacationist website at <a href="https://vacationist.app">vacationist.app</a> ("the Website").
     </p>
   </section>
 
@@ -323,12 +323,12 @@
 
     <h2 style="font-size:0.95rem; border:none; margin-top:1.5rem; padding:0; color:#9ca3af;">Attribution for app installs (Conversions API)</h2>
     <p>
-      There is no Reddit SDK or pixel embedded in the mobile App itself. Instead, if you click a Reddit ad, the click identifier is temporarily encoded into the Google Play install link you land on. When you sign up in the App for the first time, our server (not Reddit) reads that identifier — if present — from the Play Store's own install-referrer mechanism, and reports a single "sign-up" confirmation back to Reddit via its Conversions API, together with the click identifier. If you installed the App without clicking a Reddit ad, there is no click identifier and nothing is reported to Reddit — your sign-up is still recorded in our own first-party analytics below, but only as an unattributed (organic) event.
+      There is no Reddit SDK or pixel embedded in the mobile App itself. Instead, if you click a Reddit ad, the click identifier is temporarily encoded into the Google Play install link you land on. When you sign up in the App for the first time, our server (not Reddit) reads that identifier — if present — from the Play Store's own install-referrer mechanism, and reports a single "sign-up" confirmation back to Reddit via its Conversions API, together with the click identifier. If you installed the App without clicking a Reddit ad, there is no click identifier and nothing is reported to Reddit — your sign-up is still recorded in our own first-party analytics below, but only as an unattributed (organic) event. <strong>This mechanism only exists on Android</strong> — the App Store has no equivalent install-referrer handoff, so a sign-up from the iOS App is always recorded as an unattributed (organic) event and nothing about a Reddit ad click is ever reported for it.
     </p>
 
     <h2 style="font-size:0.95rem; border:none; margin-top:1.5rem; padding:0; color:#9ca3af;">Our own analytics</h2>
     <p>
-      Alongside Google Analytics and the Reddit Pixel, we operate a small first-party analytics log on our own infrastructure, recording Website page visits, clicks on the Play Store / web-app links, and app sign-ups. It exists only so we can see the same marketing funnel Google Analytics and Reddit show us, in one place, without depending on either.
+      Alongside Google Analytics and the Reddit Pixel, we operate a small first-party analytics log on our own infrastructure, recording Website page visits, clicks on the Play Store / App Store / web-app links, and app sign-ups. It exists only so we can see the same marketing funnel Google Analytics and Reddit show us, in one place, without depending on either.
     </p>
     <p>
       It deliberately stores less than a typical analytics tool: <strong>no IP address is ever stored</strong>, in raw or truncated form. Where a coarse per-visitor identifier is needed to avoid double-counting the same visit, we compute a one-way hash from your IP address, browser, and a secret salt that changes daily — your IP address itself is used only for that instant and is never written to a database. We store: the page path, the Reddit click identifier and campaign parameters if present, the referring site's domain (not the full URL), your browser's user-agent string, and — for sign-ups only — that a sign-up occurred and, where applicable, the same click identifier reported to Reddit.

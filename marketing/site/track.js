@@ -134,11 +134,12 @@
   }
 
   /* ── Delegated click tracking ──────────────────────────────────────────────────────────
-   * Both App Store "Coming Soon" badges are <div>s with no href (see docs/index.html) — they
-   * are matched by class, not by href, since a delegated a[href] listener never sees them. ── */
+   * iOS is now GA — the App Store badges (previously dead "Coming Soon" <div>s with no
+   * href, tracked as app_store_interest) are real apps.apple.com links now, so they're
+   * caught by the plain a[href] branch below like the Play Store link. ── */
   document.addEventListener('click', function (ev) {
     if (!consentGranted()) return;
-    var target = ev.target.closest && ev.target.closest('a[href], .btn-ghost, .badge-soon');
+    var target = ev.target.closest && ev.target.closest('a[href]');
     if (!target) return;
 
     var href = target.getAttribute && target.getAttribute('href');
@@ -147,13 +148,15 @@
       if (window.rdt) window.rdt('track', 'Lead');
       return;
     }
+    if (href && href.indexOf('apps.apple.com') !== -1) {
+      send('app_store_click');
+      if (window.rdt) window.rdt('track', 'Lead');
+      return;
+    }
     if (href && href.indexOf('web.vacationist.app') !== -1) {
       send('web_app_click');
       if (window.rdt) window.rdt('track', 'Lead');
       return;
-    }
-    if (!href && (target.classList.contains('btn-ghost') || target.classList.contains('badge-soon'))) {
-      send('app_store_interest');
     }
   });
 

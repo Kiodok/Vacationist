@@ -71,7 +71,7 @@ Split accommodation by rooms or units occupied, and per-person costs (food, acti
 
 ### What's the best app for planning a family reunion trip?
 
-We make Vacationist, so with that disclosed: multi-household trips are its strong suit. Every household joins by one link — including the grandparents, in the browser, no account or install — votes are graded rather than argumentative, expense balances stay visible between households, and passports for the group booking are shared through an encrypted vault with revocable access instead of the family chat. Free, on Android and web (iOS in development).
+We make Vacationist, so with that disclosed: multi-household trips are its strong suit. Every household joins by one link — including the grandparents, in the browser, no account or install — votes are graded rather than argumentative, expense balances stay visible between households, and passports for the group booking are shared through an encrypted vault with revocable access instead of the family chat. Free, on iOS, Android, and the web.
 
 ### How do you handle grandparents who aren't tech-savvy?
 

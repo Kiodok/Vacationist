@@ -702,7 +702,7 @@ Switched from browser-based OAuth (expo-auth-session + expo-web-browser) to nati
   - [x] Showcases the core features visually (6-card features grid)
   - [x] Demonstrates the collaborative vacation planning workflow (How it works section)
   - [x] Provides a QR code + Play Store link for mobile onboarding (Download section)
-  - [x] App Store "Coming Soon" badge (iOS version planned)
+  - [x] ~~App Store "Coming Soon" badge (iOS version planned)~~ — superseded by Phase 16: iOS shipped, badge is now a live App Store link
   - [x] Switzerland impressum for a private person — Nebenerwerbstätigkeit (`docs/impressum.html`)
   - [x] Establishes modern product identity and trust (trust strip, brand colors)
   - [x] SEO: meta tags, OG, Twitter Card, JSON-LD, `robots.txt`, `sitemap.xml`
@@ -1337,3 +1337,37 @@ DB trigger (AFTER INSERT on notifications)
 - Widening the report-only CSP in `vercel.json` — **investigated, not resolved**: the policy has no `report-uri`/`report-to` directive at all, so no violation volume is being collected anywhere (only whatever DevTools console happens to be open at the time) — "once volume is known" isn't answerable as currently configured. Enumerated actual cross-origin dependencies a real allowlist would need: `www.redditstatic.com`, `pixel-config.reddit.com`, `alb.reddit.com` (Reddit pixel, confirmed live on `web.vacationist.app`), plus `*.supabase.co` and `challenges.cloudflare.com` (Turnstile) from the app's existing architecture. Tech Lead call: add the allowlist now (still report-only) or leave as a placeholder.
 - Native attribution reporting currently relies on Privacy Policy disclosure rather than an in-app consent gate (the native app has no equivalent of `ConsentBanner`) — worth a final legal look. **Tech Lead decision: leave as-is.**
 - ~~OTA-eligibility~~ — **resolved**: confirmed `apps/mobile/package.json` is untouched by this phase (`expo-application` still pinned at the pre-phase version, no plugin/SDK changes), so the native attribution change is genuinely OTA-eligible per CLAUDE.md's own rule. **Tech Lead decision: shipping via a full Play Store build via Expo regardless.**
+
+---
+
+## 🍎 Phase 16: iOS App Store Rollout (v1.32.0)
+*Dependencies: none (iOS build config already shipped in v1.30.0, see engineering/supabase.md 2026-08-10)*
+*Goal: iOS went GA on the App Store (`https://apps.apple.com/us/app/vacationist/id6800049398`). Replace every "Play Store only" / "iOS coming soon" surface across the app and marketing site with a real, live App Store presence, and make the post-trip rating nudge platform-aware.*
+
+- [x] **1. Post-trip rating nudge — cross-platform**
+  - [x] Migration `20260817100000_review_nudge_store_neutral.sql` — `CREATE OR REPLACE private.create_review_nudge_notifications()`, store-neutral body text (was hardcoded "...on the Play Store!")
+  - [x] `supabase/functions/push-notification/index.ts` — `NOTIFICATION_TRANSLATIONS.review_nudge` (en/de) reworded store-neutral
+  - [x] New `apps/mobile/src/utils/storeUrl.ts` (shared `STORE_URL` constant, de-duped out of `ForceUpdateGate.tsx`) and `apps/mobile/src/utils/openStoreReview.ts` (`openStoreReviewOrFallback()` — native `expo-store-review` prompt with a store-URL fallback)
+  - [x] `resolveNotificationPath.ts` — removed hardcoded Play Store URL branch; the 3 tap call sites (`(tabs)/notifications.tsx`, `trip/[id]/notifications.tsx`, `usePushNotificationHandler.ts`) now special-case `related_type === 'review_nudge'` to call `openStoreReviewOrFallback()` instead — also fixed a pre-existing bug where the push-tap handler `router.push()`'d the raw store URL instead of opening it
+  - [x] `NotificationItem.tsx` — added `review_nudge` to `BODY_TEMPLATES` + `resolveEffectiveType()`; added `type.review_nudge` i18n key (en/de) — the in-app list previously showed the raw English DB body under a generic "Reminder" title in both locales
+- [x] **2. Marketing site — Play Store badges → dual-store badges**
+  - [x] `marketing/site/build.mjs` — `APP_STORE_URL` constant; `operatingSystem: 'Android, iOS, Web'` + array `installUrl`/`downloadUrl` in JSON-LD; third App Store button in the sitewide `ctaHtml()` band; nav "Get the app" CTA now anchors to `#get-app`/`#download` instead of a hardcoded Play link
+  - [x] `docs/i18n/{en,de}.js` — added `hero.getAppStore` / `dl.getAppStore` / `join.cta.getAppStore` / `scan.*.getAppStore` keys, retired the six `*.appSoon` keys, rewrote `entity.def` / `tldr.text` / `trust.platform`; bumped `CACHE_VER`
+  - [x] `docs/index.html`, `docs/join.html`, `docs/scan/android-qr/index.html` — both "App Store — Coming Soon" placeholder `<div>`s per page converted to real `apps.apple.com` links (android-qr page keeps its existing URL/QR asset per Tech Lead decision — no new iOS QR was created)
+  - [x] `marketing/site/track.js` — new `app_store_click` event on real App Store link clicks; retired the old div-class-based `app_store_interest` "interest" detection now that the badges are real links
+  - [x] ~20 EN + ~20 DE content pages (`vs/`, `alternatives/`, `features/`, `use-cases/`, `blog/`) — replaced "Android + web (iOS in development)" copy with accurate iOS/Android/web platform statements
+  - [x] Legal pages (`privacy-policy`, `impressum`, `delete-account`, EN + DE) — added the Apple App Store alongside Google Play; privacy policy also now discloses that the Reddit install-referrer attribution path is Android-only with no iOS equivalent
+  - [x] `docs/llms.txt` + `apps/mobile/public/llms.txt` — added the iOS App Store line, corrected "Android and web" prose
+- [x] **3. Analytics taxonomy**
+  - [x] Migration `20260817110000_add_app_store_click_event.sql` — added `'app_store_click'` to `analytics_events.event_name` CHECK (kept `'app_store_interest'` for historical rows)
+  - [x] `supabase/functions/track-event/index.ts` `EVENT_NAMES`, `scripts/analytics-report.mjs` (`isClick()` now counts `app_store_click`; dropped the now-meaningless `app_store_interest`/"iOS interest clicks" KPI tile and segmentation row)
+- [x] **4. Verification**
+  - [x] `npm run typecheck` + `npm test` (root) clean
+  - [x] `npm run build:site` run twice — byte-identical `docs/` tree (hash-diffed), confirming deterministic output
+  - [x] Live-verified in Chrome (`npm run serve:docs`): EN + DE homepage, `/join.html`, `/scan/android-qr/` all render live App Store badges/links correctly; nav "Get the app" anchor-scrolls correctly; a real click on the App Store badge fired `app_store_click` to `track-event` (400 expected — edge function not yet redeployed, pending Tech Lead go-ahead)
+
+**Explicitly out of scope (Tech Lead decision):** no new iOS-specific QR asset (`qr-codes/android-qr` already carries both store links after this pass); no repo-side `app-store/` listing folder mirroring `play-store/` (App Store Connect metadata managed directly in ASC); no Apple Search Ads / SKAdNetwork / deferred-deep-link iOS attribution buildout.
+
+**Deployed 2026-08-17 (Tech Lead go-ahead given):** both migrations and both Edge Function redeploys (`push-notification`, `track-event`) applied to dev then prod Supabase, verified end-to-end. See `engineering/supabase.md` 2026-08-17 entry for details.
+
+**Not yet done:** `git commit`/`git push` of the app code and marketing site changes to `main` — separate action, pending explicit approval (GitHub Pages deploy + OTA update aren't gated by the Supabase Changes Workflow the way the DB/Edge Function side was).

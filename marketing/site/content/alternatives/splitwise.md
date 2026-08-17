@@ -27,7 +27,7 @@ First, to be fair to the incumbent: **Splitwise is still excellent at pure debt 
 
 - **What it adds over Splitwise:** activity voting, shared trip calendar, accommodation and transfer management, real-time shopping lists with recipe sync, encrypted travel documents, group chat, offline-first sync.
 - **The friction-killer:** friends join by one invite link, **no account needed** — and can still vote, edit lists, and be part of expense splits. The "one friend who won't install Splitwise" problem disappears.
-- **What it lacks vs. Splitwise:** narrower multi-currency support, no PayPal/Venmo settlement integrations, a small user base (launched 2026), and it's Android + web today — the iOS app is in development.
+- **What it lacks vs. Splitwise:** narrower multi-currency support, no PayPal/Venmo settlement integrations, and a small user base (launched 2026).
 - **Price:** free, no ads. Optional Pro for more planning days and unlimited members.
 - **Best for:** groups of friends, families, and crews who want the whole trip — not just the debts — in one app.
 

@@ -64,4 +64,4 @@ Yes, using the same five-tier activity voting used for any trip decision — it 
 
 ### Does it work if some of the group is on iPhone?
 
-The native app is available for Android today, with iOS in development. iPhone users can join and fully participate through the web app via the invite link — no app-store detour needed.
+Yes — Vacationist has native apps for both iPhone and Android, and guests on either platform can also join and fully participate through the web app via the invite link, no app-store detour needed.

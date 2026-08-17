@@ -27,7 +27,7 @@ To be fair to TripIt first: if you're a frequent, mostly-solo traveler who wants
 - **The differentiator:** friends join by one invite link with **no account required** — and can still vote, edit lists, and be in expense splits. TripIt's sharing is read-only; real participation needs everyone to have their own account.
 - **Money:** TripIt has no expense splitting at all. Vacationist tracks who paid, who owes whom, and settles up automatically.
 - **Also unique:** [encrypted travel document storage](/features/travel-documents/) with revocable organizer access, in-app group chat, offline-first sync for everyone.
-- **What it lacks vs. TripIt:** no automatic itinerary building from forwarded confirmation emails, no flight delay alerts, no points tracking — activities and bookings are added manually or voted on by the group. It's Android + web today (iOS in development).
+- **What it lacks vs. TripIt:** no automatic itinerary building from forwarded confirmation emails, no flight delay alerts, no points tracking — activities and bookings are added manually or voted on by the group.
 - **Price:** free, no ads; optional Pro.
 - **Best for:** friend groups, families, bachelorette and stag crews — any trip where the coordination and the money are the hard part, not the inbox.
 

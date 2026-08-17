@@ -259,28 +259,26 @@ Every content page (57 as of this pass — all `/blog/`, `/vs/`, `/alternatives/
 - `apps/mobile/app.config.ts` Android `intentFilters`: `autoVerify: true`, scoped to `pathPrefix: /join`, `category: [BROWSABLE, DEFAULT]` — matches the assetlinks.json scope exactly.
 - `docs/join.html` implements the practical fallback pattern: attempt `vacationist://join?token=...` custom-scheme open, `visibilitychange` + 2.5s timeout to detect success, fall back to `web.vacationist.app/join?token=...` if the native app didn't open. This covers the case App Links alone don't (a user without the app installed).
 
-**❌ Blocked — iOS Universal Links.** No iOS app has shipped yet (App Store listing is "Coming Soon" sitewide), so there is no `associatedDomains` entitlement and no `apple-app-site-association` file to serve. This is correctly absent, not missing.
+**✅ Implemented — iOS Universal Links, shipped 2026-08-10.** iOS went GA on the App Store (`https://apps.apple.com/us/app/vacationist/id6800049398`, App Store Connect id `6800049398`, Team ID `93VX3MQ439`) as of v1.30.0:
+- `apps/mobile/app.config.ts`'s `ios` block has `associatedDomains: ['applinks:vacationist.app']`, mirroring the Android `intentFilters` pattern.
+- `docs/.well-known/apple-app-site-association` is live, served as `application/json` via a dedicated Cloudflare Transform Rule (`aasa_content_type`, ruleset `4722ba5424cc4b409525deabe507800a`) — GitHub Pages serves extensionless files as `application/octet-stream` by default, which Apple's AASA fetcher rejects, hence the rule:
+  ```json
+  {
+    "applinks": {
+      "apps": [],
+      "details": [
+        {
+          "appID": "93VX3MQ439.com.vacationist.mobile",
+          "paths": ["/join*"]
+        }
+      ]
+    }
+  }
+  ```
+- `docs/join.html`'s existing `vacationist://` custom-scheme + `visibilitychange`/timeout fallback pattern already worked cross-platform, so no separate iOS branch was needed there — the AASA file just adds the "tap a link, app opens directly" case on top of it.
+- Live device verification (AASA fetch, Universal Link tap-through) pending — see `engineering/supabase.md` 2026-08-10 entry.
 
-**📋 Readiness checklist for when the iOS app ships:**
-1. Add `associatedDomains: ['applinks:vacationist.app']` to `app.config.ts`'s `ios` block (mirrors the existing Android `intentFilters` pattern).
-2. Serve `docs/.well-known/apple-app-site-association` (no file extension, `Content-Type: application/json`, must be reachable **without a redirect** — GitHub Pages serves `.well-known/` as a static directory already, so this is a straightforward add once the Team ID + Bundle ID are known post-App-Store-approval):
-   ```json
-   {
-     "applinks": {
-       "apps": [],
-       "details": [
-         {
-           "appID": "<TEAMID>.com.vacationist.mobile",
-           "paths": ["/join*"]
-         }
-       ]
-     }
-   }
-   ```
-3. Extend `docs/join.html`'s fallback logic — the existing `vacationist://` custom-scheme + timeout pattern already works cross-platform, so iOS mainly needs the AASA file for the "tap a link, app opens directly" case; the JS fallback already covers "app not installed."
-4. Re-run the assetlinks.json verification pattern (Google's Statement List Generator equivalent for iOS is Apple's AASA validator) before shipping.
-
-**Web-to-app indexing today:** Google/Bing can already associate `vacationist.app` with the Play Store listing via the `installUrl`/`downloadUrl` fields in the `SoftwareApplication` JSON-LD (Pillar 4) — this is the correct mechanism for search engines specifically (distinct from Android's OS-level App Links mechanism, which is already correctly implemented). No additional markup needed on the web side beyond what's already shipped.
+**Web-to-app indexing:** as of 2026-08-17 (Phase 16, iOS App Store rollout), the `SoftwareApplication` JSON-LD's `installUrl`/`downloadUrl` fields (Pillar 4, `marketing/site/build.mjs`) are now an array covering both `play.google.com` and `apps.apple.com`, and `operatingSystem` reads `"Android, iOS, Web"`. Search engines can associate `vacationist.app` with both store listings from the same markup.
 
 ---
 

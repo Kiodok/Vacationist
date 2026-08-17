@@ -20,7 +20,7 @@ Vacationist wird als persönliches Nebenprojekt von **Gary Lude** mit Sitz in de
 
 Kontakt: [meetdeep.de@gmail.com](mailto:meetdeep.de@gmail.com)
 
-Diese Datenschutzerklärung gilt für die Vacationist-Mobil-App („die App"), erhältlich im Google Play Store, und für die Vacationist-Website unter [vacationist.app](https://vacationist.app) („die Website").
+Diese Datenschutzerklärung gilt für die Vacationist-Mobil-App („die App"), erhältlich im Google Play Store und im Apple App Store, und für die Vacationist-Website unter [vacationist.app](https://vacationist.app) („die Website").
 
 ## 2. Welche Daten wir erheben
 
@@ -138,11 +138,11 @@ Reddit, Inc. ist ein US-Unternehmen; die unten beschriebene Conversions-API-Übe
 
 **Zuordnung von App-Installationen (Conversions API)**
 
-In der Mobil-App selbst ist kein Reddit-SDK und kein Reddit-Pixel eingebettet. Klickst du stattdessen auf eine Reddit-Anzeige, wird die Klick-Kennung vorübergehend in den Google-Play-Installationslink codiert, auf dem du landest. Meldest du dich in der App zum ersten Mal an, liest unser Server (nicht Reddit) diese Kennung — falls vorhanden — über den eigenen Installations-Referrer-Mechanismus des Play Stores aus und übermittelt eine einzelne Anmeldebestätigung zusammen mit der Klick-Kennung über die Conversions API an Reddit. Hast du die App ohne Klick auf eine Reddit-Anzeige installiert, gibt es keine Klick-Kennung, und es wird nichts an Reddit übermittelt — deine Anmeldung wird trotzdem in unserer eigenen Analyse-Erfassung unten erfasst, jedoch nur als nicht zugeordnetes (organisches) Ereignis.
+In der Mobil-App selbst ist kein Reddit-SDK und kein Reddit-Pixel eingebettet. Klickst du stattdessen auf eine Reddit-Anzeige, wird die Klick-Kennung vorübergehend in den Google-Play-Installationslink codiert, auf dem du landest. Meldest du dich in der App zum ersten Mal an, liest unser Server (nicht Reddit) diese Kennung — falls vorhanden — über den eigenen Installations-Referrer-Mechanismus des Play Stores aus und übermittelt eine einzelne Anmeldebestätigung zusammen mit der Klick-Kennung über die Conversions API an Reddit. Hast du die App ohne Klick auf eine Reddit-Anzeige installiert, gibt es keine Klick-Kennung, und es wird nichts an Reddit übermittelt — deine Anmeldung wird trotzdem in unserer eigenen Analyse-Erfassung unten erfasst, jedoch nur als nicht zugeordnetes (organisches) Ereignis. **Dieser Mechanismus existiert nur unter Android** — der App Store kennt keinen vergleichbaren Installations-Referrer, daher wird eine Anmeldung aus der iOS-App immer als nicht zugeordnetes (organisches) Ereignis erfasst, und es wird nichts über einen Reddit-Anzeigenklick an Reddit übermittelt.
 
 **Unsere eigene Analyse**
 
-Neben Google Analytics und dem Reddit-Pixel betreiben wir eine kleine, eigene Analyse-Erfassung auf unserer eigenen Infrastruktur, die Website-Seitenaufrufe, Klicks auf die Play-Store-/Web-App-Links sowie App-Anmeldungen erfasst. Sie existiert nur, damit wir denselben Marketing-Trichter, den uns Google Analytics und Reddit zeigen, an einem Ort sehen können, unabhängig von beiden.
+Neben Google Analytics und dem Reddit-Pixel betreiben wir eine kleine, eigene Analyse-Erfassung auf unserer eigenen Infrastruktur, die Website-Seitenaufrufe, Klicks auf die Play-Store-/App-Store-/Web-App-Links sowie App-Anmeldungen erfasst. Sie existiert nur, damit wir denselben Marketing-Trichter, den uns Google Analytics und Reddit zeigen, an einem Ort sehen können, unabhängig von beiden.
 
 Sie speichert bewusst weniger als ein typisches Analyse-Tool: **es wird niemals eine IP-Adresse gespeichert**, weder vollständig noch gekürzt. Wo eine grobe Besucherkennung nötig ist, um denselben Besuch nicht doppelt zu zählen, berechnen wir einen Einweg-Hash aus deiner IP-Adresse, deinem Browser und einem geheimen, täglich wechselnden Salt — deine IP-Adresse selbst wird nur für diesen Moment verwendet und niemals in eine Datenbank geschrieben. Wir speichern: den Seitenpfad, die Reddit-Klick-Kennung und Kampagnenparameter, falls vorhanden, die Domain der verweisenden Seite (nicht die vollständige URL), den User-Agent-String deines Browsers sowie — nur bei Anmeldungen — dass eine Anmeldung stattgefunden hat und, falls zutreffend, dieselbe an Reddit übermittelte Klick-Kennung.
 

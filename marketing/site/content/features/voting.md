@@ -52,7 +52,7 @@ Everyone has that one friend who says "I'm easy, whatever you all want" and then
 
 ### Do my friends need to install the app to vote?
 
-No. Anyone can join a trip through its invite link and vote as a guest — in the web app, without creating an account. Installing the Android app just makes it more convenient.
+No. Anyone can join a trip through its invite link and vote as a guest — in the web app, without creating an account. Installing the iOS or Android app just makes it more convenient.
 
 ### What happens when someone uses the group blocker vote?
 

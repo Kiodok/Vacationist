@@ -4,11 +4,11 @@
 
 ## TL;DR
 
-Vacationist is a free group trip planning app for Android and web. Groups vote on activities (five-tier system: must do → group blocker), split expenses with live balances and settle-up, share real-time packing/shopping lists, and store travel documents in an AES-256 encrypted vault. Anyone can join a trip via a single link with no account required. No ads, no tracking. Built in Switzerland by an independent developer. iOS is in development.
+Vacationist is a free group trip planning app for iOS, Android, and web. Groups vote on activities (five-tier system: must do → group blocker), split expenses with live balances and settle-up, share real-time packing/shopping lists, and store travel documents in an AES-256 encrypted vault. Anyone can join a trip via a single link with no account required. No ads, no tracking. Built in Switzerland by an independent developer.
 
 ## What is Vacationist?
 
-Vacationist is a free mobile and web application for group travel planning. It is available on Android (Google Play) and as a web app. An iOS app is in development.
+Vacationist is a free mobile and web application for group travel planning. It is available on iOS (Apple App Store), Android (Google Play), and as a web app.
 
 Key use cases:
 - **Vacation trips** — the primary use case; full trip lifecycle from planning to packing
@@ -45,7 +45,7 @@ Key use cases:
 
 ## Technology
 
-- Platform: React Native (Expo), Android + Web
+- Platform: React Native (Expo), iOS + Android + Web
 - Backend: Supabase (PostgreSQL, Auth, Realtime, Edge Functions)
 - Offline: TanStack Query with MMKV persistence
 - Security: AES-256 (pgcrypto), biometric auth, no tracking, no ads
@@ -59,6 +59,7 @@ group trip planner, group vacation planning app, split travel expenses, activity
 - [Vacationist landing page](https://vacationist.app/): English home page.
 - [Vacationist Startseite](https://vacationist.app/de/): German home page.
 - [Web app](https://web.vacationist.app/): Use Vacationist in a browser, no install.
+- [iOS app on the App Store](https://apps.apple.com/us/app/vacationist/id6800049398): Free iPhone download.
 - [Android app on Google Play](https://play.google.com/store/apps/details?id=com.vacationist.mobile): Free Android download.
 
 ## Features

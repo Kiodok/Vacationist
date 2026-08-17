@@ -2,11 +2,12 @@
 
 > This is the Vacationist web app (web.vacationist.app) — sign in and use Vacationist in a browser. For product information, features, pricing, and comparisons, see the marketing site links below.
 
-Vacationist is a free group trip planning app for Android and web. Groups vote on activities, split expenses with live balances, share real-time packing/shopping lists, and store travel documents in an AES-256 encrypted vault. Most pages on this origin require a signed-in session and are not useful to crawl directly.
+Vacationist is a free group trip planning app for iOS, Android, and web. Groups vote on activities, split expenses with live balances, share real-time packing/shopping lists, and store travel documents in an AES-256 encrypted vault. Most pages on this origin require a signed-in session and are not useful to crawl directly.
 
 ## Links
 
 - [Vacationist marketing site](https://vacationist.app/): Full product information, features, pricing, and blog.
 - [Vacationist marketing llms.txt](https://vacationist.app/llms.txt): Structured summary for LLMs — features, use cases, comparisons, and URLs.
 - [Sign in](https://web.vacationist.app/login): Sign in to the web app.
+- [iOS app on the App Store](https://apps.apple.com/us/app/vacationist/id6800049398): Free iPhone download.
 - [Android app on Google Play](https://play.google.com/store/apps/details?id=com.vacationist.mobile): Free Android download.

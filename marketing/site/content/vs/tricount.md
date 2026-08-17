@@ -30,7 +30,7 @@ breadcrumbLabel: vs. Tricount
 | Offline support | ✅ Offline-first | ⚠️ Limited |
 | Multi-currency | ⚠️ Basic | ✅ Strong, a core strength |
 | Popularity in Europe | ⚠️ New (2026) | ✅ Very high, especially DACH |
-| Platforms | Android + web (iOS in development) | iOS, Android, web |
+| Platforms | iOS, Android, web | iOS, Android, web |
 | Price | Free, no ads; optional Pro | Free, with some premium extras |
 
 ## What Tricount does better

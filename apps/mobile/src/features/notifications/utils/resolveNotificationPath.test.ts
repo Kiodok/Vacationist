@@ -56,6 +56,10 @@ describe('resolveNotificationPath', () => {
     expect(resolveNotificationPath(n('reminder'))).toBe(`/trip/${TRIP}`);
   });
 
+  it('routes reminder with review_nudge related_type to trip root (tap is intercepted before this is called)', () => {
+    expect(resolveNotificationPath(n('reminder', 'review_nudge'))).toBe(`/trip/${TRIP}`);
+  });
+
   describe('activity_reminder', () => {
     it('routes reminder with activity_reminder related_type to Activities tab', () => {
       expect(resolveNotificationPath(n('reminder', 'activity_reminder'))).toBe(`/trip/${TRIP}?tab=Activities`);

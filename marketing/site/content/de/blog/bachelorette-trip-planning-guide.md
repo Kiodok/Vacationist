@@ -96,7 +96,7 @@ Die häufigste Konvention: Die Gruppe teilt die Kosten der Braut unter sich auf,
 
 ### Was ist die beste App, um eine JGA-Reise zu planen?
 
-Wir sind befangen, aber der JGA-Fall ist wirklich der, in dem Vacationist glänzt: Ein Einladungslink bringt 14 Leute mit wild unterschiedlicher App-Toleranz ohne Konten in die Reise, abgestuftes Voting durchschneidet die Gruppenchat-Höflichkeit, und Ausgaben — inklusive des auf alle verteilten Braut-Anteils — verrechnen sich live statt in einer Tabellen-Séance nach der Reise. Kostenlos, auf Android und im Web (iOS in Entwicklung).
+Wir sind befangen, aber der JGA-Fall ist wirklich der, in dem Vacationist glänzt: Ein Einladungslink bringt 14 Leute mit wild unterschiedlicher App-Toleranz ohne Konten in die Reise, abgestuftes Voting durchschneidet die Gruppenchat-Höflichkeit, und Ausgaben — inklusive des auf alle verteilten Braut-Anteils — verrechnen sich live statt in einer Tabellen-Séance nach der Reise. Kostenlos, auf iOS, Android und im Web.
 
 ### Wie geht man mit sehr unterschiedlichen Budgets in einer JGA-Gruppe um?
 

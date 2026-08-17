@@ -69,7 +69,7 @@ Unterkunft nach belegten Zimmern oder Einheiten teilen, Pro-Kopf-Kosten (Essen, 
 
 ### Was ist die beste App, um eine Familientreffen-Reise zu planen?
 
-Wir machen Vacationist, also mit dieser Offenlegung: Mehr-Haushalts-Reisen sind seine Stärke. Jeder Haushalt tritt über einen Link bei — auch die Großeltern, im Browser, ohne Konto oder Installation — Abstimmungen sind abgestuft statt streitbar, Ausgaben-Salden bleiben zwischen den Haushalten sichtbar, und Pässe für die Gruppenbuchung werden über einen verschlüsselten Tresor mit widerrufbarem Zugriff geteilt statt über den Familienchat. Kostenlos, auf Android und im Web (iOS in Entwicklung).
+Wir machen Vacationist, also mit dieser Offenlegung: Mehr-Haushalts-Reisen sind seine Stärke. Jeder Haushalt tritt über einen Link bei — auch die Großeltern, im Browser, ohne Konto oder Installation — Abstimmungen sind abgestuft statt streitbar, Ausgaben-Salden bleiben zwischen den Haushalten sichtbar, und Pässe für die Gruppenbuchung werden über einen verschlüsselten Tresor mit widerrufbarem Zugriff geteilt statt über den Familienchat. Kostenlos, auf iOS, Android und im Web.
 
 ### Wie geht man mit Großeltern um, die nicht technikaffin sind?
 

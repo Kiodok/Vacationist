@@ -310,7 +310,7 @@ The honest tool landscape for group trips (the [full comparison lives here](/blo
 | Documents | ❌ IDs in the chat, forever | ❌ | ✅ [Encrypted, revocable](/features/travel-documents/) |
 | Joining friction | ✅ None | ❌ Everyone installs everything | ✅ One link, no account |
 
-The pattern: chat is unbeatable for talking and unusable for everything else. Single-purpose apps each solve one slice and cost you one installation-argument per app. Vacationist's bet is that a group trip is *one* problem, not five — so it puts voting, expenses, lists, calendar, chat, and documents in one place, and lets your least app-enthusiastic friend join with a link and no account. It's free, works offline, and runs on Android and the web today (iOS is in development).
+The pattern: chat is unbeatable for talking and unusable for everything else. Single-purpose apps each solve one slice and cost you one installation-argument per app. Vacationist's bet is that a group trip is *one* problem, not five — so it puts voting, expenses, lists, calendar, chat, and documents in one place, and lets your least app-enthusiastic friend join with a link and no account. It's free, works offline, and runs on iOS, Android, and the web.
 
 However you tool it: separate deciding from discussing, track money from the first euro, plan anchors not itineraries, and settle within 48 hours. Do those four things and your group trip will beat 90% of group trips — including, possibly, your own last one.
 

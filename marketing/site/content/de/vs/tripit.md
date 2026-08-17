@@ -29,7 +29,7 @@ breadcrumbLabel: vs. TripIt
 | Gruppenchat in der App | ✅ | ❌ |
 | Punkte- & Meilenverfolgung | ❌ | ✅ TripIt Pro |
 | Verschlüsselte Reisedokumente | ✅ AES-256-Tresor | ⚠️ Speichert Bestätigungen, kein eigener Dokumententresor |
-| Plattformen | Android + Web (iOS in Entwicklung) | iOS, Android, Web |
+| Plattformen | iOS, Android, Web | iOS, Android, Web |
 | Preis | Kostenlos, ohne Werbung; optionales Pro | Kostenlose Stufe; TripIt-Pro-Abo |
 
 ## Was TripIt besser macht

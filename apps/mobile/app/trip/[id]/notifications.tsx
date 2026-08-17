@@ -9,6 +9,7 @@ import { useTripNotifications, useMarkNotificationRead, useMarkAllNotificationsR
 import { NotificationItem } from '../../../src/features/notifications/components/NotificationItem';
 import { EmptyNotifications } from '../../../src/features/notifications/components/EmptyNotifications';
 import { resolveNotificationPath } from '../../../src/features/notifications/utils/resolveNotificationPath';
+import { openStoreReviewOrFallback } from '../../../src/utils/openStoreReview';
 import { ThemedIcon, useThemeColors } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -30,6 +31,10 @@ export default function TripNotificationsScreen() {
   const handlePress = (notification: Notification) => {
     if (!notification.is_read) {
       markRead({ notificationId: notification.id });
+    }
+    if (notification.related_type === 'review_nudge') {
+      openStoreReviewOrFallback();
+      return;
     }
     const path = resolveNotificationPath(notification);
     if (path?.startsWith('https://')) {

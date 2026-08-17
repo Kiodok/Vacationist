@@ -5,9 +5,9 @@ export function resolveNotificationPath(
 ): string | null {
   const { type, trip_id, related_type, related_id } = notification;
 
-  if (type === 'reminder' && related_type === 'review_nudge') {
-    return 'https://play.google.com/store/apps/details?id=com.vacationist.mobile';
-  }
+  // review_nudge is handled before this function is called (see
+  // openStoreReviewOrFallback) — it opens the native review sheet rather
+  // than navigating, so it has no path of its own here.
 
   // trip_deleted routes to home regardless of trip_id — the trip no longer exists
   if (type === 'trip_deleted') return '/(tabs)';

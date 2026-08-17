@@ -97,8 +97,8 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     de: { title: 'Bereit für die nächste Reise?', body: '"{{trip}}" war toll! Plane dein nächstes Abenteuer.' },
   },
   review_nudge: {
-    en: { title: 'Enjoying Vacationist?', body: 'Your trip is over — we\'d love a quick rating on the Play Store! 🌟' },
-    de: { title: 'Gefällt dir Vacationist?', body: 'Deine Reise ist vorbei — wir freuen uns über eine Bewertung im Play Store! 🌟' },
+    en: { title: 'Enjoying Vacationist?', body: 'Your trip is over — we\'d love a quick rating! 🌟' },
+    de: { title: 'Gefällt dir Vacationist?', body: 'Deine Reise ist vorbei — wir freuen uns über eine Bewertung! 🌟' },
   },
   guest_nudge: {
     en: { title: 'Plan your own trip!', body: 'You helped plan "{{trip}}". Create your own trip — it\'s free!' },

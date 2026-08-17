@@ -27,7 +27,7 @@ Die Kern-Einsicht für die Wahl: Eine Gruppenreise hat ungefähr fünf Aufgaben 
 
 - **Die herausragende Funktion:** Gäste treten über einen Einladungslink bei — **ganz ohne Konto** — und stimmen trotzdem ab, bearbeiten Listen und tauchen in Kostensplits auf. Der „Ich installiere keine weitere App"-Freund ist kein Blocker mehr.
 - **Ebenfalls bemerkenswert:** offline-first (funktioniert in Flugzeugen und Bergen, synchronisiert später), [verschlüsselte Reisedokumente](/de/features/travel-documents/) mit widerrufbarem Organisator-Zugriff, Rezept-zu-Einkaufsliste-Übernahme.
-- **Ehrliche Schwächen:** keine Karten oder Orts-Entdeckung, einfache Multi-Währungs-Unterstützung, junge Nutzerbasis (Start 2026) und heute nur Android + Web — iOS ist in Entwicklung.
+- **Ehrliche Schwächen:** keine Karten oder Orts-Entdeckung, einfache Multi-Währungs-Unterstützung, junge Nutzerbasis (Start 2026).
 - **Preis:** kostenlos, ohne Werbung; optionales Pro für mehr Planungstage und unbegrenzte Mitglieder.
 - **Wähle es, wenn:** dein Schmerz die *Gruppe* ist — entscheiden, zahlen, synchron bleiben — und nicht die Ziel-Recherche.
 
@@ -120,7 +120,7 @@ Unsere offensichtlich befangene, aber vertretbare These: Für den echten Fall �
 
 ### Was ist die beste kostenlose App, um eine Reise mit Freunden zu planen?
 
-Vacationist — die Kern-App (Abstimmungen, Kostenteilung, gemeinsame Listen, Chat, Offline-Sync) ist kostenlos und werbefrei, und Freunde treten per Link bei, ohne Konten zu erstellen. Die ehrliche Einschränkung: Heute Android + Web, iOS in Entwicklung (iPhone-Freunde nutzen die Web-App).
+Vacationist — die Kern-App (Abstimmungen, Kostenteilung, gemeinsame Listen, Chat, Offline-Sync) ist kostenlos und werbefrei, und Freunde treten per Link bei, ohne Konten zu erstellen. Verfügbar für iOS, Android und im Web.
 
 ### Brauchen wir wirklich eine eigene App für eine Gruppenreise?
 

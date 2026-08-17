@@ -37,7 +37,7 @@ Diese Website und die Vacationist-Mobil-App werden als persönliches Nebenprojek
 | | |
 |---|---|
 | **App-Name** | Vacationist |
-| **Plattform** | Android (Google Play Store) |
+| **Plattform** | Android (Google Play Store), iOS (Apple App Store) |
 | **Paket-ID** | com.vacationist.mobile |
 | **Website** | [vacationist.app](https://vacationist.app/) |
 

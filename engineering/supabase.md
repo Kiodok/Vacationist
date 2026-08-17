@@ -1,5 +1,56 @@
 # Supabase Changes Log
 
+## 2026-08-17 — iOS App Store rollout: store-neutral review nudge + app_store_click event (2 migrations + Edge Function)
+
+**Why:** iOS is now GA on the App Store. The hourly review-nudge cron
+(`private.create_review_nudge_notifications()`, created 2026-06-19) hardcoded "Play Store" in
+its notification body, and `analytics_events.event_name` had no click event for the marketing
+site's App Store badges (they were dead "Coming Soon" `<div>`s until this pass — see the
+matching marketing-site changes, not logged here since they're UI-only).
+
+**Migration 1: `20260817100000_review_nudge_store_neutral.sql`** — `CREATE OR REPLACE FUNCTION
+private.create_review_nudge_notifications()`, function-body-only change, no schema change.
+Body text changed from `'...we''d love a quick rating on the Play Store!'` to `'...we''d love a
+quick rating!'`. Everything else (cron schedule, `review_nudge_sent_at` dedup, 12-hour delay)
+unchanged. Also updated in the same pass, not migrations: `supabase/functions/push-notification/index.ts`'s
+`NOTIFICATION_TRANSLATIONS.review_nudge` (en/de, dropped "Play Store"/"im Play Store" — this is
+what actually renders in the push, per the existing `isNudge`/`context_trip` template logic);
+`NotificationItem.tsx` gained a `review_nudge` entry in `BODY_TEMPLATES` and
+`resolveEffectiveType()` (previously absent, so the in-app list rendered the raw English DB
+string under a generic "Reminder" title in both locales); tapping the notification (in-app list
+×2 + push tap handler) now calls a new `openStoreReviewOrFallback()` helper
+(`apps/mobile/src/utils/openStoreReview.ts`, wraps `expo-store-review`) instead of
+`resolveNotificationPath.ts`'s old hardcoded `play.google.com` branch (removed) — this also
+fixed a pre-existing bug where the push-tap handler `router.push()`'d that raw https URL instead
+of opening it. New shared `apps/mobile/src/utils/storeUrl.ts` de-duplicates the per-platform
+store URL previously only in `ForceUpdateGate.tsx`.
+
+**Migration 2: `20260817110000_add_app_store_click_event.sql`** — drops and re-adds
+`analytics_events_event_name_check` (Postgres's default auto-generated name; verified no later
+migration had already renamed it) to add `'app_store_click'`. Kept `'app_store_interest'` in
+the allowlist rather than removing it — historical rows already use that value, and `ADD
+CONSTRAINT CHECK` validates existing rows unless declared `NOT VALID`. Mirrored in
+`supabase/functions/track-event/index.ts`'s `EVENT_NAMES` allowlist and
+`scripts/analytics-report.mjs` (`isClick()` now also counts `app_store_click`; the
+`app_store_interest`/"iOS interest clicks" tile and segmentation row were removed from the
+dashboard — the events they tracked no longer accumulate since the divs they matched became
+real links, but old rows stay in the table for anyone querying directly).
+
+**Verification:** `npm run typecheck` and `npm test` (root) after all app-code changes above.
+
+**Deployed (same day, Tech Lead go-ahead given):** both migrations applied to dev
+(`aejywkbkcwyanhyzhrle`) via `supabase db push`, confirmed additive/backwards-compatible per the
+analysis above, then applied to prod (`fsfsqghbejwvgxujoyne`) the same way. `push-notification`
+and `track-event` Edge Functions redeployed to both projects (`supabase functions deploy`).
+Verified end-to-end on both dev and prod with a direct `curl -X POST .../functions/v1/track-event`
+carrying `event_name: 'app_store_click'` — `204` on both (previously `400`, since the old deployed
+function predated the constraint/allowlist change). Migration ledgers (`supabase migration list`)
+confirmed identical on both projects post-push. Re-linked to dev afterward, matching the repo's
+default. One synthetic test row (`path: '/deploy-verify-test'`) was written to `analytics_events`
+on each project by the curl verification above — left in place rather than special-cased with a
+cleanup migration, consistent with prior sessions' handling of manual verification rows (see the
+2026-08-08/09 entries below).
+
 ## 2026-08-10 — iOS build prep: Sign in with Apple + token revocation (migration + 2 Edge Functions)
 
 **Why:** Apple Developer Program enrollment completed; first iOS build in progress. Google

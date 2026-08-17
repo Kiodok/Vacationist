@@ -29,7 +29,7 @@ breadcrumbLabel: vs. TripIt
 | Group chat in-app | ✅ | ❌ |
 | Points & loyalty tracking | ❌ | ✅ TripIt Pro |
 | Encrypted travel documents | ✅ AES-256 vault | ⚠️ Stores confirmations, not a dedicated document vault |
-| Platforms | Android + web (iOS in development) | iOS, Android, web |
+| Platforms | iOS, Android, web | iOS, Android, web |
 | Price | Free, no ads; optional Pro | Free tier; TripIt Pro subscription |
 
 ## What TripIt does better
