@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Appearance, AppState, Platform, useColorScheme as useRNColorScheme } from 'react-native';
 import { useColorScheme as useNWColorScheme } from 'nativewind';
 import { checkForUpdate } from '../src/utils/updateChecker';
-import { initI18n, I18nProvider, i18n, LOCALE_BCP47, onLocaleChange } from '@vacationist/i18n';
+import { initI18n, I18nProvider, LOCALE_BCP47, onLocaleChange } from '@vacationist/i18n';
 import { setDayjsLocale, setDefaultFormatLocale } from '@vacationist/utils';
 import { storage } from '../src/utils/mmkvStorage';
 
@@ -41,6 +41,8 @@ import { ConsentBanner } from '../src/features/consent/components/ConsentBanner'
 import { useConsentPixel } from '../src/features/consent/hooks/useConsentPixel';
 import { captureInstallReferrerOnce } from '../src/features/attribution/utils/installReferrer';
 import { captureWebAttributionOnce } from '../src/features/consent/utils/webAttribution';
+import { extractInviteToken } from '../src/features/auth/utils/extractInviteToken';
+import { resolveAuthedJoinRedirect } from '../src/features/auth/utils/resolveAuthedJoinRedirect';
 
 // Module-level, not a component effect — must run before AuthGate's redirect effect can send
 // an unauthenticated visitor to /login and strip rdt_cid/utm_* off the URL. No-ops on native.
@@ -150,9 +152,10 @@ function AuthGate() {
 
   const appState = useRef(AppState.currentState);
   const initialUrlHandled = useRef(false);
-  // Tracks tokens already sent to join-confirm so the deep-link handler's
-  // async getInitialURL callback cannot push a second time after the
-  // pendingInviteToken effect has already cleared pendingInviteToken to null.
+  // Tracks tokens already sent to join-confirm so the cold-start
+  // Linking.getInitialURL() callback below (which resolves asynchronously,
+  // after mount) can't push a second time on top of a redirect the segments
+  // effect already performed for the same token.
   const handledInviteTokenRef = useRef<string | null>(null);
   useEffect(() => {
     const sub = AppState.addEventListener('change', (nextState) => {
@@ -213,14 +216,13 @@ function AuthGate() {
     } else if (hasSession && inAuth) {
       // An authenticated user landing on the join screen must not lose the
       // invite token to the generic (tabs) redirect — hand it to join-confirm.
-      const rawToken = segments[1] === 'join' ? globalParams.token : undefined;
-      const joinToken = Array.isArray(rawToken) ? rawToken[0] : rawToken;
-      if (joinToken && joinToken !== handledInviteTokenRef.current) {
-        handledInviteTokenRef.current = joinToken;
-        router.replace({ pathname: '/trip/join-confirm', params: { token: joinToken } } as never);
-      } else {
-        router.replace('/(tabs)');
+      // See resolveAuthedJoinRedirect for why this never gates on
+      // handledInviteTokenRef.
+      const redirect = resolveAuthedJoinRedirect(segments, globalParams.token);
+      if (redirect.pathname === '/trip/join-confirm') {
+        handledInviteTokenRef.current = redirect.params.token;
       }
+      router.replace(redirect as never);
     }
   }, [hasSession, isLoading, segments, globalParams.token, router]);
 
@@ -245,45 +247,37 @@ function AuthGate() {
     router.push({ pathname: '/trip/join-confirm', params: { token } } as never);
   }, [hasSession, isLoading, user, pendingInviteToken, setPendingInviteToken, router]);
 
-  // Handle invite deep links when user is already authenticated.
+  // Cold-start-only safety net for invite deep links when the user is
+  // already authenticated. Expo Router's own linking config resolves the
+  // `/join` route for BOTH cold starts and warm (backgrounded-app) deep
+  // links — see the redirect effect above, which is the sole place that
+  // then routes an authenticated `/join` landing to join-confirm. This
+  // effect must NOT also subscribe to Linking's 'url' event: Expo Router
+  // subscribes to the same event to drive its own navigation, and running a
+  // second router.push off the same event race-condition-clobbers Expo
+  // Router's own dispatch, which lands back on `/join` — the redirect
+  // effect then sees handledInviteTokenRef already set and bounces the user
+  // to /(tabs) instead, i.e. the invite link silently does nothing. Expo
+  // Router's cold-start URL resolution races a 150ms timeout
+  // (getInitialURLWithTimeout in expo-router/build/fork/useLinking.native.js)
+  // and can lose the launch URL if the platform is slow, so re-checking it
+  // here is still needed — but only once, at mount, never via a listener.
   // Guards on `user` so redeemInviteToken is never called before the profile
   // row exists — new accounts need ensureUserProfile to complete first.
   useEffect(() => {
     if (!hasSession || isLoading || !user) return;
+    if (initialUrlHandled.current) return;
+    initialUrlHandled.current = true;
 
-    function extractInviteToken(url: string): string | null {
-      try {
-        // Handle both vacationist://join?token=... and https://vacationist.app/join?token=...
-        const parsed = Linking.parse(url);
-        const token = parsed.queryParams?.token;
-        return typeof token === 'string' && token ? token : null;
-      } catch {
-        return null;
-      }
-    }
-
-    function handleDeepLink(event: { url: string }) {
-      const token = extractInviteToken(event.url);
+    Linking.getInitialURL().then((url) => {
+      if (!url) return;
+      const token = extractInviteToken(url);
       if (token && token !== handledInviteTokenRef.current) {
         handledInviteTokenRef.current = token;
         router.push({ pathname: '/trip/join-confirm', params: { token } } as never);
       }
-    }
-
-    const subscription = Linking.addEventListener('url', handleDeepLink);
-
-    // Process the launch URL only once. Skip if the token is already being
-    // handled by the pendingInviteToken effect (join → sign-in flow), which
-    // prevents double-redemption for new accounts arriving via an invite link.
-    if (!initialUrlHandled.current) {
-      initialUrlHandled.current = true;
-      Linking.getInitialURL().then((url) => {
-        if (url) handleDeepLink({ url });
-      });
-    }
-
-    return () => subscription.remove();
-  }, [hasSession, isLoading, user, pendingInviteToken, router]);
+    });
+  }, [hasSession, isLoading, user, router]);
 
   useEffect(() => {
     // Web never gates on font-load confirmation: the @font-face rules for the Nunito/Ionicons
