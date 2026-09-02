@@ -6,6 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createExpenseSchema, type CreateExpenseInput, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency } from '@vacationist/types';
+
+// The "cover" whole-expense split method is retired from the create/edit UI (v1.33.0) — the
+// covered_by per-split "Cover" button in ExpenseSplitBreakdown is the supported way to cover a
+// specific member's share. The enum/schema/RPC still accept 'cover' for existing rows.
+type SelectableSplitMethod = Exclude<ExpenseSplitMethod, 'cover'>;
+const SELECTABLE_SPLIT_METHODS = EXPENSE_SPLIT_METHOD.filter(
+  (m): m is SelectableSplitMethod => m !== 'cover',
+);
 import type { TripMemberWithUser } from '@vacationist/api';
 import { formatCurrency, roundCurrency, isNegligible, sanitizeDecimalInput } from '@vacationist/utils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
@@ -44,22 +52,19 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     shopping: t('category.shopping'),
   };
 
-  const SPLIT_METHOD_LABELS: Record<ExpenseSplitMethod, string> = {
+  const SPLIT_METHOD_LABELS: Record<SelectableSplitMethod, string> = {
     even: t('split.even'),
     exact: t('split.exact'),
     shares: t('split.shares'),
-    cover: t('split.cover'),
   };
 
   const allMemberIds = members.map((m) => m.user_id);
 
   const [amountText, setAmountText] = useState('');
   const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set(allMemberIds));
-  const [splitMethod, setSplitMethod] = useState<ExpenseSplitMethod>('even');
+  const [splitMethod, setSplitMethod] = useState<SelectableSplitMethod>('even');
   const [exactAmounts, setExactAmounts] = useState<Record<string, string>>({});
   const [shareValues, setShareValues] = useState<Record<string, number>>({});
-  // coveredFor: the person being covered — stored as the form's paid_by
-  const [coveredFor, setCoveredFor] = useState<string | null>(null);
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
   const categoryOptions = EXPENSE_RELATED_TYPE.map((type) => ({ value: type, label: RELATED_TYPE_LABELS[type] ?? type }));
@@ -104,24 +109,9 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     });
   };
 
-  const handleSplitMethodChange = (method: ExpenseSplitMethod) => {
-    const prev = splitMethod;
+  const handleSplitMethodChange = (method: SelectableSplitMethod) => {
     setSplitMethod(method);
     setValue('split_method', method);
-
-    if (method === 'cover') {
-      // Auto-select first member who is not the current user
-      const first = members.find((m) => m.user_id !== currentUserId);
-      setCoveredFor(first?.user_id ?? null);
-      setValue('paid_by', first?.user_id ?? currentUserId);
-    } else {
-      if (prev === 'cover') {
-        // Restore normal defaults when leaving cover
-        setCoveredFor(null);
-        setValue('paid_by', currentUserId);
-        setSelectedMembers(new Set(allMemberIds));
-      }
-    }
   };
 
   const exactTotal = useMemo(() => {
@@ -144,10 +134,6 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const buildSplits = () => {
     const memberIds = Array.from(selectedMembers);
-    if (splitMethod === 'cover') {
-      // Actual payer (currentUser) is the split consumer; covered person is paid_by
-      return [{ user_id: currentUserId, amount: totalAmount }];
-    }
     if (splitMethod === 'even') {
       return memberIds.map((user_id) => ({ user_id }));
     }
@@ -179,7 +165,6 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     setSplitMethod('even');
     setExactAmounts({});
     setShareValues({});
-    setCoveredFor(null);
   };
 
   const handleClose = () => {
@@ -187,8 +172,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     onClose();
   };
 
-  const othersForCover = members.filter((m) => m.user_id !== currentUserId);
-  const canSubmit = !isPending && (splitMethod !== 'cover' || !!coveredFor) && canConvert;
+  const canSubmit = !isPending && canConvert;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
@@ -344,44 +328,42 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                 />
               </View>
 
-              {/* Paid by — hidden in cover mode */}
-              {splitMethod !== 'cover' && (
-                <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">{t('field.paidByLabel')}</Text>
-                  <Controller
-                    control={control}
-                    name="paid_by"
-                    render={({ field: { onChange, value } }) => (
-                      <>
-                        <Pressable
-                          onPress={() => setPaidByPickerVisible(true)}
-                          className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
-                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
-                        >
-                          <Text className="text-body flex-1 text-text-primary" numberOfLines={1}>
-                            {members.find((m) => m.user_id === value)?.user.name ?? value}
-                          </Text>
-                          <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
-                        </Pressable>
-                        <OptionPickerSheet
-                          visible={paidByPickerVisible}
-                          title={t('field.paidByLabel')}
-                          options={paidByOptions}
-                          selectedValue={value}
-                          onSelect={(v) => onChange(v)}
-                          onClose={() => setPaidByPickerVisible(false)}
-                        />
-                      </>
-                    )}
-                  />
-                </View>
-              )}
+              {/* Paid by */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.paidByLabel')}</Text>
+                <Controller
+                  control={control}
+                  name="paid_by"
+                  render={({ field: { onChange, value } }) => (
+                    <>
+                      <Pressable
+                        onPress={() => setPaidByPickerVisible(true)}
+                        className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
+                        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                      >
+                        <Text className="text-body flex-1 text-text-primary" numberOfLines={1}>
+                          {members.find((m) => m.user_id === value)?.user.name ?? value}
+                        </Text>
+                        <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
+                      </Pressable>
+                      <OptionPickerSheet
+                        visible={paidByPickerVisible}
+                        title={t('field.paidByLabel')}
+                        options={paidByOptions}
+                        selectedValue={value}
+                        onSelect={(v) => onChange(v)}
+                        onClose={() => setPaidByPickerVisible(false)}
+                      />
+                    </>
+                  )}
+                />
+              </View>
 
               {/* Split method */}
               <View className="gap-xs">
                 <Text className="text-label text-text-muted uppercase">{t('field.splitMethodLabel')}</Text>
                 <View className="flex-row gap-xs">
-                  {EXPENSE_SPLIT_METHOD.map((method) => (
+                  {SELECTABLE_SPLIT_METHODS.map((method) => (
                     <Pressable
                       key={method}
                       onPress={() => handleSplitMethodChange(method)}
@@ -399,52 +381,12 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                 </View>
               </View>
 
-              {/* Cover mode: single "Covered for" picker */}
-              {splitMethod === 'cover' ? (
-                <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">{t('field.coveredFor')}</Text>
-                  <BoundedVirtualList
-                    data={othersForCover}
-                    keyExtractor={(m) => m.user_id}
-                    itemHeight={44}
-                    renderItem={(m) => {
-                      const isSelected = coveredFor === m.user_id;
-                      return (
-                        <Pressable
-                          onPress={() => {
-                            setCoveredFor(m.user_id);
-                            setValue('paid_by', m.user_id);
-                          }}
-                          className={`flex-row items-center gap-xs px-md py-sm mb-sm rounded-full ${isSelected ? 'bg-primary border-primary' : 'bg-surface border border-border'}`}
-                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                        >
-                          <ThemedIcon
-                            name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
-                            size={16}
-                            color={isSelected ? (isColorful ? colors.surface : '#FFFFFF') : colors.textSecondary}
-                          />
-                          <Text
-                            className={`text-body-small flex-1 ${isSelected ? 'text-white font-semibold' : 'text-text-secondary'}`}
-                            style={isSelected && isColorful ? { color: colors.surface } : undefined}
-                            numberOfLines={1}
-                          >
-                            {m.user.name}
-                          </Text>
-                          {isSelected && totalAmount > 0 && (
-                            <Text className="text-white/70 text-body-small" style={isColorful ? { color: colors.surface, opacity: 0.7 } : undefined}>{formatCurrency(totalAmount, selectedCurrency)}</Text>
-                          )}
-                        </Pressable>
-                      );
-                    }}
-                  />
-                </View>
-              ) : (
-                /* Normal split among section */
-                <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">
-                    {t('field.splitAmong', { selected: selectedMembers.size, total: members.length })}
-                  </Text>
-                  <BoundedVirtualList
+              {/* Split among */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">
+                  {t('field.splitAmong', { selected: selectedMembers.size, total: members.length })}
+                </Text>
+                <BoundedVirtualList
                     data={members}
                     keyExtractor={(m) => m.user_id}
                     itemHeight={56}
@@ -532,8 +474,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                       );
                     }}
                   />
-                </View>
-              )}
+              </View>
 
               {/* Exact sum indicator */}
               {splitMethod === 'exact' && totalAmount > 0 && selectedMembers.size > 1 && (

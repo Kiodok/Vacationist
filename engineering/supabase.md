@@ -1,5 +1,84 @@
 # Supabase Changes Log
 
+## 2026-09-02 — v1.33.0 post-test fixes: document-access first-view timer (1 migration) + business-expense PDF Edge Function
+
+**Why:** manual testing of v1.33.0 surfaced that the travel-document access countdown starts at
+*grant* time — so the 15/30/60-minute window burns down while the organizer is at work, asleep,
+or before they've collected every passenger's passport for a flight booking, and members who
+grant at different times can never be viewed simultaneously. Tech Lead decision: per-member
+timer that starts on the organizer's **first view**, with a **7-day outer deadline** for a grant
+that's never opened. Separately, the "Business Summary" export now also produces a PDF (not just
+Markdown), rendered server-side so it's identical on Android/iOS/Web with no native module.
+
+**Migration `20260902120000_document_access_first_view_timer.sql`:**
+- `document_access_grants` gains `activated_at TIMESTAMPTZ` (NULL until first reveal) and
+  `grant_deadline TIMESTAMPTZ` (set to `NOW() + 7 days` at grant time). `expires_at` is now NULL
+  until activation, then `activated_at + duration_minutes`. Backfill keeps any existing granted
+  row's current behaviour (`grant_deadline := COALESCE(expires_at, NOW()+7d)`,
+  `activated_at := responded_at` when `expires_at` was set).
+- `respond_to_document_access_request()` — on grant sets `grant_deadline` only, not `expires_at`.
+- **Split** `get_accessible_member_documents(trip)` (dropped) into:
+  - `get_member_document_access_list(trip)` — organizer-only, `STABLE`, metadata only (member,
+    doc types, `activated_at`/`expires_at`/`grant_deadline`), **no decryption, no audit write** —
+    so the 15 s poll no longer spams `document_access_audit_log` (the old RPC wrote a row per
+    member on every poll).
+  - `reveal_member_documents(trip, member)` — organizer-only, decrypts one member's docs, writes
+    one audit row, and on the **first** call for that member sets `activated_at = NOW()` +
+    `expires_at = NOW() + duration`. Guards `grant_deadline > NOW()` then the fresh `expires_at`.
+- `get_my_active_grants()` — filter/return updated so a not-yet-activated grant within its
+  deadline still counts as active; adds `activated_at`, `grant_deadline` columns; `expires_at`
+  can now be NULL.
+- `create_document_access_request()` concurrent-request guard updated to also treat a
+  within-deadline un-activated grant as "still active".
+
+Not backwards-compatible with the shipped app (≤1.32.x): it drops `get_accessible_member_documents`
+(which the shipped app polls) and changes `document_access_grants.expires_at` semantics (NULL
+until first view) that the shipped `MemberDocumentsSheet`/`ActiveGrantsBanner` read. Tech Lead
+confirmed "near release & full rollout" — deployed in lockstep with the v1.33.0 build.
+
+**First dev push failed** — `get_my_active_grants` gained OUT columns and `CREATE OR REPLACE`
+can't change a `RETURNS TABLE` row type (same trap as `get_trip_tab_content` in
+`20260901170000`). The transaction rolled back cleanly (verified: no columns added, no function
+dropped). Added `DROP FUNCTION IF EXISTS public.get_my_active_grants();` before the CREATE and
+re-pushed. (Edit was safe — the file had never successfully applied anywhere.)
+
+**Dev push:** `supabase db push --linked` after re-link to `aejywkbkcwyanhyzhrle` — applied
+cleanly on retry. Verified via `db query --linked`: `activated_at`/`grant_deadline` columns +
+`idx_doc_access_grants_deadline` present, `get_accessible_member_documents` gone,
+`get_member_document_access_list`/`reveal_member_documents` present. `npm run supabase:types`
+regenerated `packages/api/src/database.types.ts` (diff is exactly the migration's delta,
+`npm run typecheck` clean).
+
+**Prod push:** `fsfsqghbejwvgxujoyne` — same clean apply (prod was at `20260902110001`, matching
+dev). Parity confirmed: migration ledger shows `20260902120000` applied on both;
+`document_access_grants` column fingerprint and all `document_access_*` / `get_my_active_grants`
+/ `reveal_*` function-signature fingerprints are byte-identical dev vs prod. Re-linked to dev
+afterward. (`db dump --schema-only` skipped — Docker-dependent, unavailable here; ledger +
+targeted `db query` fingerprint comparison used instead, per the batch's standard approach.)
+
+**Edge Function `render-business-expense-pdf`** (new, no migration): `verify_jwt` default +
+`auth.getUser(jwt)` re-derivation (same pattern as `attribution-capi`). Body is the same rows
+the client already renders into Markdown (`{ tripTitle, currency, rows, total, count }`).
+Renders with `pdf-lib` (esm.sh, Deno-safe, no browser deps) — title, per-expense block, document
+filenames as clickable link annotations, total. WinAnsi-sanitises all user strings so one stray
+glyph can't fail the whole render (falls back to 500 → client delivers MD-only). Returns
+`{ pdfBase64 }`. **Deployed to dev + prod** via `functions deploy --use-api` (no Docker).
+Smoke-tested on both: `OPTIONS` → 204 (module + esm.sh import load), `POST` without auth → 401.
+The actual render path needs a real signed-in session to exercise end-to-end — not doable here
+(no test account); flagged for Tech Lead / a future session with a dev user.
+
+**App-side:** `MemberDocumentAccessEntry` type; `getMemberDocumentAccessList` /
+`revealMemberDocuments` / `renderBusinessExpensePdf` API fns; `useMemberDocumentAccessList` +
+`useRevealMemberDocuments` hooks (result held in component state only, never cached);
+`MemberDocumentsSheet` reworked into a member list + per-member "View" that starts the timer,
+and fully translated (`memberDocs.*` keys, EN+DE — it was the only un-translated component in the
+feature); `ActiveGrantsBanner` shows "Not opened yet · auto-expires …" before activation;
+`deliverBase64File` helper in `share.ts`; `handleBusinessSummary` now delivers both `.md` and
+`.pdf` (web: two downloads; native: PDF share sheet then MD share sheet), degrading to MD-only if
+the Edge Function fails.
+
+---
+
 ## 2026-09-02 — v1.33.0: code-review fixes, 2 migrations (of 10 findings total)
 
 **Why:** `/code-review` ran against the full uncommitted v1.33.0 diff (19-item batch + the FX/

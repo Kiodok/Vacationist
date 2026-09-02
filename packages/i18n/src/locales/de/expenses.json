@@ -76,6 +76,7 @@
   "edit.saving": "Wird gespeichert...",
   "edit.submit": "Änderungen speichern",
   "edit.warning": "Bearbeiten setzt den Abrechnungsstatus für geänderte Aufteilungen zurück",
+  "edit.coverConverted": "Dies war eine übernommene Ausgabe. Beim Speichern wird sie in eine normale gleichmäßige Aufteilung mit {{name}} als Zahler umgewandelt.",
   "field.titleLabel": "Titel",
   "field.description": "Beschreibung",
   "field.businessExpense": "Geschäftsausgabe",
@@ -147,5 +148,6 @@
   "toast.businessSummaryShared": "Geschäftszusammenfassung geteilt!",
   "toast.businessSummaryDownloaded": "Geschäftszusammenfassung heruntergeladen",
   "toast.businessSummaryFailed": "Geschäftszusammenfassung konnte nicht erstellt werden.",
+  "toast.businessSummaryMdOnly": "Nur Markdown heruntergeladen — das PDF konnte nicht erstellt werden.",
   "quickAction.addingTo": "Hinzufügen zu: {{trip}}"
 }

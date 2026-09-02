@@ -54,7 +54,9 @@ export function ActiveGrantsBanner({ grants, onRevoke, isRevoking }: ActiveGrant
                 </Text>
                 <Text className="text-label text-text-secondary">{t('activeGrants.trip')} {grant.trip_title}</Text>
                 <Text className="text-label text-text-muted">
-                  {t('activeGrants.expires', { time: dayjs(grant.expires_at).fromNow() })}
+                  {grant.activated_at && grant.expires_at
+                    ? t('activeGrants.expires', { time: dayjs(grant.expires_at).fromNow() })
+                    : `${t('activeGrants.notOpenedYet')} · ${t('activeGrants.autoExpires', { time: dayjs(grant.grant_deadline).fromNow() })}`}
                 </Text>
               </View>
               <Pressable

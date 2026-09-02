@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { getExpenseDocumentUrl } from '@vacationist/api';
 import { colors, ThemedIcon } from '@vacationist/ui';
@@ -105,32 +105,34 @@ export function ExpenseDocumentsSection({ tripId, expenseId, currentUserId, canM
             }
 
             return (
-              <View key={doc.id} className="flex-row items-center gap-xs px-sm py-xs rounded-sm bg-surface">
-                <Pressable
+              // TouchableOpacity + static styles (not Pressable + function style, which lays
+              // out unreliably in a flex row on Android — see pressable-flex-android).
+              <View key={doc.id} className="flex-row items-center gap-xs px-sm rounded-sm bg-surface" style={{ minHeight: 44 }}>
+                <TouchableOpacity
+                  activeOpacity={0.6}
                   onPress={() => handleOpen(doc.id, doc.storage_path)}
-                  className="flex-1 flex-row items-center gap-xs"
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 }}
                 >
                   {openingId === doc.id ? (
                     <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
-                    <ThemedIcon name={isImage ? 'image-outline' : 'document-text-outline'} size={16} color={colors.primary} />
+                    <ThemedIcon name={isImage ? 'image-outline' : 'document-text-outline'} size={20} color={colors.primary} />
                   )}
-                  <Text className="text-body-small text-text-primary flex-1" numberOfLines={1}>
+                  <Text className="text-body-small text-text-primary" style={{ flex: 1 }} numberOfLines={1}>
                     {doc.file_name}
                   </Text>
-                </Pressable>
-                <Pressable onPress={() => handleDownload(doc)} disabled={downloadingId === doc.id} hitSlop={8}>
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.6} onPress={() => handleDownload(doc)} disabled={downloadingId === doc.id} hitSlop={8} style={{ paddingHorizontal: 8, paddingVertical: 10 }}>
                   {downloadingId === doc.id ? (
                     <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
-                    <ThemedIcon name="download-outline" size={16} color={colors.primary} />
+                    <ThemedIcon name="download-outline" size={18} color={colors.primary} />
                   )}
-                </Pressable>
+                </TouchableOpacity>
                 {canDelete && (
-                  <Pressable onPress={() => setConfirmingDeleteId(doc.id)} hitSlop={8}>
-                    <ThemedIcon name="trash-outline" size={16} color={colors.danger} />
-                  </Pressable>
+                  <TouchableOpacity activeOpacity={0.6} onPress={() => setConfirmingDeleteId(doc.id)} hitSlop={8} style={{ paddingHorizontal: 8, paddingVertical: 10 }}>
+                    <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
+                  </TouchableOpacity>
                 )}
               </View>
             );

@@ -15,7 +15,7 @@ import { MemberAvatar } from '../../../src/features/trips/components/MemberAvata
 import { useAuthStore } from '../../../src/stores/authStore';
 import { useToastStore } from '../../../src/stores/toastStore';
 import { useCreateDocumentAccessRequest } from '../../../src/features/profile/hooks/useDocumentAccessRequests';
-import { useAccessibleMemberDocuments } from '../../../src/features/profile/hooks/useAccessibleMemberDocuments';
+import { useMemberDocumentAccessList } from '../../../src/features/profile/hooks/useMemberDocumentAccessList';
 import { DocumentAccessRequestSheet } from '../../../src/features/profile/components/DocumentAccessRequestSheet';
 import { MemberDocumentsSheet } from '../../../src/features/profile/components/MemberDocumentsSheet';
 import { NotificationPreferencesSection } from '../../../src/features/notifications/components/NotificationPreferencesSection';
@@ -64,9 +64,9 @@ export default function SettingsTab() {
   const [lastInvite, setLastInvite] = useState<{ id: string; link: string } | null>(null);
 
   const createAccessRequest = useCreateDocumentAccessRequest();
-  const { data: memberDocuments = [], isLoading: memberDocsLoading } = useAccessibleMemberDocuments(tripId, isOrganizer);
+  const { data: memberDocAccess = [] } = useMemberDocumentAccessList(tripId, isOrganizer);
 
-  const hasActiveDocs = memberDocuments.length > 0;
+  const hasActiveDocs = memberDocAccess.length > 0;
 
   async function handleCreateInvite() {
     try {
@@ -451,8 +451,8 @@ export default function SettingsTab() {
     <MemberDocumentsSheet
       visible={viewDocsVisible}
       onClose={() => setViewDocsVisible(false)}
-      documents={memberDocuments}
-      isLoading={memberDocsLoading}
+      tripId={tripId}
+      isOrganizer={isOrganizer}
     />
 
     <NudgeSheet

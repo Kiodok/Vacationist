@@ -1,11 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { ScrollView } from '@vacationist/ui';
-import { colors, useResolvedTheme } from '@vacationist/ui';
+import { View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
+import { SegmentedControl } from '../../../src/components/SegmentedControl';
 import { PrivatePackingListView } from '../../../src/features/stuff/components/PrivatePackingListView';
 import { SharedPackingListView } from '../../../src/features/stuff/components/SharedPackingListView';
 import { LostFoundListView } from '../../../src/features/stuff/components/LostFoundListView';
@@ -14,8 +13,6 @@ import { CopyPackingListSheet } from '../../../src/features/stuff/components/Cop
 type StuffSegment = 'private' | 'shared' | 'lost-found';
 
 export default function StuffTab() {
-  const theme = useResolvedTheme();
-  const isColorful = theme === 'colorful';
   const { t } = useTranslation('stuff');
   const { id: tripId, highlightId, stuffSegment } = useLocalSearchParams<{ id: string; highlightId?: string; stuffSegment?: string }>();
   const user = useAuthStore((s) => s.user);
@@ -44,29 +41,11 @@ export default function StuffTab() {
 
   return (
     <View className="flex-1">
-      {/* Segment control */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerClassName="gap-xs px-md pt-sm pb-xs"
-        style={{ flexGrow: 0 }}
-      >
-        {segments.map(({ key, label }) => (
-          <Pressable
-            key={key}
-            onPress={() => setActiveSegment(key)}
-            className={`px-md py-sm rounded-full ${activeSegment === key ? 'bg-primary' : 'bg-surface'}`}
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <Text
-              className={`text-body-small font-semibold ${activeSegment === key ? 'text-white' : 'text-text-secondary'}`}
-              style={activeSegment === key && isColorful ? { color: colors.surfaceElevated } : undefined}
-            >
-              {label}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+      <SegmentedControl
+        segments={segments}
+        activeKey={activeSegment}
+        onChange={(key) => setActiveSegment(key as StuffSegment)}
+      />
 
       {/* Tab content */}
       {activeSegment === 'private' && (

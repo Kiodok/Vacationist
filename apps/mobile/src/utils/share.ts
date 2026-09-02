@@ -1,13 +1,7 @@
 import { Platform, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { requireOptionalNativeModule } from 'expo-modules-core';
+import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
-
-type SharingNativeModule = {
-  isAvailableAsync(): Promise<boolean>;
-  shareAsync(url: string, options: { mimeType?: string; dialogTitle?: string; UTI?: string }): Promise<void>;
-};
-const ExpoSharing = requireOptionalNativeModule<SharingNativeModule>('ExpoSharing');
 
 export type ShareResult = 'shared' | 'copied' | 'dismissed' | 'downloaded';
 
@@ -39,11 +33,14 @@ export async function shareText(options: ShareTextOptions): Promise<ShareResult>
 }
 
 export async function shareFile(options: ShareFileOptions): Promise<ShareResult> {
-  if (!ExpoSharing?.isAvailableAsync) return 'dismissed';
+  // Use expo-sharing's own exported API, not the raw native module. This expo-sharing version
+  // (SDK 55) doesn't define `isAvailableAsync` on the native module at all — the package
+  // function has the correct `return true` fallback for native, the earlier hand-rolled
+  // `requireOptionalNativeModule('ExpoSharing').isAvailableAsync` check was always undefined and
+  // made every shareFile() call a silent no-op on device.
   try {
-    const isAvailable = await ExpoSharing.isAvailableAsync();
-    if (!isAvailable) return 'dismissed';
-    await ExpoSharing.shareAsync(options.fileUri, {
+    if (!(await Sharing.isAvailableAsync())) return 'dismissed';
+    await Sharing.shareAsync(options.fileUri, {
       mimeType: options.mimeType,
       dialogTitle: options.dialogTitle,
     });
@@ -97,6 +94,40 @@ export async function downloadRemoteFile(url: string, filename: string, mimeType
   try {
     const localUri = `${FileSystem.cacheDirectory}${filename}`;
     await FileSystem.downloadAsync(url, localUri);
+    return shareFile({ fileUri: localUri, mimeType, dialogTitle: filename });
+  } catch {
+    return 'dismissed';
+  }
+}
+
+/**
+ * Delivers a file the app already has in memory as base64 (e.g. a PDF returned by an Edge
+ * Function). Web: browser download via a blob. Native: write to the cache dir then hand to the
+ * OS share sheet (Save to Files / etc.), same as downloadRemoteFile.
+ */
+export async function deliverBase64File(filename: string, base64: string, mimeType: string): Promise<ShareResult> {
+  if (Platform.OS === 'web') {
+    if (typeof document === 'undefined') return 'dismissed';
+    try {
+      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+      const objectUrl = URL.createObjectURL(new Blob([bytes], { type: mimeType }));
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objectUrl);
+      return 'downloaded';
+    } catch {
+      return 'dismissed';
+    }
+  }
+
+  if (!FileSystem.cacheDirectory) return 'dismissed';
+  try {
+    const localUri = `${FileSystem.cacheDirectory}${filename}`;
+    await FileSystem.writeAsStringAsync(localUri, base64, { encoding: FileSystem.EncodingType.Base64 });
     return shareFile({ fileUri: localUri, mimeType, dialogTitle: filename });
   } catch {
     return 'dismissed';

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import * as QuickActions from 'expo-quick-actions';
 import type { Action as QuickAction } from 'expo-quick-actions';
 import { useQueryClient } from '@tanstack/react-query';
@@ -10,6 +11,10 @@ import { useTrips } from './useTrips';
 import { resolveActiveTrip } from '../utils/resolveActiveTrip';
 
 const ADD_EXPENSE_ACTION_ID = 'add-expense';
+// iOS: SF Symbol (no asset needed, available since iOS 13). Android: a vector drawable shipped
+// by ./plugins/withQuickActionIcon.js — resolved by name via getIdentifier(). A cash glyph
+// either way, replacing the OS-default shortcut icon.
+const EXPENSE_ICON = Platform.OS === 'ios' ? 'symbol:dollarsign.circle.fill' : 'ic_shortcut_expense';
 
 /**
  * Registers (and keeps registered) the app-icon "Add Expense" dynamic home-screen quick action
@@ -39,7 +44,7 @@ export function useAppIconQuickAction(enabled: boolean) {
     // leaving one that would resolve to nothing when tapped.
     QuickActions.setItems(
       hasTarget
-        ? [{ id: ADD_EXPENSE_ACTION_ID, title: i18n.t('common:quickAction.addExpense'), icon: 'add' }]
+        ? [{ id: ADD_EXPENSE_ACTION_ID, title: i18n.t('common:quickAction.addExpense'), icon: EXPENSE_ICON }]
         : [],
     ).catch(() => {});
   };

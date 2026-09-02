@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { getTransferDocumentUrl } from '@vacationist/api';
@@ -108,52 +108,76 @@ export function TicketsSection({ documents, uploadMutation, deleteMutation, memb
           }
 
           return (
-            <View key={member.user_id} className="flex-row items-center gap-xs px-sm py-xs rounded-sm bg-surface">
-              <Text className="text-body-small text-text-secondary flex-1" numberOfLines={1}>
-                {member.name}
-              </Text>
-
+            // TouchableOpacity + static styles throughout, not Pressable + function style: a
+            // function `style` prop on a flex-row Pressable doesn't lay out reliably on Android
+            // (see the pressable-flex-android note) — that's what hid the Replace/Delete controls
+            // on the ticket rows.
+            <View key={member.user_id} className="flex-row items-center gap-xs px-sm rounded-sm bg-surface" style={{ minHeight: 44 }}>
               {doc ? (
                 <>
-                  <Pressable
+                  {/* The whole name + icon region opens the document — a bare 16px icon was too
+                     small a target next to the Replace button (v1.33.0 fix). */}
+                  <TouchableOpacity
+                    activeOpacity={0.6}
                     onPress={() => handleOpen(member.user_id, doc.storage_path)}
-                    hitSlop={8}
+                    style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 }}
                   >
                     {openingUserId === member.user_id ? (
                       <ActivityIndicator size="small" color={colors.primary} />
                     ) : (
-                      <ThemedIcon name={doc.mime_type.startsWith('image/') ? 'image-outline' : 'document-text-outline'} size={16} color={colors.primary} />
+                      <ThemedIcon name={doc.mime_type.startsWith('image/') ? 'image-outline' : 'document-text-outline'} size={20} color={colors.primary} />
                     )}
-                  </Pressable>
+                    <Text className="text-body-small text-text-secondary" style={{ flex: 1 }} numberOfLines={1}>
+                      {member.name}
+                    </Text>
+                  </TouchableOpacity>
                   {canManage && (
-                    <Pressable onPress={() => handleUpload(member.user_id)} disabled={isBusy} hitSlop={8}>
+                    <TouchableOpacity
+                      activeOpacity={0.6}
+                      onPress={() => handleUpload(member.user_id)}
+                      disabled={isBusy}
+                      hitSlop={8}
+                      style={{ paddingHorizontal: 8, paddingVertical: 10, opacity: isBusy ? 0.6 : 1 }}
+                    >
                       {isBusy ? <ActivityIndicator size="small" color={colors.primary} /> : (
                         <Text className="text-primary text-body-small font-medium">{t('action.replaceTicket')}</Text>
                       )}
-                    </Pressable>
+                    </TouchableOpacity>
                   )}
                   {canManage && (
-                    <Pressable onPress={() => setConfirmingDeleteUserId(member.user_id)} hitSlop={8}>
-                      <ThemedIcon name="trash-outline" size={16} color={colors.danger} />
-                    </Pressable>
+                    <TouchableOpacity
+                      activeOpacity={0.6}
+                      onPress={() => setConfirmingDeleteUserId(member.user_id)}
+                      hitSlop={8}
+                      style={{ paddingHorizontal: 8, paddingVertical: 10 }}
+                    >
+                      <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
+                    </TouchableOpacity>
                   )}
                 </>
-              ) : canManage ? (
-                <Pressable
-                  onPress={() => handleUpload(member.user_id)}
-                  disabled={isBusy}
-                  className="flex-row items-center gap-xs"
-                  style={({ pressed }) => ({ opacity: pressed || isBusy ? 0.6 : 1 })}
-                >
-                  {isBusy ? (
-                    <ActivityIndicator size="small" color={colors.primary} />
-                  ) : (
-                    <ThemedIcon name="add-circle-outline" size={16} color={colors.primary} />
-                  )}
-                  <Text className="text-primary text-body-small font-medium">{t('action.addTicket')}</Text>
-                </Pressable>
               ) : (
-                <Text className="text-body-small text-text-muted">{t('field.noTicket')}</Text>
+                <>
+                  <Text className="text-body-small text-text-secondary" style={{ flex: 1, paddingVertical: 10 }} numberOfLines={1}>
+                    {member.name}
+                  </Text>
+                  {canManage ? (
+                    <TouchableOpacity
+                      activeOpacity={0.6}
+                      onPress={() => handleUpload(member.user_id)}
+                      disabled={isBusy}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 10, opacity: isBusy ? 0.6 : 1 }}
+                    >
+                      {isBusy ? (
+                        <ActivityIndicator size="small" color={colors.primary} />
+                      ) : (
+                        <ThemedIcon name="add-circle-outline" size={18} color={colors.primary} />
+                      )}
+                      <Text className="text-primary text-body-small font-medium">{t('action.addTicket')}</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <Text className="text-body-small text-text-muted" style={{ paddingVertical: 10 }}>{t('field.noTicket')}</Text>
+                  )}
+                </>
               )}
             </View>
           );

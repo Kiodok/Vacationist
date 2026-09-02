@@ -26,6 +26,7 @@ import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { SegmentedControl } from '../../../src/components/SegmentedControl';
 
 type ViewMode = 'lists' | 'all' | 'recipes';
 
@@ -118,43 +119,15 @@ export default function ShoppingTab() {
   return (
     <View className="flex-1">
       {/* View mode toggle */}
-      <View className="flex-row gap-xs px-md pt-sm pb-xs">
-        <Pressable
-          onPress={() => setViewMode('lists')}
-          className={`px-md py-sm rounded-full ${viewMode === 'lists' ? 'bg-primary' : 'bg-surface'}`}
-        >
-          <Text
-            className={`text-body-small font-semibold ${viewMode === 'lists' ? 'text-white' : 'text-text-secondary'}`}
-            style={viewMode === 'lists' && isColorful ? { color: colors.surface } : undefined}
-          >
-            {t('toggle.lists')}
-          </Text>
-        </Pressable>
-        {!isEmpty && (
-          <Pressable
-            onPress={() => setViewMode('all')}
-            className={`px-md py-sm rounded-full ${viewMode === 'all' ? 'bg-primary' : 'bg-surface'}`}
-          >
-            <Text
-              className={`text-body-small font-semibold ${viewMode === 'all' ? 'text-white' : 'text-text-secondary'}`}
-              style={viewMode === 'all' && isColorful ? { color: colors.surface } : undefined}
-            >
-              {t('toggle.allItems')}
-            </Text>
-          </Pressable>
-        )}
-        <Pressable
-          onPress={() => setViewMode('recipes')}
-          className={`px-md py-sm rounded-full ${viewMode === 'recipes' ? 'bg-primary' : 'bg-surface'}`}
-        >
-          <Text
-            className={`text-body-small font-semibold ${viewMode === 'recipes' ? 'text-white' : 'text-text-secondary'}`}
-            style={viewMode === 'recipes' && isColorful ? { color: colors.surface } : undefined}
-          >
-            {t('toggle.recipes')}
-          </Text>
-        </Pressable>
-      </View>
+      <SegmentedControl
+        segments={[
+          { key: 'lists', label: t('toggle.lists') },
+          ...(!isEmpty ? [{ key: 'all', label: t('toggle.allItems') }] : []),
+          { key: 'recipes', label: t('toggle.recipes') },
+        ]}
+        activeKey={viewMode}
+        onChange={(key) => setViewMode(key as ViewMode)}
+      />
 
       {viewMode === 'recipes' ? (
         <RecipesView

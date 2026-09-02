@@ -3,6 +3,7 @@ import type {
   TravelDocument,
   DocumentAccessRequest,
   AccessibleMemberDocument,
+  MemberDocumentAccessEntry,
   ActiveGrant,
   UpsertTravelDocumentInput,
 } from '@vacationist/types';
@@ -70,11 +71,27 @@ export async function getMyPendingAccessRequests(): Promise<DocumentAccessReques
   return ((data ?? []) as unknown) as DocumentAccessRequest[];
 }
 
-export async function getAccessibleMemberDocuments(
+/** Organizer-only. Metadata for every (member, document_type) the caller currently has access
+ * to — no decrypted PII, no audit-log write, safe to poll. */
+export async function getMemberDocumentAccessList(
   tripId: string
-): Promise<AccessibleMemberDocument[]> {
-  const { data, error } = await supabase.rpc('get_accessible_member_documents', {
+): Promise<MemberDocumentAccessEntry[]> {
+  const { data, error } = await supabase.rpc('get_member_document_access_list', {
     p_trip_id: tripId,
+  });
+  if (error) throw error;
+  return ((data ?? []) as unknown) as MemberDocumentAccessEntry[];
+}
+
+/** Organizer-only. Decrypts and returns one member's documents. The FIRST call for a member
+ * starts that grant's countdown (activated_at / expires_at); it also writes an audit-log row. */
+export async function revealMemberDocuments(
+  tripId: string,
+  memberUserId: string
+): Promise<AccessibleMemberDocument[]> {
+  const { data, error } = await supabase.rpc('reveal_member_documents', {
+    p_trip_id: tripId,
+    p_member_user_id: memberUserId,
   });
   if (error) throw error;
   return ((data ?? []) as unknown) as AccessibleMemberDocument[];

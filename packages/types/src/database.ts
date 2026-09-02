@@ -217,6 +217,22 @@ export interface ExpenseCategoryTotal {
   total: number;
 }
 
+/** Payload sent to the render-business-expense-pdf Edge Function — the same rows the client
+ * renders into the Markdown summary, already formatted for display. */
+export interface BusinessExpensePdfInput {
+  tripTitle: string;
+  currency: string;
+  rows: {
+    date: string;
+    title: string;
+    amount: string;
+    paidBy: string;
+    documents: { fileName: string; url: string }[];
+  }[];
+  total: string;
+  count: number;
+}
+
 export interface ShoppingList {
   id: string;
   trip_id: string;
@@ -500,6 +516,22 @@ export interface DocumentAccessRequest {
   created_at: string;
 }
 
+/** One (member, document_type) a trip organizer currently has access to — metadata only, no
+ * decrypted PII. Returned by get_member_document_access_list; the organizer taps through to
+ * reveal_member_documents (which returns AccessibleMemberDocument and starts the timer). */
+export interface MemberDocumentAccessEntry {
+  user_id: string;
+  user_name: string;
+  user_avatar: string | null;
+  document_type: DocumentType;
+  /** NULL until the organizer first opened this member's documents (the countdown start). */
+  activated_at: string | null;
+  /** NULL until activated, then activated_at + the request's duration. */
+  expires_at: string | null;
+  /** Outer 7-day window — a grant never opened auto-expires at this time. */
+  grant_deadline: string;
+}
+
 export interface AccessibleMemberDocument {
   user_id: string;
   user_name: string;
@@ -522,7 +554,10 @@ export interface ActiveGrant {
   trip_title: string;
   requester_name: string;
   requester_avatar: string | null;
-  expires_at: string;
+  /** NULL until the organizer first opens the documents — then the countdown runs to here. */
+  expires_at: string | null;
+  activated_at: string | null;
+  grant_deadline: string;
 }
 
 export interface TripNote {

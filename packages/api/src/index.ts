@@ -80,6 +80,7 @@ export {
   getExpenses,
   getAllExpenses,
   hasBusinessExpenses,
+  renderBusinessExpensePdf,
   createExpense,
   updateExpenseWithSplits,
   archiveExpense,
@@ -293,7 +294,8 @@ export {
   createDocumentAccessRequest,
   respondToDocumentAccessRequest,
   getMyPendingAccessRequests,
-  getAccessibleMemberDocuments,
+  getMemberDocumentAccessList,
+  revealMemberDocuments,
   revokeDocumentAccess,
   getMyActiveGrants,
 } from './travelDocuments';

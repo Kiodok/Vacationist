@@ -573,7 +573,9 @@ export type Database = {
       }
       document_access_grants: {
         Row: {
+          activated_at: string | null
           expires_at: string | null
+          grant_deadline: string | null
           granted: boolean
           id: string
           request_id: string
@@ -581,7 +583,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          activated_at?: string | null
           expires_at?: string | null
+          grant_deadline?: string | null
           granted: boolean
           id?: string
           request_id: string
@@ -589,7 +593,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          activated_at?: string | null
           expires_at?: string | null
+          grant_deadline?: string | null
           granted?: boolean
           id?: string
           request_id?: string
@@ -2670,23 +2676,6 @@ export type Database = {
         Args: { p_document_id: string }
         Returns: undefined
       }
-      get_accessible_member_documents: {
-        Args: { p_trip_id: string }
-        Returns: {
-          date_of_birth: string
-          document_number: string
-          document_type: string
-          expiry_date: string
-          full_legal_name: string
-          grant_expires_at: string
-          issuing_country: string
-          nationality: string
-          notes: string
-          user_avatar: string
-          user_id: string
-          user_name: string
-        }[]
-      }
       get_chat_push_preview: { Args: { p_message_id: string }; Returns: string }
       get_latest_exchange_rates: {
         Args: never
@@ -2696,10 +2685,24 @@ export type Database = {
           rate: number
         }[]
       }
+      get_member_document_access_list: {
+        Args: { p_trip_id: string }
+        Returns: {
+          activated_at: string
+          document_type: string
+          expires_at: string
+          grant_deadline: string
+          user_avatar: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       get_my_active_grants: {
         Args: never
         Returns: {
+          activated_at: string
           expires_at: string
+          grant_deadline: string
           grant_id: string
           request_id: string
           requester_avatar: string
@@ -2865,6 +2868,23 @@ export type Database = {
       respond_to_document_access_request: {
         Args: { p_granted: boolean; p_request_id: string }
         Returns: undefined
+      }
+      reveal_member_documents: {
+        Args: { p_member_user_id: string; p_trip_id: string }
+        Returns: {
+          date_of_birth: string
+          document_number: string
+          document_type: string
+          expiry_date: string
+          full_legal_name: string
+          grant_expires_at: string
+          issuing_country: string
+          nationality: string
+          notes: string
+          user_avatar: string
+          user_id: string
+          user_name: string
+        }[]
       }
       revoke_document_access: {
         Args: { p_request_id: string }

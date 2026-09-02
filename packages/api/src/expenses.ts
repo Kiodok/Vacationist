@@ -1,7 +1,7 @@
 import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Json } from './database.types';
-import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, ExpenseCategoryTotal, CreateExpenseInput, UpdateExpenseWithSplitsInput, SettlementReceipt } from '@vacationist/types';
+import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, ExpenseCategoryTotal, CreateExpenseInput, UpdateExpenseWithSplitsInput, SettlementReceipt, BusinessExpensePdfInput } from '@vacationist/types';
 
 export const EXPENSE_PAGE_SIZE = 30;
 
@@ -60,6 +60,22 @@ export async function hasBusinessExpenses(tripId: string): Promise<boolean> {
 
   if (error) throw error;
   return (count ?? 0) > 0;
+}
+
+/** Calls the render-business-expense-pdf Edge Function and returns the PDF as a base64 string.
+ * The access token is attached explicitly (same reasoning as reportSignUpAttribution — don't
+ * rely on functions.invoke's implicit auth injection). Throws on failure; the caller falls back
+ * to delivering just the Markdown. */
+export async function renderBusinessExpensePdf(input: BusinessExpensePdfInput): Promise<string> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('No session — cannot render business expense PDF');
+  const { data, error } = await supabase.functions.invoke<{ pdfBase64: string }>('render-business-expense-pdf', {
+    body: input,
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  });
+  if (error) throw error;
+  if (!data?.pdfBase64) throw new Error('Edge function returned no PDF');
+  return data.pdfBase64;
 }
 
 export async function createExpense(tripId: string, input: CreateExpenseInput): Promise<string> {

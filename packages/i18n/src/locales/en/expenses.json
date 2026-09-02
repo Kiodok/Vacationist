@@ -76,6 +76,7 @@
   "edit.saving": "Saving...",
   "edit.submit": "Save Changes",
   "edit.warning": "Editing resets settlement status for changed splits",
+  "edit.coverConverted": "This was a \"covered\" expense. Saving converts it to a normal even split with {{name}} as the payer.",
   "field.titleLabel": "Title",
   "field.description": "Description",
   "field.businessExpense": "Business expense",
@@ -147,5 +148,6 @@
   "toast.businessSummaryShared": "Business summary shared!",
   "toast.businessSummaryDownloaded": "Business summary downloaded",
   "toast.businessSummaryFailed": "Failed to generate business summary.",
+  "toast.businessSummaryMdOnly": "Downloaded Markdown only — the PDF could not be generated.",
   "quickAction.addingTo": "Adding to: {{trip}}"
 }

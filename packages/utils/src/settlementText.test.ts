@@ -5,9 +5,9 @@ import type { User, Expense } from '@vacationist/types';
 
 beforeAll(() => initDayjs());
 
-const alice: User = { id: 'u1', name: 'Alice', email: null, avatar_url: null, locale: null, timezone: 'UTC', is_guest: false, created_at: '', updated_at: '' };
-const bob: User = { id: 'u2', name: 'Bob', email: null, avatar_url: null, locale: null, timezone: 'UTC', is_guest: false, created_at: '', updated_at: '' };
-const carol: User = { id: 'u3', name: 'Carol', email: null, avatar_url: null, locale: null, timezone: 'UTC', is_guest: false, created_at: '', updated_at: '' };
+const alice: User = { id: 'u1', name: 'Alice', email: null, avatar_url: null, locale: null, timezone: 'UTC', is_guest: false, preferred_currency: null, created_at: '', updated_at: '' };
+const bob: User = { id: 'u2', name: 'Bob', email: null, avatar_url: null, locale: null, timezone: 'UTC', is_guest: false, preferred_currency: null, created_at: '', updated_at: '' };
+const carol: User = { id: 'u3', name: 'Carol', email: null, avatar_url: null, locale: null, timezone: 'UTC', is_guest: false, preferred_currency: null, created_at: '', updated_at: '' };
 
 const memberMap = new Map([['u1', alice], ['u2', bob], ['u3', carol]]);
 

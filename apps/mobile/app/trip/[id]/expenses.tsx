@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
-import { isExpenseFullySettled, formatBusinessExpenseSummary } from '@vacationist/utils';
-import { getAllExpenses, getExpenseDocuments, getExpenseDocumentUrl } from '@vacationist/api';
+import { isExpenseFullySettled, formatBusinessExpenseSummary, buildBusinessExpenseReport } from '@vacationist/utils';
+import { getAllExpenses, getExpenseDocuments, getExpenseDocumentUrl, renderBusinessExpensePdf } from '@vacationist/api';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllExpenses, useSettlementReceipts, useHasBusinessExpenses } from '../../../src/features/expenses/hooks/useExpenses';
 import { useExpensesRealtime } from '../../../src/features/expenses/hooks/useExpensesRealtime';
@@ -30,8 +30,7 @@ import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import { CurrencyPickerSheet } from '../../../src/features/currencies/components/CurrencyPickerSheet';
 import { useCurrencyConversion } from '../../../src/features/currencies/hooks/useCurrencies';
-import { shareText, shareFile, downloadTextFile } from '../../../src/utils/share';
-import type { ShareResult } from '../../../src/utils/share';
+import { shareText, shareFile, downloadTextFile, deliverBase64File } from '../../../src/utils/share';
 import { useToastStore } from '../../../src/stores/toastStore';
 
 // Business summary document links are embedded in a file the user downloads and may open well
@@ -151,11 +150,12 @@ export default function ExpensesTab() {
   // Fetches the whole trip's expenses on demand (not via a reactive query — this is an
   // occasional export action, not something that should eagerly load every expense on every
   // visit to this screen the way the paginated feed above does). Each business expense's
-  // attached documents are pulled in too (as long-lived signed links) so the downloaded file is
-  // a complete standalone record, not just a list of amounts. A plain "copy to clipboard" isn't
-  // enough for a document meant to be handed to an employer, so this always produces a real
-  // .md file — downloaded directly on web, written to a temp file and handed to the OS share
-  // sheet (falling back to a plain text share) on native.
+  // attached documents are pulled in too (as long-lived signed links) so the downloaded files
+  // are a complete standalone record. Produces BOTH a Markdown file (for the links / editing)
+  // and a PDF (rendered by the render-business-expense-pdf Edge Function, so the layout is
+  // identical on every platform with no native module). Web downloads both; native writes both
+  // to the cache dir and opens the OS share sheet once per file. If the PDF can't be produced,
+  // the Markdown is still delivered.
   const handleBusinessSummary = async () => {
     if (isGeneratingBusinessSummary) return;
     setIsGeneratingBusinessSummary(true);
@@ -166,6 +166,9 @@ export default function ExpensesTab() {
         addToast('error', t('toast.businessSummaryEmpty'));
         return;
       }
+
+      const currencyCode = trip?.base_currency ?? 'EUR';
+      const tripTitle = trip?.title ?? '';
 
       const documentsByExpenseId = new Map<string, { fileName: string; url: string }[]>();
       await Promise.all(
@@ -182,31 +185,62 @@ export default function ExpensesTab() {
         }),
       );
 
-      const markdown = formatBusinessExpenseSummary({
+      // One structured report drives both outputs, so the .md and .pdf can never disagree on
+      // date/currency/payer formatting (buildBusinessExpenseReport owns all of it).
+      const reportInput = {
         expenses: allExpenses,
         members: memberMap,
-        currency: trip?.base_currency ?? 'EUR',
-        tripTitle: trip?.title ?? '',
+        currency: currencyCode,
+        tripTitle,
         documentsByExpenseId,
-      });
+      };
+      const report = buildBusinessExpenseReport(reportInput);
+      const markdown = formatBusinessExpenseSummary(reportInput);
 
-      const slug = (trip?.title ?? 'trip').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
-      const filename = `${slug}-business-expenses.md`;
+      let pdfBase64: string | null = null;
+      try {
+        pdfBase64 = await renderBusinessExpensePdf({
+          tripTitle: report.tripTitle,
+          currency: currencyCode,
+          rows: report.rows,
+          total: report.total,
+          count: report.count,
+        });
+      } catch {
+        pdfBase64 = null;
+      }
+
+      const slug = (tripTitle || 'trip').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
+      const mdName = `${slug}-business-expenses.md`;
+      const pdfName = `${slug}-business-expenses.pdf`;
 
       if (Platform.OS === 'web') {
-        downloadTextFile(filename, markdown, 'text/markdown');
-        addToast('success', t('toast.businessSummaryDownloaded'));
+        // Two back-to-back anchor downloads can trip Chrome's "download multiple files" gate.
+        // PDF first (the primary deliverable for an employer), then the Markdown a tick later.
+        if (pdfBase64) {
+          await deliverBase64File(pdfName, pdfBase64, 'application/pdf');
+          await new Promise((r) => setTimeout(r, 400));
+        }
+        downloadTextFile(mdName, markdown, 'text/markdown');
+        addToast(pdfBase64 ? 'success' : 'warning', pdfBase64 ? t('toast.businessSummaryDownloaded') : t('toast.businessSummaryMdOnly'));
+      } else if (pdfBase64) {
+        // Native: one share sheet for the PDF — the complete report (table, total, and clickable
+        // links to each attached receipt). iOS refuses to present a second share sheet while the
+        // first is dismissing, so a separate Markdown sheet is not attempted here; the PDF alone
+        // is what gets handed to an employer.
+        const result = await deliverBase64File(pdfName, pdfBase64, 'application/pdf');
+        addToast(result === 'shared' || result === 'downloaded' ? 'success' : 'warning', t('toast.businessSummaryShared'));
       } else {
-        let result: ShareResult = 'dismissed';
-        const uri = FileSystem.cacheDirectory ? `${FileSystem.cacheDirectory}${filename}` : null;
-        if (uri) {
-          await FileSystem.writeAsStringAsync(uri, markdown, { encoding: FileSystem.EncodingType.UTF8 });
-          result = await shareFile({ fileUri: uri, mimeType: 'text/markdown', dialogTitle: filename });
+        // PDF generation failed — fall back to the Markdown so the user still gets the data.
+        const mdUri = FileSystem.cacheDirectory ? `${FileSystem.cacheDirectory}${mdName}` : null;
+        if (mdUri) {
+          await FileSystem.writeAsStringAsync(mdUri, markdown, { encoding: FileSystem.EncodingType.UTF8 });
+          const r = await shareFile({ fileUri: mdUri, mimeType: 'text/markdown', dialogTitle: mdName });
+          if (r === 'dismissed') await shareText({ text: markdown, title: mdName });
+        } else {
+          await shareText({ text: markdown, title: mdName });
         }
-        if (result === 'dismissed') {
-          result = await shareText({ text: markdown, title: filename });
-        }
-        if (result === 'shared') addToast('success', t('toast.businessSummaryShared'));
+        addToast('warning', t('toast.businessSummaryMdOnly'));
       }
     } catch {
       addToast('error', t('toast.businessSummaryFailed'));

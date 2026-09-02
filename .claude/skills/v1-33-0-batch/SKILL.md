@@ -453,6 +453,101 @@ case (needs a reproducible stale-refetch race) — flagged for the Tech Lead's o
 alongside the batch's other device-only items (task 16, iOS force-update, Balances four-theme
 pass).
 
+## Post-manual-testing fixes — 2nd round (6 items, code-complete, not committed)
+
+The 19-item batch + addendum + code-review pass were committed as `c2a7891` ("feat: v1.33.0 —
+expense docs, business expenses, transfer overhaul, quick actions"). Manual device testing then
+surfaced 6 more. Plan: `C:\Users\Gary\.claude\plans\lively-noodling-iverson.md`. All typecheck
++ `npm test` (282) green. Migration `20260902120000` + Edge Function `render-business-expense-pdf`
+**deployed to dev AND prod** 2026-09-02 (Tech Lead confirmed near release / full rollout) —
+see `engineering/supabase.md`. First dev push failed (`get_my_active_grants` OUT-column change
+needs an explicit `DROP FUNCTION` — rolled back clean, added the DROP, re-pushed). Ledger +
+object-fingerprint parity dev==prod confirmed. `database.types.ts` regenerated.
+
+1. **Business Summary now downloads `.md` AND PDF** on every platform. New Edge Function
+   `render-business-expense-pdf` (`pdf-lib` via esm.sh, `verify_jwt` + `auth.getUser`, returns
+   `{ pdfBase64 }`) — client sends the same rows it renders into Markdown.
+   `deliverBase64File()` added to `share.ts`. Web: two downloads. Native: PDF share sheet then
+   MD share sheet. Degrades to MD-only (`toast.businessSummaryMdOnly`) if the function fails.
+2. **"Cover" split method removed from Create + Edit expense.** It was never a *category* — the
+   category enum is `accommodation|activity|transport|shopping|manual`; "cover" is an
+   `EXPENSE_SPLIT_METHOD` value. Enum/schema/RPC keep accepting `'cover'` (existing rows, offline
+   replay). Both sheets render the picker from `SELECTABLE_SPLIT_METHODS` (filters out `'cover'`).
+   `EditExpenseSheet` opening a legacy cover expense **converts it on save** to an even split
+   with the real payer (`splits[0].user_id`) restored, shown via a non-silent
+   `edit.coverConverted` warning line. The per-split `covered_by` "Cover"/"Uncover" buttons in
+   `ExpenseSplitBreakdown` are a *different* feature — untouched ("cover expenses of specific
+   members" stays).
+3. **Scrollable + auto-scrolling segment bars.** Root cause: `TransferSegmentedControl` was a
+   plain `<View flex-row>`, never a ScrollView — `c2a7891`'s 5th segment ("Public Transport" /
+   DE "Öffentliche Verkehrsmittel") overflowed with no scroll. New shared
+   `apps/mobile/src/components/SegmentedControl.tsx` (horizontal ScrollView, `flexGrow:0`,
+   `onLayout` x-capture + `scrollTo` on `activeKey` change — mirrors the outer trip tab bar in
+   `app/trip/[id]/index.tsx`). Adopted by `TransferSegmentedControl`, `PreworkSegmentedControl`,
+   `stuff.tsx`, `shopping.tsx` (all keep their public props). Outer trip tab bar left as-is.
+4. **Quick-action icon → cash glyph.** iOS: `icon: 'symbol:dollarsign.circle.fill'` (SF Symbol,
+   no asset). Android: `icon: 'ic_shortcut_expense'` + new local config plugin
+   `apps/mobile/plugins/withQuickActionIcon.js` (`withDangerousMod`, writes one monochrome
+   banknote `<vector>` to `res/drawable/`) — `expo-quick-actions@6` has no prop for a shortcut
+   drawable. `'add'` never resolved on Android → OS-default "robot" icon. Native-only, Tech Lead
+   device-tests.
+5. **Ticket-row "open document" tap target enlarged.** `TicketsSection.tsx` (shared by
+   Flight/PublicTransport): the whole name+icon region is now one 44px `Pressable` that opens
+   the doc (was a bare 16px icon with `hitSlop={8}` jammed next to "Replace"); Replace + trash
+   get `px-sm py-sm` + pressed feedback. Same treatment applied to `ExpenseDocumentsSection`.
+6. **Travel-doc access timer starts on first view, per member, 7-day outer deadline.** Migration
+   `20260902120000_document_access_first_view_timer.sql`: `document_access_grants` +
+   `activated_at`, `grant_deadline`; `expires_at` NULL until first reveal. New
+   `get_member_document_access_list` (metadata only, no decrypt/audit, safe to poll) +
+   `reveal_member_documents` (decrypts one member, starts that grant's clock on first call,
+   one audit row). `get_accessible_member_documents` dropped. `get_my_active_grants` +
+   `create_document_access_request` guard updated for un-activated-within-deadline grants.
+   `MemberDocumentsSheet` reworked into a member list + per-member "View" and **fully translated**
+   (`memberDocs.*` EN+DE — was the only un-translated component in the feature).
+   `ActiveGrantsBanner` shows "Not opened yet · auto-expires …". `database.types.ts` hand-edited
+   to match pending `gen types --linked`.
+
+**`/code-review` on the above — 5 findings, all fixed:**
+1. `MemberDocumentsSheet` used `safeFromNow()` (a *past*-only clock-skew clamp) on the future
+   `expires_at`/`grant_deadline` → every status line rendered "a few seconds ago". Switched to
+   plain `dayjs(x).fromNow()` (what `ActiveGrantsBanner` already does).
+2. `handleBusinessSummary` native path: PDF generated + MD share sheet dismissed → no toast, MD
+   silently not delivered via the `shareText` fallback. Reworked: PDF first, then MD sheet,
+   success toast fires once the PDF (primary file) is delivered regardless of the MD sheet.
+3. `SegmentedControl` auto-scroll only ran on `activeKey` *change* — a deep-linked non-default
+   segment (e.g. Transfer→PublicTransport, the 5th pill) stayed off-screen on mount. Now also
+   scrolls from each pill's `onLayout` when its key is active.
+4. PDF row-shaping in `expenses.tsx` duplicated `formatBusinessExpenseSummary`'s internal
+   date/currency/payer/total formatting. Extracted `buildBusinessExpenseReport(input)` in
+   `packages/utils/settlementText.ts` — single source of truth, feeds both the `.md` renderer
+   and the PDF payload.
+5. Web fired two back-to-back anchor downloads (Chrome "download multiple files" gate risk).
+   Now PDF first, 400ms gap, then MD.
+
+## Device-testing round 2 — 3 more bugs, all fixed (OTA-eligible, no migration/edge change)
+
+1. **`shareFile()` was a silent no-op on device** — `share.ts` guarded on
+   `requireOptionalNativeModule('ExpoSharing').isAvailableAsync`, but expo-sharing SDK 55's
+   native module doesn't define `isAvailableAsync` at all (only the `.web` shim does), so the
+   guard was always `undefined` → returned `'dismissed'` without ever presenting a sheet. This
+   broke **every** `shareFile` caller on native (business summary, trip export, `downloadRemoteFile`).
+   Fixed: `import * as Sharing from 'expo-sharing'` and call the package's own
+   `Sharing.isAvailableAsync()` (has the correct `return true` native fallback), like
+   `TripHighlightSheet` already did.
+2. **Business Summary on native** now shares **just the PDF** (one reliable sheet). Two
+   sequential `Sharing.shareAsync` calls don't work — iOS refuses to present sheet #2 while #1
+   is dismissing. The PDF is the complete report (table, total, clickable receipt links), so
+   dropping the separate `.md` sheet on native is acceptable; web still downloads both.
+3. **Expense doc upload failed with `InvalidKey` on non-ASCII filenames** (`Buchungsbestätigung.png`).
+   `buildExpenseDocumentPath` embedded the raw filename in the Storage key; Supabase rejects
+   non-ASCII keys. Added `toStorageSafeName()` in `documentStorage.ts` (NFKD + strip combining
+   marks + ASCII-only collapse); the `file_name` DB column still keeps the original for display.
+   Transfer tickets were unaffected (fixed `.../ticket` path, no filename).
+4. **Transfer ticket Replace/Delete buttons missing on Android** — the v1.33.0 tap-target change
+   put a function `style` prop on the flex-row `Pressable`s, which doesn't lay out reliably on
+   Android (the [[pressable-flex-android]] footgun). Rewrote `TicketsSection.tsx` +
+   `ExpenseDocumentsSection.tsx` rows as `TouchableOpacity` + `activeOpacity` + static styles.
+
 ## Key decisions to not re-litigate
 
 - Document buckets: **private**, any trip member can view, only uploader-or-organizer can

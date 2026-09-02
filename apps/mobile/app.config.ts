@@ -134,6 +134,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // iosActions/androidIcons config, since its target trip has to be resolved fresh on every
     // app launch/foreground, not baked in at build time.
     'expo-quick-actions',
+    // Ships res/drawable/ic_shortcut_expense.xml so the Android shortcut has a cash icon
+    // instead of the OS default (expo-quick-actions has no prop for a shortcut drawable). iOS
+    // uses the SF Symbol `dollarsign.circle.fill` and needs no asset.
+    './plugins/withQuickActionIcon',
     [
       'expo-build-properties',
       {

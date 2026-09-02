@@ -10,10 +10,34 @@ const SIGNED_URL_TTL_SECONDS = 300;
  * uploadDocumentFile/getSignedDocumentUrl/deleteDocumentFile above.
  */
 
+const COMBINING_MARKS = /[̀-ͯ]/g;
+const NON_KEY_SAFE = /[^A-Za-z0-9._-]+/g;
+
+/** Makes a filename safe to use as a Supabase Storage object key. Storage rejects keys with
+ * characters outside a restricted set — spaces are tolerated on some paths but non-ASCII
+ * (`ä`, `ö`, `ü`, …) always yields `InvalidKey`. NFKD + stripping the combining marks turns
+ * accented letters into their ASCII base. The original name is still kept verbatim in the
+ * `file_name` DB column for display; only the storage key is sanitised. */
+function toStorageSafeName(fileName: string): string {
+  const dot = fileName.lastIndexOf('.');
+  const base = dot > 0 ? fileName.slice(0, dot) : fileName;
+  const ext = dot > 0 ? fileName.slice(dot + 1) : '';
+  const clean = (s: string): string =>
+    s
+      .normalize('NFKD')
+      .replace(COMBINING_MARKS, '')
+      .replace(NON_KEY_SAFE, '_')
+      .replace(/_+/g, '_')
+      .replace(/^[._-]+|[._-]+$/g, '');
+  const safeBase = clean(base).slice(0, 80) || 'file';
+  const safeExt = clean(ext).slice(0, 12);
+  return safeExt ? `${safeBase}.${safeExt}` : safeBase;
+}
+
 /** `expense-documents` bucket path. Timestamp-prefixed: an expense can carry multiple documents
  * (receipt + warranty card, etc.), so nothing here should ever overwrite. */
 export function buildExpenseDocumentPath(tripId: string, expenseId: string, userId: string, fileName: string): string {
-  return `${tripId}/expenses/${expenseId}/${userId}/${Date.now()}_${fileName}`;
+  return `${tripId}/expenses/${expenseId}/${userId}/${Date.now()}_${toStorageSafeName(fileName)}`;
 }
 
 /** `transfer-documents` bucket path, shared by flight tickets and public-transport tickets — a
