@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Vacationist',
   slug: 'vacationist',
-  version: '1.32.1',
+  version: '1.33.0',
   orientation: 'default',
   icon: './assets/images/icon.png',
   scheme: 'vacationist',
@@ -129,6 +129,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-sharing',
+    // No config props — the "Add Expense" shortcut (task 16) is set at runtime via the
+    // dynamic API (QuickActions.setItems in useAppIconQuickAction.ts), not this plugin's static
+    // iosActions/androidIcons config, since its target trip has to be resolved fresh on every
+    // app launch/foreground, not baked in at build time.
+    'expo-quick-actions',
     [
       'expo-build-properties',
       {

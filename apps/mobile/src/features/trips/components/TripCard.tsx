@@ -1,5 +1,5 @@
 import { Pressable, View, Text } from 'react-native';
-import { dayjs } from '@vacationist/utils';
+import { dayjs, formatDateRange } from '@vacationist/utils';
 import type { Trip, TripStatus } from '@vacationist/types';
 import { colors, RichText, ThemedIcon } from '@vacationist/ui';
 import { StatusBadge } from './StatusBadge';
@@ -15,19 +15,6 @@ export function getEffectiveStatus(trip: Trip): TripStatus {
   if (trip.end_date < today) return 'completed';
   if (trip.start_date <= today) return 'active';
   return trip.status;
-}
-
-function formatDateRange(startDate: string, endDate: string): string {
-  const start = dayjs(startDate);
-  const end = dayjs(endDate);
-
-  if (start.year() !== end.year()) {
-    return `${start.format('D MMM YYYY')} – ${end.format('D MMM YYYY')}`;
-  }
-  if (start.month() !== end.month()) {
-    return `${start.format('D MMM')} – ${end.format('D MMM YYYY')}`;
-  }
-  return `${start.format('D')} – ${end.format('D MMM YYYY')}`;
 }
 
 export function TripCard({ trip, onPress }: TripCardProps) {
@@ -53,7 +40,7 @@ export function TripCard({ trip, onPress }: TripCardProps) {
         <View className="flex-row items-center gap-xs">
           <ThemedIcon name="calendar-outline" size={14} color={colors.success} />
           <Text className="text-body-small text-text-secondary">
-            {formatDateRange(trip.start_date, trip.end_date)}
+            {formatDateRange(trip.start_date, trip.end_date, trip.timezone)}
           </Text>
         </View>
 

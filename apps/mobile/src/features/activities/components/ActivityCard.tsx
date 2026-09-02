@@ -13,6 +13,7 @@ interface ActivityCardProps {
   votes: ActivityVote[];
   currentUserId: string | undefined;
   currency: Currency;
+  timezone: string;
   onPress: () => void;
   onVotePress: () => void;
   detail?: React.ReactNode;
@@ -20,7 +21,7 @@ interface ActivityCardProps {
   highlight?: boolean;
 }
 
-export function ActivityCard({ activity, votes, currentUserId, currency, onPress, onVotePress, detail, displayStatus, highlight }: ActivityCardProps) {
+export function ActivityCard({ activity, votes, currentUserId, currency, timezone, onPress, onVotePress, detail, displayStatus, highlight }: ActivityCardProps) {
   const { t } = useTranslation('activities');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
@@ -74,7 +75,11 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
           <View className="flex-row items-center gap-xs">
             <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
             <Text className="text-body-small text-text-secondary">
-              {dayjs(activity.activity_date).format('ddd, D MMM')}
+              {/* .tz(), not a bare dayjs(activity_date) parse — activity_date is a date-only
+                  'YYYY-MM-DD' string, which parses as UTC midnight; formatting without .tz()
+                  converts to the device's local timezone first, rolling the displayed date back
+                  a day on any device behind UTC (task 12). */}
+              {dayjs.tz(activity.activity_date, timezone).format('ddd, D MMM')}
             </Text>
           </View>
         ) : null}

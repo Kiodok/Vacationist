@@ -1,6 +1,7 @@
 import { Platform, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { requireOptionalNativeModule } from 'expo-modules-core';
+import * as FileSystem from 'expo-file-system/legacy';
 
 type SharingNativeModule = {
   isAvailableAsync(): Promise<boolean>;
@@ -63,4 +64,41 @@ export function downloadTextFile(filename: string, content: string, mimeType: st
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+/**
+ * Downloads a remote file (e.g. a signed Storage URL) to the user's device. Web triggers a
+ * browser download via a blob + `<a download>` (same trick as downloadTextFile, generalized to
+ * binary content); native downloads to the cache dir then hands off to the OS share sheet via
+ * shareFile — there's no direct "save to device" API without extra permissions, so the share
+ * sheet (Save to Files / Photos, etc.) is the standard Expo pattern for this.
+ */
+export async function downloadRemoteFile(url: string, filename: string, mimeType: string): Promise<ShareResult> {
+  if (Platform.OS === 'web') {
+    if (typeof document === 'undefined') return 'dismissed';
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objectUrl);
+      return 'downloaded';
+    } catch {
+      return 'dismissed';
+    }
+  }
+
+  if (!FileSystem.cacheDirectory) return 'dismissed';
+  try {
+    const localUri = `${FileSystem.cacheDirectory}${filename}`;
+    await FileSystem.downloadAsync(url, localUri);
+    return shareFile({ fileUri: localUri, mimeType, dialogTitle: filename });
+  } catch {
+    return 'dismissed';
+  }
 }

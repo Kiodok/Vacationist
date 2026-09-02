@@ -687,6 +687,61 @@ export type Database = {
           },
         ]
       }
+      expense_documents: {
+        Row: {
+          created_at: string
+          expense_id: string
+          file_name: string
+          id: string
+          mime_type: string
+          storage_path: string
+          trip_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          expense_id: string
+          file_name: string
+          id?: string
+          mime_type: string
+          storage_path: string
+          trip_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          expense_id?: string
+          file_name?: string
+          id?: string
+          mime_type?: string
+          storage_path?: string
+          trip_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_documents_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_documents_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_splits: {
         Row: {
           amount_owed: number
@@ -760,8 +815,10 @@ export type Database = {
           created_at: string
           created_by: string
           currency: string
+          description: string | null
           exchange_rate: number
           id: string
+          is_business: boolean
           paid_by: string
           related_id: string | null
           related_type: string
@@ -778,8 +835,10 @@ export type Database = {
           created_at?: string
           created_by: string
           currency?: string
+          description?: string | null
           exchange_rate?: number
           id?: string
+          is_business?: boolean
           paid_by: string
           related_id?: string | null
           related_type?: string
@@ -796,8 +855,10 @@ export type Database = {
           created_at?: string
           created_by?: string
           currency?: string
+          description?: string | null
           exchange_rate?: number
           id?: string
+          is_business?: boolean
           paid_by?: string
           related_id?: string | null
           related_type?: string
@@ -1619,6 +1680,84 @@ export type Database = {
           },
         ]
       }
+      transfer_documents: {
+        Row: {
+          created_at: string
+          file_name: string
+          flight_id: string | null
+          id: string
+          mime_type: string
+          public_transport_id: string | null
+          storage_path: string
+          trip_id: string
+          updated_at: string
+          uploaded_by: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          flight_id?: string | null
+          id?: string
+          mime_type: string
+          public_transport_id?: string | null
+          storage_path: string
+          trip_id: string
+          updated_at?: string
+          uploaded_by: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          flight_id?: string | null
+          id?: string
+          mime_type?: string
+          public_transport_id?: string | null
+          storage_path?: string
+          trip_id?: string
+          updated_at?: string
+          uploaded_by?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_documents_flight_id_fkey"
+            columns: ["flight_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_flights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_documents_public_transport_id_fkey"
+            columns: ["public_transport_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_public_transport"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_documents_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transfer_flight_passengers: {
         Row: {
           created_at: string
@@ -1812,6 +1951,78 @@ export type Database = {
           },
           {
             foreignKeyName: "transfer_flights_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_public_transport: {
+        Row: {
+          arrival_location: string | null
+          arrival_time: string | null
+          booking_reference: string | null
+          company: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          departure_location: string | null
+          departure_time: string | null
+          external_url: string | null
+          id: string
+          notes: string | null
+          price_total: number | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          arrival_location?: string | null
+          arrival_time?: string | null
+          booking_reference?: string | null
+          company?: string | null
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          departure_location?: string | null
+          departure_time?: string | null
+          external_url?: string | null
+          id?: string
+          notes?: string | null
+          price_total?: number | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          arrival_location?: string | null
+          arrival_time?: string | null
+          booking_reference?: string | null
+          company?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          departure_location?: string | null
+          departure_time?: string | null
+          external_url?: string | null
+          id?: string
+          notes?: string | null
+          price_total?: number | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_public_transport_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_public_transport_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
@@ -2416,6 +2627,8 @@ export type Database = {
         Args: {
           p_amount: number
           p_currency: string
+          p_description?: string
+          p_is_business?: boolean
           p_paid_by: string
           p_related_id: string
           p_related_type: string
@@ -2475,6 +2688,14 @@ export type Database = {
         }[]
       }
       get_chat_push_preview: { Args: { p_message_id: string }; Returns: string }
+      get_latest_exchange_rates: {
+        Args: never
+        Returns: {
+          as_of: string
+          currency: string
+          rate: number
+        }[]
+      }
       get_my_active_grants: {
         Args: never
         Returns: {
@@ -2546,6 +2767,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_trip_expense_category_totals: {
+        Args: { p_trip_id: string }
+        Returns: {
+          related_type: string
+          total: number
+        }[]
+      }
       get_trip_message_by_id: {
         Args: { p_message_id: string }
         Returns: {
@@ -2577,6 +2805,7 @@ export type Database = {
         Returns: {
           activities: boolean
           base: boolean
+          calendar: boolean
           chat: boolean
           expenses: boolean
           notes: boolean
@@ -2683,6 +2912,10 @@ export type Database = {
         Args: { p_flight_id: string }
         Returns: undefined
       }
+      soft_delete_transfer_public_transport: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
       soft_delete_transfer_rental: {
         Args: { p_rental_id: string }
         Returns: undefined
@@ -2718,8 +2951,11 @@ export type Database = {
         Args: {
           p_amount: number
           p_currency?: string
+          p_description?: string
           p_expense_id: string
+          p_is_business?: boolean
           p_paid_by: string
+          p_related_type?: string
           p_split_method: string
           p_splits: Json
           p_title: string
@@ -2774,12 +3010,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2803,11 +3039,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2828,11 +3064,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2853,11 +3089,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2870,11 +3106,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

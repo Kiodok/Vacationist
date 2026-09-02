@@ -170,6 +170,7 @@ export default function ChatTab() {
       )}
 
       <ChatInputBar
+        tripId={tripId!}
         onSend={handleSend}
         onSaveEdit={handleSaveEdit}
         editingMessage={editingMessage}

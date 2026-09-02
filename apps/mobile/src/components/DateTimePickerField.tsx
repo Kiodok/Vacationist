@@ -126,27 +126,79 @@ export function DateTimePickerField({
           paddingRight: 16,
           gap: 8,
         }}>
-          <input
-            ref={webInputRef as React.RefObject<HTMLInputElement>}
-            type={mode}
-            value={value ?? ''}
-            onChange={(e) => onChange(e.target.value || null)}
-            min={mode === 'date' ? minStr : undefined}
-            max={mode === 'date' ? maxStr : undefined}
-            style={{
-              flex: 1,
-              backgroundColor: 'transparent',
-              border: 'none',
-              outline: 'none',
-              color: value ? themeColors.textPrimary : themeColors.textMuted,
-              fontSize: 16,
-              fontFamily: 'inherit',
-              height: 48,
-              width: '100%',
-              colorScheme: theme === 'dark' ? 'dark' : 'light',
-              cursor: 'pointer',
-            }}
-          />
+          {mode === 'time' ? (
+            // Every attempt to hide just the native picker-indicator icon while keeping the
+            // rest of the native <input> visible turned out unreliable across engines: the
+            // ::-webkit-calendar-picker-indicator CSS rule only ever covers WebKit/Blink (never
+            // Firefox, which exposes no hook for it at all), and even a same-background overlay
+            // div positioned exactly over the icon's box didn't visually cover it in testing —
+            // browsers evidently paint a native form control's own chrome above ordinary
+            // sibling content regardless of normal stacking order. The one thing that IS
+            // guaranteed to affect 100% of an element's own rendering, icon included, on every
+            // engine, is opacity on that exact element — so the real <input> is fully
+            // transparent here (still focusable/typable/clickable, opacity doesn't disable
+            // interactivity) and a purely presentational div underneath renders the visible
+            // text. The custom ThemedIcon button below remains the only visible icon anywhere.
+            <div style={{ position: 'relative', flex: 1, height: 48 }}>
+              <div
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  pointerEvents: 'none',
+                  color: value ? themeColors.textPrimary : themeColors.textMuted,
+                  fontSize: 16,
+                  fontFamily: 'inherit',
+                }}
+              >
+                {value || '--:--'}
+              </div>
+              <input
+                ref={webInputRef as React.RefObject<HTMLInputElement>}
+                type="time"
+                value={value ?? ''}
+                onChange={(e) => onChange(e.target.value || null)}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0,
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  fontSize: 16,
+                  fontFamily: 'inherit',
+                  colorScheme: theme === 'dark' ? 'dark' : 'light',
+                  cursor: 'pointer',
+                }}
+              />
+            </div>
+          ) : (
+            <input
+              ref={webInputRef as React.RefObject<HTMLInputElement>}
+              type={mode}
+              value={value ?? ''}
+              onChange={(e) => onChange(e.target.value || null)}
+              min={minStr}
+              max={maxStr}
+              style={{
+                flex: 1,
+                backgroundColor: 'transparent',
+                border: 'none',
+                outline: 'none',
+                color: value ? themeColors.textPrimary : themeColors.textMuted,
+                fontSize: 16,
+                fontFamily: 'inherit',
+                height: 48,
+                width: '100%',
+                colorScheme: theme === 'dark' ? 'dark' : 'light',
+                cursor: 'pointer',
+              }}
+            />
+          )}
           {mode === 'time' && (
             <button
               type="button"

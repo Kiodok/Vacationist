@@ -78,12 +78,15 @@ export {
 export {
   EXPENSE_PAGE_SIZE,
   getExpenses,
+  getAllExpenses,
+  hasBusinessExpenses,
   createExpense,
   updateExpenseWithSplits,
   archiveExpense,
   unarchiveExpense,
   getExpenseSplits,
   getTripBalances,
+  getTripExpenseCategoryTotals,
   settleExpenseSplit,
   unsettleExpenseSplit,
   coverSplit,
@@ -197,8 +200,37 @@ export {
 } from './transferRentals';
 export type { RentalRealtimeCallbacks } from './transferRentals';
 
+export {
+  getTransferPublicTransport,
+  createTransferPublicTransport,
+  updateTransferPublicTransport,
+  softDeleteTransferPublicTransport,
+  subscribeToPublicTransportRealtime,
+  unsubscribeFromPublicTransportRealtime,
+} from './transferPublicTransport';
+export type { PublicTransportRealtimeCallbacks } from './transferPublicTransport';
+
 export { subscribeToTransferRealtime, unsubscribeFromTransfer } from './transferRealtime';
 export type { TransferRealtimeCallbacks } from './transferRealtime';
+
+export { uploadDocumentFile, getSignedDocumentUrl, deleteDocumentFile } from './documentStorage';
+
+export {
+  getExpenseDocuments,
+  uploadExpenseDocument,
+  getExpenseDocumentUrl,
+  deleteExpenseDocument,
+} from './expenseDocuments';
+
+export {
+  getTransferFlightDocuments,
+  uploadTransferFlightDocument,
+  getTransferDocumentUrl,
+  deleteTransferFlightDocument,
+  getPublicTransportDocuments,
+  uploadPublicTransportDocument,
+  deletePublicTransportDocument,
+} from './transferDocuments';
 
 export { getNotes, createNote, updateNote, deleteNote } from './notes';
 

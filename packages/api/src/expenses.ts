@@ -1,7 +1,7 @@
 import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Json } from './database.types';
-import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, CreateExpenseInput, UpdateExpenseWithSplitsInput, SettlementReceipt } from '@vacationist/types';
+import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, ExpenseCategoryTotal, CreateExpenseInput, UpdateExpenseWithSplitsInput, SettlementReceipt } from '@vacationist/types';
 
 export const EXPENSE_PAGE_SIZE = 30;
 
@@ -21,6 +21,47 @@ export async function getExpenses(
   return { items, hasMore: items.length === EXPENSE_PAGE_SIZE };
 }
 
+const ALL_EXPENSES_BATCH_SIZE = 500;
+// Hard ceiling on internal batches, purely a runaway guard — same pattern as
+// getAllActivities (packages/api/src/activities.ts). Whole-trip consumers (the business-expense
+// summary) must never silently see a truncated list; the paged expenses-tab feed (getExpenses
+// above) is a separate, smaller fetch.
+const ALL_EXPENSES_MAX_BATCHES = 20;
+
+/** Every expense for a trip (including archived — a business summary needs the full picture), fetched via internal batching so no row is silently dropped. */
+export async function getAllExpenses(tripId: string): Promise<ExpenseWithSplits[]> {
+  const all: ExpenseWithSplits[] = [];
+  for (let i = 0; i < ALL_EXPENSES_MAX_BATCHES; i++) {
+    const offset = i * ALL_EXPENSES_BATCH_SIZE;
+    const { data, error } = await supabase
+      .from('expenses')
+      .select('*, payer:users!paid_by(id, name, avatar_url), expense_splits(*, split_user:users!user_id(id, name, avatar_url))')
+      .eq('trip_id', tripId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + ALL_EXPENSES_BATCH_SIZE - 1);
+
+    if (error) throw error;
+    const batch = (data as unknown as ExpenseWithSplits[]) ?? [];
+    all.push(...batch);
+    if (batch.length < ALL_EXPENSES_BATCH_SIZE) break;
+  }
+  return all;
+}
+
+/** Cheap existence check ("does this trip have at least one business-flagged expense?") used to
+ * gate the Business Summary button — a `head: true` count query, not a row fetch, so it stays
+ * lightweight regardless of trip size. */
+export async function hasBusinessExpenses(tripId: string): Promise<boolean> {
+  const { count, error } = await supabase
+    .from('expenses')
+    .select('id', { count: 'exact', head: true })
+    .eq('trip_id', tripId)
+    .eq('is_business', true);
+
+  if (error) throw error;
+  return (count ?? 0) > 0;
+}
+
 export async function createExpense(tripId: string, input: CreateExpenseInput): Promise<string> {
   const { data, error } = await supabase.rpc('create_expense_with_splits', {
     p_trip_id: tripId,
@@ -32,7 +73,10 @@ export async function createExpense(tripId: string, input: CreateExpenseInput): 
     p_related_id: (input.related_id ?? null) as string,
     p_split_method: input.split_method,
     p_splits: input.splits as unknown as Json,
-  });
+    // '' clears/omits the description; the RPC stores '' as NULL.
+    p_description: input.description ?? '',
+    p_is_business: input.is_business ?? false,
+  } as never);
 
   if (error) throw error;
   return data as string;
@@ -47,6 +91,13 @@ export async function updateExpenseWithSplits(expenseId: string, input: UpdateEx
     p_paid_by: input.paid_by,
     p_split_method: input.split_method,
     p_splits: input.splits as unknown as Json,
+    p_related_type: input.related_type ?? null,
+    // '' clears the description; the RPC only treats NULL (never sent by this app) as "keep existing".
+    p_description: input.description ?? '',
+    // NULL = keep existing (RPC does COALESCE(p_is_business, is_business)), same sentinel
+    // convention as p_related_type above — unlike createExpense's `?? false` (a brand-new
+    // expense with no explicit flag should genuinely default false, not "keep existing").
+    p_is_business: input.is_business ?? null,
   });
 
   if (error) throw error;
@@ -81,6 +132,12 @@ export async function getTripBalances(tripId: string): Promise<MemberBalance[]> 
     total_owed: Number(b.total_owed),
     net_balance: Number(b.net_balance),
   }));
+}
+
+export async function getTripExpenseCategoryTotals(tripId: string): Promise<ExpenseCategoryTotal[]> {
+  const { data, error } = await supabase.rpc('get_trip_expense_category_totals', { p_trip_id: tripId });
+  if (error) throw error;
+  return (data as unknown as ExpenseCategoryTotal[]).map((c) => ({ ...c, total: Number(c.total) }));
 }
 
 export async function settleExpenseSplit(splitId: string): Promise<void> {

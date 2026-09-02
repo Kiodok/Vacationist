@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 // Maps seeded English category names to their stuff-namespace i18n keys.
 // Custom (user-created) categories are not in this map and are shown as-is.
 
@@ -21,3 +23,9 @@ export const SEEDED_CATEGORY_I18N: Partial<Record<string, CategoryI18nKey>> = {
   Shared:      'categories.shared',
   Other:       'categories.other',
 };
+
+/** Translates a seeded category name via SEEDED_CATEGORY_I18N, or returns a custom category name as-is. */
+export function getPackingCategoryLabel(t: TFunction<'stuff'>, name: string): string {
+  const key = SEEDED_CATEGORY_I18N[name];
+  return key ? t(key) : name;
+}

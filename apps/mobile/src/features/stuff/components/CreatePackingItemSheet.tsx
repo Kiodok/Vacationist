@@ -6,8 +6,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { createPackingItemSchema, type CreatePackingItemInput, type PackingCategory } from '@vacationist/types';
-import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
+import { getPackingCategoryLabel } from '../utils/categoryUtils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
+
+const CUSTOM_CATEGORY_VALUE = '__custom__';
 
 interface CreatePackingItemSheetProps {
   visible: boolean;
@@ -25,6 +28,7 @@ export function CreatePackingItemSheet({ visible, categories, usedCustomCategori
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreatePackingItemInput>({
     resolver: zodResolver(createPackingItemSchema),
@@ -34,6 +38,15 @@ export function CreatePackingItemSheet({ visible, categories, usedCustomCategori
   const selectedCategory = watch('category');
   // Persist the last-selected category so rapid consecutive creations stay in the same category.
   const lastCategoryRef = useRef(categories[0]?.name ?? 'Other');
+
+  const categoryOptions = [
+    ...categories.map((cat) => ({ value: cat.name, label: getPackingCategoryLabel(t, cat.name) })),
+    ...usedCustomCategories.map((customCat) => ({ value: customCat, label: customCat })),
+    { value: CUSTOM_CATEGORY_VALUE, label: t('categories.custom') },
+  ];
+  const categoryFieldLabel = showCustomCategory
+    ? (selectedCategory || t('categories.custom'))
+    : getPackingCategoryLabel(t, selectedCategory);
 
   useEffect(() => {
     if (!visible) {
@@ -76,44 +89,30 @@ export function CreatePackingItemSheet({ visible, categories, usedCustomCategori
                 {/* Category picker */}
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">{t('field.category')}</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-xs">
-                    {categories.map((cat) => {
-                      const isSelected = selectedCategory === cat.name && !showCustomCategory;
-                      return (
-                        <Pressable
-                          key={cat.id}
-                          onPress={() => { setValue('category', cat.name); setShowCustomCategory(false); }}
-                          className={`px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
-                        >
-                          <Text className={`text-body-small font-medium ${isSelected ? 'text-white' : 'text-text-secondary'}`}>
-                            {(() => { const k = SEEDED_CATEGORY_I18N[cat.name]; return k ? t(k) : cat.name; })()}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                    {usedCustomCategories.map((customCat) => {
-                      const isSelected = selectedCategory === customCat && !showCustomCategory;
-                      return (
-                        <Pressable
-                          key={`custom-${customCat}`}
-                          onPress={() => { setValue('category', customCat); setShowCustomCategory(false); }}
-                          className={`px-md py-sm rounded-full border border-dashed ${isSelected ? 'bg-primary border-primary' : 'bg-surface border-border'}`}
-                        >
-                          <Text className={`text-body-small font-medium ${isSelected ? 'text-white' : 'text-text-secondary'}`}>
-                            {customCat}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                    <Pressable
-                      onPress={() => { setShowCustomCategory(true); setValue('category', ''); }}
-                      className={`px-md py-sm rounded-full ${showCustomCategory ? 'bg-primary' : 'bg-surface border border-border'}`}
-                    >
-                      <Text className={`text-body-small font-medium ${showCustomCategory ? 'text-white' : 'text-text-secondary'}`}>
-                        {t('categories.custom')}
-                      </Text>
-                    </Pressable>
-                  </ScrollView>
+                  <Pressable
+                    onPress={() => setCategoryPickerVisible(true)}
+                    className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
+                    style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                  >
+                    <Text className="text-body flex-1 text-text-primary" numberOfLines={1}>{categoryFieldLabel}</Text>
+                    <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
+                  </Pressable>
+                  <OptionPickerSheet
+                    visible={categoryPickerVisible}
+                    title={t('field.category')}
+                    options={categoryOptions}
+                    selectedValue={showCustomCategory ? CUSTOM_CATEGORY_VALUE : selectedCategory}
+                    onSelect={(v) => {
+                      if (v === CUSTOM_CATEGORY_VALUE) {
+                        setShowCustomCategory(true);
+                        setValue('category', '');
+                      } else {
+                        setValue('category', v ?? '');
+                        setShowCustomCategory(false);
+                      }
+                    }}
+                    onClose={() => setCategoryPickerVisible(false)}
+                  />
                   {showCustomCategory && (
                     <Controller
                       control={control}

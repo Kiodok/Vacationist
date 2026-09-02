@@ -81,6 +81,10 @@ describe('resolveNotificationPath', () => {
     expect(resolveNotificationPath(n('document_access_request'))).toBe('/(tabs)/profile');
   });
 
+  it('routes document_access_granted to Settings tab (recipient is the requesting organizer)', () => {
+    expect(resolveNotificationPath(n('document_access_granted'))).toBe(`/trip/${TRIP}?tab=Settings`);
+  });
+
   it('routes vote_finalized to trip root when no related_type matches accommodation', () => {
     expect(resolveNotificationPath(n('vote_finalized', 'flight'))).toBe(`/trip/${TRIP}?tab=Activities`);
   });

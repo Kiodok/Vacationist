@@ -11,6 +11,7 @@
   "field.title": "Titel",
   "field.description": "Beschreibung",
   "field.category": "Kategorie",
+  "field.categoryPlaceholder": "Kategorie auswählen",
   "field.cost": "Geschätzte Kosten",
   "field.date": "Datum",
   "field.startTime": "Startzeit",

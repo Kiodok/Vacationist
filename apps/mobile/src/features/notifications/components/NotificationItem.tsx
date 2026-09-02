@@ -110,6 +110,10 @@ const BODY_TEMPLATES: Record<string, Record<string, string>> = {
     en: '{{creator}} was removed from "{{trip}}".',
     de: '{{creator}} wurde aus "{{trip}}" entfernt.',
   },
+  document_access_granted: {
+    en: '{{creator}} granted you access to their travel documents in "{{trip}}".',
+    de: '{{creator}} hat dir Zugriff auf die Reisedokumente in "{{trip}}" gewährt.',
+  },
 };
 
 // Several notification kinds reuse one DB type and are distinguished by the body or

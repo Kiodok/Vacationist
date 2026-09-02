@@ -130,6 +130,10 @@ const NOTIFICATION_TRANSLATIONS: Record<string, LocaleTranslations> = {
     en: { title: 'New chat message in {{trip}}', body: '{{creator}}: {{entity}}' },
     de: { title: 'Neue Chat-Nachricht in {{trip}}', body: '{{creator}}: {{entity}}' },
   },
+  document_access_granted: {
+    en: { title: 'Document access granted', body: '{{creator}} granted you access to their travel documents in "{{trip}}".' },
+    de: { title: 'Dokumentenzugriff gewährt', body: '{{creator}} hat dir Zugriff auf die Reisedokumente in "{{trip}}" gewährt.' },
+  },
   // Virtual key: used when the message preview could not be decrypted at send time
   // (message was deleted/removed before delivery, or the preview RPC failed). Chat
   // content is never persisted in context_entity — see resolveChatPreview() below —
@@ -317,6 +321,7 @@ function preferenceColumn(type: string, relatedType?: string | null): string | n
     case 'trip_deleted':     return null;
     case 'member_left':      return 'new_member';
     case 'new_chat_message': return 'new_chat_message';
+    case 'document_access_granted': return null;
     default:                 return null;
   }
 }

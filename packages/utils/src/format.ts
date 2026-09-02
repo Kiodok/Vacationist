@@ -47,6 +47,25 @@ export function isNegligible(amount: number): boolean {
   return Math.abs(amount) < BALANCE_THRESHOLD;
 }
 
+/**
+ * Formats a transfer timestamp (transfer_flights/transfer_rentals/transfer_public_transport'
+ * departure_time/arrival_time/pickup_date/dropoff_date) — TIMESTAMPTZ columns that, by this
+ * codebase's convention, store the literal wall-clock digits the user typed with NO real UTC
+ * conversion (CreateFlightSheet/CreatePublicTransportSheet build them as bare `${date}T${time}`
+ * strings, which Postgres then labels with a UTC offset it never actually meant). Reading them
+ * back with a bare `dayjs(value)` parse-then-format applies a *real* UTC → device-local
+ * conversion, shifting the displayed time by the viewer's device UTC offset — this is the
+ * "Switzerland vs. the other country" timezone-hour bug (task 13). The only correct read is to
+ * treat the UTC label as inert and re-extract the original digits verbatim via `dayjs.utc(...)`
+ * (parse as UTC, format without converting to local) — never `.tz(...)` or a bare `dayjs(...)`.
+ */
+export function formatNaiveTimestamp(value: string | null | undefined, formatStr: string): string | null {
+  if (!value) return null;
+  const d = dayjs.utc(value.replace(' ', 'T'));
+  if (!d.isValid()) return null;
+  return d.format(formatStr);
+}
+
 export function normalizeBalance(amount: number): number {
   return isNegligible(amount) ? 0 : roundCurrency(amount);
 }
@@ -65,9 +84,20 @@ export function sanitizeDecimalInput(text: string, maxDecimals = 2): string {
     .replace(new RegExp(String.raw`(\.\d{${maxDecimals}}).+`), '$1');
 }
 
-export function formatDateRange(start: string, end: string): string {
-  const s = dayjs(start);
-  const e = dayjs(end);
+/**
+ * Formats a trip's date-only start/end range (`trips.start_date`/`end_date`, plain
+ * 'YYYY-MM-DD' strings, no time component). A bare `dayjs(dateString)` parses a date-only ISO
+ * string as UTC midnight, then `.format()` renders it in the *device's* local timezone — on any
+ * device behind UTC this rolls the displayed date back a day (the same class of bug fixed in
+ * ActivityCard.tsx for task 12). Pass `timezone` (the trip's own) when available to parse via
+ * `.tz()` instead; when it isn't (e.g. the pre-join invite preview, which has no timezone field),
+ * `.utc()` is an equally correct fallback — for a value with no time-of-day, both simply avoid
+ * ever converting to device-local, so the displayed date always matches the stored digits
+ * regardless of which one is used.
+ */
+export function formatDateRange(start: string, end: string, timezone?: string): string {
+  const s = timezone ? dayjs.tz(start, timezone) : dayjs.utc(start);
+  const e = timezone ? dayjs.tz(end, timezone) : dayjs.utc(end);
   if (s.year() !== e.year()) return `${s.format('D MMM YYYY')} – ${e.format('D MMM YYYY')}`;
   if (s.month() !== e.month()) return `${s.format('D MMM')} – ${e.format('D MMM YYYY')}`;
   return `${s.format('D')} – ${e.format('D MMM YYYY')}`;

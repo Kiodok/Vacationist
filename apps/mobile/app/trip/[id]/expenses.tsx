@@ -6,14 +6,17 @@ import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
-import { isExpenseFullySettled } from '@vacationist/utils';
-import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllExpenses, useSettlementReceipts } from '../../../src/features/expenses/hooks/useExpenses';
+import { isExpenseFullySettled, formatBusinessExpenseSummary } from '@vacationist/utils';
+import { getAllExpenses, getExpenseDocuments, getExpenseDocumentUrl } from '@vacationist/api';
+import * as FileSystem from 'expo-file-system/legacy';
+import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllExpenses, useSettlementReceipts, useHasBusinessExpenses } from '../../../src/features/expenses/hooks/useExpenses';
 import { useExpensesRealtime } from '../../../src/features/expenses/hooks/useExpensesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useAuthStore } from '../../../src/stores/authStore';
 import { ExpenseCard } from '../../../src/features/expenses/components/ExpenseCard';
 import { ExpenseSplitBreakdown } from '../../../src/features/expenses/components/ExpenseSplitBreakdown';
+import { ExpenseDocumentsSection } from '../../../src/features/expenses/components/ExpenseDocumentsSection';
 import { CreateExpenseSheet } from '../../../src/features/expenses/components/CreateExpenseSheet';
 import { EditExpenseSheet } from '../../../src/features/expenses/components/EditExpenseSheet';
 import { EmptyExpenses } from '../../../src/features/expenses/components/EmptyExpenses';
@@ -27,6 +30,13 @@ import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import { CurrencyPickerSheet } from '../../../src/features/currencies/components/CurrencyPickerSheet';
 import { useCurrencyConversion } from '../../../src/features/currencies/hooks/useCurrencies';
+import { shareText, shareFile, downloadTextFile } from '../../../src/utils/share';
+import type { ShareResult } from '../../../src/utils/share';
+import { useToastStore } from '../../../src/stores/toastStore';
+
+// Business summary document links are embedded in a file the user downloads and may open well
+// after the fact (e.g. handing it to an employer) — a long TTL, not the 5-minute in-app default.
+const BUSINESS_SUMMARY_DOCUMENT_URL_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 const SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: string; textClass: string }> = {
   active:    { icon: 'wallet-outline',         iconColor: colors.textPrimary, textClass: 'text-text-primary' },
@@ -39,7 +49,7 @@ export default function ExpensesTab() {
   const isColorful = theme === 'colorful';
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation("common");
-  const { id: tripId, highlightId } = useLocalSearchParams<{ id: string; highlightId?: string }>();
+  const { id: tripId, highlightId, quickAction } = useLocalSearchParams<{ id: string; highlightId?: string; quickAction?: string }>();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const { data: trip } = useTrip(tripId!);
@@ -71,11 +81,21 @@ export default function ExpensesTab() {
   useExpensesRealtime(tripId!);
   const { toggle, isCollapsed } = useCollapsibleSections();
 
-  const [showCreate, setShowCreate] = useState(false);
+  // Lazy initializers, not a mount effect — read once so the sheet doesn't keep reopening on
+  // every re-render while quickAction stays present in the URL (task 16: app-icon "Add
+  // Expense" quick action auto-selects this trip and opens the sheet immediately).
+  const [showCreate, setShowCreate] = useState(() => quickAction === 'addExpense');
+  // Real state, not a one-time lazy value: must be reset to false whenever the sheet is opened
+  // for a reason other than the quick action (the FAB below), or the "Adding to: {trip}" banner
+  // would incorrectly persist for every subsequent open during the same screen visit.
+  const [cameFromQuickAction, setCameFromQuickAction] = useState(() => quickAction === 'addExpense');
   const [showSettlements, setShowSettlements] = useState(false);
   const [displayCurrency, setDisplayCurrency] = useState<string | null>(user?.preferred_currency ?? null);
   const [showDisplayCurrencyPicker, setShowDisplayCurrencyPicker] = useState(false);
   const { convert, ratesAsOf } = useCurrencyConversion();
+  const [isGeneratingBusinessSummary, setIsGeneratingBusinessSummary] = useState(false);
+  const { data: hasBusinessExpenses } = useHasBusinessExpenses(tripId!);
+  const addToast = useToastStore((s) => s.addToast);
 
   const memberMap = useMemo(() => {
     const map = new Map<string, User>();
@@ -126,6 +146,73 @@ export default function ExpensesTab() {
   const handleCreate = (input: CreateExpenseInput) => {
     setShowCreate(false);
     createExpense.mutate({ tripId: tripId!, input });
+  };
+
+  // Fetches the whole trip's expenses on demand (not via a reactive query — this is an
+  // occasional export action, not something that should eagerly load every expense on every
+  // visit to this screen the way the paginated feed above does). Each business expense's
+  // attached documents are pulled in too (as long-lived signed links) so the downloaded file is
+  // a complete standalone record, not just a list of amounts. A plain "copy to clipboard" isn't
+  // enough for a document meant to be handed to an employer, so this always produces a real
+  // .md file — downloaded directly on web, written to a temp file and handed to the OS share
+  // sheet (falling back to a plain text share) on native.
+  const handleBusinessSummary = async () => {
+    if (isGeneratingBusinessSummary) return;
+    setIsGeneratingBusinessSummary(true);
+    try {
+      const allExpenses = await getAllExpenses(tripId!);
+      const businessExpenses = allExpenses.filter((e) => e.is_business);
+      if (businessExpenses.length === 0) {
+        addToast('error', t('toast.businessSummaryEmpty'));
+        return;
+      }
+
+      const documentsByExpenseId = new Map<string, { fileName: string; url: string }[]>();
+      await Promise.all(
+        businessExpenses.map(async (e) => {
+          const docs = await getExpenseDocuments(e.id);
+          if (docs.length === 0) return;
+          const refs = await Promise.all(
+            docs.map(async (d) => ({
+              fileName: d.file_name,
+              url: await getExpenseDocumentUrl(d.storage_path, BUSINESS_SUMMARY_DOCUMENT_URL_TTL_SECONDS),
+            })),
+          );
+          documentsByExpenseId.set(e.id, refs);
+        }),
+      );
+
+      const markdown = formatBusinessExpenseSummary({
+        expenses: allExpenses,
+        members: memberMap,
+        currency: trip?.base_currency ?? 'EUR',
+        tripTitle: trip?.title ?? '',
+        documentsByExpenseId,
+      });
+
+      const slug = (trip?.title ?? 'trip').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
+      const filename = `${slug}-business-expenses.md`;
+
+      if (Platform.OS === 'web') {
+        downloadTextFile(filename, markdown, 'text/markdown');
+        addToast('success', t('toast.businessSummaryDownloaded'));
+      } else {
+        let result: ShareResult = 'dismissed';
+        const uri = FileSystem.cacheDirectory ? `${FileSystem.cacheDirectory}${filename}` : null;
+        if (uri) {
+          await FileSystem.writeAsStringAsync(uri, markdown, { encoding: FileSystem.EncodingType.UTF8 });
+          result = await shareFile({ fileUri: uri, mimeType: 'text/markdown', dialogTitle: filename });
+        }
+        if (result === 'dismissed') {
+          result = await shareText({ text: markdown, title: filename });
+        }
+        if (result === 'shared') addToast('success', t('toast.businessSummaryShared'));
+      }
+    } catch {
+      addToast('error', t('toast.businessSummaryFailed'));
+    } finally {
+      setIsGeneratingBusinessSummary(false);
+    }
   };
 
   // Scroll to and highlight the expense when navigating from a notification.
@@ -209,6 +296,21 @@ export default function ExpensesTab() {
                   </Text>
                 </Pressable>
               </View>
+              {hasBusinessExpenses && (
+                <Pressable
+                  onPress={handleBusinessSummary}
+                  disabled={isGeneratingBusinessSummary}
+                  className="flex-row items-center justify-center gap-xs py-sm px-sm rounded-md bg-primary/10 self-start"
+                  style={({ pressed }) => ({ opacity: pressed || isGeneratingBusinessSummary ? 0.6 : 1 })}
+                >
+                  {isGeneratingBusinessSummary ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  ) : (
+                    <ThemedIcon name="briefcase-outline" size={14} color={colors.primary} />
+                  )}
+                  <Text className="text-primary text-body-small font-medium">{t('action.businessSummary')}</Text>
+                </Pressable>
+              )}
             </View>
           }
           renderSectionHeader={({ section }) => {
@@ -275,6 +377,9 @@ export default function ExpensesTab() {
           members={members}
           currentUserId={user.id}
           currency={currency}
+          autoSelectedTripBanner={
+            cameFromQuickAction && trip ? t('quickAction.addingTo', { trip: trip.title }) : undefined
+          }
         />
       )}
 
@@ -298,6 +403,7 @@ export default function ExpensesTab() {
           ratesAsOf={ratesAsOf}
           tripId={tripId!}
           tripTitle={trip?.title ?? ''}
+          currentUserId={user?.id}
           onSettleAllExpenses={() => {
             if (settlingRef.current) return;
             settlingRef.current = true;
@@ -318,7 +424,7 @@ export default function ExpensesTab() {
 
       {/* FAB — rendered last to guarantee it sits above all siblings in the z-order */}
       <Pressable
-        onPress={() => setShowCreate(true)}
+        onPress={() => { setCameFromQuickAction(false); setShowCreate(true); }}
         className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
         style={{ elevation: 6, zIndex: 10, ...Platform.select({ web: { boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }, default: { shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 } }) }}
       >
@@ -381,6 +487,13 @@ function ExpenseCardWithSplits({
         <ThemedIcon name="people-outline" size={14} color={colors.primary} />
         <Text className="text-primary text-body-small font-medium">{t('action.viewSplits', { count: splits.length })}</Text>
       </Pressable>
+
+      <ExpenseDocumentsSection
+        tripId={tripId}
+        expenseId={expense.id}
+        currentUserId={currentUserId}
+        canManage={canManage}
+      />
 
       <View className="gap-sm mt-xs">
         {confirmingArchive ? (

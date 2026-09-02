@@ -13,20 +13,12 @@ export async function getCurrencies(): Promise<CurrencyCatalogEntry[]> {
 }
 
 // Latest rate per currency (one row each, EUR-relative). exchange_rates keeps full daily
-// history, so this selects the most recent as_of per currency rather than the whole table.
+// history (450+ rows and growing ~25/day) — the dedupe to "one row per currency" happens in
+// Postgres via the get_latest_exchange_rates() RPC, not by fetching the whole table to the
+// client. See supabase/migrations/20260902100000_get_latest_exchange_rates_rpc.sql.
 export async function getLatestExchangeRates(): Promise<ExchangeRate[]> {
-  const { data, error } = await supabase
-    .from('exchange_rates')
-    .select('currency, rate, as_of')
-    .order('as_of', { ascending: false });
+  const { data, error } = await supabase.rpc('get_latest_exchange_rates');
 
   if (error) throw error;
-
-  const latestByCode = new Map<string, ExchangeRate>();
-  for (const row of (data ?? []) as ExchangeRate[]) {
-    if (!latestByCode.has(row.currency)) {
-      latestByCode.set(row.currency, row);
-    }
-  }
-  return Array.from(latestByCode.values());
+  return (data ?? []) as ExchangeRate[];
 }

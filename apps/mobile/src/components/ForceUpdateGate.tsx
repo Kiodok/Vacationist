@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BackHandler, Linking, Modal, Text, View } from 'react-native';
+import { BackHandler, Linking, Modal, Platform, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import * as ExpoInAppUpdates from 'expo-in-app-updates';
 import { Button, useThemeColors , ThemedIcon } from '@vacationist/ui';
@@ -11,6 +11,7 @@ export function ForceUpdateGate() {
   const { t } = useTranslation('common');
   const colors = useThemeColors();
   const [updateRequired, setUpdateRequired] = useState(false);
+  const [openFailed, setOpenFailed] = useState(false);
 
   async function runCheck() {
     const result = await checkNativeUpdate();
@@ -48,10 +49,33 @@ export function ForceUpdateGate() {
 
   // Hoisted above the early return so it is always defined before JSX uses it.
   async function handleUpdate() {
+    setOpenFailed(false);
+
+    // iOS has no real in-app update flow (unlike Android's Play Core API) — the App Store
+    // owns that entirely. expo-in-app-updates' iOS startUpdate() tries to present
+    // SKStoreProductViewController on the same root view controller this gate's own
+    // <Modal> is already presented on; iOS silently refuses the second present() and still
+    // resolves the promise as success, so the try/catch below never sees a rejection and
+    // the button looks like it does nothing. Skip the native module on iOS entirely and go
+    // straight to the store listing, the same path openStoreReviewOrFallback() already uses
+    // successfully.
+    if (Platform.OS === 'ios') {
+      try {
+        await Linking.openURL(STORE_URL);
+      } catch {
+        setOpenFailed(true);
+      }
+      return;
+    }
+
     try {
       await ExpoInAppUpdates.startUpdate(true);
     } catch {
-      Linking.openURL(STORE_URL);
+      try {
+        await Linking.openURL(STORE_URL);
+      } catch {
+        setOpenFailed(true);
+      }
     }
   }
 
@@ -82,6 +106,14 @@ export function ForceUpdateGate() {
             variant="primary"
             className="w-full mt-md"
           />
+          {openFailed && (
+            // Rendered inline rather than via useToastStore: this <Modal> is its own
+            // native view controller stack on iOS, so a toast fired from ToastContainer
+            // (a sibling in app/_layout.tsx) would be painted underneath and never seen.
+            <Text className="text-body text-danger text-center">
+              {t('forceUpdate.openStoreFailed')}
+            </Text>
+          )}
         </View>
       </View>
     </Modal>

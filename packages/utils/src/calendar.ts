@@ -4,10 +4,16 @@ import type { SupportedTimezone } from '@vacationist/types';
 
 initDayjs();
 
-export function generateDateRange(startDate: string, endDate: string): string[] {
+// A bare dayjs(startDate) parse here was a real bug (task 13): startDate/endDate are date-only
+// 'YYYY-MM-DD' strings, which parse as UTC midnight — .format() without .tz()/.utc() then
+// converts to the device's local timezone first, shifting every date in the returned range back
+// a day on any device behind UTC. Since dayMap is later keyed by these (shifted) strings while
+// activities stay grouped under their correct (unshifted) activity_date, this silently dropped
+// the trip's true last day from the calendar and inserted a bogus day before its true start.
+export function generateDateRange(startDate: string, endDate: string, timezone?: string): string[] {
   const dates: string[] = [];
-  let current = dayjs(startDate);
-  const end = dayjs(endDate);
+  let current = timezone ? dayjs.tz(startDate, timezone) : dayjs.utc(startDate);
+  const end = timezone ? dayjs.tz(endDate, timezone) : dayjs.utc(endDate);
 
   while (current.isBefore(end) || current.isSame(end, 'day')) {
     dates.push(current.format('YYYY-MM-DD'));
@@ -61,7 +67,7 @@ export function buildTripCalendarData(
   trip: { id: string; start_date: string; end_date: string; timezone: SupportedTimezone },
   activities: Activity[],
 ): TripCalendarData {
-  const dateRange = generateDateRange(trip.start_date, trip.end_date);
+  const dateRange = generateDateRange(trip.start_date, trip.end_date, trip.timezone);
   const grouped = groupActivitiesByDate(activities);
 
   const dayMap: Record<string, CalendarDay> = {};

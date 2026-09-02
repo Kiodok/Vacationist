@@ -170,6 +170,7 @@ export interface Expense {
   related_type: ExpenseRelatedType;
   related_id: string | null;
   title: string;
+  description: string | null;
   amount: number;
   currency: Currency;
   /** Multiplier from `currency` to the trip's base_currency, frozen at creation/edit time. 1 when currency === base_currency. */
@@ -182,6 +183,7 @@ export interface Expense {
   created_at: string;
   updated_by: string | null;
   archived_at: string | null;
+  is_business: boolean;
   payer?: { id: string; name: string; avatar_url: string | null } | null;
 }
 
@@ -208,6 +210,11 @@ export interface MemberBalance {
   total_paid: number;
   total_owed: number;
   net_balance: number;
+}
+
+export interface ExpenseCategoryTotal {
+  related_type: ExpenseRelatedType;
+  total: number;
 }
 
 export interface ShoppingList {
@@ -378,6 +385,52 @@ export interface TransferRental {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+}
+
+export interface TransferPublicTransport {
+  id: string;
+  trip_id: string;
+  title: string;
+  company: string | null;
+  departure_location: string | null;
+  arrival_location: string | null;
+  departure_time: string | null;
+  arrival_time: string | null;
+  booking_reference: string | null;
+  price_total: number | null;
+  external_url: string | null;
+  notes: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface ExpenseDocument {
+  id: string;
+  trip_id: string;
+  expense_id: string;
+  uploaded_by: string;
+  storage_path: string;
+  file_name: string;
+  mime_type: string;
+  created_at: string;
+}
+
+export interface TransferDocument {
+  id: string;
+  trip_id: string;
+  /** Exactly one of flight_id / public_transport_id is set. */
+  flight_id: string | null;
+  public_transport_id: string | null;
+  /** The passenger this ticket belongs to — may differ from uploaded_by when the organizer uploads on a member's behalf. */
+  user_id: string;
+  uploaded_by: string;
+  storage_path: string;
+  file_name: string;
+  mime_type: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserPushToken {
@@ -603,9 +656,9 @@ export interface LostFoundCase {
 }
 
 // "Has data" flags per trip tab — backs the tab bar's populated-tab border.
-// From public.get_trip_tab_content(p_trip_id). Overview/Settings/Calendar are
-// deliberately absent: Overview and Settings are never "populated" or "empty"
-// in this sense, and Calendar reuses the `activities` flag client-side.
+// From public.get_trip_tab_content(p_trip_id). Overview/Settings are deliberately absent —
+// never "populated" or "empty" in this sense. Calendar has its own `calendar` flag (not a
+// reuse of `activities`) — see the flag's own filter for why.
 export interface TripTabContent {
   chat: boolean;
   prework: boolean;
@@ -613,6 +666,7 @@ export interface TripTabContent {
   transfer: boolean;
   expenses: boolean;
   activities: boolean;
+  calendar: boolean;
   stuff: boolean;
   shopping: boolean;
   notes: boolean;

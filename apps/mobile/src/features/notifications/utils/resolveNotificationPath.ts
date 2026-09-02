@@ -41,6 +41,11 @@ export function resolveNotificationPath(
       return `/trip/${trip_id}`;
     case 'document_access_request':
       return '/(tabs)/profile';
+    // Recipient here is the organizer who made the request — the "View Documents" action
+    // lives on the trip's Settings tab, unlike document_access_request (routed above),
+    // whose recipient is the member who still needs to respond, on their Profile tab.
+    case 'document_access_granted':
+      return `/trip/${trip_id}?tab=Settings`;
     case 'lost_found':
       return `/trip/${trip_id}?tab=Stuff${highlight}`;
     case 'shared_packing':

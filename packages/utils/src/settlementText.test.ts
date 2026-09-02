@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { formatSettlementShareText } from './settlementText';
+import { formatSettlementShareText, formatBusinessExpenseSummary } from './settlementText';
 import { initDayjs } from './dayjs';
-import type { User } from '@vacationist/types';
+import type { User, Expense } from '@vacationist/types';
 
 beforeAll(() => initDayjs());
 
@@ -71,5 +71,92 @@ describe('formatSettlementShareText', () => {
     expect(result).toContain('2 payments to settle all debts');
     expect(result).toContain('Bob → Alice');
     expect(result).toContain('Carol → Alice');
+  });
+});
+
+function makeExpense(overrides: Partial<Expense>): Expense {
+  return {
+    id: 'e1',
+    trip_id: 't1',
+    related_type: 'manual',
+    related_id: null,
+    title: 'Expense',
+    description: null,
+    amount: 100,
+    currency: 'EUR',
+    exchange_rate: 1,
+    converted_amount: 100,
+    split_method: 'even',
+    paid_by: 'u1',
+    created_by: 'u1',
+    created_at: '2026-06-01T00:00:00.000Z',
+    updated_by: null,
+    archived_at: null,
+    is_business: false,
+    ...overrides,
+  };
+}
+
+describe('formatBusinessExpenseSummary', () => {
+  it('only includes expenses flagged is_business', () => {
+    const result = formatBusinessExpenseSummary({
+      expenses: [
+        makeExpense({ id: 'e1', title: 'Client dinner', converted_amount: 60, is_business: true, paid_by: 'u1' }),
+        makeExpense({ id: 'e2', title: 'Souvenirs', converted_amount: 20, is_business: false }),
+      ],
+      members: memberMap,
+      currency: 'EUR',
+      tripTitle: 'Berlin Offsite',
+    });
+
+    expect(result).toContain('Client dinner');
+    expect(result).not.toContain('Souvenirs');
+    expect(result).toContain('Berlin Offsite');
+  });
+
+  it('sums the total and shows the payer name', () => {
+    const result = formatBusinessExpenseSummary({
+      expenses: [
+        makeExpense({ id: 'e1', title: 'Taxi', converted_amount: 25, is_business: true, paid_by: 'u1' }),
+        makeExpense({ id: 'e2', title: 'Conference ticket', converted_amount: 200, is_business: true, paid_by: 'u2' }),
+      ],
+      members: memberMap,
+      currency: 'EUR',
+      tripTitle: 'Conf Trip',
+    });
+
+    expect(result).toContain('Alice');
+    expect(result).toContain('Bob');
+    expect(result).toContain('Total (2 expenses)');
+    expect(result).toContain('225');
+  });
+
+  it('shows a fallback message when there are no business expenses', () => {
+    const result = formatBusinessExpenseSummary({
+      expenses: [makeExpense({ id: 'e1', title: 'Souvenirs', is_business: false })],
+      members: memberMap,
+      currency: 'EUR',
+      tripTitle: 'Family Trip',
+    });
+
+    expect(result).toContain('No business expenses recorded.');
+  });
+
+  it('renders attached documents as markdown links, and "—" when none', () => {
+    const result = formatBusinessExpenseSummary({
+      expenses: [
+        makeExpense({ id: 'e1', title: 'Client dinner', converted_amount: 60, is_business: true, paid_by: 'u1' }),
+        makeExpense({ id: 'e2', title: 'Taxi', converted_amount: 20, is_business: true, paid_by: 'u1' }),
+      ],
+      members: memberMap,
+      currency: 'EUR',
+      tripTitle: 'Berlin Offsite',
+      documentsByExpenseId: new Map([
+        ['e1', [{ fileName: 'receipt.pdf', url: 'https://example.com/receipt.pdf' }]],
+      ]),
+    });
+
+    expect(result).toContain('[receipt.pdf](https://example.com/receipt.pdf)');
+    expect(result).toContain('| Taxi | €20.00 | Alice | — |');
   });
 });

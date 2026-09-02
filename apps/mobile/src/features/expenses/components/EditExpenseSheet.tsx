@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateExpenseWithSplitsSchema, type UpdateExpenseWithSplitsInput, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency, type Expense, type ExpenseSplit } from '@vacationist/types';
+import { updateExpenseWithSplitsSchema, type UpdateExpenseWithSplitsInput, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency, type Expense, type ExpenseSplit } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { formatCurrency, roundCurrency, isNegligible, sanitizeDecimalInput } from '@vacationist/utils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
@@ -13,6 +13,7 @@ import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerS
 import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/useCurrencies';
 import { setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
+import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 
 interface EditExpenseSheetProps {
   visible: boolean;
@@ -40,6 +41,15 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
     cover: t('split.cover'),
   };
 
+  const RELATED_TYPE_LABELS: Record<string, string> = {
+    manual: t('category.manual'),
+    accommodation: t('category.accommodation'),
+    activity: t('category.activity'),
+    transport: t('category.transport'),
+    shopping: t('category.shopping'),
+  };
+  const categoryOptions = EXPENSE_RELATED_TYPE.map((type) => ({ value: type, label: RELATED_TYPE_LABELS[type] ?? type }));
+
   const allMemberIds = members.map((m) => m.user_id);
 
   // For cover: expense.paid_by = covered person, splits[0].user_id = actual payer
@@ -58,6 +68,9 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
     isCoverExpense ? expense.paid_by : null
   );
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
+  const [paidByPickerVisible, setPaidByPickerVisible] = useState(false);
+  const paidByOptions = members.map((m) => ({ value: m.user_id, label: m.user.name }));
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
 
   const { data: currencies } = useCurrencies();
   const { convert, ratesAsOf } = useCurrencyConversion();
@@ -66,11 +79,14 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
     resolver: zodResolver(updateExpenseWithSplitsSchema),
     defaultValues: {
       title: expense.title,
+      description: expense.description ?? undefined,
       amount: Number(expense.amount),
       currency: expense.currency,
       paid_by: expense.paid_by,
+      related_type: expense.related_type,
       split_method: expense.split_method,
       splits: splits.map((s) => ({ user_id: s.user_id, amount: Number(s.amount_owed) })),
+      is_business: expense.is_business,
     },
   });
 
@@ -78,11 +94,14 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
     if (visible) {
       reset({
         title: expense.title,
+        description: expense.description ?? undefined,
         amount: Number(expense.amount),
         currency: expense.currency,
         paid_by: expense.paid_by,
+        related_type: expense.related_type,
         split_method: expense.split_method,
         splits: splits.map((s) => ({ user_id: s.user_id, amount: Number(s.amount_owed) })),
+        is_business: expense.is_business,
       });
       setAmountText(Number(expense.amount).toFixed(2));
       setSplitMethod(expense.split_method);
@@ -126,8 +145,14 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
       setValue('paid_by', firstOther?.user_id ?? expense.paid_by);
     } else {
       if (prev === 'cover') {
+        // expense.paid_by is the COVERED person for a cover expense, not who actually paid —
+        // defaulting to it here would silently reassign the payment to the wrong member.
+        // coverActualPayer (splits[0].user_id) is who really paid; fall back to the current
+        // user if that's somehow unavailable, and only as a last resort to any OTHER member
+        // (never `coveredFor` itself, captured here before it's cleared below) — falling all
+        // the way back to expense.paid_by would silently reintroduce this exact bug.
+        setValue('paid_by', coverActualPayer ?? currentUserId ?? members.find((m) => m.user_id !== coveredFor)?.user_id ?? expense.paid_by);
         setCoveredFor(null);
-        setValue('paid_by', expense.paid_by);
         setSelectedMembers(new Set(allMemberIds));
       }
     }
@@ -226,6 +251,58 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                 {errors.title && <Text className="text-danger text-body-small">{errors.title.message}</Text>}
               </View>
 
+              {/* Description */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.description')}</Text>
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder={t('placeholder.description')}
+                      value={value ?? ''}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      multiline
+                      numberOfLines={3}
+                      maxLength={500}
+                      style={{ minHeight: 80, textAlignVertical: 'top' }}
+                    />
+                  )}
+                />
+              </View>
+
+              {/* Category */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.categoryLabel')}</Text>
+                <Controller
+                  control={control}
+                  name="related_type"
+                  render={({ field: { onChange, value } }) => (
+                    <>
+                      <Pressable
+                        onPress={() => setCategoryPickerVisible(true)}
+                        className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
+                        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                      >
+                        <Text className="text-body flex-1 text-text-primary">{RELATED_TYPE_LABELS[value ?? ''] ?? value}</Text>
+                        <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
+                      </Pressable>
+                      <OptionPickerSheet
+                        visible={categoryPickerVisible}
+                        title={t('field.categoryLabel')}
+                        options={categoryOptions}
+                        selectedValue={value ?? null}
+                        onSelect={(v) => onChange(v)}
+                        onClose={() => setCategoryPickerVisible(false)}
+                      />
+                    </>
+                  )}
+                />
+              </View>
+
               {/* Amount + currency */}
               <View className="gap-xs">
                 <Text className="text-label text-text-muted uppercase">{t('field.amountLabel', { currency: selectedCurrency })} *</Text>
@@ -296,24 +373,26 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                     control={control}
                     name="paid_by"
                     render={({ field: { onChange, value } }) => (
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-xs">
-                        {members.map((m) => (
-                          <Pressable
-                            key={m.user_id}
-                            onPress={() => onChange(m.user_id)}
-                            className={`px-md py-sm rounded-full ${value === m.user_id ? 'bg-primary' : 'bg-surface border border-border'}`}
-                            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                          >
-                            <Text
-                              className={`text-body-small ${value === m.user_id ? 'text-white font-semibold' : 'text-text-secondary'}`}
-                              style={value === m.user_id && isColorful ? { color: colors.surface } : undefined}
-                              numberOfLines={1}
-                            >
-                              {m.user.name}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </ScrollView>
+                      <>
+                        <Pressable
+                          onPress={() => setPaidByPickerVisible(true)}
+                          className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
+                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                        >
+                          <Text className="text-body flex-1 text-text-primary" numberOfLines={1}>
+                            {members.find((m) => m.user_id === value)?.user.name ?? value}
+                          </Text>
+                          <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
+                        </Pressable>
+                        <OptionPickerSheet
+                          visible={paidByPickerVisible}
+                          title={t('field.paidByLabel')}
+                          options={paidByOptions}
+                          selectedValue={value}
+                          onSelect={(v) => onChange(v)}
+                          onClose={() => setPaidByPickerVisible(false)}
+                        />
+                      </>
                     )}
                   />
                 </View>
@@ -339,6 +418,9 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                     </Pressable>
                   ))}
                 </View>
+                {splitMethod === 'cover' && (
+                  <Text className="text-label text-text-muted">{t('field.coverToMultiHint')}</Text>
+                )}
               </View>
 
               {/* Cover mode: "Covered for" picker */}
@@ -490,6 +572,24 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                   </Text>
                 </View>
               )}
+
+              {/* Business expense */}
+              <Controller
+                control={control}
+                name="is_business"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.businessExpense')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                      thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
 
               {/* Submit */}
               <Pressable

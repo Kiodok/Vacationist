@@ -28,6 +28,7 @@ import { useAuthInit } from '../src/features/auth/hooks/useAuthInit';
 import { useAuthStore } from '../src/stores/authStore';
 import { registerForPushNotificationsAsync } from '../src/features/notifications/utils/registerForPushNotifications';
 import { usePushNotificationHandler } from '../src/features/notifications/hooks/usePushNotificationHandler';
+import { useAppIconQuickAction } from '../src/features/trips/hooks/useAppIconQuickAction';
 import { NetworkProvider } from '../src/providers/NetworkProvider';
 import { OfflineBanner } from '../src/components/OfflineBanner';
 import { useThemeStore } from '../src/stores/themeStore';
@@ -143,6 +144,9 @@ function AuthGate() {
 
   useAuthInit();
   usePushNotificationHandler();
+  // Home-screen quick action doesn't conceptually exist on web (no home screen icon) — the
+  // underlying library also ships a safe no-op web stub, but gating here keeps intent explicit.
+  useAppIconQuickAction(hasSession && Platform.OS !== 'web');
 
   // Fire-and-forget, as early as possible so it's ready before any sign-in flow completes.
   // Android + Play Store installs only; no-ops everywhere else. See installReferrer.ts.

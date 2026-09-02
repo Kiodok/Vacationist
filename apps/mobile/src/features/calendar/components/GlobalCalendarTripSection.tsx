@@ -55,7 +55,10 @@ export function GlobalCalendarTripSection({
             {trip.title}
           </Text>
           <Text className="text-body-small text-text-secondary">
-            {dayjs(trip.start_date).format('D MMM')} – {dayjs(trip.end_date).format('D MMM YYYY')}
+            {/* .tz(), not a bare dayjs(dateString) parse — a date-only string parses as UTC
+                midnight, and formatting without .tz()/.utc() converts to device-local first,
+                which can roll the displayed date back a day (task 12/13's bug class). */}
+            {dayjs.tz(trip.start_date, trip.timezone).format('D MMM')} – {dayjs.tz(trip.end_date, trip.timezone).format('D MMM YYYY')}
           </Text>
         </View>
         <ThemedIcon name="chevron-forward" size={16} color={colors.textMuted} />

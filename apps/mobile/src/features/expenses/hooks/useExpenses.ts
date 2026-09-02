@@ -2,12 +2,15 @@ import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tansta
 import {
   EXPENSE_PAGE_SIZE,
   getExpenses,
+  getAllExpenses,
+  hasBusinessExpenses,
   createExpense,
   updateExpenseWithSplits,
   archiveExpense,
   unarchiveExpense,
   getExpenseSplits,
   getTripBalances,
+  getTripExpenseCategoryTotals,
   settleExpenseSplit,
   unsettleExpenseSplit,
   coverSplit,
@@ -44,10 +47,51 @@ export function useExpenses(tripId: string) {
   });
 }
 
+/**
+ * Every expense for a trip, not just the paginated feed — used by consumers that are
+ * semantically whole-trip (the business-expense summary) so they never silently see only the
+ * first page. Nested under the paged key (['trips', tripId, 'expenses', 'all']) so
+ * invalidating ['trips', tripId, 'expenses'] refreshes both, same pattern as useAllActivities.
+ */
+export function useAllExpenses(tripId: string, enabled = true) {
+  return useQuery({
+    queryKey: ['trips', tripId, 'expenses', 'all'],
+    queryFn: () => getAllExpenses(tripId),
+    retry: 2,
+    enabled: !!tripId && enabled,
+  });
+}
+
+/**
+ * Cheap existence check gating the Business Summary button — deliberately a `head: true` count
+ * query (see hasBusinessExpenses), not useAllExpenses, so the button's visibility never pays for
+ * a whole-trip fetch. Nested under the paged key so any expense mutation invalidation
+ * (['trips', tripId, 'expenses']) refreshes it too.
+ */
+export function useHasBusinessExpenses(tripId: string) {
+  return useQuery({
+    queryKey: ['trips', tripId, 'expenses', 'has-business'],
+    queryFn: () => hasBusinessExpenses(tripId),
+    staleTime: 60_000,
+    retry: 2,
+    enabled: !!tripId,
+  });
+}
+
 export function useTripBalances(tripId: string) {
   return useQuery({
     queryKey: ['trips', tripId, 'balances'],
     queryFn: () => getTripBalances(tripId),
+    staleTime: 60_000,
+    retry: 2,
+    enabled: !!tripId,
+  });
+}
+
+export function useExpenseCategoryTotals(tripId: string) {
+  return useQuery({
+    queryKey: ['trips', tripId, 'expense-category-totals'],
+    queryFn: () => getTripExpenseCategoryTotals(tripId),
     staleTime: 60_000,
     retry: 2,
     enabled: !!tripId,
@@ -64,11 +108,22 @@ export function useExpenseSplits(expenseId: string) {
 }
 
 export function useCreateExpense() {
+  const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationKey: ['createExpense'],
     mutationFn: ({ tripId, input }: CreateExpenseVariables) => createExpense(tripId, input),
+    // Optimistically flips the Business Summary button's gating flag on immediately, rather than
+    // waiting on a network round trip (the RPC call) plus a second one (mutationDefaults'
+    // post-success invalidate+refetch of has-business) before the button appears. Only ever sets
+    // it to `true` here — never `false` on omission, since other business expenses may still
+    // exist; the real invalidate+refetch still runs on success and is the source of truth.
+    onMutate: ({ tripId, input }: CreateExpenseVariables) => {
+      if (input.is_business) {
+        queryClient.setQueryData(['trips', tripId, 'expenses', 'has-business'], true);
+      }
+    },
     onError: () => {
       addToast('error', i18n.t('expenses:toast.addFailed'));
     },
@@ -76,12 +131,19 @@ export function useCreateExpense() {
 }
 
 export function useUpdateExpenseWithSplits() {
+  const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationKey: ['updateExpenseWithSplits'],
     mutationFn: ({ expenseId, input }: UpdateExpenseWithSplitsVariables) =>
       updateExpenseWithSplits(expenseId, input),
+    // Same immediate-visibility reasoning as useCreateExpense's onMutate above.
+    onMutate: ({ tripId, input }: UpdateExpenseWithSplitsVariables) => {
+      if (input.is_business) {
+        queryClient.setQueryData(['trips', tripId, 'expenses', 'has-business'], true);
+      }
+    },
     onError: () => {
       addToast('error', i18n.t('expenses:toast.updateFailed'));
     },

@@ -43,6 +43,7 @@
   "forceUpdate.title": "Update Required",
   "forceUpdate.message": "A new version of Vacationist is available. Please update to continue using the app.",
   "forceUpdate.button": "Update Now",
+  "forceUpdate.openStoreFailed": "Couldn't open the store. Please update the app manually from the App Store or Play Store.",
   "button.info": "Info",
   "button.clear": "Clear selection",
   "placeholder.date": "Date",
@@ -50,5 +51,7 @@
   "placeholder.selectDate": "Select date",
   "placeholder.selectTime": "Select time",
   "captcha.error": "Security check failed. Please reload and try again.",
-  "captcha.verifying": "Verifying you are human…"
+  "captcha.verifying": "Verifying you are human…",
+  "option.none": "None",
+  "quickAction.addExpense": "Add Expense"
 }

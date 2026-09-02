@@ -1,5 +1,5 @@
 import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
-import { dayjs, formatCurrency } from '@vacationist/utils';
+import { formatCurrency, formatNaiveTimestamp } from '@vacationist/utils';
 import type { TransferRental, Currency } from '@vacationist/types';
 import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
@@ -57,8 +57,8 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
             <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
             <Text className="text-body-small text-text-secondary">
               {[
-                rental.pickup_date && dayjs(rental.pickup_date).isValid() ? dayjs(rental.pickup_date).format('D MMM') : null,
-                rental.dropoff_date && dayjs(rental.dropoff_date).isValid() ? dayjs(rental.dropoff_date).format('D MMM') : null,
+                formatNaiveTimestamp(rental.pickup_date, 'D MMM'),
+                formatNaiveTimestamp(rental.dropoff_date, 'D MMM'),
               ].filter(Boolean).join(' – ')}
             </Text>
           </View>

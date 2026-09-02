@@ -79,7 +79,7 @@ export default function SettingsTab() {
 
       const lines: string[] = [
         t('invite.share.header', { name: currentUser?.name ?? 'Someone', trip: trip?.title ?? 'my trip' }),
-        t('invite.share.dates', { dateRange: trip?.start_date && trip?.end_date ? formatDateRange(trip.start_date, trip.end_date) : '' }),
+        t('invite.share.dates', { dateRange: trip?.start_date && trip?.end_date ? formatDateRange(trip.start_date, trip.end_date, trip.timezone) : '' }),
         '',
         t('invite.share.peoplePlanning', { count: memberCount }),
         '',
@@ -150,9 +150,15 @@ export default function SettingsTab() {
                   />
                   <View className="flex-1">
                     <Text className="text-body text-text-primary">{member.user.name}</Text>
-                    <Text className="text-body-small text-text-secondary">
-                      {ROLE_LABELS[member.role]}
-                    </Text>
+                    {isPending ? (
+                      <Text className="text-body-small text-danger">
+                        {t('settings.removeMemberConfirm', { name: member.user.name })}
+                      </Text>
+                    ) : (
+                      <Text className="text-body-small text-text-secondary">
+                        {ROLE_LABELS[member.role]}
+                      </Text>
+                    )}
                   </View>
 
                   {canRemove && !isPending && (

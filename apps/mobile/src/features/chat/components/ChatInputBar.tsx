@@ -11,8 +11,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { TripMessageWithSender } from '@vacationist/types';
+import { useChatDraftStore } from '../../../stores/chatDraftStore';
 
 interface ChatInputBarProps {
+  tripId: string;
   onSend: (text: string) => void;
   onSaveEdit: (messageId: string, text: string) => void;
   editingMessage: TripMessageWithSender | null;
@@ -21,6 +23,7 @@ interface ChatInputBarProps {
 }
 
 export function ChatInputBar({
+  tripId,
   onSend,
   onSaveEdit,
   editingMessage,
@@ -30,20 +33,42 @@ export function ChatInputBar({
   const { t } = useTranslation('chat');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
-  const [text, setText] = useState('');
+  const setDraft = useChatDraftStore((s) => s.setDraft);
+  const clearDraft = useChatDraftStore((s) => s.clearDraft);
+  // Lazy-seeded once from the store, not subscribed — this component fully remounts on every
+  // tab switch (see chatDraftStore's doc comment), so a fresh mount reading the last-written
+  // draft here is exactly the "restore on return" behavior task 10 asks for, with no extra
+  // re-renders from a live store subscription on every keystroke.
+  const [text, setText] = useState(() => useChatDraftStore.getState().draftsByTripId[tripId] ?? '');
   const inputRef = useRef<TextInput>(null);
+  // Tracks the previously-seen editingMessage id so the effect below can tell "just mounted,
+  // never editing" apart from "was editing, now cancelled/saved" — both present as
+  // editingMessage === null, but only the latter should clear text. Getting this wrong is
+  // exactly what silently wiped the restored draft on every mount before this fix.
+  const prevEditingIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (editingMessage) {
       setText(editingMessage.text);
       inputRef.current?.focus();
-    } else {
+    } else if (prevEditingIdRef.current !== null) {
+      // A real transition out of edit mode (cancel/save) — clear, same as before this fix.
+      // On initial mount prevEditingIdRef.current is still null, so this is skipped and the
+      // lazy useState initializer's restored draft (if any) survives.
       setText('');
     }
+    prevEditingIdRef.current = editingMessage?.id ?? null;
   }, [editingMessage?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const trimmed = text.trim();
   const canSubmit = !!trimmed && !isPending;
+
+  const handleChangeText = (value: string) => {
+    setText(value);
+    // Editing an existing message is a separate, ephemeral flow — it isn't a "compose" draft
+    // and shouldn't overwrite whatever the user was mid-typing before they tapped Edit.
+    if (!editingMessage) setDraft(tripId, value);
+  };
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -52,6 +77,7 @@ export function ChatInputBar({
       onCancelEdit();
     } else {
       onSend(trimmed);
+      clearDraft(tripId);
     }
     setText('');
     inputRef.current?.focus();
@@ -103,7 +129,7 @@ export function ChatInputBar({
             placeholderTextColor="#5C5C5C"
             placeholder={t('placeholder.message')}
             value={text}
-            onChangeText={setText}
+            onChangeText={handleChangeText}
             onKeyPress={handleKeyPress}
             maxLength={2000}
             multiline

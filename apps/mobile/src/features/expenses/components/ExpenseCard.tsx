@@ -42,9 +42,24 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
       >
         <View className="flex-row items-start justify-between">
           <View className="flex-1 gap-xs">
-            <Text className="text-body text-text-primary font-semibold" numberOfLines={1}>
-              {expense.title}
-            </Text>
+            <View className="flex-row items-center gap-xs">
+              <Text className="text-body text-text-primary font-semibold flex-1" numberOfLines={1}>
+                {expense.title}
+              </Text>
+              {expense.is_business && (
+                <View
+                  className="w-[22px] h-[22px] rounded-full bg-primary/10 items-center justify-center"
+                  accessibilityLabel={t('field.businessExpense')}
+                >
+                  <ThemedIcon name="briefcase-outline" size={12} color={colors.primary} />
+                </View>
+              )}
+            </View>
+            {expense.description && (
+              <Text className="text-body-small text-text-secondary" numberOfLines={2}>
+                {expense.description}
+              </Text>
+            )}
             <View className="flex-row items-center gap-xs">
               <ThemedIcon name="person-outline" size={13} color={METADATA_ICON_COLORS.person.color} />
               <Text className="text-body-small text-text-secondary">
@@ -83,8 +98,8 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
               size={14}
               color={FEATURE_ICON_COLORS[expense.related_type]?.color ?? METADATA_ICON_COLORS.receipt.color}
             />
-            <Text className="text-body-small text-text-muted capitalize">
-              {expense.related_type}
+            <Text className="text-body-small text-text-muted">
+              {t(`category.${expense.related_type}`, { defaultValue: expense.related_type })}
             </Text>
           </View>
         )}

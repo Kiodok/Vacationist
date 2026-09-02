@@ -46,6 +46,7 @@
   "type.reminder": "Reminder",
   "type.vote_finalized": "Voting finalized",
   "type.document_access_request": "Document access request",
+  "type.document_access_granted": "Document access granted",
   "type.activity_note": "Note added",
   "type.shared_packing": "Shared Packing Update",
   "type.shared_packing_claimed": "Shared Packing Update",

@@ -48,7 +48,10 @@ const TAB_CONTENT_KEY: Partial<Record<Tab, keyof TripTabContent>> = {
   Transfer: 'transfer',
   Expenses: 'expenses',
   Activities: 'activities',
-  Calendar: 'activities',
+  // Own flag, not a reuse of `activities` — that flag is true for any non-deleted activity
+  // (including date-less/blocked ones the calendar can never render); `calendar` filters to
+  // activity_date IS NOT NULL, matching what useCalendarActivities actually displays (task 19).
+  Calendar: 'calendar',
   Stuff: 'stuff',
   Shopping: 'shopping',
   Notes: 'notes',

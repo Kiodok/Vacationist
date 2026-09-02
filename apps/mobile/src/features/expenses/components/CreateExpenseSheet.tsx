@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
@@ -13,6 +13,7 @@ import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerS
 import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/useCurrencies';
 import { getLastUsedCurrency, setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
+import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 
 interface CreateExpenseSheetProps {
   visible: boolean;
@@ -22,9 +23,13 @@ interface CreateExpenseSheetProps {
   members: TripMemberWithUser[];
   currentUserId: string;
   currency: Currency;
+  /** Shown as a small banner below the header — only set when this sheet was auto-opened by
+   * the app-icon "Add Expense" quick action (task 16), which picks a trip automatically with no
+   * confirmation step; the user needs to see which one before submitting. */
+  autoSelectedTripBanner?: string;
 }
 
-export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, members, currentUserId, currency }: CreateExpenseSheetProps) {
+export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, members, currentUserId, currency, autoSelectedTripBanner }: CreateExpenseSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation('common');
@@ -56,6 +61,10 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   // coveredFor: the person being covered — stored as the form's paid_by
   const [coveredFor, setCoveredFor] = useState<string | null>(null);
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
+  const categoryOptions = EXPENSE_RELATED_TYPE.map((type) => ({ value: type, label: RELATED_TYPE_LABELS[type] ?? type }));
+  const [paidByPickerVisible, setPaidByPickerVisible] = useState(false);
+  const paidByOptions = members.map((m) => ({ value: m.user_id, label: m.user.name }));
 
   const { data: currencies } = useCurrencies();
   const { convert, ratesAsOf } = useCurrencyConversion();
@@ -198,6 +207,13 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
             </Pressable>
           </View>
 
+          {autoSelectedTripBanner && (
+            <View className="flex-row items-center gap-xs bg-primary/10 rounded-sm px-sm py-sm mb-md">
+              <ThemedIcon name="information-circle-outline" size={16} color={colors.primary} />
+              <Text className="text-body-small text-primary flex-1">{autoSelectedTripBanner}</Text>
+            </View>
+          )}
+
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <View className="gap-md">
               {/* Title */}
@@ -219,6 +235,29 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                   )}
                 />
                 {errors.title && <Text className="text-danger text-body-small">{errors.title.message}</Text>}
+              </View>
+
+              {/* Description */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.description')}</Text>
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                      placeholderTextColor="#5C5C5C"
+                      placeholder={t('placeholder.description')}
+                      value={value ?? ''}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      multiline
+                      numberOfLines={3}
+                      maxLength={500}
+                      style={{ minHeight: 80, textAlignVertical: 'top' }}
+                    />
+                  )}
+                />
               </View>
 
               {/* Amount + currency */}
@@ -283,23 +322,24 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                   control={control}
                   name="related_type"
                   render={({ field: { onChange, value } }) => (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-xs">
-                      {EXPENSE_RELATED_TYPE.map((type) => (
-                        <Pressable
-                          key={type}
-                          onPress={() => onChange(type)}
-                          className={`px-md py-sm rounded-full ${value === type ? 'bg-primary' : 'bg-surface border border-border'}`}
-                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                        >
-                          <Text
-                            className={`text-body-small ${value === type ? 'text-white font-semibold' : 'text-text-secondary'}`}
-                            style={value === type && isColorful ? { color: colors.surface } : undefined}
-                          >
-                            {RELATED_TYPE_LABELS[type] ?? type}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
+                    <>
+                      <Pressable
+                        onPress={() => setCategoryPickerVisible(true)}
+                        className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
+                        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                      >
+                        <Text className="text-body flex-1 text-text-primary">{RELATED_TYPE_LABELS[value] ?? value}</Text>
+                        <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
+                      </Pressable>
+                      <OptionPickerSheet
+                        visible={categoryPickerVisible}
+                        title={t('field.categoryLabel')}
+                        options={categoryOptions}
+                        selectedValue={value}
+                        onSelect={(v) => onChange(v)}
+                        onClose={() => setCategoryPickerVisible(false)}
+                      />
+                    </>
                   )}
                 />
               </View>
@@ -312,24 +352,26 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                     control={control}
                     name="paid_by"
                     render={({ field: { onChange, value } }) => (
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-xs">
-                        {members.map((m) => (
-                          <Pressable
-                            key={m.user_id}
-                            onPress={() => onChange(m.user_id)}
-                            className={`px-md py-sm rounded-full ${value === m.user_id ? 'bg-primary' : 'bg-surface border border-border'}`}
-                            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                          >
-                            <Text
-                              className={`text-body-small ${value === m.user_id ? 'text-white font-semibold' : 'text-text-secondary'}`}
-                              style={value === m.user_id && isColorful ? { color: colors.surface } : undefined}
-                              numberOfLines={1}
-                            >
-                              {m.user.name}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </ScrollView>
+                      <>
+                        <Pressable
+                          onPress={() => setPaidByPickerVisible(true)}
+                          className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
+                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                        >
+                          <Text className="text-body flex-1 text-text-primary" numberOfLines={1}>
+                            {members.find((m) => m.user_id === value)?.user.name ?? value}
+                          </Text>
+                          <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
+                        </Pressable>
+                        <OptionPickerSheet
+                          visible={paidByPickerVisible}
+                          title={t('field.paidByLabel')}
+                          options={paidByOptions}
+                          selectedValue={value}
+                          onSelect={(v) => onChange(v)}
+                          onClose={() => setPaidByPickerVisible(false)}
+                        />
+                      </>
                     )}
                   />
                 </View>
@@ -506,6 +548,24 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                   </Text>
                 </View>
               )}
+
+              {/* Business expense */}
+              <Controller
+                control={control}
+                name="is_business"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.businessExpense')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                      thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
 
               {/* Submit */}
               <Pressable

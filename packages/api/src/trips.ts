@@ -46,6 +46,7 @@ export async function getTripTabContent(tripId: string): Promise<TripTabContent>
     transfer: false,
     expenses: false,
     activities: false,
+    calendar: false,
     stuff: false,
     shopping: false,
     notes: false,

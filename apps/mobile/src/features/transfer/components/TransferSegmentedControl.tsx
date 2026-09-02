@@ -2,14 +2,15 @@ import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 
-export type TransferSegment = 'All' | 'Flights' | 'Vehicles' | 'Rentals';
-const SEGMENTS: TransferSegment[] = ['All', 'Flights', 'Vehicles', 'Rentals'];
+export type TransferSegment = 'All' | 'Flights' | 'Vehicles' | 'Rentals' | 'PublicTransport';
+const SEGMENTS: TransferSegment[] = ['All', 'Flights', 'Vehicles', 'Rentals', 'PublicTransport'];
 
 const SEGMENT_KEY: Record<TransferSegment, string> = {
   All: 'segment.all',
   Flights: 'segment.flights',
   Vehicles: 'segment.vehicles',
   Rentals: 'segment.rentals',
+  PublicTransport: 'segment.publicTransport',
 };
 
 interface TransferSegmentedControlProps {
@@ -24,10 +25,11 @@ export function TransferSegmentedControl({ activeSegment, onSegmentChange }: Tra
 
   const getLabel = (segment: TransferSegment): string => {
     switch (segment) {
-      case 'All':      return t('segment.all');
-      case 'Flights':  return t('segment.flights');
-      case 'Vehicles': return t('segment.vehicles');
-      case 'Rentals':  return t('segment.rentals');
+      case 'All':            return t('segment.all');
+      case 'Flights':        return t('segment.flights');
+      case 'Vehicles':       return t('segment.vehicles');
+      case 'Rentals':        return t('segment.rentals');
+      case 'PublicTransport': return t('segment.publicTransport');
     }
   };
 

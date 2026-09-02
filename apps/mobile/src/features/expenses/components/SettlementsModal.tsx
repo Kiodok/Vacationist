@@ -9,6 +9,9 @@ import { colors , ThemedIcon } from '@vacationist/ui';
 import { shareText } from '../../../utils/share';
 import { useToastStore } from '../../../stores/toastStore';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
+import { CollapsibleSectionHeader } from '../../../components/CollapsibleSectionHeader';
+import { useExpenseCategoryTotals } from '../hooks/useExpenses';
+import { ExpenseCategoryChart } from './ExpenseCategoryChart';
 
 interface SettlementsModalProps {
   visible: boolean;
@@ -18,6 +21,7 @@ interface SettlementsModalProps {
   currency: Currency;
   tripId: string;
   tripTitle: string;
+  currentUserId: string | undefined;
   onSettleAllExpenses?: () => void;
   isSettlingAll?: boolean;
   receipts?: SettlementReceipt[];
@@ -37,6 +41,7 @@ export function SettlementsModal({
   currency,
   tripId,
   tripTitle,
+  currentUserId,
   onSettleAllExpenses,
   isSettlingAll,
   receipts = [],
@@ -51,8 +56,10 @@ export function SettlementsModal({
   const { t: tCommon } = useTranslation('common');
   const addToast = useToastStore((s) => s.addToast);
   const [confirmingSettle, setConfirmingSettle] = useState(false);
+  const [bankAccountCollapsed, setBankAccountCollapsed] = useState(true);
   const settlements = useMemo(() => computeSettlements(balances), [balances]);
   const allSettled = settlements.length === 0;
+  const { data: categoryTotals } = useExpenseCategoryTotals(tripId);
 
   const isForeignDisplay = !!displayCurrency && displayCurrency !== currency && !!convert;
   const effectiveCurrency = isForeignDisplay ? (displayCurrency as Currency) : currency;
@@ -60,6 +67,11 @@ export function SettlementsModal({
     if (!isForeignDisplay) return amount;
     return convert!(amount, currency, displayCurrency as Currency) ?? amount;
   };
+
+  const myBalance = balances.find((b) => b.user_id === currentUserId);
+  const myNetBalance = myBalance ? displayAmount(myBalance.net_balance) : 0;
+  const myBalanceIsOwed = myBalance && !isNegligible(myNetBalance) && myNetBalance > 0;
+  const myBalanceOwes = myBalance && !isNegligible(myNetBalance) && myNetBalance < 0;
 
   async function handleShare() {
     const text = formatSettlementShareText({ settlements, members, currency, tripId, tripTitle });
@@ -69,7 +81,10 @@ export function SettlementsModal({
   }
 
   useEffect(() => {
-    if (!visible) setConfirmingSettle(false);
+    if (!visible) {
+      setConfirmingSettle(false);
+      setBankAccountCollapsed(true);
+    }
   }, [visible]);
 
   return (
@@ -94,47 +109,38 @@ export function SettlementsModal({
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Per-member balances */}
-            <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.memberBalances')}</Text>
-            <BoundedVirtualList
-              data={balances}
-              keyExtractor={(b) => b.user_id}
-              itemHeight={56}
-              style={{ marginBottom: 24 }}
-              renderItem={(b) => {
-                const user = members.get(b.user_id);
-                const isPositive = !isNegligible(b.net_balance) && b.net_balance > 0;
-                const isNegative = !isNegligible(b.net_balance) && b.net_balance < 0;
-                return (
-                  <View className="py-sm px-sm rounded-md bg-surface gap-xs mb-xs">
-                    <View className="flex-row items-center justify-between">
-                      <View className="flex-row items-center gap-sm flex-1">
-                        <View className="w-[28px] h-[28px] rounded-full bg-primary/15 items-center justify-center">
-                          <Text className="text-primary text-label font-semibold">
-                            {(user?.name ?? '?')[0].toUpperCase()}
-                          </Text>
-                        </View>
-                        <Text className="text-body text-text-primary flex-1" numberOfLines={1}>
-                          {user?.name ?? 'Unknown'}
-                        </Text>
-                      </View>
-                      <Text className={`text-body font-semibold ${isPositive ? 'text-success' : isNegative ? 'text-danger' : 'text-text-muted'}`}>
-                        {isPositive ? '+' : ''}{formatCurrency(displayAmount(b.net_balance), effectiveCurrency)}
-                      </Text>
-                    </View>
-                  </View>
-                );
-              }}
-            />
+            {/* Your balance — always visible, plain-language summary for the current user */}
+            {myBalance && (
+              <View className={`rounded-md px-md py-md mb-lg items-center ${myBalanceIsOwed ? 'bg-success/10' : myBalanceOwes ? 'bg-danger/10' : 'bg-surface'}`}>
+                <ThemedIcon
+                  name={myBalanceIsOwed ? 'arrow-down-circle-outline' : myBalanceOwes ? 'arrow-up-circle-outline' : 'checkmark-done-circle-outline'}
+                  size={28}
+                  color={myBalanceIsOwed ? colors.success : myBalanceOwes ? colors.danger : colors.textMuted}
+                />
+                <Text className={`text-heading-m font-semibold mt-xs ${myBalanceIsOwed ? 'text-success' : myBalanceOwes ? 'text-danger' : 'text-text-secondary'}`}>
+                  {myBalanceIsOwed
+                    ? t('modal.yourBalanceOwed', { amount: formatCurrency(myNetBalance, effectiveCurrency) })
+                    : myBalanceOwes
+                      ? t('modal.yourBalanceOwes', { amount: formatCurrency(Math.abs(myNetBalance), effectiveCurrency) })
+                      : t('modal.yourBalanceSettled')}
+                </Text>
+              </View>
+            )}
+
+            {/* Exchange-rate disclosure — always visible whenever amounts are shown converted,
+                not buried inside the collapsed "Bank Balance Reality" section below: the balance
+                card above and the settlements list right after both already render converted
+                amounts unconditionally, so the disclosure/attribution has to be visible at the
+                same time they are, not gated behind an extra tap. */}
             {isForeignDisplay && (
-              <>
-                <Text className="text-label text-text-muted -mt-md">
+              <View className="mb-lg">
+                <Text className="text-label text-text-muted">
                   {t('modal.ratesAsOf', { date: ratesAsOf ?? '—', currency })}
                 </Text>
-                <Pressable onPress={() => Linking.openURL('https://www.exchangerate-api.com')} className="mb-lg">
+                <Pressable onPress={() => Linking.openURL('https://www.exchangerate-api.com')}>
                   <Text className="text-label text-text-muted underline">{t('field.ratesAttribution')}</Text>
                 </Pressable>
-              </>
+              </View>
             )}
 
             {/* Simplified settlements (read-only) */}
@@ -222,6 +228,59 @@ export function SettlementsModal({
                 </Pressable>
               )
             )}
+
+            {/* Category breakdown chart */}
+            {categoryTotals && categoryTotals.length > 0 && (
+              <View className="mb-lg">
+                <ExpenseCategoryChart totals={categoryTotals} currency={currency} />
+              </View>
+            )}
+
+            {/* "What to expect on your bank account" — collapsed by default, full per-member list */}
+            <View className="mb-lg">
+              <CollapsibleSectionHeader
+                icon="wallet-outline"
+                iconColor={colors.textSecondary}
+                textClass="text-text-secondary"
+                title={t('modal.bankAccountTitle')}
+                count={balances.length}
+                collapsed={bankAccountCollapsed}
+                onToggle={() => setBankAccountCollapsed((c) => !c)}
+              />
+              {!bankAccountCollapsed && (
+                <>
+                  <BoundedVirtualList
+                    data={balances}
+                    keyExtractor={(b) => b.user_id}
+                    itemHeight={56}
+                    renderItem={(b) => {
+                      const user = members.get(b.user_id);
+                      const isPositive = !isNegligible(b.net_balance) && b.net_balance > 0;
+                      const isNegative = !isNegligible(b.net_balance) && b.net_balance < 0;
+                      return (
+                        <View className="py-sm px-sm rounded-md bg-surface gap-xs mb-xs">
+                          <View className="flex-row items-center justify-between">
+                            <View className="flex-row items-center gap-sm flex-1">
+                              <View className="w-[28px] h-[28px] rounded-full bg-primary/15 items-center justify-center">
+                                <Text className="text-primary text-label font-semibold">
+                                  {(user?.name ?? '?')[0].toUpperCase()}
+                                </Text>
+                              </View>
+                              <Text className="text-body text-text-primary flex-1" numberOfLines={1}>
+                                {user?.name ?? 'Unknown'}
+                              </Text>
+                            </View>
+                            <Text className={`text-body font-semibold ${isPositive ? 'text-success' : isNegative ? 'text-danger' : 'text-text-muted'}`}>
+                              {isPositive ? '+' : ''}{formatCurrency(displayAmount(b.net_balance), effectiveCurrency)}
+                            </Text>
+                          </View>
+                        </View>
+                      );
+                    }}
+                  />
+                </>
+              )}
+            </View>
 
             {/* Transaction History */}
             <Text className="text-body text-text-secondary font-semibold mb-sm">{t('modal.transactionHistory')}</Text>

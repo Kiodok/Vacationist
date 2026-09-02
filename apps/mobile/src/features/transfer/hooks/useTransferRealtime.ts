@@ -10,6 +10,7 @@ import type {
   TransferVehicle,
   TransferVehiclePassenger,
   TransferRental,
+  TransferPublicTransport,
 } from '@vacationist/types';
 
 const BACKOFF_DELAYS = [2000, 5000, 10000, 30000];
@@ -35,6 +36,7 @@ export function useTransferRealtime(tripId: string) {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-vehicles'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-rentals'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-public-transport'] });
   }, [queryClient, tripId]);
 
   const subscribe = useCallback(() => {
@@ -193,6 +195,36 @@ export function useTransferRealtime(tripId: string) {
           queryClient.setQueryData<TransferRental[]>(
             ['trips', tripId, 'transfer-rentals'],
             (old) => old?.filter((r) => r.id !== oldRental.id),
+          );
+        },
+        // --- Public transport ---
+        onPublicTransportInsert: (entry) => {
+          queryClient.setQueryData<TransferPublicTransport[]>(
+            ['trips', tripId, 'transfer-public-transport'],
+            (old) => {
+              if (!old) return [entry];
+              if (old.some((e) => e.id === entry.id)) return old;
+              return [entry, ...old];
+            },
+          );
+        },
+        onPublicTransportUpdate: (entry) => {
+          if (entry.deleted_at) {
+            queryClient.setQueryData<TransferPublicTransport[]>(
+              ['trips', tripId, 'transfer-public-transport'],
+              (old) => old?.filter((e) => e.id !== entry.id),
+            );
+          } else {
+            queryClient.setQueryData<TransferPublicTransport[]>(
+              ['trips', tripId, 'transfer-public-transport'],
+              (old) => old?.map((e) => (e.id === entry.id ? entry : e)),
+            );
+          }
+        },
+        onPublicTransportDelete: (oldEntry) => {
+          queryClient.setQueryData<TransferPublicTransport[]>(
+            ['trips', tripId, 'transfer-public-transport'],
+            (old) => old?.filter((e) => e.id !== oldEntry.id),
           );
         },
       },

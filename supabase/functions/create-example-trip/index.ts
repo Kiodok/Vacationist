@@ -262,6 +262,25 @@ Deno.serve(async (req: Request) => {
       logIfError('transfer_rentals', error);
     }
 
+    // 8b. Transfer public transport (train day trip)
+    {
+      const { error } = await supabase.from('transfer_public_transport').insert({
+        trip_id: tripId,
+        title: 'Day Trip to Girona by Train',
+        company: 'Renfe',
+        departure_location: 'Barcelona Sants',
+        arrival_location: 'Girona',
+        departure_time: `${dateOffset(startStr, 4)}T08:00:00+02:00`,
+        arrival_time: `${dateOffset(startStr, 4)}T09:10:00+02:00`,
+        booking_reference: 'RENFE-7X29KQ',
+        price_total: 18,
+        external_url: 'https://www.renfe.com',
+        notes: 'Round-trip tickets. Seat reservation not required.',
+        created_by: userId,
+      });
+      logIfError('transfer_public_transport', error);
+    }
+
     // 9. Shopping list + items
     const { data: list, error: listErr } = await supabase
       .from('shopping_lists')
@@ -309,23 +328,38 @@ Deno.serve(async (req: Request) => {
     }
 
     // 11. Expenses
+    //
+    // "Airport transfer" is deliberately flagged is_business — this is what makes the
+    // Business summary header action appear at all (gated on useHasBusinessExpenses(tripId)),
+    // so without it the whole business-expense feature is invisible in the demo trip.
+    // The fourth expense (accommodation) exists purely so the Balances category donut renders
+    // four slices instead of three — a near-empty ring reads worse than no chart at all.
+    //
+    // Not seeded here: expense_documents / transfer_documents. Both point at private Storage
+    // objects, and a metadata row with no uploaded file would render a document card whose
+    // signed-URL fetch 404s — worse than showing nothing. Seeding them for real would mean
+    // uploading placeholder bytes per new signup, which the Tech Lead decided against (Storage
+    // cost on every signup) — deliberate omission, not an oversight.
     const { data: expenses, error: expensesErr } = await supabase
       .from('expenses')
       .insert([
         {
           trip_id: tripId,
           title: 'Airport transfer',
+          description: 'Taxi from BCN airport to the apartment — receipt kept for reimbursement.',
           amount: 32,
           currency: 'EUR',
           exchange_rate: 1,
           converted_amount: 32,
           related_type: 'transport',
+          is_business: true,
           paid_by: userId,
           created_by: userId,
         },
         {
           trip_id: tripId,
           title: 'Group dinner — El Xampanyet',
+          description: 'Tapas and cava for the whole group after the first day of sightseeing.',
           amount: 120,
           currency: 'EUR',
           exchange_rate: 1,
@@ -337,11 +371,24 @@ Deno.serve(async (req: Request) => {
         {
           trip_id: tripId,
           title: 'Sagrada Família tickets',
+          description: 'Timed-entry tickets booked in advance for the whole group.',
           amount: 52,
           currency: 'EUR',
           exchange_rate: 1,
           converted_amount: 52,
           related_type: 'activity',
+          paid_by: userId,
+          created_by: userId,
+        },
+        {
+          trip_id: tripId,
+          title: 'Apartment cleaning fee',
+          description: 'One-time cleaning fee charged by the host on arrival.',
+          amount: 45,
+          currency: 'EUR',
+          exchange_rate: 1,
+          converted_amount: 45,
+          related_type: 'accommodation',
           paid_by: userId,
           created_by: userId,
         },

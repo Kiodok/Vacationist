@@ -39,6 +39,9 @@ export const PERSISTED_MUTATION_KEYS = [
   'createTransferRental',
   'updateTransferRental',
   'deleteTransferRental',
+  'createTransferPublicTransport',
+  'updateTransferPublicTransport',
+  'deleteTransferPublicTransport',
   // Expenses
   'createExpense',
   'updateExpenseWithSplits',

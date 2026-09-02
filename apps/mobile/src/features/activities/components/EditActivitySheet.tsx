@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Switch } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,7 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, type Currency, ACTIVITY_CATEGORIES } from '@vacationist/types';
 import { getCurrencySymbol } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
-import { colors, useResolvedTheme } from '@vacationist/ui';
+import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface EditActivitySheetProps {
   visible: boolean;
@@ -35,6 +36,8 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
   const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<UpdateActivityInput>({
     resolver: zodResolver(schema),
   });
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
+  const categoryOptions = ACTIVITY_CATEGORIES.map((cat) => ({ value: cat, label: t(`category.${cat}`, { defaultValue: cat }) }));
 
   useEffect(() => {
     if (visible) {
@@ -136,30 +139,27 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                   control={control}
                   name="category"
                   render={({ field: { onChange, value } }) => (
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerClassName="gap-xs"
-                    >
-                      {ACTIVITY_CATEGORIES.map((cat) => (
-                        <Pressable
-                          key={cat}
-                          onPress={() => onChange(value === cat ? undefined : cat)}
-                          className={`px-md py-sm rounded-full ${
-                            value === cat ? 'bg-primary' : 'bg-surface border border-border'
-                          }`}
-                          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                        >
-                          <Text
-                            className={`text-body-small ${
-                              value === cat ? 'text-white font-semibold' : 'text-text-secondary'
-                            }`}
-                          >
-                            {t(`category.${cat}`, { defaultValue: cat })}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
+                    <>
+                      <Pressable
+                        onPress={() => setCategoryPickerVisible(true)}
+                        className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
+                        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                      >
+                        <Text className={`text-body flex-1 ${value ? 'text-text-primary' : 'text-text-muted'}`}>
+                          {value ? t(`category.${value}`, { defaultValue: value }) : t('field.categoryPlaceholder')}
+                        </Text>
+                        <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
+                      </Pressable>
+                      <OptionPickerSheet
+                        visible={categoryPickerVisible}
+                        title={t('field.category')}
+                        options={categoryOptions}
+                        selectedValue={value ?? null}
+                        onSelect={(v) => onChange(v ?? undefined)}
+                        onClose={() => setCategoryPickerVisible(false)}
+                        clearable
+                      />
+                    </>
                   )}
                 />
               </View>

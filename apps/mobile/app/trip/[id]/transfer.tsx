@@ -5,10 +5,11 @@ import { useLocalSearchParams } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
 import type {
-  TransferFlight, TransferFlightVote, TransferVehicle, TransferRental,
+  TransferFlight, TransferFlightVote, TransferVehicle, TransferRental, TransferPublicTransport,
   VoteType, CreateTransferFlightInput, UpdateTransferFlightInput,
   CreateTransferVehicleInput, UpdateTransferVehicleInput,
   CreateTransferRentalInput, UpdateTransferRentalInput,
+  CreateTransferPublicTransportInput, UpdateTransferPublicTransportInput,
   BookTransferFlightInput,
 } from '@vacationist/types';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
@@ -20,13 +21,17 @@ import { useTransferFlightPassengers, useSetTransferFlightPassengers } from '../
 import { useTransferVehicles, useCreateTransferVehicle, useUpdateTransferVehicle, useDeleteTransferVehicle } from '../../../src/features/transfer/hooks/useTransferVehicles';
 import { useTransferVehiclePassengers, useAddTransferVehiclePassenger, useRemoveTransferVehiclePassenger, useUpdateTransferVehiclePassenger, useJoinVehicle, useLeaveVehicle } from '../../../src/features/transfer/hooks/useTransferVehiclePassengers';
 import { useTransferRentals, useCreateTransferRental, useUpdateTransferRental, useDeleteTransferRental } from '../../../src/features/transfer/hooks/useTransferRentals';
+import { useTransferPublicTransport, useCreateTransferPublicTransport, useUpdateTransferPublicTransport, useDeleteTransferPublicTransport } from '../../../src/features/transfer/hooks/useTransferPublicTransport';
 import { useTransferRealtime } from '../../../src/features/transfer/hooks/useTransferRealtime';
 import { computeFlightWinner } from '../../../src/features/transfer/utils/flightWinner';
 import { TransferSegmentedControl } from '../../../src/features/transfer/components/TransferSegmentedControl';
 import { AllTransfersView } from '../../../src/features/transfer/components/AllTransfersView';
 import { FlightCard } from '../../../src/features/transfer/components/FlightCard';
+import { FlightTicketsSection } from '../../../src/features/transfer/components/FlightTicketsSection';
 import { VehicleCard } from '../../../src/features/transfer/components/VehicleCard';
 import { RentalCard } from '../../../src/features/transfer/components/RentalCard';
+import { PublicTransportCard } from '../../../src/features/transfer/components/PublicTransportCard';
+import { PublicTransportTicketsSection } from '../../../src/features/transfer/components/PublicTransportTicketsSection';
 import { VoteSheet } from '../../../src/features/activities/components/VoteSheet';
 import { BookFlightSheet } from '../../../src/features/transfer/components/BookFlightSheet';
 import { PassengerSelectSheet } from '../../../src/features/transfer/components/PassengerSelectSheet';
@@ -36,15 +41,18 @@ import { CreateVehicleSheet } from '../../../src/features/transfer/components/Cr
 import { EditVehicleSheet } from '../../../src/features/transfer/components/EditVehicleSheet';
 import { CreateRentalSheet } from '../../../src/features/transfer/components/CreateRentalSheet';
 import { EditRentalSheet } from '../../../src/features/transfer/components/EditRentalSheet';
+import { CreatePublicTransportSheet } from '../../../src/features/transfer/components/CreatePublicTransportSheet';
+import { EditPublicTransportSheet } from '../../../src/features/transfer/components/EditPublicTransportSheet';
 import { EmptyFlights } from '../../../src/features/transfer/components/EmptyFlights';
 import { EmptyVehicles } from '../../../src/features/transfer/components/EmptyVehicles';
 import { EmptyRentals } from '../../../src/features/transfer/components/EmptyRentals';
+import { EmptyPublicTransport } from '../../../src/features/transfer/components/EmptyPublicTransport';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
-type Segment = 'All' | 'Flights' | 'Vehicles' | 'Rentals';
+type Segment = 'All' | 'Flights' | 'Vehicles' | 'Rentals' | 'PublicTransport';
 
 export default function TransferTab() {
   const { id: tripId, highlightId: highlightIdParam } = useLocalSearchParams<{ id: string; highlightId?: string }>();
@@ -62,6 +70,7 @@ export default function TransferTab() {
   const flightListRef = useRef<SectionList<TransferFlight>>(null);
   const vehicleListRef = useRef<SectionList<TransferVehicle>>(null);
   const rentalListRef = useRef<FlashListRef<TransferRental>>(null);
+  const publicTransportListRef = useRef<FlashListRef<TransferPublicTransport>>(null);
   const flightScrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
   const flightScrollAttemptsRef = useRef(0);
   const vehicleScrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
@@ -95,6 +104,14 @@ export default function TransferTab() {
   const updateRentalMutation = useUpdateTransferRental();
   const deleteRental = useDeleteTransferRental();
 
+  // Public transport
+  const publicTransportQuery = useTransferPublicTransport(tripId!);
+  const { data: publicTransport = [], refetch: refetchPublicTransport } = publicTransportQuery;
+  const publicTransportUx = getQueryDisplayState(publicTransportQuery);
+  const createPublicTransport = useCreateTransferPublicTransport();
+  const updatePublicTransportMutation = useUpdateTransferPublicTransport();
+  const deletePublicTransport = useDeleteTransferPublicTransport();
+
   // Sheet state
   const [showCreateFlight, setShowCreateFlight] = useState(false);
   const [editingFlight, setEditingFlight] = useState<TransferFlight | null>(null);
@@ -102,6 +119,8 @@ export default function TransferTab() {
   const [editingVehicle, setEditingVehicle] = useState<TransferVehicle | null>(null);
   const [showCreateRental, setShowCreateRental] = useState(false);
   const [editingRental, setEditingRental] = useState<TransferRental | null>(null);
+  const [showCreatePublicTransport, setShowCreatePublicTransport] = useState(false);
+  const [editingPublicTransport, setEditingPublicTransport] = useState<TransferPublicTransport | null>(null);
 
   // Compute all votes for winner detection (we get votes per flight inside each card)
   const allFlightIds = useMemo(() => flights.map((f) => f.id), [flights]);
@@ -140,8 +159,9 @@ export default function TransferTab() {
     for (const s of vehicleSections) {
       if (s.data.some((v) => v.id === highlightId)) { setActiveSegment('Vehicles'); return; }
     }
-    if (rentals.some((r) => r.id === highlightId)) setActiveSegment('Rentals');
-  }, [highlightId, flightSections, vehicleSections, rentals]);
+    if (rentals.some((r) => r.id === highlightId)) { setActiveSegment('Rentals'); return; }
+    if (publicTransport.some((p) => p.id === highlightId)) setActiveSegment('PublicTransport');
+  }, [highlightId, flightSections, vehicleSections, rentals, publicTransport]);
 
   useEffect(() => {
     if (!highlightId) return;
@@ -173,23 +193,30 @@ export default function TransferTab() {
         if (idx >= 0) {
           rentalListRef.current?.scrollToIndex({ index: idx, animated: true, viewOffset: 80 });
         }
+      } else if (activeSegment === 'PublicTransport') {
+        const idx = publicTransport.findIndex((p) => p.id === highlightId);
+        if (idx >= 0) {
+          publicTransportListRef.current?.scrollToIndex({ index: idx, animated: true, viewOffset: 80 });
+        }
       }
     }, 200);
     const clearTimer = setTimeout(() => setHighlightId(null), 5000);
     return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer); };
-  }, [highlightId, activeSegment, flightSections, vehicleSections, rentals]);
+  }, [highlightId, activeSegment, flightSections, vehicleSections, rentals, publicTransport]);
 
   const isLoading =
-    (activeSegment === 'All' && (flightsUx.showSkeleton || vehiclesUx.showSkeleton || rentalsUx.showSkeleton)) ||
+    (activeSegment === 'All' && (flightsUx.showSkeleton || vehiclesUx.showSkeleton || rentalsUx.showSkeleton || publicTransportUx.showSkeleton)) ||
     (activeSegment === 'Flights' && flightsUx.showSkeleton) ||
     (activeSegment === 'Vehicles' && vehiclesUx.showSkeleton) ||
-    (activeSegment === 'Rentals' && rentalsUx.showSkeleton);
+    (activeSegment === 'Rentals' && rentalsUx.showSkeleton) ||
+    (activeSegment === 'PublicTransport' && publicTransportUx.showSkeleton);
 
   const showOfflineEmpty =
-    (activeSegment === 'All' && (flightsUx.showOfflineEmpty || vehiclesUx.showOfflineEmpty || rentalsUx.showOfflineEmpty)) ||
+    (activeSegment === 'All' && (flightsUx.showOfflineEmpty || vehiclesUx.showOfflineEmpty || rentalsUx.showOfflineEmpty || publicTransportUx.showOfflineEmpty)) ||
     (activeSegment === 'Flights' && flightsUx.showOfflineEmpty) ||
     (activeSegment === 'Vehicles' && vehiclesUx.showOfflineEmpty) ||
-    (activeSegment === 'Rentals' && rentalsUx.showOfflineEmpty);
+    (activeSegment === 'Rentals' && rentalsUx.showOfflineEmpty) ||
+    (activeSegment === 'PublicTransport' && publicTransportUx.showOfflineEmpty);
 
   const handleCreateFlight = (input: CreateTransferFlightInput) => {
     setShowCreateFlight(false);
@@ -224,6 +251,17 @@ export default function TransferTab() {
     updateRentalMutation.mutate({ rentalId: editingRental.id, tripId: tripId!, input });
   };
 
+  const handleCreatePublicTransport = (input: CreateTransferPublicTransportInput) => {
+    setShowCreatePublicTransport(false);
+    createPublicTransport.mutate({ tripId: tripId!, input });
+  };
+
+  const handleUpdatePublicTransport = (input: UpdateTransferPublicTransportInput) => {
+    if (!editingPublicTransport) return;
+    setEditingPublicTransport(null);
+    updatePublicTransportMutation.mutate({ publicTransportId: editingPublicTransport.id, tripId: tripId!, input });
+  };
+
   const renderDirectionHeader = (title: string, sectionKey: string) => {
     const isBoth = sectionKey === 'outbound-return';
     const isReturn = sectionKey === 'return';
@@ -253,7 +291,7 @@ export default function TransferTab() {
     return (
       <View className="flex-1">
         <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
-        <OfflineEmptyState onRetry={() => { refetchFlights(); refetchVehicles(); refetchRentals(); }} />
+        <OfflineEmptyState onRetry={() => { refetchFlights(); refetchVehicles(); refetchRentals(); refetchPublicTransport(); }} />
       </View>
     );
   }
@@ -268,12 +306,14 @@ export default function TransferTab() {
           flights={flights}
           vehicles={vehicles}
           rentals={rentals}
+          publicTransport={publicTransport}
           currency={currency}
-          isRefreshing={flightsUx.refreshing || vehiclesUx.refreshing || rentalsUx.refreshing}
-          onRefresh={() => { refetchFlights(); refetchVehicles(); refetchRentals(); }}
+          isRefreshing={flightsUx.refreshing || vehiclesUx.refreshing || rentalsUx.refreshing || publicTransportUx.refreshing}
+          onRefresh={() => { refetchFlights(); refetchVehicles(); refetchRentals(); refetchPublicTransport(); }}
           onFlightPress={(id) => { setHighlightId(id); setActiveSegment('Flights'); }}
           onVehiclePress={(id) => { setHighlightId(id); setActiveSegment('Vehicles'); }}
           onRentalPress={(id) => { setHighlightId(id); setActiveSegment('Rentals'); }}
+          onPublicTransportPress={(id) => { setHighlightId(id); setActiveSegment('PublicTransport'); }}
         />
       )}
 
@@ -432,13 +472,52 @@ export default function TransferTab() {
         )
       )}
 
+      {/* Public Transport */}
+      {activeSegment === 'PublicTransport' && (
+        publicTransport.length === 0 ? (
+          <View className="flex-1 px-md">
+            <EmptyPublicTransport />
+          </View>
+        ) : (
+          <FlashList
+            ref={publicTransportListRef}
+            data={publicTransport}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+            renderItem={({ item }) => (
+              <PublicTransportCardExpanded
+                entry={item}
+                tripId={tripId!}
+                currency={currency}
+                role={role}
+                members={members}
+                currentUserId={user?.id}
+                highlight={item.id === highlightId}
+                onEdit={() => setEditingPublicTransport(item)}
+                onDelete={() => deletePublicTransport.mutate({ publicTransportId: item.id, tripId: tripId! })}
+              />
+            )}
+            refreshControl={
+              <RefreshControl
+                refreshing={publicTransportUx.refreshing}
+                onRefresh={refetchPublicTransport}
+                tintColor={colors.primary}
+                colors={[colors.primary]}
+              />
+            }
+          />
+        )
+      )}
+
       {/* FAB — hidden on All overview */}
       {activeSegment !== 'All' && (
         <Pressable
           onPress={() => {
             if (activeSegment === 'Flights') setShowCreateFlight(true);
             else if (activeSegment === 'Vehicles') setShowCreateVehicle(true);
-            else setShowCreateRental(true);
+            else if (activeSegment === 'Rentals') setShowCreateRental(true);
+            else setShowCreatePublicTransport(true);
           }}
           className="absolute bottom-md right-md w-[56px] h-[56px] rounded-full bg-primary items-center justify-center"
           style={{ elevation: 4, ...Platform.select({ web: { boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }, default: { shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 } }) }}
@@ -468,6 +547,15 @@ export default function TransferTab() {
         onClose={() => setShowCreateRental(false)}
         onSubmit={handleCreateRental}
         isPending={isMutationBusy(createRental)}
+        currency={currency}
+        tripStartDate={trip?.start_date ?? undefined}
+        tripEndDate={trip?.end_date ?? undefined}
+      />
+      <CreatePublicTransportSheet
+        visible={showCreatePublicTransport}
+        onClose={() => setShowCreatePublicTransport(false)}
+        onSubmit={handleCreatePublicTransport}
+        isPending={isMutationBusy(createPublicTransport)}
         currency={currency}
         tripStartDate={trip?.start_date ?? undefined}
         tripEndDate={trip?.end_date ?? undefined}
@@ -502,6 +590,18 @@ export default function TransferTab() {
           onSubmit={handleUpdateRental}
           isPending={isMutationBusy(updateRentalMutation)}
           rental={editingRental}
+          currency={currency}
+          tripStartDate={trip?.start_date ?? undefined}
+          tripEndDate={trip?.end_date ?? undefined}
+        />
+      )}
+      {editingPublicTransport && (
+        <EditPublicTransportSheet
+          visible={!!editingPublicTransport}
+          onClose={() => setEditingPublicTransport(null)}
+          onSubmit={handleUpdatePublicTransport}
+          isPending={isMutationBusy(updatePublicTransportMutation)}
+          entry={editingPublicTransport}
           currency={currency}
           tripStartDate={trip?.start_date ?? undefined}
           tripEndDate={trip?.end_date ?? undefined}
@@ -647,6 +747,14 @@ function FlightCardWithVotes({
           </View>
         </View>
       )}
+
+      <FlightTicketsSection
+        tripId={tripId}
+        flightId={flight.id}
+        members={(members ?? []).map((m) => ({ user_id: m.user_id, name: m.user.name }))}
+        currentUserId={currentUserId}
+        isOrganizer={role === 'organizer'}
+      />
 
       {role === 'organizer' && flight.voting_open && (
         <View className="flex-row items-center justify-between py-xs border-t border-border mt-xs">
@@ -1092,6 +1200,112 @@ function RentalCardExpanded({
       rental={rental}
       currency={currency}
       onPress={hasDetail ? () => setShowDetail(!showDetail) : undefined}
+      detail={detailContent}
+      highlight={highlight}
+    />
+  );
+}
+
+// ─── PublicTransportCardExpanded ───────────────────────────────────────────────
+
+function PublicTransportCardExpanded({
+  entry,
+  tripId,
+  currency,
+  role,
+  members,
+  currentUserId,
+  highlight,
+  onEdit,
+  onDelete,
+}: {
+  entry: TransferPublicTransport;
+  tripId: string;
+  currency: string;
+  role: string | null | undefined;
+  members: ReturnType<typeof useTripMembers>['data'] & {};
+  currentUserId: string | undefined;
+  highlight?: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const { t } = useTranslation("transfer");
+  const { t: tCommon } = useTranslation("common");
+  const [showDetail, setShowDetail] = useState(highlight ?? false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  const canEdit = role === 'organizer' || (role === 'participant' && entry.created_by === currentUserId);
+  const canDelete = role === 'organizer' || (role === 'participant' && entry.created_by === currentUserId);
+
+  const detailContent = showDetail ? (
+    <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
+      {entry.notes && (
+        <View className="gap-xs">
+          <Text className="text-label text-text-muted uppercase">{tCommon('label.notes')}</Text>
+          <Text className="text-body-small text-text-secondary">{entry.notes}</Text>
+        </View>
+      )}
+
+      <PublicTransportTicketsSection
+        tripId={tripId}
+        publicTransportId={entry.id}
+        members={(members ?? []).map((m) => ({ user_id: m.user_id, name: m.user.name }))}
+        currentUserId={currentUserId}
+        isOrganizer={role === 'organizer'}
+      />
+
+      <View className="gap-sm mt-xs">
+        {confirmingDelete ? (
+          <View className="flex-row items-center gap-sm">
+            <Text className="text-text-secondary text-body-small">{t('confirm.removePublicTransport')}</Text>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => { onDelete(); setConfirmingDelete(false); }}
+              className="px-sm py-xs rounded-sm bg-danger/20"
+            >
+              <Text className="text-danger text-body-small font-semibold">{t('confirm.removeYes')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setConfirmingDelete(false)}
+              className="px-sm py-xs rounded-sm"
+            >
+              <Text className="text-text-secondary text-body-small">{tCommon('button.cancel')}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View className="flex-row gap-sm flex-wrap">
+            {canEdit && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={onEdit}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
+              >
+                <ThemedIcon name="create-outline" size={14} color={colors.primary} />
+                <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
+              </TouchableOpacity>
+            )}
+            {canDelete && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setConfirmingDelete(true)}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-danger/10"
+              >
+                <ThemedIcon name="trash-outline" size={14} color={colors.danger} />
+                <Text className="text-danger text-body-small font-medium">{t('action.remove')}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </View>
+    </View>
+  ) : undefined;
+
+  return (
+    <PublicTransportCard
+      entry={entry}
+      currency={currency}
+      onPress={() => setShowDetail(!showDetail)}
       detail={detailContent}
       highlight={highlight}
     />

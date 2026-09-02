@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { dayjs, formatCurrency } from '@vacationist/utils';
-import type { TransferFlight, TransferVehicle, TransferRental, Currency } from '@vacationist/types';
+import { formatCurrency, formatNaiveTimestamp } from '@vacationist/utils';
+import type { TransferFlight, TransferVehicle, TransferRental, TransferPublicTransport, Currency } from '@vacationist/types';
 import { colors, METADATA_ICON_COLORS, RichText, ThemedIcon } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 
@@ -9,19 +9,18 @@ export interface AllTransfersViewProps {
   flights: TransferFlight[];
   vehicles: TransferVehicle[];
   rentals: TransferRental[];
+  publicTransport: TransferPublicTransport[];
   currency: string;
   isRefreshing: boolean;
   onRefresh: () => void;
   onFlightPress?: (id: string) => void;
   onVehiclePress?: (id: string) => void;
   onRentalPress?: (id: string) => void;
+  onPublicTransportPress?: (id: string) => void;
 }
 
 function formatDatetime(value: string | null): string | null {
-  if (!value) return null;
-  const d = dayjs.utc(value.replace(' ', 'T'));
-  if (!d.isValid()) return null;
-  return d.format('D MMM, HH:mm');
+  return formatNaiveTimestamp(value, 'D MMM, HH:mm');
 }
 
 function SectionHeader({
@@ -217,8 +216,8 @@ function RentalSummaryCard({ rental, currency }: { rental: TransferRental; curre
           <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
           <Text className="text-body-small text-text-secondary">
             {[
-              rental.pickup_date ? dayjs(rental.pickup_date).format('D MMM') : null,
-              rental.dropoff_date ? dayjs(rental.dropoff_date).format('D MMM') : null,
+              formatNaiveTimestamp(rental.pickup_date, 'D MMM'),
+              formatNaiveTimestamp(rental.dropoff_date, 'D MMM'),
             ].filter(Boolean).join(' – ')}
           </Text>
         </View>
@@ -242,19 +241,67 @@ function RentalSummaryCard({ rental, currency }: { rental: TransferRental; curre
   );
 }
 
+function PublicTransportSummaryCard({ entry, currency }: { entry: TransferPublicTransport; currency: string }) {
+  const departureFormatted = formatDatetime(entry.departure_time);
+  const arrivalFormatted = formatDatetime(entry.arrival_time);
+  return (
+    <View className="bg-surface border border-border rounded-md p-md gap-sm mb-sm">
+      <Text className="text-body font-semibold text-text-primary" numberOfLines={1}>
+        {entry.title}
+      </Text>
+      {entry.company && (
+        <Text className="text-body-small text-text-secondary">{entry.company}</Text>
+      )}
+      {(entry.departure_location || entry.arrival_location) && (
+        <View className="flex-row items-center gap-xs">
+          <ThemedIcon name="location-outline" size={14} color={METADATA_ICON_COLORS.location.color} />
+          <Text className="text-body-small text-text-secondary" numberOfLines={1}>
+            {[entry.departure_location, entry.arrival_location].filter(Boolean).join(' → ')}
+          </Text>
+        </View>
+      )}
+      {(departureFormatted || arrivalFormatted) && (
+        <View className="flex-row items-center gap-xs">
+          <ThemedIcon name="time-outline" size={14} color={METADATA_ICON_COLORS.time.color} />
+          <Text className="text-body-small text-text-secondary">
+            {[departureFormatted, arrivalFormatted].filter(Boolean).join(' → ')}
+          </Text>
+        </View>
+      )}
+      {(entry.booking_reference || entry.price_total != null) && (
+        <View className="flex-row gap-md flex-wrap">
+          {entry.booking_reference && (
+            <View className="flex-row items-center gap-xs">
+              <ThemedIcon name="receipt-outline" size={14} color={METADATA_ICON_COLORS.receipt.color} />
+              <Text className="text-body-small text-text-secondary">{entry.booking_reference}</Text>
+            </View>
+          )}
+          {entry.price_total != null && (
+            <Text className="text-body-small text-text-secondary">
+              {formatCurrency(Number(entry.price_total), currency as Currency)}
+            </Text>
+          )}
+        </View>
+      )}
+    </View>
+  );
+}
+
 export function AllTransfersView({
   flights,
   vehicles,
   rentals,
+  publicTransport,
   currency,
   isRefreshing,
   onRefresh,
   onFlightPress,
   onVehiclePress,
   onRentalPress,
+  onPublicTransportPress,
 }: AllTransfersViewProps) {
   const { t } = useTranslation('transfer');
-  const allEmpty = flights.length === 0 && vehicles.length === 0 && rentals.length === 0;
+  const allEmpty = flights.length === 0 && vehicles.length === 0 && rentals.length === 0 && publicTransport.length === 0;
 
   if (allEmpty) {
     return (
@@ -312,6 +359,16 @@ export function AllTransfersView({
           {rentals.map((r) => (
             <Pressable key={r.id} onPress={() => onRentalPress?.(r.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
               <RentalSummaryCard rental={r} currency={currency} />
+            </Pressable>
+          ))}
+        </>
+      )}
+      {publicTransport.length > 0 && (
+        <>
+          <SectionHeader icon="train-outline" title={t('segment.publicTransport')} count={publicTransport.length} />
+          {publicTransport.map((p) => (
+            <Pressable key={p.id} onPress={() => onPublicTransportPress?.(p.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+              <PublicTransportSummaryCard entry={p} currency={currency} />
             </Pressable>
           ))}
         </>

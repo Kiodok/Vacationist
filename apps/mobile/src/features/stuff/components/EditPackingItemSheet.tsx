@@ -6,8 +6,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { updatePackingItemSchema, type UpdatePackingItemInput, type PackingCategory, type PackingItem } from '@vacationist/types';
-import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
-import { colors, useResolvedTheme } from '@vacationist/ui';
+import { getPackingCategoryLabel } from '../utils/categoryUtils';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
+
+const CUSTOM_CATEGORY_VALUE = '__custom__';
 
 interface EditPackingItemSheetProps {
   visible: boolean;
@@ -29,13 +32,23 @@ export function EditPackingItemSheet({ visible, item, categories, onClose, onSub
   const isCustomCategory = (cat: string) => !seededNames.has(cat);
 
   const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdatePackingItemInput>({
     resolver: zodResolver(updatePackingItemSchema),
     defaultValues: { category: item?.category ?? '', title: item?.title ?? '', notes: item?.notes ?? null },
   });
 
-  const selectedCategory = watch('category');
+  const selectedCategory = watch('category') ?? '';
+  const categoryOptions = [
+    ...categories.map((cat) => ({ value: cat.name, label: getPackingCategoryLabel(t, cat.name) })),
+    // The item's own existing custom category (if any) so it stays selectable/visible in the list.
+    ...(isCustomCategory(selectedCategory) && selectedCategory ? [{ value: selectedCategory, label: selectedCategory }] : []),
+    { value: CUSTOM_CATEGORY_VALUE, label: t('categories.custom') },
+  ];
+  const categoryFieldLabel = showCustomCategory
+    ? (selectedCategory || t('categories.custom'))
+    : getPackingCategoryLabel(t, selectedCategory);
 
   useEffect(() => {
     if (visible && item) {
@@ -77,30 +90,30 @@ export function EditPackingItemSheet({ visible, item, categories, onClose, onSub
                 {/* Category picker */}
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">{t('field.category')}</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-xs">
-                    {categories.map((cat) => {
-                      const isSelected = selectedCategory === cat.name && !showCustomCategory;
-                      return (
-                        <Pressable
-                          key={cat.id}
-                          onPress={() => { setValue('category', cat.name); setShowCustomCategory(false); }}
-                          className={`px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
-                        >
-                          <Text className={`text-body-small font-medium ${isSelected ? 'text-white' : 'text-text-secondary'}`}>
-                            {(() => { const k = SEEDED_CATEGORY_I18N[cat.name]; return k ? t(k) : cat.name; })()}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                    <Pressable
-                      onPress={() => { setShowCustomCategory(true); if (!isCustomCategory(selectedCategory ?? '')) setValue('category', ''); }}
-                      className={`px-md py-sm rounded-full ${showCustomCategory ? 'bg-primary' : 'bg-surface border border-border'}`}
-                    >
-                      <Text className={`text-body-small font-medium ${showCustomCategory ? 'text-white' : 'text-text-secondary'}`}>
-                        {t('categories.custom')}
-                      </Text>
-                    </Pressable>
-                  </ScrollView>
+                  <Pressable
+                    onPress={() => setCategoryPickerVisible(true)}
+                    className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
+                    style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                  >
+                    <Text className="text-body flex-1 text-text-primary" numberOfLines={1}>{categoryFieldLabel}</Text>
+                    <ThemedIcon name="chevron-down" size={18} color={colors.textMuted} />
+                  </Pressable>
+                  <OptionPickerSheet
+                    visible={categoryPickerVisible}
+                    title={t('field.category')}
+                    options={categoryOptions}
+                    selectedValue={showCustomCategory ? CUSTOM_CATEGORY_VALUE : selectedCategory}
+                    onSelect={(v) => {
+                      if (v === CUSTOM_CATEGORY_VALUE) {
+                        setShowCustomCategory(true);
+                        if (!isCustomCategory(selectedCategory)) setValue('category', '');
+                      } else {
+                        setValue('category', v ?? '');
+                        setShowCustomCategory(false);
+                      }
+                    }}
+                    onClose={() => setCategoryPickerVisible(false)}
+                  />
                   {showCustomCategory && (
                     <Controller
                       control={control}

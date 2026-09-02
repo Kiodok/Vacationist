@@ -1,11 +1,11 @@
 export { dayjs, initDayjs, setDayjsLocale, safeFromNow } from './dayjs';
-export { formatCurrency, getCurrencySymbol, setDefaultFormatLocale, roundCurrency, isNegligible, normalizeBalance, BALANCE_THRESHOLD, formatDateRange, sanitizeDecimalInput } from './format';
+export { formatCurrency, getCurrencySymbol, setDefaultFormatLocale, roundCurrency, isNegligible, normalizeBalance, BALANCE_THRESHOLD, formatDateRange, formatNaiveTimestamp, sanitizeDecimalInput } from './format';
 export { isValidUrl, splitTextIntoLinkSegments } from './validation';
 export type { TextSegment } from './validation';
 export { computeSettlements, isExpenseFullySettled } from './settlements';
 export type { Settlement } from './settlements';
-export { formatSettlementShareText } from './settlementText';
-export type { SettlementTextInput } from './settlementText';
+export { formatSettlementShareText, formatBusinessExpenseSummary } from './settlementText';
+export type { SettlementTextInput, BusinessExpenseSummaryInput, BusinessExpenseDocumentRef } from './settlementText';
 export { convertAmount } from './currencyConversion';
 export { generateTripMarkdown } from './tripMarkdown';
 export type { TripMarkdownInput, TripMarkdownMember, TripMarkdownExpenses, TripMarkdownOptions } from './tripMarkdown';

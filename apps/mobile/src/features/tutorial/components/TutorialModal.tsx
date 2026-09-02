@@ -7,7 +7,7 @@ import { ThemedIcon, colors, useResolvedTheme } from '@vacationist/ui';
 const SLIDES = [
   { titleKey: 'slide1.title', descKey: 'slide1.description', icon: 'earth-outline' },
   { titleKey: 'slide2.title', descKey: 'slide2.description', icon: 'thumbs-up-outline' },
-  { titleKey: 'slide3.title', descKey: 'slide3.description', icon: 'calendar-outline' },
+  { titleKey: 'slide3.title', descKey: 'slide3.description', icon: 'airplane-outline' },
   { titleKey: 'slide4.title', descKey: 'slide4.description', icon: 'wallet-outline' },
   { titleKey: 'slide5.title', descKey: 'slide5.description', icon: 'bag-check-outline' },
 ] as const;

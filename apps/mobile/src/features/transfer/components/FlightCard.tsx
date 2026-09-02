@@ -1,19 +1,14 @@
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TransferFlight, TransferFlightVote, Currency } from '@vacationist/types';
-import { formatCurrency } from '@vacationist/utils';
+import { formatCurrency, formatNaiveTimestamp } from '@vacationist/utils';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 import { getVoteBorderColor } from '../../../utils/voteUtils';
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
 function formatDatetime(value: string | null): string | null {
-  if (!value) return null;
-  const match = value.replace(' ', 'T').match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-  if (!match) return null;
-  return `${parseInt(match[3])} ${MONTHS[parseInt(match[2]) - 1]}, ${match[4]}:${match[5]}`;
+  return formatNaiveTimestamp(value, 'D MMM, HH:mm');
 }
 
 interface FlightCardProps {

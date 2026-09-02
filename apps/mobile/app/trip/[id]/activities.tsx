@@ -147,8 +147,11 @@ export default function ActivitiesTab() {
     );
   }, [activities, searchQuery]);
 
+  // Hoisted out of the grouping useMemo below (not just its own local) so ActivityCard's date
+  // display can use the exact same trip timezone the ongoing/completed bucketing already relies on.
+  const tz = trip?.timezone ?? 'Europe/Berlin';
+
   const { inPlanningList, plannedList, blockedList, ongoingList, completedList } = useMemo(() => {
-    const tz = trip?.timezone ?? 'Europe/Berlin';
     const inPlanning: Activity[] = [];
     const planned: Activity[] = [];
     const blocked: Activity[] = [];
@@ -359,6 +362,7 @@ export default function ActivitiesTab() {
                 currentUserId={user?.id}
                 role={role}
                 currency={currency}
+                timezone={tz}
                 initialExpanded={item.id === activityId}
                 isBlocked={blockedActivityIds.has(item.id)}
                 locked={locked}
@@ -443,6 +447,7 @@ function ActivityCardWithVotes({
   currentUserId,
   role,
   currency,
+  timezone,
   initialExpanded,
   isBlocked,
   onEdit,
@@ -457,6 +462,7 @@ function ActivityCardWithVotes({
   currentUserId: string | undefined;
   role: string | null | undefined;
   currency: Currency;
+  timezone: string;
   initialExpanded?: boolean;
   isBlocked: boolean;
   locked: boolean;
@@ -702,6 +708,7 @@ function ActivityCardWithVotes({
         votes={votes}
         currentUserId={currentUserId}
         currency={currency}
+        timezone={timezone}
         onPress={() => setShowDetail(!showDetail)}
         onVotePress={() => setShowVoteSheet(true)}
         detail={detailContent}

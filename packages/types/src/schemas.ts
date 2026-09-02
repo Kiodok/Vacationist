@@ -183,6 +183,7 @@ export type SplitEntry = z.infer<typeof splitEntrySchema>;
 
 export const createExpenseSchema = z.object({
   title: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
   amount: z.number().positive(),
   currency: currencyCodeSchema,
   paid_by: z.string().uuid(),
@@ -190,18 +191,26 @@ export const createExpenseSchema = z.object({
   related_id: z.string().uuid().nullable().optional(),
   split_method: z.enum(EXPENSE_SPLIT_METHOD),
   splits: z.array(splitEntrySchema).min(1),
+  is_business: z.boolean().optional(),
 });
 
 // currency was added in Phase 15 (multi-currency support) — editing an expense can now
 // also correct its currency, re-freezing the exchange rate at edit time (see
 // update_expense_with_splits in supabase/migrations/20260809100006_update_expense_rpcs_fx.sql).
+// related_type and description became editable in v1.33.0 (see
+// 20260901100000_add_expense_description_and_category_edit.sql) — both optional here since the
+// RPC treats an omitted value as "keep existing", but the app always sends the current value on
+// every edit submit (this is a full-replace update, not a partial patch).
 export const updateExpenseWithSplitsSchema = z.object({
   title: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
   amount: z.number().positive(),
   currency: currencyCodeSchema,
   paid_by: z.string().uuid(),
+  related_type: z.enum(EXPENSE_RELATED_TYPE).optional(),
   split_method: z.enum(EXPENSE_SPLIT_METHOD),
   splits: z.array(splitEntrySchema).min(1),
+  is_business: z.boolean().optional(),
 });
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
@@ -394,6 +403,24 @@ export const updateTransferRentalSchema = createTransferRentalSchema.partial();
 
 export type CreateTransferRentalInput = z.infer<typeof createTransferRentalSchema>;
 export type UpdateTransferRentalInput = z.infer<typeof updateTransferRentalSchema>;
+
+export const createTransferPublicTransportSchema = z.object({
+  title: z.string().min(1).max(100),
+  company: z.string().max(100).optional(),
+  departure_location: z.string().max(200).optional(),
+  arrival_location: z.string().max(200).optional(),
+  departure_time: z.string().nullable().optional(),
+  arrival_time: z.string().nullable().optional(),
+  booking_reference: z.string().max(50).optional(),
+  price_total: z.number().nonnegative().nullable().optional(),
+  external_url: httpsUrlSchema.nullable().optional(),
+  notes: z.string().max(500).optional(),
+});
+
+export const updateTransferPublicTransportSchema = createTransferPublicTransportSchema.partial();
+
+export type CreateTransferPublicTransportInput = z.infer<typeof createTransferPublicTransportSchema>;
+export type UpdateTransferPublicTransportInput = z.infer<typeof updateTransferPublicTransportSchema>;
 
 // --- Invite schemas ---
 
@@ -611,6 +638,10 @@ export type DeleteTransferVehicleVariables = { vehicleId: string; tripId: string
 export type CreateTransferRentalVariables = { tripId: string; input: CreateTransferRentalInput };
 export type UpdateTransferRentalVariables = { rentalId: string; tripId: string; input: UpdateTransferRentalInput };
 export type DeleteTransferRentalVariables = { rentalId: string; tripId: string };
+
+export type CreateTransferPublicTransportVariables = { tripId: string; input: CreateTransferPublicTransportInput };
+export type UpdateTransferPublicTransportVariables = { publicTransportId: string; tripId: string; input: UpdateTransferPublicTransportInput };
+export type DeleteTransferPublicTransportVariables = { publicTransportId: string; tripId: string };
 
 // --- Expense mutation variables ---
 export type CreateExpenseVariables = { tripId: string; input: CreateExpenseInput };

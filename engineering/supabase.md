@@ -1,5 +1,514 @@
 # Supabase Changes Log
 
+## 2026-09-02 — v1.33.0: code-review fixes, 2 migrations (of 10 findings total)
+
+**Why:** `/code-review` ran against the full uncommitted v1.33.0 diff (19-item batch + the FX/
+example-trip/iOS addendum below) and returned 10 findings. Two were data-integrity/realtime bugs
+requiring a migration; the other eight were app-layer (correctness, theme-compliance, and
+simplification) fixes with no schema change. All 10 fixed in the same pass.
+
+**Migration: `20260902110000_fix_delete_own_account_public_transport_documents.sql`** —
+`delete_own_account()`'s conflict-avoidance step for `transfer_documents` only pre-empted the
+`(flight_id, user_id)` unique constraint before reassigning ownership to the sentinel user. The
+`(public_transport_id, user_id)` constraint, added later by
+`20260901140001_extend_transfer_documents_for_public_transport.sql`, had no matching check — the
+`UPDATE` right after it could violate that constraint and abort account deletion outright for any
+user whose ticket collided with an already-reassigned sentinel row on the same
+`public_transport_id`. Fixed by extending the conflict-avoidance `DELETE` to check both parent-id
+branches independently (they're separate unique constraints on separate column pairs). Full
+function body copied verbatim from its latest definition
+(`20260901140000_create_transfer_public_transport.sql`) with only that one block changed, per
+Migration Immutability.
+
+**Migration: `20260902110001_transfer_public_transport_replica_identity.sql`** —
+`transfer_public_transport` was added to the `supabase_realtime` publication and is subscribed to
+`INSERT`/`UPDATE`/`DELETE` with a `trip_id` filter, but its creation migration never set
+`REPLICA IDENTITY FULL` on it, unlike every sibling transfer table
+(`transfer_rentals`/`transfer_vehicles`/`transfer_flights`). Without it, a hard `DELETE` (e.g.
+cascading from trip deletion) only carries the primary key in its `OLD` payload — `trip_id` is
+missing, so the realtime filter can't match and other trip members' clients silently miss the
+delete event. One-line `ALTER TABLE ... REPLICA IDENTITY FULL` fix.
+
+**App-layer fixes (no migration):**
+- `ExpenseCategoryChart.tsx` had no `colorful`-theme color branch — `isDark ? 'dark' : 'light'`
+  silently gave colorful theme (Android's default) the unvalidated light-mode hues, violating
+  CLAUDE.md's explicit "never hardcode colors"/"design colorful first" rules. Re-validated the
+  existing light-mode hex values against the colorful chart surface (`bg-surface-elevated`,
+  `#FEE0AD`) via the `dataviz` skill's `validate_palette.js` — they independently pass (same
+  WARN-tier contrast band light mode already carries against its own surface, mitigated the same
+  way, via the chart's existing direct labels). Added a `colorful` key reusing those values rather
+  than inventing a fourth palette, and replaced the `isDark` boolean with a direct three-way
+  `CATEGORY_COLORS[category][theme]` lookup.
+- `updateExpenseWithSplits()` sent `p_is_business: input.is_business ?? false`, breaking the same
+  NULL-means-keep-existing sentinel convention used one line above for `related_type`. Not
+  reachable through the shipped `EditExpenseSheet` (always supplies the field explicitly), but a
+  live trap for any future/replayed partial-update payload. Changed to `?? null`; `createExpense`'s
+  `?? false` is intentionally unchanged (a new expense with no explicit flag should default false).
+- Quick-action "Adding to: {trip}" banner (`expenses.tsx`) stuck permanently true after the first
+  quick-action-triggered open, since `cameFromQuickAction` was a lazy-`useState` value with no
+  setter — the ordinary "+" FAB reopening the sheet incorrectly kept showing it. Turned into real
+  state, reset to `false` at the FAB's `onPress`.
+- `useAppIconQuickAction`'s cold-start handler for `QuickActions.initial` read
+  `queryClient.getQueryData(['trips'])` synchronously in the same effect as the `addListener`
+  registration — on a true cold start (auth + persisted-cache hydration both async), the trips
+  cache may not have populated yet, silently dropping the exact tap that launched the app. Split
+  into its own effect gated on the *reactive* `trips` value from `useTrips()`, re-firing (still
+  ref-guarded to fire only once) until it has actually loaded.
+- `SettlementsModal`'s exchange-rate "as of" disclosure + provider attribution only rendered
+  inside the "Bank Balance Reality" section, collapsed by default — while the always-visible "your
+  balance" card and Simplified Settlements list both already show converted amounts with no
+  adjacent disclosure. Hoisted the disclosure block up to render once, unconditionally on
+  `isForeignDisplay`, right after the balance card.
+- `documentStorage.ts` centralized upload/sign/delete Storage calls but not path *construction* —
+  all three call sites (expense, flight-ticket, public-transport-ticket documents) hand-rolled
+  their own path templates. Added `buildExpenseDocumentPath`/`buildTransferTicketPath` helpers;
+  updated all three call sites to use them (byte-identical output, no behavior change — confirmed
+  safe against RLS, which only inspects `storage.foldername(name)[1]` (tripId) and `[4]` (userId),
+  never the literal `transfer` segment shared by both transfer entity types). Also added the
+  missing `ttlSeconds` param to `getTransferDocumentUrl` to match its sibling
+  `getExpenseDocumentUrl`.
+- `PublicTransportTicketsSection.tsx` was a near-total copy of `FlightTicketsSection.tsx`, and
+  `useTransferDocuments.ts` duplicated the same query/upload/delete hook triad a second time.
+  Extracted a new shared `TicketsSection.tsx` (presentational, takes the query/mutation results as
+  props) with both original components reduced to thin wrappers around it; collapsed the hook file
+  down to three generic factories (`useDocumentsQuery`/`useUploadDocumentMutation`/
+  `useDeleteDocumentMutation`) used by both entity types' exported hook names, which are unchanged
+  — no call-site changes needed anywhere else in the app.
+- `EditExpenseSheet.tsx`'s cover→multi-split fallback chain
+  (`coverActualPayer ?? currentUserId ?? expense.paid_by`) could regress to the exact bug it was
+  written to fix if both real sources were falsy in the same render (a narrow stale-refetch +
+  null-auth-store compound edge case) — `expense.paid_by` is the *covered* person for a cover
+  expense, not the payer. Added an intermediate fallback to any member other than `coveredFor`
+  before ever reaching `expense.paid_by`.
+
+**Verification:** both migrations applied to dev, verified directly
+(`npx supabase db query --linked` — `relreplident = 'f'` on `transfer_public_transport`;
+`pg_get_functiondef` shows both `flight_id`/`public_transport_id` branches in
+`delete_own_account()`), then applied to prod and re-verified identically, then re-linked to dev.
+`npm run typecheck` exits 0; `npm test` passes 282 tests (121 utils / 5 api / 156 mobile) with no
+regressions. Colorful-theme chart, the quick-action cold-start race, and the cover-split edge case
+are flagged as not independently verifiable from this environment (no running colorful-theme
+session, no physical device, no reproducible stale-state race) — noted for the Tech Lead's own
+testing pass alongside the batch's other device-only items.
+
+## 2026-09-02 — v1.33.0 addendum: FX-rate query fix, example-trip enrichment, iOS force-update fix (1 migration + 1 Edge Function redeploy)
+
+**Why:** Three further items filed against the same release. Item 1's premise ("fetch-exchange-rates
+was never called since deployment") turned out to be false — see the investigation below — which
+changed what that item became.
+
+**Investigation: is the `fetch-exchange-rates-daily` cron actually running?** Verified against both
+projects, read-only, before writing any code:
+- **Prod** (via the service-role REST API, `.env.production`): `exchange_rates` holds 450 rows
+  across 18 distinct `as_of` dates; the newest row's `fetched_at` is `2026-09-02T05:30:03 UTC` —
+  exactly the cron slot. Every weekday since 2026-08-10 has a same-time row; the gaps (Aug 22–23,
+  29–30) are weekends, when the ECB doesn't publish — expected, documented behavior.
+- **Dev** (via `npx supabase db query --linked`, after `supabase link --project-ref
+  aejywkbkcwyanhyzhrle`): `cron.job` shows `fetch-exchange-rates-daily` active on `30 5 * * *`;
+  both vault secrets (`fetch_exchange_rates_edge_fn_url`, `fetch_exchange_rates_secret`) are
+  present; `cron.job_run_details` shows five consecutive daily `succeeded` runs at `05:30:00 UTC`
+  through 2026-09-02.
+
+Conclusion: the job has run correctly on both environments every day since 2026-08-10. A dashboard
+reporting "never invoked" is most likely explained by Edge Function log retention (the free plan
+keeps roughly a day of logs, so a daily-cadence job's logs age out between checks) rather than the
+job not firing. No schedule change was made; `MISSING_GRACE_HOURS = 20` in the Edge Function stays
+calibrated to the existing once-per-24h cadence.
+
+**Migration: `20260902100000_get_latest_exchange_rates_rpc.sql`** — a real, adjacent inefficiency
+found while verifying item 1: `getLatestExchangeRates()` (`packages/api/src/currencies.ts`) selected
+the *entire* `exchange_rates` history table and deduped to "one row per currency" in JavaScript —
+its own comment claimed otherwise, but the query had no such filter. At 450 rows today and growing
+~25/day with no retention job (a prune job was considered and explicitly declined — the fix belongs
+in the query shape, not a cron job pruning history that may have other future uses), this was a
+wasted download on every app launch that warms the currency cache. New RPC
+`get_latest_exchange_rates()` does the `DISTINCT ON (currency) ... ORDER BY currency, as_of DESC` in
+Postgres instead. `SECURITY INVOKER` (not this repo's usual `SECURITY DEFINER` pattern) is correct
+here — `exchange_rates` already grants open `SELECT` to `authenticated`, so there is no RLS to
+bypass. Client rewritten to `supabase.rpc('get_latest_exchange_rates')`; the `latestByCode` Map is
+gone. Smoke-tested directly against prod via the service-role REST API post-deploy — returns exactly
+one row per currency.
+
+**Edge Function redeploy: `create-example-trip`** — extended the demo trip to surface v1.33.0
+features that shipped invisible in it. Cannot use `create_expense_with_splits`/RPC for any of this:
+the function runs under the service-role key with `persistSession: false`, so `auth.uid()` is NULL
+and the RPC throws `Not authenticated` — all changes are to the existing direct `.insert()` calls.
+- Added a one-line `description` to all three existing demo expenses, plus a fourth expense
+  (`related_type: 'accommodation'`, "Apartment cleaning fee") so the new category-totals donut in
+  Balances & Settlements renders four slices instead of a near-empty three-slice ring.
+- Flagged the "Airport transfer" expense `is_business: true` — without at least one business
+  expense, the entire Business Summary header action stays hidden (gated on
+  `useHasBusinessExpenses(tripId)`), so this is what makes that whole task-18 feature discoverable
+  in the demo trip at all.
+- Enriched the public-transport seed row (added the prior release, step 8b) with
+  `booking_reference` and an `external_url` (must be `https://`, per
+  `transfer_public_transport_external_url_https`) — both columns it left NULL before.
+- **Deliberately not seeded:** `expense_documents` / `transfer_documents`. Both point at private
+  Storage objects; a metadata row with no uploaded file behind it would render a document card whose
+  signed-URL fetch 404s, which is worse than omitting the feature from the demo trip. Doing this
+  properly means uploading placeholder bytes per new signup, which the Tech Lead declined (Storage
+  cost on every signup, indefinitely). Left a comment in the function recording this as a deliberate
+  choice, not an oversight, per the code-review norm of leaving traps documented rather than silent.
+
+**Tutorial refresh (per CLAUDE.md's rule for major features):** the five-slide first-launch tutorial
+had zero coverage of the Transfer tab, where two v1.33.0 features landed. Slide 3 ("Shared Calendar")
+was repurposed into "Getting There" (flights/rentals/public transport/tickets), with its old calendar
+content folded into slide 2 ("Activities, Voting & Calendar") to keep the slide count at 5. Slide 4's
+copy extended to mention receipts and business expenses. Updated `packages/i18n/src/locales/{en,de}/tutorial.json`
+and the slide-3 icon in `TutorialModal.tsx` (`calendar-outline` → `airplane-outline`). Bumped
+`apps/mobile/src/features/tutorial/hooks/useTutorialSeen.ts`'s MMKV key `tutorial_seen_v3` →
+`tutorial_seen_v4` so existing users see the refreshed tutorial once.
+
+**iOS force-update button fix (app-layer only, no migration):** `ForceUpdateGate.tsx`'s Update button
+worked on Android but silently did nothing on iOS. Root cause confirmed directly in
+`node_modules/expo-in-app-updates/ios/ExpoInAppUpdatesModule.swift`: `startUpdate()` tries to present
+`SKStoreProductViewController` on the same root view controller this gate's own React Native
+`<Modal>` is already presented on. iOS refuses a second `present()` on an already-presenting VC and
+does nothing visible — but the native module's promise resolves `true` regardless, so the JS
+`catch { Linking.openURL(STORE_URL) }` fallback was never reached. Fix: skip the native module on
+iOS entirely and call `Linking.openURL(STORE_URL)` directly (the same path
+`openStoreReviewOrFallback()` already uses successfully on iOS today); Android's working Play Core
+flow is untouched. Added an inline (not toast — `<ToastContainer/>` would render underneath this
+gate's own native VC stack on iOS) failure message and a new `forceUpdate.openStoreFailed` i18n key
+(en/de) for the case where `openURL` itself rejects.
+**Release-sequencing note, not a code change:** `updateChecker.ts` suppresses OTA delivery while this
+gate is showing, so a 1.32.x device that hits the *old* broken gate can never receive this fix over
+the air. `eas update --branch production` with this fix must go out **before** v1.33.0 reaches the
+App Store, or every iOS user who upgrades straight into the gate gets stuck behind a build that can't
+self-heal (they can still update manually from the App Store — blocked, not bricked — but the button
+stays broken for them until their next full-build update).
+
+**Verification:** migration applied to dev then prod (`npx supabase migration list` ledger parity
+confirmed on both before and after); `create-example-trip` redeployed to dev then prod (no schema
+change, safe as a plain redeploy). `npm run typecheck` exits 0; `npm test` passes 282 tests (121
+utils / 5 api / 156 mobile) with no regressions. Live demo-trip content (fresh signup on dev) and the
+iOS force-update flow (needs a real App Store version bump, so only testable on a physical device via
+TestFlight/preview build) are flagged for the Tech Lead's own device testing — not verifiable from
+this environment.
+
+## 2026-09-01 — v1.33.0: Calendar tab content flag + bug fixes 12/13/19 (1 migration)
+
+**Why:** Tasks 12/13/19 — activity date off-by-one, a timezone-hour display bug, and the
+Calendar tab lighting up its "has content" border with nothing the calendar can actually render.
+
+**Migration: `20260901170000_calendar_tab_content_flag_and_pt_transfer_flag.sql`** (task 19) —
+`get_trip_tab_content()`'s `activities` flag (reused client-side for Calendar via
+`TAB_CONTENT_KEY.Calendar = 'activities'`) is true for *any* non-deleted activity, including
+date-less ones (`useCalendarActivities` filters those out, so the calendar can never render them)
+— a trip with only date-less activities lit up the Calendar tab despite showing an empty
+calendar. Added Calendar its own `calendar BOOLEAN` column, filtered to `activity_date IS NOT
+NULL` (matching `useCalendarActivities`'s own filter; not excluding blocked activities, since a
+blocked-but-dated activity still renders something via the existing `AgendaItem`). `RETURNS
+TABLE` shape change required an explicit `DROP FUNCTION` before recreate (`CREATE OR REPLACE`
+cannot alter an existing function's return type). `TripTabContent` (`packages/types/src/database.ts`)
+and `TAB_CONTENT_KEY.Calendar` (`app/trip/[id]/index.tsx`) updated to match; the RPC's fallback
+object in `packages/api/src/trips.ts` needed a `calendar: false` added too (typecheck would have
+caught the omission, but added proactively).
+
+**Bonus fix in the same migration/function:** `transfer_public_transport` (added earlier this
+release, `20260901140000`) was never added to the `transfer` flag's `OR EXISTS` chain, despite
+the original Public Transport plan explicitly calling for it — a trip with only public-transport
+entries never lit up the Transfer tab border. Folded into this same DROP/CREATE pass since it's
+the identical function.
+
+**Tasks 12/13 (app-layer only, no further migration):** `ActivityCard.tsx:77`'s bare
+`dayjs(activity.activity_date)` parse was fixed to `dayjs.tz(activity.activity_date, timezone)`
+per the original plan (new required `timezone` prop, threaded from `trip.timezone` through
+`ActivityCardWithVotes` in `app/trip/[id]/activities.tsx`). **Important correction to the
+original plan's stated mechanism, found while implementing this**: dayjs's own parser (verified
+directly in `node_modules/dayjs/dayjs.min.js`) does NOT parse a bare date-only string as UTC
+midnight the way native `Date`/ECMA-262 does for a lone ISO date — it matches its own regex and
+constructs via the multi-arg `new Date(year, month, day, ...)` constructor, which is always
+LOCAL, sidestepping that gotcha entirely. Empirically verified (`process.env.TZ` forced to
+`America/Los_Angeles`): a bare `dayjs('2026-09-02').format('D MMM')` already showed the correct
+date, no device-timezone shift. So the literal bug as originally diagnosed does not reproduce for
+date-only values — the `.tz()` fixes applied here (`ActivityCard.tsx`, `GlobalCalendarTripSection.tsx`,
+`generateDateRange`/`formatDateRange` in `packages/utils`) are harmless and arguably clearer
+(explicitly anchor display to the trip's own timezone rather than an incidental parsing safety
+net), but were not fixing an active bug for the pure-date case.
+**The real, verified task-13 "Switzerland vs. the other country" hour-shift bug** turned out to be
+in the transfer feature's TIMESTAMPTZ-based fields (flight/rental/public-transport
+departure/arrival/pickup/dropoff times), which — unlike bare date-only strings — carry an
+explicit numeric UTC offset once returned by PostgREST (e.g. `+00:00`), which dayjs's safe regex
+path does NOT match (its regex requires nothing after the seconds group), so it falls through to
+native `Date` parsing of the full offset string — a *real* UTC-anchored instant this time — and a
+bare `.format()` on that genuinely converts to the device's local time before displaying,
+shifting the shown hour by the viewer's device UTC offset. Confirmed real via
+`FlightCard.tsx`'s pre-existing (and correct) regex-based literal-digit extraction, versus
+`PublicTransportCard.tsx` (added this release) and `RentalCard.tsx`/`AllTransfersView.tsx`'s
+rental block (pre-existing), which used a bare `dayjs(value).format(...)` instead. Consolidated
+all of these onto one new shared utility, `formatNaiveTimestamp()` (`packages/utils/src/format.ts`,
+`dayjs.utc(value.replace(' ', 'T'))` — reads the literal stored digits back verbatim, never a
+real UTC→local conversion), removing three near-duplicate private `formatDatetime` helpers.
+
+**Tests:** new `packages/utils/src/calendar.test.ts` (4 tests, `generateDateRange`/
+`formatCalendarDayHeader` under `TZ=America/Los_Angeles`) plus the existing suite.
+
+**Verification:** applied to dev (`aejywkbkcwyanhyzhrle`) then prod (`fsfsqghbejwvgxujoyne`);
+ledger parity confirmed; regenerated types show a single clean `get_trip_tab_content` signature.
+`npm run typecheck` and `npm test` (root) pass — 121 utils / 5 api / 150 mobile tests + site suite.
+
+## 2026-09-01 — v1.33.0: notify organizer on document-access grant (1 migration + Edge Function)
+
+**Why:** Task 11 — `respond_to_document_access_request()` (`20260525000003`) inserts into
+`document_access_grants` but nothing ever notified the organizer that a member responded.
+Only the original *request* is notified (`notify_document_access_request`, `20260525000007`),
+which correctly targets the members, not the organizer who made the request — this closes that
+gap for the grant side (a denial stays silent by design; only an actual grant fires).
+
+**Migration: `20260901160000_notify_document_access_granted.sql`** — appended
+`'document_access_granted'` to `notifications_type_check` (16th value). New trigger function
+`private.notify_document_access_granted()`, `AFTER INSERT ON document_access_grants`: returns
+early when `NOT NEW.granted`; otherwise does a **direct single-recipient `INSERT` into
+`public.notifications`** targeting `document_access_requests.requested_by` — `create_trip_notification()`
+only supports "everyone except one user," not "exactly one user," so this mirrors
+`notify_lost_found_target_user_changed()`'s (`20260611172912`) existing single-recipient pattern
+rather than the more common set-based fan-out. Unlike its sibling
+`notify_document_access_request`, this one populates `context_trip`/`context_creator` on the
+inserted row, so the new type is actually locale-translated (client + push) instead of falling
+back to the DB-stored English text — flagged `notify_document_access_request` itself as having
+this same gap (title is localized client-side via an existing i18n key, but its body has no
+`BODY_TEMPLATES`/`NOTIFICATION_TRANSLATIONS` entry and no context fields, so it always renders
+in English); left unfixed since it's a separate pre-existing gap outside this task's scope.
+
+**App layer:** `NOTIFICATION_TYPE` (`packages/types/src/enums.ts`) gains
+`'document_access_granted'`. Push edge function
+(`supabase/functions/push-notification/index.ts`): new `NOTIFICATION_TRANSLATIONS` entry (en+de)
+and an explicit `preferenceColumn` case returning `null` (always-on, same as
+`document_access_request`, `lost_found`, `trip_deleted`). `NotificationItem.tsx` gains a matching
+`BODY_TEMPLATES` entry; `packages/ui/src/iconColors.ts` gains a `NOTIFICATION_ICON_COLORS` entry
+(`shield-checkmark-outline`, same indigo accent as its sibling request type). New
+`type.document_access_granted` i18n key (en+de, `notifications.json`) for the client-side title.
+`resolveNotificationPath.ts` routes it to `/trip/${trip_id}?tab=Settings` (where "View Documents"
+lives) — deliberately different from `document_access_request`'s `/(tabs)/profile` route, since
+the two types have different recipients (the responding member vs. the requesting organizer).
+
+**Verification:** applied to dev (`aejywkbkcwyanhyzhrle`) then prod (`fsfsqghbejwvgxujoyne`);
+ledger parity confirmed. Edge function deployed to both. `npm run typecheck` and `npm test` (root)
+pass, including 1 new `resolveNotificationPath` routing test.
+
+## 2026-09-01 — v1.33.0: business/company expense flag (1 migration)
+
+**Why:** Task 18 — mark an expense as business/company cost, with a separate summary to hand in
+to an employer.
+
+**Migration: `20260901150000_add_expense_is_business.sql`** — `expenses.is_business BOOLEAN NOT
+NULL DEFAULT FALSE`. `create_expense_with_splits` gains a trailing `p_is_business BOOLEAN DEFAULT
+FALSE` (no "keep existing" concept at creation, unlike update). `update_expense_with_splits`
+gains `p_is_business BOOLEAN DEFAULT NULL`, following the same NULL-means-keep-existing
+convention as `p_related_type`/`p_description` (`20260901100000`). Both old overloads dropped
+first (same lesson as `20260901100001`'s fix) — confirmed via regenerated types that both RPCs
+resolved to a single signature this time, no repeat of that mistake.
+
+**App layer:** `Switch` toggle ("Business expense") in both Create/Edit expense sheets; a small
+briefcase badge on `ExpenseCard.tsx` when set. New `getAllExpenses()` in
+`packages/api/src/expenses.ts` (same internal-batching pattern as `getAllActivities` — 500/batch,
+20-batch ceiling, never silently truncates) and `useAllExpenses()` hook, both used **only** by the
+new "Business summary" action (not eagerly on every Expenses-tab visit — the summary is generated
+via a one-off `getAllExpenses()` call inside the button handler, not a mounted reactive query, so
+opening the tab never pays for a whole-trip fetch it doesn't need). New
+`formatBusinessExpenseSummary()` in `packages/utils/src/settlementText.ts` (itemized plain-text
+list + total, mirrors `formatSettlementShareText`'s structure), shared via the existing
+`shareText` utility. Entry point: a "Business summary" button in the Expenses tab header, next to
+the existing "Show in ⟨currency⟩" toggle.
+
+**Verification:** applied to dev (`aejywkbkcwyanhyzhrle`) then prod (`fsfsqghbejwvgxujoyne`);
+ledger parity confirmed (219/219). `npm run typecheck` and `npm test` (root) pass, including 3 new
+`formatBusinessExpenseSummary` unit tests in `settlementText.test.ts`.
+
+## 2026-09-01 — v1.33.0: Transfer Public Transport segment (2 migrations + Edge Function)
+
+**Why:** Task 17 — a 4th Transfer segment (Flights | Vehicles | Rentals | Public Transport) for
+train/bus/ferry bookings, including a per-passenger ticket document upload.
+
+**Migration 1: `20260901140000_create_transfer_public_transport.sql`** — new
+`transfer_public_transport` table, byte-for-byte the same shape as `transfer_rentals`
+(`20260522000004_create_transfer_rentals.sql`) with transit fields swapped in
+(`departure_location`/`arrival_location`/`departure_time`/`arrival_time` instead of
+pickup/dropoff location + date). No voting, no passengers — same as rentals. The SELECT RLS
+policy is written directly in its final, bug-free form (`private.is_trip_member(trip_id,
+auth.uid())`, no `deleted_at IS NULL` clause) per the fix in
+`20260522000008_transfer_realtime_softdelete_rls.sql` — that clause on a soft-deleted table
+breaks realtime propagation of the delete event, since the post-UPDATE row fails its own SELECT
+policy. Same migration also updates `get_trip_tab_content`'s `transfer` flag to include the new
+table, and `delete_own_account()` to reassign `created_by` (per CLAUDE.md's Account Deletion
+rule).
+
+**Migration 2: `20260901140001_extend_transfer_documents_for_public_transport.sql`** — reuses the
+`transfer_documents` table/bucket from the flight-ticket work (`20260901110001`/`110002`) instead
+of a parallel table: `flight_id` made nullable, new nullable `public_transport_id` FK, a `CHECK`
+enforcing exactly one parent is set, and a second `UNIQUE(public_transport_id, user_id)`
+constraint (coexists safely with the existing `UNIQUE(flight_id, user_id)` — Postgres never treats
+NULL = NULL, so rows for one parent type don't collide with the other). `trip_id` derivation
+(`set_transfer_document_trip_id()`) now branches on whichever parent is set.
+
+**Edge Function:** `supabase/functions/create-example-trip/index.ts` — added a seed row (a Girona
+day-trip train ticket) per CLAUDE.md's rule that new entity types get a demo-trip example.
+Redeployed to dev then prod (`supabase functions deploy create-example-trip`).
+
+**App layer:** New `packages/api/src/transferPublicTransport.ts` (mirrors `transferRentals.ts`
+exactly), `transferDocuments.ts` extended with `getPublicTransportDocuments` /
+`uploadPublicTransportDocument` / `deletePublicTransportDocument`, aggregated realtime channel
+(`transferRealtime.ts` / `useTransferRealtime.ts`) extended with public-transport events. New UI:
+`PublicTransportCard.tsx`, `CreatePublicTransportSheet.tsx` / `EditPublicTransportSheet.tsx`
+(reuse the flight sheets' combined date+time `Controller` pattern for `departure_time`/
+`arrival_time`, since both are `TIMESTAMPTZ` unlike rentals' date-only pickup/dropoff),
+`EmptyPublicTransport.tsx`, and `PublicTransportTicketsSection.tsx` (mirrors the already-bug-fixed
+`FlightTicketsSection.tsx`: inline delete confirm, not `Alert.alert`; no separate download button
+— the view action already downloads on web). Ticket upload is available to **every trip member**,
+not just assigned passengers, since public transport has no passenger-assignment concept at all
+(unlike flights, which at least have one to reuse).
+
+**Verification:** both migrations applied to dev (`aejywkbkcwyanhyzhrle`) then prod
+(`fsfsqghbejwvgxujoyne`); ledger parity confirmed via `npx supabase migration list` after each
+(218/218 final). Types regenerated and confirmed a single clean signature for
+`soft_delete_transfer_public_transport` and the extended `transfer_documents` shape. `npm run
+typecheck` and `npm test` (root) both pass.
+
+## 2026-09-01 — v1.33.0: expense category totals RPC (1 migration)
+
+**Why:** Task 9 — a per-category spending donut chart in Balances & Settlements needs a
+per-trip, per-`related_type` total in the trip's base currency.
+
+**Migration: `20260901130000_create_expense_category_totals_rpc.sql`** — new
+`get_trip_expense_category_totals(p_trip_id UUID) RETURNS TABLE(related_type TEXT, total
+NUMERIC)`. Same conventions as `get_trip_balances`: explicit `auth.uid()` + membership check,
+`SUM(converted_amount)` (base-currency, frozen at write time) rather than raw `amount`, and the
+same `archived_at IS NULL` filter used everywhere else "total trip spend" is computed (an
+archived expense is a cancelled/voided one, not a phase of settlement, so it's excluded from
+both).
+
+**App layer:** `react-native-svg` added (`15.15.3`) for the donut itself — no config-plugin entry
+needed. New `ExpenseCategoryChart.tsx` draws the donut via a rotated `<G>` of `<Circle>` arcs
+(stroke-dasharray/offset trick) with a legend below. Category→color mapping uses a fixed,
+never-reordered 5-hue assignment from the dataviz skill's default categorical palette,
+validated with `scripts/validate_palette.js` for a donut's *circular* adjacency (checked the
+linear "adjacent" pairs the script covers by default, **plus manually verified the wrap-around
+last→first pair**, which a ring chart has and the script's default pairlist doesn't include) —
+all pass in both light and dark mode, with the WARN-level contrast pairs already covered by the
+legend's direct labels (the skill's "relief" requirement).
+
+**Verification:** applied to dev (`aejywkbkcwyanhyzhrle`) then prod (`fsfsqghbejwvgxujoyne`);
+regenerated types confirmed a single clean RPC signature; ledger parity confirmed via `npx
+supabase migration list` (216/216 on both). `npm run typecheck` and `npm test` (root) pass.
+Full four-theme (dark/light/colorful/system) visual verification of the redesigned Balances &
+Settlements modal (also reordered/collapsed per tasks 4 & 5 in this same pass — see
+`SettlementsModal.tsx`) was **not** done via the `claude-in-chrome` browser workflow this session
+— do that before shipping, per the CLAUDE.md UI checklist.
+
+## 2026-09-01 — v1.33.0: expense & flight-ticket document uploads (4 migrations)
+
+**Why:** Tasks 8 & 15 — receipts/documents attached to an expense, and ticket documents attached
+to a booked flight passenger, both via Supabase Storage. Tech Lead decision: both buckets are
+**private** (unlike the public `avatars` bucket) — any trip member can view a document, but only
+the uploader or the trip organizer can upload/replace/delete it.
+
+**Migration 1: `20260901110000_create_expense_documents.sql`** — private bucket
+`expense-documents` (10 MB limit, image + PDF mime types), path convention
+`{trip_id}/expenses/{expense_id}/{user_id}/{filename}`. Storage RLS reads `storage.foldername(name)`
+segment `[1]` (trip_id) via `private.is_trip_member`/`is_trip_organizer` for read/write gating,
+segment `[4]` (uploader's user_id) for the "own upload" write check. New `expense_documents` table
+(metadata row per upload — multiple documents per expense allowed, no uniqueness constraint) with
+a denormalized `trip_id` auto-populated via `BEFORE INSERT` trigger from `expense_id`, same
+pattern as `set_expense_split_trip_id()`.
+
+**Migration 2: `20260901110001_create_transfer_documents.sql`** — private bucket
+`transfer-documents`, same size/mime limits. One ticket per (flight, passenger):
+`UNIQUE(flight_id, user_id)` + a fixed storage path with no filename/extension
+(`{trip_id}/transfer/{flight_id}/{user_id}/ticket`, `upsert: true`) so uploading a replacement
+ticket overwrites the same object, mirroring the avatars bucket's `${userId}/avatar` convention.
+`user_id` (the passenger) is tracked separately from `uploaded_by` (who performed the upload)
+since the organizer can upload on a passenger's behalf.
+
+**Migration 3: `20260901110002_transfer_documents_trip_id_on_update.sql`** — fixes a gap in
+migration 2: the trip_id-derivation trigger was only wired `BEFORE INSERT`, but
+`uploadTransferFlightDocument`'s replace flow is a client-side `.upsert()`, which resolves to an
+`UPDATE` on the `ON CONFLICT (flight_id, user_id)` path — a path the trigger never covered. A
+client-supplied `trip_id` on that path would have been written as-is and then evaluated by the
+UPDATE policy's `WITH CHECK` (which reads `trip_id` off the row), letting a caller potentially
+misattribute which trip a ticket belongs to. Added the same trigger function `BEFORE UPDATE` too
+(`flight_id` never changes on this upsert, so re-deriving `trip_id` from it on every UPDATE is
+always correct).
+
+**Migration 4: `20260901120000_reassign_document_tables_on_account_deletion.sql`** — per
+CLAUDE.md's Account Deletion rule: both new tables have `NOT NULL` FK columns to `public.users`
+without `ON DELETE CASCADE` (`expense_documents.uploaded_by`;
+`transfer_documents.user_id`/`uploaded_by`), so `delete_own_account()` needed reassignment lines
+added or any user who'd uploaded a document would hit a foreign-key violation on the final
+`DELETE FROM auth.users` — the same class of bug fixed for `trip_messages.created_by` on
+2026-07-27. `transfer_documents` also needed the same conflict-avoidance two-step already used
+for `expense_splits` (`UNIQUE(flight_id, user_id)` can block a straight reassignment if a prior
+deletion already left a sentinel-owned ticket for the same flight). Underlying Storage objects are
+left in place, not deleted — the DB row's `storage_path` still resolves via signed URL regardless
+of whose user-id folder segment it sits under, consistent with how every other content type this
+function anonymizes (rather than erases) is handled.
+
+**Docs updated in the same pass** (per CLAUDE.md — the sentinel-reassignment list changed):
+`docs/delete-account.html` and `marketing/site/content/de/legal/delete-account.md` (regenerated
+via `npm run build:site`, run twice to confirm a stable diff) now mention expense and flight
+ticket documents in the "kept, anonymized" content list.
+
+**App layer:** `expo-document-picker` added (`~55.0.17`, no config-plugin entry needed — hoisted
+to root `node_modules` like other workspace deps). New shared
+`packages/api/src/documentStorage.ts` (upload/signed-URL/delete helpers, reused by both features)
+and `packages/api/src/expenseDocuments.ts` / `transferDocuments.ts`. New non-persisted hooks
+(`useExpenseDocuments.ts`, `useTransferDocuments.ts` — replaying a stale file upload after an
+offline reconnect makes no sense, same reasoning as avatars/travel documents). New UI:
+`ExpenseDocumentsSection.tsx` in the expense card's expanded detail; `FlightTicketsSection.tsx` in
+the booked-flight passenger list.
+
+**Verification:** all 4 migrations applied to dev (`aejywkbkcwyanhyzhrle`) then prod
+(`fsfsqghbejwvgxujoyne`) via `supabase db push`; ledger parity confirmed via `npx supabase
+migration list` after each push (this machine has no Docker, so `supabase db dump` isn't
+available). Final ledger: 215/215 migrations identical on both projects. Types regenerated against
+dev after the full batch. `npm run typecheck` and `npm test` (root) both pass.
+
+## 2026-09-01 — v1.33.0: expense description + editable category (2 migrations)
+
+**Why:** Part of the v1.33.0 batch (tasks 6 & 7): `expenses` had no `description` column at all,
+and `update_expense_with_splits` never accepted `related_type`, so an expense's category could
+only ever be set at creation, never corrected afterward.
+
+**Migration 1: `20260901100000_add_expense_description_and_category_edit.sql`**
+- `ALTER TABLE expenses ADD COLUMN description TEXT CHECK (char_length(description) <= 500)` —
+  nullable, additive, no backfill needed.
+- `create_expense_with_splits` gains a trailing `p_description TEXT DEFAULT NULL` parameter.
+- `update_expense_with_splits` gains two trailing parameters: `p_related_type TEXT DEFAULT NULL`
+  and `p_description TEXT DEFAULT NULL`, both copied verbatim from the current live body
+  (`20260809110000_backward_compat_update_expense_rpc.sql`) with only the new fields added.
+  `p_related_type` follows the same NULL-means-keep-existing convention as `p_currency` (an
+  already-running pre-update app instance that omits the parameter can't accidentally blank out
+  a value it doesn't know about). `p_description` uses NULL-means-keep-existing too, but since a
+  description is genuinely clearable free text (unlike related_type, which always has one of five
+  fixed values), an explicit empty string is treated as "clear it" — NULL and `''` are
+  deliberately different signals for this one field.
+- The old 7-arg `update_expense_with_splits` overload is dropped first (`DROP FUNCTION IF EXISTS
+  ... (UUID, TEXT, NUMERIC, UUID, TEXT, JSONB, TEXT)`) before the 9-arg replacement is created,
+  matching the precedent in `20260809110001_drop_old_update_expense_overload.sql` — a new
+  parameter changes the function's argument-type signature, so `CREATE OR REPLACE` alone would
+  have left both versions resolvable and created a PostgREST ambiguity.
+
+**Migration 2: `20260901100001_drop_old_create_expense_overload.sql`** — fixes a mistake made
+*in* migration 1: `create_expense_with_splits` also gained a new trailing parameter
+(`p_description`), but migration 1 only used `CREATE OR REPLACE` for it, not the drop-first
+pattern. `npx supabase gen types typescript --linked` immediately surfaced this — it emitted
+**two** `Args` variants for `create_expense_with_splits` (the old 9-arg shape and the new 10-arg
+shape) but only one for `update_expense_with_splits` (which *had* dropped its old overload
+first), confirming the old 9-arg function was left behind live in the database. This migration
+drops it (`DROP FUNCTION IF EXISTS ... (UUID, TEXT, NUMERIC, TEXT, UUID, TEXT, UUID, TEXT,
+JSONB)`); regenerating types afterward confirmed a single clean overload.
+
+**Verification:** Both migrations applied to dev (`aejywkbkcwyanhyzhrle`) via `supabase db push`,
+confirmed additive/backwards-compatible, then applied to prod (`fsfsqghbejwvgxujoyne`) the same
+way. Types regenerated against dev after each push. Schema/ledger parity confirmed via `npx
+supabase migration list` on both projects (this machine has no Docker, so `supabase db dump`
+isn't available — see `engineering/supabase.md`'s no-Docker note and the
+`no-docker-on-machine` skill): both ledgers show 211/211 migrations, identical local/remote
+hashes, both ending at `20260901100001`. Re-linked to dev afterward, matching the repo's default.
+`npm run typecheck` and `npm test` (root) both pass after the app-layer changes (Zod schemas,
+`packages/api/src/expenses.ts`, `CreateExpenseSheet.tsx`/`EditExpenseSheet.tsx`,
+`ExpenseCard.tsx`).
+
 ## 2026-08-17 — iOS App Store rollout: store-neutral review nudge + app_store_click event (2 migrations + Edge Function)
 
 **Why:** iOS is now GA on the App Store. The hourly review-nudge cron

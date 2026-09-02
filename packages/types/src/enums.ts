@@ -51,6 +51,7 @@ export const NOTIFICATION_TYPE = [
   'trip_deleted',
   'member_left',
   'new_chat_message',
+  'document_access_granted',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPE)[number];
 

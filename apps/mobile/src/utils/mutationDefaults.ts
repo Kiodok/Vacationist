@@ -66,6 +66,9 @@ import {
   createTransferRental,
   updateTransferRental,
   softDeleteTransferRental,
+  createTransferPublicTransport,
+  updateTransferPublicTransport,
+  softDeleteTransferPublicTransport,
 } from '@vacationist/api';
 import type {
   Activity,
@@ -142,6 +145,7 @@ import type {
   TransferFlight,
   TransferVehicle,
   TransferRental,
+  TransferPublicTransport,
   CreateTransferFlightVariables,
   UpdateTransferFlightVariables,
   DeleteTransferFlightVariables,
@@ -154,6 +158,9 @@ import type {
   CreateTransferRentalVariables,
   UpdateTransferRentalVariables,
   DeleteTransferRentalVariables,
+  CreateTransferPublicTransportVariables,
+  UpdateTransferPublicTransportVariables,
+  DeleteTransferPublicTransportVariables,
 } from '@vacationist/types';
 import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
@@ -619,6 +626,32 @@ queryClient.setMutationDefaults(['deleteTransferRental'], {
   onSuccess: (_data: void, { tripId }: DeleteTransferRentalVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-rentals'] });
     useToastStore.getState().addToast('success', i18n.t('transfer:toast.rentalRemoved'));
+  },
+});
+
+// ─── Transfer public transport ───────────────────────────────────────────────
+
+queryClient.setMutationDefaults(['createTransferPublicTransport'], {
+  mutationFn: ({ tripId, input }: CreateTransferPublicTransportVariables) => createTransferPublicTransport(tripId, input),
+  onSuccess: (_data: TransferPublicTransport, { tripId }: CreateTransferPublicTransportVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-public-transport'] });
+    useToastStore.getState().addToast('success', i18n.t('transfer:toast.publicTransportAdded'));
+  },
+});
+
+queryClient.setMutationDefaults(['updateTransferPublicTransport'], {
+  mutationFn: ({ publicTransportId, input }: UpdateTransferPublicTransportVariables) => updateTransferPublicTransport(publicTransportId, input),
+  onSuccess: (_data: TransferPublicTransport, { tripId }: UpdateTransferPublicTransportVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-public-transport'] });
+    useToastStore.getState().addToast('success', i18n.t('transfer:toast.publicTransportUpdated'));
+  },
+});
+
+queryClient.setMutationDefaults(['deleteTransferPublicTransport'], {
+  mutationFn: ({ publicTransportId }: DeleteTransferPublicTransportVariables) => softDeleteTransferPublicTransport(publicTransportId),
+  onSuccess: (_data: void, { tripId }: DeleteTransferPublicTransportVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-public-transport'] });
+    useToastStore.getState().addToast('success', i18n.t('transfer:toast.publicTransportRemoved'));
   },
 });
 
