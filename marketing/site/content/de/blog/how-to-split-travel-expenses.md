@@ -9,7 +9,7 @@ date: 2026-07-21
 altPath: /blog/how-to-split-travel-expenses/
 keywords: Reisekosten teilen, Kosten teilen Urlaub, Reisekosten aufteilen Gruppe, Gruppenreise Kosten
 blogIndex: true
-related: /de/features/expenses/, /de/vs/splitwise/, /de/blog/how-to-plan-a-group-trip/
+related: /de/features/expenses/, /de/vs/splitwise/, /de/blog/how-to-plan-a-group-trip/, /de/blog/group-trip-receipts-and-expense-reports/
 breadcrumbLabel: Kostenteilungs-Guide
 ---
 
@@ -59,7 +59,7 @@ Dieses Verrechnen ist der Grund, warum Gruppen, die live tracken, in Minuten abr
 
 Egal welches Werkzeug ihr nutzt — vier Regeln lassen das Tracking halten:
 
-1. **Im Moment der Zahlung erfassen.** Dreißig Sekunden am Tisch, solange der Beleg existiert. Die Halbwertszeit der Ausgaben-Erinnerung liegt bei etwa einem Tag; „Ich trag's heute Abend nach" ist der Ort, an dem Fairness stirbt.
+1. **Im Moment der Zahlung erfassen.** Dreißig Sekunden am Tisch, solange der Beleg in deiner Hand ist — fotografiere ihn direkt in die Ausgabe, damit er kein Papierschnipsel ist, den du bis zum Morgen verlierst. Die Halbwertszeit der Ausgaben-Erinnerung liegt bei etwa einem Tag; „Ich trag's heute Abend nach" ist der Ort, an dem Fairness stirbt.
 2. **Wer zahlt, erfasst.** Verteilt die Arbeit automatisch und beseitigt den Single Point of Failure (den einen erschöpften Buchhalter — meist den Organisator).
 3. **Salden für alle sichtbar.** Transparenz ist der Fairness-Mechanismus. Wenn jeder jederzeit die Zahlen prüfen kann, grübelt niemand — und die Person, die die letzten drei Dinge gezahlt hat, sieht es, und alle anderen auch.
 4. **Funktioniert offline.** Reisen passieren auf Booten, in Bergen und in Strandbars ohne Empfang. Wenn das Werkzeug offline nicht erfassen kann, stirbt Regel 1 — und das System mit ihr.
@@ -68,7 +68,7 @@ Egal welches Werkzeug ihr nutzt — vier Regeln lassen das Tracking halten:
 
 - **Eine Tabelle** funktioniert für disziplinierte kleine Gruppen — aber sie lebt auf dem Handy einer Person, verrechnet nur, wenn jemand die Formeln baut, und wird genau so oft aktualisiert, wie ihr Besitzer Energie hat.
 - **Splitwise** ist der Klassiker unter den reinen Schuldenbüchern und wirklich gut in Verrechnung und Multi-Währung — die Reibung ist, dass alle es installieren und ein Konto anlegen müssen, und es macht nur Geld. Der komplette Vergleich: [Vacationist vs. Splitwise](/de/vs/splitwise/).
-- **Vacationist** (unsere App) baut das Kassenbuch [in die Reise selbst](/de/features/expenses/): Wer zahlt, erfasst mit Kategorie und Split — gleichmäßig oder individuell — Salden verrechnen sich live für alle, es funktioniert offline, und entscheidend: **Gäste, die der Reise per Einladungslink beigetreten sind, sind in den Splits, ohne je ein Konto zu erstellen.** Der Freund, der sich weigert, Splitwise zu installieren, ist kein Loch mehr in eurem Kassenbuch.
+- **Vacationist** (unsere App) baut das Kassenbuch [in die Reise selbst](/de/features/expenses/): Wer zahlt, erfasst mit Kategorie, Notiz und Beleg-Foto, dann den Split — gleichmäßig oder individuell — Salden verrechnen sich live für alle, es funktioniert offline, und entscheidend: **Gäste, die der Reise per Einladungslink beigetreten sind, sind in den Splits, ohne je ein Konto zu erstellen.** Der Freund, der sich weigert, Splitwise zu installieren, ist kein Loch mehr in eurem Kassenbuch. Für Geschäftsreisen lassen sich Ausgaben als Geschäftsausgaben markieren und als Bericht pro Person mit angehängten Belegen exportieren.
 
 ## Die peinlichen Klassiker meistern
 
@@ -83,7 +83,7 @@ Echte Situationen, an denen naives Gleichteilen zerbricht — und der faire Zug 
 
 ## Reisen mit mehreren Währungen
 
-Der pragmatische Ansatz für die meisten Gruppen: **eine Abrechnungswährung wählen** (meist die Heimatwährung), Ausgaben erfassen, wenn sie anfallen, und den Kurs der App oder einen fest vereinbarten Umrechnungskurs akzeptieren, statt Tageskursen hinterherzujagen — die Präzision ist den Aufwand bei einer zweiwöchigen Reise nicht wert. Ehrliche Werkzeug-Anmerkung: Wenn eure Reise wirklich über mehrere Währungen mit großen Beträgen läuft, ist Splitwise' Multi-Währungs-Unterstützung derzeit tiefer als die von Vacationist — wägt das gegen alles andere ab, was die Reise braucht.
+Der pragmatische Ansatz für die meisten Gruppen: **eine Abrechnungswährung wählen** (meist die Heimatwährung), Ausgaben erfassen, wenn sie anfallen, und den Kurs der App akzeptieren, statt selbst Tageskursen hinterherzujagen — die Präzision ist den Aufwand bei einer zweiwöchigen Reise nicht wert. Vacationist rechnet Fremdwährungsausgaben mit einem gespeicherten Tageskurs um und zeigt den verwendeten Kurs in der Ausgaben-Aufschlüsselung, sodass ein umgerechneter Betrag nachvollziehbar ist statt ein Rätsel. Ehrliche Werkzeug-Anmerkung: Wenn eure Reise wirklich über mehrere Währungen mit großen Beträgen läuft, ist Splitwise' Multi-Währungs-Handhabung derzeit tiefer — wägt das gegen alles andere ab, was die Reise braucht.
 
 ## Abrechnen: die 48-Stunden-Regel
 
@@ -91,9 +91,13 @@ Rechnet innerhalb von zwei Tagen nach der Heimkehr ab. Die Psychologie ist real:
 
 1. Macht einen fünfminütigen Gruppen-Blick auf die Salden (persönlich am letzten Abend ist noch besser — beim Abschieds-Drink).
 2. Verrechnet alles auf die minimale Zahl von Überweisungen.
-3. Überweisen, bestätigen, fertig. In Vacationist [begleicht ihr Splits einzeln oder die ganze Reise auf einmal](/de/features/expenses/) — die Salden waren die ganze Reise öffentlich, also ist dieser Schritt Arithmetik, keine Verhandlung.
+3. Überweisen, bestätigen, fertig. In Vacationist führt der [Salden-Bildschirm](/de/features/expenses/) mit deinem eigenen Saldo, dann ein vereinfachter Ausgleichsplan — die wenigsten Überweisungen, die die ganze Gruppe glattstellen —, mit den Salden einzelner Mitglieder einen Tipp entfernt. Die Zahlen waren die ganze Reise öffentlich, also ist dieser Schritt Arithmetik, keine Verhandlung.
 
 Und dann — wirklich wichtig — **Schluss**. Einmal nach den vereinbarten Regeln abgerechnet, sind die Bücher geschlossen. Kein nachträgliches „Eigentlich war das Boot teurer, als ich erfasst habe." Der Abschluss ist Teil der Fairness.
+
+## Wenn die Reise geschäftlich war
+
+Ein Team-Offsite oder ein Kundentermin braucht die Gruppenaufteilung *und* einen Bericht, den jede Person zur Erstattung einreichen kann. Beides ist am einfachsten, wenn es aus derselben Aufzeichnung kommt: Alle erfassen ihre eigenen Kosten in der gemeinsamen Reise, markieren die geschäftlichen und exportieren eine Übersicht pro Person — aufgeschlüsselt nach Datum, Kategorie und Zahler, mit angehängten Belegen. Das zwei Wochen später aus Screenshots zu rekonstruieren, ist die klassische Art, wie das schiefgeht. Eine vollständige Anleitung gibt es im [Guide zum Firmen-Offsite planen](/de/use-cases/corporate-offsite-planner/) und in [einem eigenen Beitrag über Belege und Ausgabenberichte](/de/blog/group-trip-receipts-and-expense-reports/).
 
 <!--CTA-->
 
@@ -105,7 +109,7 @@ Gewichtet die Zimmer: Vereinbart vor der Reise Multiplikatoren (En-Suite-Hauptsc
 
 ### Sollten Flüge Teil der gemeinsamen Kosten sein?
 
-Meist nein — jeder kommt selbst ans Ziel, da Abflugorte und Airline-Wahl unterschiedlich sind. Die Ausnahme ist ein Gruppen-Charter oder ein Mietbus vom gemeinsamen Startpunkt — das ist Gruppentransport wie jeder andere.
+Meist nein — jeder kommt selbst ans Ziel, da Abflugorte und Airline-Wahl unterschiedlich sind. Die Ausnahme ist ein Gruppen-Charter oder ein Mietbus vom gemeinsamen Startpunkt — das ist Gruppentransport wie jeder andere. So oder so lassen sich Bordkarten und Tickets [an den Flug oder Transfer anhängen](/de/features/transfers/), damit die Gruppenbuchung nicht im Postfach einer Person hängt.
 
 ### Wie teilt man Sprit- und Mietwagenkosten?
 

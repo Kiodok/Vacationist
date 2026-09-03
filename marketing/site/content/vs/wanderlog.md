@@ -24,7 +24,9 @@ breadcrumbLabel: vs. Wanderlog
 | Maps & place discovery | ❌ | ✅ Excellent |
 | Group voting on activities | ✅ Unique 5-tier system | ❌ |
 | Expense splitting | ✅ Full: custom splits, live balances, settle-up | ⚠️ Basic |
+| Receipts & business-expense report | ✅ Receipts on every expense; per-person PDF export | ❌ |
 | Shared shopping & packing lists | ✅ Real-time, with recipe sync | ❌ |
+| Flights, rentals & public transport, with tickets | ✅ Manage + attach tickets | ⚠️ Reads confirmations from email |
 | Join without an account | ✅ One invite link | ❌ Account required |
 | Offline support | ✅ Offline-first | ⚠️ Paid feature (Pro) |
 | Encrypted travel documents | ✅ | ❌ |
@@ -37,7 +39,7 @@ breadcrumbLabel: vs. Wanderlog
 Credit where due — Wanderlog is a polished product:
 
 - **Maps integration and place discovery.** Browsing restaurants and sights on a map, pulling in reviews and photos, optimizing a road-trip route — Wanderlog is genuinely good at this, and Vacationist doesn't do it.
-- **Itinerary aesthetics and exports.** Wanderlog's day-by-day itinerary view is beautiful, and it can pull in hotel and flight confirmations from email.
+- **Itinerary aesthetics and email parsing.** Wanderlog's day-by-day itinerary view is beautiful, and it can pull in hotel and flight confirmations from email — Vacationist has no email parsing, though tickets and receipts can be attached manually to the flight, transfer, or expense they belong to, and a trip's expenses export as a per-person report.
 
 If you're a solo traveler or a couple whose main job is *researching* a destination, Wanderlog is a strong choice.
 

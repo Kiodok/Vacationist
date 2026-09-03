@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-07-17
 altPath: /de/features/expenses/
 keywords: travel expense splitting app, group travel expense app, split hotel costs app, vacation expense tracker
-related: /features/voting/, /vs/splitwise/, /blog/how-to-split-travel-expenses/, /vs/tricount/
+related: /features/voting/, /features/transfers/, /vs/splitwise/, /blog/how-to-split-travel-expenses/, /blog/group-trip-receipts-and-expense-reports/
 breadcrumbLabel: Expense splitting
 ---
 
@@ -20,12 +20,13 @@ breadcrumbLabel: Expense splitting
 
 Log any group cost — accommodation, dinner, fuel, tickets, groceries — and choose who paid and who it covers:
 
-1. **Add the expense** with amount and category, right when it happens.
-2. **Pick the payer** — whoever actually put their card down.
-3. **Split it** — equally across everyone, or with custom amounts when someone skipped the wine or joined late.
-4. **Balances update instantly** for the whole group. Everyone always knows where they stand.
+1. **Add the expense** with an amount, a category, and an optional note — right when it happens.
+2. **Attach the receipt** — a photo or PDF, straight onto the expense while it's still in your hand.
+3. **Pick the payer** — whoever actually put their card down.
+4. **Split it** — equally across everyone, or with custom amounts when someone skipped the wine or joined late.
+5. **Balances update instantly** for the whole group. Everyone always knows where they stand.
 
-At the end of the trip, settle individual splits one by one or clear everything at once. No awkward "so… about the money" conversation required — the numbers were public the whole time.
+At the end of the trip, the Balances screen leads with **your** balance — what you'll pay or receive — followed by the simplified settlement plan: the fewest transfers that clear the whole group. Individual member balances are one tap away when you want the detail. Multi-currency expenses show the exchange rate used, right there in the breakdown, so a converted amount is never a mystery number.
 
 ## Built for trips, not just bills
 
@@ -33,7 +34,7 @@ Plenty of apps split bills. Vacationist splits bills *inside the trip you're alr
 
 - **Expenses tied to the trip.** Every cost lives with its trip — no mixing up the Croatia balance with your flatmate's electricity bill.
 - **Everyone's already there.** Because the group planned the trip in Vacationist, nobody has to install yet another app just to owe you money. Guests who joined by invite link participate in expenses too.
-- **Vacation spending at a glance.** The trip overview shows total and per-person spending as the trip unfolds — useful when the group agreed on a budget.
+- **Vacation spending at a glance.** The trip overview shows total and per-person spending as the trip unfolds, plus a category breakdown — accommodation, transport, food, activities — so an over-budget week has an obvious cause.
 - **Offline first.** Log expenses in the mountains, on the ferry, wherever. They sync when you're back online.
 
 ## Fair splits for real situations
@@ -44,13 +45,41 @@ Real trips are messier than "divide by six." Vacationist handles the usual cases
 - **Partial participation** — split dinner among the five who were there, not all nine.
 - **Multiple payers over time** — balances net out across all expenses, so if you paid for fuel and I paid for groceries, we might already be even.
 
+## Receipts, attached to the expense
+
+The receipt for a group cost is only useful if someone can find it later. In Vacationist it lives on the expense itself:
+
+- **Photograph or attach it as you pay** — one or more images or PDFs per expense, up to 10 MB each.
+- **Everyone on the trip can view it** — no forwarding, no "can you send me that again."
+- **Only the uploader or the organizer can replace or remove it** — so a shared receipt doesn't get changed out from under the group.
+
+Receipts go into private, access-controlled storage restricted to your trip's members. This is separate from the [encrypted travel document vault](/features/travel-documents/) — receipts don't carry the passport-grade encryption, because a dinner receipt isn't a passport. What matters is that they're private to the trip and they don't vanish into a camera roll.
+
+## Expensing a work trip
+
+If the trip is for work — a team offsite, a client visit, a conference with colleagues — the group split is only half the job. You also need a report you can file.
+
+Mark any expense as a **business expense** as you log it. When it's time to claim, export a **business expense summary**: a per-person report, itemised by date, category, and payer, with links to the attached receipts. On the web you get both a PDF and a Markdown file; in the app you get the PDF. The receipt links stay valid for 30 days — long enough to submit and have the claim processed. See the [corporate offsite planner guide](/use-cases/corporate-offsite-planner/) for the full workflow.
+
 <!--CTA-->
 
 ## Frequently asked questions
 
 ### Is expense splitting free?
 
-Yes. Expense splitting is part of Vacationist's free tier, with no ads. Pro adds more planning days per year, but the expense features are not paywalled.
+Yes. Expense splitting — including receipts and the business expense report — is part of Vacationist's free tier, with no ads. Pro adds more planning days per year, but the expense features are not paywalled.
+
+### Can I attach a receipt to an expense?
+
+Yes. Add one or more photos or PDFs (up to 10 MB each) to any expense. Every trip member can view them; only the person who uploaded a receipt, or the trip organizer, can replace or delete it.
+
+### Can I export expenses for a work reimbursement?
+
+Yes. Flag the relevant expenses as business expenses and export a per-person business summary as a PDF (plus Markdown on the web), itemised by date, category, and payer, with links to the receipts.
+
+### How does the exchange rate work for expenses in another currency?
+
+Expenses logged in a currency other than the trip's are converted using a stored daily rate, and the rate that was applied is shown in the expense breakdown — so a converted figure is always traceable, not a black box.
 
 ### Do my friends need an account to be included in expenses?
 

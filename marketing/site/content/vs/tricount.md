@@ -21,9 +21,13 @@ breadcrumbLabel: vs. Tricount
 | | Vacationist | Tricount |
 |---|---|---|
 | Expense splitting | ✅ Equal & custom splits, live balances | ✅ Fast, simple, very mature |
+| Receipts attached to expenses | ✅ Free | ✅ Free |
+| Business expense flag + per-person report | ✅ PDF + Markdown export | ❌ |
+| Expense export | ✅ Business summary (PDF + Markdown) | ⚠️ CSV/PDF export retired |
 | Trip planning (activities, calendar) | ✅ Built in | ❌ None |
 | Group voting on activities | ✅ Unique 5-tier system | ❌ |
 | Shared shopping & packing lists | ✅ Real-time | ❌ |
+| Flights, rentals & public transport, with tickets | ✅ | ❌ |
 | Encrypted travel documents | ✅ AES-256 vault | ❌ |
 | Join without an account | ✅ One invite link, full participation | ✅ Non-member participants supported |
 | Group chat in-app | ✅ | ❌ |
@@ -47,6 +51,7 @@ Honesty first:
 - **The whole trip, not just the pot of money.** A group trip isn't just shared expenses — it's deciding where to go, what to do, and who's bringing what. Tricount stops at the ledger; Vacationist [handles the decisions too](/features/voting/), in the same app where the costs land.
 - **Group voting that actually resolves debates.** Tricount has no mechanism for a group to agree on an activity or venue — that conversation happens elsewhere (usually a chat that goes in circles). Vacationist's five-tier voting turns "does anyone actually want to do this?" into a clear answer.
 - **Shared lists and recipes.** The supermarket run for the villa, the camping meal plan — [shared shopping and packing lists with recipe sync](/features/shopping-lists/) turn planning into one flow instead of a separate notes app.
+- **Receipts and a business-expense report.** Both apps let you attach a receipt to an expense for free. Vacationist adds a business-expense flag and a [per-person report export](/features/expenses/) (PDF + Markdown, with the receipts linked) — useful for a work trip or team offsite. Tricount has no business report, and its own CSV/PDF export has been retired.
 - **Encrypted travel documents.** Group bookings need passport details shared somewhere; Vacationist offers an [AES-256 encrypted vault with revocable organizer access](/features/travel-documents/) instead of a chat screenshot.
 - **Group chat next to the plan.** Coordination happens in the same app as the costs and the calendar, not scattered across a separate messaging thread.
 

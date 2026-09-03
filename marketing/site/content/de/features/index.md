@@ -24,11 +24,15 @@ Aktivitäten vorschlagen und die Gruppe mit einem fünfstufigen Voting entscheid
 
 ### [Kostenteilung →](/de/features/expenses/)
 
-Jede gemeinsame Ausgabe erfassen, gleichmäßig oder mit eigenen Beträgen aufteilen und zusehen, wie sich die Salden in Echtzeit aktualisieren. Am Reiseende in Sekunden abrechnen. [So funktioniert die Kostenteilung.](/de/features/expenses/)
+Jede gemeinsame Ausgabe mit Kategorie und angehängtem Beleg erfassen, gleichmäßig oder mit eigenen Beträgen aufteilen und zusehen, wie sich die Salden in Echtzeit aktualisieren. Geschäftsausgaben markieren und für Geschäftsreisen einen Bericht pro Person exportieren. [So funktioniert die Kostenteilung.](/de/features/expenses/)
 
 ### [Gemeinsame Einkaufs- & Packlisten →](/de/features/shopping-lists/)
 
 Live-Listen, die sich sofort auf jedes Handy synchronisieren — plus eine einzigartige Rezept-zu-Einkaufsliste-Übernahme fürs gemeinsame Kochen. [Gemeinsame Listen entdecken.](/de/features/shopping-lists/)
+
+### [Transfers & Flüge →](/de/features/transfers/)
+
+Über Flüge abstimmen, Mietwagen und öffentliche Verkehrsmittel verwalten, festlegen wer mit wem fährt, und jedes Ticket und jede Bordkarte bei der Fahrt behalten. [So funktionieren Transfers.](/de/features/transfers/)
 
 ### [Verschlüsselte Reisedokumente →](/de/features/travel-documents/)
 
@@ -40,8 +44,9 @@ Reisepässe und Ausweise verschlüsselt gespeichert, gesichert durch eine biomet
 - **Echtzeit-Sync** — jede Stimme, jede Ausgabe und jede Listenänderung erscheint sofort auf allen Geräten.
 - **Offline first** — die App funktioniert im Flugzeug, auf der Fähre und auf dem Bergpfad weiter und synchronisiert, sobald du wieder online bist.
 - **Gemeinsamer Reisekalender** — gewählte Aktivitäten, Unterkünfte und Transfers in einer Zeitleiste, die alle sehen.
-- **Unterkunfts- & Transferverwaltung** — Optionen sammeln, darüber abstimmen und Buchungsbestätigungen dort aufbewahren, wo die Gruppe sie findet.
-- **Gruppenchat** — die Reisediskussion direkt neben dem Plan, um den es geht, statt verloren in einem parallelen WhatsApp-Thread.
+- **Unterkunftsverwaltung** — Optionen sammeln, darüber abstimmen und Buchungsbestätigungen dort aufbewahren, wo die Gruppe sie findet.
+- **Gruppenchat** — die Reisediskussion direkt neben dem Plan, um den es geht, statt verloren in einem parallelen WhatsApp-Thread. Entwürfe überstehen den Tab-Wechsel.
+- **Ausgabe vom Startbildschirm hinzufügen** — ein Longpress-Kürzel auf dem App-Symbol springt direkt zum Erfassen einer Ausgabe für deine aktive Reise.
 - **Urlaubsübersicht** — die ganze Reise und ihre Ausgaben auf einen Blick.
 
 <!--CTA-->

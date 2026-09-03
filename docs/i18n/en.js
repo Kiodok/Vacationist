@@ -21,7 +21,7 @@ window.VACATIONIST_I18N = {
   // Hero
   'hero.eyebrow': '✈ The free group trip planner',
   'hero.h1': 'Plan trips<br><em>together</em>,<br>effortlessly.',
-  'hero.sub': 'The group trip planning app that does it all — vote on activities, split travel expenses, share packing lists, and keep everyone in sync. From the first idea to the last flight home.',
+  'hero.sub': 'The group trip planning app that does it all — vote on activities, split expenses with receipts attached, keep flights and tickets with the trip, share packing lists, and keep everyone in sync. From the first idea to the last flight home.',
   'hero.getPlay': 'Get it on Play Store',
   'hero.getAppStore': 'Get it on App Store',
   'hero.openWeb': 'Open Web App',
@@ -30,13 +30,13 @@ window.VACATIONIST_I18N = {
 
   // TL;DR direct-answer block (above FAQ)
   'tldr.label': 'TL;DR',
-  'tldr.text': 'Vacationist is free, has no ads, and encrypts travel documents with AES-256. It\'s built in Switzerland, and anyone can join a trip via a single link without creating an account. Available today on iOS, Android, and the web.',
+  'tldr.text': 'Vacationist is free, has no ads, and encrypts travel documents with AES-256. Receipts attach to expenses and boarding passes to flights, kept private to your trip. It\'s built in Switzerland, and anyone can join a trip via a single link without creating an account. Available today on iOS, Android, and the web.',
 
   // Floating chips
   'chip.a.main': '4 votes cast',
   'chip.a.sub': 'Activities · Lisbon',
   'chip.b.main': '€ 42.50 added',
-  'chip.b.sub': 'Split 4 ways',
+  'chip.b.sub': 'Receipt attached · split 4 ways',
   'chip.c.main': '3 items checked',
   'chip.c.sub': 'Shopping list',
 
@@ -70,17 +70,27 @@ window.VACATIONIST_I18N = {
   'feat.1.title': 'Vote on activities',
   'feat.1.desc': 'Suggest ideas and let the group decide — from "must do" to "group blocker". The best options rise naturally, with no endless debates.',
   'feat.2.title': 'Split expenses fairly',
-  'feat.2.desc': 'Log every cost, choose who paid, and split equally or by custom amounts. Balances always show exactly who owes what — no more mental math or IOUs.',
+  'feat.2.desc': 'Log every cost with a category and a receipt attached, split it equally or by custom amounts, and see a live breakdown of who owes what — and where the money went.',
   'feat.3.title': 'Real-time shared lists',
   'feat.3.desc': 'Shopping lists, packing checklists — anything the group tracks. Everyone adds and checks off items simultaneously, in real time.',
-  'feat.4.title': 'Transfer & flights',
-  'feat.4.desc': 'Suggest flights, vote on options, record bookings, manage car rentals, and assign who rides with whom — all in one place.',
+  'feat.4.title': 'Transfers, flights & tickets',
+  'feat.4.desc': 'Vote on flights, manage rental cars and public transport, assign who rides with whom, and keep every boarding pass and ticket attached to the trip.',
   'feat.5.title': 'Encrypted travel documents',
   'feat.5.desc': 'Passport and ID details encrypted at rest and protected by biometric authentication. Share temporary organiser access and revoke it any time.',
   'feat.6.title': 'Vacation tracker & calendar',
   'feat.6.desc': 'A visual timeline of all planned activities, transfers, and check-ins — your vacation tracker displayed in the trip\'s timezone. See every day off at a glance.',
   'feat.7.title': 'Group chat',
   'feat.7.desc': 'A dedicated chat tab for every trip — message the whole group, edit or delete your own messages, and catch up instantly with real-time delivery. Organizers can moderate the conversation.',
+  'feat.8.title': 'Receipts, tickets & expense reports',
+  'feat.8.desc': 'Every receipt sits on its expense, every boarding pass on its flight — private to your group. Flag business expenses and export a per-person PDF report for work trips.',
+
+  // Feature card 8 — document preview panel
+  'doc.1.name': 'Villa — final payment',
+  'doc.1.meta': 'Receipt attached · Split 6 ways',
+  'doc.2.name': 'Boarding pass — Maya',
+  'doc.2.meta': 'Lisbon flight · outbound',
+  'doc.3.name': 'Business expense summary',
+  'doc.3.meta': 'PDF · per person · with receipts',
 
   // How it works
   'how.label': 'How it works',
@@ -127,7 +137,7 @@ window.VACATIONIST_I18N = {
   'faq.1.q': 'What is Vacationist?',
   'faq.1.a': 'Vacationist is a free trip app for collaborative group travel planning. You can suggest and vote on activities, split expenses, track vacation spending, manage accommodations, share shopping lists, and keep everyone in sync — all in one place. It works for everything from city breaks to multi-week road trips.',
   'faq.2.q': 'How does expense splitting work in a group?',
-  'faq.2.a': 'Log any group cost — dinner, accommodation, transport, or anything else — choose who paid, and split equally or with custom amounts. Vacationist automatically tracks balances so everyone knows exactly who owes whom. Settle individual splits or clear everything at once when the trip ends.',
+  'faq.2.a': 'Log any group cost — dinner, accommodation, transport, or anything else — pick a category, attach the receipt, choose who paid, and split equally or with custom amounts. Vacationist tracks balances automatically and shows the simplest way to settle up when the trip ends.',
   'faq.3.q': 'Can I use Vacationist for van life or road trips?',
   'faq.3.a': 'Absolutely. Vacationist is ideal for van road trips and overland adventures. The shared calendar tracks each stop, the activity planner keeps the route flexible as plans evolve, the packing list keeps the van organized, and expense splitting makes shared fuel and campsite costs fair and transparent.',
   'faq.4.q': 'What makes Vacationist different from other group trip planning apps?',
@@ -136,6 +146,8 @@ window.VACATIONIST_I18N = {
   'faq.5.a': 'Yes. Many Vacationist users coordinate timeshare stays, vacation rentals, and shared holiday properties. Track who\'s arriving when, split running costs among co-owners, manage shared shopping lists for the property, and keep everyone\'s travel documents accessible for check-in.',
   'faq.6.q': 'How does vacation tracking and group sharing work?',
   'faq.6.a': 'Each trip in Vacationist acts as a shared workspace. Invite anyone via a single link — they join instantly, no account needed to participate. The vacation tracker view shows your full trip timeline, off-calendar events, and spending at a glance. Changes sync in real time so everyone stays up to date.',
+  'faq.7.q': 'Can I attach receipts and expense a work trip?',
+  'faq.7.a': 'Yes. Attach a photo or PDF receipt to any expense — it stays private to your trip\'s members. For work trips, flag business expenses as you go and export a per-person report as a PDF, itemised by date and category, with links to the receipts.',
 
   // Trust strip
   'trust.aes': 'Documents encrypted at rest',

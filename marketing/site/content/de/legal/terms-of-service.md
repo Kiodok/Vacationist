@@ -12,7 +12,7 @@ breadcrumbLabel: Nutzungsbedingungen
 
 # Nutzungsbedingungen
 
-*Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 26. Juli 2026*
+*Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 3. September 2026*
 
 ## 1. Annahme der Bedingungen
 
@@ -22,7 +22,7 @@ Die App wird als persönliches Nebenprojekt von **Gary Lude** mit Sitz in der Sc
 
 ## 2. Beschreibung des Dienstes
 
-Vacationist ist eine kollaborative Reiseplanungs-App, mit der Nutzer gemeinsam Reisen organisieren können. Zu den Funktionen gehören das Vorschlagen von und Abstimmen über Aktivitäten, gemeinsames Ausgaben-Tracking, Echtzeit-Einkaufslisten, gemeinsame Notizen, Unterkunfts- und Transferverwaltung sowie die sichere Speicherung persönlicher Reisedokumente.
+Vacationist ist eine kollaborative Reiseplanungs-App, mit der Nutzer gemeinsam Reisen organisieren können. Zu den Funktionen gehören das Vorschlagen von und Abstimmen über Aktivitäten, gemeinsames Ausgaben-Tracking mit Belegen und einem exportierbaren Geschäftsausgaben-Bericht, Echtzeit-Einkaufslisten, gemeinsame Notizen, Unterkunftsverwaltung, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln mit angehängten Tickets sowie die sichere Speicherung persönlicher Reisedokumente.
 
 Die App wird kostenlos bereitgestellt. Wir behalten uns vor, künftig kostenpflichtige Funktionen einzuführen; solche Änderungen werden im Voraus kommuniziert.
 

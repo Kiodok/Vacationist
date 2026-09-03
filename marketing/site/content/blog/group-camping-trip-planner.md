@@ -9,8 +9,6 @@ date: 2026-07-17
 altPath: /de/blog/group-camping-trip-planner/
 keywords: group camping trip planner, group camping checklist, camping meal planning group, plan camping trip with friends
 blogIndex: true
-titleDe: Camping mit der Gruppe planen — Ausrüstung, Essen und Kosten
-descriptionDe: Gemeinsame Packlisten gegen vergessene Zelte, Essensplanung mit Rezept-Sync, faire Kostenteilung und Koordination ganz ohne Netz.
 related: /features/shopping-lists/, /blog/how-to-split-travel-expenses/, /blog/how-to-plan-a-group-trip/
 breadcrumbLabel: Group camping planner
 ---
@@ -44,7 +42,7 @@ Feeding a group at a campsite is the most underestimated part of the weekend —
 1. **Plan actual meals, not "food."** Write the menu per day: Friday dinner chili, Saturday breakfast eggs-and-bacon, Saturday dinner grill night. "We'll figure out food" means three duplicate bags of chips and no dinner.
 2. **One owner per meal.** The chili has a chef; the chef owns the recipe, the quantities, and the cooking. Distributed ownership beats one martyred camp cook.
 3. **Recipes become the shopping list — automatically, if your tool is good.** This is Vacationist's most camping-shaped feature and genuinely unique: add each meal's [recipe to the trip, and its ingredients sync onto the shared shopping list](/features/shopping-lists/), scaled for your headcount. The Saturday supermarket sweep for ten people becomes a checklist run, not an improvisation.
-4. **Shop once, split once.** One big shop, whoever pays logs it as a [shared expense](/features/expenses/), done. Camping's many-small-purchases pattern (firewood here, ice there, cartridges at the gas station) makes live expense logging even more valuable than usual — nobody reconstructs fourteen roadside receipts on Sunday night.
+4. **Shop once, split once.** One big shop, whoever pays logs it as a [shared expense](/features/expenses/) with the receipt photographed straight onto it, done. Camping's many-small-purchases pattern (firewood here, ice there, cartridges at the gas station) makes live logging even more valuable than usual — with each receipt attached to its expense, nobody's reconstructing fourteen roadside purchases from memory on Sunday night.
 
 **Quantity rule of thumb:** outdoor appetites run ~1.5× normal. Round up on breakfast and snacks especially — hungry hikers at 10 a.m. are a group-morale event.
 

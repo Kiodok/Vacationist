@@ -46,11 +46,11 @@ The part that actually matters for group bookings isn't the encryption on its ow
 The workflow that actually solves the group-trip problem looks like this:
 
 1. Each person adds their own documents to their own encrypted vault — nobody else can see them by default.
-2. When a booking genuinely requires it, that person grants the organizer **temporary** access — not a permanent share, a time-boxed one.
-3. The organizer sees exactly what they need to complete the booking, and nothing more.
-4. Access can be **revoked at any time** — the moment the booking is done, or if the person changes their mind, or simply because the trip is over and there's no more reason for anyone else to see it.
+2. When a booking genuinely requires it, that person grants the organizer **temporary** access — not a permanent share, a time-boxed one, for a duration they choose.
+3. The clock doesn't start until the organizer actually opens the documents. Until then the owner sees a "Not opened yet" status; from the first view, access runs for the chosen duration and then expires on its own. A grant that's never opened lapses after seven days regardless.
+4. The organizer is notified when access is granted, sees exactly what they need, and nothing more. The owner can **revoke access at any time** — the moment the booking is done, or simply because the trip is over.
 
-Compare that to a chat screenshot: there's no step 4. Once it's sent, it's sent, permanently, to everyone in the thread, forever.
+Compare that to a chat screenshot: there's no step 3 or 4. Once it's sent, it's sent, permanently, to everyone in the thread, forever.
 
 ## A simple checklist before your next group trip
 
@@ -58,8 +58,8 @@ Save this one — it's meant to be skimmed and shared with whoever's organizing:
 
 - **Never send a passport, ID, or insurance photo directly in a group chat** — even "just to the organizer" via DM. DMs get backed up too.
 - **Ask whether the booking platform actually requires the full document image**, or just specific fields (name, passport number, expiry date). Often it's the latter, and typing those fields is safer than sending a photo.
-- **If a document genuinely needs to be shared, use a tool where access is temporary and revocable**, not a permanent copy.
-- **Set a reminder to revoke organizer access once the booking is confirmed** — don't leave it open "just in case."
+- **If a document genuinely needs to be shared, use a tool where access is temporary and revocable**, not a permanent copy — ideally one where the access window expires on its own so nobody has to remember to close it.
+- **Still, glance at your active grants after the booking is confirmed** — if a tool self-expires access, this is a quick check rather than a chore.
 - **After the trip, check that nobody still has standing access** to documents that were only needed for one booking.
 
 ## What it costs
@@ -80,7 +80,7 @@ If you used a chat or shared album, nothing happens automatically — copies of 
 
 ### Can the trip organizer see my documents at all times?
 
-No — by default, nobody can see your documents except you. An organizer only sees what you explicitly grant them, only for the time window you choose, and you can revoke that access whenever you want. This is different from a shared folder or chat, where anyone with access can see everything, indefinitely, with no way for you to take it back.
+No — by default, nobody can see your documents except you. An organizer only sees what you explicitly grant them, and the access window doesn't even start until they first open the documents; from there it runs for the duration you set and then expires on its own (and an unopened grant lapses after seven days). You can revoke access whenever you want. This is different from a shared folder or chat, where anyone with access can see everything, indefinitely, with no way for you to take it back.
 
 ### Is this GDPR compliant?
 

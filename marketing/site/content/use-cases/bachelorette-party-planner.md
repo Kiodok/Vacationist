@@ -64,4 +64,4 @@ Yes — the voting system includes a "group blocker" tier specifically for this,
 
 ### Does it work for a destination bachelorette with costs in a different currency?
 
-Vacationist supports basic multi-currency tracking. If your group is converting between several currencies frequently, keep in mind the currency handling is simpler than a dedicated finance app — fine for most destination trips, but worth checking against your specific needs.
+Vacationist supports basic multi-currency tracking — expenses in another currency are converted at a stored daily rate, and the rate used is shown in the expense breakdown so a converted figure is always traceable. If your group is converting between several currencies frequently, the handling is simpler than a dedicated finance app — fine for most destination trips, but worth checking against your specific needs.

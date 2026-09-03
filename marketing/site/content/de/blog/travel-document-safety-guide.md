@@ -46,11 +46,11 @@ Der Teil, der bei Gruppenbuchungen tatsächlich zählt, ist nicht die Verschlüs
 Der Ablauf, der das Gruppenreise-Problem tatsächlich löst, sieht so aus:
 
 1. Jede Person fügt ihre eigenen Dokumente zu ihrem eigenen verschlüsselten Tresor hinzu — standardmäßig kann niemand sonst sie sehen.
-2. Wenn eine Buchung es wirklich erfordert, gewährt diese Person dem Organisator **temporären** Zugriff — kein dauerhaftes Teilen, sondern zeitlich begrenzt.
-3. Der Organisator sieht genau das, was für die Buchung nötig ist, und nicht mehr.
-4. Der Zugriff kann **jederzeit widerrufen** werden — sobald die Buchung erledigt ist, wenn die Person es sich anders überlegt, oder einfach weil die Reise vorbei ist und es keinen Grund mehr gibt, dass jemand anderes es noch sieht.
+2. Wenn eine Buchung es wirklich erfordert, gewährt diese Person dem Organisator **temporären** Zugriff — kein dauerhaftes Teilen, sondern zeitlich begrenzt, für eine selbst gewählte Dauer.
+3. Die Uhr läuft erst, wenn der Organisator die Dokumente tatsächlich öffnet. Bis dahin sieht die Person den Status „Noch nicht geöffnet"; ab dem ersten Öffnen läuft der Zugriff für die gewählte Dauer und endet dann von selbst. Eine nie geöffnete Freigabe verfällt trotzdem nach sieben Tagen.
+4. Der Organisator wird über die Freigabe benachrichtigt, sieht genau das, was nötig ist, und nicht mehr. Die Person kann den **Zugriff jederzeit widerrufen** — sobald die Buchung erledigt ist oder einfach weil die Reise vorbei ist.
 
-Vergleiche das mit einem Chat-Screenshot: Es gibt keinen Schritt 4. Einmal verschickt, ist es dauerhaft verschickt, an alle im Chat-Verlauf, für immer.
+Vergleiche das mit einem Chat-Screenshot: Es gibt keinen Schritt 3 oder 4. Einmal verschickt, ist es dauerhaft verschickt, an alle im Chat-Verlauf, für immer.
 
 ## Eine einfache Checkliste vor deiner nächsten Gruppenreise
 
@@ -58,8 +58,8 @@ Diese hier solltest du speichern — zum Überfliegen und Weiterleiten an wer au
 
 - **Nie ein Foto von Pass, Ausweis oder Versicherungsnachweis direkt im Gruppenchat verschicken** — auch nicht „nur an den Organisator" per DM. DMs werden auch gesichert.
 - **Fragen, ob die Buchungsplattform wirklich das ganze Dokumentenfoto braucht**, oder nur bestimmte Felder (Name, Passnummer, Ablaufdatum). Oft ist es Letzteres, und diese Felder einzutippen ist sicherer als ein Foto zu verschicken.
-- **Wenn ein Dokument wirklich geteilt werden muss, ein Tool nutzen, bei dem Zugriff temporär und widerrufbar ist**, nicht eine dauerhafte Kopie.
-- **Eine Erinnerung setzen, den Organisator-Zugriff nach bestätigter Buchung zu widerrufen** — nicht „für alle Fälle" offen lassen.
+- **Wenn ein Dokument wirklich geteilt werden muss, ein Tool nutzen, bei dem der Zugriff temporär und widerrufbar ist** — idealerweise eines, bei dem das Zeitfenster von selbst abläuft, damit niemand daran denken muss, es zu schließen.
+- **Trotzdem nach bestätigter Buchung kurz die aktiven Freigaben ansehen** — wenn das Tool den Zugriff selbst ablaufen lässt, ist das eine schnelle Kontrolle statt einer Aufgabe.
 - **Nach der Reise prüfen, dass niemand mehr dauerhaften Zugriff** auf Dokumente hat, die nur für eine Buchung gebraucht wurden.
 
 ## Was es kostet
@@ -80,7 +80,7 @@ Bei Chat oder geteiltem Album passiert automatisch nichts — Kopien deiner Doku
 
 ### Kann der Reiseorganisator meine Dokumente jederzeit sehen?
 
-Nein — standardmäßig kann niemand außer dir deine Dokumente sehen. Ein Organisator sieht nur, was du ihm explizit gewährst, nur für das Zeitfenster, das du wählst, und du kannst diesen Zugriff jederzeit widerrufen. Das unterscheidet sich von einem geteilten Ordner oder Chat, wo jeder mit Zugriff alles sehen kann, dauerhaft, ohne dass du es zurücknehmen kannst.
+Nein — standardmäßig kann niemand außer dir deine Dokumente sehen. Ein Organisator sieht nur, was du ihm explizit gewährst, und das Zugriffsfenster beginnt nicht einmal, bevor er die Dokumente zum ersten Mal öffnet; ab da läuft es für die von dir gesetzte Dauer und endet dann von selbst (eine ungeöffnete Freigabe verfällt nach sieben Tagen). Du kannst den Zugriff jederzeit widerrufen. Das unterscheidet sich von einem geteilten Ordner oder Chat, wo jeder mit Zugriff alles sehen kann, dauerhaft, ohne dass du es zurücknehmen kannst.
 
 ### Ist das DSGVO-konform?
 

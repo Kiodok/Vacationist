@@ -67,8 +67,8 @@ Living reference for search and AI-answer-engine visibility. Covers all 9 SEO pi
   "name": "Vacationist",
   "applicationCategory": "TravelApplication",
   "applicationSubCategory": "Group Trip Planner",
-  "operatingSystem": "Android, Web",
-  "softwareVersion": "1.26.0",
+  "operatingSystem": "Android, iOS, Web",
+  "softwareVersion": "1.33.1",  // tracks apps/mobile/app.config.ts `version` — bump `APP_VERSION` in build.mjs on every MINOR/MAJOR
   "description": "...",
   "url": "https://vacationist.app/",
   "installUrl": "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
@@ -147,11 +147,12 @@ Body: H1 → `.tldr` direct-answer block → `## The problem with planning a {ni
 
 **Build plumbing:** `/use-cases/` breadcrumbs, `STR.en`/`STR.de` labels, and footer links (`FOOTER_LINKS.product`) were added to `build.mjs` so the section is internally linked from all 58 pages, not just reachable by direct URL.
 
+**✅ Shipped since:** `corporate-offsite-planner` (2026-09-03, EN + DE) — the v1.33.0 business-expense flag + per-person PDF report export is the proof point that page was waiting for. Also live: a `/features/transfers/` page (the first feature page for transfers) and a `/blog/group-trip-receipts-and-expense-reports/` post, both EN + DE.
+
 **📋 Planned — next niches to scale into**, once the first 6 show ranking movement (check Search Console coverage ~6–8 weeks post-index):
 - `bridal-shower-planner` — adjacent to bachelorette, different search intent (shower vs. bachelorette trip)
 - `friend-group-weekend-getaway` — broad, high-volume, currently only covered generically
 - `destination-wedding-guest-coordination` — distinct pain (many independent travelers, one shared event) worth its own page
-- `corporate-offsite-planner` — different buyer (someone expensing this), different proof points (still free, still no IT approval needed since no account required)
 - `multi-family-vacation-rental-split` — timeshare/vacation-rental use case already in the FAQ but has no dedicated landing page
 
 Do not add a 7th niche without evaluating the first 6's performance — thin, unranked programmatic pages are a liability, not an asset.
@@ -184,6 +185,8 @@ Do not add a 7th niche without evaluating the first 6's performance — thin, un
 5. **Privacy & travel documents** — pillar `/features/travel-documents/`
 
 **Cluster 5 is the weakest** — it's Vacationist's strongest differentiator (AES-256 encryption, Swiss hosting) but has zero supporting blog content, unlike clusters 1–3 which each have 2+ posts. This is the highest-priority content gap for the next writing pass.
+
+**Cluster 2 (expense splitting) gained a post 2026-09-03:** `/blog/group-trip-receipts-and-expense-reports/` (EN + DE), covering trip receipts and the per-person business-expense report — opens the "business travel expense report" / "Reisekostenabrechnung" long-tail the cluster didn't touch before. Paired with the new `/use-cases/corporate-offsite-planner/` page (Pillar 5).
 
 **📋 Planned — editorial outline for the next post, closing the cluster-5 gap:**
 
@@ -287,6 +290,10 @@ Every content page (57 as of this pass — all `/blog/`, `/vs/`, `/alternatives/
 **Shipped (2026-08-05, main pass):** DE homepage JSON-LD regression fix, named AI-crawler `robots.txt` allows, enriched `SoftwareApplication`/`Organization` schema, homepage entity + TL;DR blocks (bilingual), `speakable` schema on every generated page, `/use-cases/` vertical (14 pages), 3 new `/vs/` competitor pages ×2 languages (TripIt, Troupe, Tricount), 1 new `/alternatives/` listicle ×2 languages (TripIt), refreshed `llms.txt`. Net new indexable URLs: 21 (58 total, up from 40 before this pass).
 
 **Shipped (2026-08-05, follow-up pass):** per-page OG/social-preview image generation for all 57 content pages (`marketing/site/og-image.mjs`, see Pillar 8) and bilingual blog RSS feeds with sitewide autodiscovery (see Pillar 1). Both closed genuine gaps found during a fresh visibility review, not part of the original 9-pillar scope.
+
+**Shipped 2026-09-03 (v1.33.0 feature-rollout content pass):** `softwareVersion` 1.26.0 → 1.33.1 and refreshed `featureList`/description across all `appLd` pages and the homepage; new pages `/features/transfers/`, `/use-cases/corporate-offsite-planner/`, `/blog/group-trip-receipts-and-expense-reports/` (EN + DE, 6 files, 6 OG cards); receipts/business-expense/public-transport/settlements copy folded into the homepage, `/features/expenses/`, `/features/travel-documents/`, `/features/voting/`, all 5 `/vs/` tables, `/alternatives/splitwise/`, 5 blog posts, and 4 use-case pages; `docs/llms.txt` refreshed (also fixed a pre-existing bug there: the voting system was described as 4-tier "must do / like / neutral / group blocker" instead of the real 5-tier "must do / like / open / skip / group blocker"); legal pages (privacy, terms, delete-account, EN + DE) updated for uploaded receipts/tickets as a data category. Homepage FAQ went 6 → 7 items (new: "Can I attach receipts and expense a work trip?") — `build.mjs`'s `renderGermanHome()` FAQ-rebuild index array was bumped `[1..6]` → `[1..7]` to match.
+
+**Dead-code cleanup done this pass:** `renderGermanBlogIndex()` (which rendered German cards for English-only posts via `titleDe`/`descriptionDe` front matter + an "Englisch" badge) was dead — every EN blog post now has a full DE translation with a bidirectional `altPath`. Removed: the function (merged into `renderBlogIndex(pages, registry, lang)`), the `STR.de.postBadgeEn` string, the `.post-badge` CSS, the unused `postCard()` options, and the `titleDe`/`descriptionDe` keys from all 7 EN posts. CLAUDE.md's "new blog post" rule updated to say write both languages with `altPath` (no EN-only path).
 
 **Next priorities, in order:**
 1. Close the Pillar 7 content gap (privacy/travel-documents cluster) — highest-leverage, zero blockers.

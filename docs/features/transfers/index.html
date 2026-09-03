@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
+
+  <title>Group Transfer Planner — Flights, Cars &amp; Tickets | Vacationist</title>
+  <meta name="description" content="Plan every leg of a group trip — vote on flights, manage rental cars and public transport, and keep every ticket and boarding pass with the trip.">
+  <meta name="keywords" content="group flight planning app, group travel transfer planner, split rental car costs, public transport trip planner, boarding pass storage app">
+
+  <link rel="canonical" href="https://vacationist.app/features/transfers/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/features/transfers/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/transfers/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/transfers/">
+
+  <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/blog/feed.xml">
+  <meta property="og:title" content="Group Transfer Planner — Flights, Cars &amp; Tickets | Vacationist">
+  <meta property="og:description" content="Plan every leg of a group trip — vote on flights, manage rental cars and public transport, and keep every ticket and boarding pass with the trip.">
+  <meta property="og:url" content="https://vacationist.app/features/transfers/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/assets/og/features-transfers.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Group Transfer Planner — Flights, Cars &amp; Tickets | Vacationist">
+  <meta name="twitter:description" content="Plan every leg of a group trip — vote on flights, manage rental cars and public transport, and keep every ticket and boarding pass with the trip.">
+  <meta name="twitter:image" content="https://vacationist.app/assets/og/features-transfers.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Group Transfer Planner — Flights, Cars & Tickets | Vacationist",
+    "description": "Plan every leg of a group trip — vote on flights, manage rental cars and public transport, and keep every ticket and boarding pass with the trip.",
+    "url": "https://vacationist.app/features/transfers/",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "inLanguage": "en",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://vacationist.app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Features",
+        "item": "https://vacationist.app/features/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Transfers",
+        "item": "https://vacationist.app/features/transfers/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can the group vote on which flight to book?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — flights use the same five-tier voting as activities, so the group can weigh options before anyone books. Rental cars, own cars, and public transport don't have voting; they're for recording arrangements the group has already agreed on."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Who can see and upload tickets?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Every member of the trip can view a ticket attached to a transfer. Uploading, replacing, or deleting a ticket is limited to the person it belongs to and the trip organizer — so the organizer can handle tickets for a group booking without anyone losing control of their own."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are uploaded tickets encrypted like travel documents?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Tickets are kept in private, access-controlled storage restricted to your trip's members — a different mechanism from the encrypted travel document vault, which additionally encrypts passport and ID fields at rest behind your device's biometrics. Use the document vault for passports; use ticket uploads for boarding passes and rail tickets."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work offline?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Like the rest of Vacationist, transfer details you've already opened are available offline, and changes you make sync when you're back on a connection — useful when you're adding a booking reference from a train with no signal."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#6C63FF"/><stop offset="100%" stop-color="#18162D"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/features/">Features</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web app</a>
+    <a href="#get-app" class="nav-cta">Get the app</a>
+    <span class="lang-pair" aria-label="Language"><a href="/de/features/transfers/" title="Deutsche Version">DE</a><span class="lp-on">EN</span></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span class="crumb-sep">/</span> <a href="/features/">Features</a> <span class="crumb-sep">/</span> <span aria-current="page">Transfers</span></nav>
+  <article class="article">
+<h1 id="getting-there-sorted-flights-cars-trains-and-tickets">Getting there, sorted — flights, cars, trains, and tickets.</h1>
+<p class="lede">The plan is agreed, the dates are set, and then someone asks "wait, how are we all actually getting there?" Suddenly there are four booking references in three different chats, two people on a different flight, and nobody knows who's in which rental car. Vacationist keeps every leg of the journey — and every ticket — in one place the whole group can see.</p><h2 id="four-kinds-of-transfer-one-screen">Four kinds of transfer, one screen</h2>
+<p>The Transfer section has a segment for each way a group actually travels:</p>
+<ul>
+<li><strong>Flights</strong> — suggest options, let the group vote with the same five-tier system used for activities, record the booking once it&#39;s made, and assign who&#39;s on which flight.</li>
+<li><strong>Own cars</strong> — add the cars people are driving, mark the driver, and assign passengers so everyone knows who&#39;s riding with whom and which car has a spare seat.</li>
+<li><strong>Rental cars</strong> — keep the rental company, pick-up and drop-off details, booking reference, and cost where the whole group can find them, not just the person who booked.</li>
+<li><strong>Public transport</strong> — trains, coaches, ferries, and buses: route, times, operator, booking reference, and a link to the operator&#39;s site, all in one card per journey.</li>
+</ul>
+<p>Everything that has a date lands on the shared trip calendar automatically, so the itinerary builds itself as bookings come in.</p>
+<h2 id="tickets-attached-to-the-journey-they-belong-to">Tickets attached to the journey they belong to</h2>
+<p>A boarding pass is useless in a group chat from three weeks ago. In Vacationist, tickets live on the transfer:</p>
+<ul>
+<li><strong>Flight tickets and boarding passes</strong> — one per passenger, per flight. You upload your own, or the organizer uploads on your behalf if they did the booking. Replace it anytime the airline reissues one.</li>
+<li><strong>Public transport tickets</strong> — any trip member can add the group&#39;s train or coach tickets to the journey card, so the person holding the booking isn&#39;t the only one who can pull it up at the barrier.</li>
+</ul>
+<p>Uploaded tickets go into private, access-controlled storage — only your trip&#39;s members can open them, and only the person who uploaded a ticket (or the trip organizer) can replace or remove it. Images and PDFs up to 10 MB.</p>
+<h2 id="costs-that-flow-into-the-group-balance">Costs that flow into the group balance</h2>
+<p>Transfers are usually the biggest line items on a trip, and they&#39;re rarely split evenly — one person books the rental, two people are on a pricier flight, someone drives their own car and everyone chips in for fuel. Log any of it as an <a href="/features/expenses/">expense</a> with a custom split, and it nets out against everything else the group owes. Attach the receipt to the expense while you&#39;re there.</p>
+<div class="cta-band" id="get-app">
+  <h3>Plan your next group trip with Vacationist</h3>
+  <p>Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Get it on Play Store</a>
+    <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Get it on App Store</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Open the Web App</a>
+  </div>
+</div><h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="can-the-group-vote-on-which-flight-to-book">Can the group vote on which flight to book?</h3>
+<p>Yes — flights use the same five-tier voting as activities, so the group can weigh options before anyone books. Rental cars, own cars, and public transport don&#39;t have voting; they&#39;re for recording arrangements the group has already agreed on.</p>
+<h3 id="who-can-see-and-upload-tickets">Who can see and upload tickets?</h3>
+<p>Every member of the trip can view a ticket attached to a transfer. Uploading, replacing, or deleting a ticket is limited to the person it belongs to and the trip organizer — so the organizer can handle tickets for a group booking without anyone losing control of their own.</p>
+<h3 id="are-uploaded-tickets-encrypted-like-travel-documents">Are uploaded tickets encrypted like travel documents?</h3>
+<p>Tickets are kept in private, access-controlled storage restricted to your trip&#39;s members — a different mechanism from the <a href="/features/travel-documents/">encrypted travel document vault</a>, which additionally encrypts passport and ID fields at rest behind your device&#39;s biometrics. Use the document vault for passports; use ticket uploads for boarding passes and rail tickets.</p>
+<h3 id="does-it-work-offline">Does it work offline?</h3>
+<p>Yes. Like the rest of Vacationist, transfer details you&#39;ve already opened are available offline, and changes you make sync when you&#39;re back on a connection — useful when you&#39;re adding a booking reference from a train with no signal.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Keep reading</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/features/expenses/">
+      <span class="related-title">Expense splitting</span>
+      <span class="related-desc">Split every trip cost with your group — hotels, dinners, fuel, anything. Vacationist tracks who paid, who owes whom, and settles up in one tap. Free.</span>
+    </a>
+    <a class="related-card" href="/features/voting/">
+      <span class="related-title">Activity voting</span>
+      <span class="related-desc">Vacationist's 5-tier activity voting lets your whole group decide what to do — must-do, like, open, skip, or group blocker. No more endless chat debates.</span>
+    </a>
+    <a class="related-card" href="/features/travel-documents/">
+      <span class="related-title">Travel documents</span>
+      <span class="related-desc">Store passports, IDs, and travel documents encrypted at rest, behind a biometric lock on your device. Grant the trip organizer temporary access — and revoke it anytime.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>The free group trip planner — vote on activities, split expenses with receipts, share lists, and keep everyone in sync.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="/features/">All features</a>
+      <a href="/features/voting/">Activity voting</a>
+      <a href="/features/expenses/">Expense splitting</a>
+      <a href="/features/shopping-lists/">Shared lists</a>
+      <a href="/features/travel-documents/">Travel documents</a>
+      <a href="/features/transfers/">Transfers &amp; flights</a>
+      <a href="/use-cases/">Use cases</a>
+      <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
+      <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Compare</h4>
+      <a href="/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/alternatives/splitwise/">Splitwise alternatives</a>
+      <a href="/alternatives/wanderlog/">Wanderlog alternatives</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="/blog/">Blog</a>
+      <a href="/blog/how-to-plan-a-group-trip/">Group trip planning guide</a>
+      <a href="/blog/best-group-travel-apps-2026/">Best group travel apps</a>
+      <a href="/blog/how-to-split-travel-expenses/">Expense splitting guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/delete-account.html">Delete Account</a>
+      <a href="#cookie-settings">Cookie settings</a>
+      <a href="mailto:meetdeep.de@gmail.com">Contact</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Switzerland</div>
+</footer>
+
+</body>
+</html>

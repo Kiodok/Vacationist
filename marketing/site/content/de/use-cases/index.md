@@ -43,6 +43,10 @@ Koordinieren, wer Zelt und Kocher mitbringt, Campingplatzgebühren und Einkäufe
 
 Über Aktivitäten abstimmen, damit nicht der Trauzeuge bei allem den Ausschlag geben muss, Anzahlungen und das Abendessen fair teilen, und jeden Auswärtigen mit einem einzigen Link dabei haben.
 
+### [Firmen-Offsite planen →](/de/use-cases/corporate-offsite-planner/)
+
+Über die Agenda abstimmen, gemeinsame Kosten mit angehängten Belegen erfassen und für die Buchhaltung einen Geschäftsausgaben-Bericht pro Person exportieren — ohne Firmenkonten, ohne IT-Freigabe.
+
 ## Das Muster hinter allen
 
 Egal welche Reise — dieselben drei Werkzeuge machen die Arbeit: [Aktivitäten-Abstimmung](/de/features/voting/) macht aus Unentschlossenheit eine echte Antwort, [Kostenteilung](/de/features/expenses/) verhindert, dass Geld zum unangenehmen Thema wird, und Gäste können [mit einem einzigen Link beitreten](/de/features/voting/) — ohne Konto, ohne App-Store-Umweg, ohne dass jemand außen vor bleibt.

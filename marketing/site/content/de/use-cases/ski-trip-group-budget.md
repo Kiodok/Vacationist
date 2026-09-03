@@ -32,7 +32,7 @@ Einen Ruhetag, ein anderes Skigebiet oder den Après-Ski-Ort vorschlagen und die
 
 ### Chalet, Skipässe und Ausrüstungsverleih fair teilen
 
-Chalet-Kosten, Skipässe und Ausrüstungsverleih getrennt erfassen und jeweils mit eigenen Beträgen aufteilen — denn wer Skier gemietet und einen 6-Tage-Pass gekauft hat, sollte nicht dasselbe schulden wie die Person mit eigener Ausrüstung, die nur zwei Tage gefahren ist. Salden aktualisieren sich live. Mehr dazu: [wie Kostenteilung funktioniert](/de/features/expenses/).
+Chalet-Kosten, Skipässe und Ausrüstungsverleih getrennt erfassen, die Belege anhängen und jeweils mit eigenen Beträgen aufteilen — denn wer Skier gemietet und einen 6-Tage-Pass gekauft hat, sollte nicht dasselbe schulden wie die Person mit eigener Ausrüstung, die nur zwei Tage gefahren ist. Salden aktualisieren sich live, mit einer Kategorienübersicht, wohin das Geld geflossen ist. Mehr dazu: [wie Kostenteilung funktioniert](/de/features/expenses/).
 
 ### Eine gemeinsame Packliste für die Ausrüstung
 
@@ -56,7 +56,7 @@ Ja. Jede Ausgabe unterstützt eigene Beträge, sodass die Chalet-Kosten nach Zim
 
 ### Können wir Ausrüstungsverleih getrennt von Essen und Skipässen verfolgen?
 
-Ja — jede Ausgabe (Chalet, Skipässe, Ausrüstungsverleih, Essen) einzeln erfassen, sodass die Gruppe genau sieht, was jede Kategorie kostet, statt nur einer Gesamtsumme.
+Ja — jede Ausgabe mit einer Kategorie (Chalet, Skipässe, Ausrüstungsverleih, Essen) einzeln erfassen, und die Ausgabenübersicht der Reise zeigt eine Kategorienaufschlüsselung, sodass die Gruppe genau sieht, was jeder Teil der Woche kostet, statt nur einer Gesamtsumme.
 
 ### Kann die Gruppe abstimmen, an welchen Tagen sie fährt und an welchen sie ruht?
 

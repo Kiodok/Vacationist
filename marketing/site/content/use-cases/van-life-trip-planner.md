@@ -60,7 +60,7 @@ Yes. Every cost is logged as it happens and balances update in real time, so you
 
 ### Does it handle multiple currencies if the route crosses a border?
 
-Vacationist supports basic multi-currency tracking, which covers most road trips. If you're converting frequently across several currencies, the handling is simpler than a dedicated finance app.
+Vacationist supports basic multi-currency tracking, which covers most road trips — expenses in another currency convert at a stored daily rate, shown in the breakdown so the number is traceable. If you're converting frequently across several currencies, the handling is simpler than a dedicated finance app.
 
 ### What if passengers change leg to leg?
 

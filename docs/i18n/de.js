@@ -21,7 +21,7 @@ window.VACATIONIST_I18N = {
   // Hero
   'hero.eyebrow': '✈ Der kostenlose Gruppenreise-Planer',
   'hero.h1': 'Reisen<br><em>gemeinsam</em><br>planen.',
-  'hero.sub': 'Die Gruppenreise-App für alles — Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und alle synchron halten. Von der ersten Idee bis zum letzten Heimflug.',
+  'hero.sub': 'Die Gruppenreise-App für alles — Aktivitäten abstimmen, Kosten teilen mit angehängten Belegen, Flüge und Tickets bei der Reise behalten, Packlisten teilen und alle synchron halten. Von der ersten Idee bis zum letzten Heimflug.',
   'hero.getPlay': 'Play Store',
   'hero.getAppStore': 'App Store',
   'hero.openWeb': 'Web-App öffnen',
@@ -30,13 +30,13 @@ window.VACATIONIST_I18N = {
 
   // TL;DR-Direktantwort (oberhalb der FAQ)
   'tldr.label': 'Kurz gesagt',
-  'tldr.text': 'Vacationist ist kostenlos, ohne Werbung, und verschlüsselt Reisedokumente mit AES-256. Die App wird in der Schweiz entwickelt, und jeder kann per Link einer Reise beitreten, ohne ein Konto zu erstellen. Heute verfügbar für iOS, Android und im Web.',
+  'tldr.text': 'Vacationist ist kostenlos, ohne Werbung, und verschlüsselt Reisedokumente mit AES-256. Belege hängen an den Ausgaben, Bordkarten an den Flügen — privat für deine Reise. Die App wird in der Schweiz entwickelt, und jeder kann per Link einer Reise beitreten, ohne ein Konto zu erstellen. Heute verfügbar für iOS, Android und im Web.',
 
   // Floating chips
   'chip.a.main': '4 Stimmen abgegeben',
   'chip.a.sub': 'Aktivitäten · Lissabon',
   'chip.b.main': '€ 42,50 hinzugefügt',
-  'chip.b.sub': 'Auf 4 aufgeteilt',
+  'chip.b.sub': 'Beleg angehängt · auf 4 aufgeteilt',
   'chip.c.main': '3 Artikel abgehakt',
   'chip.c.sub': 'Einkaufsliste',
 
@@ -70,17 +70,27 @@ window.VACATIONIST_I18N = {
   'feat.1.title': 'Aktivitäten abstimmen',
   'feat.1.desc': 'Ideen vorschlagen und die Gruppe entscheiden lassen — von „Muss sein" bis „Gruppenhindernis". Die besten Optionen setzen sich ganz natürlich durch, ohne endlose Debatten.',
   'feat.2.title': 'Ausgaben fair aufteilen',
-  'feat.2.desc': 'Jede Ausgabe erfassen, wer gezahlt hat auswählen und gleichmäßig oder nach eigenen Beträgen aufteilen. Salden zeigen immer genau, wer wem was schuldet — kein Kopfrechnen mehr.',
+  'feat.2.desc': 'Jede Ausgabe mit Kategorie und angehängtem Beleg erfassen, gleichmäßig oder nach eigenen Beträgen aufteilen und eine Live-Aufschlüsselung sehen, wer wem was schuldet — und wohin das Geld geflossen ist.',
   'feat.3.title': 'Geteilte Listen in Echtzeit',
   'feat.3.desc': 'Einkaufslisten, Packlisten — alles, was die Gruppe verfolgt. Alle fügen Artikel hinzu und haken sie gleichzeitig in Echtzeit ab.',
-  'feat.4.title': 'Transfer & Flüge',
-  'feat.4.desc': 'Flüge vorschlagen, über Optionen abstimmen, Buchungen erfassen, Mietwagen verwalten und zuweisen, wer mit wem fährt — alles an einem Ort.',
+  'feat.4.title': 'Transfers, Flüge & Tickets',
+  'feat.4.desc': 'Über Flüge abstimmen, Mietwagen und öffentliche Verkehrsmittel verwalten, festlegen wer mit wem fährt, und jede Bordkarte und jedes Ticket bei der Reise behalten.',
   'feat.5.title': 'Verschlüsselte Reisedokumente',
   'feat.5.desc': 'Reisepass- und Ausweisdaten verschlüsselt gespeichert und gesichert durch biometrische Authentifizierung. Temporären Organisatorzugriff gewähren und jederzeit widerrufen.',
   'feat.6.title': 'Urlaubsverfolgung & Kalender',
   'feat.6.desc': 'Eine visuelle Zeitleiste aller geplanten Aktivitäten, Transfers und Check-ins — deine Urlaubsverfolgung in der Zeitzone der Reise. Jeden freien Tag auf einen Blick.',
   'feat.7.title': 'Gruppenchat',
   'feat.7.desc': 'Ein eigener Chat-Tab für jede Reise — schreib der ganzen Gruppe, bearbeite oder lösche eigene Nachrichten und bleib mit Echtzeit-Zustellung immer auf dem neuesten Stand. Organisatoren können die Unterhaltung moderieren.',
+  'feat.8.title': 'Belege, Tickets & Ausgabenberichte',
+  'feat.8.desc': 'Jeder Beleg liegt bei seiner Ausgabe, jede Bordkarte bei ihrem Flug — privat für deine Gruppe. Geschäftsausgaben markieren und für Geschäftsreisen einen PDF-Bericht pro Person exportieren.',
+
+  // Feature card 8 — document preview panel
+  'doc.1.name': 'Villa — Restzahlung',
+  'doc.1.meta': 'Beleg angehängt · auf 6 aufgeteilt',
+  'doc.2.name': 'Bordkarte — Maya',
+  'doc.2.meta': 'Lissabon-Flug · Hinflug',
+  'doc.3.name': 'Geschäftsausgaben-Übersicht',
+  'doc.3.meta': 'PDF · pro Person · mit Belegen',
 
   // How it works
   'how.label': 'So funktioniert\'s',
@@ -127,7 +137,7 @@ window.VACATIONIST_I18N = {
   'faq.1.q': 'Was ist Vacationist?',
   'faq.1.a': 'Vacationist ist eine kostenlose Reise-App für kollaborative Gruppenreisen. Aktivitäten vorschlagen und abstimmen, Ausgaben aufteilen, Urlaub verfolgen, Unterkünfte verwalten, Einkaufslisten teilen und alle synchron halten — alles an einem Ort. Funktioniert für alles vom Städtetrip bis zur mehrtägigen Roadtrip-Tour.',
   'faq.2.q': 'Wie funktioniert die Ausgabenaufteilung in der Gruppe?',
-  'faq.2.a': 'Jede Gruppenausgabe erfassen — Abendessen, Unterkunft, Transport oder anderes — wer gezahlt hat auswählen und gleichmäßig oder mit eigenen Beträgen aufteilen. Vacationist verfolgt automatisch die Salden, sodass jeder genau weiß, wer wem etwas schuldet. Einzelne Splits oder alles auf einmal am Reiseende ausgleichen.',
+  'faq.2.a': 'Jede Gruppenausgabe erfassen — Abendessen, Unterkunft, Transport oder anderes — eine Kategorie wählen, den Beleg anhängen, auswählen wer gezahlt hat und gleichmäßig oder mit eigenen Beträgen aufteilen. Vacationist verfolgt die Salden automatisch und zeigt am Reiseende den einfachsten Weg zum Ausgleich.',
   'faq.3.q': 'Kann ich Vacationist für Van-Life oder Roadtrips nutzen?',
   'faq.3.a': 'Absolut. Vacationist ist ideal für Van-Roadtrips und Überland-Abenteuer. Der gemeinsame Kalender verfolgt jeden Stopp, der Aktivitätsplaner hält die Route flexibel, die Packliste hält den Van organisiert, und die Ausgabenteilung macht gemeinsame Sprit- und Campingplatzkosten fair und transparent.',
   'faq.4.q': 'Was unterscheidet Vacationist von anderen Gruppenreise-Apps?',
@@ -136,6 +146,8 @@ window.VACATIONIST_I18N = {
   'faq.5.a': 'Ja. Viele Vacationist-Nutzer koordinieren Timeshare-Aufenthalte, Ferienunterkünfte und gemeinsame Urlaubsimmobilien. Verfolgen, wer wann ankommt, laufende Kosten unter Miteigentümern aufteilen, gemeinsame Einkaufslisten für das Objekt verwalten und Reisedokumente für den Check-in zugänglich halten.',
   'faq.6.q': 'Wie funktionieren Urlaubsverfolgung und Teilen mit der Gruppe?',
   'faq.6.a': 'Jede Reise in Vacationist ist ein gemeinsamer Arbeitsbereich. Per Link einladen — alle treten sofort bei, kein Konto zum Mitmachen nötig. Die Urlaubsübersicht zeigt die gesamte Reise-Zeitleiste, alle Termine außerhalb des Kalenders und Ausgaben auf einen Blick. Änderungen synchronisieren sich in Echtzeit, sodass alle immer auf dem neuesten Stand sind.',
+  'faq.7.q': 'Kann ich Belege anhängen und eine Geschäftsreise abrechnen?',
+  'faq.7.a': 'Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftsausgaben unterwegs und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen.',
 
   // Trust strip
   'trust.aes': 'Dokumente verschlüsselt gespeichert',

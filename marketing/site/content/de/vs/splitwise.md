@@ -21,10 +21,14 @@ breadcrumbLabel: vs. Splitwise
 | | Vacationist | Splitwise |
 |---|---|---|
 | Kostenteilung | ✅ Gleichmäßige & eigene Splits, Live-Salden | ✅ Klassenbester, sehr ausgereift |
+| Belege an Ausgaben | ✅ Kostenlos (Fotos & PDFs) | ⚠️ Nur Splitwise Pro |
+| Geschäftsausgaben-Bericht | ✅ Export pro Person als PDF + Markdown | ❌ |
+| Kategorienübersicht der Ausgaben | ✅ Eingebaut | ⚠️ Diagramme in Pro |
 | Reiseplanung (Aktivitäten, Kalender) | ✅ Eingebaut | ❌ Keine |
 | Gruppen-Abstimmung über Aktivitäten | ✅ Einzigartiges 5-Stufen-System | ❌ |
 | Gemeinsame Einkaufs- & Packlisten | ✅ Echtzeit | ❌ |
-| Unterkunfts- & Transferverwaltung | ✅ | ❌ |
+| Unterkunftsverwaltung | ✅ | ❌ |
+| Flüge, Mietwagen & ÖPNV, mit Tickets | ✅ | ❌ |
 | Beitreten ohne Konto | ✅ Ein Einladungslink | ❌ Konto erforderlich |
 | Offline-Unterstützung | ✅ Offline-first | ⚠️ Eingeschränkt |
 | Multi-Währung | ⚠️ Einfach | ✅ Umfangreich |
@@ -48,6 +52,7 @@ Ehrlichkeit zuerst, denn sie zählt bei der Werkzeugwahl:
 - **Niemand muss etwas installieren.** Das größte Splitwise-Problem in der Praxis ist sozial: der eine Freund, der sich weigert, ein Konto anzulegen, sodass seine Ausgaben in irgendjemandes Kopf leben. Vacationist-Gäste treten per einzelnem Link bei — ohne Konto — und können trotzdem abstimmen, Listen bearbeiten und Teil der [Kostenteilung](/de/features/expenses/) sein.
 - **Offline first.** Reisen passieren in Flugzeugen, auf Fähren und Bergstraßen. Vacationist funktioniert ohne Empfang weiter und synchronisiert später.
 - **Gemeinsame Listen und Rezepte.** Der Supermarkt-Einkauf für die Villa, der Camping-Essensplan — [gemeinsame Listen mit Rezept-Übernahme](/de/features/shopping-lists/) machen daraus einen Ablauf: planen, kaufen, teilen.
+- **Belege und Ausgabenberichte im kostenlosen Tarif.** Häng einen Beleg an jede Ausgabe — kostenlos (Splitwise sperrt das Beleg-Scannen hinter Pro) — und markiere für Geschäftsreisen Geschäftsausgaben, um einen [Bericht pro Person](/de/features/expenses/) mit verlinkten Belegen zu exportieren, was Splitwise in keinem Tarif kann.
 - **Verschlüsselte Reisedokumente.** Gruppenbuchungen brauchen Passdaten; Chat-Screenshots sind der übliche Weg. Vacationist hat stattdessen einen [verschlüsselten Tresor mit widerrufbarem Organisator-Zugriff](/de/features/travel-documents/).
 
 ## Die realistische Empfehlung
@@ -75,4 +80,4 @@ Ja — Vacationist hat eine native iOS-App im App Store, neben Android und der W
 
 ### Welche App ist besser, um eine Hotelrechnung zu teilen?
 
-Beide können das. Der Unterschied ist der Kontext: In Vacationist ist das Hotel auch *in der Reise* — abgestimmt, im Kalender, mit der Buchungsbestätigung für die Gruppe zugänglich — und nicht nur eine Zahl in einem Schuldenbuch.
+Beide können das. Der Unterschied ist der Kontext: In Vacationist ist das Hotel auch *in der Reise* — abgestimmt, im Kalender, mit angehängtem Beleg und für die Gruppe zugänglich — und nicht nur eine Zahl in einem Schuldenbuch.

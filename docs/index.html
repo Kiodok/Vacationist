@@ -47,8 +47,8 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.26.0",
-    "description": "The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations, and keep the whole group in sync — from the first idea to the last flight home.",
+    "softwareVersion": "1.33.1",
+    "description": "The free group trip planning app. Vote on activities, split travel expenses with receipts attached, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, and keep the whole group in sync — from the first idea to the last flight home.",
     "url": "https://vacationist.app/",
     "installUrl": [
       "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
@@ -63,7 +63,7 @@
       "de"
     ],
     "isAccessibleForFree": true,
-    "featureList": "Group activity voting, Travel expense splitting, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Transfer & flight management, Encrypted travel documents, Real-time sync, Offline support, Guest access without account",
+    "featureList": "Group activity voting, Travel expense splitting, Expense receipts and documents, Business expense reports, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Offline support, Guest access without account",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -88,7 +88,7 @@
     "@type": "WebSite",
     "name": "Vacationist",
     "url": "https://vacationist.app/",
-    "description": "The free group trip planner — vote on activities, split travel expenses, share packing lists, and keep everyone in sync.",
+    "description": "The free group trip planner — vote on activities, split travel expenses and attach receipts, share packing lists, and keep everyone in sync.",
     "inLanguage": "en"
   }
   </script>
@@ -120,7 +120,7 @@
       {
         "@type": "Question",
         "name": "How does expense splitting work in a group?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Log any group cost — dinner, accommodation, transport, or anything else — choose who paid, and split equally or with custom amounts. Vacationist automatically tracks balances so everyone knows exactly who owes whom. Settle individual splits or clear everything at once when the trip ends." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Log any group cost — dinner, accommodation, transport, or anything else — pick a category, attach the receipt, choose who paid, and split equally or with custom amounts. Vacationist tracks balances automatically and shows the simplest way to settle up when the trip ends." }
       },
       {
         "@type": "Question",
@@ -141,6 +141,11 @@
         "@type": "Question",
         "name": "How does vacation tracking and group sharing work?",
         "acceptedAnswer": { "@type": "Answer", "text": "Each trip in Vacationist acts as a shared workspace. Invite anyone via a single link — they join instantly, no account needed to participate. The vacation tracker view shows your full trip timeline, off-calendar events, and spending at a glance. Changes sync in real time so everyone stays up to date." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I attach receipts and expense a work trip?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Attach a photo or PDF receipt to any expense — it stays private to your trip's members. For work trips, flag business expenses as you go and export a per-person report as a PDF, itemised by date and category, with links to the receipts." }
       }
     ]
   }
@@ -538,7 +543,7 @@
     }
     @media (max-width: 760px) {
       .feat-card--wide { grid-template-columns: 1fr; }
-      .feat-chat-preview { display: none; }
+      .feat-chat-preview, .feat-doc-preview { display: none; }
     }
     .feat-chat-preview {
       background: var(--bg); border: 1px solid var(--border);
@@ -563,6 +568,26 @@
     .chat-msg--own .chat-bubble {
       background: var(--pri-dim); border-color: rgba(108,99,255,.25); color: var(--pri-lite);
     }
+
+    /* Receipts & documents — wide card preview panel */
+    .feat-doc-preview {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.85rem;
+      display: flex; flex-direction: column; gap: 0.55rem;
+    }
+    .doc-row {
+      display: flex; align-items: center; gap: 0.65rem;
+      background: var(--surf-el); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.55rem 0.7rem;
+    }
+    .doc-ico {
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      background: var(--pri-dim); border: 1px solid rgba(108,99,255,.2);
+    }
+    .doc-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .doc-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .doc-meta { font-size: 0.67rem; color: var(--text3); }
 
     /* ── HOW IT WORKS ── */
     .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; position: relative; }
@@ -799,7 +824,7 @@
       <h1 data-i18n-html="hero.h1">Plan trips<br><em>together</em>,<br>effortlessly.</h1>
 
       <p class="hero-sub" data-i18n="hero.sub">
-        The group trip planning app that does it all — vote on activities, split travel expenses, share packing lists, and keep everyone in sync. From the first idea to the last flight home.
+        The group trip planning app that does it all — vote on activities, split expenses with receipts attached, keep flights and tickets with the trip, share packing lists, and keep everyone in sync. From the first idea to the last flight home.
       </p>
 
       <p class="entity-def" data-i18n="entity.def">
@@ -839,7 +864,7 @@
         </div>
         <div class="chip chip-b">
           <span class="chip-icon">💸</span>
-          <div><div data-i18n="chip.b.main">€ 42.50 added</div><div class="chip-sub" data-i18n="chip.b.sub">Split 4 ways</div></div>
+          <div><div data-i18n="chip.b.main">€ 42.50 added</div><div class="chip-sub" data-i18n="chip.b.sub">Receipt attached · split 4 ways</div></div>
         </div>
         <div class="chip chip-c">
           <span class="chip-icon">✅</span>
@@ -939,7 +964,7 @@
       <div class="feat-card reveal d2">
         <div class="feat-icon">💸</div>
         <div class="feat-title" data-i18n="feat.2.title">Split expenses fairly</div>
-        <div class="feat-desc" data-i18n="feat.2.desc">Log every cost, choose who paid, and split equally or by custom amounts. Balances always show exactly who owes what — no more mental math or IOUs.</div>
+        <div class="feat-desc" data-i18n="feat.2.desc">Log every cost with a category and a receipt attached, split it equally or by custom amounts, and see a live breakdown of who owes what — and where the money went.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🛒</div>
@@ -948,8 +973,8 @@
       </div>
       <div class="feat-card reveal d1">
         <div class="feat-icon">✈️</div>
-        <div class="feat-title" data-i18n="feat.4.title">Transfer &amp; flights</div>
-        <div class="feat-desc" data-i18n="feat.4.desc">Suggest flights, vote on options, record bookings, manage car rentals, and assign who rides with whom — all in one place.</div>
+        <div class="feat-title" data-i18n="feat.4.title">Transfers, flights &amp; tickets</div>
+        <div class="feat-desc" data-i18n="feat.4.desc">Vote on flights, manage rental cars and public transport, assign who rides with whom, and keep every boarding pass and ticket attached to the trip.</div>
       </div>
       <div class="feat-card reveal d2">
         <div class="feat-icon">🔒</div>
@@ -960,6 +985,36 @@
         <div class="feat-icon">🗓️</div>
         <div class="feat-title" data-i18n="feat.6.title">Vacation tracker &amp; calendar</div>
         <div class="feat-desc" data-i18n="feat.6.desc">A visual timeline of all planned activities, transfers, and check-ins — your vacation tracker displayed in the trip's timezone. See every day off at a glance.</div>
+      </div>
+      <div class="feat-card feat-card--wide reveal d3">
+        <div>
+          <div class="feat-icon">🧾</div>
+          <div class="feat-title" data-i18n="feat.8.title">Receipts, tickets &amp; expense reports</div>
+          <div class="feat-desc" data-i18n="feat.8.desc">Every receipt sits on its expense, every boarding pass on its flight — private to your group. Flag business expenses and export a per-person PDF report for work trips.</div>
+        </div>
+        <div class="feat-doc-preview" aria-hidden="true">
+          <div class="doc-row">
+            <div class="doc-ico">🧾</div>
+            <div class="doc-txt">
+              <span class="doc-name" data-i18n="doc.1.name">Villa — final payment</span>
+              <span class="doc-meta" data-i18n="doc.1.meta">Receipt attached · Split 6 ways</span>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-ico">🎫</div>
+            <div class="doc-txt">
+              <span class="doc-name" data-i18n="doc.2.name">Boarding pass — Maya</span>
+              <span class="doc-meta" data-i18n="doc.2.meta">Lisbon flight · outbound</span>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-ico">📄</div>
+            <div class="doc-txt">
+              <span class="doc-name" data-i18n="doc.3.name">Business expense summary</span>
+              <span class="doc-meta" data-i18n="doc.3.meta">PDF · per person · with receipts</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="feat-card feat-card--wide reveal d1">
         <div>
@@ -1094,7 +1149,7 @@
   <div class="wrap">
     <div class="tldr">
       <p class="tldr-label" data-i18n="tldr.label">TL;DR</p>
-      <p data-i18n="tldr.text">Vacationist is free, has no ads, and encrypts travel documents with AES-256. It's built in Switzerland, and anyone can join a trip via a single link without creating an account. Available today on iOS, Android, and the web.</p>
+      <p data-i18n="tldr.text">Vacationist is free, has no ads, and encrypts travel documents with AES-256. Receipts attach to expenses and boarding passes to flights, kept private to your trip. It's built in Switzerland, and anyone can join a trip via a single link without creating an account. Available today on iOS, Android, and the web.</p>
     </div>
   </div>
 </section>
@@ -1122,7 +1177,7 @@
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a" hidden>
-          <p data-i18n="faq.2.a">Log any group cost — dinner, accommodation, transport, or anything else — choose who paid, and split equally or with custom amounts. Vacationist automatically tracks balances so everyone knows exactly who owes whom. Settle individual splits or clear everything at once when the trip ends.</p>
+          <p data-i18n="faq.2.a">Log any group cost — dinner, accommodation, transport, or anything else — pick a category, attach the receipt, choose who paid, and split equally or with custom amounts. Vacationist tracks balances automatically and shows the simplest way to settle up when the trip ends.</p>
         </div>
       </div>
       <div class="faq-item reveal d3">
@@ -1159,6 +1214,15 @@
         </button>
         <div class="faq-a" hidden>
           <p data-i18n="faq.6.a">Each trip in Vacationist acts as a shared workspace. Invite anyone via a single link — they join instantly, no account needed to participate. The vacation tracker view shows your full trip timeline, off-calendar events, and spending at a glance. Changes sync in real time so everyone stays up to date.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d1">
+        <button class="faq-q" aria-expanded="false">
+          <span data-i18n="faq.7.q">Can I attach receipts and expense a work trip?</span>
+          <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a" hidden>
+          <p data-i18n="faq.7.a">Yes. Attach a photo or PDF receipt to any expense — it stays private to your trip's members. For work trips, flag business expenses as you go and export a per-person report as a PDF, itemised by date and category, with links to the receipts.</p>
         </div>
       </div>
     </div>

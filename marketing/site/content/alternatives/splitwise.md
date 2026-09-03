@@ -25,7 +25,7 @@ First, to be fair to the incumbent: **Splitwise is still excellent at pure debt 
 
 [Vacationist](https://vacationist.app/) takes a different angle from every other app on this list: instead of being a better ledger, it puts expense splitting *inside the trip*. The group plans activities and [votes on them](/features/voting/), manages accommodations, keeps [shared shopping and packing lists](/features/shopping-lists/), chats — and every shared cost is logged and [split](/features/expenses/) in the same place.
 
-- **What it adds over Splitwise:** activity voting, shared trip calendar, accommodation and transfer management, real-time shopping lists with recipe sync, encrypted travel documents, group chat, offline-first sync.
+- **What it adds over Splitwise:** activity voting, shared trip calendar, accommodation management, flights/rentals/public-transport with tickets attached, real-time shopping lists with recipe sync, encrypted travel documents, group chat, offline-first sync. On the money side specifically: receipts attach to each expense on the free tier (Splitwise gates receipt scanning behind Pro), a category breakdown of spending, and — for work trips — a business-expense flag with a per-person report export (PDF + Markdown, receipts linked), which Splitwise has at no tier.
 - **The friction-killer:** friends join by one invite link, **no account needed** — and can still vote, edit lists, and be part of expense splits. The "one friend who won't install Splitwise" problem disappears.
 - **What it lacks vs. Splitwise:** narrower multi-currency support, no PayPal/Venmo settlement integrations, and a small user base (launched 2026).
 - **Price:** free, no ads. Optional Pro for more planning days and unlimited members.
@@ -51,9 +51,9 @@ Settle Up is a solid Splitwise-style tracker with real-time sync across iOS, And
 
 Splid works fully without accounts and even without internet; groups sync via invitation code when online.
 
-- **Strengths:** no accounts, offline capable, clean PDF export of the final settlement — handy for formal groups.
-- **Weaknesses:** one-time purchase for larger groups; expenses only.
-- **Best for:** trips with patchy connectivity where you only need the money handled.
+- **Strengths:** no accounts, works fully offline, one-time purchase model.
+- **Weaknesses:** paid unlock for larger groups; expenses only, no receipts or trip context. (Vacationist also works offline and also exports a report — a per-person business summary as PDF — while doing the rest of the trip too.)
+- **Best for:** trips with patchy connectivity where you only need the money handled and don't want a subscription.
 
 ## 5. Kittysplit — best zero-install option
 
@@ -84,6 +84,7 @@ Coming from the other direction: [Wanderlog](/vs/wanderlog/) is a trip-itinerary
 | If your situation is… | Pick |
 |---|---|
 | A group **trip** with activities, lists, and costs to coordinate | **Vacationist** |
+| A work trip or team offsite you have to expense afterwards | **Vacationist** (business-expense flag + per-person report) |
 | Just need to split costs, want zero accounts, in Europe | Tricount |
 | Want Splitwise mechanics, different pricing | Settle Up |
 | Remote trip, patchy signal, money only | Splid |

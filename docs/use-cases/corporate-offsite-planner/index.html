@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
+
+  <title>Corporate Offsite Planner — Coordinate &amp; Expense the Team Trip</title>
+  <meta name="description" content="Plan a team offsite without a spreadsheet and an approval thread. Vote on the agenda, split shared costs, attach receipts, and export a per-person expense report.">
+  <meta name="keywords" content="corporate offsite planner, team retreat planning app, business travel expense report, company trip coordination app">
+
+  <link rel="canonical" href="https://vacationist.app/use-cases/corporate-offsite-planner/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/corporate-offsite-planner/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/corporate-offsite-planner/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/corporate-offsite-planner/">
+
+  <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/blog/feed.xml">
+  <meta property="og:title" content="Corporate Offsite Planner — Coordinate &amp; Expense the Team Trip">
+  <meta property="og:description" content="Plan a team offsite without a spreadsheet and an approval thread. Vote on the agenda, split shared costs, attach receipts, and export a per-person expense report.">
+  <meta property="og:url" content="https://vacationist.app/use-cases/corporate-offsite-planner/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/assets/og/use-cases-corporate-offsite-planner.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Corporate Offsite Planner — Coordinate &amp; Expense the Team Trip">
+  <meta name="twitter:description" content="Plan a team offsite without a spreadsheet and an approval thread. Vote on the agenda, split shared costs, attach receipts, and export a per-person expense report.">
+  <meta name="twitter:image" content="https://vacationist.app/assets/og/use-cases-corporate-offsite-planner.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Corporate Offsite Planner — Coordinate & Expense the Team Trip",
+    "description": "Plan a team offsite without a spreadsheet and an approval thread. Vote on the agenda, split shared costs, attach receipts, and export a per-person expense report.",
+    "url": "https://vacationist.app/use-cases/corporate-offsite-planner/",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "inLanguage": "en",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://vacationist.app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Use cases",
+        "item": "https://vacationist.app/use-cases/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Corporate offsite planner",
+        "item": "https://vacationist.app/use-cases/corporate-offsite-planner/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can each person get their own expense report?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The business expense summary is generated per person, itemised by date, category, and who paid, with links to the attached receipts — so each colleague can file their own claim and finance gets a consistent format from everyone."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do the receipt links in the export keep working?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Each receipt link in the exported report stays valid for 30 days — long enough to submit and process a reimbursement claim. The receipt itself stays in the trip for as long as the trip exists."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does anyone need a company account or admin approval?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Anyone joins the offsite trip with one invite link and participates fully without an account. There's nothing to install for guests and nothing for IT to provision."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the business expense report available on iPhone and Android?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. On the web you get both a PDF and a Markdown file; on the iOS and Android apps you get the PDF, which contains the full itemised report and the receipt links."
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": "https://vacationist.app/#app",
+    "name": "Vacationist",
+    "applicationCategory": "TravelApplication",
+    "applicationSubCategory": "Group Trip Planner",
+    "operatingSystem": "Android, iOS, Web",
+    "softwareVersion": "1.33.1",
+    "description": "The free group trip planning app. Vote on activities, split travel expenses with receipts attached, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, and keep the whole group in sync — from the first idea to the last flight home.",
+    "url": "https://vacationist.app/",
+    "installUrl": [
+      "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+      "https://apps.apple.com/us/app/vacationist/id6800049398"
+    ],
+    "downloadUrl": [
+      "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+      "https://apps.apple.com/us/app/vacationist/id6800049398"
+    ],
+    "inLanguage": [
+      "en",
+      "de"
+    ],
+    "isAccessibleForFree": true,
+    "featureList": "Group activity voting, Travel expense splitting, Expense receipts and documents, Business expense reports, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Offline support, Guest access without account",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Gary Lude",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CH"
+      }
+    },
+    "publisher": {
+      "@id": "https://vacationist.app/#org"
+    }
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#6C63FF"/><stop offset="100%" stop-color="#18162D"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/features/">Features</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web app</a>
+    <a href="#get-app" class="nav-cta">Get the app</a>
+    <span class="lang-pair" aria-label="Language"><a href="/de/use-cases/corporate-offsite-planner/" title="Deutsche Version">DE</a><span class="lp-on">EN</span></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span class="crumb-sep">/</span> <a href="/use-cases/">Use cases</a> <span class="crumb-sep">/</span> <span aria-current="page">Corporate offsite planner</span></nav>
+  <article class="article">
+<h1 id="plan-the-offsite-then-expense-it-cleanly">Plan the offsite, then expense it cleanly</h1>
+<div class="tldr">
+  <p class="tldr-label">Short answer</p>
+  <p>Vacationist lets a team vote on the offsite agenda, tracks shared costs with receipts attached to each one, and exports a per-person business expense report as a PDF — so planning the trip and filing it with finance are the same workflow. It's free, and colleagues join with one link, no account and no IT approval.</p>
+</div><h2 id="the-problem-with-planning-a-corporate-offsite">The problem with planning a corporate offsite</h2>
+<p>A team offsite runs on two documents that never quite agree: a planning doc nobody keeps current, and an expense reconciliation someone rebuilds from screenshots two weeks after everyone&#39;s home. Half the team doesn&#39;t know the final agenda, the person who fronted the Airbnb is chasing five colleagues for their share, and finance wants an itemised report with receipts that no single tool actually produced. Meanwhile the &quot;just use this app&quot; suggestion dies because it needs everyone to make an account and get it past IT.</p>
+<h2 id="how-vacationist-handles-it">How Vacationist handles it</h2>
+<h3 id="vote-on-the-agenda-instead-of-a-40-message-thread">Vote on the agenda instead of a 40-message thread</h3>
+<p>Put the workshop slot, the team dinner, and the optional Saturday hike in as proposals and let the team vote with a five-tier system — from &quot;must do&quot; to &quot;group blocker.&quot; The plan reflects what the team actually wants, and the decision is visible instead of buried in chat. See <a href="/features/voting/">how activity voting works</a>.</p>
+<h3 id="flag-business-expenses-and-export-the-report">Flag business expenses and export the report</h3>
+<p>Mark any expense as a business expense as you log it. When it&#39;s time to file, export a <strong>business expense summary</strong> — a clean per-person report as a PDF (and Markdown on the web), itemised by date, category, and payer, with links to the attached receipts. Hand it to finance or drop it into your own reimbursement claim. See <a href="/features/expenses/">how expense splitting works</a>.</p>
+<h3 id="receipts-attached-so-reimbursement-isnt-a-scavenger-hunt">Receipts attached, so reimbursement isn&#39;t a scavenger hunt</h3>
+<p>Photograph the receipt into the expense the moment you pay. It lives in private, access-controlled storage with the expense itself — not in a camera roll you&#39;ll be scrolling through on the flight back. The exported report links straight to each one.</p>
+<h3 id="one-link-no-accounts-no-it-ticket">One link, no accounts, no IT ticket</h3>
+<p>Colleagues join the trip from a single link and can vote, add expenses, and see the agenda without creating an account or installing anything. There&#39;s nothing for IT to review and no per-seat cost to approve.</p>
+<h2 id="what-it-costs">What it costs</h2>
+<p>Free, with no ads. Voting, expense splitting, receipts, the business expense report, and guest access are all free for the whole team. A Pro tier exists for people organising many trips a year, but a single offsite doesn&#39;t need it.</p>
+<div class="cta-band" id="get-app">
+  <h3>Plan your next group trip with Vacationist</h3>
+  <p>Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Get it on Play Store</a>
+    <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Get it on App Store</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Open the Web App</a>
+  </div>
+</div><h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="can-each-person-get-their-own-expense-report">Can each person get their own expense report?</h3>
+<p>Yes. The business expense summary is generated per person, itemised by date, category, and who paid, with links to the attached receipts — so each colleague can file their own claim and finance gets a consistent format from everyone.</p>
+<h3 id="do-the-receipt-links-in-the-export-keep-working">Do the receipt links in the export keep working?</h3>
+<p>Each receipt link in the exported report stays valid for 30 days — long enough to submit and process a reimbursement claim. The receipt itself stays in the trip for as long as the trip exists.</p>
+<h3 id="does-anyone-need-a-company-account-or-admin-approval">Does anyone need a company account or admin approval?</h3>
+<p>No. Anyone joins the offsite trip with one invite link and participates fully without an account. There&#39;s nothing to install for guests and nothing for IT to provision.</p>
+<h3 id="is-the-business-expense-report-available-on-iphone-and-android">Is the business expense report available on iPhone and Android?</h3>
+<p>Yes. On the web you get both a PDF and a Markdown file; on the iOS and Android apps you get the PDF, which contains the full itemised report and the receipt links.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Keep reading</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/features/expenses/">
+      <span class="related-title">Expense splitting</span>
+      <span class="related-desc">Split every trip cost with your group — hotels, dinners, fuel, anything. Vacationist tracks who paid, who owes whom, and settles up in one tap. Free.</span>
+    </a>
+    <a class="related-card" href="/features/voting/">
+      <span class="related-title">Activity voting</span>
+      <span class="related-desc">Vacationist's 5-tier activity voting lets your whole group decide what to do — must-do, like, open, skip, or group blocker. No more endless chat debates.</span>
+    </a>
+    <a class="related-card" href="/features/transfers/">
+      <span class="related-title">Transfers</span>
+      <span class="related-desc">Plan every leg of a group trip — vote on flights, manage rental cars and public transport, and keep every ticket and boarding pass with the trip.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>The free group trip planner — vote on activities, split expenses with receipts, share lists, and keep everyone in sync.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="/features/">All features</a>
+      <a href="/features/voting/">Activity voting</a>
+      <a href="/features/expenses/">Expense splitting</a>
+      <a href="/features/shopping-lists/">Shared lists</a>
+      <a href="/features/travel-documents/">Travel documents</a>
+      <a href="/features/transfers/">Transfers &amp; flights</a>
+      <a href="/use-cases/">Use cases</a>
+      <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
+      <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Compare</h4>
+      <a href="/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/alternatives/splitwise/">Splitwise alternatives</a>
+      <a href="/alternatives/wanderlog/">Wanderlog alternatives</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="/blog/">Blog</a>
+      <a href="/blog/how-to-plan-a-group-trip/">Group trip planning guide</a>
+      <a href="/blog/best-group-travel-apps-2026/">Best group travel apps</a>
+      <a href="/blog/how-to-split-travel-expenses/">Expense splitting guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/delete-account.html">Delete Account</a>
+      <a href="#cookie-settings">Cookie settings</a>
+      <a href="mailto:meetdeep.de@gmail.com">Contact</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Switzerland</div>
+</footer>
+
+</body>
+</html>

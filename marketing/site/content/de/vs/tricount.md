@@ -21,9 +21,13 @@ breadcrumbLabel: vs. Tricount
 | | Vacationist | Tricount |
 |---|---|---|
 | Kostenteilung | ✅ Gleichmäßige & eigene Splits, Live-Salden | ✅ Schnell, einfach, sehr ausgereift |
+| Belege an Ausgaben | ✅ Kostenlos | ✅ Kostenlos |
+| Geschäftsausgaben-Markierung + Bericht pro Person | ✅ Export als PDF + Markdown | ❌ |
+| Ausgaben-Export | ✅ Geschäftsausgaben-Übersicht (PDF + Markdown) | ⚠️ CSV/PDF-Export eingestellt |
 | Reiseplanung (Aktivitäten, Kalender) | ✅ Eingebaut | ❌ Keine |
 | Gruppen-Abstimmung über Aktivitäten | ✅ Einzigartiges 5-Stufen-System | ❌ |
 | Gemeinsame Einkaufs- & Packlisten | ✅ Echtzeit | ❌ |
+| Flüge, Mietwagen & ÖPNV, mit Tickets | ✅ | ❌ |
 | Verschlüsselte Reisedokumente | ✅ AES-256-Tresor | ❌ |
 | Beitreten ohne Konto | ✅ Ein Einladungslink, volle Teilnahme | ✅ Teilnahme ohne Mitgliedschaft möglich |
 | Gruppenchat in der App | ✅ | ❌ |
@@ -47,6 +51,7 @@ Ehrlichkeit zuerst:
 - **Die ganze Reise, nicht nur der Geldtopf.** Eine Gruppenreise ist nicht nur geteilte Ausgaben — es geht darum, zu entscheiden, wohin es geht, was ihr unternehmt und wer was mitbringt. Tricount endet beim Kassenbuch; Vacationist [übernimmt auch die Entscheidungen](/de/features/voting/), in derselben App, in der die Kosten landen.
 - **Gruppen-Abstimmung, die Debatten wirklich löst.** Tricount hat keinen Mechanismus, damit sich eine Gruppe auf eine Aktivität oder ein Lokal einigt — dieses Gespräch findet woanders statt (meist ein Chat, der sich im Kreis dreht). Vacationists 5-Stufen-Abstimmung macht aus „Will das eigentlich jemand?" eine klare Antwort.
 - **Gemeinsame Listen und Rezepte.** Der Supermarkt-Einkauf für die Villa, der Camping-Essensplan — [gemeinsame Einkaufs- und Packlisten mit Rezept-Übernahme](/de/features/shopping-lists/) machen daraus einen Ablauf statt einer separaten Notiz-App.
+- **Belege und ein Geschäftsausgaben-Bericht.** Beide Apps lassen dich kostenlos einen Beleg an eine Ausgabe hängen. Vacationist ergänzt eine Geschäftsausgaben-Markierung und einen [Bericht pro Person](/de/features/expenses/) (PDF + Markdown, mit verlinkten Belegen) — nützlich für eine Geschäftsreise oder ein Team-Offsite. Tricount hat keinen Geschäftsbericht, und sein eigener CSV/PDF-Export wurde eingestellt.
 - **Verschlüsselte Reisedokumente.** Gruppenbuchungen brauchen Passdaten, die irgendwo geteilt werden; Vacationist bietet stattdessen einen [AES-256-verschlüsselten Tresor mit widerrufbarem Organisator-Zugriff](/de/features/travel-documents/) statt eines Chat-Screenshots.
 - **Gruppenchat neben dem Plan.** Koordination passiert in derselben App wie die Kosten und der Kalender, nicht verteilt auf einen separaten Nachrichten-Thread.
 

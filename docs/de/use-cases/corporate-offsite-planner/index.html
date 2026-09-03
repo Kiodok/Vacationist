@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
+
+  <title>Firmen-Offsite planen — Teamreise koordinieren &amp; abrechnen</title>
+  <meta name="description" content="Ein Team-Offsite ohne Tabelle und Freigabe-Thread planen: über die Agenda abstimmen, Kosten teilen, Belege anhängen und pro Person einen Ausgabenbericht exportieren.">
+  <meta name="keywords" content="Firmen-Offsite planen, Team-Retreat App, Reisekostenabrechnung Geschäftsreise, Firmenreise koordinieren App">
+
+  <link rel="canonical" href="https://vacationist.app/de/use-cases/corporate-offsite-planner/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/use-cases/corporate-offsite-planner/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/use-cases/corporate-offsite-planner/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/corporate-offsite-planner/">
+
+  <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/de/blog/feed.xml">
+  <meta property="og:title" content="Firmen-Offsite planen — Teamreise koordinieren &amp; abrechnen">
+  <meta property="og:description" content="Ein Team-Offsite ohne Tabelle und Freigabe-Thread planen: über die Agenda abstimmen, Kosten teilen, Belege anhängen und pro Person einen Ausgabenbericht exportieren.">
+  <meta property="og:url" content="https://vacationist.app/de/use-cases/corporate-offsite-planner/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/assets/og/de-use-cases-corporate-offsite-planner.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Firmen-Offsite planen — Teamreise koordinieren &amp; abrechnen">
+  <meta name="twitter:description" content="Ein Team-Offsite ohne Tabelle und Freigabe-Thread planen: über die Agenda abstimmen, Kosten teilen, Belege anhängen und pro Person einen Ausgabenbericht exportieren.">
+  <meta name="twitter:image" content="https://vacationist.app/assets/og/de-use-cases-corporate-offsite-planner.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Firmen-Offsite planen — Teamreise koordinieren & abrechnen",
+    "description": "Ein Team-Offsite ohne Tabelle und Freigabe-Thread planen: über die Agenda abstimmen, Kosten teilen, Belege anhängen und pro Person einen Ausgabenbericht exportieren.",
+    "url": "https://vacationist.app/de/use-cases/corporate-offsite-planner/",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "inLanguage": "de",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Startseite",
+        "item": "https://vacationist.app/de/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Anwendungsfälle",
+        "item": "https://vacationist.app/de/use-cases/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Firmen-Offsite planen",
+        "item": "https://vacationist.app/de/use-cases/corporate-offsite-planner/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Kann jede Person einen eigenen Ausgabenbericht bekommen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja. Die Geschäftsausgaben-Übersicht wird pro Person erzeugt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen — so kann jede:r die eigene Forderung einreichen, und die Buchhaltung bekommt von allen ein einheitliches Format."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Funktionieren die Beleg-Links im Export dauerhaft?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Jeder Beleg-Link im exportierten Bericht bleibt 30 Tage gültig — lang genug, um eine Erstattung einzureichen und bearbeiten zu lassen. Der Beleg selbst bleibt so lange in der Reise, wie die Reise existiert."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Braucht jemand ein Firmenkonto oder eine Admin-Freigabe?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nein. Alle treten der Offsite-Reise mit einem Einladungslink bei und nehmen ohne Konto voll teil. Für Gäste gibt es nichts zu installieren und für die IT nichts bereitzustellen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Gibt es den Geschäftsausgaben-Bericht auf iPhone und Android?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja. Im Web bekommst du eine PDF- und eine Markdown-Datei; in den iOS- und Android-Apps bekommst du das PDF, das den vollständigen aufgeschlüsselten Bericht und die Beleg-Links enthält."
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": "https://vacationist.app/#app",
+    "name": "Vacationist",
+    "applicationCategory": "TravelApplication",
+    "applicationSubCategory": "Group Trip Planner",
+    "operatingSystem": "Android, iOS, Web",
+    "softwareVersion": "1.33.1",
+    "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
+    "url": "https://vacationist.app/",
+    "installUrl": [
+      "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+      "https://apps.apple.com/us/app/vacationist/id6800049398"
+    ],
+    "downloadUrl": [
+      "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+      "https://apps.apple.com/us/app/vacationist/id6800049398"
+    ],
+    "inLanguage": [
+      "en",
+      "de"
+    ],
+    "isAccessibleForFree": true,
+    "featureList": "Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftsausgaben-Berichte, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Gary Lude",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CH"
+      }
+    },
+    "publisher": {
+      "@id": "https://vacationist.app/#org"
+    }
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/de/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#6C63FF"/><stop offset="100%" stop-color="#18162D"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/de/features/">Funktionen</a>
+    <a href="/de/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web-App</a>
+    <a href="#get-app" class="nav-cta">App holen</a>
+    <span class="lang-pair" aria-label="Sprache"><span class="lp-on">DE</span><a href="/use-cases/corporate-offsite-planner/" title="English version">EN</a></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/de/">Startseite</a> <span class="crumb-sep">/</span> <a href="/de/use-cases/">Anwendungsfälle</a> <span class="crumb-sep">/</span> <span aria-current="page">Firmen-Offsite planen</span></nav>
+  <article class="article">
+<h1 id="das-offsite-planen-und-dann-sauber-abrechnen">Das Offsite planen — und dann sauber abrechnen</h1>
+<div class="tldr">
+  <p class="tldr-label">Kurz gesagt</p>
+  <p>Vacationist lässt ein Team über die Offsite-Agenda abstimmen, erfasst gemeinsame Kosten mit angehängten Belegen und exportiert pro Person einen Geschäftsausgaben-Bericht als PDF — Reise planen und bei der Buchhaltung einreichen sind derselbe Ablauf. Es ist kostenlos, und Kolleg:innen treten mit einem Link bei, ohne Konto und ohne IT-Freigabe.</p>
+</div><h2 id="das-problem-beim-planen-eines-firmen-offsites">Das Problem beim Planen eines Firmen-Offsites</h2>
+<p>Ein Team-Offsite läuft auf zwei Dokumenten, die nie ganz übereinstimmen: einem Planungsdokument, das niemand aktuell hält, und einer Kostenaufstellung, die jemand zwei Wochen nach der Rückkehr aus Screenshots rekonstruiert. Das halbe Team kennt die finale Agenda nicht, die Person, die das Airbnb vorgestreckt hat, läuft fünf Kolleg:innen wegen ihres Anteils hinterher, und die Buchhaltung will einen aufgeschlüsselten Bericht mit Belegen, den kein einziges Tool tatsächlich erzeugt hat. Der Vorschlag „nutzt einfach diese App&quot; stirbt, weil alle ein Konto anlegen und es an der IT vorbeibringen müssten.</p>
+<h2 id="wie-vacationist-das-löst">Wie Vacationist das löst</h2>
+<h3 id="über-die-agenda-abstimmen-statt-in-einem-40-nachrichten-thread">Über die Agenda abstimmen statt in einem 40-Nachrichten-Thread</h3>
+<p>Trag den Workshop-Slot, das Team-Dinner und die optionale Samstagswanderung als Vorschläge ein und lass das Team mit einem fünfstufigen System abstimmen — von „Muss sein&quot; bis „Gruppenhindernis&quot;. Der Plan spiegelt, was das Team wirklich will, und die Entscheidung ist sichtbar statt im Chat vergraben. Siehe <a href="/de/features/voting/">wie die Aktivitäten-Abstimmung funktioniert</a>.</p>
+<h3 id="geschäftsausgaben-markieren-und-den-bericht-exportieren">Geschäftsausgaben markieren und den Bericht exportieren</h3>
+<p>Markiere jede Ausgabe beim Erfassen als Geschäftsausgabe. Zum Einreichen exportierst du eine <strong>Geschäftsausgaben-Übersicht</strong> — einen sauberen Bericht pro Person als PDF (im Web zusätzlich als Markdown), aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen. Gib ihn der Buchhaltung oder häng ihn an deine eigene Erstattungsforderung. Siehe <a href="/de/features/expenses/">wie die Kostenteilung funktioniert</a>.</p>
+<h3 id="belege-angehängt-die-erstattung-wird-keine-schnitzeljagd">Belege angehängt — die Erstattung wird keine Schnitzeljagd</h3>
+<p>Fotografiere den Beleg in dem Moment in die Ausgabe, in dem du zahlst. Er liegt in privatem, zugriffsgeschütztem Speicher bei der Ausgabe selbst — nicht in einer Foto-Galerie, die du auf dem Rückflug durchscrollst. Der exportierte Bericht verlinkt direkt auf jeden einzelnen.</p>
+<h3 id="ein-link-keine-konten-kein-it-ticket">Ein Link, keine Konten, kein IT-Ticket</h3>
+<p>Kolleg:innen treten der Reise über einen einzigen Link bei und können abstimmen, Ausgaben erfassen und die Agenda sehen, ohne ein Konto zu erstellen oder etwas zu installieren. Es gibt nichts, was die IT prüfen müsste, und keine Kosten pro Platz, die freizugeben wären.</p>
+<h2 id="was-es-kostet">Was es kostet</h2>
+<p>Kostenlos, ohne Werbung. Abstimmung, Kostenteilung, Belege, der Geschäftsausgaben-Bericht und der Gastzugang sind für das ganze Team kostenlos. Für Leute, die viele Reisen im Jahr organisieren, gibt es einen Pro-Tarif — für ein einzelnes Offsite braucht es ihn nicht.</p>
+<div class="cta-band" id="get-app">
+  <h3>Plane deine nächste Gruppenreise mit Vacationist</h3>
+  <p>Über Aktivitäten abstimmen, Kosten teilen und Belege anhängen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Bei Google Play laden</a>
+    <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Im App Store laden</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Web-App öffnen</a>
+  </div>
+</div><h2 id="häufige-fragen">Häufige Fragen</h2>
+<h3 id="kann-jede-person-einen-eigenen-ausgabenbericht-bekommen">Kann jede Person einen eigenen Ausgabenbericht bekommen?</h3>
+<p>Ja. Die Geschäftsausgaben-Übersicht wird pro Person erzeugt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen — so kann jede:r die eigene Forderung einreichen, und die Buchhaltung bekommt von allen ein einheitliches Format.</p>
+<h3 id="funktionieren-die-beleg-links-im-export-dauerhaft">Funktionieren die Beleg-Links im Export dauerhaft?</h3>
+<p>Jeder Beleg-Link im exportierten Bericht bleibt 30 Tage gültig — lang genug, um eine Erstattung einzureichen und bearbeiten zu lassen. Der Beleg selbst bleibt so lange in der Reise, wie die Reise existiert.</p>
+<h3 id="braucht-jemand-ein-firmenkonto-oder-eine-admin-freigabe">Braucht jemand ein Firmenkonto oder eine Admin-Freigabe?</h3>
+<p>Nein. Alle treten der Offsite-Reise mit einem Einladungslink bei und nehmen ohne Konto voll teil. Für Gäste gibt es nichts zu installieren und für die IT nichts bereitzustellen.</p>
+<h3 id="gibt-es-den-geschäftsausgaben-bericht-auf-iphone-und-android">Gibt es den Geschäftsausgaben-Bericht auf iPhone und Android?</h3>
+<p>Ja. Im Web bekommst du eine PDF- und eine Markdown-Datei; in den iOS- und Android-Apps bekommst du das PDF, das den vollständigen aufgeschlüsselten Bericht und die Beleg-Links enthält.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Weiterlesen</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/de/features/expenses/">
+      <span class="related-title">Kostenteilung</span>
+      <span class="related-desc">Jede Reiseausgabe mit der Gruppe teilen — Hotels, Abendessen, Sprit, alles. Vacationist verfolgt, wer gezahlt hat, wer wem was schuldet, und rechnet mit einem Tipp ab. Kostenlos.</span>
+    </a>
+    <a class="related-card" href="/de/features/voting/">
+      <span class="related-title">Aktivitäten-Voting</span>
+      <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppenhindernis. Schluss mit endlosen Chat-Debatten.</span>
+    </a>
+    <a class="related-card" href="/de/features/transfers/">
+      <span class="related-title">Transfers</span>
+      <span class="related-desc">Jede Etappe einer Gruppenreise an einem Ort — über Flüge abstimmen, Mietwagen und öffentliche Verkehrsmittel verwalten und jedes Ticket dabei behalten.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Listen gemeinsam führen.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produkt</h4>
+      <a href="/de/features/">Alle Funktionen</a>
+      <a href="/de/features/voting/">Aktivitäten-Voting</a>
+      <a href="/de/features/expenses/">Kosten teilen</a>
+      <a href="/de/features/shopping-lists/">Gemeinsame Listen</a>
+      <a href="/de/features/travel-documents/">Reisedokumente</a>
+      <a href="/de/features/transfers/">Transfers &amp; Flüge</a>
+      <a href="/de/use-cases/">Anwendungsfälle</a>
+      <a href="/de/use-cases/bachelorette-party-planner/">Junggesellinnenabschied planen</a>
+      <a href="/de/use-cases/van-life-trip-planner/">Van-Life-Reiseplaner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Vergleiche</h4>
+      <a href="/de/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/de/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/de/alternatives/splitwise/">Splitwise-Alternativen</a>
+      <a href="/de/alternatives/wanderlog/">Wanderlog-Alternativen</a>
+    </div>
+    <div class="footer-col">
+      <h4>Ressourcen</h4>
+      <a href="/de/blog/">Blog</a>
+      <a href="/de/blog/how-to-plan-a-group-trip/">Gruppenreise-Planungs-Guide</a>
+      <a href="/de/blog/best-group-travel-apps-2026/">Beste Gruppenreise-Apps</a>
+      <a href="/de/blog/how-to-split-travel-expenses/">Reisekosten-Guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Rechtliches</h4>
+      <a href="/de/privacy-policy/">Datenschutz</a>
+      <a href="/de/terms-of-service/">Nutzungsbedingungen</a>
+      <a href="/de/impressum/">Impressum</a>
+      <a href="/de/delete-account/">Konto löschen</a>
+      <a href="#cookie-settings">Cookie-Einstellungen</a>
+      <a href="mailto:meetdeep.de@gmail.com">Kontakt</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Schweiz</div>
+</footer>
+
+</body>
+</html>

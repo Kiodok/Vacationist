@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-07-17
 altPath: /de/features/voting/
 keywords: vote on trip activities app, trip activity planner app, group decision making travel, activity voting
-related: /features/expenses/, /blog/how-to-plan-a-group-trip/, /vs/wanderlog/
+related: /features/expenses/, /features/transfers/, /blog/how-to-plan-a-group-trip/, /vs/wanderlog/
 breadcrumbLabel: Activity voting
 ---
 
@@ -60,7 +60,7 @@ The activity is clearly flagged so the group knows there's a genuine objection t
 
 ### Can we vote on accommodations and transfers too?
 
-Yes. Vacationist supports voting on accommodations and transfer flights as well as activities, so the group can decide on the big-ticket items together.
+Yes. Vacationist supports voting on accommodations and on flights, alongside activities, so the group can decide the big-ticket items together. Rental cars, own cars, and public transport aren't voted on — they're for recording arrangements the group has already agreed on. See [how transfers work](/features/transfers/).
 
 ### Is voting anonymous?
 

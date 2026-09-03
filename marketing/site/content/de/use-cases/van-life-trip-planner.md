@@ -60,7 +60,7 @@ Ja. Jede Ausgabe wird erfasst, sobald sie anfällt, und die Salden aktualisieren
 
 ### Funktioniert es mit mehreren Währungen, wenn die Route über eine Grenze führt?
 
-Vacationist unterstützt einfache Multi-Währungs-Verfolgung, die für die meisten Roadtrips ausreicht. Bei häufiger Umrechnung zwischen mehreren Währungen ist die Handhabung einfacher als bei einer dedizierten Finanz-App.
+Vacationist unterstützt einfache Multi-Währungs-Verfolgung, die für die meisten Roadtrips ausreicht — Ausgaben in einer anderen Währung werden mit einem gespeicherten Tageskurs umgerechnet, angezeigt in der Aufschlüsselung, sodass die Zahl nachvollziehbar ist. Bei häufiger Umrechnung zwischen mehreren Währungen ist die Handhabung einfacher als bei einer dedizierten Finanz-App.
 
 ### Was, wenn sich die Mitfahrenden auf einzelnen Etappen ändern?
 

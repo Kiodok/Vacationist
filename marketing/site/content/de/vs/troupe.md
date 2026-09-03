@@ -22,7 +22,9 @@ breadcrumbLabel: vs. Troupe
 |---|---|---|
 | Gruppenumfragen / Aktivitäten-Abstimmung | ✅ 5-Stufen-System (Muss sein → Gruppenhindernis) | ✅ Umfragen |
 | Kostenteilung | ✅ Eigene Splits, Live-Salden, Abrechnung | ✅ Kostenteilung |
+| Belege & Geschäftsausgaben-Bericht | ✅ Belege an jeder Ausgabe; PDF-Export pro Person | ⚠️ Kein dokumentiertes Feature |
 | Gemeinsamer Reiseplan / Kalender | ✅ | ✅ |
+| Flüge, Mietwagen & ÖPNV, mit Tickets | ✅ | ⚠️ Nicht bestätigt |
 | Gemeinsame Einkaufs- & Packlisten | ✅ Echtzeit, mit Rezept-Übernahme | ⚠️ Unterschiedlich |
 | Beitreten ohne Konto | ✅ Ein Einladungslink, volle Teilnahme | ⚠️ Aktuelle Anmeldeanforderungen prüfen |
 | Gruppenchat in der App | ✅ | ⚠️ Unterschiedlich |
@@ -40,6 +42,7 @@ Wer beide angesehen hat, kennt das ähnliche Versprechen: Schluss mit der Koordi
 ## Was Vacationist anders macht
 
 - **Verschlüsselte Reisedokumente, nicht nur ein Planer.** Gruppenreisen bedeuten, Pass- und Ausweisdaten für Buchungen zu teilen — meist per Chat-Screenshot. Vacationist hat einen eigenen [AES-256-verschlüsselten Dokumententresor](/de/features/travel-documents/) mit biometrischer Entsperrung und widerrufbarem, temporärem Organisator-Zugriff. Das ist bei Gruppenreise-Apps kein verbreitetes Feature.
+- **Belege und ein Geschäftsausgaben-Bericht.** Jede Ausgabe kann einen Beleg (Foto oder PDF) tragen, und für eine Geschäftsreise lassen sich Geschäftsausgaben markieren und als [Bericht pro Person](/de/features/expenses/) mit verlinkten Belegen exportieren — bei Gruppenreise-Apps unüblich.
 - **Reibungsloser Gästebeitritt.** Jeder kann [einer Reise per einzelnem Link beitreten](/de/features/voting/) und sofort abstimmen, Ausgaben hinzufügen und gemeinsame Listen bearbeiten — kein Konto, kein App-Store-Umweg für den einen Freund, der es nie schafft, sich anzumelden.
 - **Offline-first von Haus aus.** Gruppenreisen passieren in Flugzeugen, auf Fähren und Bergstraßen ohne Empfang. Vacationist speichert Abstimmungen, Ausgaben und Listenänderungen zwischen und synchronisiert automatisch bei Verbindung — für alle, nicht als kostenpflichtiges Extra.
 - **Wirklich kostenlos, ohne Werbung.** Die Kern-App — Abstimmungen, [Kostenteilung](/de/features/expenses/), Listen, Chat — ist werbe- und trackingfrei. Ein Pro-Tarif existiert für größere oder häufigere Gruppen; er sperrt keine Kern-Koordinationsfunktionen.

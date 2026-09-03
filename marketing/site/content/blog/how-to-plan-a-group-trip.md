@@ -9,8 +9,6 @@ date: 2026-07-17
 altPath: /de/blog/how-to-plan-a-group-trip/
 keywords: how to plan a group trip, group trip planning, group trip planning app, plan a trip with friends
 blogIndex: true
-titleDe: Gruppenreise planen ohne Chaos — der komplette Guide
-descriptionDe: Der ausführliche Guide zur Gruppenreise-Planung: Termine finden, Budget klären, Entscheidungen ohne Streit treffen, Kosten fair teilen — und als Organisator überleben.
 related: /blog/how-to-split-travel-expenses/, /features/voting/, /blog/best-group-travel-apps-2026/, /blog/travel-document-safety-guide/
 breadcrumbLabel: Group trip planning guide
 ---
@@ -132,9 +130,9 @@ One house or separate rooms? It's a personality question. One big house is the g
 
 ### Transport: fill the gaps deliberately
 
-Flights are individual; the gaps between are group logistics. Airport-to-house transfers, the rental cars, the boat to the island — these fail because everyone assumed someone else was handling them. List the gaps explicitly and assign each one. If some of the group lands together, coordinate transfers and share the ride costs. Vacationist tracks transfer flights and vehicle assignments inside the trip, including who's on which car — which sounds trivial until you're 14 people and three rental cars deep.
+Flights are individual; the gaps between are group logistics. Airport-to-house transfers, the rental cars, the train from the airport, the boat to the island — these fail because everyone assumed someone else was handling them. List the gaps explicitly and assign each one. Vacationist tracks [flights, own cars, rental cars, and public transport](/features/transfers/) inside the trip, including who's on which car — which sounds trivial until you're 14 people and three rental cars deep.
 
-**Collect the confirmations.** Booking references scattered across six inboxes is a stress generator with a countdown timer. Put confirmations (or at least references) where the group can reach them. For passports and IDs — which group bookings often require — use something safer than the group chat: Vacationist's [encrypted document vault](/features/travel-documents/) lets each person hold their own documents and grant the organizer temporary, revocable access for the booking.
+**Collect the confirmations.** Booking references scattered across six inboxes is a stress generator with a countdown timer. In Vacationist, tickets and boarding passes attach to the flight or transfer they belong to, and receipts attach to the expense — so the group booking isn't held hostage by one person's inbox. For passports and IDs — which group bookings often require — use something safer than the group chat: Vacationist's [encrypted document vault](/features/travel-documents/) lets each person hold their own documents and grant the organizer temporary, revocable access that only starts counting once they open it.
 
 ## Phase 5: Planning activities without arguments
 
@@ -175,7 +173,7 @@ Also in this week: share final logistics in one message (address, door codes, ar
 The planning is done; the organizer's job shifts from architect to gardener. Three habits keep the trip healthy:
 
 - **The morning minute.** One sentence at breakfast: "Anchor today is the boat at 2, lunch is free-range." Beats a nightly committee meeting by a mile.
-- **Log expenses as they happen.** Whoever pays, logs it — thirty seconds at the table, while the receipt exists and memory is fresh. Groups that log live settle in minutes; groups that reconstruct settle in arguments. (Offline logging matters here: boats, mountains, and beach bars have terrible signal. Vacationist [works offline](/features/expenses/) and syncs later.)
+- **Log expenses as they happen.** Whoever pays, logs it — thirty seconds at the table, photographing the receipt onto the expense while memory is fresh. Groups that log live settle in minutes; groups that reconstruct settle in arguments. (Offline logging matters here: boats, mountains, and beach bars have terrible signal. Vacationist [works offline](/features/expenses/) and syncs later.)
 - **Renegotiate without drama.** Plans will change — weather, energy, a hangover of note. The vote already told you what the group actually cared about, so you know what's droppable (the shrug-tier stuff) and what isn't (the must-dos). Protect the must-dos; let the rest float.
 
 And one social rule worth stating out loud on day one: **splitting up is success, not failure.** The group that does everything together for six days straight is not closer — it's tired.
@@ -186,7 +184,7 @@ And one social rule worth stating out loud on day one: **splitting up is success
 
 There is a window — about two days — when the trip is vivid, goodwill is high, and everyone expects to pay. Settle inside it. Every week of delay makes the numbers feel more abstract and the request more awkward, until someone is drafting a "hey, so about Croatia…" message in month three.
 
-If you tracked as you went, settling is arithmetic, not archaeology: the balances already exist, everyone can see them, and it's a couple of transfers. Vacationist [shows who owes whom](/features/expenses/) and lets you clear individual splits or the whole trip at once. If you didn't track as you went — reconstruct it once, together, fast, and forgive the rounding errors. Fairness matters more than precision.
+If you tracked as you went, settling is arithmetic, not archaeology: the balances already exist, everyone can see them, and it's a couple of transfers. Vacationist [leads with your own balance and a simplified settlement plan](/features/expenses/) — the fewest transfers that clear the group. If you didn't track as you went — reconstruct it once, together, fast, and forgive the rounding errors. Fairness matters more than precision.
 
 ### Close the loop
 

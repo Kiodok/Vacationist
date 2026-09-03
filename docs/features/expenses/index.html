@@ -88,7 +88,31 @@
         "name": "Is expense splitting free?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Expense splitting is part of Vacationist's free tier, with no ads. Pro adds more planning days per year, but the expense features are not paywalled."
+          "text": "Yes. Expense splitting — including receipts and the business expense report — is part of Vacationist's free tier, with no ads. Pro adds more planning days per year, but the expense features are not paywalled."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I attach a receipt to an expense?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Add one or more photos or PDFs (up to 10 MB each) to any expense. Every trip member can view them; only the person who uploaded a receipt, or the trip organizer, can replace or delete it."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I export expenses for a work reimbursement?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Flag the relevant expenses as business expenses and export a per-person business summary as a PDF (plus Markdown on the web), itemised by date, category, and payer, with links to the receipts."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does the exchange rate work for expenses in another currency?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Expenses logged in a currency other than the trip's are converted using a stored daily rate, and the rate that was applied is shown in the expense breakdown — so a converted figure is always traceable, not a black box."
         }
       },
       {
@@ -152,18 +176,19 @@
 <p class="lede">Money is where group trips go wrong. Someone fronts the hotel, someone else covers dinner, three people send half-remembered PayPal requests a month later. Vacationist tracks every shared cost as it happens — so settling up takes seconds, not spreadsheets.</p><h2 id="how-expense-splitting-works">How expense splitting works</h2>
 <p>Log any group cost — accommodation, dinner, fuel, tickets, groceries — and choose who paid and who it covers:</p>
 <ol>
-<li><strong>Add the expense</strong> with amount and category, right when it happens.</li>
+<li><strong>Add the expense</strong> with an amount, a category, and an optional note — right when it happens.</li>
+<li><strong>Attach the receipt</strong> — a photo or PDF, straight onto the expense while it&#39;s still in your hand.</li>
 <li><strong>Pick the payer</strong> — whoever actually put their card down.</li>
 <li><strong>Split it</strong> — equally across everyone, or with custom amounts when someone skipped the wine or joined late.</li>
 <li><strong>Balances update instantly</strong> for the whole group. Everyone always knows where they stand.</li>
 </ol>
-<p>At the end of the trip, settle individual splits one by one or clear everything at once. No awkward &quot;so… about the money&quot; conversation required — the numbers were public the whole time.</p>
+<p>At the end of the trip, the Balances screen leads with <strong>your</strong> balance — what you&#39;ll pay or receive — followed by the simplified settlement plan: the fewest transfers that clear the whole group. Individual member balances are one tap away when you want the detail. Multi-currency expenses show the exchange rate used, right there in the breakdown, so a converted amount is never a mystery number.</p>
 <h2 id="built-for-trips-not-just-bills">Built for trips, not just bills</h2>
 <p>Plenty of apps split bills. Vacationist splits bills <em>inside the trip you&#39;re already planning together</em>, which changes what it can do:</p>
 <ul>
 <li><strong>Expenses tied to the trip.</strong> Every cost lives with its trip — no mixing up the Croatia balance with your flatmate&#39;s electricity bill.</li>
 <li><strong>Everyone&#39;s already there.</strong> Because the group planned the trip in Vacationist, nobody has to install yet another app just to owe you money. Guests who joined by invite link participate in expenses too.</li>
-<li><strong>Vacation spending at a glance.</strong> The trip overview shows total and per-person spending as the trip unfolds — useful when the group agreed on a budget.</li>
+<li><strong>Vacation spending at a glance.</strong> The trip overview shows total and per-person spending as the trip unfolds, plus a category breakdown — accommodation, transport, food, activities — so an over-budget week has an obvious cause.</li>
 <li><strong>Offline first.</strong> Log expenses in the mountains, on the ferry, wherever. They sync when you&#39;re back online.</li>
 </ul>
 <h2 id="fair-splits-for-real-situations">Fair splits for real situations</h2>
@@ -173,9 +198,20 @@
 <li><strong>Partial participation</strong> — split dinner among the five who were there, not all nine.</li>
 <li><strong>Multiple payers over time</strong> — balances net out across all expenses, so if you paid for fuel and I paid for groceries, we might already be even.</li>
 </ul>
+<h2 id="receipts-attached-to-the-expense">Receipts, attached to the expense</h2>
+<p>The receipt for a group cost is only useful if someone can find it later. In Vacationist it lives on the expense itself:</p>
+<ul>
+<li><strong>Photograph or attach it as you pay</strong> — one or more images or PDFs per expense, up to 10 MB each.</li>
+<li><strong>Everyone on the trip can view it</strong> — no forwarding, no &quot;can you send me that again.&quot;</li>
+<li><strong>Only the uploader or the organizer can replace or remove it</strong> — so a shared receipt doesn&#39;t get changed out from under the group.</li>
+</ul>
+<p>Receipts go into private, access-controlled storage restricted to your trip&#39;s members. This is separate from the <a href="/features/travel-documents/">encrypted travel document vault</a> — receipts don&#39;t carry the passport-grade encryption, because a dinner receipt isn&#39;t a passport. What matters is that they&#39;re private to the trip and they don&#39;t vanish into a camera roll.</p>
+<h2 id="expensing-a-work-trip">Expensing a work trip</h2>
+<p>If the trip is for work — a team offsite, a client visit, a conference with colleagues — the group split is only half the job. You also need a report you can file.</p>
+<p>Mark any expense as a <strong>business expense</strong> as you log it. When it&#39;s time to claim, export a <strong>business expense summary</strong>: a per-person report, itemised by date, category, and payer, with links to the attached receipts. On the web you get both a PDF and a Markdown file; in the app you get the PDF. The receipt links stay valid for 30 days — long enough to submit and have the claim processed. See the <a href="/use-cases/corporate-offsite-planner/">corporate offsite planner guide</a> for the full workflow.</p>
 <div class="cta-band" id="get-app">
   <h3>Plan your next group trip with Vacationist</h3>
-  <p>Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
+  <p>Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
   <div class="cta-actions">
     <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Get it on Play Store</a>
     <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Get it on App Store</a>
@@ -183,7 +219,13 @@
   </div>
 </div><h2 id="frequently-asked-questions">Frequently asked questions</h2>
 <h3 id="is-expense-splitting-free">Is expense splitting free?</h3>
-<p>Yes. Expense splitting is part of Vacationist&#39;s free tier, with no ads. Pro adds more planning days per year, but the expense features are not paywalled.</p>
+<p>Yes. Expense splitting — including receipts and the business expense report — is part of Vacationist&#39;s free tier, with no ads. Pro adds more planning days per year, but the expense features are not paywalled.</p>
+<h3 id="can-i-attach-a-receipt-to-an-expense">Can I attach a receipt to an expense?</h3>
+<p>Yes. Add one or more photos or PDFs (up to 10 MB each) to any expense. Every trip member can view them; only the person who uploaded a receipt, or the trip organizer, can replace or delete it.</p>
+<h3 id="can-i-export-expenses-for-a-work-reimbursement">Can I export expenses for a work reimbursement?</h3>
+<p>Yes. Flag the relevant expenses as business expenses and export a per-person business summary as a PDF (plus Markdown on the web), itemised by date, category, and payer, with links to the receipts.</p>
+<h3 id="how-does-the-exchange-rate-work-for-expenses-in-another-currency">How does the exchange rate work for expenses in another currency?</h3>
+<p>Expenses logged in a currency other than the trip&#39;s are converted using a stored daily rate, and the rate that was applied is shown in the expense breakdown — so a converted figure is always traceable, not a black box.</p>
 <h3 id="do-my-friends-need-an-account-to-be-included-in-expenses">Do my friends need an account to be included in expenses?</h3>
 <p>No. Anyone who joins the trip via invite link can be part of expense splits as a guest. That removes the biggest friction in group expense tracking — the one person who refuses to install anything.</p>
 <h3 id="how-is-this-different-from-splitwise">How is this different from Splitwise?</h3>
@@ -200,6 +242,10 @@
       <span class="related-title">Activity voting</span>
       <span class="related-desc">Vacationist's 5-tier activity voting lets your whole group decide what to do — must-do, like, open, skip, or group blocker. No more endless chat debates.</span>
     </a>
+    <a class="related-card" href="/features/transfers/">
+      <span class="related-title">Transfers</span>
+      <span class="related-desc">Plan every leg of a group trip — vote on flights, manage rental cars and public transport, and keep every ticket and boarding pass with the trip.</span>
+    </a>
     <a class="related-card" href="/vs/splitwise/">
       <span class="related-title">vs. Splitwise</span>
       <span class="related-desc">An honest comparison of Vacationist and Splitwise for group trips. Splitwise wins at pure debt tracking; Vacationist adds trip planning, voting, and lists on top of expense splitting.</span>
@@ -208,9 +254,9 @@
       <span class="related-title">Expense splitting guide</span>
       <span class="related-desc">The complete guide to splitting travel expenses in a group: what counts as shared, fair methods for unequal situations, tracking systems, and settling up without awkwardness.</span>
     </a>
-    <a class="related-card" href="/vs/tricount/">
-      <span class="related-title">vs. Tricount</span>
-      <span class="related-desc">An honest comparison of Vacationist and Tricount. Tricount is a fast, focused expense splitter popular across Europe; Vacationist adds trip planning, voting, and lists on top of splitting costs.</span>
+    <a class="related-card" href="/blog/group-trip-receipts-and-expense-reports/">
+      <span class="related-title">Group trip receipts guide</span>
+      <span class="related-desc">How to keep every receipt on a group trip, split costs fairly, and produce a per-person expense report you can actually file — including work trips.</span>
     </a>
   </div>
 </section>
@@ -220,7 +266,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <span class="footer-logo">Vacationist</span>
-      <p>The free group trip planner — vote on activities, split expenses, share lists, and keep everyone in sync.</p>
+      <p>The free group trip planner — vote on activities, split expenses with receipts, share lists, and keep everyone in sync.</p>
     </div>
     <div class="footer-col">
       <h4>Product</h4>
@@ -229,6 +275,7 @@
       <a href="/features/expenses/">Expense splitting</a>
       <a href="/features/shopping-lists/">Shared lists</a>
       <a href="/features/travel-documents/">Travel documents</a>
+      <a href="/features/transfers/">Transfers &amp; flights</a>
       <a href="/use-cases/">Use cases</a>
       <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
       <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>

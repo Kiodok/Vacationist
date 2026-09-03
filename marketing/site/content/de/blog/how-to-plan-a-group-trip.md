@@ -130,9 +130,9 @@ Ein Haus oder getrennte Zimmer? Das ist eine Persönlichkeitsfrage. Ein großes 
 
 ### Transport: die Lücken bewusst füllen
 
-Flüge sind individuell; die Lücken dazwischen sind Gruppen-Logistik. Flughafen-Transfers, die Mietwagen, das Boot zur Insel — sie scheitern, weil alle angenommen haben, jemand anderes kümmert sich. Listet die Lücken ausdrücklich auf und weist jede zu. Wenn ein Teil der Gruppe zusammen landet, koordiniert Transfers und teilt die Fahrtkosten. Vacationist verwaltet Transferflüge und Fahrzeug-Zuordnungen in der Reise, inklusive wer in welchem Auto sitzt — was trivial klingt, bis ihr 14 Leute und drei Mietwagen tief drinsteckt.
+Flüge sind individuell; die Lücken dazwischen sind Gruppen-Logistik. Flughafen-Transfers, die Mietwagen, der Zug vom Flughafen, das Boot zur Insel — sie scheitern, weil alle angenommen haben, jemand anderes kümmert sich. Listet die Lücken ausdrücklich auf und weist jede zu. Vacationist verwaltet [Flüge, eigene Autos, Mietwagen und öffentliche Verkehrsmittel](/de/features/transfers/) in der Reise, inklusive wer in welchem Auto sitzt — was trivial klingt, bis ihr 14 Leute und drei Mietwagen tief drinsteckt.
 
-**Sammelt die Bestätigungen.** Buchungsreferenzen, verstreut über sechs Postfächer, sind ein Stress-Generator mit Countdown. Legt Bestätigungen (oder wenigstens Referenzen) dorthin, wo die Gruppe sie erreicht. Für Reisepässe und Ausweise — die Gruppenbuchungen oft verlangen — nutzt etwas Sichereres als den Gruppenchat: In [Vacationists verschlüsseltem Dokumenten-Tresor](/de/features/travel-documents/) hält jeder seine eigenen Dokumente und gewährt dem Organisator temporären, widerrufbaren Zugriff für die Buchung.
+**Sammelt die Bestätigungen.** Buchungsreferenzen, verstreut über sechs Postfächer, sind ein Stress-Generator mit Countdown. In Vacationist hängen Tickets und Bordkarten am Flug oder Transfer, zu dem sie gehören, und Belege an der Ausgabe — die Gruppenbuchung ist also nicht im Postfach einer Person gefangen. Für Reisepässe und Ausweise — die Gruppenbuchungen oft verlangen — nutzt etwas Sichereres als den Gruppenchat: In [Vacationists verschlüsseltem Dokumenten-Tresor](/de/features/travel-documents/) hält jeder seine eigenen Dokumente und gewährt dem Organisator temporären, widerrufbaren Zugriff, der erst zu laufen beginnt, wenn der Organisator ihn öffnet.
 
 ## Phase 5: Aktivitäten planen ohne Streit
 
@@ -173,7 +173,7 @@ Ebenfalls in dieser Woche: Teilt die finale Logistik in einer Nachricht (Adresse
 Die Planung ist erledigt; der Job des Organisators wechselt vom Architekten zum Gärtner. Drei Gewohnheiten halten die Reise gesund:
 
 - **Die Morgen-Minute.** Ein Satz beim Frühstück: „Anker heute ist das Boot um 14 Uhr, Mittagessen ist Freilauf." Schlägt eine abendliche Komitee-Sitzung um Längen.
-- **Ausgaben erfassen, während sie passieren.** Wer zahlt, erfasst — dreißig Sekunden am Tisch, solange der Beleg existiert und die Erinnerung frisch ist. Gruppen, die live erfassen, rechnen in Minuten ab; Gruppen, die rekonstruieren, rechnen in Streit ab. (Offline-Erfassung zählt hier: Boote, Berge und Strandbars haben furchtbaren Empfang. Vacationist [funktioniert offline](/de/features/expenses/) und synchronisiert später.)
+- **Ausgaben erfassen, während sie passieren.** Wer zahlt, erfasst — dreißig Sekunden am Tisch, mit dem Beleg direkt an die Ausgabe fotografiert, solange die Erinnerung frisch ist. Gruppen, die live erfassen, rechnen in Minuten ab; Gruppen, die rekonstruieren, rechnen in Streit ab. (Offline-Erfassung zählt hier: Boote, Berge und Strandbars haben furchtbaren Empfang. Vacationist [funktioniert offline](/de/features/expenses/) und synchronisiert später.)
 - **Ohne Drama nachverhandeln.** Pläne werden sich ändern — Wetter, Energie, ein Kater von Format. Die Abstimmung hat dir schon gesagt, was der Gruppe wirklich wichtig war: Du weißt, was fallen darf (die Schulterzuck-Kategorie) und was nicht (die „Muss sein"-Sachen). Beschütze die „Muss sein"-Sachen; lass den Rest treiben.
 
 Und eine soziale Regel, die es wert ist, an Tag eins laut gesagt zu werden: **Sich aufteilen ist Erfolg, kein Scheitern.** Die Gruppe, die sechs Tage am Stück alles gemeinsam macht, ist nicht enger — sie ist müde.
@@ -184,7 +184,7 @@ Und eine soziale Regel, die es wert ist, an Tag eins laut gesagt zu werden: **Si
 
 Es gibt ein Fenster — etwa zwei Tage — in dem die Reise lebendig ist, das Wohlwollen hoch, und alle erwarten zu zahlen. Rechnet darin ab. Jede Woche Verzögerung macht die Zahlen abstrakter und die Bitte unangenehmer, bis jemand im dritten Monat eine „Hey, wegen Kroatien…"-Nachricht entwirft.
 
-Wenn ihr unterwegs getrackt habt, ist Abrechnen Arithmetik, keine Archäologie: Die Salden existieren schon, alle können sie sehen, und es sind ein paar Überweisungen. Vacationist [zeigt, wer wem was schuldet](/de/features/expenses/), und lässt euch einzelne Splits oder die ganze Reise auf einmal ausgleichen. Wenn ihr nicht getrackt habt — rekonstruiert es einmal, gemeinsam, schnell, und verzeiht die Rundungsfehler. Fairness zählt mehr als Präzision.
+Wenn ihr unterwegs getrackt habt, ist Abrechnen Arithmetik, keine Archäologie: Die Salden existieren schon, alle können sie sehen, und es sind ein paar Überweisungen. Vacationist [führt mit deinem eigenen Saldo und einem vereinfachten Ausgleichsplan](/de/features/expenses/) — die wenigsten Überweisungen, die die Gruppe glattstellen. Wenn ihr nicht getrackt habt — rekonstruiert es einmal, gemeinsam, schnell, und verzeiht die Rundungsfehler. Fairness zählt mehr als Präzision.
 
 ### Den Kreis schließen
 

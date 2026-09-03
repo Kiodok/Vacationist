@@ -43,6 +43,10 @@ Coordinate who's bringing the tent and the stove, split campsite fees and grocer
 
 Vote on activities so the best man isn't the tie-breaker for everything, split deposits and the group dinner fairly, and get every out-of-towner in with a single link.
 
+### [Corporate offsite planner →](/use-cases/corporate-offsite-planner/)
+
+Vote on the agenda, track shared costs with receipts attached, and export a per-person business expense report for finance — no company accounts, no IT approval.
+
 ## The pattern behind all of them
 
 Whatever the trip, the same three tools do the work: [activity voting](/features/voting/) turns group indecision into an actual answer, [expense splitting](/features/expenses/) keeps money from becoming the awkward part, and guests can [join with a single link](/features/voting/) — no account, no app-store detour, no one left out of the plan.

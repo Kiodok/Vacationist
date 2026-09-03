@@ -1,10 +1,10 @@
 # Vacationist
 
-> The free group trip planner. Vacationist helps groups plan trips together — voting on activities, splitting travel expenses, sharing packing lists, managing accommodations, and keeping everyone in sync in real time.
+> The free group trip planner. Vacationist helps groups plan trips together — voting on activities, splitting travel expenses with receipts attached, managing flights and transfers, sharing packing lists, and keeping everyone in sync in real time.
 
 ## TL;DR
 
-Vacationist is a free group trip planning app for iOS, Android, and web. Groups vote on activities (five-tier system: must do → group blocker), split expenses with live balances and settle-up, share real-time packing/shopping lists, and store travel documents in an AES-256 encrypted vault. Anyone can join a trip via a single link with no account required. No ads, no tracking. Built in Switzerland by an independent developer.
+Vacationist is a free group trip planning app for iOS, Android, and web. Groups vote on activities (five-tier system: must do → group blocker), split expenses with live balances, receipts attached to each expense, and settle-up; flag business expenses and export a per-person report; share real-time packing/shopping lists; manage flights, rental cars and public transport with tickets attached; and store travel documents in an AES-256 encrypted vault. Anyone can join a trip via a single link with no account required. No ads, no tracking. Built in Switzerland by an independent developer.
 
 ## What is Vacationist?
 
@@ -21,38 +21,41 @@ Key use cases:
 - **Group day trips and weekenders** — lightweight coordination without a full travel agent
 - **Bar and dinner nights** — vote on venue, split the bill
 - **Hobby groups and clubs** — recurring meetups with shared costs
+- **Corporate offsites and work trips** — vote on the agenda, split shared costs, attach receipts, and export a per-person business expense report; no company accounts or IT approval needed
 
 ## Core Features
 
-- **Activity voting** — suggest activities; group votes "must do", "like", "neutral", or "group blocker"
-- **Expense splitting** — log costs, choose who paid, split equally or with custom amounts; automatic balance tracking; settle individually or all at once
-- **Group chat** — dedicated real-time chat tab per trip; send, edit, and delete messages; organizers can moderate the conversation; paginated message history
+- **Activity voting** — suggest activities; group votes on a five-tier scale: "must do", "like", "open", "skip", or "group blocker"
+- **Expense splitting** — log costs with a category, description, and receipt attached (photos/PDFs, private to the trip); choose who paid; split equally or with custom amounts; automatic balance tracking; a simplified settle-up plan; multi-currency expenses show the exchange rate used; a category breakdown of spending
+- **Business expense reports** — flag any expense as a business expense; export a per-person summary (PDF, plus Markdown on the web) itemised by date, category, and payer, with links to the attached receipts (links valid 30 days) — for team offsites and work trips
+- **Group chat** — dedicated real-time chat tab per trip; send, edit, and delete messages; drafts persist across tab switches; organizers can moderate the conversation; paginated message history
 - **Vacation tracker & shared calendar** — visual timeline of activities, transfers, and check-ins in the trip's timezone; off-calendar view of every day
 - **Real-time shared lists** — shopping lists, packing checklists; concurrent updates across all group members; recipe-to-shopping-list sync
-- **Transfer & flight management** — suggest flights, vote, record bookings, manage car rentals, assign passengers
-- **Encrypted travel documents** — passport and ID details protected by biometric authentication and AES-256 encryption; temporary organiser access with revocation
+- **Transfer & flight management** — four segments: flights (suggest, vote, book, assign passengers, per-passenger boarding-pass/ticket uploads), own cars (driver + passengers, who rides with whom), rental cars, and public transport (train/coach/ferry, with per-member ticket uploads); everything dated lands on the shared calendar
+- **Encrypted travel documents** — passport and ID details protected by biometric authentication and AES-256 encryption; temporary organiser access that starts counting only on the organiser's first view, expires after the duration the owner set, lapses after a 7-day outer deadline if unused, shows a "Not opened yet" status, and can be revoked at any time
 - **Group sharing** — invite via single link; members join instantly, no account required to participate
 - **Offline support** — mutations queued offline and replayed automatically on reconnect
-- **Notifications** — push notifications for votes, expenses, and activity updates
+- **Notifications** — push notifications for votes, expenses, activity updates, and when a member is granted document access
+- **Home-screen quick action** — long-press the app icon to jump straight to adding an expense for the active trip (iOS and Android)
 
 ## Comparisons
 
-- **[Vacationist vs. Splitwise](https://vacationist.app/vs/splitwise/):** Splitwise is a mature, excellent pure expense tracker for ongoing shared finances (roommates, couples). Vacationist covers the same expense splitting plus trip planning, activity voting, shared lists, and no-account guest joins — built specifically for group trips, not everyday shared costs.
-- **[Vacationist vs. Wanderlog](https://vacationist.app/vs/wanderlog/):** Wanderlog is the stronger itinerary-research tool — maps, place discovery, route optimization. Vacationist is the stronger group-coordination tool — voting, expense splitting, shared lists, and guests who join without an account.
-- **[Vacationist vs. TripIt](https://vacationist.app/vs/tripit/):** TripIt automatically builds an itinerary from forwarded confirmation emails for one traveler. Vacationist has no email parsing, but adds what TripIt lacks entirely: group voting, expense splitting, shared lists, and no-account participation.
-- **[Vacationist vs. Tricount](https://vacationist.app/vs/tricount/):** Tricount is a fast, focused, and popular (especially in Europe) expense-splitting app with strong multi-currency support. Vacationist matches its expense splitting and no-account participation, then adds trip planning, activity voting, shared lists, and encrypted travel documents.
-- **[Vacationist vs. Troupe](https://vacationist.app/vs/troupe/):** Both are group-first trip coordination apps with polls and expense splitting. Vacationist differentiates on AES-256 encrypted travel document storage, offline-first sync for every user, and a fully free core app with no ads.
+- **[Vacationist vs. Splitwise](https://vacationist.app/vs/splitwise/):** Splitwise is a mature, excellent pure expense tracker for ongoing shared finances (roommates, couples). Vacationist covers expense splitting with receipts, categories, a business-expense flag and per-person report export, plus trip planning, activity voting, shared lists, transfer management, and no-account guest joins — built specifically for group trips, not everyday shared costs.
+- **[Vacationist vs. Wanderlog](https://vacationist.app/vs/wanderlog/):** Wanderlog is the stronger itinerary-research tool — maps, place discovery, route optimization. Vacationist is the stronger group-coordination tool — voting, expense splitting with receipts, shared lists, transfer and ticket management, and guests who join without an account.
+- **[Vacationist vs. TripIt](https://vacationist.app/vs/tripit/):** TripIt automatically builds an itinerary from forwarded confirmation emails for one traveler. Vacationist has no email parsing, but adds what TripIt lacks entirely: group voting, expense splitting with receipts and a business-expense report, shared lists, per-passenger ticket storage, and no-account participation.
+- **[Vacationist vs. Tricount](https://vacationist.app/vs/tricount/):** Tricount is a fast, focused, and popular (especially in Europe) expense-splitting app with strong multi-currency support. Vacationist matches its expense splitting and no-account participation, adds receipts attached to each expense and a business-expense report, then adds trip planning, activity voting, shared lists, transfers, and encrypted travel documents.
+- **[Vacationist vs. Troupe](https://vacationist.app/vs/troupe/):** Both are group-first trip coordination apps with polls and expense splitting. Vacationist differentiates on receipts and a business-expense report attached to the trip, AES-256 encrypted travel document storage, offline-first sync for every user, and a fully free core app with no ads.
 
 ## Technology
 
 - Platform: React Native (Expo), iOS + Android + Web
 - Backend: Supabase (PostgreSQL, Auth, Realtime, Edge Functions)
 - Offline: TanStack Query with MMKV persistence
-- Security: AES-256 (pgcrypto), biometric auth, no tracking, no ads
+- Security: AES-256 (pgcrypto) for travel-document fields, biometric auth, private access-controlled storage for receipts and tickets, no tracking, no ads
 
 ## Keywords
 
-group trip planner, group vacation planning app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, vacation tracker, shared trip organizer, holiday planner group, travel expense splitting, group travel app, trip planning app, van life trip planner, ski trip group budget, stag do planner
+group trip planner, group vacation planning app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, vacation tracker, shared trip organizer, holiday planner group, travel expense splitting, group travel app, trip planning app, van life trip planner, ski trip group budget, stag do planner, group trip receipts, travel expense report, business travel expense report, corporate offsite planner, group flight planning, public transport trip planner
 
 ## Product
 
@@ -66,13 +69,15 @@ group trip planner, group vacation planning app, split travel expenses, activity
 
 - [Features overview](https://vacationist.app/features/): All Vacationist features in one page.
 - [Activity voting](https://vacationist.app/features/voting/): Five-tier group voting, must do → group blocker.
-- [Expense splitting](https://vacationist.app/features/expenses/): Log costs, split, track live balances, settle up.
+- [Expense splitting](https://vacationist.app/features/expenses/): Log costs with receipts, split, track live balances, settle up, export a business report.
 - [Shared lists](https://vacationist.app/features/shopping-lists/): Real-time shopping and packing lists.
+- [Transfers](https://vacationist.app/features/transfers/): Flights, own cars, rentals, and public transport, with tickets attached.
 - [Encrypted travel documents](https://vacationist.app/features/travel-documents/): AES-256 vault with biometric unlock.
 - [Funktionsübersicht](https://vacationist.app/de/features/): German features overview.
 - [Aktivitäten-Abstimmung](https://vacationist.app/de/features/voting/): German version of activity voting.
 - [Kostenteilung](https://vacationist.app/de/features/expenses/): German version of expense splitting.
 - [Geteilte Listen](https://vacationist.app/de/features/shopping-lists/): German version of shared lists.
+- [Transfers](https://vacationist.app/de/features/transfers/): German version of the transfers page.
 - [Verschlüsselte Reisedokumente](https://vacationist.app/de/features/travel-documents/): German version of encrypted travel documents.
 
 ## Use cases
@@ -84,6 +89,7 @@ group trip planner, group vacation planning app, split travel expenses, activity
 - [Family reunion planner](https://vacationist.app/use-cases/family-reunion-planner/): Coordinating a multi-generation family trip.
 - [Group camping trip](https://vacationist.app/use-cases/group-camping-trip/): Planning a group camping or van life trip.
 - [Stag do planner](https://vacationist.app/use-cases/stag-do-planner/): Planning a stag or bachelor party trip.
+- [Corporate offsite planner](https://vacationist.app/use-cases/corporate-offsite-planner/): Coordinating a team offsite and exporting a per-person expense report.
 - [Anwendungsfälle](https://vacationist.app/de/use-cases/): German use cases overview.
 - [Junggesellinnenabschied planen](https://vacationist.app/de/use-cases/bachelorette-party-planner/): German version of the bachelorette party planner guide.
 - [Van-Life-Reiseplaner](https://vacationist.app/de/use-cases/van-life-trip-planner/): German version of the van life trip planner guide.
@@ -91,6 +97,7 @@ group trip planner, group vacation planning app, split travel expenses, activity
 - [Familientreffen planen](https://vacationist.app/de/use-cases/family-reunion-planner/): German version of the family reunion planner guide.
 - [Gruppen-Campingtrip](https://vacationist.app/de/use-cases/group-camping-trip/): German version of the group camping trip guide.
 - [Junggesellenabschied planen](https://vacationist.app/de/use-cases/stag-do-planner/): German version of the stag do planner guide.
+- [Firmen-Offsite planen](https://vacationist.app/de/use-cases/corporate-offsite-planner/): German version of the corporate offsite planner guide.
 
 ## Blog
 
@@ -103,6 +110,7 @@ group trip planner, group vacation planning app, split travel expenses, activity
 - [Family vacation coordination guide](https://vacationist.app/blog/family-vacation-coordination-guide/): Coordinating a family vacation across generations.
 - [Travel document safety guide](https://vacationist.app/blog/travel-document-safety-guide/): Keeping passports and IDs safe while traveling.
 - [Group camping trip planner guide](https://vacationist.app/blog/group-camping-trip-planner/): Planning a group camping trip step by step.
+- [Group trip receipts and expense reports](https://vacationist.app/blog/group-trip-receipts-and-expense-reports/): Keeping receipts and producing a per-person expense report, work trips included.
 - [Blog (Deutsch)](https://vacationist.app/de/blog/): German blog index (article bodies are in English).
 - [Blog-RSS-Feed (Deutsch)](https://vacationist.app/de/blog/feed.xml): RSS feed for the German blog index.
 

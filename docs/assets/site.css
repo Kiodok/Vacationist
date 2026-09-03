@@ -268,12 +268,6 @@ body {
 }
 .post-card:hover { border-color: var(--primary); transform: translateY(-2px); }
 .post-card time { font-size: 0.78rem; color: var(--text3); }
-.post-badge {
-  display: inline-block; margin-left: 0.4rem;
-  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em;
-  color: var(--text3); border: 1px solid var(--border);
-  border-radius: 5px; padding: 0.1rem 0.4rem; vertical-align: middle;
-}
 .post-card h2 {
   color: var(--text); font-size: 1.15rem; font-weight: 700;
   letter-spacing: -0.02em; margin: 0.4rem 0 0.5rem; padding: 0;

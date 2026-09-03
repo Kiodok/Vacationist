@@ -115,7 +115,7 @@
         "name": "Should flights be part of the shared expenses?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Usually no — everyone gets themselves to the destination, since departure cities and airline choices differ. The exception is a group charter or a rental van from a common starting point, which is shared transport like any other."
+          "text": "Usually no — everyone gets themselves to the destination, since departure cities and airline choices differ. The exception is a group charter or a rental van from a common starting point, which is shared transport like any other. Either way, boarding passes and tickets can be attached to the flight or transfer so the group booking isn't held by one person's inbox."
         }
       },
       {
@@ -208,7 +208,7 @@
 <h2 id="the-tracking-system-that-actually-survives-a-vacation">The tracking system that actually survives a vacation</h2>
 <p>Whatever tool you use, four rules make tracking stick:</p>
 <ol>
-<li><strong>Log at the moment of payment.</strong> Thirty seconds at the table, while the receipt exists. The half-life of expense memory is about one day; &quot;I&#39;ll add it tonight&quot; is where fairness goes to die.</li>
+<li><strong>Log at the moment of payment.</strong> Thirty seconds at the table, while the receipt is in your hand — photograph it straight onto the expense so it&#39;s not a paper scrap you&#39;ll lose by morning. The half-life of expense memory is about one day; &quot;I&#39;ll add it tonight&quot; is where fairness goes to die.</li>
 <li><strong>Whoever pays, logs.</strong> Distributes the work automatically and removes the single point of failure (the one exhausted bookkeeper — usually the organizer).</li>
 <li><strong>Balances visible to everyone.</strong> Transparency is the fairness mechanism. When anyone can check the numbers anytime, nobody wonders, and the person who&#39;s paid for the last three things can see it — and so can everyone else.</li>
 <li><strong>Works offline.</strong> Trips happen on boats, mountains, and in signal-dead beach bars. If the tool can&#39;t log offline, rule 1 dies, and the system with it.</li>
@@ -217,7 +217,7 @@
 <ul>
 <li><strong>A spreadsheet</strong> works for disciplined small groups — but it lives on one person&#39;s phone, does netting only if someone builds the formulas, and updates exactly as often as its owner has energy.</li>
 <li><strong>Splitwise</strong> is the dedicated-ledger classic and genuinely good at netting and multi-currency — the friction is that everyone must install it and make an account, and it only does money. Full comparison: <a href="/vs/splitwise/">Vacationist vs. Splitwise</a>.</li>
-<li><strong>Vacationist</strong> (ours) builds the ledger <a href="/features/expenses/">into the trip itself</a>: whoever pays logs it with a category and a split — equal or custom — balances net out live for everyone, it works offline, and crucially, <strong>guests who joined the trip by invite link are in the splits without ever creating an account</strong>. The friend who refuses to install Splitwise stops being a hole in your ledger.</li>
+<li><strong>Vacationist</strong> (ours) builds the ledger <a href="/features/expenses/">into the trip itself</a>: whoever pays logs it with a category, a note, and a receipt photo, then a split — equal or custom — balances net out live for everyone, it works offline, and crucially, <strong>guests who joined the trip by invite link are in the splits without ever creating an account</strong>. The friend who refuses to install Splitwise stops being a hole in your ledger. For work trips, expenses can be flagged as business expenses and exported as a per-person report with the receipts attached.</li>
 </ul>
 <h2 id="handling-the-awkward-classics">Handling the awkward classics</h2>
 <p>Real situations that break naive equal-splitting, and the fair play for each:</p>
@@ -230,18 +230,20 @@
 <li><strong>Cash payments in a card-tracking world.</strong> Log cash expenses like any other; the payer&#39;s balance credits identically. The ledger cares who bore the cost, not which pocket it left.</li>
 </ul>
 <h2 id="multi-currency-trips">Multi-currency trips</h2>
-<p>The pragmatic approach for most groups: <strong>pick one settlement currency</strong> (usually home currency), log expenses as they occur, and accept the app&#39;s or a fixed agreed conversion rate rather than chasing daily rates — the precision isn&#39;t worth the admin for a two-week trip. Honest tool note: if your trip genuinely spans several currencies with big amounts, Splitwise&#39;s multi-currency support is currently deeper than Vacationist&#39;s — weigh that against everything else the trip needs.</p>
+<p>The pragmatic approach for most groups: <strong>pick one settlement currency</strong> (usually home currency), log expenses as they occur, and accept the app&#39;s conversion rate rather than chasing daily rates yourself — the precision isn&#39;t worth the admin for a two-week trip. Vacationist converts foreign-currency expenses at a stored daily rate and shows the rate it used in the expense breakdown, so a converted figure is traceable rather than a mystery. Honest tool note: if your trip genuinely spans several currencies with big amounts, Splitwise&#39;s multi-currency handling is currently deeper — weigh that against everything else the trip needs.</p>
 <h2 id="settling-up-the-48-hour-rule">Settling up: the 48-hour rule</h2>
 <p>Settle within two days of getting home. The psychology is real: in that window the trip is vivid, gratitude is high, and paying feels like part of the trip. Three weeks later the same request feels like an invoice from a stranger. The mechanics:</p>
 <ol>
 <li>Do a five-minute group review of the balances (in person on the last evening is even better — over the farewell drink).</li>
 <li>Net everything to the minimum set of transfers.</li>
-<li>Transfer, confirm, done. In Vacationist, <a href="/features/expenses/">settle splits individually or clear the whole trip at once</a> — the balances were public all trip, so this step is arithmetic, not negotiation.</li>
+<li>Transfer, confirm, done. In Vacationist, the <a href="/features/expenses/">Balances screen</a> leads with your own balance, then a simplified settlement plan — the fewest transfers that clear the whole group — with individual member balances one tap away. The numbers were public all trip, so this step is arithmetic, not negotiation.</li>
 </ol>
 <p>And then — genuinely important — <strong>stop</strong>. Once settled at the agreed rules, the books are closed. No retroactive &quot;actually the boat was more than I logged.&quot; Closure is part of the fairness.</p>
+<h2 id="when-the-trip-was-for-work">When the trip was for work</h2>
+<p>A team offsite or a client trip needs the group split <em>and</em> a report each person can file for reimbursement. The two are easiest when they come from the same record: everyone logs their own costs into the shared trip, flags the ones that are business expenses, and exports a per-person summary — itemised by date, category, and payer, with the receipts attached. Rebuilding that from screenshots two weeks later is the classic version of this going wrong. There&#39;s a full walkthrough in <a href="/use-cases/corporate-offsite-planner/">the corporate offsite planner guide</a> and <a href="/blog/group-trip-receipts-and-expense-reports/">a dedicated post on trip receipts and expense reports</a>.</p>
 <div class="cta-band" id="get-app">
   <h3>Plan your next group trip with Vacationist</h3>
-  <p>Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
+  <p>Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
   <div class="cta-actions">
     <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Get it on Play Store</a>
     <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Get it on App Store</a>
@@ -251,7 +253,7 @@
 <h3 id="whats-the-fairest-way-to-split-accommodation-with-different-room-qualities">What&#39;s the fairest way to split accommodation with different room qualities?</h3>
 <p>Weight the rooms: agree multipliers before the trip (master en-suite 1.3×, standard 1.0×, sofa bed 0.7× is a common pattern), then divide the total cost by the weighted shares. It takes five minutes once and removes the single most common source of quiet resentment on house trips.</p>
 <h3 id="should-flights-be-part-of-the-shared-expenses">Should flights be part of the shared expenses?</h3>
-<p>Usually no — everyone gets themselves to the destination, since departure cities and airline choices differ. The exception is a group charter or a rental van from a common starting point, which is shared transport like any other.</p>
+<p>Usually no — everyone gets themselves to the destination, since departure cities and airline choices differ. The exception is a group charter or a rental van from a common starting point, which is shared transport like any other. Either way, boarding passes and tickets can be <a href="/features/transfers/">attached to the flight or transfer</a> so the group booking isn&#39;t held by one person&#39;s inbox.</p>
 <h3 id="how-do-you-split-fuel-and-rental-car-costs">How do you split fuel and rental car costs?</h3>
 <p>Split among everyone who used the car — equally per person, regardless of who drove or booked. If the car existed for the whole group&#39;s benefit, that&#39;s the whole group. Log fuel stops like any expense; the netting handles the rest.</p>
 <h3 id="whats-the-best-app-to-split-travel-expenses">What&#39;s the best app to split travel expenses?</h3>
@@ -276,6 +278,10 @@
       <span class="related-title">Group trip planning guide</span>
       <span class="related-desc">The definitive guide to planning a group trip: picking dates, choosing a destination, making decisions without arguments, splitting costs fairly, and surviving as the organizer.</span>
     </a>
+    <a class="related-card" href="/blog/group-trip-receipts-and-expense-reports/">
+      <span class="related-title">Group trip receipts guide</span>
+      <span class="related-desc">How to keep every receipt on a group trip, split costs fairly, and produce a per-person expense report you can actually file — including work trips.</span>
+    </a>
   </div>
 </section>
 </main>
@@ -284,7 +290,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <span class="footer-logo">Vacationist</span>
-      <p>The free group trip planner — vote on activities, split expenses, share lists, and keep everyone in sync.</p>
+      <p>The free group trip planner — vote on activities, split expenses with receipts, share lists, and keep everyone in sync.</p>
     </div>
     <div class="footer-col">
       <h4>Product</h4>
@@ -293,6 +299,7 @@
       <a href="/features/expenses/">Expense splitting</a>
       <a href="/features/shopping-lists/">Shared lists</a>
       <a href="/features/travel-documents/">Travel documents</a>
+      <a href="/features/transfers/">Transfers &amp; flights</a>
       <a href="/use-cases/">Use cases</a>
       <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
       <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>

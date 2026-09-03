@@ -9,9 +9,7 @@ date: 2026-07-17
 altPath: /de/blog/how-to-split-travel-expenses/
 keywords: how to split travel expenses, split expenses vacation, travel expense splitting, group trip expenses
 blogIndex: true
-titleDe: Reisekosten fair teilen — der komplette Guide
-descriptionDe: Was geteilt wird und was privat bleibt, faire Methoden bei ungleichen Situationen, das richtige Tracking — und wie ihr ohne Peinlichkeit abrechnet.
-related: /features/expenses/, /vs/splitwise/, /blog/how-to-plan-a-group-trip/
+related: /features/expenses/, /vs/splitwise/, /blog/how-to-plan-a-group-trip/, /blog/group-trip-receipts-and-expense-reports/
 breadcrumbLabel: Expense splitting guide
 ---
 
@@ -61,7 +59,7 @@ This netting is why groups that track live settle in minutes and groups that rec
 
 Whatever tool you use, four rules make tracking stick:
 
-1. **Log at the moment of payment.** Thirty seconds at the table, while the receipt exists. The half-life of expense memory is about one day; "I'll add it tonight" is where fairness goes to die.
+1. **Log at the moment of payment.** Thirty seconds at the table, while the receipt is in your hand — photograph it straight onto the expense so it's not a paper scrap you'll lose by morning. The half-life of expense memory is about one day; "I'll add it tonight" is where fairness goes to die.
 2. **Whoever pays, logs.** Distributes the work automatically and removes the single point of failure (the one exhausted bookkeeper — usually the organizer).
 3. **Balances visible to everyone.** Transparency is the fairness mechanism. When anyone can check the numbers anytime, nobody wonders, and the person who's paid for the last three things can see it — and so can everyone else.
 4. **Works offline.** Trips happen on boats, mountains, and in signal-dead beach bars. If the tool can't log offline, rule 1 dies, and the system with it.
@@ -70,7 +68,7 @@ Whatever tool you use, four rules make tracking stick:
 
 - **A spreadsheet** works for disciplined small groups — but it lives on one person's phone, does netting only if someone builds the formulas, and updates exactly as often as its owner has energy.
 - **Splitwise** is the dedicated-ledger classic and genuinely good at netting and multi-currency — the friction is that everyone must install it and make an account, and it only does money. Full comparison: [Vacationist vs. Splitwise](/vs/splitwise/).
-- **Vacationist** (ours) builds the ledger [into the trip itself](/features/expenses/): whoever pays logs it with a category and a split — equal or custom — balances net out live for everyone, it works offline, and crucially, **guests who joined the trip by invite link are in the splits without ever creating an account**. The friend who refuses to install Splitwise stops being a hole in your ledger.
+- **Vacationist** (ours) builds the ledger [into the trip itself](/features/expenses/): whoever pays logs it with a category, a note, and a receipt photo, then a split — equal or custom — balances net out live for everyone, it works offline, and crucially, **guests who joined the trip by invite link are in the splits without ever creating an account**. The friend who refuses to install Splitwise stops being a hole in your ledger. For work trips, expenses can be flagged as business expenses and exported as a per-person report with the receipts attached.
 
 ## Handling the awkward classics
 
@@ -85,7 +83,7 @@ Real situations that break naive equal-splitting, and the fair play for each:
 
 ## Multi-currency trips
 
-The pragmatic approach for most groups: **pick one settlement currency** (usually home currency), log expenses as they occur, and accept the app's or a fixed agreed conversion rate rather than chasing daily rates — the precision isn't worth the admin for a two-week trip. Honest tool note: if your trip genuinely spans several currencies with big amounts, Splitwise's multi-currency support is currently deeper than Vacationist's — weigh that against everything else the trip needs.
+The pragmatic approach for most groups: **pick one settlement currency** (usually home currency), log expenses as they occur, and accept the app's conversion rate rather than chasing daily rates yourself — the precision isn't worth the admin for a two-week trip. Vacationist converts foreign-currency expenses at a stored daily rate and shows the rate it used in the expense breakdown, so a converted figure is traceable rather than a mystery. Honest tool note: if your trip genuinely spans several currencies with big amounts, Splitwise's multi-currency handling is currently deeper — weigh that against everything else the trip needs.
 
 ## Settling up: the 48-hour rule
 
@@ -93,9 +91,13 @@ Settle within two days of getting home. The psychology is real: in that window t
 
 1. Do a five-minute group review of the balances (in person on the last evening is even better — over the farewell drink).
 2. Net everything to the minimum set of transfers.
-3. Transfer, confirm, done. In Vacationist, [settle splits individually or clear the whole trip at once](/features/expenses/) — the balances were public all trip, so this step is arithmetic, not negotiation.
+3. Transfer, confirm, done. In Vacationist, the [Balances screen](/features/expenses/) leads with your own balance, then a simplified settlement plan — the fewest transfers that clear the whole group — with individual member balances one tap away. The numbers were public all trip, so this step is arithmetic, not negotiation.
 
 And then — genuinely important — **stop**. Once settled at the agreed rules, the books are closed. No retroactive "actually the boat was more than I logged." Closure is part of the fairness.
+
+## When the trip was for work
+
+A team offsite or a client trip needs the group split *and* a report each person can file for reimbursement. The two are easiest when they come from the same record: everyone logs their own costs into the shared trip, flags the ones that are business expenses, and exports a per-person summary — itemised by date, category, and payer, with the receipts attached. Rebuilding that from screenshots two weeks later is the classic version of this going wrong. There's a full walkthrough in [the corporate offsite planner guide](/use-cases/corporate-offsite-planner/) and [a dedicated post on trip receipts and expense reports](/blog/group-trip-receipts-and-expense-reports/).
 
 <!--CTA-->
 
@@ -107,7 +109,7 @@ Weight the rooms: agree multipliers before the trip (master en-suite 1.3×, stan
 
 ### Should flights be part of the shared expenses?
 
-Usually no — everyone gets themselves to the destination, since departure cities and airline choices differ. The exception is a group charter or a rental van from a common starting point, which is shared transport like any other.
+Usually no — everyone gets themselves to the destination, since departure cities and airline choices differ. The exception is a group charter or a rental van from a common starting point, which is shared transport like any other. Either way, boarding passes and tickets can be [attached to the flight or transfer](/features/transfers/) so the group booking isn't held by one person's inbox.
 
 ### How do you split fuel and rental car costs?
 

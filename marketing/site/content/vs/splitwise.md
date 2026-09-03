@@ -21,10 +21,14 @@ breadcrumbLabel: vs. Splitwise
 | | Vacationist | Splitwise |
 |---|---|---|
 | Expense splitting | ✅ Equal & custom splits, live balances | ✅ Best-in-class, very mature |
+| Receipts attached to expenses | ✅ Free (photos & PDFs) | ⚠️ Splitwise Pro only |
+| Business expense report | ✅ Per-person PDF + Markdown export | ❌ |
+| Category breakdown of spending | ✅ Built in | ⚠️ Charts on Pro |
 | Trip planning (activities, calendar) | ✅ Built in | ❌ None |
 | Group voting on activities | ✅ Unique 5-tier system | ❌ |
 | Shared shopping & packing lists | ✅ Real-time | ❌ |
-| Accommodation & transfer management | ✅ | ❌ |
+| Accommodation management | ✅ | ❌ |
+| Flights, rentals & public transport, with tickets | ✅ | ❌ |
 | Join without an account | ✅ One invite link | ❌ Account required |
 | Offline support | ✅ Offline-first | ⚠️ Limited |
 | Multi-currency | ⚠️ Basic | ✅ Extensive |
@@ -48,6 +52,7 @@ Honesty first, because it matters when you're choosing a tool:
 - **Nobody has to install anything.** The biggest real-world Splitwise failure is social: the one friend who refuses to create an account, so their expenses live in someone's head. Vacationist guests join via a single link — no account — and can still vote, edit lists, and be part of [expense splits](/features/expenses/).
 - **Offline first.** Trips happen on planes, ferries, and mountain roads. Vacationist keeps working without signal and syncs later.
 - **Shared lists and recipes.** The supermarket run for the villa, the camping meal plan — [shared lists with recipe sync](/features/shopping-lists/) turn them into one flow: plan, buy, split.
+- **Receipts and expense reports in the free tier.** Attach a receipt to any expense at no cost (Splitwise gates receipt scanning behind Pro), and for work trips flag business expenses and [export a per-person report](/features/expenses/) with the receipts linked — something Splitwise doesn't do at any tier.
 - **Encrypted travel documents.** Group bookings need passport details; chat screenshots are how that usually happens. Vacationist has an [encrypted vault with revocable organizer access](/features/travel-documents/) instead.
 
 ## The realistic recommendation
@@ -75,4 +80,4 @@ Yes — Vacationist has a native iOS app on the App Store, alongside Android and
 
 ### Which app is better for splitting a hotel bill?
 
-Both handle it. The difference is context: in Vacationist, the hotel is also *in the trip* — voted on, on the calendar, with its confirmation accessible to the group — not just a number in a ledger.
+Both handle it. The difference is context: in Vacationist, the hotel is also *in the trip* — voted on, on the calendar, with its receipt attached and accessible to the group — not just a number in a ledger.

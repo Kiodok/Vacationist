@@ -24,7 +24,9 @@ breadcrumbLabel: vs. Wanderlog
 | Karten & Orts-Entdeckung | ❌ | ✅ Exzellent |
 | Gruppen-Abstimmung über Aktivitäten | ✅ Einzigartiges 5-Stufen-System | ❌ |
 | Kostenteilung | ✅ Voll: eigene Splits, Live-Salden, Abrechnung | ⚠️ Rudimentär |
+| Belege & Geschäftsausgaben-Bericht | ✅ Belege an jeder Ausgabe; PDF-Export pro Person | ❌ |
 | Gemeinsame Einkaufs- & Packlisten | ✅ Echtzeit, mit Rezept-Übernahme | ❌ |
+| Flüge, Mietwagen & ÖPNV, mit Tickets | ✅ Verwalten + Tickets anhängen | ⚠️ Liest Bestätigungen aus E-Mails |
 | Beitreten ohne Konto | ✅ Ein Einladungslink | ❌ Konto erforderlich |
 | Offline-Unterstützung | ✅ Offline-first | ⚠️ Bezahlfunktion (Pro) |
 | Verschlüsselte Reisedokumente | ✅ | ❌ |
@@ -37,7 +39,7 @@ breadcrumbLabel: vs. Wanderlog
 Ehre, wem Ehre gebührt — Wanderlog ist ein poliertes Produkt:
 
 - **Karten-Integration und Orts-Entdeckung.** Restaurants und Sehenswürdigkeiten auf der Karte durchstöbern, Bewertungen und Fotos einbinden, eine Roadtrip-Route optimieren — darin ist Wanderlog wirklich gut, und Vacationist macht das nicht.
-- **Reiseplan-Ästhetik und Exporte.** Wanderlogs Tag-für-Tag-Ansicht ist wunderschön, und es kann Hotel- und Flugbestätigungen aus E-Mails einlesen.
+- **Reiseplan-Ästhetik und E-Mail-Parsing.** Wanderlogs Tag-für-Tag-Ansicht ist wunderschön, und es kann Hotel- und Flugbestätigungen aus E-Mails einlesen — Vacationist hat kein E-Mail-Parsing, aber Tickets und Belege lassen sich manuell an den Flug, Transfer oder die Ausgabe anhängen, zu denen sie gehören, und die Ausgaben einer Reise lassen sich als Bericht pro Person exportieren.
 
 Wenn du solo oder als Paar unterwegs bist und deine Hauptaufgabe die *Recherche* eines Ziels ist, ist Wanderlog eine starke Wahl.
 

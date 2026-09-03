@@ -22,7 +22,9 @@ breadcrumbLabel: vs. Troupe
 |---|---|---|
 | Group polls / voting on activities | ✅ 5-tier system (must do → group blocker) | ✅ Polls |
 | Expense splitting | ✅ Custom splits, live balances, settle-up | ✅ Expense splitting |
+| Receipts & a business-expense report | ✅ Receipts on every expense; per-person PDF export | ⚠️ Not a documented feature |
 | Shared itinerary / calendar | ✅ | ✅ |
+| Flights, rentals & public transport, with tickets | ✅ | ⚠️ Not confirmed |
 | Shared shopping & packing lists | ✅ Real-time, with recipe sync | ⚠️ Varies |
 | Join without an account | ✅ One invite link, full participation | ⚠️ Check current sign-up requirements |
 | Group chat in-app | ✅ | ⚠️ Varies |
@@ -40,6 +42,7 @@ If you've looked at both, you've probably noticed the pitch is similar: stop coo
 ## What makes Vacationist different
 
 - **Encrypted travel documents, not just a planner.** Group trips mean sharing passport and ID details for bookings — usually via chat screenshot. Vacationist has a dedicated [AES-256 encrypted document vault](/features/travel-documents/) with biometric unlock and revocable, temporary organizer access. This isn't a common feature among group-trip apps.
+- **Receipts and a business-expense report.** Every expense can carry a receipt (photo or PDF), and for a work trip you can flag business expenses and [export a per-person report](/features/expenses/) with the receipts linked — not something group-trip apps usually offer.
 - **Zero-friction guest joins.** Anyone can [join a trip via a single link](/features/voting/) and immediately vote, add expenses, and edit shared lists — no account, no app-store detour for the one friend who never gets around to signing up.
 - **Offline-first by default.** Group trips happen on planes, ferries, and mountain roads with no signal. Vacationist queues votes, expenses, and list changes and syncs automatically on reconnect — for everyone, not as a paid add-on.
 - **Genuinely free, no ads.** The core app — voting, [expense splitting](/features/expenses/), lists, chat — has no ads and no tracking. A Pro tier exists for larger or more frequent groups; it doesn't gate core coordination features.

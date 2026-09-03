@@ -47,8 +47,8 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.26.0",
-    "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen, Unterkünfte verwalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
+    "softwareVersion": "1.33.1",
+    "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
     "url": "https://vacationist.app/",
     "installUrl": [
       "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
@@ -63,7 +63,7 @@
       "de"
     ],
     "isAccessibleForFree": true,
-    "featureList": "Aktivitäten-Abstimmung, Reisekosten teilen, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Transfer- & Flugverwaltung, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto",
+    "featureList": "Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftsausgaben-Berichte, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -88,7 +88,7 @@
     "@type": "WebSite",
     "name": "Vacationist",
     "url": "https://vacationist.app/",
-    "description": "Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und alle synchron halten.",
+    "description": "Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen und alle synchron halten.",
     "inLanguage": "de"
   }
   </script>
@@ -125,7 +125,7 @@
         "name": "Wie funktioniert die Ausgabenaufteilung in der Gruppe?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Jede Gruppenausgabe erfassen — Abendessen, Unterkunft, Transport oder anderes — wer gezahlt hat auswählen und gleichmäßig oder mit eigenen Beträgen aufteilen. Vacationist verfolgt automatisch die Salden, sodass jeder genau weiß, wer wem etwas schuldet. Einzelne Splits oder alles auf einmal am Reiseende ausgleichen."
+          "text": "Jede Gruppenausgabe erfassen — Abendessen, Unterkunft, Transport oder anderes — eine Kategorie wählen, den Beleg anhängen, auswählen wer gezahlt hat und gleichmäßig oder mit eigenen Beträgen aufteilen. Vacationist verfolgt die Salden automatisch und zeigt am Reiseende den einfachsten Weg zum Ausgleich."
         }
       },
       {
@@ -158,6 +158,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Jede Reise in Vacationist ist ein gemeinsamer Arbeitsbereich. Per Link einladen — alle treten sofort bei, kein Konto zum Mitmachen nötig. Die Urlaubsübersicht zeigt die gesamte Reise-Zeitleiste, alle Termine außerhalb des Kalenders und Ausgaben auf einen Blick. Änderungen synchronisieren sich in Echtzeit, sodass alle immer auf dem neuesten Stand sind."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kann ich Belege anhängen und eine Geschäftsreise abrechnen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftsausgaben unterwegs und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen."
         }
       }
     ]
@@ -556,7 +564,7 @@
     }
     @media (max-width: 760px) {
       .feat-card--wide { grid-template-columns: 1fr; }
-      .feat-chat-preview { display: none; }
+      .feat-chat-preview, .feat-doc-preview { display: none; }
     }
     .feat-chat-preview {
       background: var(--bg); border: 1px solid var(--border);
@@ -581,6 +589,26 @@
     .chat-msg--own .chat-bubble {
       background: var(--pri-dim); border-color: rgba(108,99,255,.25); color: var(--pri-lite);
     }
+
+    /* Receipts & documents — wide card preview panel */
+    .feat-doc-preview {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.85rem;
+      display: flex; flex-direction: column; gap: 0.55rem;
+    }
+    .doc-row {
+      display: flex; align-items: center; gap: 0.65rem;
+      background: var(--surf-el); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.55rem 0.7rem;
+    }
+    .doc-ico {
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      background: var(--pri-dim); border: 1px solid rgba(108,99,255,.2);
+    }
+    .doc-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .doc-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .doc-meta { font-size: 0.67rem; color: var(--text3); }
 
     /* ── HOW IT WORKS ── */
     .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; position: relative; }
@@ -816,7 +844,7 @@
 
       <h1 data-i18n-html="hero.h1">Reisen<br><em>gemeinsam</em><br>planen.</h1>
 
-      <p class="hero-sub" data-i18n="hero.sub">Die Gruppenreise-App für alles — Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und alle synchron halten. Von der ersten Idee bis zum letzten Heimflug.</p>
+      <p class="hero-sub" data-i18n="hero.sub">Die Gruppenreise-App für alles — Aktivitäten abstimmen, Kosten teilen mit angehängten Belegen, Flüge und Tickets bei der Reise behalten, Packlisten teilen und alle synchron halten. Von der ersten Idee bis zum letzten Heimflug.</p>
 
       <p class="entity-def" data-i18n="entity.def">Vacationist ist eine kostenlose Gruppenreise-App für iOS, Android und Web, mit der eine Gruppe gemeinsam über Aktivitäten abstimmt, Reisekosten teilt und Pack- sowie Einkaufslisten teilt — ohne Konto zum Beitreten.</p>
 
@@ -853,7 +881,7 @@
         </div>
         <div class="chip chip-b">
           <span class="chip-icon">💸</span>
-          <div><div data-i18n="chip.b.main">€ 42,50 hinzugefügt</div><div class="chip-sub" data-i18n="chip.b.sub">Auf 4 aufgeteilt</div></div>
+          <div><div data-i18n="chip.b.main">€ 42,50 hinzugefügt</div><div class="chip-sub" data-i18n="chip.b.sub">Beleg angehängt · auf 4 aufgeteilt</div></div>
         </div>
         <div class="chip chip-c">
           <span class="chip-icon">✅</span>
@@ -953,7 +981,7 @@
       <div class="feat-card reveal d2">
         <div class="feat-icon">💸</div>
         <div class="feat-title" data-i18n="feat.2.title">Ausgaben fair aufteilen</div>
-        <div class="feat-desc" data-i18n="feat.2.desc">Jede Ausgabe erfassen, wer gezahlt hat auswählen und gleichmäßig oder nach eigenen Beträgen aufteilen. Salden zeigen immer genau, wer wem was schuldet — kein Kopfrechnen mehr.</div>
+        <div class="feat-desc" data-i18n="feat.2.desc">Jede Ausgabe mit Kategorie und angehängtem Beleg erfassen, gleichmäßig oder nach eigenen Beträgen aufteilen und eine Live-Aufschlüsselung sehen, wer wem was schuldet — und wohin das Geld geflossen ist.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🛒</div>
@@ -962,8 +990,8 @@
       </div>
       <div class="feat-card reveal d1">
         <div class="feat-icon">✈️</div>
-        <div class="feat-title" data-i18n="feat.4.title">Transfer &amp; Flüge</div>
-        <div class="feat-desc" data-i18n="feat.4.desc">Flüge vorschlagen, über Optionen abstimmen, Buchungen erfassen, Mietwagen verwalten und zuweisen, wer mit wem fährt — alles an einem Ort.</div>
+        <div class="feat-title" data-i18n="feat.4.title">Transfers, Flüge &amp; Tickets</div>
+        <div class="feat-desc" data-i18n="feat.4.desc">Über Flüge abstimmen, Mietwagen und öffentliche Verkehrsmittel verwalten, festlegen wer mit wem fährt, und jede Bordkarte und jedes Ticket bei der Reise behalten.</div>
       </div>
       <div class="feat-card reveal d2">
         <div class="feat-icon">🔒</div>
@@ -974,6 +1002,36 @@
         <div class="feat-icon">🗓️</div>
         <div class="feat-title" data-i18n="feat.6.title">Urlaubsverfolgung &amp; Kalender</div>
         <div class="feat-desc" data-i18n="feat.6.desc">Eine visuelle Zeitleiste aller geplanten Aktivitäten, Transfers und Check-ins — deine Urlaubsverfolgung in der Zeitzone der Reise. Jeden freien Tag auf einen Blick.</div>
+      </div>
+      <div class="feat-card feat-card--wide reveal d3">
+        <div>
+          <div class="feat-icon">🧾</div>
+          <div class="feat-title" data-i18n="feat.8.title">Belege, Tickets &amp; Ausgabenberichte</div>
+          <div class="feat-desc" data-i18n="feat.8.desc">Jeder Beleg liegt bei seiner Ausgabe, jede Bordkarte bei ihrem Flug — privat für deine Gruppe. Geschäftsausgaben markieren und für Geschäftsreisen einen PDF-Bericht pro Person exportieren.</div>
+        </div>
+        <div class="feat-doc-preview" aria-hidden="true">
+          <div class="doc-row">
+            <div class="doc-ico">🧾</div>
+            <div class="doc-txt">
+              <span class="doc-name" data-i18n="doc.1.name">Villa — Restzahlung</span>
+              <span class="doc-meta" data-i18n="doc.1.meta">Beleg angehängt · auf 6 aufgeteilt</span>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-ico">🎫</div>
+            <div class="doc-txt">
+              <span class="doc-name" data-i18n="doc.2.name">Bordkarte — Maya</span>
+              <span class="doc-meta" data-i18n="doc.2.meta">Lissabon-Flug · Hinflug</span>
+            </div>
+          </div>
+          <div class="doc-row">
+            <div class="doc-ico">📄</div>
+            <div class="doc-txt">
+              <span class="doc-name" data-i18n="doc.3.name">Geschäftsausgaben-Übersicht</span>
+              <span class="doc-meta" data-i18n="doc.3.meta">PDF · pro Person · mit Belegen</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="feat-card feat-card--wide reveal d1">
         <div>
@@ -1108,7 +1166,7 @@
   <div class="wrap">
     <div class="tldr">
       <p class="tldr-label" data-i18n="tldr.label">Kurz gesagt</p>
-      <p data-i18n="tldr.text">Vacationist ist kostenlos, ohne Werbung, und verschlüsselt Reisedokumente mit AES-256. Die App wird in der Schweiz entwickelt, und jeder kann per Link einer Reise beitreten, ohne ein Konto zu erstellen. Heute verfügbar für iOS, Android und im Web.</p>
+      <p data-i18n="tldr.text">Vacationist ist kostenlos, ohne Werbung, und verschlüsselt Reisedokumente mit AES-256. Belege hängen an den Ausgaben, Bordkarten an den Flügen — privat für deine Reise. Die App wird in der Schweiz entwickelt, und jeder kann per Link einer Reise beitreten, ohne ein Konto zu erstellen. Heute verfügbar für iOS, Android und im Web.</p>
     </div>
   </div>
 </section>
@@ -1136,7 +1194,7 @@
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a" hidden>
-          <p data-i18n="faq.2.a">Jede Gruppenausgabe erfassen — Abendessen, Unterkunft, Transport oder anderes — wer gezahlt hat auswählen und gleichmäßig oder mit eigenen Beträgen aufteilen. Vacationist verfolgt automatisch die Salden, sodass jeder genau weiß, wer wem etwas schuldet. Einzelne Splits oder alles auf einmal am Reiseende ausgleichen.</p>
+          <p data-i18n="faq.2.a">Jede Gruppenausgabe erfassen — Abendessen, Unterkunft, Transport oder anderes — eine Kategorie wählen, den Beleg anhängen, auswählen wer gezahlt hat und gleichmäßig oder mit eigenen Beträgen aufteilen. Vacationist verfolgt die Salden automatisch und zeigt am Reiseende den einfachsten Weg zum Ausgleich.</p>
         </div>
       </div>
       <div class="faq-item reveal d3">
@@ -1173,6 +1231,15 @@
         </button>
         <div class="faq-a" hidden>
           <p data-i18n="faq.6.a">Jede Reise in Vacationist ist ein gemeinsamer Arbeitsbereich. Per Link einladen — alle treten sofort bei, kein Konto zum Mitmachen nötig. Die Urlaubsübersicht zeigt die gesamte Reise-Zeitleiste, alle Termine außerhalb des Kalenders und Ausgaben auf einen Blick. Änderungen synchronisieren sich in Echtzeit, sodass alle immer auf dem neuesten Stand sind.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d1">
+        <button class="faq-q" aria-expanded="false">
+          <span data-i18n="faq.7.q">Kann ich Belege anhängen und eine Geschäftsreise abrechnen?</span>
+          <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a" hidden>
+          <p data-i18n="faq.7.a">Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftsausgaben unterwegs und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen.</p>
         </div>
       </div>
     </div>

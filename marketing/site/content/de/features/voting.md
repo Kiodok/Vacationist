@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-07-21
 altPath: /features/voting/
 keywords: Aktivitäten abstimmen App, Gruppenentscheidung Reise, Reiseplaner Gruppe Abstimmung, Gruppenreise planen App
-related: /de/features/expenses/, /de/blog/how-to-plan-a-group-trip/, /de/vs/wanderlog/
+related: /de/features/expenses/, /de/features/transfers/, /de/blog/how-to-plan-a-group-trip/, /de/vs/wanderlog/
 breadcrumbLabel: Aktivitäten-Voting
 ---
 
@@ -60,7 +60,7 @@ Die Aktivität wird deutlich markiert, damit die Gruppe weiß, dass es einen ech
 
 ### Können wir auch über Unterkünfte und Transfers abstimmen?
 
-Ja. Vacationist unterstützt Abstimmungen über Unterkünfte und Transferflüge genauso wie über Aktivitäten — die Gruppe entscheidet die großen Posten gemeinsam.
+Ja. Vacationist unterstützt Abstimmungen über Unterkünfte und über Flüge, neben Aktivitäten — die Gruppe entscheidet die großen Posten gemeinsam. Über Mietwagen, eigene Autos und öffentliche Verkehrsmittel wird nicht abgestimmt; sie dienen dazu, bereits vereinbarte Arrangements festzuhalten. Siehe [wie Transfers funktionieren](/de/features/transfers/).
 
 ### Ist die Abstimmung anonym?
 

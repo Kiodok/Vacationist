@@ -26,7 +26,7 @@ breadcrumbLabel: Reisedokumente
 
 Gruppenbuchungen brauchen wirklich eine Person mit allen Daten: Flüge, Hotels, Mietwagen, Skipässe. Das Problem war nie der Bedarf — sondern dass das Teilen über den Chat läuft und sich nie rückgängig machen lässt.
 
-In Vacationist gewährst du dem Reiseorganisator **temporären Zugriff** auf bestimmte Dokumente. Er sieht, was er braucht, wann er es braucht — für die Buchung. Wenn gebucht ist — oder wann immer du willst — **widerrufst du den Zugriff** und er ist weg. Keine Kopien, die in irgendeiner Fotogalerie herumschwirren.
+In Vacationist gewährst du dem Reiseorganisator **temporären Zugriff** auf bestimmte Dokumente. Du bestimmst, wie lange dieser Zugriff dauert — und die Uhr läuft erst, wenn der Organisator deine Dokumente zum ersten Mal öffnet. Ein Zugriff, den du eine Woche früher gewährst, verbraucht sein Zeitfenster also nicht, während du wartest. Ab diesem ersten Öffnen läuft der Zugriff für die von dir gesetzte Dauer und endet dann von selbst. Es gibt zudem eine harte äußere Frist: Öffnet der Organisator die Dokumente nicht innerhalb von sieben Tagen, verfällt die Freigabe trotzdem. Bis er sie öffnet, zeigt deine Ansicht **„Noch nicht geöffnet"**, du wirst über die Freigabe sofort benachrichtigt und kannst den **Zugriff jederzeit widerrufen**. Keine Kopien, die in irgendeiner Fotogalerie herumschwirren.
 
 ## Warum das für echte Gruppen zählt
 
@@ -49,6 +49,10 @@ Sensible Dokumentfelder werden verschlüsselt gespeichert, und der Zugriff ist e
 ### Was passiert, wenn ich den Zugriff des Organisators widerrufe?
 
 Er verliert sofort die Möglichkeit, das Dokument einzusehen. Anders als ein Foto im Chat ist das Teilen in Vacationist eine Zugriffserlaubnis, keine Kopie — der Widerruf beendet den Zugriff tatsächlich.
+
+### Wann beginnt das Zugriffsfenster zu laufen?
+
+Nicht beim Gewähren — sondern wenn der Organisator deine Dokumente zum ersten Mal öffnet. Bis dahin zeigt deine Ansicht „Noch nicht geöffnet". Ab dem ersten Öffnen läuft der Zugriff für die von dir gewählte Dauer und endet dann von selbst. Eine nie geöffnete Freigabe verfällt nach sieben Tagen.
 
 ### Welche Dokumente kann ich speichern?
 

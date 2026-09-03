@@ -123,7 +123,7 @@
         "name": "Can the trip organizer see my documents at all times?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No — by default, nobody can see your documents except you. An organizer only sees what you explicitly grant them, only for the time window you choose, and you can revoke that access whenever you want. This is different from a shared folder or chat, where anyone with access can see everything, indefinitely, with no way for you to take it back."
+          "text": "No — by default, nobody can see your documents except you. An organizer only sees what you explicitly grant them, and the access window doesn't even start until they first open the documents; from there it runs for the duration you set and then expires on its own (and an unopened grant lapses after seven days). You can revoke access whenever you want. This is different from a shared folder or chat, where anyone with access can see everything, indefinitely, with no way for you to take it back."
         }
       },
       {
@@ -188,25 +188,25 @@
 <p>The workflow that actually solves the group-trip problem looks like this:</p>
 <ol>
 <li>Each person adds their own documents to their own encrypted vault — nobody else can see them by default.</li>
-<li>When a booking genuinely requires it, that person grants the organizer <strong>temporary</strong> access — not a permanent share, a time-boxed one.</li>
-<li>The organizer sees exactly what they need to complete the booking, and nothing more.</li>
-<li>Access can be <strong>revoked at any time</strong> — the moment the booking is done, or if the person changes their mind, or simply because the trip is over and there&#39;s no more reason for anyone else to see it.</li>
+<li>When a booking genuinely requires it, that person grants the organizer <strong>temporary</strong> access — not a permanent share, a time-boxed one, for a duration they choose.</li>
+<li>The clock doesn&#39;t start until the organizer actually opens the documents. Until then the owner sees a &quot;Not opened yet&quot; status; from the first view, access runs for the chosen duration and then expires on its own. A grant that&#39;s never opened lapses after seven days regardless.</li>
+<li>The organizer is notified when access is granted, sees exactly what they need, and nothing more. The owner can <strong>revoke access at any time</strong> — the moment the booking is done, or simply because the trip is over.</li>
 </ol>
-<p>Compare that to a chat screenshot: there&#39;s no step 4. Once it&#39;s sent, it&#39;s sent, permanently, to everyone in the thread, forever.</p>
+<p>Compare that to a chat screenshot: there&#39;s no step 3 or 4. Once it&#39;s sent, it&#39;s sent, permanently, to everyone in the thread, forever.</p>
 <h2 id="a-simple-checklist-before-your-next-group-trip">A simple checklist before your next group trip</h2>
 <p>Save this one — it&#39;s meant to be skimmed and shared with whoever&#39;s organizing:</p>
 <ul>
 <li><strong>Never send a passport, ID, or insurance photo directly in a group chat</strong> — even &quot;just to the organizer&quot; via DM. DMs get backed up too.</li>
 <li><strong>Ask whether the booking platform actually requires the full document image</strong>, or just specific fields (name, passport number, expiry date). Often it&#39;s the latter, and typing those fields is safer than sending a photo.</li>
-<li><strong>If a document genuinely needs to be shared, use a tool where access is temporary and revocable</strong>, not a permanent copy.</li>
-<li><strong>Set a reminder to revoke organizer access once the booking is confirmed</strong> — don&#39;t leave it open &quot;just in case.&quot;</li>
+<li><strong>If a document genuinely needs to be shared, use a tool where access is temporary and revocable</strong>, not a permanent copy — ideally one where the access window expires on its own so nobody has to remember to close it.</li>
+<li><strong>Still, glance at your active grants after the booking is confirmed</strong> — if a tool self-expires access, this is a quick check rather than a chore.</li>
 <li><strong>After the trip, check that nobody still has standing access</strong> to documents that were only needed for one booking.</li>
 </ul>
 <h2 id="what-it-costs">What it costs</h2>
 <p>This isn&#39;t a paid feature tier — <a href="/features/travel-documents/">encrypted travel documents</a> are part of Vacationist&#39;s free core app, the same as voting and expense splitting. Privacy shouldn&#39;t be the thing you have to upgrade for.</p>
 <div class="cta-band" id="get-app">
   <h3>Plan your next group trip with Vacationist</h3>
-  <p>Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
+  <p>Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
   <div class="cta-actions">
     <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Get it on Play Store</a>
     <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Get it on App Store</a>
@@ -218,7 +218,7 @@
 <h3 id="what-happens-to-my-documents-if-i-leave-a-trip">What happens to my documents if I leave a trip?</h3>
 <p>If you used a chat or shared album, nothing happens automatically — copies of your documents remain on every device that ever received them, indefinitely. With Vacationist&#39;s encrypted vault, your documents were never shared by default; any temporary access you granted an organizer can be revoked immediately, and your documents stay encrypted on your own device regardless of trip membership.</p>
 <h3 id="can-the-trip-organizer-see-my-documents-at-all-times">Can the trip organizer see my documents at all times?</h3>
-<p>No — by default, nobody can see your documents except you. An organizer only sees what you explicitly grant them, only for the time window you choose, and you can revoke that access whenever you want. This is different from a shared folder or chat, where anyone with access can see everything, indefinitely, with no way for you to take it back.</p>
+<p>No — by default, nobody can see your documents except you. An organizer only sees what you explicitly grant them, and the access window doesn&#39;t even start until they first open the documents; from there it runs for the duration you set and then expires on its own (and an unopened grant lapses after seven days). You can revoke access whenever you want. This is different from a shared folder or chat, where anyone with access can see everything, indefinitely, with no way for you to take it back.</p>
 <h3 id="is-this-gdpr-compliant">Is this GDPR compliant?</h3>
 <p>Document encryption at rest with user-controlled, revocable access is exactly the kind of data-minimization and access-control practice GDPR is designed to encourage — you control what&#39;s shared, with whom, and for how long, rather than a third party holding permanent copies of your ID by default. Vacationist is built and hosted with Swiss/EU privacy standards in mind from the ground up, not retrofitted after the fact.</p>
 
@@ -247,7 +247,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <span class="footer-logo">Vacationist</span>
-      <p>The free group trip planner — vote on activities, split expenses, share lists, and keep everyone in sync.</p>
+      <p>The free group trip planner — vote on activities, split expenses with receipts, share lists, and keep everyone in sync.</p>
     </div>
     <div class="footer-col">
       <h4>Product</h4>
@@ -256,6 +256,7 @@
       <a href="/features/expenses/">Expense splitting</a>
       <a href="/features/shopping-lists/">Shared lists</a>
       <a href="/features/travel-documents/">Travel documents</a>
+      <a href="/features/transfers/">Transfers &amp; flights</a>
       <a href="/use-cases/">Use cases</a>
       <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
       <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>

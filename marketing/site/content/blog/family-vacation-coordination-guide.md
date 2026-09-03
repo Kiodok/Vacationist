@@ -9,8 +9,6 @@ date: 2026-07-17
 altPath: /de/blog/family-vacation-coordination-guide/
 keywords: family vacation planning app, family trip coordination, multi family vacation planning, plan family reunion trip
 blogIndex: true
-titleDe: Familienurlaub über mehrere Haushalte koordinieren
-descriptionDe: Großeltern, Geschwister-Familien, Kinder: wie man einen Familienurlaub über mehrere Haushalte plant — mit fairen Kosten und ohne Familiendrama.
 related: /features/travel-documents/, /blog/how-to-split-travel-expenses/, /blog/how-to-plan-a-group-trip/
 breadcrumbLabel: Family vacation guide
 ---
@@ -42,13 +40,13 @@ Family money conversations are harder than friend money conversations — there'
 
 - **Split shared costs by household, weighted where it's obviously fair.** The default: accommodation by rooms occupied (a couple's room vs. a family-of-five's wing are different shares), food and group activities per person with kids at a reduced or zero rate by agreement. Announce the scheme before booking — retroactive fairness negotiations between siblings are how holidays end up in family lore for the wrong reasons.
 - **Let generosity be explicit, not ambient.** If grandparents want to cover the house — wonderful: log it as their contribution so it's *seen*, rather than absorbed invisibly. Gratitude needs a ledger too. If they want to cover nothing more, that's equally fine and equally clear.
-- **Track from the first booking, visibly.** Deposits, ferry tickets, the big supermarket run — logged as they happen, [balances visible to every household](/features/expenses/), settled once at the end. The alternative — one sibling fronting everything and then itemizing by email in week two — reliably generates the trip's only real conflict. The [expense-splitting guide](/blog/how-to-split-travel-expenses/) covers the mechanics.
+- **Track from the first booking, visibly.** Deposits, ferry tickets, the big supermarket run — logged as they happen with the receipt attached, [balances visible to every household](/features/expenses/), settled once at the end. The alternative — one sibling fronting everything and then itemizing by email in week two — reliably generates the trip's only real conflict. The [expense-splitting guide](/blog/how-to-split-travel-expenses/) covers the mechanics.
 
 ## Documents: the family-sized problem
 
 A family trip means one person is usually wrangling passports and IDs for spouses, kids, and sometimes grandparents — and group bookings (flights, rentals) need those details months early. The common workflow — ID photos in the family WhatsApp — means your children's passports live in a chat thread forever.
 
-Do it properly: each household keeps its own documents in [Vacationist's encrypted vault](/features/travel-documents/) (encrypted at rest, biometric lock), and grants the trip's booking person **temporary access** that gets **revoked** once tickets are issued. The booking still happens; the permanent chat-thread copies don't. For families this is arguably the app's most valuable feature — and one no other travel app has.
+Do it properly: each household keeps its own documents in [Vacationist's encrypted vault](/features/travel-documents/) (encrypted at rest, biometric lock), and grants the trip's booking person **temporary access**. That access doesn't start counting until they actually open the documents, expires on its own after the duration you set, and lapses after seven days if never used — so nobody has to remember to switch it off once tickets are issued. The booking still happens; the permanent chat-thread copies don't. For families this is arguably the app's most valuable feature — and one no other travel app has.
 
 ## The trip itself: structure for humans aged 2 to 82
 

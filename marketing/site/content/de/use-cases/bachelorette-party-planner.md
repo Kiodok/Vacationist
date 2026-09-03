@@ -64,4 +64,4 @@ Ja — das Abstimmungssystem hat genau dafür eine „Gruppenhindernis"-Stufe, s
 
 ### Funktioniert es für einen Junggesellinnenabschied im Ausland mit einer anderen Währung?
 
-Vacationist unterstützt einfache Multi-Währungs-Verfolgung. Wenn deine Gruppe häufig zwischen mehreren Währungen umrechnet, ist die Handhabung einfacher als bei einer dedizierten Finanz-App — für die meisten Auslandsreisen aber ausreichend.
+Vacationist unterstützt einfache Multi-Währungs-Verfolgung — Ausgaben in einer anderen Währung werden mit einem gespeicherten Tageskurs umgerechnet, und der verwendete Kurs steht in der Ausgaben-Aufschlüsselung, sodass ein umgerechneter Betrag immer nachvollziehbar ist. Wenn deine Gruppe häufig zwischen mehreren Währungen umrechnet, ist die Handhabung einfacher als bei einer dedizierten Finanz-App — für die meisten Auslandsreisen aber ausreichend.

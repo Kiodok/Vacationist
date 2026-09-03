@@ -33,7 +33,7 @@ const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
 
 /* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
    release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
-const APP_VERSION = '1.26.0';
+const APP_VERSION = '1.33.1';
 
 /**
  * Single source of truth for the SoftwareApplication/WebSite JSON-LD text,
@@ -44,14 +44,14 @@ const APP_VERSION = '1.26.0';
  */
 const APP_LD = {
   en: {
-    description: 'The free group trip planning app. Vote on activities, split travel expenses, share packing lists, manage accommodations, and keep the whole group in sync — from the first idea to the last flight home.',
-    featureList: 'Group activity voting, Travel expense splitting, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Transfer & flight management, Encrypted travel documents, Real-time sync, Offline support, Guest access without account',
-    siteDescription: 'The free group trip planner — vote on activities, split travel expenses, share packing lists, and keep everyone in sync.',
+    description: 'The free group trip planning app. Vote on activities, split travel expenses with receipts attached, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, and keep the whole group in sync — from the first idea to the last flight home.',
+    featureList: 'Group activity voting, Travel expense splitting, Expense receipts and documents, Business expense reports, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Offline support, Guest access without account',
+    siteDescription: 'The free group trip planner — vote on activities, split travel expenses and attach receipts, share packing lists, and keep everyone in sync.',
   },
   de: {
-    description: 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen, Unterkünfte verwalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.',
-    featureList: 'Aktivitäten-Abstimmung, Reisekosten teilen, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Transfer- & Flugverwaltung, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto',
-    siteDescription: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen, Packlisten teilen und alle synchron halten.',
+    description: 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.',
+    featureList: 'Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftsausgaben-Berichte, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto',
+    siteDescription: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen und alle synchron halten.',
   },
 };
 
@@ -111,12 +111,12 @@ function webSiteLd(lang) {
 
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-08-17';
+const DE_HOME_LASTMOD = '2026-09-03';
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
   {
-    loc: `${SITE}/`, lastmod: '2026-08-17', changefreq: 'monthly', priority: '1.0',
+    loc: `${SITE}/`, lastmod: '2026-09-03', changefreq: 'monthly', priority: '1.0',
     alternates: [
       { hreflang: 'en', href: `${SITE}/` },
       { hreflang: 'de', href: `${SITE}/de/` },
@@ -125,7 +125,7 @@ const STATIC_SITEMAP_ENTRIES = [
   },
   { loc: `${SITE}/scan/android-qr`, lastmod: '2026-08-17', changefreq: 'monthly', priority: '0.6' },
   {
-    loc: `${SITE}/privacy-policy.html`, lastmod: '2026-08-17', changefreq: 'yearly', priority: '0.4',
+    loc: `${SITE}/privacy-policy.html`, lastmod: '2026-09-03', changefreq: 'yearly', priority: '0.4',
     alternates: [
       { hreflang: 'en', href: `${SITE}/privacy-policy.html` },
       { hreflang: 'de', href: `${SITE}/de/privacy-policy/` },
@@ -133,7 +133,7 @@ const STATIC_SITEMAP_ENTRIES = [
     ],
   },
   {
-    loc: `${SITE}/terms-of-service.html`, lastmod: '2026-05-23', changefreq: 'yearly', priority: '0.4',
+    loc: `${SITE}/terms-of-service.html`, lastmod: '2026-09-03', changefreq: 'yearly', priority: '0.4',
     alternates: [
       { hreflang: 'en', href: `${SITE}/terms-of-service.html` },
       { hreflang: 'de', href: `${SITE}/de/terms-of-service/` },
@@ -141,7 +141,7 @@ const STATIC_SITEMAP_ENTRIES = [
     ],
   },
   {
-    loc: `${SITE}/delete-account.html`, lastmod: '2026-08-17', changefreq: 'yearly', priority: '0.4',
+    loc: `${SITE}/delete-account.html`, lastmod: '2026-09-03', changefreq: 'yearly', priority: '0.4',
     alternates: [
       { hreflang: 'en', href: `${SITE}/delete-account.html` },
       { hreflang: 'de', href: `${SITE}/de/delete-account/` },
@@ -159,10 +159,10 @@ const STR = {
     navFeatures: 'Features', navBlog: 'Blog', navWebApp: '🌐 Web app', navGetApp: 'Get the app',
     breadcrumbHome: 'Home', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Features', breadcrumbUseCases: 'Use cases',
     ctaTitle: 'Plan your next group trip with Vacationist',
-    ctaText: 'Vote on activities, split expenses, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.',
+    ctaText: 'Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.',
     ctaPlay: 'Get it on Play Store', ctaAppStore: 'Get it on App Store', ctaWeb: 'Open the Web App',
     related: 'Keep reading',
-    footerTagline: 'The free group trip planner — vote on activities, split expenses, share lists, and keep everyone in sync.',
+    footerTagline: 'The free group trip planner — vote on activities, split expenses with receipts, share lists, and keep everyone in sync.',
     footerProduct: 'Product', footerCompare: 'Compare', footerResources: 'Resources', footerLegal: 'Legal',
     footerCopy: '© 2026 Vacationist · Gary Lude, Switzerland',
     blogIndexTitle: 'Vacationist Blog — Group Travel Planning Guides',
@@ -174,17 +174,16 @@ const STR = {
     navFeatures: 'Funktionen', navBlog: 'Blog', navWebApp: '🌐 Web-App', navGetApp: 'App holen',
     breadcrumbHome: 'Startseite', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Funktionen', breadcrumbUseCases: 'Anwendungsfälle',
     ctaTitle: 'Plane deine nächste Gruppenreise mit Vacationist',
-    ctaText: 'Über Aktivitäten abstimmen, Kosten teilen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.',
+    ctaText: 'Über Aktivitäten abstimmen, Kosten teilen und Belege anhängen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.',
     ctaPlay: 'Bei Google Play laden', ctaAppStore: 'Im App Store laden', ctaWeb: 'Web-App öffnen',
     related: 'Weiterlesen',
-    footerTagline: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen, Listen gemeinsam führen.',
+    footerTagline: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Listen gemeinsam führen.',
     footerProduct: 'Produkt', footerCompare: 'Vergleiche', footerResources: 'Ressourcen', footerLegal: 'Rechtliches',
     footerCopy: '© 2026 Vacationist · Gary Lude, Schweiz',
     blogIndexTitle: 'Vacationist Blog — Guides für Gruppenreisen',
     blogIndexDesc: 'Praktische Guides rund um Gruppenreisen: Planung, Kostenteilung, Abstimmungen und Koordination — auf Deutsch und Englisch.',
     blogIndexH1: 'Der Vacationist-Blog',
-    blogIndexIntro: 'Praktische, ehrliche Guides zur Planung von Gruppenreisen. Artikel auf Englisch sind entsprechend markiert.',
-    postBadgeEn: 'Englisch',
+    blogIndexIntro: 'Praktische, ehrliche Guides zur Planung von Gruppenreisen.',
   },
 };
 
@@ -196,6 +195,7 @@ const FOOTER_LINKS = {
       ['/features/expenses/', 'Expense splitting'],
       ['/features/shopping-lists/', 'Shared lists'],
       ['/features/travel-documents/', 'Travel documents'],
+      ['/features/transfers/', 'Transfers & flights'],
       // Only 2 of 6 /use-cases/ niches are footer-linked sitewide (space —
       // the product column is already 5 features + these). Bachelorette +
       // van-life chosen as the broadest-appeal pair; revisit once Search
@@ -233,6 +233,7 @@ const FOOTER_LINKS = {
       ['/de/features/expenses/', 'Kosten teilen'],
       ['/de/features/shopping-lists/', 'Gemeinsame Listen'],
       ['/de/features/travel-documents/', 'Reisedokumente'],
+      ['/de/features/transfers/', 'Transfers & Flüge'],
       // Same provisional 2-of-6 selection as FOOTER_LINKS.en.product above —
       // see that comment for the rationale.
       ['/de/use-cases/', 'Anwendungsfälle'],
@@ -694,7 +695,7 @@ function renderGermanHome() {
   const faqLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: [1, 2, 3, 4, 5, 6]
+    mainEntity: [1, 2, 3, 4, 5, 6, 7]
       .filter((n) => t[`faq.${n}.q`] && t[`faq.${n}.a`])
       .map((n) => ({
         '@type': 'Question', name: t[`faq.${n}.q`],
@@ -798,21 +799,26 @@ function blogIndexPage(lang) {
   };
 }
 
-function postCard(p, { title, description, badge } = {}) {
+function postCard(p) {
   return `    <a class="post-card" href="${p.path}">
-      <time datetime="${p.date}">${p.date}</time>${badge ? ` <span class="post-badge">${esc(badge)}</span>` : ''}
-      <h2>${esc(title || p.title)}</h2>
-      <p>${esc(description || p.description)}</p>
+      <time datetime="${p.date}">${p.date}</time>
+      <h2>${esc(p.title)}</h2>
+      <p>${esc(p.description)}</p>
     </a>`;
 }
 
-function renderBlogIndex(pages, registry) {
-  const t = STR.en;
+/**
+ * Blog overview at /blog/ (lang 'en') and /de/blog/ (lang 'de'). Every blog
+ * post ships in both languages with a bidirectional `altPath`, so each index
+ * simply lists its own language's posts, newest first.
+ */
+function renderBlogIndex(pages, registry, lang) {
+  const t = STR[lang];
   const posts = pages
-    .filter((p) => p.blogIndex && p.lang === 'en')
+    .filter((p) => p.blogIndex && p.lang === lang)
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 
-  const page = blogIndexPage('en');
+  const page = blogIndexPage(lang);
   if (posts.length) page.updated = posts[0].updated;
 
   const content = `
@@ -820,43 +826,6 @@ function renderBlogIndex(pages, registry) {
     <p class="lede">${esc(t.blogIndexIntro)}</p>
     <div class="post-list">
 ${posts.map((p) => postCard(p)).join('\n')}
-    </div>`;
-
-  return { page, html: renderPage(page, registry, content) };
-}
-
-/**
- * German blog overview at /de/blog/: German blog articles first, then any
- * English guides that have no German counterpart yet, shown with German
- * titles/descriptions (titleDe/descriptionDe front matter) and an "Englisch"
- * badge.
- */
-function renderGermanBlogIndex(pages, registry) {
-  const t = STR.de;
-  const dePosts = pages
-    .filter((p) => p.lang === 'de' && p.path.startsWith('/de/blog/'))
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
-  const enPosts = pages
-    .filter((p) => p.blogIndex && p.lang === 'en' && !p.altPath)
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
-
-  const cards = [
-    ...dePosts.map((p) => postCard(p)),
-    ...enPosts.map((p) => postCard(p, {
-      title: p.titleDe || p.title,
-      description: p.descriptionDe || p.description,
-      badge: t.postBadgeEn,
-    })),
-  ].join('\n');
-
-  const page = blogIndexPage('de');
-  if (dePosts.length) page.updated = dePosts[0].updated;
-
-  const content = `
-    <h1>${esc(t.blogIndexH1)}</h1>
-    <p class="lede">${esc(t.blogIndexIntro)}</p>
-    <div class="post-list">
-${cards}
     </div>`;
 
   return { page, html: renderPage(page, registry, content) };
@@ -1007,21 +976,21 @@ async function main() {
 
   // Blog indexes (generated, no md source) — also rendered via renderPage(),
   // so they reference pageOgImage() too and need their own generated image.
-  const blogIndex = renderBlogIndex(pages, registry);
+  const blogIndex = renderBlogIndex(pages, registry, 'en');
   registry.set('/blog/', blogIndex.page);
   writeOut(outPathFor('/blog/'), blogIndex.html);
   writeBinary(join(DOCS_DIR, 'assets', 'og', ogImagePath(blogIndex.page)), await generateOgImage(blogIndex.page));
 
-  const deBlogIndex = renderGermanBlogIndex(pages, registry);
+  const deBlogIndex = renderBlogIndex(pages, registry, 'de');
   registry.set('/de/blog/', deBlogIndex.page);
   writeOut(outPathFor('/de/blog/'), deBlogIndex.html);
   writeBinary(join(DOCS_DIR, 'assets', 'og', ogImagePath(deBlogIndex.page)), await generateOgImage(deBlogIndex.page));
 
-  // RSS feeds — same post filters renderBlogIndex()/renderGermanBlogIndex() use
+  // RSS feeds — same post filter renderBlogIndex() uses
   const enPosts = pages.filter((p) => p.blogIndex && p.lang === 'en').sort((a, b) => (a.date < b.date ? 1 : -1));
   writeOut(join(DOCS_DIR, 'blog', 'feed.xml'), renderRssFeed(enPosts, 'en'));
 
-  const dePosts = pages.filter((p) => p.lang === 'de' && p.path.startsWith('/de/blog/')).sort((a, b) => (a.date < b.date ? 1 : -1));
+  const dePosts = pages.filter((p) => p.blogIndex && p.lang === 'de').sort((a, b) => (a.date < b.date ? 1 : -1));
   writeOut(join(DOCS_DIR, 'de', 'blog', 'feed.xml'), renderRssFeed(dePosts, 'de'));
 
   // English homepage: keep its own SoftwareApplication/WebSite JSON-LD in

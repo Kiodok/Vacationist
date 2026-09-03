@@ -88,7 +88,31 @@
         "name": "Ist die Kostenteilung kostenlos?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Ja. Die Kostenteilung ist Teil des kostenlosen Vacationist-Tarifs, ohne Werbung. Pro ergänzt mehr Planungstage pro Jahr, aber die Ausgaben-Funktionen stehen nicht hinter einer Paywall."
+          "text": "Ja. Die Kostenteilung — inklusive Belege und Geschäftsausgaben-Bericht — ist Teil des kostenlosen Vacationist-Tarifs, ohne Werbung. Pro ergänzt mehr Planungstage pro Jahr, aber die Ausgaben-Funktionen stehen nicht hinter einer Paywall."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kann ich einen Beleg an eine Ausgabe anhängen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja. Füge einer Ausgabe ein oder mehrere Fotos oder PDFs hinzu (je bis 10 MB). Jedes Reisemitglied kann sie ansehen; nur wer einen Beleg hochgeladen hat oder der Organisator kann ihn ersetzen oder löschen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kann ich Ausgaben für eine Arbeitgeber-Erstattung exportieren?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja. Markiere die betreffenden Ausgaben als Geschäftsausgaben und exportiere eine Geschäftsausgaben-Übersicht pro Person als PDF (im Web zusätzlich Markdown), aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den Belegen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wie funktioniert der Wechselkurs bei Ausgaben in einer anderen Währung?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ausgaben in einer anderen Währung als der der Reise werden mit einem gespeicherten Tageskurs umgerechnet, und der angewendete Kurs wird in der Ausgaben-Aufschlüsselung angezeigt — ein umgerechneter Betrag ist immer nachvollziehbar, keine Blackbox."
         }
       },
       {
@@ -152,18 +176,19 @@
 <p class="lede">Beim Geld gehen Gruppenreisen schief. Jemand streckt das Hotel vor, jemand anderes übernimmt das Abendessen, drei Leute schicken einen Monat später halb erinnerte PayPal-Anfragen. Vacationist erfasst jede gemeinsame Ausgabe, während sie passiert — so dauert das Abrechnen Sekunden, nicht Tabellenkalkulationen.</p><h2 id="so-funktioniert-die-kostenteilung">So funktioniert die Kostenteilung</h2>
 <p>Jede Gruppenausgabe erfassen — Unterkunft, Abendessen, Sprit, Tickets, Einkäufe — und auswählen, wer gezahlt hat und für wen sie gilt:</p>
 <ol>
-<li><strong>Ausgabe hinzufügen</strong> mit Betrag und Kategorie, direkt in dem Moment, in dem sie passiert.</li>
+<li><strong>Ausgabe hinzufügen</strong> mit Betrag, Kategorie und optionaler Notiz — direkt in dem Moment, in dem sie passiert.</li>
+<li><strong>Beleg anhängen</strong> — ein Foto oder PDF, direkt an die Ausgabe, solange der Beleg noch in deiner Hand ist.</li>
 <li><strong>Zahler auswählen</strong> — wer tatsächlich die Karte gezückt hat.</li>
 <li><strong>Aufteilen</strong> — gleichmäßig auf alle oder mit eigenen Beträgen, wenn jemand den Wein ausgelassen hat oder später dazugekommen ist.</li>
 <li><strong>Salden aktualisieren sich sofort</strong> für die ganze Gruppe. Alle wissen jederzeit, wo sie stehen.</li>
 </ol>
-<p>Am Reiseende einzelne Splits nacheinander begleichen oder alles auf einmal ausgleichen. Kein unangenehmes „Also… wegen dem Geld&quot;-Gespräch nötig — die Zahlen waren die ganze Zeit für alle sichtbar.</p>
+<p>Am Reiseende führt der Salden-Bildschirm mit <strong>deinem</strong> Saldo — was du zahlst oder bekommst — gefolgt vom vereinfachten Ausgleichsplan: die wenigsten Überweisungen, die die ganze Gruppe glattstellen. Die Salden einzelner Mitglieder sind einen Tipp entfernt, wenn du das Detail willst. Ausgaben in Fremdwährung zeigen den verwendeten Wechselkurs direkt in der Aufschlüsselung — ein umgerechneter Betrag ist nie eine rätselhafte Zahl.</p>
 <h2 id="für-reisen-gebaut-nicht-nur-für-rechnungen">Für Reisen gebaut, nicht nur für Rechnungen</h2>
 <p>Viele Apps teilen Rechnungen. Vacationist teilt Rechnungen <em>innerhalb der Reise, die ihr sowieso schon gemeinsam plant</em> — und das ändert, was möglich ist:</p>
 <ul>
 <li><strong>Ausgaben gehören zur Reise.</strong> Jede Ausgabe lebt bei ihrer Reise — kein Vermischen der Kroatien-Abrechnung mit der Stromrechnung deiner WG.</li>
 <li><strong>Alle sind schon da.</strong> Weil die Gruppe die Reise in Vacationist geplant hat, muss niemand noch eine App installieren, nur um dir Geld zu schulden. Auch Gäste, die per Einladungslink beigetreten sind, machen bei den Ausgaben mit.</li>
-<li><strong>Urlaubsausgaben auf einen Blick.</strong> Die Reiseübersicht zeigt Gesamt- und Pro-Kopf-Ausgaben, während die Reise läuft — praktisch, wenn sich die Gruppe auf ein Budget geeinigt hat.</li>
+<li><strong>Urlaubsausgaben auf einen Blick.</strong> Die Reiseübersicht zeigt Gesamt- und Pro-Kopf-Ausgaben, während die Reise läuft, plus eine Kategorienübersicht — Unterkunft, Transport, Essen, Aktivitäten —, sodass eine Budgetüberschreitung eine offensichtliche Ursache hat.</li>
 <li><strong>Offline first.</strong> Ausgaben in den Bergen erfassen, auf der Fähre, wo auch immer. Sie synchronisieren, sobald du wieder online bist.</li>
 </ul>
 <h2 id="faire-splits-für-echte-situationen">Faire Splits für echte Situationen</h2>
@@ -173,9 +198,20 @@
 <li><strong>Teilweise Teilnahme</strong> — das Abendessen unter den fünf aufteilen, die dabei waren, nicht unter allen neun.</li>
 <li><strong>Mehrere Zahler über die Zeit</strong> — Salden verrechnen sich über alle Ausgaben hinweg. Wenn du den Sprit gezahlt hast und ich die Einkäufe, sind wir vielleicht schon quitt.</li>
 </ul>
+<h2 id="belege-angehängt-an-die-ausgabe">Belege, angehängt an die Ausgabe</h2>
+<p>Der Beleg für eine gemeinsame Ausgabe ist nur nützlich, wenn ihn später jemand findet. In Vacationist liegt er bei der Ausgabe selbst:</p>
+<ul>
+<li><strong>Fotografiere ihn beim Zahlen oder häng ihn an</strong> — ein oder mehrere Bilder oder PDFs pro Ausgabe, je bis 10 MB.</li>
+<li><strong>Alle auf der Reise können ihn ansehen</strong> — kein Weiterleiten, kein „schickst du mir das nochmal&quot;.</li>
+<li><strong>Nur wer ihn hochgeladen hat oder der Organisator kann ihn ersetzen oder entfernen</strong> — ein geteilter Beleg wird der Gruppe nicht unter den Händen ausgetauscht.</li>
+</ul>
+<p>Belege liegen in privatem, zugriffsgeschütztem Speicher, der auf die Mitglieder deiner Reise beschränkt ist. Das ist getrennt vom <a href="/de/features/travel-documents/">verschlüsselten Reisedokumente-Tresor</a> — Belege tragen nicht die Pass-taugliche Verschlüsselung, weil ein Restaurantbeleg kein Pass ist. Wichtig ist, dass sie privat zur Reise gehören und nicht in einer Foto-Galerie verschwinden.</p>
+<h2 id="eine-geschäftsreise-abrechnen">Eine Geschäftsreise abrechnen</h2>
+<p>Wenn die Reise geschäftlich ist — ein Team-Offsite, ein Kundentermin, eine Konferenz mit Kolleg:innen — ist die Gruppenaufteilung nur die halbe Arbeit. Du brauchst auch einen Bericht, den du einreichen kannst.</p>
+<p>Markiere jede Ausgabe beim Erfassen als <strong>Geschäftsausgabe</strong>. Zum Einreichen exportierst du eine <strong>Geschäftsausgaben-Übersicht</strong>: einen Bericht pro Person, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen. Im Web bekommst du eine PDF- und eine Markdown-Datei; in der App bekommst du das PDF. Die Beleg-Links bleiben 30 Tage gültig — lang genug, um die Forderung einzureichen und bearbeiten zu lassen. Der <a href="/de/use-cases/corporate-offsite-planner/">Guide zum Firmen-Offsite planen</a> zeigt den ganzen Ablauf.</p>
 <div class="cta-band" id="get-app">
   <h3>Plane deine nächste Gruppenreise mit Vacationist</h3>
-  <p>Über Aktivitäten abstimmen, Kosten teilen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.</p>
+  <p>Über Aktivitäten abstimmen, Kosten teilen und Belege anhängen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.</p>
   <div class="cta-actions">
     <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Bei Google Play laden</a>
     <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Im App Store laden</a>
@@ -183,7 +219,13 @@
   </div>
 </div><h2 id="häufige-fragen">Häufige Fragen</h2>
 <h3 id="ist-die-kostenteilung-kostenlos">Ist die Kostenteilung kostenlos?</h3>
-<p>Ja. Die Kostenteilung ist Teil des kostenlosen Vacationist-Tarifs, ohne Werbung. Pro ergänzt mehr Planungstage pro Jahr, aber die Ausgaben-Funktionen stehen nicht hinter einer Paywall.</p>
+<p>Ja. Die Kostenteilung — inklusive Belege und Geschäftsausgaben-Bericht — ist Teil des kostenlosen Vacationist-Tarifs, ohne Werbung. Pro ergänzt mehr Planungstage pro Jahr, aber die Ausgaben-Funktionen stehen nicht hinter einer Paywall.</p>
+<h3 id="kann-ich-einen-beleg-an-eine-ausgabe-anhängen">Kann ich einen Beleg an eine Ausgabe anhängen?</h3>
+<p>Ja. Füge einer Ausgabe ein oder mehrere Fotos oder PDFs hinzu (je bis 10 MB). Jedes Reisemitglied kann sie ansehen; nur wer einen Beleg hochgeladen hat oder der Organisator kann ihn ersetzen oder löschen.</p>
+<h3 id="kann-ich-ausgaben-für-eine-arbeitgeber-erstattung-exportieren">Kann ich Ausgaben für eine Arbeitgeber-Erstattung exportieren?</h3>
+<p>Ja. Markiere die betreffenden Ausgaben als Geschäftsausgaben und exportiere eine Geschäftsausgaben-Übersicht pro Person als PDF (im Web zusätzlich Markdown), aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den Belegen.</p>
+<h3 id="wie-funktioniert-der-wechselkurs-bei-ausgaben-in-einer-anderen-währung">Wie funktioniert der Wechselkurs bei Ausgaben in einer anderen Währung?</h3>
+<p>Ausgaben in einer anderen Währung als der der Reise werden mit einem gespeicherten Tageskurs umgerechnet, und der angewendete Kurs wird in der Ausgaben-Aufschlüsselung angezeigt — ein umgerechneter Betrag ist immer nachvollziehbar, keine Blackbox.</p>
 <h3 id="brauchen-meine-freunde-ein-konto-um-bei-ausgaben-dabei-zu-sein">Brauchen meine Freunde ein Konto, um bei Ausgaben dabei zu sein?</h3>
 <p>Nein. Wer der Reise per Einladungslink beitritt, kann als Gast Teil der Kostenteilung sein. Das beseitigt die größte Hürde beim Gruppen-Ausgabentracking — die eine Person, die sich weigert, irgendetwas zu installieren.</p>
 <h3 id="was-ist-der-unterschied-zu-splitwise">Was ist der Unterschied zu Splitwise?</h3>
@@ -200,6 +242,10 @@
       <span class="related-title">Aktivitäten-Voting</span>
       <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppenhindernis. Schluss mit endlosen Chat-Debatten.</span>
     </a>
+    <a class="related-card" href="/de/features/transfers/">
+      <span class="related-title">Transfers</span>
+      <span class="related-desc">Jede Etappe einer Gruppenreise an einem Ort — über Flüge abstimmen, Mietwagen und öffentliche Verkehrsmittel verwalten und jedes Ticket dabei behalten.</span>
+    </a>
     <a class="related-card" href="/de/vs/splitwise/">
       <span class="related-title">vs. Splitwise</span>
       <span class="related-desc">Ein ehrlicher Vergleich von Vacationist und Splitwise für Gruppenreisen. Splitwise gewinnt beim reinen Schulden-Tracking; Vacationist setzt Reiseplanung, Abstimmungen und Listen oben drauf.</span>
@@ -208,9 +254,9 @@
       <span class="related-title">Kostenteilungs-Guide</span>
       <span class="related-desc">Der komplette Guide zur Kostenteilung in der Gruppe: was als gemeinsam zählt, faire Methoden bei ungleichen Situationen, Tracking-Systeme — und Abrechnen ohne Peinlichkeit.</span>
     </a>
-    <a class="related-card" href="/de/vs/tricount/">
-      <span class="related-title">vs. Tricount</span>
-      <span class="related-desc">Ein ehrlicher Vergleich von Vacationist und Tricount. Tricount ist ein schneller, fokussierter Kostenteiler, beliebt in ganz Europa; Vacationist setzt Reiseplanung, Abstimmungen und Listen oben drauf.</span>
+    <a class="related-card" href="/de/blog/group-trip-receipts-and-expense-reports/">
+      <span class="related-title">Belege-Guide für Gruppenreisen</span>
+      <span class="related-desc">Wie ihr auf einer Gruppenreise jeden Beleg behaltet, Kosten fair teilt und pro Person einen Bericht erzeugt, den ihr wirklich einreichen könnt.</span>
     </a>
   </div>
 </section>
@@ -220,7 +266,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <span class="footer-logo">Vacationist</span>
-      <p>Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen, Listen gemeinsam führen.</p>
+      <p>Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Listen gemeinsam führen.</p>
     </div>
     <div class="footer-col">
       <h4>Produkt</h4>
@@ -229,6 +275,7 @@
       <a href="/de/features/expenses/">Kosten teilen</a>
       <a href="/de/features/shopping-lists/">Gemeinsame Listen</a>
       <a href="/de/features/travel-documents/">Reisedokumente</a>
+      <a href="/de/features/transfers/">Transfers &amp; Flüge</a>
       <a href="/de/use-cases/">Anwendungsfälle</a>
       <a href="/de/use-cases/bachelorette-party-planner/">Junggesellinnenabschied planen</a>
       <a href="/de/use-cases/van-life-trip-planner/">Van-Life-Reiseplaner</a>

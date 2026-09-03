@@ -32,7 +32,7 @@ Suggest a rest day, a different resort, or the après-ski spot, and let the grou
 
 ### Split the chalet, lift passes, and gear rental fairly
 
-Log the chalet cost, lift passes, and gear rental separately, and split each one with custom amounts — because the person who rented skis and bought a 6-day pass shouldn't owe the same as the one who brought their own gear and skied two days. Balances update live. See [how expense splitting works](/features/expenses/).
+Log the chalet cost, lift passes, and gear rental separately, attach the receipts, and split each one with custom amounts — because the person who rented skis and bought a 6-day pass shouldn't owe the same as the one who brought their own gear and skied two days. Balances update live, with a category breakdown of where the money went. See [how expense splitting works](/features/expenses/).
 
 ### A shared packing list for gear
 
@@ -56,7 +56,7 @@ Yes. Every expense supports custom splits, so the chalet cost can be divided by 
 
 ### Can we track gear rental costs separately from meals and lift passes?
 
-Yes — log each cost as its own expense (chalet, lift passes, gear rental, meals) so the group can see exactly what each category costs, not just one lump total.
+Yes — log each cost as its own expense with a category (chalet, lift passes, gear rental, meals), and the trip's spending view shows a category breakdown, so the group sees exactly what each part of the week costs, not just one lump total.
 
 ### Can the group vote on which days to ski versus rest?
 

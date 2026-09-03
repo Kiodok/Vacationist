@@ -24,11 +24,15 @@ Suggest activities and let the group decide with a 5-tier voting system — from
 
 ### [Expense splitting →](/features/expenses/)
 
-Log every shared cost, split it equally or with custom amounts, and watch balances update in real time. Settle up in seconds at the end of the trip. [See how expense splitting works.](/features/expenses/)
+Log every shared cost with a category and a receipt attached, split it equally or with custom amounts, and watch balances update in real time. Flag business expenses and export a per-person report for work trips. [See how expense splitting works.](/features/expenses/)
 
 ### [Shared shopping & packing lists →](/features/shopping-lists/)
 
 Live lists that sync to every phone instantly — plus a unique recipe-to-shopping-list sync for group cooking. [Explore shared lists.](/features/shopping-lists/)
+
+### [Transfers & flights →](/features/transfers/)
+
+Vote on flights, manage rental cars and public transport, assign who rides with whom, and keep every ticket and boarding pass attached to the journey. [See how transfers work.](/features/transfers/)
 
 ### [Encrypted travel documents →](/features/travel-documents/)
 
@@ -40,8 +44,9 @@ Passports and IDs stored encrypted at rest, protected by a biometric lock, share
 - **Real-time sync** — every vote, expense, and list change appears on everyone's device instantly.
 - **Offline first** — the app keeps working on planes, ferries, and mountain trails, then syncs when you're back.
 - **Shared trip calendar** — winning activities, accommodations, and transfers in one timeline everyone can see.
-- **Accommodation & transfer management** — collect options, vote on them, and keep confirmations where the group can find them.
-- **Group chat** — trip discussion next to the plan it's about, not lost in a parallel WhatsApp thread.
+- **Accommodation management** — collect options, vote on them, and keep confirmations where the group can find them.
+- **Group chat** — trip discussion next to the plan it's about, not lost in a parallel WhatsApp thread. Drafts survive switching tabs.
+- **Add an expense from your home screen** — a long-press shortcut on the app icon jumps straight to logging a cost for your active trip.
 - **Vacation tracker** — the whole trip and its spending at a glance.
 
 <!--CTA-->
