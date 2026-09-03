@@ -11,8 +11,9 @@ import { useTrips } from './useTrips';
 import { resolveActiveTrip } from '../utils/resolveActiveTrip';
 
 const ADD_EXPENSE_ACTION_ID = 'add-expense';
-// iOS: SF Symbol (no asset needed, available since iOS 13). Android: a vector drawable shipped
-// by ./plugins/withQuickActionIcon.js — resolved by name via getIdentifier(). A cash glyph
+// iOS: SF Symbol (no asset needed, available since iOS 13). Android: a raster drawable shipped
+// by ./plugins/withQuickActionIcon.js (plus a res/raw/keep.xml rule, since it's referenced only
+// by this runtime name string and R8 resource shrinking would otherwise strip it). A cash glyph
 // either way, replacing the OS-default shortcut icon.
 const EXPENSE_ICON = Platform.OS === 'ios' ? 'symbol:dollarsign.circle.fill' : 'ic_shortcut_expense';
 
@@ -40,8 +41,8 @@ export function useAppIconQuickAction(enabled: boolean) {
   const registerShortcut = () => {
     if (!enabled) return;
     const hasTarget = !!trips && resolveActiveTrip(trips) !== null;
-    // No non-archived trip at all — clear any previously-registered shortcut rather than
-    // leaving one that would resolve to nothing when tapped.
+    // No ongoing/upcoming/other non-terminal trip at all — clear any previously-registered
+    // shortcut rather than leaving one that would resolve to nothing when tapped.
     QuickActions.setItems(
       hasTarget
         ? [{ id: ADD_EXPENSE_ACTION_ID, title: i18n.t('common:quickAction.addExpense'), icon: EXPENSE_ICON }]

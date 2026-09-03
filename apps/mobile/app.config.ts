@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Vacationist',
   slug: 'vacationist',
-  version: '1.33.0',
+  version: '1.33.1',
   orientation: 'default',
   icon: './assets/images/icon.png',
   scheme: 'vacationist',
@@ -134,9 +134,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // iosActions/androidIcons config, since its target trip has to be resolved fresh on every
     // app launch/foreground, not baked in at build time.
     'expo-quick-actions',
-    // Ships res/drawable/ic_shortcut_expense.xml so the Android shortcut has a cash icon
-    // instead of the OS default (expo-quick-actions has no prop for a shortcut drawable). iOS
-    // uses the SF Symbol `dollarsign.circle.fill` and needs no asset.
+    // Ships the Android shortcut's cash drawable (raster, xxxhdpi) + a res/raw/keep.xml rule so
+    // R8 resource shrinking doesn't strip it — it's referenced only by a runtime getIdentifier
+    // string. expo-quick-actions has no prop for a shortcut drawable. iOS uses the SF Symbol
+    // `dollarsign.circle.fill` and needs no asset.
     './plugins/withQuickActionIcon',
     [
       'expo-build-properties',

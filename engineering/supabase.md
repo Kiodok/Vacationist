@@ -1,5 +1,52 @@
 # Supabase Changes Log
 
+## 2026-09-03 — v1.33.1: Android quick-action icon + next-planned-trip fallback (no migration)
+
+**Why:** two defects filed against the app-icon "Add Expense" quick action (task 16, shipped in
+v1.33.0).
+
+**App-layer fixes (no migration, no Supabase change):**
+
+- **Android shortcut showed the OS-default robot glyph, not the cash icon.** The v1.33.0
+  `withQuickActionIcon.js` fix shipped the drawable as a `<vector>` and it still rendered as the
+  robot on device (release) builds. `expo-quick-actions` resolves it at runtime with
+  `res.getIdentifier("ic_shortcut_expense", "drawable", packageName)` where the name comes from
+  JS — so `ic_shortcut_expense` exists only in the JS bundle, never in dex/XML. Two contributing
+  causes, both now fixed:
+  - **(1) R8 resource shrinking** (`enableShrinkResourcesInReleaseBuilds: true`, on since July
+    2026). Its default "safe" mode keeps resources whose names appear as string constants in
+    *compiled* code — this name never does, so it's stripped in release → `getIdentifier` returns
+    0 → no icon → robot. Not speculative: **`expo-dev-launcher` / `expo-dev-menu` ship the exact
+    same `res/raw/keep.xml` + `tools:keep` mechanism** (in their `debug` source set) for their own
+    JS-referenced Metro-bundled drawables — i.e. safe mode demonstrably does *not* auto-retain a
+    drawable whose name lives only in the JS bundle. Fix: the plugin writes
+    `res/raw/keep.xml` with `tools:keep="@drawable/ic_shortcut_expense"` in the `main` source set,
+    so a release variant carries exactly this one app-level keep.xml (the dev-launcher ones are
+    `debug`-only → no collision).
+  - **(2) cross-process VectorDrawable inflation** — `Icon.createWithResource` hands the id to the
+    launcher's process, where an inflated VectorDrawable is a known robot-fallback trigger on
+    several launchers. Fix: ship a **raster PNG** at `res/drawable-xxxhdpi/ic_shortcut_expense.png`
+    (192px/48dp) instead of the vector — removes this path independently of cause 1.
+  - Plugin also removes any stale `res/drawable/ic_shortcut_expense.xml` from a non-`--clean`
+    prebuild, and throws a clear error if the committed source asset
+    (`apps/mobile/assets/images/ic_shortcut_expense.png`) is missing. **Cheap post-hoc check:**
+    unzip the last v1.33.0 preview APK and see whether `res/drawable/ic_shortcut_expense.xml` is
+    present and non-empty (absent/dummied → confirms the shrinker stripped it).
+  - **General rule:** any Android resource this app references only by a runtime name string that
+    doesn't also appear as a compiled string constant is at risk from R8 and needs an explicit
+    `res/raw/keep.xml` entry.
+- **Quick action never targeted an upcoming trip.** `resolveActiveTrip()`
+  (`apps/mobile/src/features/trips/utils/resolveActiveTrip.ts`) had two tiers: date-covers-today,
+  else most-recently-created non-archived trip. Added a middle tier — the next planned trip
+  (soonest future `start_date`) — and tightened the candidate filter to also exclude
+  `status = 'completed'` (matching `getEffectiveStatus`'s terminal buckets). Fallback tier
+  unchanged. Unit tests in `resolveActiveTrip.test.ts` updated (6 → 11 cases).
+
+**Verification:** `npm run typecheck` exits 0; `npm test` passes (121 utils / 5 api / 161 mobile).
+`npx expo prebuild -p android --clean` confirms the PNG (byte-identical to the committed asset),
+`keep.xml`, and absence of the stale vector; `android/` then removed (gitignored). Robot→cash
+glyph is device-only — flagged for the Tech Lead's EAS preview-build test.
+
 ## 2026-09-02 — v1.33.0 post-test fixes: document-access first-view timer (1 migration) + business-expense PDF Edge Function
 
 **Why:** manual testing of v1.33.0 surfaced that the travel-document access countdown starts at

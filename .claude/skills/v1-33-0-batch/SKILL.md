@@ -1,6 +1,6 @@
 ---
 name: v1-33-0-batch
-description: Progress tracker for the v1.33.0 release — the original 19-item batch (12 groups), a 3-item addendum (FX-rate query fix, example-trip enrichment + tutorial refresh, iOS force-update fix), and a 10-finding code-review fix pass, all code-complete, nothing committed yet, pending EAS build + device testing before release. Use to resume work or answer "what's the status of v1.33.0" — lists every group's implementation details and key decisions already made so they aren't re-litigated.
+description: Progress tracker for the v1.33.0 / v1.33.1 release — the original 19-item batch (12 groups), a 3-item addendum, a 10-finding code-review pass, two device-testing rounds, and the v1.33.1 quick-action follow-ups (Android shortcut icon robot glyph — raster PNG + keep.xml; resolveActiveTrip next-planned-trip tier), all code-complete, nothing committed yet, pending EAS build + device testing before release. Use to resume work or answer "what's the status of v1.33.x" — lists every group's implementation details and key decisions already made so they aren't re-litigated.
 ---
 
 # v1.33.0 batch progress
@@ -547,6 +547,33 @@ object-fingerprint parity dev==prod confirmed. `database.types.ts` regenerated.
    put a function `style` prop on the flex-row `Pressable`s, which doesn't lay out reliably on
    Android (the [[pressable-flex-android]] footgun). Rewrote `TicketsSection.tsx` +
    `ExpenseDocumentsSection.tsx` rows as `TouchableOpacity` + `activeOpacity` + static styles.
+
+## v1.33.1 — quick-action follow-ups (code-complete, not committed)
+
+Two defects filed after v1.33.0 device testing. Plan:
+`C:\Users\Gary\.claude\plans\sprightly-frolicking-glade.md`. `npm run typecheck` 0, `npm test`
+green (121 utils / 5 api / 161 mobile). See `engineering/supabase.md` 2026-09-03 entry.
+
+1. **Android shortcut still showed the OS robot glyph, not the cash icon.** The v1.33.0 2nd-round
+   fix (`withQuickActionIcon.js` shipping a `<vector>` to `res/drawable/`) didn't hold on device.
+   `expo-quick-actions` resolves the icon at runtime via
+   `res.getIdentifier("ic_shortcut_expense", …)` with the name passed from JS. Two contributing
+   causes: **(a) R8 resource shrinking** (`enableShrinkResourcesInReleaseBuilds: true`) — its
+   default "safe" mode only protects names that appear as compiled string constants, not a JS-only
+   name, so the drawable is stripped in release → `getIdentifier` returns 0 → robot (same reason
+   `expo-dev-launcher`/`expo-dev-menu` ship their own `res/raw/keep.xml`); **(b) cross-process
+   VectorDrawable inflation** in the launcher process, a known robot-fallback trigger. Fix in
+   `withQuickActionIcon.js` covers both: ship a **raster PNG** at
+   `res/drawable-xxxhdpi/ic_shortcut_expense.png` (source
+   `apps/mobile/assets/images/ic_shortcut_expense.png`, 192px), write `res/raw/keep.xml` (in the
+   `main` source set) with `tools:keep="@drawable/ic_shortcut_expense"`, delete any stale vector,
+   and throw if the source asset isn't committed. Cheap post-hoc check: `unzip -l` the last
+   v1.33.0 APK to see whether the drawable was actually stripped.
+   **General lesson → [[android-runtime-resource-shrinking]].**
+2. **Quick action never targeted an upcoming trip.** `resolveActiveTrip()` gained a middle tier —
+   next planned trip (soonest future `start_date`) — between "date covers today" and the
+   most-recently-created fallback, and now also excludes `status === 'completed'` (not just
+   `archived`), matching `getEffectiveStatus`. Tests: 6 → 11 cases.
 
 ## Key decisions to not re-litigate
 
