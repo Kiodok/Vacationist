@@ -33,7 +33,8 @@
     "test:site": "node marketing/site/consent.test.js",
     "serve:docs": "npx serve docs -p 3001",
     "build:site": "node marketing/site/build.mjs",
-    "analytics:report": "node scripts/analytics-report.mjs"
+    "analytics:report": "node scripts/analytics-report.mjs",
+    "screenshots:ios": "node scripts/generate-ios-screenshots.mjs"
   },
   "devDependencies": {
     "marked": "^18.0.6",
