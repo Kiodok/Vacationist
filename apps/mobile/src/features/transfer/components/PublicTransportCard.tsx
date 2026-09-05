@@ -1,12 +1,12 @@
 import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatNaiveTimestamp } from '@vacationist/utils';
-import type { TransferPublicTransport, Currency } from '@vacationist/types';
+import type { TransferPublicTransport } from '@vacationist/types';
 import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface PublicTransportCardProps {
   entry: TransferPublicTransport;
-  currency: string;
   onPress?: () => void;
   detail?: React.ReactNode;
   highlight?: boolean;
@@ -21,7 +21,8 @@ function formatDatetime(value: string | null): string | null {
   return formatNaiveTimestamp(value, 'D MMM, HH:mm');
 }
 
-export function PublicTransportCard({ entry, currency, onPress, detail, highlight }: PublicTransportCardProps) {
+export function PublicTransportCard({ entry, onPress, detail, highlight }: PublicTransportCardProps) {
+  const { t } = useTranslation('transfer');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const borderColor = colors.border;
@@ -45,9 +46,19 @@ export function PublicTransportCard({ entry, currency, onPress, detail, highligh
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
         <View className="flex-row items-start justify-between">
-          <Text className="text-body text-text-primary font-semibold flex-1" numberOfLines={1}>
-            {entry.title}
-          </Text>
+          <View className="flex-row items-center gap-xs flex-1">
+            <Text className="text-body text-text-primary font-semibold flex-1" numberOfLines={1}>
+              {entry.title}
+            </Text>
+            {entry.is_business && (
+              <View
+                className="w-[22px] h-[22px] rounded-full bg-primary/10 items-center justify-center"
+                accessibilityLabel={t('publicTransport.field.businessExpense')}
+              >
+                <ThemedIcon name="briefcase-outline" size={12} color={colors.primary} />
+              </View>
+            )}
+          </View>
         </View>
 
         {entry.company && (
@@ -81,7 +92,7 @@ export function PublicTransportCard({ entry, currency, onPress, detail, highligh
           )}
           {entry.price_total != null && (
             <Text className="text-body-small text-text-secondary">
-              {formatCurrency(Number(entry.price_total), currency as Currency)}
+              {formatCurrency(Number(entry.price_total), entry.currency)}
             </Text>
           )}
         </View>

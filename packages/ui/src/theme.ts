@@ -14,6 +14,7 @@ export interface Colors {
   warning: string;
   warningMuted: string;
   danger: string;
+  info: string;
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
@@ -70,6 +71,7 @@ export const darkColors: Colors = {
   warning: '#F5A623',
   warningMuted: 'rgba(245, 166, 35, 0.1)',
   danger: '#FF5C5C',
+  info: '#3B82F6',
   textPrimary: '#F2F2F2',
   textSecondary: '#A0A0A0',
   textMuted: '#5C5C5C',
@@ -88,6 +90,7 @@ export const lightColors: Colors = {
   warning: '#F5A623',
   warningMuted: 'rgba(245, 166, 35, 0.12)',
   danger: '#FF5C5C',
+  info: '#3B82F6',
   textPrimary: '#1A1A1A',
   textSecondary: '#6B6B6B',
   textMuted: '#A0A0A0',
@@ -106,6 +109,10 @@ export const colorfulColors: Colors = {
   warning: '#9B3D00',
   warningMuted: 'rgba(155, 61, 0, 0.15)',
   danger: '#B83232',
+  // Darker than the dark/light value (#3B82F6) for contrast against the orange background/surface
+  // — same reasoning as success/warning/danger above each getting a deeper colorful-specific
+  // shade rather than reusing their bright dark/light value.
+  info: '#1D4ED8',
   textPrimary: '#690F0C',
   textSecondary: '#7A2418',
   textMuted: '#8B6840',

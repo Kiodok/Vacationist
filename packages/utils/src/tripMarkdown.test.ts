@@ -54,6 +54,8 @@ const accommodation: Accommodation = {
   title: 'Hotel Split',
   description: null,
   price_total: 900,
+  currency: 'EUR',
+  is_business: false,
   external_url: 'https://example.com',
   maps_url: null,
   notes: null,

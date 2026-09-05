@@ -1,6 +1,6 @@
 import { View, Text, Pressable, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { TransferFlight, TransferFlightVote, Currency } from '@vacationist/types';
+import type { TransferFlight, TransferFlightVote } from '@vacationist/types';
 import { formatCurrency, formatNaiveTimestamp } from '@vacationist/utils';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
@@ -15,7 +15,6 @@ interface FlightCardProps {
   flight: TransferFlight;
   votes: TransferFlightVote[];
   currentUserId: string | undefined;
-  currency: string;
   isWinner: boolean;
   onPress: () => void;
   onVotePress: () => void;
@@ -23,7 +22,7 @@ interface FlightCardProps {
   highlight?: boolean;
 }
 
-export function FlightCard({ flight, votes, currentUserId, currency, isWinner, onPress, onVotePress, detail, highlight }: FlightCardProps) {
+export function FlightCard({ flight, votes, currentUserId, isWinner, onPress, onVotePress, detail, highlight }: FlightCardProps) {
   const { t } = useTranslation('activities');
   const { t: tTransfer } = useTranslation('transfer');
   const theme = useResolvedTheme();
@@ -66,6 +65,14 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
               {isWinner && !flight.voting_open && (
                 <View className="px-xs py-[2px] rounded-full bg-success/20">
                   <Text className="text-success text-label font-semibold">{tTransfer('flight.winner')}</Text>
+                </View>
+              )}
+              {flight.is_business && (
+                <View
+                  className="w-[22px] h-[22px] rounded-full bg-primary/10 items-center justify-center"
+                  accessibilityLabel={tTransfer('flight.field.businessExpense')}
+                >
+                  <ThemedIcon name="briefcase-outline" size={12} color={colors.primary} />
                 </View>
               )}
             </View>
@@ -133,7 +140,7 @@ export function FlightCard({ flight, votes, currentUserId, currency, isWinner, o
         {/* Price */}
         {flight.price_per_person != null && (
           <Text className="text-body-small text-text-secondary">
-            {formatCurrency(Number(flight.price_per_person), currency as Currency)} / person
+            {formatCurrency(Number(flight.price_per_person), flight.currency)} / person
           </Text>
         )}
 

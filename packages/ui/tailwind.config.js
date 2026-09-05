@@ -35,6 +35,10 @@ module.exports = {
           muted: 'rgb(var(--color-warning) / 0.1)',
         },
         danger: 'rgb(var(--color-danger) / <alpha-value>)',
+        info: {
+          DEFAULT: 'rgb(var(--color-info) / <alpha-value>)',
+          muted: 'rgb(var(--color-info) / 0.1)',
+        },
         // Accent colors — theme-invariant
         teal: {
           DEFAULT: '#14B8A6',

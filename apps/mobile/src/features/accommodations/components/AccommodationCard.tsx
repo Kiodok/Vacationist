@@ -1,6 +1,6 @@
 import { View, Text, Pressable, TouchableOpacity, Linking, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { dayjs } from '@vacationist/utils';
+import { dayjs, formatCurrency } from '@vacationist/utils';
 import type { Accommodation, AccommodationVote } from '@vacationist/types';
 import { VoteChip, VoteSummary } from '../../activities/components/VoteChip';
 import { colors, METADATA_ICON_COLORS, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
@@ -10,13 +10,12 @@ interface AccommodationCardProps {
   accommodation: Accommodation;
   votes: AccommodationVote[];
   currentUserId: string | undefined;
-  currency: string;
   onPress: () => void;
   onVotePress: () => void;
   detail?: React.ReactNode;
 }
 
-export function AccommodationCard({ accommodation, votes, currentUserId, currency, onPress, onVotePress, detail }: AccommodationCardProps) {
+export function AccommodationCard({ accommodation, votes, currentUserId, onPress, onVotePress, detail }: AccommodationCardProps) {
   const { t, i18n } = useTranslation('accommodations');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
@@ -24,7 +23,6 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
   const formatDate = (d: string) => dayjs(d).format(dateFormat);
   const myVote = votes.find((v) => v.user_id === currentUserId);
   const votingClosed = !accommodation.voting_open;
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
   const borderColor = getVoteBorderColor(votes, isColorful);
 
   return (
@@ -44,12 +42,22 @@ export function AccommodationCard({ accommodation, votes, currentUserId, currenc
       >
         <View className="flex-row items-start justify-between">
           <View className="flex-1 gap-xs">
-            <Text className="text-body text-text-primary font-semibold" numberOfLines={1}>
-              {accommodation.title}
-            </Text>
+            <View className="flex-row items-center gap-xs">
+              <Text className="text-body text-text-primary font-semibold flex-1" numberOfLines={1}>
+                {accommodation.title}
+              </Text>
+              {accommodation.is_business && (
+                <View
+                  className="w-[22px] h-[22px] rounded-full bg-primary/10 items-center justify-center"
+                  accessibilityLabel={t('field.businessExpense')}
+                >
+                  <ThemedIcon name="briefcase-outline" size={12} color={colors.primary} />
+                </View>
+              )}
+            </View>
             {accommodation.price_total != null && (
               <Text className="text-body-small text-text-secondary">
-                {currencySymbol}{Number(accommodation.price_total).toFixed(2)}
+                {formatCurrency(Number(accommodation.price_total), accommodation.currency)}
               </Text>
             )}
           </View>

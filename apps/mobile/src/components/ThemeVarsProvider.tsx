@@ -22,6 +22,7 @@ const lightVars = vars({
   '--color-success': '62 207 142',
   '--color-warning': '245 166 35',
   '--color-danger': '255 92 92',
+  '--color-info': '59 130 246',
 });
 
 const darkVars = vars({
@@ -38,6 +39,7 @@ const darkVars = vars({
   '--color-success': '62 207 142',
   '--color-warning': '245 166 35',
   '--color-danger': '255 92 92',
+  '--color-info': '59 130 246',
 });
 
 const colorfulVars = vars({
@@ -54,6 +56,7 @@ const colorfulVars = vars({
   '--color-success': '0 130 77',
   '--color-warning': '155 61 0',
   '--color-danger': '184 50 50',
+  '--color-info': '29 78 216',
 });
 
 export function ThemeVarsProvider({ children }: { children: ReactNode }) {

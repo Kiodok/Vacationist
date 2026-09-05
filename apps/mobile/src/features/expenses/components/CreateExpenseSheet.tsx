@@ -22,11 +22,16 @@ import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/use
 import { getLastUsedCurrency, setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
+import { StagedDocumentsField } from './StagedDocumentsField';
+import type { PickedDocumentFile } from '../../../utils/documentPicker';
 
 interface CreateExpenseSheetProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (input: CreateExpenseInput) => void;
+  /** `stagedFiles` is empty unless the user attached documents before the expense existed — the
+   * caller uploads them once the create mutation resolves with a real expense id (see
+   * expenses.tsx's handleCreate). */
+  onSubmit: (input: CreateExpenseInput, stagedFiles: PickedDocumentFile[]) => void;
   isPending: boolean;
   members: TripMemberWithUser[];
   currentUserId: string;
@@ -66,6 +71,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   const [exactAmounts, setExactAmounts] = useState<Record<string, string>>({});
   const [shareValues, setShareValues] = useState<Record<string, number>>({});
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
+  const [stagedFiles, setStagedFiles] = useState<PickedDocumentFile[]>([]);
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
   const categoryOptions = EXPENSE_RELATED_TYPE.map((type) => ({ value: type, label: RELATED_TYPE_LABELS[type] ?? type }));
   const [paidByPickerVisible, setPaidByPickerVisible] = useState(false);
@@ -154,7 +160,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const onValid = (data: CreateExpenseInput) => {
     Keyboard.dismiss();
-    onSubmit({ ...data, splits: buildSplits() });
+    onSubmit({ ...data, splits: buildSplits() }, stagedFiles);
     resetForm();
   };
 
@@ -165,6 +171,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     setSplitMethod('even');
     setExactAmounts({});
     setShareValues({});
+    setStagedFiles([]);
   };
 
   const handleClose = () => {
@@ -507,6 +514,9 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                   </View>
                 )}
               />
+
+              {/* Documents — staged locally until the expense actually exists (see onValid). */}
+              <StagedDocumentsField files={stagedFiles} onChange={setStagedFiles} />
 
               {/* Submit */}
               <Pressable

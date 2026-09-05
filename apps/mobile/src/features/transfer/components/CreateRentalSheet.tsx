@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createTransferRentalSchema, type CreateTransferRentalInput, type Currency } from '@vacationist/types';
-import { getCurrencySymbol, sanitizeDecimalInput } from '@vacationist/utils';
+import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
+import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyField';
+import { initialTransferCurrency, useTransferCurrencyField } from '../../currencies/hooks/useTransferCurrencyField';
 
 interface CreateRentalSheetProps {
   visible: boolean;
@@ -26,24 +28,27 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
-  const currencySymbol = getCurrencySymbol(currency as Currency);
 
-  const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<CreateTransferRentalInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateTransferRentalInput>({
     resolver: zodResolver(createTransferRentalSchema),
-    defaultValues: { title: '' },
+    defaultValues: { title: '', currency: initialTransferCurrency(currency), is_business: false },
   });
 
   const pickupDate = watch('pickup_date');
+  const selectedCurrency = (watch('currency') || currency) as Currency;
+  const currencyField = useTransferCurrencyField(selectedCurrency, (code) => setValue('currency', code));
+
+  const resetValues = () => ({ title: '', currency: initialTransferCurrency(currency), is_business: false });
 
   const onValid = (data: CreateTransferRentalInput) => {
     Keyboard.dismiss();
     onSubmit(data);
-    reset({ title: '' });
+    reset(resetValues());
     setPriceText('');
   };
 
   const handleClose = () => {
-    reset({ title: '' });
+    reset(resetValues());
     setPriceText('');
     onClose();
   };
@@ -210,26 +215,35 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
 
                 {/* Price */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">{t('rental.field.price')} ({currencySymbol})</Text>
-                  <Controller
-                    control={control}
-                    name="price_total"
-                    render={({ field: { onChange } }) => (
-                      <TextInput
-                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                        placeholderTextColor="#5C5C5C"
-                        placeholder={t('rental.placeholder.price')}
-                        value={priceText}
-                        onChangeText={(text) => {
-                          const cleaned = sanitizeDecimalInput(text);
-                          setPriceText(cleaned);
-                          const num = parseFloat(cleaned);
-                          onChange(isNaN(num) ? null : num);
-                        }}
-                        keyboardType="decimal-pad"
-                      />
-                    )}
-                  />
+                  <Text className="text-label text-text-muted uppercase">{t('rental.field.price')} ({currencyField.currencySymbol})</Text>
+                  <View className="flex-row gap-xs">
+                    <Controller
+                      control={control}
+                      name="price_total"
+                      render={({ field: { onChange } }) => (
+                        <TextInput
+                          className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                          placeholderTextColor="#5C5C5C"
+                          placeholder={t('rental.placeholder.price')}
+                          value={priceText}
+                          onChangeText={(text) => {
+                            const cleaned = sanitizeDecimalInput(text);
+                            setPriceText(cleaned);
+                            const num = parseFloat(cleaned);
+                            onChange(isNaN(num) ? null : num);
+                          }}
+                          keyboardType="decimal-pad"
+                        />
+                      )}
+                    />
+                    <EntityCurrencyField
+                      selectedCurrency={selectedCurrency}
+                      pickerVisible={currencyField.pickerVisible}
+                      onOpen={currencyField.openPicker}
+                      onClose={currencyField.closePicker}
+                      onSelect={currencyField.onSelect}
+                    />
+                  </View>
                 </View>
 
                 {/* External URL */}
@@ -278,6 +292,24 @@ export function CreateRentalSheet({ visible, onClose, onSubmit, isPending, curre
                     )}
                   />
                 </View>
+
+                {/* Business expense */}
+                <Controller
+                  control={control}
+                  name="is_business"
+                  render={({ field: { onChange, value } }) => (
+                    <View className="flex-row items-center justify-between py-xs">
+                      <Text className="text-body text-text-primary">{t('rental.field.businessExpense')}</Text>
+                      <Switch
+                        value={value ?? false}
+                        onValueChange={onChange}
+                        trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                        thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                        ios_backgroundColor="#3E3E3E"
+                      />
+                    </View>
+                  )}
+                />
 
                 <Pressable
                   onPress={handleSubmit(onValid)}

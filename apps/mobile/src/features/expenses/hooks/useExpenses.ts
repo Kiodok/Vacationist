@@ -3,7 +3,7 @@ import {
   EXPENSE_PAGE_SIZE,
   getExpenses,
   getAllExpenses,
-  hasBusinessExpenses,
+  hasBusinessCosts,
   createExpense,
   updateExpenseWithSplits,
   archiveExpense,
@@ -64,14 +64,18 @@ export function useAllExpenses(tripId: string, enabled = true) {
 
 /**
  * Cheap existence check gating the Business Summary button — deliberately a `head: true` count
- * query (see hasBusinessExpenses), not useAllExpenses, so the button's visibility never pays for
- * a whole-trip fetch. Nested under the paged key so any expense mutation invalidation
- * (['trips', tripId, 'expenses']) refreshes it too.
+ * query (see hasBusinessCosts) across all business-cost-bearing tables (expenses, Base,
+ * Transfer flights/rentals/public-transport), not useAllExpenses, so the button's visibility
+ * never pays for a whole-trip fetch. Nested under the expenses paged key so an expense mutation
+ * invalidation (['trips', tripId, 'expenses']) refreshes it too; an accommodation/transfer
+ * mutation does not, so toggling a flight's business flag can take up to `staleTime` (60s) to
+ * flip the button — an accepted staleness trade-off for a visibility gate, not the report itself
+ * (which always computes fresh when actually generated).
  */
-export function useHasBusinessExpenses(tripId: string) {
+export function useHasBusinessCosts(tripId: string) {
   return useQuery({
     queryKey: ['trips', tripId, 'expenses', 'has-business'],
-    queryFn: () => hasBusinessExpenses(tripId),
+    queryFn: () => hasBusinessCosts(tripId),
     staleTime: 60_000,
     retry: 2,
     enabled: !!tripId,

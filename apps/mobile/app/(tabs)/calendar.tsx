@@ -3,7 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator, Platform } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dayjs } from '@vacationist/utils';
+import { dayjs, generateDateRange } from '@vacationist/utils';
 import type { Activity, SupportedTimezone, UpdateActivityInput, Currency } from '@vacationist/types';
 import { useUpdateActivity } from '../../src/features/activities/hooks/useActivities';
 import { useActivityVotesForTrips } from '../../src/features/activities/hooks/useVotes';
@@ -67,13 +67,18 @@ export default function GlobalCalendarScreen() {
       }
 
       for (const trip of trips) {
-        let current = dayjs(trip.start_date);
-        const end = dayjs(trip.end_date);
-        while (current.isBefore(end) || current.isSame(end, 'day')) {
-          dates.add(current.format('YYYY-MM-DD'));
-          current = current.add(1, 'day');
+        // Trip start/end are plain DATE strings (no timezone) — parsing them with bare
+        // dayjs() reads/writes local device fields against a UTC-midnight instant, which
+        // silently drops the end date (or shifts the whole range by a day) on any device
+        // with a negative UTC offset. generateDateRange (already correct for the per-trip
+        // calendar) and dayjs.utc() below both parse in UTC instead, matching how the date
+        // was actually stored. It no longer takes a timezone — see its doc comment for why a
+        // named-timezone dependency here was itself an on-device (Hermes) bug, not a fix.
+        for (const d of generateDateRange(trip.start_date, trip.end_date)) {
+          dates.add(d);
         }
-        let monthCursor = dayjs(trip.start_date).startOf('month');
+        const end = dayjs.utc(trip.end_date);
+        let monthCursor = dayjs.utc(trip.start_date).startOf('month');
         while (monthCursor.isBefore(end) || monthCursor.isSame(end, 'month')) {
           const monthKey = monthCursor.format('YYYY-MM');
           if (!dots[monthKey]) dots[monthKey] = { activity: 0, tripOnly: 0 };
@@ -151,8 +156,8 @@ export default function GlobalCalendarScreen() {
   if (!trips || trips.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-xl gap-md">
-        <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
-          <ThemedIcon name="calendar-outline" size={36} color={colors.success} />
+        <View className="w-[80px] h-[80px] rounded-full bg-info-muted items-center justify-center">
+          <ThemedIcon name="calendar-outline" size={36} color={colors.info} />
         </View>
         <Text className="text-heading-m text-text-primary text-center">{t('noTrips.title')}</Text>
         <Text className="text-body-small text-text-secondary text-center">
@@ -186,8 +191,8 @@ export default function GlobalCalendarScreen() {
 
           {tripsForSelectedDate.length === 0 ? (
             <View className="flex-1 items-center justify-center px-xl gap-md py-xl">
-              <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
-                <ThemedIcon name="calendar-clear-outline" size={36} color={colors.success} />
+              <View className="w-[80px] h-[80px] rounded-full bg-info-muted items-center justify-center">
+                <ThemedIcon name="calendar-clear-outline" size={36} color={colors.info} />
               </View>
               <Text className="text-heading-m text-text-primary text-center">{t('noActivities.title')}</Text>
               <Text className="text-body-small text-text-secondary text-center">

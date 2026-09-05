@@ -22,6 +22,7 @@ import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/use
 import { setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
+import { ExpenseDocumentsSection } from './ExpenseDocumentsSection';
 
 interface EditExpenseSheetProps {
   visible: boolean;
@@ -33,9 +34,11 @@ interface EditExpenseSheetProps {
   members: TripMemberWithUser[];
   currency: Currency;
   currentUserId: string | undefined;
+  /** Organizer — allowed to delete any attached document, not just their own upload. */
+  canManage: boolean;
 }
 
-export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expense, splits, members, currency, currentUserId }: EditExpenseSheetProps) {
+export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expense, splits, members, currency, currentUserId, canManage }: EditExpenseSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation('common');
@@ -526,6 +529,15 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                     />
                   </View>
                 )}
+              />
+
+              {/* Documents — the expense already exists while editing, so no staging needed
+                  (unlike CreateExpenseSheet, which has no expenseId yet). */}
+              <ExpenseDocumentsSection
+                tripId={expense.trip_id}
+                expenseId={expense.id}
+                currentUserId={currentUserId}
+                canManage={canManage}
               />
 
               {/* Submit */}

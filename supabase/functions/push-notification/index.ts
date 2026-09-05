@@ -1,4 +1,5 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import webPush from 'npm:web-push@3.6.7';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
@@ -228,6 +229,68 @@ const supabase = createClient(
   JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')!)['default'],
   { auth: { persistSession: false } },
 );
+
+// v1.34.0 item 1 — Phase 12: Web Push Notifications. Runs alongside the existing Expo push
+// pipeline, not instead of it — every notification INSERT still fires this same function once;
+// it now delivers to both channels for whichever tokens/subscriptions the recipient(s) have.
+const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY') ?? '';
+const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY') ?? '';
+const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') ?? '';
+// setVapidDetails validates format (subject must start with mailto:/https:, key sizes) and throws
+// synchronously — since this runs at module scope, an unguarded throw here would crash the WHOLE
+// function on cold start, taking the pre-existing Expo push pipeline down with it over a
+// misconfigured/rotated web-push secret. Caught so a bad VAPID config only disables web push.
+let webPushConfigured = !!(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY && VAPID_SUBJECT);
+if (webPushConfigured) {
+  try {
+    webPush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  } catch (err) {
+    console.error('Invalid VAPID configuration — web push disabled for this invocation:', err);
+    webPushConfigured = false;
+  }
+}
+
+type WebPushSubRow = { user_id: string; endpoint: string; p256dh_key: string; auth_key: string };
+
+// `buildPayload` is per-user (not a single shared payload) so a batch push can embed the right
+// notificationId per recipient — using a shared/null id would break web push's read-tracking on
+// tap for batch notifications, same reasoning as the per-recipient Expo messages below.
+async function sendWebPushToUsers(userIds: string[], buildPayload: (userId: string) => Record<string, unknown>): Promise<void> {
+  if (!webPushConfigured || userIds.length === 0) return;
+
+  const { data: subs } = await supabase
+    .from('web_push_subscriptions')
+    .select('user_id, endpoint, p256dh_key, auth_key')
+    .in('user_id', userIds);
+
+  if (!subs || subs.length === 0) return;
+
+  const staleEndpoints: string[] = [];
+
+  await Promise.allSettled(
+    (subs as WebPushSubRow[]).map(async (row) => {
+      try {
+        await webPush.sendNotification(
+          { endpoint: row.endpoint, keys: { p256dh: row.p256dh_key, auth: row.auth_key } },
+          JSON.stringify(buildPayload(row.user_id)),
+        );
+      } catch (err) {
+        const statusCode = (err as { statusCode?: number } | null)?.statusCode;
+        if (statusCode === 410 || statusCode === 404) {
+          // Gone/Not Found — the browser revoked or lost this subscription. One bad
+          // subscription must not block delivery to the rest of the recipients.
+          staleEndpoints.push(row.endpoint);
+        } else {
+          console.error('[push] web push send failed:', err);
+        }
+      }
+    }),
+  );
+
+  if (staleEndpoints.length > 0) {
+    await supabase.from('web_push_subscriptions').delete().in('endpoint', staleEndpoints);
+  }
+}
 
 // Chat message content is never persisted in notifications.context_entity (see
 // 20260727100000_chat_notification_no_plaintext.sql) — trip_messages.text stays
@@ -475,18 +538,44 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
     .select('push_token')
     .eq('user_id', payload.user_id);
 
-  if (!tokens || tokens.length === 0) {
-    await markPushSent([payload.notification_id]);
-    return jsonResponse({ sent: 0, reason: 'no_tokens' });
+  // Deliberately no early "no_tokens" return here — a user with ONLY a web push subscription
+  // (no Expo token at all) must still get pushed via sendWebPushToUsers below. `sent` reflects
+  // Expo deliveries only; web push delivery isn't counted in it (matching the pre-existing
+  // response shape callers already treat as "Expo delivery count").
+  const rawTokens = ((tokens ?? []) as TokenRow[]).map((t) => t.push_token);
+  let sent = 0;
+
+  if (rawTokens.length > 0) {
+    const messages: ExpoPushMessage[] = rawTokens.map((token) => ({
+      to: token,
+      title,
+      body: translatedBody,
+      sound: 'default',
+      channelId: 'default-v2',
+      data: {
+        notificationId: payload.notification_id,
+        tripId: payload.trip_id,
+        type: payload.type,
+        relatedType: payload.related_type,
+        relatedId: payload.related_id,
+      },
+    }));
+
+    const expoResult = await sendToExpo(messages, rawTokens);
+    sent = expoResult.sent;
+
+    if (expoResult.staleTokens.length > 0) {
+      await supabase
+        .from('user_push_tokens')
+        .delete()
+        .eq('user_id', payload.user_id)
+        .in('push_token', expoResult.staleTokens);
+    }
   }
 
-  const rawTokens = (tokens as TokenRow[]).map((t) => t.push_token);
-  const messages: ExpoPushMessage[] = rawTokens.map((token) => ({
-    to: token,
+  await sendWebPushToUsers([payload.user_id], () => ({
     title,
     body: translatedBody,
-    sound: 'default',
-    channelId: 'default-v2',
     data: {
       notificationId: payload.notification_id,
       tripId: payload.trip_id,
@@ -496,17 +585,7 @@ async function handleSingle(payload: SingleNotificationPayload): Promise<Respons
     },
   }));
 
-  const { sent, staleTokens } = await sendToExpo(messages, rawTokens);
-
-  if (staleTokens.length > 0) {
-    await supabase
-      .from('user_push_tokens')
-      .delete()
-      .eq('user_id', payload.user_id)
-      .in('push_token', staleTokens);
-  }
-
-  // Always mark — even if sent=0 (all stale tokens) — so pg_cron stops retrying.
+  // Always mark — even if sent=0 (all stale tokens / web-only recipient) — so pg_cron stops retrying.
   await markPushSent([payload.notification_id]);
 
   return jsonResponse({ sent });
@@ -565,11 +644,6 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
       .in('id', eligibleUserIds),
   ]);
 
-  if (!allTokens || allTokens.length === 0) {
-    await markPushSent(notification_ids);
-    return jsonResponse({ sent: 0, reason: 'no_tokens' });
-  }
-
   // Build locale lookup map
   const localeMap = new Map<string, string>(
     ((userLocales ?? []) as { id: string; locale: string }[]).map((u) => [u.id, u.locale ?? 'en'])
@@ -578,19 +652,49 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
   // user_ids[i] and notification_ids[i] are positionally aligned.
   const userToNotificationId = new Map(user_ids.map((uid, i) => [uid, notification_ids[i]]));
 
-  const typedTokens = allTokens as TokenRow[];
+  // Deliberately no early "no_tokens" return here — a recipient with ONLY a web push
+  // subscription (no Expo token at all) must still get pushed via sendWebPushToUsers below.
+  // `sent` reflects Expo deliveries only.
+  const typedTokens = (allTokens ?? []) as TokenRow[];
   const rawTokens = typedTokens.map((t) => t.push_token);
-  const messages: ExpoPushMessage[] = typedTokens.map(({ push_token, user_id }, idx) => {
-    const locale = localeMap.get(user_id) ?? 'en';
+  let sent = 0;
+
+  if (typedTokens.length > 0) {
+    const messages: ExpoPushMessage[] = typedTokens.map(({ push_token, user_id }, idx) => {
+      const locale = localeMap.get(user_id) ?? 'en';
+      const translated = translateNotification(type, locale, title, body, context, related_type);
+      return {
+        to: rawTokens[idx],
+        title: translated.title,
+        body: translated.body,
+        sound: 'default',
+        channelId: 'default-v2',
+        data: {
+          notificationId: userToNotificationId.get(user_id as string),
+          tripId: trip_id,
+          type,
+          relatedType: related_type,
+          relatedId: related_id,
+        },
+      };
+    });
+
+    const expoResult = await sendToExpo(messages, rawTokens);
+    sent = expoResult.sent;
+
+    if (expoResult.staleTokens.length > 0) {
+      await supabase.from('user_push_tokens').delete().in('push_token', expoResult.staleTokens);
+    }
+  }
+
+  await sendWebPushToUsers(eligibleUserIds, (userId) => {
+    const locale = localeMap.get(userId) ?? 'en';
     const translated = translateNotification(type, locale, title, body, context, related_type);
     return {
-      to: rawTokens[idx],
       title: translated.title,
       body: translated.body,
-      sound: 'default',
-      channelId: 'default-v2',
       data: {
-        notificationId: userToNotificationId.get(user_id as string),
+        notificationId: userToNotificationId.get(userId),
         tripId: trip_id,
         type,
         relatedType: related_type,
@@ -598,12 +702,6 @@ async function handleBatch(payload: BatchNotificationPayload): Promise<Response>
       },
     };
   });
-
-  const { sent, staleTokens } = await sendToExpo(messages, rawTokens);
-
-  if (staleTokens.length > 0) {
-    await supabase.from('user_push_tokens').delete().in('push_token', staleTokens);
-  }
 
   // Always mark all rows — pg_cron must not retry them.
   await markPushSent(notification_ids);

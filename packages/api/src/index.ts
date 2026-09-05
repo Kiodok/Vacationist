@@ -21,7 +21,7 @@ export {
 
 export { getUserProfile, ensureUserProfile, claimSignupAttribution, updateUserProfile, uploadAvatar, getUsersByIds } from './users';
 
-export { getTrips, getTrip, getTripTabContent, createTrip, updateTrip, softDeleteTrip, TripNotFoundError, subscribeToTripRealtime, unsubscribeFromTrip } from './trips';
+export { getTrips, getTrip, getTripTabContent, createTrip, updateTrip, softDeleteTrip, TripNotFoundError, subscribeToTripRealtime, unsubscribeFromTrip, getTripCostSummary, getMyTripCostShares } from './trips';
 export type { TripRealtimeCallbacks } from './trips';
 
 export { getTripMembers, removeTripMember, leaveTrip, updateMemberRole, getCurrentMemberRole } from './members';
@@ -79,7 +79,7 @@ export {
   EXPENSE_PAGE_SIZE,
   getExpenses,
   getAllExpenses,
-  hasBusinessExpenses,
+  hasBusinessCosts,
   renderBusinessExpensePdf,
   createExpense,
   updateExpenseWithSplits,
@@ -303,3 +303,5 @@ export {
 export { logAnalyticsEvent, reportSignUpAttribution } from './analytics';
 
 export { getCurrencies, getLatestExchangeRates } from './currencies';
+
+export { upsertWebPushSubscription, deleteWebPushSubscription } from './webPush';

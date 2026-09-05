@@ -2,7 +2,7 @@ import { View, Text } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 import type { ExpenseCategoryTotal, Currency, ExpenseRelatedType } from '@vacationist/types';
-import { formatCurrency } from '@vacationist/utils';
+import { formatCurrency, computeDonutArcs } from '@vacationist/utils';
 import { useResolvedTheme } from '@vacationist/ui';
 
 interface ExpenseCategoryChartProps {
@@ -34,57 +34,76 @@ const SIZE = 140;
 const STROKE_WIDTH = 22;
 const RADIUS = (SIZE - STROKE_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-const GAP = 3; // small arc-length gap between segments, only when there are 2+ segments
 
 export function ExpenseCategoryChart({ totals, currency }: ExpenseCategoryChartProps) {
   const { t } = useTranslation('expenses');
   const theme = useResolvedTheme();
 
   const totalsByCategory = new Map(totals.map((c) => [c.related_type, c.total]));
+  // Raw sum of category amounts — the center total and the arc math both derive from this same
+  // number, never from already-rounded percentage/display strings (see donutChart.test.ts).
   const grandTotal = totals.reduce((sum, c) => sum + c.total, 0);
 
-  const segments = CATEGORY_ORDER
-    .map((category) => ({ category, amount: totalsByCategory.get(category) ?? 0 }))
-    .filter((s) => s.amount > 0);
+  // computeDonutArcs is generic over `category: string` (it has no notion of ExpenseRelatedType)
+  // — re-narrow it back to the real union right after, since CATEGORY_ORDER guarantees every
+  // value came from that domain, rather than casting at every downstream usage.
+  const arcs = computeDonutArcs(
+    CATEGORY_ORDER.map((category) => ({ category, amount: totalsByCategory.get(category) ?? 0 })),
+    { size: SIZE, strokeWidth: STROKE_WIDTH },
+  ).map((arc) => ({
+    ...arc,
+    category: arc.category as ExpenseRelatedType,
+    color: CATEGORY_COLORS[arc.category as ExpenseRelatedType][theme],
+  }));
 
-  if (grandTotal <= 0 || segments.length === 0) return null;
-
-  let cumulative = 0;
-  const arcs = segments.map((seg) => {
-    const fraction = seg.amount / grandTotal;
-    const rawLength = fraction * CIRCUMFERENCE;
-    const gap = segments.length > 1 ? GAP : 0;
-    const dash = Math.max(rawLength - gap, 0);
-    const offset = -cumulative;
-    cumulative += rawLength;
-    return { ...seg, dash, offset, color: CATEGORY_COLORS[seg.category][theme] };
-  });
+  if (arcs.length === 0) return null;
 
   return (
     <View className="gap-sm">
       <Text className="text-body text-text-secondary font-semibold">{t('modal.categoryBreakdown')}</Text>
       <View className="flex-row items-center gap-md">
-        <Svg width={SIZE} height={SIZE}>
-          {/* Standard SVG `transform` string (not the rotation/origin shorthand props) —
-              react-native-svg's web adapter derives those into a raw `transform-origin` key that
-              triggers React's "did you mean transformOrigin" DOM warning. */}
-          <G transform={`rotate(-90, ${SIZE / 2}, ${SIZE / 2})`}>
-            {arcs.map((arc) => (
-              <Circle
-                key={arc.category}
-                cx={SIZE / 2}
-                cy={SIZE / 2}
-                r={RADIUS}
-                stroke={arc.color}
-                strokeWidth={STROKE_WIDTH}
-                strokeDasharray={`${arc.dash} ${CIRCUMFERENCE - arc.dash}`}
-                strokeDashoffset={arc.offset}
-                strokeLinecap="butt"
-                fill="none"
-              />
-            ))}
-          </G>
-        </Svg>
+        <View style={{ width: SIZE, height: SIZE }}>
+          <Svg width={SIZE} height={SIZE}>
+            {/* Standard SVG `transform` string (not the rotation/origin shorthand props) —
+                react-native-svg's web adapter derives those into a raw `transform-origin` key that
+                triggers React's "did you mean transformOrigin" DOM warning. */}
+            <G transform={`rotate(-90, ${SIZE / 2}, ${SIZE / 2})`}>
+              {arcs.map((arc) => (
+                <Circle
+                  key={arc.category}
+                  cx={SIZE / 2}
+                  cy={SIZE / 2}
+                  r={RADIUS}
+                  stroke={arc.color}
+                  strokeWidth={STROKE_WIDTH}
+                  strokeDasharray={`${arc.dash} ${CIRCUMFERENCE - arc.dash}`}
+                  strokeDashoffset={arc.offset}
+                  strokeLinecap="butt"
+                  fill="none"
+                />
+              ))}
+            </G>
+          </Svg>
+
+          {/* Center total — free space inside the ring. Absolutely positioned over the Svg
+              rather than an SVG <Text> so it can use the same text tokens/line-wrapping as the
+              rest of the app; pointerEvents="none" so it never intercepts taps meant for the ring. */}
+          <View
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}
+            pointerEvents="none"
+          >
+            <Text className="text-label text-text-muted uppercase">{t('modal.categoryTotal')}</Text>
+            <Text
+              className="text-body font-semibold text-text-primary"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+              style={{ maxWidth: RADIUS * 1.6 }}
+            >
+              {formatCurrency(grandTotal, currency)}
+            </Text>
+          </View>
+        </View>
 
         {/* Direct labels satisfy the "relief" requirement for the WARN-level contrast a couple
             of these hues have against a light surface — identity is never color-alone here. */}
@@ -99,7 +118,7 @@ export function ExpenseCategoryChart({ totals, currency }: ExpenseCategoryChartP
                 {formatCurrency(arc.amount, currency)}
               </Text>
               <Text className="text-label text-text-muted w-[36px] text-right">
-                {Math.round((arc.amount / grandTotal) * 100)}%
+                {arc.percent}%
               </Text>
             </View>
           ))}

@@ -6,7 +6,7 @@ import { colors, ThemedIcon } from '@vacationist/ui';
 import { useToastStore } from '../../../stores/toastStore';
 import { isMutationBusy } from '../../../utils/mutationStatus';
 import { downloadRemoteFile } from '../../../utils/share';
-import { pickDocumentFile, readFileAsArrayBuffer, DocumentTooLargeError } from '../../../utils/documentPicker';
+import { pickDocumentFile, pickDocumentFromCamera, readFileAsArrayBuffer, DocumentTooLargeError, CameraPermissionDeniedError } from '../../../utils/documentPicker';
 import { useExpenseDocuments, useUploadExpenseDocument, useDeleteExpenseDocument } from '../hooks/useExpenseDocuments';
 
 interface ExpenseDocumentsSectionProps {
@@ -40,6 +40,23 @@ export function ExpenseDocumentsSection({ tripId, expenseId, currentUserId, canM
     } catch (err) {
       if (err instanceof DocumentTooLargeError) {
         addToast('error', t('toast.documentTooLarge'));
+      } else {
+        addToast('error', t('toast.documentUploadFailed'));
+      }
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      const file = await pickDocumentFromCamera();
+      if (!file) return;
+      const fileData = await readFileAsArrayBuffer(file.uri);
+      uploadMutation.mutate({ fileData, fileName: file.fileName, mimeType: file.mimeType });
+    } catch (err) {
+      if (err instanceof DocumentTooLargeError) {
+        addToast('error', t('toast.documentTooLarge'));
+      } else if (err instanceof CameraPermissionDeniedError) {
+        addToast('error', t('toast.cameraPermissionDenied'));
       } else {
         addToast('error', t('toast.documentUploadFailed'));
       }
@@ -142,19 +159,30 @@ export function ExpenseDocumentsSection({ tripId, expenseId, currentUserId, canM
         <Text className="text-body-small text-text-muted">{t('field.noDocuments')}</Text>
       )}
 
-      <Pressable
-        onPress={handleAdd}
-        disabled={isMutationBusy(uploadMutation)}
-        className="flex-row items-center gap-xs self-start px-sm py-xs rounded-sm bg-primary/10"
-        style={({ pressed }) => ({ opacity: pressed || isMutationBusy(uploadMutation) ? 0.6 : 1 })}
-      >
-        {isMutationBusy(uploadMutation) ? (
-          <ActivityIndicator size="small" color={colors.primary} />
-        ) : (
-          <ThemedIcon name="add-circle-outline" size={16} color={colors.primary} />
-        )}
-        <Text className="text-primary text-body-small font-medium">{t('action.addDocument')}</Text>
-      </Pressable>
+      <View className="flex-row gap-sm">
+        <Pressable
+          onPress={handleAdd}
+          disabled={isMutationBusy(uploadMutation)}
+          className="flex-row items-center gap-xs self-start px-sm py-xs rounded-sm bg-primary/10"
+          style={({ pressed }) => ({ opacity: pressed || isMutationBusy(uploadMutation) ? 0.6 : 1 })}
+        >
+          {isMutationBusy(uploadMutation) ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <ThemedIcon name="add-circle-outline" size={16} color={colors.primary} />
+          )}
+          <Text className="text-primary text-body-small font-medium">{t('action.addDocument')}</Text>
+        </Pressable>
+        <Pressable
+          onPress={handleTakePhoto}
+          disabled={isMutationBusy(uploadMutation)}
+          className="flex-row items-center gap-xs self-start px-sm py-xs rounded-sm bg-primary/10"
+          style={({ pressed }) => ({ opacity: pressed || isMutationBusy(uploadMutation) ? 0.6 : 1 })}
+        >
+          <ThemedIcon name="camera-outline" size={16} color={colors.primary} />
+          <Text className="text-primary text-body-small font-medium">{t('action.takePhoto')}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }

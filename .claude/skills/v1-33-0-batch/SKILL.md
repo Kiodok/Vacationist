@@ -1,6 +1,6 @@
 ---
 name: v1-33-0-batch
-description: Progress tracker for the v1.33.0 / v1.33.1 release — the original 19-item batch (12 groups), a 3-item addendum, a 10-finding code-review pass, two device-testing rounds, and the v1.33.1 quick-action follow-ups (Android shortcut icon robot glyph — raster PNG + keep.xml; resolveActiveTrip next-planned-trip tier), all code-complete, nothing committed yet, pending EAS build + device testing before release. Use to resume work or answer "what's the status of v1.33.x" — lists every group's implementation details and key decisions already made so they aren't re-litigated.
+description: Progress tracker for the v1.33.0 / v1.33.1 release — the original 19-item batch (12 groups), a 3-item addendum, a 10-finding code-review pass, two device-testing rounds, and the v1.33.1 quick-action follow-ups (Android shortcut icon robot glyph — raster PNG + keep.xml; resolveActiveTrip next-planned-trip tier). ALL of it is now committed (c2a7891, 7221278, e5de81d on main) as of 2026-09-05 — see v1-34-0-batch for the release that followed. Use to answer "what shipped in v1.33.x" or to understand decisions made during that batch.
 ---
 
 # v1.33.0 batch progress
@@ -10,8 +10,10 @@ addendum, and the 10-finding code-review fix pass below). The plan file at
 `C:\Users\Gary\.claude\plans\optimized-munching-snowglobe.md` is overwritten with each new planning
 pass (per this repo's plan-mode convention of starting fresh for a different task) — it currently
 holds the code-review fix plan, not the original 19-task plan; this skill file is the durable
-record of everything done across all three passes. Nothing has been committed yet — user tests on
-device first, per [[commit-discipline]].
+record of everything done across all three passes. **Update (2026-09-05): everything below is
+now committed** — the 19-item batch + addendum + code-review pass as `c2a7891`, the 6-item
+post-manual-testing round as `7221278`, and the v1.33.1 quick-action follow-ups as `e5de81d`, all
+on `main`. Per [[commit-discipline]], each was committed only after the user tested on device.
 
 **Why this matters:** it's the current release cycle; the user is actively testing each group live
 on an Android dev-client build as it lands, so groups ship one at a time with typecheck/test/
@@ -453,7 +455,7 @@ case (needs a reproducible stale-refetch race) — flagged for the Tech Lead's o
 alongside the batch's other device-only items (task 16, iOS force-update, Balances four-theme
 pass).
 
-## Post-manual-testing fixes — 2nd round (6 items, code-complete, not committed)
+## Post-manual-testing fixes — 2nd round (6 items, committed as `7221278`)
 
 The 19-item batch + addendum + code-review pass were committed as `c2a7891` ("feat: v1.33.0 —
 expense docs, business expenses, transfer overhaul, quick actions"). Manual device testing then
@@ -462,7 +464,9 @@ surfaced 6 more. Plan: `C:\Users\Gary\.claude\plans\lively-noodling-iverson.md`.
 **deployed to dev AND prod** 2026-09-02 (Tech Lead confirmed near release / full rollout) —
 see `engineering/supabase.md`. First dev push failed (`get_my_active_grants` OUT-column change
 needs an explicit `DROP FUNCTION` — rolled back clean, added the DROP, re-pushed). Ledger +
-object-fingerprint parity dev==prod confirmed. `database.types.ts` regenerated.
+object-fingerprint parity dev==prod confirmed. `database.types.ts` regenerated. App code
+committed as `7221278` ("fix: v1.33.0 post-test fixes — expense PDF export, doc-access timer,
+scrollable tabs").
 
 1. **Business Summary now downloads `.md` AND PDF** on every platform. New Edge Function
    `render-business-expense-pdf` (`pdf-lib` via esm.sh, `verify_jwt` + `auth.getUser`, returns
@@ -548,7 +552,7 @@ object-fingerprint parity dev==prod confirmed. `database.types.ts` regenerated.
    Android (the [[pressable-flex-android]] footgun). Rewrote `TicketsSection.tsx` +
    `ExpenseDocumentsSection.tsx` rows as `TouchableOpacity` + `activeOpacity` + static styles.
 
-## v1.33.1 — quick-action follow-ups (code-complete, not committed)
+## v1.33.1 — quick-action follow-ups (committed as `e5de81d`)
 
 Two defects filed after v1.33.0 device testing. Plan:
 `C:\Users\Gary\.claude\plans\sprightly-frolicking-glade.md`. `npm run typecheck` 0, `npm test`
@@ -574,6 +578,13 @@ green (121 utils / 5 api / 161 mobile). See `engineering/supabase.md` 2026-09-03
    next planned trip (soonest future `start_date`) — between "date covers today" and the
    most-recently-created fallback, and now also excludes `status === 'completed'` (not just
    `archived`), matching `getEffectiveStatus`. Tests: 6 → 11 cases.
+
+**Update (2026-09-05, v1.34.0):** the icon STILL showed the OS robot glyph on device after this
+shipped. The raster PNG + `keep.xml` fix is correct on inspection and stayed in place; the new
+leading suspect is OEM launcher shortcut-icon caching keyed by `(packageName, shortcutId)`, which
+a same-id `setDynamicShortcuts` call doesn't reliably bust after an in-place update (only a fresh
+id, or a clean uninstall/reinstall, forces a redraw). Fixed by bumping the id from `'add-expense'`
+to `'add-expense-v2'` — see v1-34-0-batch. Still needs a clean-reinstall device test to confirm.
 
 ## Key decisions to not re-litigate
 

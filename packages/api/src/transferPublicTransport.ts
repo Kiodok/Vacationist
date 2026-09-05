@@ -36,6 +36,8 @@ export async function createTransferPublicTransport(tripId: string, input: Creat
       arrival_time: input.arrival_time ?? null,
       booking_reference: input.booking_reference ?? null,
       price_total: input.price_total ?? null,
+      currency: input.currency,
+      is_business: input.is_business ?? false,
       external_url: input.external_url ?? null,
       notes: input.notes ?? null,
       created_by: user.id,

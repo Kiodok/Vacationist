@@ -1,6 +1,6 @@
 import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import type { Trip, CreateTripInput, UpdateTripInput, TripTabContent } from '@vacationist/types';
+import type { Trip, CreateTripInput, UpdateTripInput, TripTabContent, CostSummaryRow, MyCostShareRow } from '@vacationist/types';
 
 export class TripNotFoundError extends Error {
   constructor() {
@@ -117,4 +117,22 @@ export function subscribeToTripRealtime(
 
 export function unsubscribeFromTrip(channel: RealtimeChannel): void {
   supabase.removeChannel(channel);
+}
+
+/** Raw per-(source, currency) cost rows for the Trip Overview cost summary card (v1.34.0 items
+ * 7/8) — combined into category totals client-side by computeTripCostSummary
+ * (@vacationist/utils), never here (see that function's doc comment for why). */
+export async function getTripCostSummary(tripId: string): Promise<CostSummaryRow[]> {
+  const { data, error } = await supabase.rpc('get_trip_cost_summary', { p_trip_id: tripId });
+  if (error) throw error;
+  return (data as unknown as CostSummaryRow[]).map((r) => ({ ...r, amount: Number(r.amount) }));
+}
+
+/** Raw per-trip, per-source "my share" cost rows for the global Analytics tab (v1.34.0 item 2)
+ * — combined into per-trip/per-year totals client-side by computeMyCostShares
+ * (@vacationist/utils), never here (see that function's and the migration's doc comments). */
+export async function getMyTripCostShares(): Promise<MyCostShareRow[]> {
+  const { data, error } = await supabase.rpc('get_my_trip_cost_shares');
+  if (error) throw error;
+  return (data as unknown as MyCostShareRow[]).map((r) => ({ ...r, amount: Number(r.amount), member_count: Number(r.member_count) }));
 }

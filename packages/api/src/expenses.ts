@@ -48,18 +48,38 @@ export async function getAllExpenses(tripId: string): Promise<ExpenseWithSplits[
   return all;
 }
 
-/** Cheap existence check ("does this trip have at least one business-flagged expense?") used to
- * gate the Business Summary button — a `head: true` count query, not a row fetch, so it stays
- * lightweight regardless of trip size. */
-export async function hasBusinessExpenses(tripId: string): Promise<boolean> {
-  const { count, error } = await supabase
-    .from('expenses')
-    .select('id', { count: 'exact', head: true })
-    .eq('trip_id', tripId)
-    .eq('is_business', true);
-
-  if (error) throw error;
-  return (count ?? 0) > 0;
+/** Cheap existence check ("does this trip have at least one business-flagged cost, from ANY
+ * source — expenses, Base, or a priced Transfer type?") used to gate the Business Summary
+ * button. Five `head: true` count queries (one per source table), not a row fetch, so this
+ * stays lightweight regardless of trip size; run in parallel and short-circuited by Promise.all
+ * only in the sense that all five always run — there's no cheaper single-query way to OR across
+ * unrelated tables in PostgREST. transfer_vehicles is excluded — it has no is_business column
+ * (no price to flag as business, per item 9). */
+export async function hasBusinessCosts(tripId: string): Promise<boolean> {
+  // transfer_flights/transfer_rentals/transfer_public_transport had `deleted_at IS NULL` removed
+  // from their SELECT RLS (20260522000008_transfer_realtime_softdelete_rls.sql, for realtime
+  // soft-delete propagation) — every explicit query against them must filter it back in itself, or
+  // a soft-deleted business-flagged row keeps this check (and the Business Summary button) true
+  // even though the actual export correctly excludes it. `accommodations`/`expenses` don't need
+  // this — their RLS still filters `deleted_at` server-side.
+  const tables = ['expenses', 'accommodations', 'transfer_flights', 'transfer_rentals', 'transfer_public_transport'] as const;
+  const softDeletableInQuery = new Set(['transfer_flights', 'transfer_rentals', 'transfer_public_transport']);
+  const counts = await Promise.all(
+    tables.map(async (table) => {
+      let query = supabase
+        .from(table)
+        .select('id', { count: 'exact', head: true })
+        .eq('trip_id', tripId)
+        .eq('is_business', true);
+      if (softDeletableInQuery.has(table)) {
+        query = query.is('deleted_at', null);
+      }
+      const { count, error } = await query;
+      if (error) throw error;
+      return count ?? 0;
+    }),
+  );
+  return counts.some((c) => c > 0);
 }
 
 /** Calls the render-business-expense-pdf Edge Function and returns the PDF as a base64 string.

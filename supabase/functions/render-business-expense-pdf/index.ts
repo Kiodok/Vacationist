@@ -42,14 +42,24 @@ const PAGE_H = 841.89;
 const MARGIN = 48;
 const CONTENT_W = PAGE_W - MARGIN * 2;
 
-// pdf-lib's standard Helvetica can only encode WinAnsi (≈ Latin-1). Normalise the common
-// typographic characters that show up in titles / names / filenames, then drop anything still
-// outside the range so drawText() never throws (which would fail the whole render for one glyph).
+// pdf-lib's standard Helvetica can only encode WinAnsi. Normalise the common typographic
+// characters that show up in titles / names / filenames, then drop anything still outside the
+// range so drawText() never throws (which would fail the whole render for one glyph).
 const SMART_SINGLE = /[‘’‚‛]/g;
 const SMART_DOUBLE = /[“”„‟]/g;
 const DASHES = /[–—―]/g;
 const NBSP_ISH = /[    ]/g;
-const NON_WINANSI = /[^\t\n\r\x20-\x7E¡-ÿ]/g;
+// WinAnsi is NOT the same as pure Latin-1/ISO-8859-1, despite the name — it's Windows-1252, which
+// replaces Latin-1's C1 control-character block (U+0080-U+009F) with real printable glyphs,
+// including the Euro sign (€, U+20AC) at 0x80. The range below (ASCII + pure Latin-1 Supplement)
+// modeled WinAnsi as if it were exactly Latin-1, with no case for anything in that extra block —
+// so € was silently stripped from every EUR-formatted amount, the actual cause of a business
+// summary PDF showing bare numbers with no currency symbol whenever the report currency was EUR.
+// Explicitly allow it (pdf-lib draws € correctly with standard Helvetica under WinAnsiEncoding)
+// rather than re-deriving the rest of that block, since it's the only character from it this
+// app's currency symbols (CURRENCY_SYMBOLS in packages/utils/src/format.ts — EUR/CHF/USD/GBP,
+// everything else falls back to its plain ASCII ISO code) or general report text actually needs.
+const NON_WINANSI = /[^\t\n\r\x20-\x7E¡-ÿ€]/g;
 
 function str(v: unknown, max = 300): string {
   const s = typeof v === 'string' ? v : '';

@@ -38,7 +38,7 @@ export function TripCard({ trip, onPress }: TripCardProps) {
 
       <View className="flex-row items-center gap-lg">
         <View className="flex-row items-center gap-xs">
-          <ThemedIcon name="calendar-outline" size={14} color={colors.success} />
+          <ThemedIcon name="calendar-outline" size={14} color={colors.info} />
           <Text className="text-body-small text-text-secondary">
             {formatDateRange(trip.start_date, trip.end_date, trip.timezone)}
           </Text>

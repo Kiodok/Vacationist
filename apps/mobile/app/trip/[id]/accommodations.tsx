@@ -85,7 +85,6 @@ export default function AccommodationsTab() {
             accommodation={item}
             tripId={tripId!}
             currentUserId={user?.id}
-            currency={trip?.base_currency ?? 'EUR'}
             role={role}
             tripStartDate={trip?.start_date ?? null}
             tripEndDate={trip?.end_date ?? null}
@@ -145,7 +144,6 @@ function AccommodationCardWithVotes({
   accommodation,
   tripId,
   currentUserId,
-  currency,
   role,
   tripStartDate,
   tripEndDate,
@@ -158,7 +156,6 @@ function AccommodationCardWithVotes({
   accommodation: Accommodation;
   tripId: string;
   currentUserId: string | undefined;
-  currency: string;
   role: string | null | undefined;
   tripStartDate: string | null;
   tripEndDate: string | null;
@@ -392,7 +389,6 @@ function AccommodationCardWithVotes({
         accommodation={accommodation}
         votes={votes}
         currentUserId={currentUserId}
-        currency={currency}
         onPress={() => setShowDetail(!showDetail)}
         onVotePress={() => setShowVoteSheet(true)}
         detail={detailContent}

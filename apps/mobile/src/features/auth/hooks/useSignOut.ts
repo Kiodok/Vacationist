@@ -4,6 +4,7 @@ import { signOut, deletePushToken } from '@vacationist/api';
 import { useAuthStore } from '../../../stores/authStore';
 import { clearUserCache } from '../../../utils/userCache';
 import { clearSentryUser } from '../../../utils/sentry';
+import { unregisterWebPushAsync } from '../../notifications/utils/unregisterWebPush';
 
 type GoogleSigninType =
   typeof import('@react-native-google-signin/google-signin').GoogleSignin;
@@ -33,9 +34,15 @@ export function useSignOut(): SignOutResult {
       setPushToken(null);
       deletePushToken(pushToken).catch(() => {});
     }
-    // Kick off server-side token revocation in the background, then clear
-    // local state immediately so navigation to login happens right away.
-    signOut().catch(() => {});
+    // delete_web_push_subscription's auth.uid() check needs the Supabase session that signOut()
+    // is about to clear — chained (not raced) so the subscription row is actually deleted before
+    // the session that authorizes deleting it goes away. Still fire-and-forget from the caller's
+    // perspective: reset() below runs immediately, unaffected by this chain's completion.
+    unregisterWebPushAsync()
+      .catch(() => {})
+      .finally(() => {
+        signOut().catch(() => {});
+      });
     clearUserCache();
     clearSentryUser();
     reset();

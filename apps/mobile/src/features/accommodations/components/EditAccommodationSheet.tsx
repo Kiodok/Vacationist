@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateAccommodationSchema, type UpdateAccommodationInput, type Accommodation } from '@vacationist/types';
+import { updateAccommodationSchema, type UpdateAccommodationInput, type Accommodation, type Currency } from '@vacationist/types';
 import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
+import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyField';
+import { useAccommodationCurrencyField } from '../../currencies/hooks/useAccommodationCurrencyField';
 
 interface EditAccommodationSheetProps {
   visible: boolean;
@@ -27,11 +29,12 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateAccommodationInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateAccommodationInput>({
     resolver: zodResolver(updateAccommodationSchema),
   });
 
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
+  const selectedCurrency = (watch('currency') || accommodation.currency || currency) as Currency;
+  const currencyField = useAccommodationCurrencyField(selectedCurrency, (code) => setValue('currency', code));
 
   const checkIn = useWatch({ control, name: 'check_in_date' });
   const checkOut = useWatch({ control, name: 'check_out_date' });
@@ -46,6 +49,8 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
         title: accommodation.title,
         description: accommodation.description ?? undefined,
         price_total: accommodation.price_total ?? undefined,
+        currency: accommodation.currency,
+        is_business: accommodation.is_business,
         external_url: accommodation.external_url ?? undefined,
         maps_url: accommodation.maps_url ?? undefined,
         notes: accommodation.notes ?? undefined,
@@ -133,27 +138,54 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
 
               {/* Price */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">{t('field.price')} ({currencySymbol})</Text>
-                <Controller
-                  control={control}
-                  name="price_total"
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                      placeholderTextColor="#5C5C5C"
-                      placeholder="0.00"
-                      value={priceText}
-                      onChangeText={(t) => {
-                        const cleaned = sanitizeDecimalInput(t);
-                        setPriceText(cleaned);
-                        const num = parseFloat(cleaned);
-                        onChange(isNaN(num) ? null : num);
-                      }}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
+                <Text className="text-label text-text-muted uppercase">{t('field.price')} ({currencyField.currencySymbol})</Text>
+                <View className="flex-row gap-xs">
+                  <Controller
+                    control={control}
+                    name="price_total"
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        placeholderTextColor="#5C5C5C"
+                        placeholder="0.00"
+                        value={priceText}
+                        onChangeText={(t) => {
+                          const cleaned = sanitizeDecimalInput(t);
+                          setPriceText(cleaned);
+                          const num = parseFloat(cleaned);
+                          onChange(isNaN(num) ? null : num);
+                        }}
+                        keyboardType="decimal-pad"
+                      />
+                    )}
+                  />
+                  <EntityCurrencyField
+                    selectedCurrency={selectedCurrency}
+                    pickerVisible={currencyField.pickerVisible}
+                    onOpen={currencyField.openPicker}
+                    onClose={currencyField.closePicker}
+                    onSelect={currencyField.onSelect}
+                  />
+                </View>
               </View>
+
+              {/* Business expense */}
+              <Controller
+                control={control}
+                name="is_business"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.businessExpense')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                      thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
 
               {/* External URL */}
               <View className="gap-xs">

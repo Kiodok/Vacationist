@@ -10,10 +10,23 @@ initDayjs();
 // a day on any device behind UTC. Since dayMap is later keyed by these (shifted) strings while
 // activities stay grouped under their correct (unshifted) activity_date, this silently dropped
 // the trip's true last day from the calendar and inserted a bogus day before its true start.
-export function generateDateRange(startDate: string, endDate: string, timezone?: string): string[] {
+//
+// v1.34.0 follow-up: an earlier version of this function accepted an optional `timezone` and
+// used `dayjs.tz(dateString, timezone)` to parse it, on the theory that a date-only value should
+// be interpreted "in the trip's own timezone". That reintroduced a *different* bug: `.tz()`
+// resolves a named IANA zone via the engine's Intl/ICU timezone database, and React Native's
+// Hermes engine can resolve that differently (or incorrectly) than a browser/Node's V8 — the
+// exact bug this was meant to prevent ("dates band" silently dropping the trip's last day) came
+// back, but only on-device (Android/iOS), never on Web and never in this test suite (which only
+// ever runs under Node/V8). A date-only value has no time-of-day and no real association with an
+// instant, so it never actually needed a named timezone at all — enumerating "every calendar day
+// from start to end, inclusive" is pure date arithmetic with no dependency on DST or UTC offset.
+// Parsing with dayjs.utc() (fixed, engine-independent UTC math, no timezone database lookup)
+// gives the same correct result without the Hermes-dependent failure mode.
+export function generateDateRange(startDate: string, endDate: string): string[] {
   const dates: string[] = [];
-  let current = timezone ? dayjs.tz(startDate, timezone) : dayjs.utc(startDate);
-  const end = timezone ? dayjs.tz(endDate, timezone) : dayjs.utc(endDate);
+  let current = dayjs.utc(startDate);
+  const end = dayjs.utc(endDate);
 
   while (current.isBefore(end) || current.isSame(end, 'day')) {
     dates.push(current.format('YYYY-MM-DD'));
@@ -67,7 +80,7 @@ export function buildTripCalendarData(
   trip: { id: string; start_date: string; end_date: string; timezone: SupportedTimezone },
   activities: Activity[],
 ): TripCalendarData {
-  const dateRange = generateDateRange(trip.start_date, trip.end_date, trip.timezone);
+  const dateRange = generateDateRange(trip.start_date, trip.end_date);
   const grouped = groupActivitiesByDate(activities);
 
   const dayMap: Record<string, CalendarDay> = {};
@@ -105,7 +118,13 @@ export function formatCalendarDayHeader(
   date: string,
   timezone: SupportedTimezone,
 ): { dayName: string; dayNumber: string; monthShort: string; isToday: boolean } {
-  const d = dayjs.tz(date, timezone);
+  // dayName/dayNumber/monthShort are pure labels of an already-known calendar date — no
+  // dependency on a named timezone (see generateDateRange's doc comment for why dayjs.tz() on a
+  // date-only value is a Hermes-unreliable dependency this doesn't actually need).
+  const d = dayjs.utc(date);
+  // isToday is a genuinely different question — "what is today's date from this trip's
+  // timezone's point of view" — which really does need to resolve the current instant against a
+  // named zone, so it keeps the real .tz() dependency the other three fields no longer have.
   const today = dayjs().tz(timezone).format('YYYY-MM-DD');
 
   return {

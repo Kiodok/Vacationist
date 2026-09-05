@@ -116,6 +116,8 @@ export interface Accommodation {
   title: string;
   description: string | null;
   price_total: number | null;
+  currency: Currency;
+  is_business: boolean;
   external_url: string | null;
   maps_url: string | null;
   notes: string | null;
@@ -215,6 +217,32 @@ export interface MemberBalance {
 export interface ExpenseCategoryTotal {
   related_type: ExpenseRelatedType;
   total: number;
+}
+
+/** One row from the `get_trip_cost_summary` RPC (v1.34.0 items 7/8) — deliberately "dumb":
+ * mechanical status/soft-delete filtering and per-(source, currency) grouping only. `source` is
+ * `string`, not a closed union — `computeTripCostSummary` (@vacationist/utils) is built to
+ * safely ignore an unrecognized source rather than crash, so the client survives a future RPC
+ * change that adds a new source before the client is updated to categorize it. */
+export interface CostSummaryRow {
+  source: string;
+  currency: string;
+  amount: number;
+}
+
+/** One row from the `get_my_trip_cost_shares` RPC (v1.34.0 item 2 — the global Analytics tab).
+ * Unlike `get_trip_cost_summary`, `transfer_flight` rows are one-per-flight (not pre-aggregated)
+ * so `is_my_flight` can gate each flight's contribution individually — see the migration's doc
+ * comment for why. `is_my_flight` is `null` for every other source. */
+export interface MyCostShareRow {
+  trip_id: string;
+  trip_title: string;
+  start_date: string;
+  member_count: number;
+  source: string;
+  currency: string;
+  amount: number;
+  is_my_flight: boolean | null;
 }
 
 /** Payload sent to the render-business-expense-pdf Edge Function — the same rows the client
@@ -333,6 +361,8 @@ export interface TransferFlight {
   return_departure_time: string | null;
   return_arrival_time: string | null;
   price_per_person: number | null;
+  currency: Currency;
+  is_business: boolean;
   external_url: string | null;
   flight_number: string | null;
   booking_reference: string | null;
@@ -395,6 +425,8 @@ export interface TransferRental {
   dropoff_date: string | null;
   booking_reference: string | null;
   price_total: number | null;
+  currency: Currency;
+  is_business: boolean;
   external_url: string | null;
   notes: string | null;
   created_by: string;
@@ -414,6 +446,8 @@ export interface TransferPublicTransport {
   arrival_time: string | null;
   booking_reference: string | null;
   price_total: number | null;
+  currency: Currency;
+  is_business: boolean;
   external_url: string | null;
   notes: string | null;
   created_by: string;
@@ -454,6 +488,20 @@ export interface UserPushToken {
   user_id: string;
   push_token: string;
   platform: 'ios' | 'android';
+  created_at: string;
+  updated_at: string;
+}
+
+/** A browser push subscription (v1.34.0 item 1 — Phase 12: Web Push). Separate from
+ * UserPushToken (Expo/native) — a browser subscription has no Expo push token, just an endpoint
+ * URL and the encryption keys the Web Push protocol needs. */
+export interface WebPushSubscription {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh_key: string;
+  auth_key: string;
+  user_agent: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,15 +1,18 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import type { ExpenseWithSplits, User, CreateExpenseInput } from '@vacationist/types';
-import { isExpenseFullySettled, formatBusinessExpenseSummary, buildBusinessExpenseReport } from '@vacationist/utils';
-import { getAllExpenses, getExpenseDocuments, getExpenseDocumentUrl, renderBusinessExpensePdf } from '@vacationist/api';
+import type { BusinessCostItem } from '@vacationist/utils';
+import { isExpenseFullySettled, formatBusinessExpenseSummary, buildBusinessExpenseReport, mergeCostItemsForReport } from '@vacationist/utils';
+import { getAllExpenses, getExpenseDocuments, getExpenseDocumentUrl, renderBusinessExpensePdf, getAccommodations, getTransferFlights, getTransferRentals, getTransferPublicTransport, getLatestExchangeRates, uploadExpenseDocument } from '@vacationist/api';
+import { readFileAsArrayBuffer, type PickedDocumentFile } from '../../../src/utils/documentPicker';
 import * as FileSystem from 'expo-file-system/legacy';
-import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllExpenses, useSettlementReceipts, useHasBusinessExpenses } from '../../../src/features/expenses/hooks/useExpenses';
+import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllExpenses, useSettlementReceipts, useHasBusinessCosts } from '../../../src/features/expenses/hooks/useExpenses';
 import { useExpensesRealtime } from '../../../src/features/expenses/hooks/useExpensesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -70,6 +73,7 @@ export default function ExpensesTab() {
   const { data: balances = [] } = useTripBalances(tripId!);
   const { data: settlementReceipts = [], isLoading: isLoadingReceipts } = useSettlementReceipts(tripId!);
   const createExpense = useCreateExpense();
+  const queryClient = useQueryClient();
   const archiveExpenseMutation = useArchiveExpense();
   const unarchiveExpenseMutation = useUnarchiveExpense();
   const settleAllExpensesMutation = useSettleAllExpenses();
@@ -93,7 +97,7 @@ export default function ExpensesTab() {
   const [showDisplayCurrencyPicker, setShowDisplayCurrencyPicker] = useState(false);
   const { convert, ratesAsOf } = useCurrencyConversion();
   const [isGeneratingBusinessSummary, setIsGeneratingBusinessSummary] = useState(false);
-  const { data: hasBusinessExpenses } = useHasBusinessExpenses(tripId!);
+  const { data: hasBusinessExpenses } = useHasBusinessCosts(tripId!);
   const addToast = useToastStore((s) => s.addToast);
 
   const memberMap = useMemo(() => {
@@ -142,9 +146,36 @@ export default function ExpensesTab() {
     return raw.map((s) => ({ ...s, data: isCollapsed(s.key) ? [] : s.data }));
   }, [activeExpenses, completedExpenses, archivedExpenses, isCollapsed]);
 
-  const handleCreate = (input: CreateExpenseInput) => {
+  // Uploads documents staged in CreateExpenseSheet (item 11) once the expense actually exists.
+  // This runs via the mutation's per-call onSuccess, not the persisted-mutation defaults in
+  // mutationDefaults.ts (CLAUDE.md forbids a hook-level onSuccess there, since it would override
+  // replay behavior) — per-call callbacks are a separate TanStack Query mechanism that always
+  // runs in addition to, never instead of, the defaults, so replay is unaffected. The one
+  // accepted gap: if the create mutation is queued offline and the app is killed before it
+  // replays (a later app launch, no in-memory call stack left), this callback is lost and the
+  // staged files are never uploaded — the same "deliberately not persisted" limitation the app
+  // already accepts for every other document/avatar upload (see useExpenseDocuments.ts).
+  const uploadStagedExpenseDocuments = async (expenseId: string, files: PickedDocumentFile[]) => {
+    if (files.length === 0) return;
+    const results = await Promise.allSettled(
+      files.map(async (file) => {
+        const fileData = await readFileAsArrayBuffer(file.uri);
+        return uploadExpenseDocument(tripId!, expenseId, fileData, file.fileName, file.mimeType);
+      }),
+    );
+    queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'documents'] });
+    const failedCount = results.filter((r) => r.status === 'rejected').length;
+    if (failedCount > 0) {
+      addToast('error', t('toast.stagedDocumentsFailed', { count: failedCount }));
+    }
+  };
+
+  const handleCreate = (input: CreateExpenseInput, stagedFiles: PickedDocumentFile[]) => {
     setShowCreate(false);
-    createExpense.mutate({ tripId: tripId!, input });
+    createExpense.mutate(
+      { tripId: tripId!, input },
+      { onSuccess: (expenseId) => { void uploadStagedExpenseDocuments(expenseId, stagedFiles); } },
+    );
   };
 
   // Fetches the whole trip's expenses on demand (not via a reactive query — this is an
@@ -160,14 +191,42 @@ export default function ExpensesTab() {
     if (isGeneratingBusinessSummary) return;
     setIsGeneratingBusinessSummary(true);
     try {
-      const allExpenses = await getAllExpenses(tripId!);
+      const [allExpenses, allAccommodations, allFlights, allRentals, allPublicTransport, exchangeRates] = await Promise.all([
+        getAllExpenses(tripId!),
+        getAccommodations(tripId!),
+        getTransferFlights(tripId!),
+        getTransferRentals(tripId!),
+        getTransferPublicTransport(tripId!),
+        getLatestExchangeRates(),
+      ]);
+
+      // Committed-only, matching get_trip_cost_summary's semantics (Trip Overview's cost card) —
+      // a still-voting ('suggested'/'requested') item flagged as business hasn't actually been
+      // paid for yet and must not appear in a report meant for reimbursement. Rentals/Public
+      // Transport have no status lifecycle, so every business-flagged row counts.
       const businessExpenses = allExpenses.filter((e) => e.is_business);
-      if (businessExpenses.length === 0) {
+      const businessAccommodations = allAccommodations.filter((a) => a.is_business && ['reserved', 'booked', 'completed'].includes(a.status));
+      const businessFlights = allFlights.filter((f) => f.is_business && ['booked', 'completed'].includes(f.status));
+      const businessRentals = allRentals.filter((r) => r.is_business);
+      const businessPublicTransport = allPublicTransport.filter((p) => p.is_business);
+
+      const totalBusinessCount =
+        businessExpenses.length + businessAccommodations.length + businessFlights.length +
+        businessRentals.length + businessPublicTransport.length;
+      if (totalBusinessCount === 0) {
         addToast('error', t('toast.businessSummaryEmpty'));
         return;
       }
 
-      const currencyCode = trip?.base_currency ?? 'EUR';
+      // Report currency: the member's own preferred currency when set, else the trip's base
+      // currency — same fallback the Trip Overview cost card and Analytics tab already use.
+      // Deliberately NOT the same as each item's own currency below: expenses.converted_amount is
+      // always frozen in the trip's base currency at write time (regardless of what the member
+      // actually paid in), so an expense's true currency is trip.base_currency, never
+      // reportCurrency — tagging it with reportCurrency would silently skip the real conversion
+      // whenever the two differ (e.g. preferred=EUR, trip base=BAM).
+      const reportCurrency = user?.preferred_currency ?? trip?.base_currency ?? 'EUR';
+      const expenseCurrency = trip?.base_currency ?? 'EUR';
       const tripTitle = trip?.title ?? '';
 
       const documentsByExpenseId = new Map<string, { fileName: string; url: string }[]>();
@@ -185,23 +244,81 @@ export default function ExpensesTab() {
         }),
       );
 
+      // Base/Transfer entities have no document-upload feature of their own (only expenses and
+      // per-passenger flight tickets do, and tickets are passenger-specific rather than a
+      // per-booking receipt) — they always contribute an empty documents array to the report.
+      const items: BusinessCostItem[] = [
+        ...businessExpenses.map((e): BusinessCostItem => ({
+          date: e.created_at,
+          title: e.title,
+          amount: Number(e.converted_amount),
+          currency: expenseCurrency,
+          paidByOrCreatedBy: e.paid_by,
+          documents: documentsByExpenseId.get(e.id) ?? [],
+        })),
+        ...businessAccommodations.map((a): BusinessCostItem => ({
+          date: a.created_at,
+          title: a.title,
+          amount: Number(a.price_total ?? 0),
+          currency: a.currency,
+          paidByOrCreatedBy: a.created_by,
+          documents: [],
+        })),
+        // price_per_person is used as-is, NOT multiplied by assigned-passenger count. Passenger
+        // assignment is an independent, often-skipped logistics feature (who's confirmed on this
+        // specific flight) — gating a reimbursement amount on it caused two real problems: a
+        // business flight with nobody assigned reported €0 even though a real price existed, and
+        // for a flight shared with non-business co-travelers, multiplying by total passenger
+        // count would have overstated the cost by including tickets nobody is expensing. Matches
+        // how accommodations/rentals/public-transport already report their own price_total
+        // directly with no per-person math.
+        ...businessFlights.map((f): BusinessCostItem => ({
+          date: f.created_at,
+          title: f.title,
+          amount: Number(f.price_per_person ?? 0),
+          currency: f.currency,
+          paidByOrCreatedBy: f.created_by,
+          documents: [],
+        })),
+        ...businessRentals.map((r): BusinessCostItem => ({
+          date: r.created_at,
+          title: r.title,
+          amount: Number(r.price_total ?? 0),
+          currency: r.currency,
+          paidByOrCreatedBy: r.created_by,
+          documents: [],
+        })),
+        ...businessPublicTransport.map((p): BusinessCostItem => ({
+          date: p.created_at,
+          title: p.title,
+          amount: Number(p.price_total ?? 0),
+          currency: p.currency,
+          paidByOrCreatedBy: p.created_by,
+          documents: [],
+        })),
+      ];
+
+      const rateMap = Object.fromEntries(exchangeRates.map((r) => [r.currency, r.rate]));
+      const mergedItems = mergeCostItemsForReport(items, rateMap, reportCurrency);
+      if (mergedItems.length < items.length) {
+        addToast('warning', t('toast.businessSummaryRatesUnavailable', { count: items.length - mergedItems.length }));
+      }
+
       // One structured report drives both outputs, so the .md and .pdf can never disagree on
       // date/currency/payer formatting (buildBusinessExpenseReport owns all of it).
-      const reportInput = {
-        expenses: allExpenses,
+      const report = buildBusinessExpenseReport({
+        items: mergedItems,
         members: memberMap,
-        currency: currencyCode,
+        currency: reportCurrency,
         tripTitle,
-        documentsByExpenseId,
-      };
-      const report = buildBusinessExpenseReport(reportInput);
-      const markdown = formatBusinessExpenseSummary(reportInput);
+      });
+      const markdown = formatBusinessExpenseSummary(report);
 
       let pdfBase64: string | null = null;
       try {
         pdfBase64 = await renderBusinessExpensePdf({
           tripTitle: report.tripTitle,
-          currency: currencyCode,
+          currency: reportCurrency,
           rows: report.rows,
           total: report.total,
           count: report.count,
@@ -627,6 +744,7 @@ function ExpenseCardWithSplits({
           members={members}
           currency={currency}
           currentUserId={currentUserId}
+          canManage={canManage}
         />
       )}
     </>

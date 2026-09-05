@@ -5,9 +5,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createTransferFlightSchema, type CreateTransferFlightInput, TRANSFER_DIRECTION, type Currency } from '@vacationist/types';
-import { getCurrencySymbol, sanitizeDecimalInput } from '@vacationist/utils';
+import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
+import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyField';
+import { initialTransferCurrency, useTransferCurrencyField } from '../../currencies/hooks/useTransferCurrencyField';
 
 interface CreateFlightSheetProps {
   visible: boolean;
@@ -37,27 +39,42 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
-  const currencySymbol = getCurrencySymbol(currency as Currency);
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateTransferFlightInput>({
     resolver: zodResolver(createTransferFlightSchema),
-    defaultValues: { title: '', direction: 'outbound-return', auto_close: false },
+    defaultValues: {
+      title: '',
+      direction: 'outbound-return',
+      auto_close: false,
+      is_business: false,
+      currency: initialTransferCurrency(currency),
+    },
   });
 
   const direction = watch('direction');
   const departureTime = watch('departure_time');
   const arrivalTime = watch('arrival_time');
   const returnDepartureTime = watch('return_departure_time');
+  const selectedCurrency = (watch('currency') || currency) as Currency;
+  const currencyField = useTransferCurrencyField(selectedCurrency, (code) => setValue('currency', code));
+
+  const resetValues = () => ({
+    title: '',
+    direction: 'outbound-return' as const,
+    auto_close: false,
+    is_business: false,
+    currency: initialTransferCurrency(currency),
+  });
 
   const onValid = (data: CreateTransferFlightInput) => {
     Keyboard.dismiss();
     onSubmit(data);
-    reset({ title: '', direction: 'outbound-return', auto_close: false });
+    reset(resetValues());
     setPriceText('');
   };
 
   const handleClose = () => {
-    reset({ title: '', direction: 'outbound-return', auto_close: false });
+    reset(resetValues());
     setPriceText('');
     onClose();
   };
@@ -437,28 +454,37 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">
                     {direction === 'outbound-return'
-                      ? `${t('flight.field.combinedPrice')} (${currencySymbol})`
-                      : `${t('flight.field.price')} (${currencySymbol})`}
+                      ? `${t('flight.field.combinedPrice')} (${currencyField.currencySymbol})`
+                      : `${t('flight.field.price')} (${currencyField.currencySymbol})`}
                   </Text>
-                  <Controller
-                    control={control}
-                    name="price_per_person"
-                    render={({ field: { onChange } }) => (
-                      <TextInput
-                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                        placeholderTextColor="#5C5C5C"
-                        placeholder={t('flight.placeholder.price')}
-                        value={priceText}
-                        onChangeText={(text) => {
-                          const cleaned = sanitizeDecimalInput(text);
-                          setPriceText(cleaned);
-                          const num = parseFloat(cleaned);
-                          onChange(isNaN(num) ? null : num);
-                        }}
-                        keyboardType="decimal-pad"
-                      />
-                    )}
-                  />
+                  <View className="flex-row gap-xs">
+                    <Controller
+                      control={control}
+                      name="price_per_person"
+                      render={({ field: { onChange } }) => (
+                        <TextInput
+                          className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                          placeholderTextColor="#5C5C5C"
+                          placeholder={t('flight.placeholder.price')}
+                          value={priceText}
+                          onChangeText={(text) => {
+                            const cleaned = sanitizeDecimalInput(text);
+                            setPriceText(cleaned);
+                            const num = parseFloat(cleaned);
+                            onChange(isNaN(num) ? null : num);
+                          }}
+                          keyboardType="decimal-pad"
+                        />
+                      )}
+                    />
+                    <EntityCurrencyField
+                      selectedCurrency={selectedCurrency}
+                      pickerVisible={currencyField.pickerVisible}
+                      onOpen={currencyField.openPicker}
+                      onClose={currencyField.closePicker}
+                      onSelect={currencyField.onSelect}
+                    />
+                  </View>
                 </View>
 
                 {/* External URL */}
@@ -515,6 +541,24 @@ export function CreateFlightSheet({ visible, onClose, onSubmit, isPending, curre
                   render={({ field: { onChange, value } }) => (
                     <View className="flex-row items-center justify-between py-xs">
                       <Text className="text-body text-text-primary">{t('flight.field.autoClose')}</Text>
+                      <Switch
+                        value={value ?? false}
+                        onValueChange={onChange}
+                        trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                        thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                        ios_backgroundColor="#3E3E3E"
+                      />
+                    </View>
+                  )}
+                />
+
+                {/* Business expense */}
+                <Controller
+                  control={control}
+                  name="is_business"
+                  render={({ field: { onChange, value } }) => (
+                    <View className="flex-row items-center justify-between py-xs">
+                      <Text className="text-body text-text-primary">{t('flight.field.businessExpense')}</Text>
                       <Switch
                         value={value ?? false}
                         onValueChange={onChange}

@@ -23,6 +23,8 @@ function flight(
     departure_time: null,
     arrival_time: null,
     price_per_person: null,
+    currency: 'EUR',
+    is_business: false,
     external_url: null,
     flight_number: null,
     booking_reference: null,

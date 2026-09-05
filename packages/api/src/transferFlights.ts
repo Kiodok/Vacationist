@@ -58,6 +58,8 @@ export async function createTransferFlight(tripId: string, input: CreateTransfer
       return_departure_time: input.return_departure_time ?? null,
       return_arrival_time: input.return_arrival_time ?? null,
       price_per_person: input.price_per_person ?? null,
+      currency: input.currency,
+      is_business: input.is_business ?? false,
       external_url: input.external_url ?? null,
       notes: input.notes ?? null,
       auto_close: input.auto_close ?? false,

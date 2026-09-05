@@ -307,7 +307,6 @@ export default function TransferTab() {
           vehicles={vehicles}
           rentals={rentals}
           publicTransport={publicTransport}
-          currency={currency}
           isRefreshing={flightsUx.refreshing || vehiclesUx.refreshing || rentalsUx.refreshing || publicTransportUx.refreshing}
           onRefresh={() => { refetchFlights(); refetchVehicles(); refetchRentals(); refetchPublicTransport(); }}
           onFlightPress={(id) => { setHighlightId(id); setActiveSegment('Flights'); }}
@@ -353,7 +352,6 @@ export default function TransferTab() {
                   flight={item}
                   tripId={tripId!}
                   currentUserId={user?.id}
-                  currency={currency}
                   role={role}
                   members={members}
                   allFlightIds={allFlightIds}
@@ -452,7 +450,6 @@ export default function TransferTab() {
             renderItem={({ item }) => (
               <RentalCardExpanded
                 rental={item}
-                currency={currency}
                 role={role}
                 currentUserId={user?.id}
                 highlight={item.id === highlightId}
@@ -489,7 +486,6 @@ export default function TransferTab() {
               <PublicTransportCardExpanded
                 entry={item}
                 tripId={tripId!}
-                currency={currency}
                 role={role}
                 members={members}
                 currentUserId={user?.id}
@@ -617,7 +613,6 @@ function FlightCardWithVotes({
   flight,
   tripId,
   currentUserId,
-  currency,
   role,
   members,
   allFlightIds,
@@ -633,7 +628,6 @@ function FlightCardWithVotes({
   flight: TransferFlight;
   tripId: string;
   currentUserId: string | undefined;
-  currency: string;
   role: string | null | undefined;
   members: ReturnType<typeof useTripMembers>['data'] & {};
   allFlightIds: string[];
@@ -900,7 +894,6 @@ function FlightCardWithVotes({
         flight={flight}
         votes={votes}
         currentUserId={currentUserId}
-        currency={currency}
         isWinner={isWinner}
         onPress={() => setShowDetail(!showDetail)}
         onVotePress={() => setShowVoteSheet(true)}
@@ -1115,7 +1108,6 @@ function VehicleCardWithPassengers({
 
 function RentalCardExpanded({
   rental,
-  currency,
   role,
   currentUserId,
   highlight,
@@ -1123,7 +1115,6 @@ function RentalCardExpanded({
   onDelete,
 }: {
   rental: TransferRental;
-  currency: string;
   role: string | null | undefined;
   currentUserId: string | undefined;
   highlight?: boolean;
@@ -1198,7 +1189,6 @@ function RentalCardExpanded({
   return (
     <RentalCard
       rental={rental}
-      currency={currency}
       onPress={hasDetail ? () => setShowDetail(!showDetail) : undefined}
       detail={detailContent}
       highlight={highlight}
@@ -1211,7 +1201,6 @@ function RentalCardExpanded({
 function PublicTransportCardExpanded({
   entry,
   tripId,
-  currency,
   role,
   members,
   currentUserId,
@@ -1221,7 +1210,6 @@ function PublicTransportCardExpanded({
 }: {
   entry: TransferPublicTransport;
   tripId: string;
-  currency: string;
   role: string | null | undefined;
   members: ReturnType<typeof useTripMembers>['data'] & {};
   currentUserId: string | undefined;
@@ -1304,7 +1292,6 @@ function PublicTransportCardExpanded({
   return (
     <PublicTransportCard
       entry={entry}
-      currency={currency}
       onPress={() => setShowDetail(!showDetail)}
       detail={detailContent}
       highlight={highlight}

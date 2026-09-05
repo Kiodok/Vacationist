@@ -4,10 +4,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { createAccommodationSchema, type CreateAccommodationInput } from '@vacationist/types';
+import { createAccommodationSchema, type CreateAccommodationInput, type Currency } from '@vacationist/types';
 import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
+import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyField';
+import { initialAccommodationCurrency, useAccommodationCurrencyField } from '../../currencies/hooks/useAccommodationCurrencyField';
 
 interface CreateAccommodationSheetProps {
   visible: boolean;
@@ -26,17 +28,20 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateAccommodationInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateAccommodationInput>({
     resolver: zodResolver(createAccommodationSchema),
     defaultValues: {
       title: '',
+      currency: initialAccommodationCurrency(currency),
       auto_close: false,
+      is_business: false,
       check_in_date: tripStartDate ?? undefined,
       check_out_date: tripEndDate ?? undefined,
     },
   });
 
-  const currencySymbol = currency === 'CHF' ? 'CHF' : '€';
+  const selectedCurrency = (watch('currency') || currency) as Currency;
+  const currencyField = useAccommodationCurrencyField(selectedCurrency, (code) => setValue('currency', code));
 
   const checkIn = useWatch({ control, name: 'check_in_date' });
   const checkOut = useWatch({ control, name: 'check_out_date' });
@@ -45,15 +50,21 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
   const minDate = tripStartDate ? new Date(tripStartDate + 'T00:00:00') : undefined;
   const maxDate = tripEndDate ? new Date(tripEndDate + 'T00:00:00') : undefined;
 
+  // Re-computed on every call (not a stale mount-time snapshot) so a currency picked for one
+  // entry is reflected as the default for the very next one in the same sheet-open session.
+  const resetValues = () => ({
+    title: '',
+    currency: initialAccommodationCurrency(currency),
+    auto_close: false,
+    is_business: false,
+    check_in_date: tripStartDate ?? undefined,
+    check_out_date: tripEndDate ?? undefined,
+  });
+
   // Re-sync trip date defaults when the sheet opens (trip data may load after initial render).
   useEffect(() => {
     if (visible) {
-      reset({
-        title: '',
-        auto_close: false,
-        check_in_date: tripStartDate ?? undefined,
-        check_out_date: tripEndDate ?? undefined,
-      });
+      reset(resetValues());
       setPriceText('');
     }
   }, [visible, tripStartDate, tripEndDate]);
@@ -62,12 +73,12 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
     if (dateOrderError) return;
     Keyboard.dismiss();
     onSubmit(data);
-    reset();
+    reset(resetValues());
     setPriceText('');
   };
 
   const handleClose = () => {
-    reset();
+    reset(resetValues());
     setPriceText('');
     onClose();
   };
@@ -143,26 +154,35 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
 
               {/* Price */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">{t('field.price')} ({currencySymbol})</Text>
-                <Controller
-                  control={control}
-                  name="price_total"
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                      placeholderTextColor="#5C5C5C"
-                      placeholder="0.00"
-                      value={priceText}
-                      onChangeText={(t) => {
-                        const cleaned = sanitizeDecimalInput(t);
-                        setPriceText(cleaned);
-                        const num = parseFloat(cleaned);
-                        onChange(isNaN(num) ? null : num);
-                      }}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
+                <Text className="text-label text-text-muted uppercase">{t('field.price')} ({currencyField.currencySymbol})</Text>
+                <View className="flex-row gap-xs">
+                  <Controller
+                    control={control}
+                    name="price_total"
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        placeholderTextColor="#5C5C5C"
+                        placeholder="0.00"
+                        value={priceText}
+                        onChangeText={(t) => {
+                          const cleaned = sanitizeDecimalInput(t);
+                          setPriceText(cleaned);
+                          const num = parseFloat(cleaned);
+                          onChange(isNaN(num) ? null : num);
+                        }}
+                        keyboardType="decimal-pad"
+                      />
+                    )}
+                  />
+                  <EntityCurrencyField
+                    selectedCurrency={selectedCurrency}
+                    pickerVisible={currencyField.pickerVisible}
+                    onOpen={currencyField.openPicker}
+                    onClose={currencyField.closePicker}
+                    onSelect={currencyField.onSelect}
+                  />
+                </View>
               </View>
 
               {/* External URL */}
@@ -279,6 +299,24 @@ export function CreateAccommodationSheet({ visible, onClose, onSubmit, isPending
                 render={({ field: { onChange, value } }) => (
                   <View className="flex-row items-center justify-between py-xs">
                     <Text className="text-body text-text-primary">{t('field.autoClose')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                      thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
+
+              {/* Business expense */}
+              <Controller
+                control={control}
+                name="is_business"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.businessExpense')}</Text>
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}

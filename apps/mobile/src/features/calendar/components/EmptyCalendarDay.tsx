@@ -13,8 +13,8 @@ export function EmptyCalendarDay({ date, timezone }: EmptyCalendarDayProps) {
   const { t } = useTranslation('calendar');
   return (
     <View className="flex-1 items-center justify-center px-xl gap-md py-xl">
-      <View className="w-[80px] h-[80px] rounded-full bg-success-muted items-center justify-center">
-        <ThemedIcon name="calendar-clear-outline" size={36} color={colors.success} />
+      <View className="w-[80px] h-[80px] rounded-full bg-info-muted items-center justify-center">
+        <ThemedIcon name="calendar-clear-outline" size={36} color={colors.info} />
       </View>
       <Text className="text-heading-m text-text-primary text-center">{t('noActivities.title')}</Text>
       <Text className="text-body-small text-text-secondary text-center">

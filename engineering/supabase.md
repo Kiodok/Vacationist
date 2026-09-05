@@ -1,5 +1,272 @@
 # Supabase Changes Log
 
+## 2026-09-05 (later) — v1.34.0: extend persistent per-entity currency to Accommodations (2 migrations)
+
+**Why:** the original item 12 currency work (2026-09-04 entry below) scoped to "priced types
+only" — Flights, Rentals, Public Transport — and explicitly excluded Accommodations ("Base") that
+round. The Tech Lead asked to close that gap: Accommodations had the exact same bug (changing a
+trip's currency retroactively reinterpreted an already-booked accommodation's price), since it
+also had no currency column of its own and always displayed via the trip's live `base_currency`.
+
+**Migration `20260905130000_add_accommodation_currency_column.sql`** — same shape as the original
+transfer migration: `currency TEXT REFERENCES currency_catalog(code)` added to `accommodations`,
+backfilled from each row's trip's current `base_currency`, then set `NOT NULL`.
+
+**Migration `20260905140000_update_cost_rpcs_for_accommodation_currency.sql`** — `CREATE OR
+REPLACE` on `get_trip_cost_summary` and `get_my_trip_cost_shares` (both from earlier 2026-09-05
+entries below) so the accommodation row selects/groups by `a.currency` instead of the trip's
+`base_currency` — identical treatment to what these functions already did for
+`transfer_rental`/`transfer_public_transport`. Both pure functions that consume these RPCs
+(`computeTripCostSummary`, `computeMyCostShares`) were already generic over `row.currency`, so
+neither needed a code change.
+
+**App layer:** `Accommodation` type + `createAccommodationSchema` gained `currency`.
+`CreateAccommodationSheet`/`EditAccommodationSheet` gained the same currency-picker field as the
+Transfer sheets, defaulting new rows to a separate "last used accommodation currency" MMKV habit
+(own key — accommodation bookings are often paid in a different currency than a flight or an
+on-the-spot expense) and always showing an existing row's own currency when editing.
+`AccommodationCard` now reads `accommodation.currency` via `formatCurrency` instead of a crude
+two-currency (`CHF`/`€`) ternary, and no longer takes a `currency` prop (matching the Transfer
+cards). The shared button+picker component was renamed `TransferCurrencyField` →
+`EntityCurrencyField` since it has no transfer-specific logic — Accommodation reuses it directly
+rather than duplicating it.
+
+**Also fixed while here (same bug class, pre-existing, found while tracing item 12's blast
+radius):**
+- `packages/utils/src/tripMarkdown.ts` (the Trip Export Markdown/PDF feature, separate from the
+  Business Summary export) was still formatting flight and rental prices using the trip's
+  `base_currency` instead of each entity's own `.currency` — item 12 shipped without updating this
+  export path. Fixed for flights, rentals, and (now) accommodations; activities' `cost_estimate`
+  correctly stays on `base_currency` since it has no currency column.
+- `supabase/functions/create-example-trip/index.ts`'s two accommodation inserts were missing the
+  new NOT-NULL `currency` field — same class of gap already fixed this session for the three
+  transfer tables' seed rows (would have silently dropped both demo accommodations for every new
+  signup via the swallowed `logIfError`). Edge Function redeployed to dev + prod.
+
+**Verification:** applied to dev then prod (migration ledger parity confirmed both directions —
+`db dump --schema-only` diffing isn't available on this machine, no Docker). `npm run
+supabase:types` regenerated to pick up the new column. `npm run typecheck` / `npm test` pass.
+
+## 2026-09-04/05 — v1.34.0: date bug, donut chart, quick-action icon, expense doc camera (no migration)
+
+**Why:** four remaining tasks with no DB changes.
+
+- **Task/item 10 — trip end-date missing from the global calendar band.** Root cause:
+  `app/(tabs)/calendar.tsx`'s month-grid coverage logic built its own date set with bare
+  `dayjs(trip.start_date)`/`dayjs(trip.end_date)` — no `.utc()`/`.tz()`. A date-only string parses
+  as UTC midnight, but non-UTC dayjs reads/writes local fields, so on any device behind UTC the
+  band silently drops the true end date (and off-by-ones the start). `generateDateRange`
+  (`packages/utils/src/calendar.ts`) already fixes this exact bug for the *per-trip* calendar —
+  it just was never applied to the *global* tab. Fixed by reusing it there instead of the
+  duplicated, timezone-unsafe loop; 4 new regression tests (DST spring-forward/fall-back, a
+  calendar-year-boundary trip).
+- **Task/item 6 — Android quick-action icon still showed the OS robot glyph.** The v1.33.1 fix
+  (raster PNG + `keep.xml`) was correct on inspection; the remaining suspect is OEM launcher
+  shortcut-icon caching keyed by `(packageName, shortcutId)`, which a same-id
+  `setDynamicShortcuts` call doesn't reliably bust after an in-place app update. Fixed (code-only,
+  no dedicated diagnostic build this round) by bumping the shortcut id from `'add-expense'` to
+  `'add-expense-v2'` in `useAppIconQuickAction.ts` — eliminates the caching-by-id failure mode
+  outright. Needs a clean uninstall+reinstall on the next build to confirm.
+- **Tasks/items 3-5 — Balances donut chart.** Arc/angle math extracted from
+  `ExpenseCategoryChart.tsx` into a pure `computeDonutArcs` (`packages/utils/src/donutChart.ts`,
+  12 unit tests) — grand total now shown in the donut's center (from raw category amounts, never
+  reconstructed from rounded percentages), and each slice over an 8% share gets an in-slice %
+  label sourced from the same field the legend row already used (so the two numbers can never
+  disagree). Yellow ("shopping") category gets a dark label color instead of white for contrast.
+- **Task/item 11 — expense documents via camera, not just file upload, in every context.** New
+  `pickDocumentFromCamera()` (`apps/mobile/src/utils/documentPicker.ts`, reuses the already-
+  installed `expo-image-picker`, no new native dependency) added alongside the existing file
+  picker in `ExpenseDocumentsSection.tsx`. `EditExpenseSheet.tsx` now embeds that same section
+  (previously had no document UI at all). `CreateExpenseSheet.tsx` gets a new
+  `StagedDocumentsField` — since a brand-new expense has no id yet, picked/captured files are
+  held in local state and uploaded via the mutation's per-call `onSuccess` once the real expense
+  id exists (a distinct toast fires if any staged upload fails after the expense itself saved
+  successfully). Known accepted gap, consistent with every other document/avatar upload in this
+  app: if the create mutation is queued offline and the app is killed before it replays, the
+  per-call callback is lost and staged files are never uploaded.
+
+**Verification:** `npm run typecheck` / `npm test` pass throughout, including all new unit tests
+listed above.
+
+## 2026-09-05 — v1.34.0: Web Push Notifications (Phase 12, 1 migration + Edge Function)
+
+**Why:** Task/item 1 — deliver push notifications to `web.vacationist.app` in Chrome/Firefox/Safari
+16.4+, even when the tab is closed, per the fully-written spec in
+`engineering/implementation_guide.md` (Phase 12).
+
+**Migration: `20260905120000_create_web_push_subscriptions.sql`** — new
+`public.web_push_subscriptions` (`user_id` FK `ON DELETE CASCADE`, `endpoint`, `p256dh_key`,
+`auth_key`, `user_agent`, `UNIQUE(user_id, endpoint)`), separate from `user_push_tokens`
+(Expo/native — a browser subscription has no Expo token). RLS: SELECT/DELETE own rows only;
+INSERT/UPDATE denied outright (`WITH CHECK (false)`) — all writes go through two new SECURITY
+DEFINER RPCs, `upsert_web_push_subscription` (upserts on `(user_id, endpoint)` conflict) and
+`delete_web_push_subscription`. `set_updated_at` trigger + `idx_web_push_subscriptions_user_id`.
+No `delete_own_account()` change needed — the FK is `ON DELETE CASCADE`, unlike the
+`created_by`/`paid_by`-style FKs that rule covers.
+
+**Edge Function (`supabase/functions/push-notification/index.ts`)** — adds `npm:web-push@3.6.7`
+delivery alongside the existing Expo path in both `handleSingle` and `handleBatch`, gated on
+`VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT` secrets all being present. A 410/404 send
+error deletes that subscription (stale/revoked); other errors are logged and don't block the rest
+of the batch. `handleBatch` builds a per-recipient payload (not one shared payload) so each
+recipient's web push still carries their own `notificationId` for correct read-tracking on tap —
+same reasoning as the existing per-recipient Expo messages.
+
+**Bug found and fixed while wiring this in (not present in the original Phase 12 spec, which
+predates this code path):** both `handleSingle` and `handleBatch` had an early return
+(`reason: 'no_tokens'` / `'no_tokens'`) whenever the recipient(s) had zero **Expo** tokens —
+correct before this change (nothing else to try), but it would have silently skipped web push
+entirely for any user who only ever uses the web app (no native app installed, so no Expo token
+row exists). Fixed by removing the early return and always calling `sendWebPushToUsers`
+regardless of the Expo-token outcome; `sent` in the JSON response still reflects Expo deliveries
+only, matching its pre-existing meaning.
+
+**App layer:** `apps/mobile/public/sw.js` (plain ES5, no imports — `resolvePath()` is a hand-ported
+mirror of `resolveNotificationPath.ts`, since a service worker can't import a TS module; must be
+kept in sync by hand). `apps/mobile/public/notification-icon.png` copied from the app's own asset.
+New `registerForWebPushAsync()` / `unregisterWebPushAsync()` / `getWebPushEndpoint()`
+(`apps/mobile/src/features/notifications/utils/`), wired into `AuthGate` (`app/_layout.tsx`,
+web-only, fire-and-forget alongside the existing Expo registration) and `useSignOut.ts`
+(alongside the existing native `deletePushToken` call). New `packages/api/src/webPush.ts`
+(`upsertWebPushSubscription` / `deleteWebPushSubscription`). `vercel.json`: `/sw.js` gets an
+explicit passthrough rewrite (must come before the SPA catch-all — Vercel rewrites are first-
+match-wins) and `Cache-Control: no-store` + `Service-Worker-Allowed: /` headers so browsers never
+serve a stale worker. Privacy policy paragraph added to both `docs/privacy-policy.html` (EN,
+hand-authored) and `marketing/site/content/de/legal/privacy-policy.md` (DE source — regenerated
+via `npm run build:site`, confirmed stable on a second run).
+
+**Manual prerequisite (done by the Tech Lead, not by migration):** VAPID key pair generated via
+the `web-push` CLI; `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` set as Edge Function secrets on both
+dev and prod, `VAPID_SUBJECT` set to `https://vacationist.app` (an `https:` subject is valid per
+RFC 8292, same as the `mailto:` example in the spec); `EXPO_PUBLIC_VAPID_PUBLIC_KEY` set as a
+Vercel env var and in the local `.env`.
+
+**Verification:** migration applied to dev then prod (ledger parity). Edge Function deployed to
+both (`npx supabase functions deploy push-notification`) — this repo has no local Deno CLI, so a
+live deploy is the syntax/type check for this file. `npm run typecheck` and `npm test` (root)
+pass. End-to-end push delivery still needs a manual browser test (grant notification permission on
+`web.vacationist.app`, trigger a notification, confirm it arrives with the tab closed) — not yet
+done this session.
+
+## 2026-09-05 — v1.34.0: global Analytics tab — cross-trip "my share" (1 migration)
+
+**Why:** Task/item 2 — a new global tab showing, per year, what the user's own share of each
+trip's costs came to, in their preferred currency.
+
+**Migration: `20260905110000_create_my_trip_cost_shares_rpc.sql`** — new RPC
+`get_my_trip_cost_shares()` (no params, `auth.uid()` implicit), deliberately "dumb": returns raw
+per-trip, per-source rows (`trip_id`, `trip_title`, `start_date`, `member_count`, `source`,
+`currency`, `amount`, `is_my_flight`) for every trip the caller currently belongs to. Unlike
+`get_trip_cost_summary` (below), `transfer_flight` rows are **not** pre-aggregated — one row per
+flight, each carrying whether the caller is an assigned passenger on that specific flight
+(`is_my_flight`), since "my share" of a flight the caller didn't fly on is 0, and that decision
+needs per-flight passenger data the aggregate form would have thrown away. Expenses are
+represented by the caller's own `expense_splits.amount_owed` sum (`'expense_owed_by_me'`) — a
+debt figure, not a category breakdown. All real combination logic (passenger-gated flight shares,
+even-split shares for Base/Rentals/Public Transport/Activities, year bucketing, currency
+conversion) lives in the new pure `computeMyCostShares` (`packages/utils/src/costSummary.ts`),
+covered by 36 unit tests — this repo has no Docker/pgTAP, so anything worth testing extensively
+belongs in TypeScript, not SQL.
+
+**App layer:** new `costsOverview` feature folder (name deliberately avoids `analytics` — already
+owned by the PostHog/marketing telemetry module) — `useMyTripCostShares` hook, new tab route
+`app/(tabs)/costs.tsx`. New i18n namespace `costsOverview` + `tab.analytics` in `common.json`
+(en/de). Year sections default to expanded when there's only one year, or just the current
+calendar year when there are several; a later refetch never re-collapses a section the user
+already opened. `getMyTripCostShares()` added to `packages/api/src/trips.ts`.
+
+**Verification:** applied to dev then prod (ledger parity). `npm run typecheck` / `npm test` pass,
+including the 36 new `computeMyCostShares` tests.
+
+## 2026-09-05 — v1.34.0: Trip Overview cost summary (1 migration)
+
+**Why:** Tasks/items 7 & 8 — a dynamic cost summary next to the trip budget on the Overview tab,
+covering all cost-bearing entities (Base, Transfers, Activities, Expenses), converted into the
+trip's currency or the member's preferred currency.
+
+**Migration: `20260905100000_create_trip_cost_summary_rpc.sql`** — new RPC
+`get_trip_cost_summary(p_trip_id)`, same auth/membership-guard shape as
+`get_trip_expense_category_totals`, deliberately "dumb": mechanical status/soft-delete filtering
+only (accommodations `status IN ('reserved','booked','completed')`; flights
+`status IN ('booked','completed')`, amount pre-multiplied by assigned-passenger count; rentals/
+public transport always counted, no status lifecycle; activities
+`status IN ('reserved','completed')`; expenses `archived_at IS NULL`, one row per `related_type`
+bucket), returning raw `(source, currency, amount)` rows. All combination logic — this is the
+part that's actually easy to get wrong — lives in the new pure `computeTripCostSummary`
+(`packages/utils/src/costSummary.ts`, 20 unit tests) and a small `computeBudgetProgress` helper
+for the per-person/progress-bar math.
+
+**Design decision (Tech Lead call, not fully spec'd by the original request):** a category's own
+priced/committed entities (e.g. a booked hotel) take precedence over the matching expense
+category bucket whenever that entity sum is `> 0` — otherwise a manually-logged expense for the
+same cost double-counts alongside the entity's own price. This is a category-level rule, not a
+per-row link via `expenses.related_id` (that column exists in the schema but is never actually
+populated by the create/edit expense UI today) — building real per-row linking was judged out of
+proportion to what was asked. Known accepted edge case: an entity priced at exactly 0 reads
+identically to "nothing priced yet," so its category's expense fallback still applies on top.
+
+**App layer:** new "Trip costs" card on `app/trip/[id]/overview.tsx`, right after the existing
+budget card — group total, "≈ X per person (of Y budget)" line, and a progress bar clamped to
+100% width (while the percentage text itself is not clamped, so an over-budget trip correctly
+reads e.g. "134%"). Display currency = `user.preferred_currency ?? trip.base_currency`. New
+`useTripCostSummary` hook and `getTripCostSummary()` in `packages/api/src/trips.ts`.
+
+**Verification:** applied to dev then prod (ledger parity). `npm run typecheck` / `npm test`
+pass, including the new `computeTripCostSummary`/`computeBudgetProgress` tests.
+
+## 2026-09-04 — v1.34.0: business-cost flag extended to Base + Transfers (1 migration)
+
+**Why:** Task/item 9 — a business/company trip's booked hotel and flights should appear in the
+same business-expense summary export as manually logged expenses, not just `expenses.is_business`
+(added 2026-09-01, `20260901150000`).
+
+**Migration: `20260904140000_add_transfer_and_accommodation_is_business.sql`** —
+`is_business BOOLEAN NOT NULL DEFAULT FALSE` added to `accommodations`, `transfer_flights`,
+`transfer_rentals`, `transfer_public_transport`. `transfer_vehicles` deliberately excluded — it
+has no price column, nothing to flag as a business cost. All four tables use direct
+PostgREST insert/update (no RPCs for create/update), so no RPC signature changes were needed.
+
+**App layer:** the same "Business expense" `Switch` used on expenses added to all 8
+create/edit sheets (Base + 3 Transfer sub-types) and the matching briefcase badge to their card
+components. `buildBusinessExpenseReport` (`packages/utils/src/settlementText.ts`) generalized
+from an expenses-only input to a generic `BusinessCostItem[]` merged from all 5 sources, with a
+new `mergeCostItemsForReport` step that converts each item into the report's currency **before**
+summing — necessary because a business-flagged transfer now carries its own currency (see the
+2026-09-04 currency-columns entry below) which can differ from the trip's base currency; naively
+summing raw amounts across currencies would have produced a meaningless total. 13 new unit tests
+cover the currency-merge edge cases (mixed currencies, same-currency short-circuit, missing
+rates). `hasBusinessExpenses`/`useHasBusinessExpenses` renamed to `hasBusinessCosts`/
+`useHasBusinessCosts` and extended to a `head:true` count check across all 5 tables (was
+expenses-only), so the "Business summary" button now appears when only a flight/hotel is flagged.
+
+**Verification:** applied to dev then prod (ledger parity). `npm run typecheck` / `npm test`
+pass, including the 13 new `mergeCostItemsForReport`/`buildBusinessExpenseReport` tests.
+
+## 2026-09-04 — v1.34.0: persistent per-entity currency for Transfers (1 migration)
+
+**Why:** Task/item 12 — changing a trip's currency was retroactively reinterpreting every
+existing flight/rental/public-transport price with no conversion (a flight booked and paid in EUR
+"became" a BAM price the instant the trip's currency was changed to BAM), because none of those
+three tables had a currency column — display always used the trip's *live* `base_currency`.
+
+**Migration: `20260904130000_add_transfer_currency_columns.sql`** — `currency TEXT REFERENCES
+currency_catalog(code)` added to `transfer_flights`, `transfer_rentals`,
+`transfer_public_transport`; backfilled from each row's trip's *current* `base_currency` (the best
+available approximation for historical rows — this migration can't know what the trip's currency
+was back when each row was created), then set `NOT NULL`. No RPC changes — same direct-insert
+tables as the `is_business` migration above.
+
+**App layer:** `CurrencyPickerSheet` (already used by Expenses) added to all 6 Transfer create/edit
+sheets. New rows default to a small MMKV-backed "last used transfer currency" (separate from the
+existing expense-currency memory — booking a flight in advance and logging an expense on the spot
+are different currency habits worth remembering independently), updated on every pick; editing an
+existing row always defaults to *that row's own* currency, never the trip's live currency or the
+remembered default — this is what actually fixes the reported bug. `FlightCard`/`RentalCard`/
+`PublicTransportCard`/`AllTransfersView` updated to read each entity's own `currency` instead of a
+trip-wide prop (which is now removed from all of them, no longer needed).
+
+**Verification:** applied to dev then prod (ledger parity). `npm run typecheck` / `npm test` pass.
+
 ## 2026-09-03 — v1.33.1: Android quick-action icon + next-planned-trip fallback (no migration)
 
 **Why:** two defects filed against the app-icon "Add Expense" quick action (task 16, shipped in

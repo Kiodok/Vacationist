@@ -23,6 +23,7 @@ import enSharing from './locales/en/sharing.json';
 import enTutorial from './locales/en/tutorial.json';
 import enChat from './locales/en/chat.json';
 import enConsent from './locales/en/consent.json';
+import enCostsOverview from './locales/en/costsOverview.json';
 
 import deCommon from './locales/de/common.json';
 import deAuth from './locales/de/auth.json';
@@ -46,6 +47,7 @@ import deSharing from './locales/de/sharing.json';
 import deTutorial from './locales/de/tutorial.json';
 import deChat from './locales/de/chat.json';
 import deConsent from './locales/de/consent.json';
+import deCostsOverview from './locales/de/costsOverview.json';
 
 const resources = {
   en: {
@@ -71,6 +73,7 @@ const resources = {
     tutorial: enTutorial,
     chat: enChat,
     consent: enConsent,
+    costsOverview: enCostsOverview,
   },
   de: {
     common: deCommon,
@@ -95,6 +98,7 @@ const resources = {
     tutorial: deTutorial,
     chat: deChat,
     consent: deConsent,
+    costsOverview: deCostsOverview,
   },
 } as const;
 
@@ -107,7 +111,7 @@ i18n.use(initReactI18next).init({
     'common', 'auth', 'trips', 'activities', 'activityNotes', 'accommodationNotes',
     'expenses', 'accommodations', 'transfer', 'shopping', 'recipes', 'calendar',
     'prework', 'notifications', 'profile', 'notes', 'stuff', 'validation', 'sharing',
-    'tutorial', 'chat', 'consent',
+    'tutorial', 'chat', 'consent', 'costsOverview',
   ],
   interpolation: {
     escapeValue: false,

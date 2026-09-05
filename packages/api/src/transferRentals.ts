@@ -36,6 +36,8 @@ export async function createTransferRental(tripId: string, input: CreateTransfer
       dropoff_date: input.dropoff_date ?? null,
       booking_reference: input.booking_reference ?? null,
       price_total: input.price_total ?? null,
+      currency: input.currency,
+      is_business: input.is_business ?? false,
       external_url: input.external_url ?? null,
       notes: input.notes ?? null,
       created_by: user.id,

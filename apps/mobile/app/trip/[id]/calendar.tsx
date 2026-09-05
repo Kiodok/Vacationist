@@ -39,8 +39,8 @@ export default function CalendarTab({ onTabChange }: Readonly<CalendarTabProps>)
   }, [allTripVotes]);
 
   const dateRange = useMemo(
-    () => (trip ? generateDateRange(trip.start_date, trip.end_date, trip.timezone) : []),
-    [trip?.start_date, trip?.end_date, trip?.timezone],
+    () => (trip ? generateDateRange(trip.start_date, trip.end_date) : []),
+    [trip?.start_date, trip?.end_date],
   );
 
   const { selectedDate, setSelectedDate } = useCalendarNavigation(dateRange);

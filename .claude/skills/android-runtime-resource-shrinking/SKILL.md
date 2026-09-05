@@ -1,6 +1,6 @@
 ---
 name: android-runtime-resource-shrinking
-description: Use whenever an Android resource is referenced only by a runtime name string (Resources.getIdentifier with a name passed from JS / the JS bundle) — e.g. expo-quick-actions shortcut icons, dynamic app icons. This app has R8 resource shrinking on; its default "safe" mode only protects names that appear as string constants in COMPILED code, so a JS-only name can be stripped in release builds unless pinned with a res/raw/keep.xml tools:keep entry. Works in dev/debug, can vanish in preview/production EAS builds. Also covers preferring a raster PNG over a vector for launcher/notification icons.
+description: Use whenever an Android resource is referenced only by a runtime name string (Resources.getIdentifier with a name passed from JS / the JS bundle) — e.g. expo-quick-actions shortcut icons, dynamic app icons. This app has R8 resource shrinking on; its default "safe" mode only protects names that appear as string constants in COMPILED code, so a JS-only name can be stripped in release builds unless pinned with a res/raw/keep.xml tools:keep entry. Works in dev/debug, can vanish in preview/production EAS builds. Also covers preferring a raster PNG over a vector for launcher/notification icons, and — the CONFIRMED root cause of a bug that survived two earlier fix attempts — placing such a resource in a density-INDEPENDENT `drawable/` folder rather than a density-qualified one (`drawable-xxxhdpi/` etc.): a Google Play production build ships as an App Bundle, and Play's bundletool splits resources by device density, so a density-qualified resource is silently missing from every device's split except the one matching that exact density. This is why such a bug can pass on every EAS development/preview APK and on iOS yet still fail on real Play Store installs. SEPARATELY, also covers the (weaker, unconfirmed) theory that OEM launchers cache a dynamic shortcut's icon by (packageName, shortcutId) and never redraw it after an in-place update.
 ---
 
 # Runtime-referenced Android resources must be kept via keep.xml
@@ -50,5 +50,71 @@ non-empty. See [[v1-33-0-batch]].
 - Reference implementation doing both: `apps/mobile/plugins/withQuickActionIcon.js`.
 - Verify without a device: `cd apps/mobile && npx expo prebuild -p android --clean`, confirm the
   PNG + `res/raw/keep.xml` landed, then `rm -rf apps/mobile/android` (it's gitignored).
+
+## An unconfirmed second theory, tried first (2026-09-05, v1.34.0)
+
+Even after the fix above (raster PNG + `keep.xml`) shipped and was confirmed correct on
+inspection, the "Add Expense" quick-action icon STILL showed the OS robot glyph on device. Leading
+suspect at the time: several OEM launchers (Samsung One UI, MIUI, etc.) snapshot a dynamic
+shortcut's icon bitmap **keyed by `(packageName, shortcutId)`** the first time it's created, and
+don't reliably redraw it on a same-id `ShortcutManager(Compat).setDynamicShortcuts` call after an
+in-place app **update** — only a fresh shortcut id, or a clean uninstall/reinstall, forces the
+launcher to re-fetch the icon. Applied as a defensive fix: bumped the shortcut id itself
+(`ADD_EXPENSE_ACTION_ID` in `useAppIconQuickAction.ts`, `'add-expense'` → `'add-expense-v2'`) —
+cheap, safe, still worth keeping as insurance against this failure mode even though it turned out
+not to be the actual cause of the reported bug (below).
+
+## The CONFIRMED root cause (2026-09-05, same day): Play Store's per-device density-split App Bundle
+
+The Tech Lead's actual test matrix was the key: the icon worked on an EAS `development` build
+*and* on iOS production, but failed specifically on **Android production installed from the Play
+Store**, across multiple real devices. That pattern rules out R8 shrinking (a `development` build
+has R8 off entirely, but so did `preview` — and `preview` also worked) and rules out the OEM
+shortcut-caching theory (that would affect a `development`-build device too, since caching is
+per-device, not per-distribution-channel). It points at exactly one thing that differs between
+`development`/`preview` and `production`: **`eas.json`'s `android.buildType`** —
+`development`/`preview` build a universal `apk` (every resource ships to every install
+unconditionally), while `production` builds an `app-bundle` (`.aab`), uploaded to Play Console.
+Google Play's bundletool then generates a **device-specific APK per install** from that bundle,
+and **splits resources by screen density by default**: a device's generated APK contains only the
+resources qualified for *that device's own* density bucket (plus density-*independent* ones) —
+never resources from a different density-qualified folder. `withQuickActionIcon.js` shipped the
+icon **only** in `drawable-xxxhdpi/`. Any real device whose Play-assigned density split wasn't
+exactly xxxhdpi (a large share of the install base) received a Play-generated APK that never
+contained the drawable **at all** — not stripped by R8, simply never included in that split.
+Neither `keep.xml` nor the raster-PNG fix could ever have caught this: both only decide whether a
+resource *present in a build* survives shrinking; neither can restore a resource bundletool never
+packaged into a given device's split in the first place.
+
+**Fix:** ship the icon in the density-**independent** default `res/drawable/` folder instead of a
+density-qualified one (`drawable-xxxhdpi/`, `drawable-hdpi/`, etc.). Bundletool always includes
+density-independent resources in every device's split, regardless of that device's density —
+exactly the same reasoning R8's `keep.xml` uses ("must survive whatever splitting/shrinking Google
+does downstream, unconditionally"), just applied to Play's bundle splitting instead of R8. A
+resource used only via `Icon.createWithResource` for a fixed-size shortcut/notification icon
+(never inflated at arbitrary layout sizes by a normal Android View) has no need for multiple
+density variants anyway, so this has no downside.
+
+**Verify without a device:** `cd apps/mobile && npx expo prebuild -p android --clean`, confirm
+`android/app/src/main/res/drawable/ic_shortcut_expense.png` (not `drawable-xxxhdpi/`) plus
+`res/raw/keep.xml`, then `rm -rf apps/mobile/android` (gitignored). This does NOT catch the actual
+Play-splitting bug itself (that only manifests through bundletool's real per-device split
+generation, which happens on Play's infrastructure, not in a local prebuild) — it only confirms
+the resource is in the right *folder*. The Play Store production install test is what actually
+proves the fix.
+
+**Lesson (the general, forward-thinking one):** for ANY Android resource referenced only by a
+runtime/JS name string — the same class this whole skill file is about — placing it in a
+density-qualified folder is a landmine that is invisible in every build artifact anyone locally
+tests (debug, `development` APK, `preview` APK) and only detonates in real Play Store production
+installs, on a subset of devices, which is close to the worst possible place/time to discover it.
+Default to a density-independent folder for this entire resource class unless there's a specific,
+verified reason multiple density variants are needed.
+
+**Also still true, keep as defensive insurance (weaker, unconfirmed theory):** a shortcut-icon fix
+that looks correct in the built APK can still separately fail purely from OEM launcher-side
+caching of a *previous* broken icon under the same shortcut id. When validating a fix to an
+*already-shipped* shortcut's icon, test with a clean **uninstall+reinstall**, never just an
+in-place update — an update is exactly the scenario this caching bug (if real) would hide behind.
 
 Cross-reference: [[commit-discipline]] (stage, don't commit until the Tech Lead device-tests).

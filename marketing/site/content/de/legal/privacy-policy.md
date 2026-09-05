@@ -49,6 +49,8 @@ Wir erheben nur die Daten, die zur Bereitstellung des Dienstes erforderlich sind
 - Push-Benachrichtigungs-Token (um dir In-App-Benachrichtigungen zu senden; gespeichert, bis du dich abmeldest oder die App deinstallierst)
 - IP-Adresse (auf Netzwerkebene von der Supabase-Infrastruktur erfasst; wird von uns nicht in Anwendungsdaten gespeichert)
 
+Wenn du Vacationist im Webbrowser nutzt und bei Aufforderung die Benachrichtigungserlaubnis erteilst, speichern wir zusätzlich ein Browser-Push-Abonnement — eine Endpunkt-URL sowie ein Paar kryptografischer Schlüssel, das der Browser erzeugt und das wir benötigen, um Push-Benachrichtigungen an diesen Browser zuzustellen. Im Abonnement selbst werden keine persönlichen Inhalte gespeichert, nur diese Schlüssel. Es wird gelöscht, wenn du dich abmeldest oder die Benachrichtigungserlaubnis in deinem Browser widerrufst.
+
 **Website-Analyse- & Werbemessdaten**
 
 Beim Besuch der Website erfassen Google Analytics 4 und das **Reddit-Pixel** automatisch die folgenden Daten über Cookies und ähnliche Technologien — jedoch erst, nachdem du im Cookie-Banner aktiv zugestimmt hast:

@@ -1,5 +1,10 @@
 import { roundCurrency } from './format';
 
+/** `public.exchange_rates`-shaped: currency code -> value of 1 EUR in that currency. Shared
+ * between every feature that merges/converts amounts across currencies (business-cost export,
+ * trip cost summary, cross-trip Analytics) so they all agree on the map's shape. */
+export type CurrencyRateMap = Record<string, number>;
+
 /**
  * Cross-rate conversion between two EUR-relative exchange rates (see public.exchange_rates —
  * rate = value of 1 EUR in that currency). Pure, display-only math: used both for the

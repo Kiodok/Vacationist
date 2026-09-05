@@ -5,10 +5,13 @@ import { useLocalSearchParams } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
 import { i18n as i18nInstance } from '@vacationist/i18n';
-import { dayjs, formatCurrency } from '@vacationist/utils';
+import { dayjs, formatCurrency, computeBudgetProgress } from '@vacationist/utils';
 import type { UpdateTripInput } from '@vacationist/types';
 import { useTrip, useUpdateTrip } from '../../../src/features/trips/hooks/useTrips';
+import { useTripCostSummary } from '../../../src/features/trips/hooks/useTripCostSummary';
+import { useCurrencyConversion } from '../../../src/features/currencies/hooks/useCurrencies';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
+import { useAuthStore } from '../../../src/stores/authStore';
 import { MemberAvatarGroup } from '../../../src/features/trips/components/MemberAvatarGroup';
 import { EditTripSheet } from '../../../src/features/trips/components/EditTripSheet';
 import { colors, ThemedIcon } from '@vacationist/ui';
@@ -22,6 +25,14 @@ interface OverviewTabProps {
   onTabChange?: (tab: string) => void;
 }
 
+// Unclamped percent (can exceed 100) — green while comfortably under budget, yellow as it gets
+// close, red once at or over budget.
+function budgetBarColor(percent: number): string {
+  if (percent >= 95) return colors.danger;
+  if (percent >= 80) return colors.warning;
+  return colors.success;
+}
+
 export default function OverviewTab({ onTabChange }: OverviewTabProps) {
   const { t } = useTranslation('trips');
   const { t: tCommon } = useTranslation("common");
@@ -29,6 +40,17 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
   const { data: trip } = useTrip(id!);
   const { data: members } = useTripMembers(id!);
   const { data: role } = useCurrentMemberRole(id!);
+  const user = useAuthStore((s) => s.user);
+  const costDisplayCurrency = user?.preferred_currency ?? trip?.base_currency ?? 'EUR';
+  const { data: costSummary, isLoading: costSummaryLoading } = useTripCostSummary(id!, costDisplayCurrency);
+  const { convert } = useCurrencyConversion();
+  // costSummary.total is converted into costDisplayCurrency (the member's preferred currency,
+  // when set), but trip.budget_per_person is always stored in trip.base_currency — comparing them
+  // unconverted silently produces a wrong percent/progress-bar whenever the two currencies differ.
+  // Falls back to no budget comparison (rather than a wrong one) if the rate isn't available.
+  const budgetPerPersonInDisplayCurrency = trip?.budget_per_person != null
+    ? convert(trip.budget_per_person, trip.base_currency, costDisplayCurrency)
+    : null;
   const updateTrip = useUpdateTrip();
   const [editOpen, setEditOpen] = useState(false);
   const [highlightOpen, setHighlightOpen] = useState(false);
@@ -102,8 +124,8 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
             style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
           >
             <View className="bg-surface border border-border rounded-md p-md items-center gap-xs">
-              <View style={styles.iconBadgeSuccess}>
-                <ThemedIcon name="calendar-outline" size={20} color={colors.success} />
+              <View style={styles.iconBadgeInfo}>
+                <ThemedIcon name="calendar-outline" size={20} color={colors.info} />
               </View>
               <Text className="text-heading-m text-text-primary">{duration}</Text>
               <Text className="text-body-small text-text-secondary">
@@ -129,18 +151,91 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
           </Pressable>
         </View>
 
-        {/* Budget — full-width row so long CHF values never overflow */}
-        {trip.budget_per_person != null && (
-          <View className="bg-surface border border-border rounded-md p-md flex-row items-center gap-md">
-            <View style={styles.iconBadgeWarning}>
-              <ThemedIcon name="wallet-outline" size={20} color={colors.warning} />
-            </View>
-            <View>
-              <Text className="text-heading-m text-text-primary">
-                {formatCurrency(trip.budget_per_person, trip.base_currency, i18nInstance.language === 'de' ? 'de-DE' : 'en-US')}
-              </Text>
-              <Text className="text-body-small text-text-secondary">{t('overview.budget')}</Text>
-            </View>
+        {/* Budget + Trip costs. Web: same row (plenty of horizontal space). Android/iOS: stacked
+            — a wide phone screen with a large converted total/budget figure can overflow a
+            half-width card, so native always gets the full row to itself. Each card is
+            independently conditional (budget may be unset; costSummary loads async), so either
+            can render alone.
+            costSummaryLoading also covers exchange rates still loading (see
+            useTripCostSummary.ts) — costSummary can otherwise be truthy but computed against an
+            incomplete rate map, briefly showing an understated total. */}
+        {(trip.budget_per_person != null || (costSummary && !costSummaryLoading)) && (
+          <View className={`gap-sm items-stretch ${Platform.OS === 'web' ? 'flex-row' : ''}`}>
+            {trip.budget_per_person != null && (
+              <View className="flex-1 bg-surface border border-border rounded-md p-md flex-row items-center gap-md">
+                <View style={styles.iconBadgeWarning}>
+                  <ThemedIcon name="wallet-outline" size={20} color={colors.warning} />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-label text-text-muted uppercase">{trip.base_currency}</Text>
+                  <Text className="text-heading-m text-text-primary">
+                    {trip.budget_per_person.toLocaleString(i18nInstance.language === 'de' ? 'de-DE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </Text>
+                  <Text className="text-body-small text-text-secondary">{t('overview.budget')}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Trip costs — items 7/8: sum of Base/Transfer/Activities/Expenses, converted into the
+                member's preferred currency when set (else the trip's own currency). Rendered only
+                once costSummary has actually loaded, so it never flashes a false "0" total.
+                Pressable — tapping it is a shortcut to the Expenses tab, same as the Days/Members
+                stat cards above link to their own tabs. */}
+            {costSummary && !costSummaryLoading && (
+              <Pressable
+                className="flex-1"
+                onPress={() => onTabChange?.('Expenses')}
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+              >
+                <View className="bg-surface border border-border rounded-md p-md gap-sm">
+                  <View className="flex-row items-center gap-md">
+                    <View style={styles.iconBadgePrimary}>
+                      <ThemedIcon name="cash-outline" size={20} color={colors.primary} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-heading-m text-text-primary">
+                        {formatCurrency(costSummary.total, costDisplayCurrency, i18nInstance.language === 'de' ? 'de-DE' : 'en-US')}
+                      </Text>
+                      <Text className="text-body-small text-text-secondary">{t('overview.costSummary')}</Text>
+                    </View>
+                  </View>
+
+                  {(() => {
+                    const progress = computeBudgetProgress(costSummary.total, budgetPerPersonInDisplayCurrency, trip.member_count);
+                    const perPersonText = formatCurrency(progress.perPerson, costDisplayCurrency, i18nInstance.language === 'de' ? 'de-DE' : 'en-US');
+                    return (
+                      <>
+                        <Text className="text-body-small text-text-secondary">
+                          {progress.hasBudget
+                            ? t('overview.perPersonOfBudget', {
+                                perPerson: perPersonText,
+                                budget: formatCurrency(trip.budget_per_person ?? 0, trip.base_currency, i18nInstance.language === 'de' ? 'de-DE' : 'en-US'),
+                              })
+                            : t('overview.perPerson', { perPerson: perPersonText })}
+                        </Text>
+                        {progress.hasBudget && (
+                          <View className="h-[6px] rounded-full bg-border overflow-hidden">
+                            <View
+                              style={{
+                                width: `${progress.clampedPercent}%`,
+                                height: '100%',
+                                backgroundColor: budgetBarColor(progress.percent),
+                              }}
+                            />
+                          </View>
+                        )}
+                      </>
+                    );
+                  })()}
+
+                  {costSummary.excludedSourceCount > 0 && (
+                    <Text className="text-label text-text-muted">
+                      {t('overview.ratesExcluded', { count: costSummary.excludedSourceCount })}
+                    </Text>
+                  )}
+                </View>
+              </Pressable>
+            )}
           </View>
         )}
 
@@ -264,10 +359,10 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(108,99,255,0.2)',
     alignItems: 'center', justifyContent: 'center',
   },
-  iconBadgeSuccess: {
+  iconBadgeInfo: {
     width: 40, height: 40, borderRadius: 10,
-    backgroundColor: 'rgba(62,207,142,0.1)',
-    borderWidth: 1, borderColor: 'rgba(62,207,142,0.2)',
+    backgroundColor: 'rgba(59,130,246,0.1)',
+    borderWidth: 1, borderColor: 'rgba(59,130,246,0.2)',
     alignItems: 'center', justifyContent: 'center',
   },
   iconBadgeWarning: {

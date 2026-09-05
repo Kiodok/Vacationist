@@ -1,0 +1,9 @@
+{
+  "header.total": "Gesamt über alle Reisen",
+  "empty.title": "Noch keine Reisekosten",
+  "empty.subtitle": "Sobald du an einer Reise mit Kosten beteiligt bist, erscheint dein Anteil hier.",
+  "year.tripCount": "{{count}} Reise",
+  "year.tripCount_other": "{{count}} Reisen",
+  "ratesExcluded": "{{count}} Betrag ausgeschlossen — Wechselkurs nicht verfügbar",
+  "ratesExcluded_other": "{{count}} Beträge ausgeschlossen — Wechselkurs nicht verfügbar"
+}

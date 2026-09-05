@@ -139,6 +139,8 @@ export const createAccommodationSchema = z.object({
   title: z.string().min(1).max(100),
   description: z.string().max(1000).optional(),
   price_total: z.number().nonnegative().nullable().optional(),
+  currency: currencyCodeSchema,
+  is_business: z.boolean().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
   maps_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
@@ -331,6 +333,8 @@ const flightBaseSchema = z.object({
   return_departure_time: z.string().nullable().optional(),
   return_arrival_time: z.string().nullable().optional(),
   price_per_person: z.number().nonnegative().nullable().optional(),
+  currency: currencyCodeSchema,
+  is_business: z.boolean().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
   auto_close: z.boolean().optional(),
@@ -395,6 +399,8 @@ export const createTransferRentalSchema = z.object({
   dropoff_date: z.string().nullable().optional(),
   booking_reference: z.string().max(50).optional(),
   price_total: z.number().nonnegative().nullable().optional(),
+  currency: currencyCodeSchema,
+  is_business: z.boolean().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
 });
@@ -413,6 +419,8 @@ export const createTransferPublicTransportSchema = z.object({
   arrival_time: z.string().nullable().optional(),
   booking_reference: z.string().max(50).optional(),
   price_total: z.number().nonnegative().nullable().optional(),
+  currency: currencyCodeSchema,
+  is_business: z.boolean().optional(),
   external_url: httpsUrlSchema.nullable().optional(),
   notes: z.string().max(500).optional(),
 });
@@ -708,3 +716,14 @@ export const persistedHighlightSelectionSchema = z.object({
 });
 
 export type PersistedHighlightSelection = z.infer<typeof persistedHighlightSelectionSchema>;
+
+// --- Web Push (v1.34.0 item 1 — Phase 12) ---
+
+export const webPushSubscriptionSchema = z.object({
+  endpoint: z.string().url(),
+  p256dhKey: z.string().min(1),
+  authKey: z.string().min(1),
+  userAgent: z.string().optional(),
+});
+
+export type WebPushSubscriptionInput = z.infer<typeof webPushSubscriptionSchema>;

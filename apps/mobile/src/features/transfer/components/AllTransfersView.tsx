@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatNaiveTimestamp } from '@vacationist/utils';
-import type { TransferFlight, TransferVehicle, TransferRental, TransferPublicTransport, Currency } from '@vacationist/types';
+import type { TransferFlight, TransferVehicle, TransferRental, TransferPublicTransport } from '@vacationist/types';
 import { colors, METADATA_ICON_COLORS, RichText, ThemedIcon } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 
@@ -10,7 +10,6 @@ export interface AllTransfersViewProps {
   vehicles: TransferVehicle[];
   rentals: TransferRental[];
   publicTransport: TransferPublicTransport[];
-  currency: string;
   isRefreshing: boolean;
   onRefresh: () => void;
   onFlightPress?: (id: string) => void;
@@ -89,7 +88,7 @@ function FlightStatusBadge({ status, votingOpen }: { status: string; votingOpen:
   );
 }
 
-function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; currency: string }) {
+function FlightSummaryCard({ flight }: { flight: TransferFlight }) {
   const { t } = useTranslation('transfer');
   const departureFormatted = formatDatetime(flight.departure_time);
   const arrivalFormatted = formatDatetime(flight.arrival_time);
@@ -167,7 +166,7 @@ function FlightSummaryCard({ flight, currency }: { flight: TransferFlight; curre
       <View className="flex-row items-center justify-between">
         {flight.price_per_person != null ? (
           <Text className="text-body-small text-text-secondary">
-            {formatCurrency(Number(flight.price_per_person), currency as Currency)} {t('all.perPerson')}
+            {formatCurrency(Number(flight.price_per_person), flight.currency)} {t('all.perPerson')}
           </Text>
         ) : <View />}
         <DirectionBadge direction={flight.direction} />
@@ -194,7 +193,7 @@ function VehicleSummaryCard({ vehicle }: { vehicle: TransferVehicle }) {
   );
 }
 
-function RentalSummaryCard({ rental, currency }: { rental: TransferRental; currency: string }) {
+function RentalSummaryCard({ rental }: { rental: TransferRental }) {
   return (
     <View className="bg-surface border border-border rounded-md p-md gap-sm mb-sm">
       <Text className="text-body font-semibold text-text-primary" numberOfLines={1}>
@@ -232,7 +231,7 @@ function RentalSummaryCard({ rental, currency }: { rental: TransferRental; curre
           )}
           {rental.price_total != null && (
             <Text className="text-body-small text-text-secondary">
-              {formatCurrency(Number(rental.price_total), currency as Currency)}
+              {formatCurrency(Number(rental.price_total), rental.currency)}
             </Text>
           )}
         </View>
@@ -241,7 +240,7 @@ function RentalSummaryCard({ rental, currency }: { rental: TransferRental; curre
   );
 }
 
-function PublicTransportSummaryCard({ entry, currency }: { entry: TransferPublicTransport; currency: string }) {
+function PublicTransportSummaryCard({ entry }: { entry: TransferPublicTransport }) {
   const departureFormatted = formatDatetime(entry.departure_time);
   const arrivalFormatted = formatDatetime(entry.arrival_time);
   return (
@@ -278,7 +277,7 @@ function PublicTransportSummaryCard({ entry, currency }: { entry: TransferPublic
           )}
           {entry.price_total != null && (
             <Text className="text-body-small text-text-secondary">
-              {formatCurrency(Number(entry.price_total), currency as Currency)}
+              {formatCurrency(Number(entry.price_total), entry.currency)}
             </Text>
           )}
         </View>
@@ -292,7 +291,6 @@ export function AllTransfersView({
   vehicles,
   rentals,
   publicTransport,
-  currency,
   isRefreshing,
   onRefresh,
   onFlightPress,
@@ -338,7 +336,7 @@ export function AllTransfersView({
           />
           {displayFlights.map((f) => (
             <Pressable key={f.id} onPress={() => onFlightPress?.(f.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
-              <FlightSummaryCard flight={f} currency={currency} />
+              <FlightSummaryCard flight={f} />
             </Pressable>
           ))}
         </>
@@ -358,7 +356,7 @@ export function AllTransfersView({
           <SectionHeader icon="car-sport-outline" title={t('segment.rentals')} count={rentals.length} />
           {rentals.map((r) => (
             <Pressable key={r.id} onPress={() => onRentalPress?.(r.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
-              <RentalSummaryCard rental={r} currency={currency} />
+              <RentalSummaryCard rental={r} />
             </Pressable>
           ))}
         </>
@@ -368,7 +366,7 @@ export function AllTransfersView({
           <SectionHeader icon="train-outline" title={t('segment.publicTransport')} count={publicTransport.length} />
           {publicTransport.map((p) => (
             <Pressable key={p.id} onPress={() => onPublicTransportPress?.(p.id)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
-              <PublicTransportSummaryCard entry={p} currency={currency} />
+              <PublicTransportSummaryCard entry={p} />
             </Pressable>
           ))}
         </>

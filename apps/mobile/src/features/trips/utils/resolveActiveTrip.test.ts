@@ -1,9 +1,18 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { resolveActiveTrip } from './resolveActiveTrip';
-import { initDayjs } from '@vacationist/utils';
+import { dayjs, initDayjs } from '@vacationist/utils';
 import type { Trip } from '@vacationist/types';
 
 beforeAll(() => initDayjs());
+
+// resolveActiveTrip.ts deliberately buckets "today" by DEVICE-LOCAL date (dayjs(), no .utc()) to
+// match the trips list's own bucketing — so these tests must compute "today" the same way.
+// `new Date().toISOString().slice(0, 10)` is the UTC date instead, which silently disagrees with
+// the implementation's local date near midnight on any machine not already at UTC+0 (a bug in
+// these tests, not in resolveActiveTrip.ts itself — pre-existing, not introduced this session).
+function today(): string {
+  return dayjs().format('YYYY-MM-DD');
+}
 
 function makeTrip(overrides: Partial<Trip>): Trip {
   return {
@@ -38,29 +47,29 @@ describe('resolveActiveTrip', () => {
   });
 
   it('picks the trip whose date range covers today', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const todayStr = today();
     const trips = [
       makeTrip({ id: 'past', start_date: '2020-01-01', end_date: '2020-01-02' }),
-      makeTrip({ id: 'current', start_date: today, end_date: today }),
+      makeTrip({ id: 'current', start_date: todayStr, end_date: todayStr }),
       makeTrip({ id: 'future', start_date: '2099-01-01', end_date: '2099-01-02' }),
     ];
     expect(resolveActiveTrip(trips)?.id).toBe('current');
   });
 
   it('picks the soonest-ending trip when more than one covers today', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const todayStr = today();
     const trips = [
-      makeTrip({ id: 'long', start_date: today, end_date: '2099-12-31' }),
-      makeTrip({ id: 'short', start_date: today, end_date: today }),
+      makeTrip({ id: 'long', start_date: todayStr, end_date: '2099-12-31' }),
+      makeTrip({ id: 'short', start_date: todayStr, end_date: todayStr }),
     ];
     expect(resolveActiveTrip(trips)?.id).toBe('short');
   });
 
   it('prefers an ongoing trip over an upcoming one', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const todayStr = today();
     const trips = [
       makeTrip({ id: 'upcoming', start_date: '2099-01-01', end_date: '2099-01-10' }),
-      makeTrip({ id: 'ongoing', start_date: today, end_date: today }),
+      makeTrip({ id: 'ongoing', start_date: todayStr, end_date: todayStr }),
     ];
     expect(resolveActiveTrip(trips)?.id).toBe('ongoing');
   });
@@ -93,18 +102,18 @@ describe('resolveActiveTrip', () => {
   });
 
   it('excludes archived trips even if their dates cover today', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const todayStr = today();
     const trips = [
-      makeTrip({ id: 'archived-current', start_date: today, end_date: today, status: 'archived' }),
+      makeTrip({ id: 'archived-current', start_date: todayStr, end_date: todayStr, status: 'archived' }),
       makeTrip({ id: 'past', start_date: '2020-01-01', end_date: '2020-01-02' }),
     ];
     expect(resolveActiveTrip(trips)?.id).toBe('past');
   });
 
   it('excludes completed trips even if their dates cover today', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const todayStr = today();
     const trips = [
-      makeTrip({ id: 'completed-current', start_date: today, end_date: today, status: 'completed' }),
+      makeTrip({ id: 'completed-current', start_date: todayStr, end_date: todayStr, status: 'completed' }),
       makeTrip({ id: 'planning-past', start_date: '2020-01-01', end_date: '2020-01-02' }),
     ];
     expect(resolveActiveTrip(trips)?.id).toBe('planning-past');

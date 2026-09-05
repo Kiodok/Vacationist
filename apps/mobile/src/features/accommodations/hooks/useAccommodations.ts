@@ -58,6 +58,8 @@ export function useCreateAccommodation() {
         title: input.title,
         description: input.description ?? null,
         price_total: input.price_total ?? null,
+        currency: input.currency,
+        is_business: input.is_business ?? false,
         external_url: input.external_url ?? null,
         maps_url: input.maps_url ?? null,
         notes: input.notes ?? null,

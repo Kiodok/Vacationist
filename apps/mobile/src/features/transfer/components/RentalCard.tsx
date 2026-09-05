@@ -1,18 +1,19 @@
 import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatNaiveTimestamp } from '@vacationist/utils';
-import type { TransferRental, Currency } from '@vacationist/types';
+import type { TransferRental } from '@vacationist/types';
 import { colors, METADATA_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface RentalCardProps {
   rental: TransferRental;
-  currency: string;
   onPress?: () => void;
   detail?: React.ReactNode;
   highlight?: boolean;
 }
 
-export function RentalCard({ rental, currency, onPress, detail, highlight }: RentalCardProps) {
+export function RentalCard({ rental, onPress, detail, highlight }: RentalCardProps) {
+  const { t } = useTranslation('transfer');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const borderColor = colors.border;
@@ -34,9 +35,19 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
         <View className="flex-row items-start justify-between">
-          <Text className="text-body text-text-primary font-semibold flex-1" numberOfLines={1}>
-            {rental.title}
-          </Text>
+          <View className="flex-row items-center gap-xs flex-1">
+            <Text className="text-body text-text-primary font-semibold flex-1" numberOfLines={1}>
+              {rental.title}
+            </Text>
+            {rental.is_business && (
+              <View
+                className="w-[22px] h-[22px] rounded-full bg-primary/10 items-center justify-center"
+                accessibilityLabel={t('rental.field.businessExpense')}
+              >
+                <ThemedIcon name="briefcase-outline" size={12} color={colors.primary} />
+              </View>
+            )}
+          </View>
         </View>
 
         {rental.company && (
@@ -73,7 +84,7 @@ export function RentalCard({ rental, currency, onPress, detail, highlight }: Ren
           )}
           {rental.price_total != null && (
             <Text className="text-body-small text-text-secondary">
-              {formatCurrency(Number(rental.price_total), currency as Currency)}
+              {formatCurrency(Number(rental.price_total), rental.currency)}
             </Text>
           )}
         </View>

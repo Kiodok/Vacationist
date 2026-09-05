@@ -58,12 +58,12 @@ export default function TabLayout() {
           name="calendar"
           options={{
             title: t('tab.calendar'),
-            tabBarActiveTintColor: tc.success,
+            tabBarActiveTintColor: tc.info,
             tabBarIcon: ({ focused }) => (
               <ThemedIcon
                 name={focused ? 'calendar' : 'calendar-outline'}
                 size={24}
-                color={focused ? tc.success : tc.textMuted}
+                color={focused ? tc.info : tc.textMuted}
               />
             ),
           }}
@@ -82,6 +82,23 @@ export default function TabLayout() {
             ),
             tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
             tabBarBadgeStyle: { backgroundColor: tc.danger, fontSize: 10, color: theme === 'colorful' ? tc.surfaceElevated : '#FFFFFF' },
+          }}
+        />
+        <Tabs.Screen
+          name="costs"
+          options={{
+            title: t('tab.analytics'),
+            // Was tc.danger (red) — read as too negative for a cost/analytics tab. Swapped with
+            // Calendar: Calendar now uses the new tc.info (blue), freeing up tc.success (green)
+            // for Analytics, which has no destructive connotation.
+            tabBarActiveTintColor: tc.success,
+            tabBarIcon: ({ focused }) => (
+              <ThemedIcon
+                name={focused ? 'stats-chart' : 'stats-chart-outline'}
+                size={24}
+                color={focused ? tc.success : tc.textMuted}
+              />
+            ),
           }}
         />
         <Tabs.Screen

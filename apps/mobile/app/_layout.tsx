@@ -27,6 +27,7 @@ import { ToastContainer } from '../src/components/Toast';
 import { useAuthInit } from '../src/features/auth/hooks/useAuthInit';
 import { useAuthStore } from '../src/stores/authStore';
 import { registerForPushNotificationsAsync } from '../src/features/notifications/utils/registerForPushNotifications';
+import { registerForWebPushAsync } from '../src/features/notifications/utils/registerForWebPush';
 import { usePushNotificationHandler } from '../src/features/notifications/hooks/usePushNotificationHandler';
 import { useAppIconQuickAction } from '../src/features/trips/hooks/useAppIconQuickAction';
 import { NetworkProvider } from '../src/providers/NetworkProvider';
@@ -185,6 +186,11 @@ function AuthGate() {
     registerForPushNotificationsAsync().then((token) => {
       setPushToken(token);
     });
+    if (Platform.OS === 'web') {
+      // Fire-and-forget — no state to store; unregisterWebPushAsync reads the endpoint directly
+      // from the service worker at sign-out time (see useSignOut.ts).
+      registerForWebPushAsync();
+    }
   }, [hasSession, userId, setPushToken]);
 
   const globalParams = useGlobalSearchParams<{ token?: string | string[] }>();

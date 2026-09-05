@@ -10,6 +10,7 @@
   "field.mapsUrl": "Standort-Link",
   "field.notes": "Notizen",
   "field.autoClose": "Automatisch schließen nach Abstimmung",
+  "field.businessExpense": "Geschäftsausgabe",
   "placeholder.title": "z.B. Airbnb in der Nähe des Stadtzentrums",
   "placeholder.description": "Details zur Unterkunft",
   "placeholder.price": "0.00",

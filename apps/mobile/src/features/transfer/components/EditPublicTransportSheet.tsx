@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateTransferPublicTransportSchema, type UpdateTransferPublicTransportInput, type TransferPublicTransport, type Currency } from '@vacationist/types';
-import { getCurrencySymbol, sanitizeDecimalInput } from '@vacationist/utils';
+import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
+import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyField';
+import { useTransferCurrencyField } from '../../currencies/hooks/useTransferCurrencyField';
 
 interface EditPublicTransportSheetProps {
   visible: boolean;
@@ -36,13 +38,14 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
-  const currencySymbol = getCurrencySymbol(currency as Currency);
 
-  const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<UpdateTransferPublicTransportInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateTransferPublicTransportInput>({
     resolver: zodResolver(updateTransferPublicTransportSchema),
   });
 
   const departureTime = watch('departure_time');
+  const selectedCurrency = (watch('currency') || entry.currency || currency) as Currency;
+  const currencyField = useTransferCurrencyField(selectedCurrency, (code) => setValue('currency', code));
 
   useEffect(() => {
     if (visible) {
@@ -55,6 +58,8 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
         arrival_time: entry.arrival_time ?? undefined,
         booking_reference: entry.booking_reference ?? undefined,
         price_total: entry.price_total ?? undefined,
+        currency: entry.currency,
+        is_business: entry.is_business,
         external_url: entry.external_url ?? undefined,
         notes: entry.notes ?? undefined,
       });
@@ -277,26 +282,35 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
 
                 {/* Price */}
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">{t('publicTransport.field.price')} ({currencySymbol})</Text>
-                  <Controller
-                    control={control}
-                    name="price_total"
-                    render={({ field: { onChange } }) => (
-                      <TextInput
-                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                        placeholderTextColor="#5C5C5C"
-                        placeholder={t('publicTransport.placeholder.price')}
-                        value={priceText}
-                        onChangeText={(text) => {
-                          const cleaned = sanitizeDecimalInput(text);
-                          setPriceText(cleaned);
-                          const num = parseFloat(cleaned);
-                          onChange(isNaN(num) ? null : num);
-                        }}
-                        keyboardType="decimal-pad"
-                      />
-                    )}
-                  />
+                  <Text className="text-label text-text-muted uppercase">{t('publicTransport.field.price')} ({currencyField.currencySymbol})</Text>
+                  <View className="flex-row gap-xs">
+                    <Controller
+                      control={control}
+                      name="price_total"
+                      render={({ field: { onChange } }) => (
+                        <TextInput
+                          className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                          placeholderTextColor="#5C5C5C"
+                          placeholder={t('publicTransport.placeholder.price')}
+                          value={priceText}
+                          onChangeText={(text) => {
+                            const cleaned = sanitizeDecimalInput(text);
+                            setPriceText(cleaned);
+                            const num = parseFloat(cleaned);
+                            onChange(isNaN(num) ? null : num);
+                          }}
+                          keyboardType="decimal-pad"
+                        />
+                      )}
+                    />
+                    <EntityCurrencyField
+                      selectedCurrency={selectedCurrency}
+                      pickerVisible={currencyField.pickerVisible}
+                      onOpen={currencyField.openPicker}
+                      onClose={currencyField.closePicker}
+                      onSelect={currencyField.onSelect}
+                    />
+                  </View>
                 </View>
 
                 {/* External URL */}
@@ -345,6 +359,24 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
                     )}
                   />
                 </View>
+
+                {/* Business expense */}
+                <Controller
+                  control={control}
+                  name="is_business"
+                  render={({ field: { onChange, value } }) => (
+                    <View className="flex-row items-center justify-between py-xs">
+                      <Text className="text-body text-text-primary">{t('publicTransport.field.businessExpense')}</Text>
+                      <Switch
+                        value={value ?? false}
+                        onValueChange={onChange}
+                        trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                        thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                        ios_backgroundColor="#3E3E3E"
+                      />
+                    </View>
+                  )}
+                />
 
                 <Pressable
                   onPress={handleSubmit(onValid)}

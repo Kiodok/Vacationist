@@ -986,11 +986,11 @@ DB trigger (AFTER INSERT on notifications)
 
 ---
 
-- [ ] **1. DB/RLS & Types**
+- [x] **1. DB/RLS & Types**
 
   **Migration — `YYYYMMDDHHMMSS_create_web_push_subscriptions.sql`**
 
-  - [ ] **Table `public.web_push_subscriptions`**
+  - [x] **Table `public.web_push_subscriptions`**
     ```sql
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid()
     user_id     UUID REFERENCES public.users(id) ON DELETE CASCADE
@@ -1002,18 +1002,18 @@ DB trigger (AFTER INSERT on notifications)
     updated_at  TIMESTAMPTZ DEFAULT NOW()              -- trigger-maintained
     UNIQUE(user_id, endpoint)
     ```
-  - [ ] `set_updated_at` BEFORE UPDATE trigger on `web_push_subscriptions`
-  - [ ] Index on `user_id` (for per-user token lookup in Edge Function)
-  - [ ] **RLS:**
+  - [x] `set_updated_at` BEFORE UPDATE trigger on `web_push_subscriptions`
+  - [x] Index on `user_id` (for per-user token lookup in Edge Function)
+  - [x] **RLS:**
     - SELECT: `auth.uid() = user_id`
     - INSERT: `WITH CHECK (false)` — only via SECURITY DEFINER RPC
     - UPDATE: `WITH CHECK (false)` — only via SECURITY DEFINER RPC
     - DELETE: `auth.uid() = user_id` (allow client-side unsubscribe)
-  - [ ] **RPC `upsert_web_push_subscription(p_endpoint TEXT, p_p256dh_key TEXT, p_auth_key TEXT, p_user_agent TEXT DEFAULT NULL)`** SECURITY DEFINER SET search_path = '' — upserts on `(user_id, endpoint)` conflict, updates `p256dh_key`, `auth_key`, `user_agent`, `updated_at`
-  - [ ] **RPC `delete_web_push_subscription(p_endpoint TEXT)`** SECURITY DEFINER SET search_path = '' — deletes own subscription by endpoint value
+  - [x] **RPC `upsert_web_push_subscription(p_endpoint TEXT, p_p256dh_key TEXT, p_auth_key TEXT, p_user_agent TEXT DEFAULT NULL)`** SECURITY DEFINER SET search_path = '' — upserts on `(user_id, endpoint)` conflict, updates `p256dh_key`, `auth_key`, `user_agent`, `updated_at`
+  - [x] **RPC `delete_web_push_subscription(p_endpoint TEXT)`** SECURITY DEFINER SET search_path = '' — deletes own subscription by endpoint value
 
   **Types (`packages/types/src/database.ts`)**
-  - [ ] Add `WebPushSubscription` interface:
+  - [x] Add `WebPushSubscription` interface:
     ```typescript
     export interface WebPushSubscription {
       id: string;
@@ -1026,7 +1026,7 @@ DB trigger (AFTER INSERT on notifications)
       updated_at: string;
     }
     ```
-  - [ ] Add `WebPushSubscriptionInput` to `packages/types/src/schemas.ts`:
+  - [x] Add `WebPushSubscriptionInput` to `packages/types/src/schemas.ts`:
     ```typescript
     export const webPushSubscriptionSchema = z.object({
       endpoint: z.string().url(),
@@ -1039,7 +1039,7 @@ DB trigger (AFTER INSERT on notifications)
 
 ---
 
-- [ ] **2. VAPID Key Generation & Secrets Setup** *(manual one-time step — do before any code is deployed)*
+- [x] **2. VAPID Key Generation & Secrets Setup** *(manual one-time step — do before any code is deployed)*
 
   **Generate keys (run once locally, never commit the private key):**
   ```bash
@@ -1072,19 +1072,19 @@ DB trigger (AFTER INSERT on notifications)
 
 ---
 
-- [ ] **3. Service Worker**
+- [x] **3. Service Worker**
 
   **`apps/mobile/public/sw.js`** (new file — served at `/sw.js` by Expo's Metro static output)
 
-  - [ ] `install` and `activate` event handlers with `self.skipWaiting()` + `clients.claim()` so the worker takes control immediately on first activation
-  - [ ] **`push` event handler:**
+  - [x] `install` and `activate` event handlers with `self.skipWaiting()` + `clients.claim()` so the worker takes control immediately on first activation
+  - [x] **`push` event handler:**
     - Parse `event.data.json()` → `{ title, body, data }`
     - Call `self.registration.showNotification(title, { body, icon, badge, data, tag })` inside `event.waitUntil`
     - `icon`: `/notification-icon.png` (see asset step below)
     - `badge`: `/notification-icon.png`
     - `tag`: `data.notificationId` — deduplicates if the same notification fires twice
     - `requireInteraction: false` — auto-dismiss after default system timeout
-  - [ ] **`notificationclick` event handler:**
+  - [x] **`notificationclick` event handler:**
     - `event.notification.close()`
     - Extract `{ type, tripId, relatedType }` from `event.notification.data`
     - Run `resolvePath(type, tripId, relatedType)` — same logic as `resolveNotificationPath.ts` but returns web URL strings:
@@ -1096,23 +1096,23 @@ DB trigger (AFTER INSERT on notifications)
       - `'reminder'` → `/trip/<tripId>`
       - fallback → `/`
     - `clients.matchAll({ type: 'window', includeUncontrolled: true })` → focus existing tab if found, else `clients.openWindow(path)`
-  - [ ] **Self-contained** — no imports, no bundler. Pure ES5-compatible JS so it works in all service worker environments without a build step.
+  - [x] **Self-contained** — no imports, no bundler. Pure ES5-compatible JS so it works in all service worker environments without a build step.
 
   **`apps/mobile/public/notification-icon.png`** (new file)
-  - [ ] Copy `apps/mobile/assets/images/notification-icon.png` to `apps/mobile/public/notification-icon.png` — this makes it available at `/notification-icon.png` on the deployed web app for the service worker to reference
+  - [x] Copy `apps/mobile/assets/images/notification-icon.png` to `apps/mobile/public/notification-icon.png` — this makes it available at `/notification-icon.png` on the deployed web app for the service worker to reference
 
 ---
 
-- [ ] **4. Client-Side Registration**
+- [x] **4. Client-Side Registration**
 
   **`apps/mobile/src/features/notifications/utils/registerForWebPush.ts`** (new file)
 
-  - [ ] Guard: return `false` early if `Platform.OS !== 'web'`, `typeof window === 'undefined'`, `!('serviceWorker' in navigator)`, `!('PushManager' in window)`, or `VAPID_PUBLIC_KEY` env var is empty
-  - [ ] `urlBase64ToUint8Array(base64String: string): Uint8Array` — converts VAPID public key from URL-safe base64 to `Uint8Array` for `pushManager.subscribe` (standard conversion: replace `-`→`+`, `_`→`/`, add padding, then `atob`)
-  - [ ] Call `Notification.requestPermission()` — if not `'granted'` return `false`
-  - [ ] `navigator.serviceWorker.register('/sw.js', { scope: '/' })` + `await navigator.serviceWorker.ready`
-  - [ ] `registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) })`
-  - [ ] Extract keys: `subscription.getKey('p256dh')` and `subscription.getKey('auth')` — convert each `ArrayBuffer` to standard base64 using a loop (not spread, which can overflow the call stack on large buffers):
+  - [x] Guard: return `false` early if `Platform.OS !== 'web'`, `typeof window === 'undefined'`, `!('serviceWorker' in navigator)`, `!('PushManager' in window)`, or `VAPID_PUBLIC_KEY` env var is empty
+  - [x] `urlBase64ToUint8Array(base64String: string): Uint8Array` — converts VAPID public key from URL-safe base64 to `Uint8Array` for `pushManager.subscribe` (standard conversion: replace `-`→`+`, `_`→`/`, add padding, then `atob`)
+  - [x] Call `Notification.requestPermission()` — if not `'granted'` return `false`
+  - [x] `navigator.serviceWorker.register('/sw.js', { scope: '/' })` + `await navigator.serviceWorker.ready`
+  - [x] `registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) })`
+  - [x] Extract keys: `subscription.getKey('p256dh')` and `subscription.getKey('auth')` — convert each `ArrayBuffer` to standard base64 using a loop (not spread, which can overflow the call stack on large buffers):
     ```typescript
     function arrayBufferToBase64(buf: ArrayBuffer): string {
       const bytes = new Uint8Array(buf);
@@ -1121,33 +1121,33 @@ DB trigger (AFTER INSERT on notifications)
       return btoa(binary);
     }
     ```
-  - [ ] Call `upsertWebPushSubscription({ endpoint, p256dhKey, authKey, userAgent: navigator.userAgent })`
-  - [ ] Return `true` on success; catch all errors silently and return `false` (push is non-critical — the app works without it)
-  - [ ] Export `async function registerForWebPushAsync(): Promise<boolean>`
+  - [x] Call `upsertWebPushSubscription({ endpoint, p256dhKey, authKey, userAgent: navigator.userAgent })`
+  - [x] Return `true` on success; catch all errors silently and return `false` (push is non-critical — the app works without it)
+  - [x] Export `async function registerForWebPushAsync(): Promise<boolean>`
 
   **`apps/mobile/src/features/notifications/utils/unregisterWebPush.ts`** (new file)
-  - [ ] `getWebPushEndpoint(): Promise<string | null>` — gets existing subscription endpoint via `navigator.serviceWorker.ready` → `registration.pushManager.getSubscription()` → `subscription?.endpoint ?? null`
-  - [ ] `unregisterWebPushAsync(): Promise<void>` — gets the existing subscription, calls `deleteWebPushSubscription(endpoint)` (DB cleanup), then `subscription.unsubscribe()` (browser cleanup); guards for missing service worker support
-  - [ ] Both functions guard with `typeof window === 'undefined'` and `!('serviceWorker' in navigator)`
+  - [x] `getWebPushEndpoint(): Promise<string | null>` — gets existing subscription endpoint via `navigator.serviceWorker.ready` → `registration.pushManager.getSubscription()` → `subscription?.endpoint ?? null`
+  - [x] `unregisterWebPushAsync(): Promise<void>` — gets the existing subscription, calls `deleteWebPushSubscription(endpoint)` (DB cleanup), then `subscription.unsubscribe()` (browser cleanup); guards for missing service worker support
+  - [x] Both functions guard with `typeof window === 'undefined'` and `!('serviceWorker' in navigator)`
 
 ---
 
-- [ ] **5. API Package**
+- [x] **5. API Package**
 
   **`packages/api/src/webPush.ts`** (new file)
 
-  - [ ] `upsertWebPushSubscription(input: WebPushSubscriptionInput): Promise<void>` — calls `supabase.rpc('upsert_web_push_subscription', { p_endpoint, p_p256dh_key, p_auth_key, p_user_agent })`; throws on error
-  - [ ] `deleteWebPushSubscription(endpoint: string): Promise<void>` — calls `supabase.rpc('delete_web_push_subscription', { p_endpoint })`; throws on error
-  - [ ] Both exported from `packages/api/src/index.ts`
+  - [x] `upsertWebPushSubscription(input: WebPushSubscriptionInput): Promise<void>` — calls `supabase.rpc('upsert_web_push_subscription', { p_endpoint, p_p256dh_key, p_auth_key, p_user_agent })`; throws on error
+  - [x] `deleteWebPushSubscription(endpoint: string): Promise<void>` — calls `supabase.rpc('delete_web_push_subscription', { p_endpoint })`; throws on error
+  - [x] Both exported from `packages/api/src/index.ts`
 
 ---
 
-- [ ] **6. Edge Function Update**
+- [x] **6. Edge Function Update**
 
   **`supabase/functions/push-notification/index.ts`** — update to add web push delivery alongside existing Expo push
 
-  - [ ] Add `import webPush from 'npm:web-push';` at top
-  - [ ] At module level (runs once on cold start), initialise VAPID if secrets are present:
+  - [x] Add `import webPush from 'npm:web-push';` at top
+  - [x] At module level (runs once on cold start), initialise VAPID if secrets are present:
     ```typescript
     const VAPID_PUBLIC_KEY  = Deno.env.get('VAPID_PUBLIC_KEY')  ?? '';
     const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY') ?? '';
@@ -1157,8 +1157,8 @@ DB trigger (AFTER INSERT on notifications)
       webPush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
     }
     ```
-  - [ ] Add `WebPushSubRow` type: `{ user_id: string; endpoint: string; p256dh_key: string; auth_key: string }`
-  - [ ] Add helper `sendWebPushToUsers(userIds: string[], payload: object): Promise<string[]>` — returns array of stale (410) endpoints:
+  - [x] Add `WebPushSubRow` type: `{ user_id: string; endpoint: string; p256dh_key: string; auth_key: string }`
+  - [x] Add helper `sendWebPushToUsers(userIds: string[], payload: object): Promise<string[]>` — returns array of stale (410) endpoints:
     - Returns early if `!webPushConfigured` or `userIds.length === 0`
     - Queries `web_push_subscriptions` for `user_id IN (userIds)`
     - For each row, calls `webPush.sendNotification({ endpoint, keys: { p256dh: row.p256dh_key, auth: row.auth_key } }, JSON.stringify(payload))` — catches errors:
@@ -1166,9 +1166,9 @@ DB trigger (AFTER INSERT on notifications)
       - other errors: log with `console.error` and continue (do not throw — one bad subscription must not block others)
     - Deletes stale endpoints from `web_push_subscriptions` via `supabase.from('web_push_subscriptions').delete().in('endpoint', staleEndpoints)`
     - Runs all `webPush.sendNotification` calls concurrently with `Promise.allSettled`
-  - [ ] In `handleSingle`: after existing Expo push block, call `sendWebPushToUsers` with the single `user_id` and the translated title/body/data payload; the `data` object mirrors the Expo `data` field (`{ notificationId, tripId, type, relatedType, relatedId }`)
-  - [ ] In `handleBatch`: the `sendWebPushToUsers` signature must accept a per-user payload builder, not a single shared payload, so each recipient gets the correct `notificationId`. Change the signature to `sendWebPushToUsers(userIds: string[], buildPayload: (userId: string) => object)` and have `handleBatch` pass `(uid) => ({ title: translated.title, body: translated.body, data: { notificationId: userToNotificationId.get(uid), tripId, type, relatedType, relatedId } })`. This ensures tapping a web push notification marks the right DB row as read — using `notificationId: null` would silently break read-tracking for batch pushes.
-  - [ ] **Web push payload shape** (what the service worker receives):
+  - [x] In `handleSingle`: after existing Expo push block, call `sendWebPushToUsers` with the single `user_id` and the translated title/body/data payload; the `data` object mirrors the Expo `data` field (`{ notificationId, tripId, type, relatedType, relatedId }`)
+  - [x] In `handleBatch`: the `sendWebPushToUsers` signature must accept a per-user payload builder, not a single shared payload, so each recipient gets the correct `notificationId`. Change the signature to `sendWebPushToUsers(userIds: string[], buildPayload: (userId: string) => object)` and have `handleBatch` pass `(uid) => ({ title: translated.title, body: translated.body, data: { notificationId: userToNotificationId.get(uid), tripId, type, relatedType, relatedId } })`. This ensures tapping a web push notification marks the right DB row as read — using `notificationId: null` would silently break read-tracking for batch pushes.
+  - [x] **Web push payload shape** (what the service worker receives):
     ```json
     {
       "title": "<translated title>",
@@ -1182,16 +1182,16 @@ DB trigger (AFTER INSERT on notifications)
       }
     }
     ```
-  - [ ] Deploy to dev + prod after implementation: `npx supabase functions deploy push-notification --project-ref <ref>`
+  - [x] Deploy to dev + prod after implementation: `npx supabase functions deploy push-notification --project-ref <ref>`
 
 ---
 
-- [ ] **7. App Integration**
+- [x] **7. App Integration**
 
   **`apps/mobile/app/_layout.tsx` — `AuthGate` component**
 
-  - [ ] Add `import { registerForWebPushAsync } from '../src/features/notifications/utils/registerForWebPush';`
-  - [ ] Inside the `useEffect` that already calls `registerForPushNotificationsAsync()`, add a parallel call for web:
+  - [x] Add `import { registerForWebPushAsync } from '../src/features/notifications/utils/registerForWebPush';`
+  - [x] Inside the `useEffect` that already calls `registerForPushNotificationsAsync()`, add a parallel call for web:
     ```typescript
     useEffect(() => {
       if (!hasSession || !userId) return;
@@ -1201,15 +1201,15 @@ DB trigger (AFTER INSERT on notifications)
       }
     }, [hasSession, userId, setPushToken]);
     ```
-  - [ ] No state storage needed for the web push subscription endpoint in `authStore` — `unregisterWebPushAsync` reads the endpoint directly from the service worker at sign-out time
+  - [x] No state storage needed for the web push subscription endpoint in `authStore` — `unregisterWebPushAsync` reads the endpoint directly from the service worker at sign-out time
 
   **`apps/mobile/src/features/auth/hooks/useSignOut.ts`**
-  - [ ] Add `import { unregisterWebPushAsync } from '../notifications/utils/unregisterWebPush';`
-  - [ ] Before `signOut()`, call `unregisterWebPushAsync()` on web (guards its own platform check), alongside the existing `deletePushToken(pushToken)` call for native — both run before the session is destroyed
+  - [x] Add `import { unregisterWebPushAsync } from '../notifications/utils/unregisterWebPush';`
+  - [x] Before `signOut()`, call `unregisterWebPushAsync()` on web (guards its own platform check), alongside the existing `deletePushToken(pushToken)` call for native — both run before the session is destroyed
 
 ---
 
-- [ ] **8. Vercel Config**
+- [x] **8. Vercel Config**
 
   **`vercel.json`** — add `Cache-Control: no-store` header on the service worker so browsers always fetch the latest version:
 
@@ -1241,12 +1241,12 @@ DB trigger (AFTER INSERT on notifications)
 
 ---
 
-- [ ] **9. Privacy Policy Update**
+- [x] **9. Privacy Policy Update**
 
   **`docs/privacy-policy.html`** — add a paragraph under the data processing section:
-  - [ ] Mention that browser push subscriptions (endpoint URL + encryption keys) are stored in the Vacationist database when the user grants notification permission in the browser
-  - [ ] Clarify that subscriptions are deleted on sign-out or when the user revokes permission
-  - [ ] No personal content is stored in the subscription — only the cryptographic keys needed to deliver push messages
+  - [x] Mention that browser push subscriptions (endpoint URL + encryption keys) are stored in the Vacationist database when the user grants notification permission in the browser
+  - [x] Clarify that subscriptions are deleted on sign-out or when the user revokes permission
+  - [x] No personal content is stored in the subscription — only the cryptographic keys needed to deliver push messages
 
 ---
 

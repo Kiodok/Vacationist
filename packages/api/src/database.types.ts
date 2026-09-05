@@ -150,10 +150,12 @@ export type Database = {
           check_out_date: string | null
           created_at: string
           created_by: string
+          currency: string
           deleted_at: string | null
           description: string | null
           external_url: string | null
           id: string
+          is_business: boolean
           maps_url: string | null
           notes: string | null
           price_total: number | null
@@ -169,10 +171,12 @@ export type Database = {
           check_out_date?: string | null
           created_at?: string
           created_by: string
+          currency: string
           deleted_at?: string | null
           description?: string | null
           external_url?: string | null
           id?: string
+          is_business?: boolean
           maps_url?: string | null
           notes?: string | null
           price_total?: number | null
@@ -188,10 +192,12 @@ export type Database = {
           check_out_date?: string | null
           created_at?: string
           created_by?: string
+          currency?: string
           deleted_at?: string | null
           description?: string | null
           external_url?: string | null
           id?: string
+          is_business?: boolean
           maps_url?: string | null
           notes?: string | null
           price_total?: number | null
@@ -208,6 +214,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accommodations_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "accommodations_trip_id_fkey"
@@ -1871,6 +1884,7 @@ export type Database = {
           booking_reference: string | null
           created_at: string
           created_by: string
+          currency: string
           deleted_at: string | null
           departure_airport: string | null
           departure_time: string | null
@@ -1879,6 +1893,7 @@ export type Database = {
           external_url: string | null
           flight_number: string | null
           id: string
+          is_business: boolean
           notes: string | null
           price_per_person: number | null
           return_arrival_airport: string | null
@@ -1899,6 +1914,7 @@ export type Database = {
           booking_reference?: string | null
           created_at?: string
           created_by: string
+          currency: string
           deleted_at?: string | null
           departure_airport?: string | null
           departure_time?: string | null
@@ -1907,6 +1923,7 @@ export type Database = {
           external_url?: string | null
           flight_number?: string | null
           id?: string
+          is_business?: boolean
           notes?: string | null
           price_per_person?: number | null
           return_arrival_airport?: string | null
@@ -1927,6 +1944,7 @@ export type Database = {
           booking_reference?: string | null
           created_at?: string
           created_by?: string
+          currency?: string
           deleted_at?: string | null
           departure_airport?: string | null
           departure_time?: string | null
@@ -1935,6 +1953,7 @@ export type Database = {
           external_url?: string | null
           flight_number?: string | null
           id?: string
+          is_business?: boolean
           notes?: string | null
           price_per_person?: number | null
           return_arrival_airport?: string | null
@@ -1956,6 +1975,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "transfer_flights_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
+          },
+          {
             foreignKeyName: "transfer_flights_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
@@ -1972,11 +1998,13 @@ export type Database = {
           company: string | null
           created_at: string
           created_by: string
+          currency: string
           deleted_at: string | null
           departure_location: string | null
           departure_time: string | null
           external_url: string | null
           id: string
+          is_business: boolean
           notes: string | null
           price_total: number | null
           title: string
@@ -1990,11 +2018,13 @@ export type Database = {
           company?: string | null
           created_at?: string
           created_by: string
+          currency: string
           deleted_at?: string | null
           departure_location?: string | null
           departure_time?: string | null
           external_url?: string | null
           id?: string
+          is_business?: boolean
           notes?: string | null
           price_total?: number | null
           title: string
@@ -2008,11 +2038,13 @@ export type Database = {
           company?: string | null
           created_at?: string
           created_by?: string
+          currency?: string
           deleted_at?: string | null
           departure_location?: string | null
           departure_time?: string | null
           external_url?: string | null
           id?: string
+          is_business?: boolean
           notes?: string | null
           price_total?: number | null
           title?: string
@@ -2026,6 +2058,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_public_transport_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "transfer_public_transport_trip_id_fkey"
@@ -2042,11 +2081,13 @@ export type Database = {
           company: string | null
           created_at: string
           created_by: string
+          currency: string
           deleted_at: string | null
           dropoff_date: string | null
           dropoff_location: string | null
           external_url: string | null
           id: string
+          is_business: boolean
           notes: string | null
           pickup_date: string | null
           pickup_location: string | null
@@ -2060,11 +2101,13 @@ export type Database = {
           company?: string | null
           created_at?: string
           created_by: string
+          currency: string
           deleted_at?: string | null
           dropoff_date?: string | null
           dropoff_location?: string | null
           external_url?: string | null
           id?: string
+          is_business?: boolean
           notes?: string | null
           pickup_date?: string | null
           pickup_location?: string | null
@@ -2078,11 +2121,13 @@ export type Database = {
           company?: string | null
           created_at?: string
           created_by?: string
+          currency?: string
           deleted_at?: string | null
           dropoff_date?: string | null
           dropoff_location?: string | null
           external_url?: string | null
           id?: string
+          is_business?: boolean
           notes?: string | null
           pickup_date?: string | null
           pickup_location?: string | null
@@ -2098,6 +2143,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_rentals_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "transfer_rentals_trip_id_fkey"
@@ -2573,6 +2625,47 @@ export type Database = {
           },
         ]
       }
+      web_push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh_key: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh_key: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh_key?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web_push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -2676,6 +2769,10 @@ export type Database = {
         Args: { p_document_id: string }
         Returns: undefined
       }
+      delete_web_push_subscription: {
+        Args: { p_endpoint: string }
+        Returns: undefined
+      }
       get_chat_push_preview: { Args: { p_message_id: string }; Returns: string }
       get_latest_exchange_rates: {
         Args: never
@@ -2740,6 +2837,19 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_my_trip_cost_shares: {
+        Args: never
+        Returns: {
+          amount: number
+          currency: string
+          is_my_flight: boolean
+          member_count: number
+          source: string
+          start_date: string
+          trip_id: string
+          trip_title: string
+        }[]
+      }
       get_own_apple_refresh_token: { Args: never; Returns: string }
       get_recipe_linked_lists: {
         Args: { p_recipe_id: string }
@@ -2768,6 +2878,14 @@ export type Database = {
           total_owed: number
           total_paid: number
           user_id: string
+        }[]
+      }
+      get_trip_cost_summary: {
+        Args: { p_trip_id: string }
+        Returns: {
+          amount: number
+          currency: string
+          source: string
         }[]
       }
       get_trip_expense_category_totals: {
@@ -3011,6 +3129,15 @@ export type Database = {
           p_notes?: string
         }
         Returns: string
+      }
+      upsert_web_push_subscription: {
+        Args: {
+          p_auth_key: string
+          p_endpoint: string
+          p_p256dh_key: string
+          p_user_agent?: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

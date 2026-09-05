@@ -1,0 +1,9 @@
+{
+  "header.total": "Total across trips",
+  "empty.title": "No trip costs yet",
+  "empty.subtitle": "Once you're part of a trip with costs, your share shows up here.",
+  "year.tripCount": "{{count}} trip",
+  "year.tripCount_other": "{{count}} trips",
+  "ratesExcluded": "{{count}} amount excluded — exchange rate unavailable",
+  "ratesExcluded_other": "{{count}} amounts excluded — exchange rate unavailable"
+}

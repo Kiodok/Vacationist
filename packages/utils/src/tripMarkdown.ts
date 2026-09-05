@@ -89,7 +89,7 @@ export function generateTripMarkdown(input: TripMarkdownInput, options: TripMark
       if (a.status !== 'suggested') lines.push(`- Status: ${capitalize(a.status)}`);
       if (a.check_in_date) lines.push(`- Check-in: ${dayjs(a.check_in_date).format('MMM D, YYYY')}`);
       if (a.check_out_date) lines.push(`- Check-out: ${dayjs(a.check_out_date).format('MMM D, YYYY')}`);
-      if (a.price_total != null) lines.push(`- Price total: ${formatCurrency(a.price_total, trip.base_currency)}`);
+      if (a.price_total != null) lines.push(`- Price total: ${formatCurrency(a.price_total, a.currency)}`);
       if (a.description) lines.push(`- Notes: ${a.description}`);
       if (a.external_url) lines.push(`- Link: ${a.external_url}`);
       lines.push('');
@@ -168,7 +168,7 @@ export function generateTripMarkdown(input: TripMarkdownInput, options: TripMark
         if (f.arrival_time) lines.push(`- Arrival: ${dayjs(f.arrival_time).format('MMM D, YYYY HH:mm')}`);
         if (f.flight_number) lines.push(`- Flight: ${f.flight_number}`);
         if (f.booking_reference) lines.push(`- Booking ref: ${f.booking_reference}`);
-        if (f.price_per_person != null) lines.push(`- Price/person: ${formatCurrency(f.price_per_person, trip.base_currency)}`);
+        if (f.price_per_person != null) lines.push(`- Price/person: ${formatCurrency(f.price_per_person, f.currency)}`);
         if (f.external_url) lines.push(`- Link: ${f.external_url}`);
         lines.push('');
       }
@@ -196,7 +196,7 @@ export function generateTripMarkdown(input: TripMarkdownInput, options: TripMark
         if (r.pickup_date) lines.push(`- Pickup: ${dayjs(r.pickup_date).format('MMM D, YYYY')}`);
         if (r.dropoff_date) lines.push(`- Return: ${dayjs(r.dropoff_date).format('MMM D, YYYY')}`);
         if (r.booking_reference) lines.push(`- Booking ref: ${r.booking_reference}`);
-        if (r.price_total != null) lines.push(`- Price total: ${formatCurrency(r.price_total, trip.base_currency)}`);
+        if (r.price_total != null) lines.push(`- Price total: ${formatCurrency(r.price_total, r.currency)}`);
         lines.push('');
       }
     }

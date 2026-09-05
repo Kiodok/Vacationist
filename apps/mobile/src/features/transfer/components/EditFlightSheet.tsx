@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateTransferFlightSchema, type UpdateTransferFlightInput, type TransferFlight, TRANSFER_DIRECTION, type Currency } from '@vacationist/types';
-import { getCurrencySymbol, sanitizeDecimalInput } from '@vacationist/utils';
+import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
+import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyField';
+import { useTransferCurrencyField } from '../../currencies/hooks/useTransferCurrencyField';
 
 interface EditFlightSheetProps {
   visible: boolean;
@@ -46,7 +48,6 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
-  const currencySymbol = getCurrencySymbol(currency as Currency);
 
   const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateTransferFlightInput>({
     resolver: zodResolver(updateTransferFlightSchema),
@@ -56,6 +57,8 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
   const departureTime = watch('departure_time') as string | null | undefined;
   const arrivalTime = watch('arrival_time') as string | null | undefined;
   const returnDepartureTime = watch('return_departure_time') as string | null | undefined;
+  const selectedCurrency = (watch('currency') || flight.currency || currency) as Currency;
+  const currencyField = useTransferCurrencyField(selectedCurrency, (code) => setValue('currency', code));
 
   useEffect(() => {
     if (visible) {
@@ -72,6 +75,8 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
         return_departure_time: normalizeFlightTime(flight.return_departure_time),
         return_arrival_time: normalizeFlightTime(flight.return_arrival_time),
         price_per_person: flight.price_per_person ?? undefined,
+        currency: flight.currency,
+        is_business: flight.is_business,
         external_url: flight.external_url ?? undefined,
         notes: flight.notes ?? undefined,
       });
@@ -454,28 +459,37 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">
                     {direction === 'outbound-return'
-                      ? `${t('flight.field.combinedPrice')} (${currencySymbol})`
-                      : `${t('flight.field.price')} (${currencySymbol})`}
+                      ? `${t('flight.field.combinedPrice')} (${currencyField.currencySymbol})`
+                      : `${t('flight.field.price')} (${currencyField.currencySymbol})`}
                   </Text>
-                  <Controller
-                    control={control}
-                    name="price_per_person"
-                    render={({ field: { onChange } }) => (
-                      <TextInput
-                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                        placeholderTextColor="#5C5C5C"
-                        placeholder={t('flight.placeholder.price')}
-                        value={priceText}
-                        onChangeText={(text) => {
-                          const cleaned = sanitizeDecimalInput(text);
-                          setPriceText(cleaned);
-                          const num = parseFloat(cleaned);
-                          onChange(isNaN(num) ? null : num);
-                        }}
-                        keyboardType="decimal-pad"
-                      />
-                    )}
-                  />
+                  <View className="flex-row gap-xs">
+                    <Controller
+                      control={control}
+                      name="price_per_person"
+                      render={({ field: { onChange } }) => (
+                        <TextInput
+                          className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                          placeholderTextColor="#5C5C5C"
+                          placeholder={t('flight.placeholder.price')}
+                          value={priceText}
+                          onChangeText={(text) => {
+                            const cleaned = sanitizeDecimalInput(text);
+                            setPriceText(cleaned);
+                            const num = parseFloat(cleaned);
+                            onChange(isNaN(num) ? null : num);
+                          }}
+                          keyboardType="decimal-pad"
+                        />
+                      )}
+                    />
+                    <EntityCurrencyField
+                      selectedCurrency={selectedCurrency}
+                      pickerVisible={currencyField.pickerVisible}
+                      onOpen={currencyField.openPicker}
+                      onClose={currencyField.closePicker}
+                      onSelect={currencyField.onSelect}
+                    />
+                  </View>
                 </View>
 
                 {/* External URL */}
@@ -524,6 +538,24 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
                     )}
                   />
                 </View>
+
+                {/* Business expense */}
+                <Controller
+                  control={control}
+                  name="is_business"
+                  render={({ field: { onChange, value } }) => (
+                    <View className="flex-row items-center justify-between py-xs">
+                      <Text className="text-body text-text-primary">{t('flight.field.businessExpense')}</Text>
+                      <Switch
+                        value={value ?? false}
+                        onValueChange={onChange}
+                        trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                        thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                        ios_backgroundColor="#3E3E3E"
+                      />
+                    </View>
+                  )}
+                />
 
                 <Pressable
                   onPress={handleSubmit(onValid)}
