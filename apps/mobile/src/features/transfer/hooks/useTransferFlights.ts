@@ -74,6 +74,7 @@ export function useCreateTransferFlight() {
         is_business: input.is_business ?? false,
         external_url: input.external_url ?? null,
         flight_number: null,
+        return_flight_number: null,
         booking_reference: null,
         notes: input.notes ?? null,
         status: 'suggested',

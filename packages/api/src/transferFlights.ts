@@ -105,6 +105,7 @@ export async function bookTransferFlight(flightId: string, input: BookTransferFl
   const { error } = await supabase.rpc('book_transfer_flight', {
     p_flight_id: flightId,
     p_flight_number: input.flight_number ?? undefined,
+    p_return_flight_number: input.return_flight_number ?? undefined,
     p_booking_reference: input.booking_reference ?? undefined,
   });
   if (error) throw error;

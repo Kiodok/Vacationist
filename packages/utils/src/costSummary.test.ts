@@ -209,7 +209,7 @@ function shareRow(overrides: Partial<MyCostShareRow>): MyCostShareRow {
     source: 'accommodation',
     currency: 'EUR',
     amount: 100,
-    is_my_flight: null,
+    is_mine: null,
     ...overrides,
   };
 }
@@ -227,7 +227,7 @@ describe('computeMyCostShares', () => {
   describe('flight passenger gating', () => {
     it('counts the full price_per_person when the caller IS an assigned passenger on that flight', () => {
       const result = computeMyCostShares(
-        [shareRow({ source: 'transfer_flight', amount: 250, is_my_flight: true, member_count: 6 })],
+        [shareRow({ source: 'transfer_flight', amount: 250, is_mine: true, member_count: 6 })],
         {},
         'EUR',
       );
@@ -237,7 +237,7 @@ describe('computeMyCostShares', () => {
 
     it('counts ZERO for a flight the caller is NOT an assigned passenger on — never price_per_person/memberCount either', () => {
       const result = computeMyCostShares(
-        [shareRow({ source: 'transfer_flight', amount: 250, is_my_flight: false, member_count: 6 })],
+        [shareRow({ source: 'transfer_flight', amount: 250, is_mine: false, member_count: 6 })],
         {},
         'EUR',
       );
@@ -247,14 +247,36 @@ describe('computeMyCostShares', () => {
     it('a trip with two flights charges only the one the caller actually flew', () => {
       const result = computeMyCostShares(
         [
-          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 200, is_my_flight: true }),
-          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 300, is_my_flight: false }),
+          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 200, is_mine: true }),
+          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 300, is_mine: false }),
         ],
         {},
         'EUR',
       );
       expect(result.trips).toHaveLength(1);
       expect(result.trips[0].share).toBe(200);
+    });
+  });
+
+  // v1.34.1 task 4: public transport now follows the same passenger-or-ticket gating as flights
+  // (one row per entry, price counts in full or not at all) — it is NOT an even split any more.
+  describe('public transport passenger/ticket gating', () => {
+    it('counts the full price_total when the caller is a passenger or ticket-holder', () => {
+      const result = computeMyCostShares(
+        [shareRow({ source: 'transfer_public_transport', amount: 60, is_mine: true, member_count: 5 })],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(60); // not 60/5
+    });
+
+    it('counts ZERO for a public transport entry the caller is not on', () => {
+      const result = computeMyCostShares(
+        [shareRow({ source: 'transfer_public_transport', amount: 60, is_mine: false, member_count: 5 })],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(0);
     });
   });
 
@@ -292,7 +314,7 @@ describe('computeMyCostShares', () => {
   it('combines flight + expense + even-split contributions correctly in one trip', () => {
     const result = computeMyCostShares(
       [
-        shareRow({ source: 'transfer_flight', amount: 150, is_my_flight: true, member_count: 4 }),
+        shareRow({ source: 'transfer_flight', amount: 150, is_mine: true, member_count: 4 }),
         shareRow({ source: 'expense_owed_by_me', amount: 30, member_count: 4 }),
         shareRow({ source: 'accommodation', amount: 200, member_count: 4 }), // -> 50/person
       ],

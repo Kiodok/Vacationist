@@ -120,12 +120,22 @@ export function FlightCard({ flight, votes, currentUserId, isWinner, onPress, on
         )}
 
         {/* Booking info (when booked) */}
-        {flight.status === 'booked' && (flight.flight_number || flight.booking_reference) && (
+        {flight.status === 'booked' && (flight.flight_number || flight.return_flight_number || flight.booking_reference) && (
           <View className="flex-row gap-md flex-wrap">
             {flight.flight_number && (
               <View className="flex-row items-center gap-xs">
                 <ThemedIcon name="barcode-outline" size={14} color={METADATA_ICON_COLORS.barcode.color} />
-                <Text className="text-body-small text-text-secondary">{flight.flight_number}</Text>
+                <Text className="text-body-small text-text-secondary">
+                  {isRoundTrip ? `${tTransfer('all.direction.outPrefix')} ` : ''}{flight.flight_number}
+                </Text>
+              </View>
+            )}
+            {isRoundTrip && flight.return_flight_number && (
+              <View className="flex-row items-center gap-xs">
+                <ThemedIcon name="barcode-outline" size={14} color={METADATA_ICON_COLORS.barcode.color} />
+                <Text className="text-body-small text-text-secondary">
+                  {`${tTransfer('all.direction.retPrefix')} `}{flight.return_flight_number}
+                </Text>
               </View>
             )}
             {flight.booking_reference && (

@@ -14,7 +14,7 @@ interface PublicTransportTicketsSectionProps {
 export function PublicTransportTicketsSection({ tripId, publicTransportId, members, currentUserId, isOrganizer }: PublicTransportTicketsSectionProps) {
   const { data: documents } = usePublicTransportDocuments(publicTransportId);
   const uploadMutation = useUploadPublicTransportDocument(tripId, publicTransportId);
-  const deleteMutation = useDeletePublicTransportDocument(publicTransportId);
+  const deleteMutation = useDeletePublicTransportDocument(tripId, publicTransportId);
 
   return (
     <TicketsSection

@@ -27,6 +27,7 @@ function flight(
     is_business: false,
     external_url: null,
     flight_number: null,
+    return_flight_number: null,
     booking_reference: null,
     notes: null,
     status: 'suggested',

@@ -96,6 +96,31 @@ export function isPersistedMutationKey(key: unknown): boolean {
   return (PERSISTED_MUTATION_KEYS as readonly unknown[]).includes(key);
 }
 
+// v1.34.1 task 1: mutations that change a number the Trip Overview "Trip costs" card
+// (get_trip_cost_summary) or the global Analytics tab (get_my_trip_cost_shares) sums. Those two
+// queries are keyed OUTSIDE the per-entity key trees, so an entity's own invalidateQueries
+// never reaches them — this list drives a single central invalidation in the mutation-cache
+// subscriber below (covers active mutations AND persisted replays after a cold start). Passenger
+// / ticket mutations aren't defaulted here; they invalidate the cost queries in their own hooks.
+const COST_AFFECTING_MUTATION_KEYS = new Set<string>([
+  'createExpense', 'updateExpenseWithSplits', 'archiveExpense', 'unarchiveExpense',
+  'settleExpenseSplit', 'unsettleExpenseSplit', 'coverSplit', 'uncoverSplit',
+  'settleAllForPair', 'settleAllExpenses',
+  'createActivity', 'updateActivity', 'deleteActivity', 'closeActivityVoting',
+  'createAccommodation', 'updateAccommodation', 'deleteAccommodation',
+  'bookAccommodation', 'unbookAccommodation', 'closeAccommodationVoting',
+  'createTransferFlight', 'updateTransferFlight', 'deleteTransferFlight', 'bookTransferFlight',
+  'createTransferRental', 'updateTransferRental', 'deleteTransferRental',
+  'createTransferPublicTransport', 'updateTransferPublicTransport', 'deleteTransferPublicTransport',
+]);
+
+/** Invalidate the two cost roll-up queries for a trip (Trip Overview card + Analytics tab). */
+export function invalidateCostQueries(tripId: string) {
+  if (!tripId) return;
+  queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'cost-summary'] });
+  queryClient.invalidateQueries({ queryKey: ['me', 'trip-cost-shares'] });
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -137,6 +162,13 @@ queryClient.getMutationCache().subscribe((event) => {
   if (event.type !== 'updated') return;
   const mut = event.mutation;
   const key = mut.options.mutationKey?.[0];
+
+  // Refresh the cost roll-ups after any cost-affecting mutation succeeds (task 1). Fires for
+  // both active mutations and persisted ones replayed after a cold start.
+  if (mut.state.status === 'success' && typeof key === 'string' && COST_AFFECTING_MUTATION_KEYS.has(key)) {
+    const vars = mut.state.variables as { tripId?: string } | undefined;
+    if (vars?.tripId) invalidateCostQueries(vars.tripId);
+  }
 
   // Report final mutation errors to Sentry (after all retries exhausted).
   // Paused mutations are not errors — they're queued offline, so we skip those.

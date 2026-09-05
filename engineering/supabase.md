@@ -1,5 +1,74 @@
 # Supabase Changes Log
 
+## 2026-09-05 (v1.34.1) — round-trip flight numbers, public-transport passengers, passenger-or-ticket cost gating (4 migrations)
+
+**Status: DEV + PROD.** Applied to dev (`aejywkbkcwyanhyzhrle`) then prod
+(`fsfsqghbejwvgxujoyne`) on 2026-09-05 at Tech Lead request; migration-ledger parity reconfirmed
+on both (all 236 local == remote), re-linked to dev afterward. `create-example-trip` redeployed
+to dev **and** prod. All four migrations are additive / `CREATE OR REPLACE` / one `DROP` of a
+redundant overload — non-destructive.
+
+**Note on prod timing:** migration `20260905170000` changes cost math for the still-live v1.34.0
+app — a booked flight or PT entry with no passengers/tickets now contributes 0 to the Trip
+Overview "Trip costs" card and the Analytics tab until the v1.34.1 app ships and members assign
+passengers. This was a deliberate Tech Lead call to push ahead of the app build.
+
+**`20260905150000_add_return_flight_number.sql`** — `transfer_flights.return_flight_number TEXT`
+(≤20 chars), populated only for `direction = 'outbound-return'` rows. `book_transfer_flight`
+gained a 4th optional arg `p_return_flight_number` (defaulted, last) — body otherwise identical
+to `20260620000000` §4.
+
+**`20260905180000_drop_old_book_transfer_flight_overload.sql`** — a changed arg count makes
+`CREATE OR REPLACE` create a *second* overload, not replace; a supabase-js `.rpc()` call then
+matches both and PostgREST raises "Could not choose the best candidate function". Drops the old
+3-arg `book_transfer_flight(uuid, text, text)`. Same pattern as `20260809110001`.
+
+**`20260905160000_create_transfer_public_transport_passengers.sql`** — new junction table
+`transfer_public_transport_passengers (public_transport_id FK CASCADE, user_id FK users CASCADE,
+trip_id denormalized-nullable, UNIQUE(public_transport_id, user_id))`, mirroring
+`transfer_flight_passengers` + the `20260523000001` denormalized-`trip_id` trigger pattern.
+**Vehicle permission model, not flights':** RLS INSERT/DELETE allows `user_id = auth.uid()`
+(self join/leave) OR the PT entry's `created_by` OR `is_trip_organizer` — all in the policy, no
+`join_/leave_` RPC. No `is_driver`, no "booked" gate (PT has no status). `REPLICA IDENTITY FULL`
++ added to `supabase_realtime` publication + indexes. `user_id` is `ON DELETE CASCADE`, so
+`delete_own_account()` needs no new reassignment line (same as `transfer_flight_passengers`).
+
+**`20260905170000_gate_transfer_costs_by_passenger_or_ticket.sql`** — `CREATE OR REPLACE` on
+both cost RPCs (previous versions in `20260905140000`):
+- **`get_trip_cost_summary`**: the flight amount is now `price_per_person × participant_count`
+  and the public-transport amount `price_total × participant_count` (was a flat
+  `SUM(price_total)`), where `participant_count = COUNT(*)` over a `UNION` of the entry's
+  passenger rows and its `transfer_documents` (ticket) rows — via `LEFT JOIN LATERAL (…) ON TRUE`.
+  Per Tech Lead call, PT `price_total` is treated per-person, same math as a flight's
+  `price_per_person`.
+- **`get_my_trip_cost_shares`**: needs a `DROP FUNCTION` first — its last OUT column is renamed
+  `is_my_flight` → `is_mine` (Postgres can't rename an OUT param via `CREATE OR REPLACE`), and it
+  now also covers **one row per public-transport entry** (previously an aggregated even-split).
+  `is_mine` = caller is an assigned passenger on that flight/PT entry OR has a ticket for it;
+  `NULL` for the even-split sources.
+
+**App layer:** `TransferFlight.return_flight_number` + `TransferPublicTransportPassenger` +
+`MyCostShareRow.is_mine` in `@vacationist/types`; `bookTransferFlightSchema.return_flight_number`;
+`bookTransferFlight` 4th arg + `get/add/removePublicTransportPassenger` in `@vacationist/api`
+(+ PT-passenger realtime events on `subscribeToTransferRealtime`). `computeMyCostShares`
+(`@vacationist/utils`) moves `transfer_public_transport` from the even-split branch to the
+passenger-gated full-amount branch alongside `transfer_flight`; `computeTripCostSummary`
+unchanged. New `apps/mobile/.../useTransferPublicTransportPassengers.ts` hook + passenger UI
+(chip list, `PassengerSelectSheet` for creator/organizer, Join/Leave for members) in
+`PublicTransportCardExpanded`. Trip Overview cost card + Analytics tab now refresh immediately
+after any cost-affecting mutation via a central `invalidateCostQueries` in the mutation-cache
+subscriber (v1.34.1 task 1 — no schema involvement).
+
+**Edge Function:** `create-example-trip` now seeds one `transfer_public_transport_passengers`
+row for the demo user (CLAUDE.md "Example Trip" rule — new entity type). Redeployed to **dev
+only**; prod redeploy pending with the prod migration push.
+
+**`npm run supabase:types` (`gen types --linked`)** run after the dev push — confirms
+`return_flight_number` on the flight row, the new passengers table, the single 4-arg
+`book_transfer_flight`, and `is_mine` on `get_my_trip_cost_shares`.
+
+---
+
 ## 2026-09-05 (later) — v1.34.0: extend persistent per-entity currency to Accommodations (2 migrations)
 
 **Why:** the original item 12 currency work (2026-09-04 entry below) scoped to "priced types

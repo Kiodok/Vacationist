@@ -10,25 +10,20 @@ import { useAppForeground } from '../../../hooks/useAppForeground';
 import { useTrips } from './useTrips';
 import { resolveActiveTrip } from '../utils/resolveActiveTrip';
 
-// v1.34.0 item 6: bumped from 'add-expense'. The v1.33.1 icon fix (raster PNG + keep.xml) was
-// still reported as showing the OS default glyph on real Play Store production installs (though
-// NOT on EAS development/preview builds or iOS). The CONFIRMED root cause of that was a third,
-// separate issue in withQuickActionIcon.js — see that file's doc comment (cause 3): the icon
-// shipped only in the density-qualified `drawable-xxxhdpi/` folder, and Play Store's App Bundle
-// per-device splitting only includes a density-qualified resource in the one split matching that
-// exact density, so most real devices got a split that never contained the icon at all. Fixed
-// there by moving it to the density-independent default `drawable/` folder. This id bump is kept
-// as separate, cheap insurance against an unrelated, still-plausible failure mode: several OEM
-// launchers (Samsung One UI, MIUI, etc.) snapshot a dynamic shortcut's icon bitmap keyed by
-// (packageName, shortcutId) on first creation and don't reliably redraw it on a same-id
-// setDynamicShortcuts call after an in-place update — only a fresh id (or a clean
-// uninstall/reinstall) forces a redraw. Do NOT revert this back to a stable id without confirming
-// the icon renders correctly across an in-place update on a real device first.
-const ADD_EXPENSE_ACTION_ID = 'add-expense-v2';
-// iOS: SF Symbol (no asset needed, available since iOS 13). Android: a raster drawable shipped
-// by ./plugins/withQuickActionIcon.js (plus a res/raw/keep.xml rule, since it's referenced only
-// by this runtime name string and R8 resource shrinking would otherwise strip it). A cash glyph
-// either way, replacing the OS-default shortcut icon.
+// v1.34.1: bumped 'add-expense-v2' → 'add-expense-v3'. The v1.34.0 density-independent-drawable
+// fix was STILL reported showing the generic placeholder on Play Store production `.aab`
+// installs. v1.34.1 moves the icon into a `mipmap/` resource (categorically exempt from R8
+// resource shrinking AND always included in every bundletool device split — see
+// withQuickActionIcon.js round 4). The id bump is separate, cheap insurance against OEM
+// launchers (Samsung One UI, MIUI, etc.) that snapshot a dynamic shortcut's icon bitmap keyed by
+// (packageName, shortcutId) and don't reliably redraw it on a same-id setDynamicShortcuts call
+// after an in-place update. Do NOT revert to a stable id without confirming the icon renders
+// correctly across an in-place update on a real device first.
+const ADD_EXPENSE_ACTION_ID = 'add-expense-v3';
+// iOS: SF Symbol (no asset needed, available since iOS 13). Android: a raster shipped as a
+// density-independent `mipmap/` resource by ./plugins/withQuickActionIcon.js; expo-quick-actions
+// probes the `drawable` type first then falls back to `mipmap`, so this bare name resolves. A
+// cash glyph either way, replacing the OS-default shortcut icon.
 const EXPENSE_ICON = Platform.OS === 'ios' ? 'symbol:dollarsign.circle.fill' : 'ic_shortcut_expense';
 
 /**

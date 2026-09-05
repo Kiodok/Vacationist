@@ -11,23 +11,28 @@ interface BookFlightSheetProps {
   onClose: () => void;
   onSubmit: (input: BookTransferFlightInput) => void;
   isPending: boolean;
+  /** A round-trip ("outbound-return") flight is booked with two flight numbers (outbound +
+   * return) and one shared booking reference; any other direction has a single flight number. */
+  direction: string;
 }
 
-export function BookFlightSheet({ visible, onClose, onSubmit, isPending }: BookFlightSheetProps) {
+export function BookFlightSheet({ visible, onClose, onSubmit, isPending, direction }: BookFlightSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('transfer');
   const { t: tCommon } = useTranslation("common");
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
+  const isRoundTrip = direction === 'outbound-return';
   const { control, handleSubmit, reset, formState: { errors } } = useForm<BookTransferFlightInput>({
     resolver: zodResolver(bookTransferFlightSchema),
-    defaultValues: { flight_number: '', booking_reference: '' },
+    defaultValues: { flight_number: '', return_flight_number: '', booking_reference: '' },
   });
 
   const onValid = (data: BookTransferFlightInput) => {
     Keyboard.dismiss();
     onSubmit({
       flight_number: data.flight_number || undefined,
+      return_flight_number: isRoundTrip ? data.return_flight_number || undefined : undefined,
       booking_reference: data.booking_reference || undefined,
     });
     reset();
@@ -37,6 +42,8 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending }: BookF
     reset();
     onClose();
   };
+
+  const inputClass = 'bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body';
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
@@ -58,13 +65,15 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending }: BookF
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <View className="gap-md">
                 <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">{t('flight.field.flightNumber')}</Text>
+                  <Text className="text-label text-text-muted uppercase">
+                    {isRoundTrip ? t('flight.field.flightNumberOutbound') : t('flight.field.flightNumber')}
+                  </Text>
                   <Controller
                     control={control}
                     name="flight_number"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        className={inputClass}
                         placeholderTextColor="#5C5C5C"
                         placeholder={t('flight.placeholder.flightNumber')}
                         value={value ?? ''}
@@ -80,6 +89,31 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending }: BookF
                   )}
                 </View>
 
+                {isRoundTrip && (
+                  <View className="gap-xs">
+                    <Text className="text-label text-text-muted uppercase">{t('flight.field.flightNumberReturn')}</Text>
+                    <Controller
+                      control={control}
+                      name="return_flight_number"
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <TextInput
+                          className={inputClass}
+                          placeholderTextColor="#5C5C5C"
+                          placeholder={t('flight.placeholder.flightNumberReturn')}
+                          value={value ?? ''}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                          autoCapitalize="characters"
+                          maxLength={20}
+                        />
+                      )}
+                    />
+                    {errors.return_flight_number && (
+                      <Text className="text-danger text-body-small">{errors.return_flight_number.message}</Text>
+                    )}
+                  </View>
+                )}
+
                 <View className="gap-xs">
                   <Text className="text-label text-text-muted uppercase">{t('flight.field.bookingRef')}</Text>
                   <Controller
@@ -87,7 +121,7 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending }: BookF
                     name="booking_reference"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        className={inputClass}
                         placeholderTextColor="#5C5C5C"
                         placeholder={t('flight.placeholder.bookingRef')}
                         value={value ?? ''}

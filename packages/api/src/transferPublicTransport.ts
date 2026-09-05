@@ -2,6 +2,7 @@ import { supabase, freshChannel } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferPublicTransport,
+  TransferPublicTransportPassenger,
   CreateTransferPublicTransportInput,
   UpdateTransferPublicTransportInput,
 } from '@vacationist/types';
@@ -63,6 +64,45 @@ export async function updateTransferPublicTransport(publicTransportId: string, i
 
 export async function softDeleteTransferPublicTransport(publicTransportId: string): Promise<void> {
   const { error } = await supabase.rpc('soft_delete_transfer_public_transport', { p_id: publicTransportId });
+  if (error) throw error;
+}
+
+// --- Passengers (v1.34.1 task 4) ---
+// Plain insert/delete; the RLS policy on transfer_public_transport_passengers enforces "self,
+// entry creator, or trip organizer" — no RPC/status gate needed (PT has no booked lifecycle).
+// The denormalized trip_id is populated by a BEFORE INSERT trigger.
+
+export async function getPublicTransportPassengers(publicTransportId: string): Promise<TransferPublicTransportPassenger[]> {
+  const { data, error } = await supabase
+    .from('transfer_public_transport_passengers')
+    .select('*')
+    .eq('public_transport_id', publicTransportId);
+
+  if (error) throw error;
+  return data as unknown as TransferPublicTransportPassenger[];
+}
+
+export async function addPublicTransportPassenger(
+  publicTransportId: string,
+  userId: string,
+): Promise<TransferPublicTransportPassenger> {
+  const { data, error } = await supabase
+    .from('transfer_public_transport_passengers')
+    .insert({ public_transport_id: publicTransportId, user_id: userId })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as unknown as TransferPublicTransportPassenger;
+}
+
+export async function removePublicTransportPassenger(publicTransportId: string, userId: string): Promise<void> {
+  const { error } = await supabase
+    .from('transfer_public_transport_passengers')
+    .delete()
+    .eq('public_transport_id', publicTransportId)
+    .eq('user_id', userId);
+
   if (error) throw error;
 }
 

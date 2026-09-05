@@ -10,6 +10,7 @@ import {
 import type { TransferDocument } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
+import { invalidateCostQueries } from '../../../utils/queryClient';
 
 type UploadTicketArgs = { passengerUserId: string; fileData: Blob | ArrayBuffer; fileName: string; mimeType: string };
 type DeleteTicketArgs = { documentId: string; storagePath: string };
@@ -26,6 +27,7 @@ function useDocumentsQuery(queryKey: QueryKey, queryFn: () => Promise<TransferDo
 
 function useUploadDocumentMutation(
   queryKey: QueryKey,
+  tripId: string,
   uploadFn: (args: UploadTicketArgs) => Promise<TransferDocument>,
 ) {
   const queryClient = useQueryClient();
@@ -35,6 +37,8 @@ function useUploadDocumentMutation(
     mutationFn: uploadFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
+      // A ticket counts toward that flight/PT entry's cost (v1.34.1 tasks 3/4).
+      invalidateCostQueries(tripId);
       addToast('success', i18n.t('transfer:toast.documentUploaded'));
     },
     onError: () => {
@@ -45,6 +49,7 @@ function useUploadDocumentMutation(
 
 function useDeleteDocumentMutation(
   queryKey: QueryKey,
+  tripId: string,
   deleteFn: (args: DeleteTicketArgs) => Promise<void>,
 ) {
   const queryClient = useQueryClient();
@@ -54,6 +59,7 @@ function useDeleteDocumentMutation(
     mutationFn: deleteFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
+      invalidateCostQueries(tripId);
       addToast('success', i18n.t('transfer:toast.documentDeleted'));
     },
     onError: () => {
@@ -75,14 +81,16 @@ export function useTransferFlightDocuments(flightId: string) {
 export function useUploadTransferFlightDocument(tripId: string, flightId: string) {
   return useUploadDocumentMutation(
     ['transfer-flights', flightId, 'documents'],
+    tripId,
     ({ passengerUserId, fileData, fileName, mimeType }) =>
       uploadTransferFlightDocument(tripId, flightId, passengerUserId, fileData, fileName, mimeType),
   );
 }
 
-export function useDeleteTransferFlightDocument(flightId: string) {
+export function useDeleteTransferFlightDocument(tripId: string, flightId: string) {
   return useDeleteDocumentMutation(
     ['transfer-flights', flightId, 'documents'],
+    tripId,
     ({ documentId, storagePath }) => deleteTransferFlightDocument(documentId, storagePath),
   );
 }
@@ -100,14 +108,16 @@ export function usePublicTransportDocuments(publicTransportId: string) {
 export function useUploadPublicTransportDocument(tripId: string, publicTransportId: string) {
   return useUploadDocumentMutation(
     ['transfer-public-transport', publicTransportId, 'documents'],
+    tripId,
     ({ passengerUserId, fileData, fileName, mimeType }) =>
       uploadPublicTransportDocument(tripId, publicTransportId, passengerUserId, fileData, fileName, mimeType),
   );
 }
 
-export function useDeletePublicTransportDocument(publicTransportId: string) {
+export function useDeletePublicTransportDocument(tripId: string, publicTransportId: string) {
   return useDeleteDocumentMutation(
     ['transfer-public-transport', publicTransportId, 'documents'],
+    tripId,
     ({ documentId, storagePath }) => deletePublicTransportDocument(documentId, storagePath),
   );
 }

@@ -144,19 +144,20 @@ export interface MyCostSharesResult {
 
 /**
  * "My share" per trip (v1.34.0 item 2 — the global Analytics tab), NOT a uniform
- * `amount ÷ memberCount` — that formula is wrong for flights specifically:
+ * `amount ÷ memberCount` — that formula is wrong for flights and public transport specifically:
  *
- * - `transfer_flight`: `price_per_person` counts in full ONLY when `is_my_flight` is true (the
- *   caller is an assigned passenger on that specific flight) — 0 otherwise. A trip with two
- *   flights where the caller only took one must not be charged for the one they didn't fly.
+ * - `transfer_flight` / `transfer_public_transport`: the entry's price counts in full ONLY when
+ *   `is_mine` is true — the caller is an assigned passenger on that specific entry OR has
+ *   uploaded a ticket for it (v1.34.1 tasks 3/4) — 0 otherwise. A trip with two flights where
+ *   the caller only took one must not be charged for the one they didn't fly.
  * - `expense_owed_by_me`: already the caller's exact debt share (from `expense_splits`) — passed
  *   through as-is, never re-derived, since this function has no business owning a second
  *   implementation of the settlement math `get_trip_balances` already owns.
- * - Everything else (`accommodation`, `transfer_rental`, `transfer_public_transport`,
- *   `activity`) has no per-person assignment concept on its table, so an even split across
- *   `member_count` is the only available signal — summed in the row's own currency terms first,
- *   then divided once by `member_count`, rather than dividing every row individually, to avoid
- *   compounding rounding error across many small rows.
+ * - Everything else (`accommodation`, `transfer_rental`, `activity`) has no per-person
+ *   assignment concept on its table, so an even split across `member_count` is the only
+ *   available signal — summed in the row's own currency terms first, then divided once by
+ *   `member_count`, rather than dividing every row individually, to avoid compounding rounding
+ *   error across many small rows.
  */
 export function computeMyCostShares(rows: MyCostShareRow[], rates: CurrencyRateMap, displayCurrency: string): MyCostSharesResult {
   const byTrip = new Map<string, MyCostShareRow[]>();
@@ -171,7 +172,7 @@ export function computeMyCostShares(rows: MyCostShareRow[], rates: CurrencyRateM
 
   for (const [tripId, tripRows] of byTrip) {
     const { trip_title: tripTitle, start_date: startDate, member_count: memberCount } = tripRows[0];
-    let flightShare = 0;
+    let gatedShare = 0;
     let expenseOwed = 0;
     let evenSplitSum = 0;
 
@@ -189,8 +190,9 @@ export function computeMyCostShares(rows: MyCostShareRow[], rates: CurrencyRateM
         converted = convertAmount(row.amount, rateFrom, rateTo);
       }
 
-      if (row.source === 'transfer_flight') {
-        if (row.is_my_flight) flightShare += converted;
+      if (row.source === 'transfer_flight' || row.source === 'transfer_public_transport') {
+        // Passenger-or-ticket gated (one row per entry) — counts in full or not at all.
+        if (row.is_mine) gatedShare += converted;
       } else if (row.source === 'expense_owed_by_me') {
         expenseOwed += converted;
       } else {
@@ -198,7 +200,7 @@ export function computeMyCostShares(rows: MyCostShareRow[], rates: CurrencyRateM
       }
     }
 
-    const share = flightShare + expenseOwed + (memberCount > 0 ? evenSplitSum / memberCount : evenSplitSum);
+    const share = gatedShare + expenseOwed + (memberCount > 0 ? evenSplitSum / memberCount : evenSplitSum);
     trips.push({ tripId, tripTitle, startDate, year: Number(startDate.slice(0, 4)), share });
   }
 
