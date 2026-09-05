@@ -34,6 +34,16 @@ Use standard skill frontmatter (`name`, `description` written as a trigger — w
 
 ---
 
+## Git Workflow
+
+**This repo does not use branches. All work goes directly onto `main` — no feature branches, no PRs.** Never `git checkout -b` "to be safe" or "for isolation"; do the work on `main`.
+
+- **`main` is production.** Every push to `main` auto-deploys: the web app to `web.vacationist.app` (Vercel) and the marketing site via GitHub Pages. Keep `main` releasable at all times.
+- [[commit-discipline]] still applies: stage your changes, but **only commit when the Tech Lead explicitly says to** — they test first.
+- **Never let migrations get ahead of the client.** Because there are no branches, the client code and the DB schema move together on `main`. When a change spans a migration + client code, they land in the same commit. Pushing a migration to prod while the matching client change sits uncommitted (or on a stray branch) means the live web app runs against a schema its code doesn't match — this is exactly what caused the v1.34.2 Analytics incident (`is_my_flight`→`is_mine` rename live on prod while web still served the old client). If migrations must go to prod ahead of a full app-store build (mobile), the **web client on `main` must still be updated in the same push** so `web.vacationist.app` stays consistent with prod.
+
+---
+
 ## Development Commands
 
 All commands run from the **repo root** unless noted.
