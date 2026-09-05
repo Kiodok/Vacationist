@@ -2894,6 +2894,7 @@ export type Database = {
           currency: string
           is_mine: boolean
           member_count: number
+          related_type: string
           source: string
           start_date: string
           trip_id: string

@@ -1,4 +1,4 @@
-const { withDangerousMod } = require('expo/config-plugins');
+const { withDangerousMod, withAndroidManifest, AndroidConfig } = require('expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
@@ -44,14 +44,43 @@ const path = require('path');
  *     arbitrary layout sizes) needs no per-density variants, so `mipmap/` (no `-anydpi`, no
  *     density qualifier) is correct.
  *
- * Forward-thinking: ANY future Android resource referenced only by a runtime/JS name string
- * (see `.claude/skills/android-runtime-resource-shrinking/SKILL.md`) should go straight into a
- * density-independent `mipmap/` folder — it sidesteps R8 shrinking, bundletool density
- * splitting, and the need for a keep.xml, all at once.
+ *  5. v1.34.2 — round 4 was built as a real `production` `.aab`, uploaded to Play, installed on
+ *     device: STILL a plain generic shortcut glyph, i.e. `loadIconRes` still returned 0, i.e.
+ *     `res.getIdentifier("ic_shortcut_expense", "mipmap"/"drawable", pkg)` still found nothing.
+ *     So neither the `mipmap` type nor a `res/raw/keep.xml` entry is sufficient here: what every
+ *     round 1–4 had in common is that `ic_shortcut_expense` was referenced ONLY from the JS
+ *     bundle and `res/raw/keep.xml` — never from a *compiled* reference. `keep.xml` steers R8's
+ *     resource shrinker but does not pin a resource into bundletool's base module, and nothing
+ *     was telling bundletool this resource is reachable, so Play's per-device APK generation
+ *     could (and evidently did) drop it.
  *
- * The `res/raw/keep.xml` entry below is now redundant (mipmaps are never shrunk) but is kept as
- * cheap, self-documenting insurance and repointed at `@mipmap/ic_shortcut_expense`.
+ *     **Fix: add a compiled reference from the merged AndroidManifest** —
+ *     `<meta-data android:name="…" android:resource="@mipmap/ic_shortcut_expense"/>` on
+ *     `<application>`. A manifest resource reference is a GC root for R8's resource shrinker AND
+ *     is pinned by bundletool into the base "master" split installed on every device — the exact
+ *     same guarantee `@mipmap/ic_launcher` gets from `<application android:icon>`. The
+ *     `<meta-data>` is inert (nothing reads it); it exists purely to make the resource real.
+ *     The runtime `res.getIdentifier(…, "mipmap", …)` call in expo-quick-actions is unchanged —
+ *     it now simply always resolves because the resource is provably in the installed APK.
+ *
+ *     (The fully static `res/xml/shortcuts.xml` route — a truly compile-time icon, no
+ *     `getIdentifier` at all — is NOT viable with expo-quick-actions@6.0.2: `withAndroidStaticActions`
+ *     is commented out in its plugin, and its Kotlin `convertShortcutIntent` reads `shortcut_data`
+ *     via `getParcelableExtra`, while a static `<extra>` can only carry a String — so a static
+ *     shortcut would launch the app but never fire `onQuickAction`, i.e. never navigate to Add
+ *     Expense. It would also always be visible, breaking the "clear the shortcut when there's no
+ *     active trip" behaviour the dynamic `QuickActions.setItems([])` call gives us.)
+ *
+ * Forward-thinking: ANY future Android resource referenced only by a runtime/JS name string
+ * (see `.claude/skills/android-runtime-resource-shrinking/SKILL.md`) needs a compiled reference
+ * — the surest being a `<meta-data android:resource>` on `<application>` — in addition to living
+ * in a density-independent `mipmap/` folder. Folder choice + `keep.xml` alone have now failed
+ * four times on real Play Store production installs.
+ *
+ * The `res/raw/keep.xml` entry below is kept as cheap, self-documenting insurance.
  */
+const ICON_RESOURCE = '@mipmap/ic_shortcut_expense';
+const MANIFEST_META_DATA_NAME = 'com.vacationist.mobile.quickactions.KEEP_SHORTCUT_ICON';
 const PNG_SOURCE = path.join(__dirname, '..', 'assets', 'images', 'ic_shortcut_expense.png');
 
 const KEEP_XML = `<?xml version="1.0" encoding="utf-8"?>
@@ -60,7 +89,8 @@ const KEEP_XML = `<?xml version="1.0" encoding="utf-8"?>
 `;
 
 module.exports = function withQuickActionIcon(config) {
-  return withDangerousMod(config, [
+  // (a) Ship the raster + keep.xml (rounds 1–4).
+  config = withDangerousMod(config, [
     'android',
     async (config) => {
       // Fail loud at prebuild time if the committed source asset is missing (e.g. committed
@@ -80,9 +110,8 @@ module.exports = function withQuickActionIcon(config) {
         'res',
       );
 
-      // 1. Ship the raster in the density-INDEPENDENT `mipmap/` folder. `mipmap` resources are
-      //    exempt from R8's resource shrinker AND always packaged by bundletool in every device
-      //    split — see the module doc comment (round 4) for why that matters.
+      // 1. Ship the raster in the density-INDEPENDENT `mipmap/` folder — no density variants to
+      //    be split out, and paired with the manifest reference added in (b) below.
       const mipmapDir = path.join(resDir, 'mipmap');
       fs.mkdirSync(mipmapDir, { recursive: true });
       fs.copyFileSync(PNG_SOURCE, path.join(mipmapDir, 'ic_shortcut_expense.png'));
@@ -128,4 +157,24 @@ module.exports = function withQuickActionIcon(config) {
       return config;
     },
   ]);
+
+  // (b) Round 5: a COMPILED reference to the icon from the merged AndroidManifest. This is the
+  //     piece rounds 1–4 never had — it makes `@mipmap/ic_shortcut_expense` a GC root for R8's
+  //     resource shrinker AND pins it into bundletool's base "master" split (installed on every
+  //     device), the same treatment `@mipmap/ic_launcher` gets. The <meta-data> is inert; it
+  //     exists only so the resource is provably present when expo-quick-actions calls
+  //     `res.getIdentifier("ic_shortcut_expense", "mipmap", packageName)` at runtime.
+  config = withAndroidManifest(config, (config) => {
+    const app = AndroidConfig.Manifest.getMainApplicationOrThrow(config.modResults);
+    AndroidConfig.Manifest.removeMetaDataItemFromMainApplication(app, MANIFEST_META_DATA_NAME);
+    AndroidConfig.Manifest.addMetaDataItemToMainApplication(
+      app,
+      MANIFEST_META_DATA_NAME,
+      ICON_RESOURCE,
+      'resource',
+    );
+    return config;
+  });
+
+  return config;
 };

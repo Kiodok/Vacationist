@@ -1,5 +1,6 @@
 import type { CostSummaryRow, MyCostShareRow } from '@vacationist/types';
 import { convertAmount, type CurrencyRateMap } from './currencyConversion';
+import { roundCurrency } from './format';
 
 export type { CostSummaryRow, MyCostShareRow };
 
@@ -133,32 +134,58 @@ export interface MyTripCostShare {
 
 export interface MyCostSharesResult {
   /** One entry per trip the caller belongs to, in the RPC's original row order (grouping/sorting
-   * by year is a display concern — see Item 2's UI, not this function's job). */
+   * by year is a display concern — see Item 2's UI, not this function's job). Each trip's
+   * `share` is rounded to 2 decimals, so `totalByYear` and `total` (both sums of those rounded
+   * shares) reconcile to the per-trip rows the UI renders. */
   trips: MyTripCostShare[];
+  /** Per-year sum of the (already-rounded) trip shares, itself re-rounded — so the year header
+   * the UI shows always equals the sum of that year's visible trip rows. */
   totalByYear: Record<number, number>;
-  /** Sum of every trip's share — independent of how the UI groups/collapses years, since it's
-   * computed directly from `trips`, never derived from `totalByYear`. */
+  /** Sum of every trip's rounded share — computed directly from `trips`, never derived from
+   * `totalByYear`, so a year-grouping bug can't corrupt it. */
   total: number;
+  /** Number of `(trip, currency)` pairs whose amount could not be converted (no cached rate for
+   * that currency or for `displayCurrency`) and was therefore dropped from the totals — surfaced
+   * so the UI can warn "N amounts excluded — rate unavailable" instead of quietly showing a
+   * partial figure. Deduped per trip: many unconvertible rows sharing one currency count once. */
   excludedSourceCount: number;
 }
 
 /**
  * "My share" per trip (v1.34.0 item 2 — the global Analytics tab), NOT a uniform
- * `amount ÷ memberCount` — that formula is wrong for flights and public transport specifically:
+ * `amount ÷ memberCount`. Per source:
  *
  * - `transfer_flight` / `transfer_public_transport`: the entry's price counts in full ONLY when
  *   `is_mine` is true — the caller is an assigned passenger on that specific entry OR has
  *   uploaded a ticket for it (v1.34.1 tasks 3/4) — 0 otherwise. A trip with two flights where
- *   the caller only took one must not be charged for the one they didn't fly.
- * - `expense_owed_by_me`: already the caller's exact debt share (from `expense_splits`) — passed
- *   through as-is, never re-derived, since this function has no business owning a second
- *   implementation of the settlement math `get_trip_balances` already owns.
- * - Everything else (`accommodation`, `transfer_rental`, `activity`) has no per-person
- *   assignment concept on its table, so an even split across `member_count` is the only
- *   available signal — summed in the row's own currency terms first, then divided once by
- *   `member_count`, rather than dividing every row individually, to avoid compounding rounding
- *   error across many small rows.
+ *   the caller only took one must not be charged for the one they didn't fly. A non-`is_mine`
+ *   row is skipped before any FX lookup, so a flight the caller isn't on can't push a
+ *   rate-unavailable currency into `excludedSourceCount` (it would never have counted anyway).
+ * - `accommodation` / `transfer_rental` / `activity`: no per-person assignment concept on the
+ *   table, so an even split across `member_count` is the only available signal — converted per
+ *   row, summed, then divided once by `member_count` (not per row, to avoid compounding rounding
+ *   error across many small rows).
+ * - `expense_owed_by_me`: the caller's own `expense_splits.amount_owed` sum, never re-derived
+ *   (that's `get_trip_balances`' job). v1.34.2: the RPC emits one such row per `related_type`,
+ *   so this function applies the SAME category-level precedence `computeTripCostSummary` uses —
+ *   a category whose entity price is `> 0` (`accommodation` → base,
+ *   `transfer_flight`/`transfer_rental`/`transfer_public_transport` → transfer, `activity` →
+ *   activities) ignores its matching expense bucket entirely; the expense bucket only counts
+ *   when nothing is priced at the entity level yet. `manual` and `shopping` expenses have no
+ *   entity counterpart and always count. Without this, a trip with a €900 booked accommodation
+ *   AND a €900 "accommodation" expense split 4 ways charged the caller 225 (even split) + 225
+ *   (expense debt) = 450 for the same money.
+ *
+ * Presence is keyed off the entity row's amount being `> 0` (in its own currency — a positive
+ * amount stays positive after any conversion), matching `computeTripCostSummary`'s
+ * `entitySum === 0` test: a comped / €0 entity does NOT suppress its expense fallback, and a
+ * booked flight/PT entry with no assigned passenger or ticket produces no row at all (the RPC
+ * gates it — same as its 0 contribution to the group card). The one intentional divergence: an
+ * entity priced in a currency with no cached rate still suppresses its fallback here (its amount
+ * is known to be `> 0` even though it can't be converted), where the group card would drop it
+ * and let the fallback fire — the conservative choice against double-counting.
  */
+
 export function computeMyCostShares(rows: MyCostShareRow[], rates: CurrencyRateMap, displayCurrency: string): MyCostSharesResult {
   const byTrip = new Map<string, MyCostShareRow[]>();
   for (const row of rows) {
@@ -170,45 +197,84 @@ export function computeMyCostShares(rows: MyCostShareRow[], rates: CurrencyRateM
   let excludedSourceCount = 0;
   const trips: MyTripCostShare[] = [];
 
+  /** Convert a row into `displayCurrency`, or `null` when a needed rate is missing. */
+  const convert = (row: MyCostShareRow): number | null => {
+    if (row.currency === displayCurrency) return row.amount;
+    const rateFrom = rates[row.currency];
+    const rateTo = rates[displayCurrency];
+    if (rateFrom == null || rateTo == null) return null;
+    return convertAmount(row.amount, rateFrom, rateTo);
+  };
+
   for (const [tripId, tripRows] of byTrip) {
     const { trip_title: tripTitle, start_date: startDate, member_count: memberCount } = tripRows[0];
-    let gatedShare = 0;
-    let expenseOwed = 0;
-    let evenSplitSum = 0;
+
+    let hasAccommodationEntity = false;
+    let hasTransferEntity = false;
+    let hasActivityEntity = false;
+
+    let gatedShare = 0; // my flights + PT entries: full price when is_mine, 0 otherwise
+    let evenSplitSum = 0; // accommodation + rental + activity entity prices, pre-division
+    const expenseOwed = { accommodation: 0, transport: 0, activity: 0, shopping: 0, manual: 0 };
+    // Deduped so one unconvertible currency in a trip counts once, not once per row — the RPC
+    // now emits an expense row per related_type, which would otherwise multiply the count ~5x.
+    const excludedCurrencies = new Set<string>();
 
     for (const row of tripRows) {
-      let converted: number;
-      if (row.currency === displayCurrency) {
-        converted = row.amount;
-      } else {
-        const rateFrom = rates[row.currency];
-        const rateTo = rates[displayCurrency];
-        if (rateFrom == null || rateTo == null) {
-          excludedSourceCount++;
-          continue;
-        }
-        converted = convertAmount(row.amount, rateFrom, rateTo);
+      // Entity presence first, before any FX lookup (`amount` in the row's own currency, `> 0`
+      // ⇔ `> 0` converted). Mirrors computeTripCostSummary's `entitySum === 0` test: a comped
+      // €0 entity doesn't suppress its fallback; a zero-participant flight/PT produces no row.
+      if (row.amount > 0) {
+        if (row.source === 'accommodation') hasAccommodationEntity = true;
+        else if (row.source === 'activity') hasActivityEntity = true;
+        else if (row.source === 'transfer_flight' || row.source === 'transfer_rental' || row.source === 'transfer_public_transport') hasTransferEntity = true;
       }
 
       if (row.source === 'transfer_flight' || row.source === 'transfer_public_transport') {
-        // Passenger-or-ticket gated (one row per entry) — counts in full or not at all.
-        if (row.is_mine) gatedShare += converted;
-      } else if (row.source === 'expense_owed_by_me') {
-        expenseOwed += converted;
-      } else {
-        evenSplitSum += converted;
+        if (!row.is_mine) continue; // costs me nothing — skip before any FX lookup
+        const converted = convert(row);
+        if (converted == null) { excludedCurrencies.add(row.currency); continue; }
+        gatedShare += converted;
+        continue;
       }
+
+      const converted = convert(row);
+      if (converted == null) { excludedCurrencies.add(row.currency); continue; }
+
+      if (row.source === 'accommodation' || row.source === 'activity' || row.source === 'transfer_rental') {
+        evenSplitSum += converted;
+      } else if (row.source === 'expense_owed_by_me') {
+        switch (row.related_type) {
+          case 'accommodation': expenseOwed.accommodation += converted; break;
+          case 'transport': expenseOwed.transport += converted; break;
+          case 'activity': expenseOwed.activity += converted; break;
+          case 'shopping': expenseOwed.shopping += converted; break;
+          default: expenseOwed.manual += converted; break; // 'manual', or null / an unknown future type
+        }
+      }
+      // an unrecognized source is converted safely but contributes to no bucket
     }
 
-    const share = gatedShare + expenseOwed + (memberCount > 0 ? evenSplitSum / memberCount : evenSplitSum);
+    excludedSourceCount += excludedCurrencies.size;
+
+    const evenSplitShare = memberCount > 0 ? evenSplitSum / memberCount : evenSplitSum;
+    const share = roundCurrency(
+      gatedShare +
+        evenSplitShare +
+        expenseOwed.manual +
+        expenseOwed.shopping +
+        (hasAccommodationEntity ? 0 : expenseOwed.accommodation) +
+        (hasTransferEntity ? 0 : expenseOwed.transport) +
+        (hasActivityEntity ? 0 : expenseOwed.activity),
+    );
     trips.push({ tripId, tripTitle, startDate, year: Number(startDate.slice(0, 4)), share });
   }
 
   const totalByYear: Record<number, number> = {};
   for (const t of trips) {
-    totalByYear[t.year] = (totalByYear[t.year] ?? 0) + t.share;
+    totalByYear[t.year] = roundCurrency((totalByYear[t.year] ?? 0) + t.share);
   }
-  const total = trips.reduce((sum, t) => sum + t.share, 0);
+  const total = roundCurrency(trips.reduce((sum, t) => sum + t.share, 0));
 
   return { trips, totalByYear, total, excludedSourceCount };
 }

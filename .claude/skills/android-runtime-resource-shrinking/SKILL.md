@@ -1,6 +1,6 @@
 ---
 name: android-runtime-resource-shrinking
-description: Use whenever an Android resource is referenced only by a runtime name string (Resources.getIdentifier with a name passed from JS / the JS bundle) — e.g. expo-quick-actions shortcut icons, dynamic app icons. This app has R8 resource shrinking on; a JS-only resource name can be stripped in release builds, and if it lives in a density-qualified `drawable-*` folder, Play's bundletool per-device density split omits it from most devices. The "Add Expense" quick-action icon took FOUR fix rounds (vector→raster PNG, res/raw/keep.xml, move to density-independent `drawable/`) and each round fixed a real cause but the icon still showed the generic placeholder on Play Store production `.aab` installs. Round 4 (v1.34.1): ship the resource as a `mipmap/` resource, not a `drawable/` — the mipmap type is categorically exempt from R8 resource shrinking AND always packaged in every bundletool device split, and expo-quick-actions already falls back to the mipmap type. Forward rule: put ANY runtime/JS-name-referenced Android resource straight into a density-independent `mipmap/` folder — sidesteps R8 shrinking, bundletool density-splitting and the need for keep.xml at once. Also covers preferring raster PNG over vector for anything Icon.createWithResource hands to the launcher, and (weaker, unconfirmed) OEM launchers caching a dynamic shortcut icon by (packageName, shortcutId) — bump the shortcut id + clean reinstall test.
+description: Use whenever an Android resource is referenced only by a runtime name string (Resources.getIdentifier with a name passed from JS / the JS bundle) — e.g. expo-quick-actions shortcut icons, dynamic app icons. This app has R8 resource shrinking on and ships an app-bundle to Play; a JS-only resource name that has no COMPILED reference (manifest / XML) can be dropped from the per-device APK bundletool generates, regardless of which res folder it lives in. The "Add Expense" quick-action icon took FIVE fix rounds — vector→raster PNG, res/raw/keep.xml, density-independent drawable/, mipmap/ — and rounds 1–4 all STILL showed the generic placeholder on real Play Store production .aab installs. Round 5 (v1.34.2): add a compiled `<meta-data android:name="…" android:resource="@mipmap/ic_shortcut_expense"/>` to <application> in AndroidManifest — that makes the resource an R8 GC root AND pins it into bundletool's base master split on every device (same as @mipmap/ic_launcher and the FCM notification_icon meta-data). Forward rule: a runtime/JS-name-referenced Android resource needs a compiled manifest <meta-data android:resource> reference IN ADDITION to living in a density-independent mipmap/ folder — keep.xml + folder choice alone failed 4×. Also covers preferring raster PNG over vector for anything Icon.createWithResource hands to the launcher, why a static res/xml/shortcuts.xml isn't viable with expo-quick-actions@6.0.2, and (weaker, unconfirmed) OEM launchers caching a dynamic shortcut icon by (packageName, shortcutId) — bump the shortcut id + clean reinstall test.
 ---
 
 # Runtime-referenced Android resources must be kept via keep.xml
@@ -129,13 +129,58 @@ bumped `add-expense-v2` → `add-expense-v3`. Verify without a device:
 Still pending a real Play Store production install to confirm — three prior "confirmed" root
 causes were each wrong or incomplete, so treat round 4 as unconfirmed until a device test.
 
+## Round 5 (2026-09-05, v1.34.2) — mipmap ALSO failed on a real production `.aab`: add a COMPILED manifest reference
+
+The Tech Lead built round 4 as a real `eas build --profile production` `.aab`, uploaded it to
+Play, installed from the store: **still a plain generic shortcut glyph** (not the app icon, not
+the robot — the icon-less-dynamic-shortcut placeholder), i.e. `loadIconRes` still returned `0`,
+i.e. `res.getIdentifier("ic_shortcut_expense", "mipmap"/"drawable", pkg)` still resolved to
+nothing. So the "`mipmap` is categorically exempt / always in every split" claim (round 4) is
+**not reliable in practice** — or something in Play's bundle processing drops it anyway.
+
+**What every round 1–4 had in common:** `ic_shortcut_expense` was referenced ONLY from the JS
+bundle and `res/raw/keep.xml`. `keep.xml` is an input to R8's *resource shrinker* only — it does
+not tell **bundletool** the resource is reachable, and nothing else did either, so Play's
+per-device APK generation was free to (and did) drop it.
+
+**Fix: a compiled reference from the merged `AndroidManifest.xml`.** `withQuickActionIcon.js`
+now also runs a `withAndroidManifest` mod adding
+`<meta-data android:name="com.vacationist.mobile.quickactions.KEEP_SHORTCUT_ICON"
+android:resource="@mipmap/ic_shortcut_expense"/>` to `<application>`. A manifest resource
+reference is:
+- a **GC root** for R8's `ResourceUsageAnalyzer` (manifest refs are always roots), and
+- **pinned into bundletool's base "master" split** (installed on every device regardless of
+  density/ABI/language) — the exact same treatment `@mipmap/ic_launcher` gets from
+  `<application android:icon>`, and `@drawable/notification_icon` gets from the FCM `<meta-data>`
+  right next to it in this app's manifest (those have never gone missing on production).
+
+The `<meta-data>` is inert — nothing reads it. The runtime `getIdentifier(..., "mipmap", ...)`
+call inside expo-quick-actions is unchanged; it now just always succeeds because the resource is
+provably in the installed APK. Shortcut id bumped `add-expense-v3` → `add-expense-v4`.
+
+**Why not a fully static `res/xml/shortcuts.xml`** (a compile-time `android:icon`, zero
+`getIdentifier`): not viable with `expo-quick-actions@6.0.2` — `withAndroidStaticActions` /
+`withShortcutsXMLBaseMod` are commented out in its plugin `index.js`, and its Kotlin
+`convertShortcutIntent` reads the `shortcut_data` extra via `getParcelableExtra` while a static
+`<extra>` can only hold a String, so a static shortcut launches the app but never fires
+`onQuickAction` → never navigates to Add Expense. A static shortcut is also always visible,
+breaking the "clear the shortcut when there's no active trip" behaviour that
+`QuickActions.setItems([])` provides.
+
+**Verify without a device:** `cd apps/mobile && npx expo prebuild -p android --clean --no-install`
+→ confirm `res/mipmap/ic_shortcut_expense.png` AND a `<meta-data … android:resource="@mipmap/ic_shortcut_expense"/>`
+line in `android/app/src/main/AndroidManifest.xml`, then `rm -rf apps/mobile/android`. Still
+pending a real Play Store production install — this is round 5 of a bug whose prior 4 "confirmed"
+causes were each wrong or incomplete.
+
 **Lesson (the general, forward-thinking one):** for ANY Android resource referenced only by a
-runtime/JS name string — the same class this whole skill file is about — put it **straight into a
-density-independent `mipmap/` folder**. That sidesteps R8 resource shrinking, bundletool
-per-device density splitting, AND the need for a `keep.xml`, all in one move. A density-qualified
-`drawable-*` folder is a landmine invisible in every locally-testable build (debug,
-`development`/`preview` APK) that only detonates on real Play Store production installs, on a
-subset of devices — and even a *density-independent* `drawable/` proved insufficient here.
+runtime/JS name string — the same class this whole skill file is about — it needs a **compiled
+reference**, the surest being a `<meta-data android:resource="@type/name"/>` on `<application>`,
+**in addition** to living in a density-independent `mipmap/` folder. Folder choice + `keep.xml`
+alone have now failed FOUR times on real Play Store production installs (`drawable-xxxhdpi/`,
+then `res/raw/keep.xml`, then density-independent `drawable/`, then `mipmap/`) — each invisible
+in every locally-testable build (debug, `development`/`preview` APK) and only detonating on the
+real per-device split bundletool generates on Play's infrastructure.
 
 **Also still true, keep as defensive insurance (weaker, unconfirmed theory):** a shortcut-icon fix
 that looks correct in the built APK can still separately fail purely from OEM launcher-side

@@ -1,5 +1,59 @@
 # Supabase Changes Log
 
+## 2026-09-05 (v1.34.2) — Analytics "my share": break out my expense debt by related_type + gate flight/PT presence (2 migrations)
+
+**Status: DEV + PROD.** Both migrations applied to dev (`aejywkbkcwyanhyzhrle`) then prod
+(`fsfsqghbejwvgxujoyne`) on 2026-09-05; migration-ledger parity reconfirmed on both (238 local ==
+238 remote, 0 unsynced), re-linked to dev afterward. No Edge Function change. Non-destructive
+(`DROP FUNCTION` + `CREATE OR REPLACE` of one RPC, no table/column/data change).
+
+**Why:** the global Analytics tab's per-trip "my share" (`computeMyCostShares` in
+`@vacationist/utils`) double-counted whenever a priced entity (accommodation / rental / activity
+/ flight / PT) *also* had a matching categorized expense — it added *both* my even-split of the
+entity price *and* my `expense_splits.amount_owed` debt for the same money. The Trip Overview
+group card (`get_trip_cost_summary` + `computeTripCostSummary`) already resolves this with
+category-level precedence; the Analytics path did not, because its expense debt arrived as one
+lump per trip. Found in a review of the Analytics currency/math path.
+
+**`20260905190000_break_out_my_expense_shares_by_related_type.sql`** — `DROP FUNCTION` +
+recreate `get_my_trip_cost_shares()` (previous version in `20260905170000`):
+- Adds a `related_type TEXT` OUT column. `NULL` for every source except `expense_owed_by_me`.
+- The `expense_owed_by_me` branch is now `GROUP BY … , e.related_type` — one row per
+  `(trip, related_type)` instead of one row per trip. `source` stays `'expense_owed_by_me'`;
+  amounts still sum to exactly the old per-trip total.
+- **Backwards-compatible on purpose.** The live v1.34.1 / v1.34.0 apps ignore the new column and
+  do `expenseOwed += amount` over every `expense_owed_by_me` row, so summing N rows gives the
+  identical result to the old single row — safe to push ahead of the v1.34.2 app build.
+
+**`20260905200000_gate_my_share_entity_presence.sql`** — `CREATE OR REPLACE` on
+`get_my_trip_cost_shares` (follow-up to a code-review finding; same return shape as `190000`).
+A `transfer_flight` / `transfer_public_transport` row is now emitted only when the entry has
+`>= 1` participant (assigned passenger OR ticket-holder — the same set `get_trip_cost_summary`
+counts). Reason: `computeMyCostShares` keys category precedence off "is a transfer entity
+priced" and was treating a *booked-but-unassigned* flight (which contributes 0 to the group
+card, `price_per_person * 0`) as presence, diverging from the group card it mirrors. A
+zero-participant flight/PT row was always `is_mine = false` → contributed 0 to every shipped
+`computeMyCostShares` anyway, so dropping it changes no total on the live apps.
+
+**App layer (not yet committed, no app build yet):** `MyCostShareRow.related_type` in
+`@vacationist/types`; `computeMyCostShares` (`@vacationist/utils`) now applies the same
+category-level precedence as `computeTripCostSummary` — a category whose entity price is `> 0`
+suppresses its matching expense bucket; `manual` / `shopping` always count; a comped €0 entity
+does NOT suppress (matches the group card's `entitySum === 0` test). Also: rounds each trip's
+`share` to 2 dp so the UI's per-trip rows reconcile to the year/grand totals; skips a
+non-`is_mine` flight/PT row before any FX lookup; and dedupes `excludedSourceCount` per
+`(trip, currency)` (the per-`related_type` expense rows would otherwise multiply it ~5x). One
+intentional divergence from `computeTripCostSummary`: an entity priced in a rate-less currency
+still suppresses its fallback here (its amount is known `> 0`). `computeTripCostSummary`
+unchanged. `npm run supabase:types` re-run after each dev push (adds `related_type` to the RPC
+row).
+
+**Rentals:** confirmed during the review that `transfer_rentals` has *no* passenger list
+(`transfer_vehicle_passengers` belongs to the price-less `transfer_vehicles`), so a rental's
+cost stays an even split across `member_count` — the only signal that exists. No change.
+
+---
+
 ## 2026-09-05 (v1.34.1) — round-trip flight numbers, public-transport passengers, passenger-or-ticket cost gating (4 migrations)
 
 **Status: DEV + PROD.** Applied to dev (`aejywkbkcwyanhyzhrle`) then prod
