@@ -8,6 +8,7 @@ import type {
   TransferVehiclePassenger,
   TransferRental,
   TransferPublicTransport,
+  TransferPublicTransportPassenger,
 } from '@vacationist/types';
 
 export interface TransferRealtimeCallbacks {
@@ -30,6 +31,8 @@ export interface TransferRealtimeCallbacks {
   onPublicTransportInsert: (entry: TransferPublicTransport) => void;
   onPublicTransportUpdate: (entry: TransferPublicTransport) => void;
   onPublicTransportDelete: (oldEntry: TransferPublicTransport) => void;
+  onPublicTransportPassengerInsert: (passenger: TransferPublicTransportPassenger) => void;
+  onPublicTransportPassengerDelete: (oldPassenger: TransferPublicTransportPassenger) => void;
 }
 
 export function subscribeToTransferRealtime(
@@ -83,6 +86,11 @@ export function subscribeToTransferRealtime(
       (p) => callbacks.onPublicTransportUpdate(p.new as unknown as TransferPublicTransport))
     .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'transfer_public_transport', filter: `trip_id=eq.${tripId}` },
       (p) => callbacks.onPublicTransportDelete(p.old as unknown as TransferPublicTransport))
+    // Public transport passengers
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'transfer_public_transport_passengers', filter: `trip_id=eq.${tripId}` },
+      (p) => callbacks.onPublicTransportPassengerInsert(p.new as unknown as TransferPublicTransportPassenger))
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'transfer_public_transport_passengers', filter: `trip_id=eq.${tripId}` },
+      (p) => callbacks.onPublicTransportPassengerDelete(p.old as unknown as TransferPublicTransportPassenger))
     .subscribe((status) => onStatus?.(status));
 }
 

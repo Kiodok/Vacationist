@@ -231,9 +231,21 @@ export interface CostSummaryRow {
 }
 
 /** One row from the `get_my_trip_cost_shares` RPC (v1.34.0 item 2 — the global Analytics tab).
- * Unlike `get_trip_cost_summary`, `transfer_flight` rows are one-per-flight (not pre-aggregated)
- * so `is_my_flight` can gate each flight's contribution individually — see the migration's doc
- * comment for why. `is_my_flight` is `null` for every other source. */
+ * Unlike `get_trip_cost_summary`, `transfer_flight` AND `transfer_public_transport` rows are
+ * one-per-entry (not pre-aggregated) so `is_mine` can gate each entry's contribution
+ * individually — see the migration's doc comment for why. `is_mine` is `true` when the caller is
+ * an assigned passenger on that flight/PT entry OR has uploaded a ticket for it (v1.34.1 tasks
+ * 3/4); `null` for every even-split source (accommodation / rental / activity / expense).
+ * v1.34.2: a flight/PT entry with zero participants (no assigned passenger and no ticket) is
+ * omitted entirely — it contributes 0 to the group card too, and emitting it would wrongly
+ * register transfer-entity presence for the category-precedence logic in `computeMyCostShares`.
+ *
+ * `related_type` (v1.34.2) is only set on `source === 'expense_owed_by_me'` rows — the caller's
+ * `expense_splits.amount_owed` sum for that trip, now split out one row per `expenses.related_type`
+ * ('accommodation' | 'activity' | 'transport' | 'shopping' | 'manual') so `computeMyCostShares`
+ * can apply the same category-level precedence `computeTripCostSummary` uses (an entity-priced
+ * category's price wins; its matching expense bucket only counts when nothing is priced there).
+ * `null` for every non-expense source. */
 export interface MyCostShareRow {
   trip_id: string;
   trip_title: string;
@@ -242,7 +254,8 @@ export interface MyCostShareRow {
   source: string;
   currency: string;
   amount: number;
-  is_my_flight: boolean | null;
+  is_mine: boolean | null;
+  related_type: string | null;
 }
 
 /** Payload sent to the render-business-expense-pdf Edge Function — the same rows the client
@@ -365,6 +378,8 @@ export interface TransferFlight {
   is_business: boolean;
   external_url: string | null;
   flight_number: string | null;
+  /** Return-leg flight number — populated only for `direction === 'outbound-return'`. */
+  return_flight_number: string | null;
   booking_reference: string | null;
   notes: string | null;
   status: TransferFlightStatus;
@@ -411,6 +426,14 @@ export interface TransferVehiclePassenger {
   vehicle_id: string;
   user_id: string;
   is_driver: boolean;
+  created_at: string;
+}
+
+export interface TransferPublicTransportPassenger {
+  id: string;
+  trip_id: string;
+  public_transport_id: string;
+  user_id: string;
   created_at: string;
 }
 

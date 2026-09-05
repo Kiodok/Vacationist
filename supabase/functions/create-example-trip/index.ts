@@ -267,9 +267,10 @@ Deno.serve(async (req: Request) => {
       logIfError('transfer_rentals', error);
     }
 
-    // 8b. Transfer public transport (train day trip)
+    // 8b. Transfer public transport (train day trip) + a passenger, so a new user can see the
+    // passenger list and the passenger-gated cost behaviour (v1.34.1 task 4).
     {
-      const { error } = await supabase.from('transfer_public_transport').insert({
+      const { data: pt, error } = await supabase.from('transfer_public_transport').insert({
         trip_id: tripId,
         title: 'Day Trip to Girona by Train',
         company: 'Renfe',
@@ -283,8 +284,19 @@ Deno.serve(async (req: Request) => {
         external_url: 'https://www.renfe.com',
         notes: 'Round-trip tickets. Seat reservation not required.',
         created_by: userId,
-      });
+      })
+        .select('id')
+        .single();
       logIfError('transfer_public_transport', error);
+
+      if (pt) {
+        const { error: paxErr } = await supabase.from('transfer_public_transport_passengers').insert({
+          public_transport_id: pt.id,
+          trip_id: tripId,
+          user_id: userId,
+        });
+        logIfError('transfer_public_transport_passengers', paxErr);
+      }
     }
 
     // 9. Shopping list + items

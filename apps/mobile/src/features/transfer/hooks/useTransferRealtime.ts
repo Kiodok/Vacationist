@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppForeground } from '../../../hooks/useAppForeground';
 import { subscribeToTransferRealtime, unsubscribeFromTransfer } from '@vacationist/api';
+import { invalidateCostQueries } from '../../../utils/queryClient';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferFlight,
@@ -11,6 +12,7 @@ import type {
   TransferVehiclePassenger,
   TransferRental,
   TransferPublicTransport,
+  TransferPublicTransportPassenger,
 } from '@vacationist/types';
 
 const BACKOFF_DELAYS = [2000, 5000, 10000, 30000];
@@ -37,6 +39,7 @@ export function useTransferRealtime(tripId: string) {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-vehicles'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-rentals'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-public-transport'] });
+    invalidateCostQueries(tripId);
   }, [queryClient, tripId]);
 
   const subscribe = useCallback(() => {
@@ -104,6 +107,7 @@ export function useTransferRealtime(tripId: string) {
           queryClient.invalidateQueries({
             queryKey: ['transfer-flights', passenger.flight_id, 'passengers'],
           });
+          invalidateCostQueries(tripId); // passenger changes move a flight's cost in/out
         },
         onPassengerDelete: (oldPassenger) => {
           if (oldPassenger.flight_id) {
@@ -111,6 +115,7 @@ export function useTransferRealtime(tripId: string) {
               queryKey: ['transfer-flights', oldPassenger.flight_id, 'passengers'],
             });
           }
+          invalidateCostQueries(tripId);
         },
         // --- Vehicles ---
         onVehicleInsert: (vehicle) => {
@@ -226,6 +231,21 @@ export function useTransferRealtime(tripId: string) {
             ['trips', tripId, 'transfer-public-transport'],
             (old) => old?.filter((e) => e.id !== oldEntry.id),
           );
+        },
+        // --- Public transport passengers ---
+        onPublicTransportPassengerInsert: (passenger) => {
+          queryClient.invalidateQueries({
+            queryKey: ['transfer-public-transport', passenger.public_transport_id, 'passengers'],
+          });
+          invalidateCostQueries(tripId);
+        },
+        onPublicTransportPassengerDelete: (oldPassenger) => {
+          if (oldPassenger.public_transport_id) {
+            queryClient.invalidateQueries({
+              queryKey: ['transfer-public-transport', oldPassenger.public_transport_id, 'passengers'],
+            });
+          }
+          invalidateCostQueries(tripId);
         },
       },
       (status) => {

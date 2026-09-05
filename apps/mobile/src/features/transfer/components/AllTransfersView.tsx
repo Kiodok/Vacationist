@@ -146,12 +146,18 @@ function FlightSummaryCard({ flight }: { flight: TransferFlight }) {
         </View>
       )}
 
-      {flight.status === 'booked' && (flight.flight_number || flight.booking_reference) && (
+      {flight.status === 'booked' && (flight.flight_number || flight.return_flight_number || flight.booking_reference) && (
         <View className="flex-row gap-md flex-wrap">
           {flight.flight_number && (
             <View className="flex-row items-center gap-xs">
               <ThemedIcon name="barcode-outline" size={14} color={METADATA_ICON_COLORS.barcode.color} />
-              <Text className="text-body-small text-text-secondary">{flight.flight_number}</Text>
+              <Text className="text-body-small text-text-secondary">{outPrefix}{flight.flight_number}</Text>
+            </View>
+          )}
+          {isRoundTrip && flight.return_flight_number && (
+            <View className="flex-row items-center gap-xs">
+              <ThemedIcon name="barcode-outline" size={14} color={METADATA_ICON_COLORS.barcode.color} />
+              <Text className="text-body-small text-text-secondary">{retPrefix}{flight.return_flight_number}</Text>
             </View>
           )}
           {flight.booking_reference && (

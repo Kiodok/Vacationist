@@ -209,7 +209,8 @@ function shareRow(overrides: Partial<MyCostShareRow>): MyCostShareRow {
     source: 'accommodation',
     currency: 'EUR',
     amount: 100,
-    is_my_flight: null,
+    is_mine: null,
+    related_type: null,
     ...overrides,
   };
 }
@@ -227,7 +228,7 @@ describe('computeMyCostShares', () => {
   describe('flight passenger gating', () => {
     it('counts the full price_per_person when the caller IS an assigned passenger on that flight', () => {
       const result = computeMyCostShares(
-        [shareRow({ source: 'transfer_flight', amount: 250, is_my_flight: true, member_count: 6 })],
+        [shareRow({ source: 'transfer_flight', amount: 250, is_mine: true, member_count: 6 })],
         {},
         'EUR',
       );
@@ -237,7 +238,7 @@ describe('computeMyCostShares', () => {
 
     it('counts ZERO for a flight the caller is NOT an assigned passenger on — never price_per_person/memberCount either', () => {
       const result = computeMyCostShares(
-        [shareRow({ source: 'transfer_flight', amount: 250, is_my_flight: false, member_count: 6 })],
+        [shareRow({ source: 'transfer_flight', amount: 250, is_mine: false, member_count: 6 })],
         {},
         'EUR',
       );
@@ -247,14 +248,36 @@ describe('computeMyCostShares', () => {
     it('a trip with two flights charges only the one the caller actually flew', () => {
       const result = computeMyCostShares(
         [
-          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 200, is_my_flight: true }),
-          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 300, is_my_flight: false }),
+          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 200, is_mine: true }),
+          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 300, is_mine: false }),
         ],
         {},
         'EUR',
       );
       expect(result.trips).toHaveLength(1);
       expect(result.trips[0].share).toBe(200);
+    });
+  });
+
+  // v1.34.1 task 4: public transport now follows the same passenger-or-ticket gating as flights
+  // (one row per entry, price counts in full or not at all) — it is NOT an even split any more.
+  describe('public transport passenger/ticket gating', () => {
+    it('counts the full price_total when the caller is a passenger or ticket-holder', () => {
+      const result = computeMyCostShares(
+        [shareRow({ source: 'transfer_public_transport', amount: 60, is_mine: true, member_count: 5 })],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(60); // not 60/5
+    });
+
+    it('counts ZERO for a public transport entry the caller is not on', () => {
+      const result = computeMyCostShares(
+        [shareRow({ source: 'transfer_public_transport', amount: 60, is_mine: false, member_count: 5 })],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(0);
     });
   });
 
@@ -284,22 +307,173 @@ describe('computeMyCostShares', () => {
     });
   });
 
-  it('passes expense_owed_by_me through as-is — a debt figure, never re-derived or divided', () => {
-    const result = computeMyCostShares([shareRow({ source: 'expense_owed_by_me', amount: 87.5, member_count: 10 })], {}, 'EUR');
+  it('passes a manual expense_owed_by_me row through as-is — a debt figure, never re-derived or divided', () => {
+    const result = computeMyCostShares(
+      [shareRow({ source: 'expense_owed_by_me', related_type: 'manual', amount: 87.5, member_count: 10 })],
+      {},
+      'EUR',
+    );
     expect(result.trips[0].share).toBe(87.5);
+  });
+
+  it('a null related_type on an expense_owed_by_me row is treated as manual (always counts)', () => {
+    const result = computeMyCostShares(
+      [shareRow({ source: 'expense_owed_by_me', related_type: null, amount: 42, member_count: 4 })],
+      {},
+      'EUR',
+    );
+    expect(result.trips[0].share).toBe(42);
   });
 
   it('combines flight + expense + even-split contributions correctly in one trip', () => {
     const result = computeMyCostShares(
       [
-        shareRow({ source: 'transfer_flight', amount: 150, is_my_flight: true, member_count: 4 }),
-        shareRow({ source: 'expense_owed_by_me', amount: 30, member_count: 4 }),
+        shareRow({ source: 'transfer_flight', amount: 150, is_mine: true, member_count: 4 }),
+        shareRow({ source: 'expense_owed_by_me', related_type: 'manual', amount: 30, member_count: 4 }),
         shareRow({ source: 'accommodation', amount: 200, member_count: 4 }), // -> 50/person
       ],
       {},
       'EUR',
     );
     expect(result.trips[0].share).toBe(150 + 30 + 50);
+  });
+
+  // v1.34.2: the same category-level precedence computeTripCostSummary applies — a priced entity
+  // in a category suppresses that category's expense bucket, so the €900-booked-hotel +
+  // €900-hotel-expense case doesn't charge the caller twice for one payment.
+  describe('category-level precedence (entity price wins over the matching expense bucket)', () => {
+    it('suppresses my expense_accommodation debt when the trip has a priced accommodation entity', () => {
+      const result = computeMyCostShares(
+        [
+          shareRow({ source: 'accommodation', amount: 900, member_count: 4 }), // -> 225/person
+          shareRow({ source: 'expense_owed_by_me', related_type: 'accommodation', amount: 225, member_count: 4 }),
+        ],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(225); // NOT 225 + 225
+    });
+
+    it('uses my expense_accommodation debt when nothing is priced at the entity level', () => {
+      const result = computeMyCostShares(
+        [shareRow({ source: 'expense_owed_by_me', related_type: 'accommodation', amount: 180, member_count: 4 })],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(180);
+    });
+
+    it('a priced flight the caller is NOT on (someone else is) still suppresses my expense_transport debt — matches the group card', () => {
+      const result = computeMyCostShares(
+        [
+          // RPC only emits this row because the flight has >=1 participant; is_mine=false = not me.
+          shareRow({ source: 'transfer_flight', amount: 400, is_mine: false, member_count: 4 }),
+          shareRow({ source: 'expense_owed_by_me', related_type: 'transport', amount: 60, member_count: 4 }),
+        ],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(0); // flight isn't mine (0), transport expense suppressed
+    });
+
+    it('does NOT suppress the transport fallback when no transfer entity is priced (zero-participant flights are omitted by the RPC)', () => {
+      const result = computeMyCostShares(
+        [shareRow({ source: 'expense_owed_by_me', related_type: 'transport', amount: 60, member_count: 1 })],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(60);
+    });
+
+    it('a €0 / comped entity does not suppress its expense fallback (amount must be > 0, mirroring computeTripCostSummary)', () => {
+      const result = computeMyCostShares(
+        [
+          shareRow({ source: 'accommodation', amount: 0, member_count: 1 }),
+          shareRow({ source: 'expense_owed_by_me', related_type: 'accommodation', amount: 120, member_count: 1 }),
+        ],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(120);
+    });
+
+    it('each category falls back independently — a priced accommodation does not suppress the activity expense fallback', () => {
+      const result = computeMyCostShares(
+        [
+          shareRow({ source: 'accommodation', amount: 800, member_count: 4 }), // -> 200/person
+          shareRow({ source: 'expense_owed_by_me', related_type: 'accommodation', amount: 200, member_count: 4 }), // suppressed
+          shareRow({ source: 'expense_owed_by_me', related_type: 'activity', amount: 35, member_count: 4 }), // kept
+          shareRow({ source: 'expense_owed_by_me', related_type: 'shopping', amount: 12, member_count: 4 }), // always kept
+        ],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(200 + 35 + 12);
+    });
+
+    it('an entity priced in a rate-less currency still suppresses its expense fallback (amount is known > 0 even when unconvertible)', () => {
+      const result = computeMyCostShares(
+        [
+          shareRow({ source: 'accommodation', amount: 500, currency: 'BAM', member_count: 2 }), // excluded from the sum
+          shareRow({ source: 'expense_owed_by_me', related_type: 'accommodation', amount: 250, currency: 'EUR', member_count: 2 }),
+        ],
+        { EUR: 1 }, // no BAM rate
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(0); // accommodation row excluded, expense fallback still suppressed
+      expect(result.excludedSourceCount).toBe(1);
+    });
+
+    it('counts one unconvertible currency once per trip, not once per expense related_type row', () => {
+      const result = computeMyCostShares(
+        [
+          shareRow({ trip_id: 't1', source: 'expense_owed_by_me', related_type: 'accommodation', amount: 100, currency: 'BAM', member_count: 1 }),
+          shareRow({ trip_id: 't1', source: 'expense_owed_by_me', related_type: 'transport', amount: 50, currency: 'BAM', member_count: 1 }),
+          shareRow({ trip_id: 't1', source: 'expense_owed_by_me', related_type: 'manual', amount: 25, currency: 'BAM', member_count: 1 }),
+        ],
+        { EUR: 1 }, // no BAM rate
+        'EUR',
+      );
+      expect(result.excludedSourceCount).toBe(1); // one currency (BAM) unconvertible for this trip, not 3
+    });
+  });
+
+  describe('rounding & sub-total reconciliation', () => {
+    it('rounds each trip share to 2 decimals', () => {
+      const result = computeMyCostShares(
+        [shareRow({ source: 'accommodation', amount: 100, member_count: 3 })],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(33.33);
+    });
+
+    it('the year header equals the sum of that year\'s visible (rounded) trip rows', () => {
+      const result = computeMyCostShares(
+        [
+          shareRow({ trip_id: 't1', start_date: '2026-01-01', source: 'accommodation', amount: 100, member_count: 3 }),
+          shareRow({ trip_id: 't2', start_date: '2026-07-01', source: 'accommodation', amount: 100, member_count: 3 }),
+        ],
+        {},
+        'EUR',
+      );
+      const rowsSum = result.trips.reduce((s, t) => s + t.share, 0);
+      expect(result.totalByYear[2026]).toBe(rowsSum); // 33.33 + 33.33 = 66.66, not 66.67
+      expect(result.totalByYear[2026]).toBe(66.66);
+    });
+
+    it('a non-mine gated row in a rate-less currency does NOT inflate excludedSourceCount', () => {
+      const result = computeMyCostShares(
+        [
+          shareRow({ trip_id: 't1', source: 'transfer_flight', amount: 300, currency: 'BAM', is_mine: false, member_count: 4 }),
+          shareRow({ trip_id: 't1', source: 'accommodation', amount: 100, currency: 'EUR', member_count: 4 }),
+        ],
+        { EUR: 1 }, // no BAM rate
+        'EUR',
+      );
+      expect(result.excludedSourceCount).toBe(0); // the flight isn't mine — its missing rate is irrelevant
+      expect(result.trips[0].share).toBe(25);
+    });
   });
 
   describe('year bucketing', () => {

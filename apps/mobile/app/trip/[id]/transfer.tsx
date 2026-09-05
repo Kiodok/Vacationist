@@ -22,6 +22,7 @@ import { useTransferVehicles, useCreateTransferVehicle, useUpdateTransferVehicle
 import { useTransferVehiclePassengers, useAddTransferVehiclePassenger, useRemoveTransferVehiclePassenger, useUpdateTransferVehiclePassenger, useJoinVehicle, useLeaveVehicle } from '../../../src/features/transfer/hooks/useTransferVehiclePassengers';
 import { useTransferRentals, useCreateTransferRental, useUpdateTransferRental, useDeleteTransferRental } from '../../../src/features/transfer/hooks/useTransferRentals';
 import { useTransferPublicTransport, useCreateTransferPublicTransport, useUpdateTransferPublicTransport, useDeleteTransferPublicTransport } from '../../../src/features/transfer/hooks/useTransferPublicTransport';
+import { useTransferPublicTransportPassengers, useAddPublicTransportPassenger, useRemovePublicTransportPassenger } from '../../../src/features/transfer/hooks/useTransferPublicTransportPassengers';
 import { useTransferRealtime } from '../../../src/features/transfer/hooks/useTransferRealtime';
 import { computeFlightWinner } from '../../../src/features/transfer/utils/flightWinner';
 import { TransferSegmentedControl } from '../../../src/features/transfer/components/TransferSegmentedControl';
@@ -918,6 +919,7 @@ function FlightCardWithVotes({
         onClose={() => setShowBookSheet(false)}
         onSubmit={handleBook}
         isPending={false}
+        direction={flight.direction}
       />
 
       <PassengerSelectSheet
@@ -1221,9 +1223,27 @@ function PublicTransportCardExpanded({
   const { t: tCommon } = useTranslation("common");
   const [showDetail, setShowDetail] = useState(highlight ?? false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [showPassengerSheet, setShowPassengerSheet] = useState(false);
+
+  const { data: passengers = [] } = useTransferPublicTransportPassengers(entry.id);
+  const addPassenger = useAddPublicTransportPassenger(tripId, entry.id);
+  const removePassenger = useRemovePublicTransportPassenger(tripId, entry.id);
 
   const canEdit = role === 'organizer' || (role === 'participant' && entry.created_by === currentUserId);
   const canDelete = role === 'organizer' || (role === 'participant' && entry.created_by === currentUserId);
+  // Vehicle model: the entry's creator or an organizer manages the whole list; anyone else can
+  // only join/leave themselves.
+  const canManagePassengers = role === 'organizer' || entry.created_by === currentUserId;
+  const currentPassengerIds = passengers.map((p) => p.user_id);
+  const isPassenger = currentUserId ? currentPassengerIds.includes(currentUserId) : false;
+
+  const handlePassengerConfirm = (userIds: string[]) => {
+    setShowPassengerSheet(false);
+    const toAdd = userIds.filter((id) => !currentPassengerIds.includes(id));
+    const toRemove = currentPassengerIds.filter((id) => !userIds.includes(id));
+    toAdd.forEach((userId) => addPassenger.mutate(userId));
+    toRemove.forEach((userId) => removePassenger.mutate(userId));
+  };
 
   const detailContent = showDetail ? (
     <View className="border-t border-border px-md py-sm gap-sm rounded-b-md">
@@ -1234,6 +1254,22 @@ function PublicTransportCardExpanded({
         </View>
       )}
 
+      {passengers.length > 0 && (
+        <View className="gap-xs">
+          <Text className="text-label text-text-muted uppercase">{t('action.passengers')}</Text>
+          <View className="flex-row flex-wrap gap-xs">
+            {passengers.map((p) => {
+              const member = (members ?? []).find((m) => m.user_id === p.user_id);
+              return (
+                <View key={p.user_id} className="px-sm py-xs rounded-full bg-surface border border-border">
+                  <Text className="text-body-small text-text-secondary">{member?.user?.name ?? t('label.unknown')}</Text>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      )}
+
       <PublicTransportTicketsSection
         tripId={tripId}
         publicTransportId={entry.id}
@@ -1241,6 +1277,32 @@ function PublicTransportCardExpanded({
         currentUserId={currentUserId}
         isOrganizer={role === 'organizer'}
       />
+
+      {currentUserId && (
+        <View className="flex-row justify-end border-t border-border pt-xs">
+          {isPassenger ? (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => removePassenger.mutate(currentUserId)}
+              disabled={isMutationBusy(removePassenger)}
+              className="flex-row items-center gap-xs px-md py-xs rounded-sm bg-danger/10"
+            >
+              <ThemedIcon name="exit-outline" size={14} color={colors.danger} />
+              <Text className="text-danger text-body-small font-medium">{t('action.leave')}</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => addPassenger.mutate(currentUserId)}
+              disabled={isMutationBusy(addPassenger)}
+              className="flex-row items-center gap-xs px-md py-xs rounded-sm bg-success/10"
+            >
+              <ThemedIcon name="enter-outline" size={14} color={colors.success} />
+              <Text className="text-success text-body-small font-medium">{t('action.join')}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
 
       <View className="gap-sm mt-xs">
         {confirmingDelete ? (
@@ -1273,6 +1335,16 @@ function PublicTransportCardExpanded({
                 <Text className="text-primary text-body-small font-medium">{t('action.edit')}</Text>
               </TouchableOpacity>
             )}
+            {canManagePassengers && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setShowPassengerSheet(true)}
+                className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-primary/10"
+              >
+                <ThemedIcon name="people-outline" size={14} color={colors.primary} />
+                <Text className="text-primary text-body-small font-medium">{t('action.passengers')}</Text>
+              </TouchableOpacity>
+            )}
             {canDelete && (
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -1290,11 +1362,22 @@ function PublicTransportCardExpanded({
   ) : undefined;
 
   return (
-    <PublicTransportCard
-      entry={entry}
-      onPress={() => setShowDetail(!showDetail)}
-      detail={detailContent}
-      highlight={highlight}
-    />
+    <>
+      <PublicTransportCard
+        entry={entry}
+        onPress={() => setShowDetail(!showDetail)}
+        detail={detailContent}
+        highlight={highlight}
+      />
+
+      <PassengerSelectSheet
+        visible={showPassengerSheet}
+        onClose={() => setShowPassengerSheet(false)}
+        members={members ?? []}
+        selectedUserIds={currentPassengerIds}
+        onConfirm={handlePassengerConfirm}
+        isPending={isMutationBusy(addPassenger) || isMutationBusy(removePassenger)}
+      />
+    </>
   );
 }

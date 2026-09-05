@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAppForeground } from '../../../hooks/useAppForeground';
 import type { InfiniteData } from '@tanstack/react-query';
 import { subscribeToExpensesRealtime, unsubscribeFromExpenses } from '@vacationist/api';
+import { invalidateCostQueries } from '../../../utils/queryClient';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { ExpenseWithSplits } from '@vacationist/types';
 
@@ -34,6 +35,7 @@ export function useExpensesRealtime(tripId: string) {
   const invalidateAll = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
+    invalidateCostQueries(tripId);
   }, [queryClient, tripId]);
 
   const debouncedInvalidate = useCallback(() => {

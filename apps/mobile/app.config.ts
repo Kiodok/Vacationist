@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Vacationist',
   slug: 'vacationist',
-  version: '1.34.0',
+  version: '1.34.2',
   orientation: 'default',
   icon: './assets/images/icon.png',
   scheme: 'vacationist',
@@ -134,10 +134,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // iosActions/androidIcons config, since its target trip has to be resolved fresh on every
     // app launch/foreground, not baked in at build time.
     'expo-quick-actions',
-    // Ships the Android shortcut's cash drawable (raster, xxxhdpi) + a res/raw/keep.xml rule so
-    // R8 resource shrinking doesn't strip it — it's referenced only by a runtime getIdentifier
-    // string. expo-quick-actions has no prop for a shortcut drawable. iOS uses the SF Symbol
-    // `dollarsign.circle.fill` and needs no asset.
+    // Ships the Android "Add Expense" shortcut's cash raster as res/mipmap/ic_shortcut_expense.png
+    // + a res/raw/keep.xml rule + (round 5, v1.34.2) a compiled `<meta-data android:resource>`
+    // reference in AndroidManifest so R8's resource shrinker keeps it and bundletool pins it into
+    // the base split on every device — it's otherwise referenced only by a runtime getIdentifier
+    // string and was dropped from Play Store production installs four times. expo-quick-actions
+    // has no prop for a shortcut drawable. iOS uses the SF Symbol `dollarsign.circle.fill`.
     './plugins/withQuickActionIcon',
     [
       'expo-build-properties',

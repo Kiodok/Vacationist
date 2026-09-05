@@ -14,7 +14,7 @@ interface FlightTicketsSectionProps {
 export function FlightTicketsSection({ tripId, flightId, members, currentUserId, isOrganizer }: FlightTicketsSectionProps) {
   const { data: documents } = useTransferFlightDocuments(flightId);
   const uploadMutation = useUploadTransferFlightDocument(tripId, flightId);
-  const deleteMutation = useDeleteTransferFlightDocument(flightId);
+  const deleteMutation = useDeleteTransferFlightDocument(tripId, flightId);
 
   return (
     <TicketsSection

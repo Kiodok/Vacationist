@@ -206,6 +206,9 @@ export {
   createTransferPublicTransport,
   updateTransferPublicTransport,
   softDeleteTransferPublicTransport,
+  getPublicTransportPassengers,
+  addPublicTransportPassenger,
+  removePublicTransportPassenger,
   subscribeToPublicTransportRealtime,
   unsubscribeFromPublicTransportRealtime,
 } from './transferPublicTransport';

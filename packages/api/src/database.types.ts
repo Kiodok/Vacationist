@@ -1900,6 +1900,7 @@ export type Database = {
           return_arrival_time: string | null
           return_departure_airport: string | null
           return_departure_time: string | null
+          return_flight_number: string | null
           status: string
           title: string
           trip_id: string
@@ -1930,6 +1931,7 @@ export type Database = {
           return_arrival_time?: string | null
           return_departure_airport?: string | null
           return_departure_time?: string | null
+          return_flight_number?: string | null
           status?: string
           title: string
           trip_id: string
@@ -1960,6 +1962,7 @@ export type Database = {
           return_arrival_time?: string | null
           return_departure_airport?: string | null
           return_departure_time?: string | null
+          return_flight_number?: string | null
           status?: string
           title?: string
           trip_id?: string
@@ -2071,6 +2074,52 @@ export type Database = {
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_public_transport_passengers: {
+        Row: {
+          created_at: string
+          id: string
+          public_transport_id: string
+          trip_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          public_transport_id: string
+          trip_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          public_transport_id?: string
+          trip_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_public_transport_passengers_public_transport_id_fkey"
+            columns: ["public_transport_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_public_transport"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_public_transport_passengers_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_public_transport_passengers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -2677,6 +2726,7 @@ export type Database = {
           p_booking_reference?: string
           p_flight_id: string
           p_flight_number?: string
+          p_return_flight_number?: string
         }
         Returns: undefined
       }
@@ -2842,8 +2892,9 @@ export type Database = {
         Returns: {
           amount: number
           currency: string
-          is_my_flight: boolean
+          is_mine: boolean
           member_count: number
+          related_type: string
           source: string
           start_date: string
           trip_id: string

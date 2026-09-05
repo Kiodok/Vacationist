@@ -371,7 +371,11 @@ export const updateTransferFlightSchema = flightBaseSchema.partial().extend({
 });
 
 export const bookTransferFlightSchema = z.object({
+  // For a one-way flight this is the only number; for `direction === 'outbound-return'` it's the
+  // outbound number and `return_flight_number` holds the return leg. Both optional — booking
+  // never blocks on flight numbers (they're often filled in later from the airline email).
   flight_number: z.string().max(20).optional(),
+  return_flight_number: z.string().max(20).optional(),
   booking_reference: z.string().max(50).optional(),
 });
 
@@ -650,6 +654,8 @@ export type DeleteTransferRentalVariables = { rentalId: string; tripId: string }
 export type CreateTransferPublicTransportVariables = { tripId: string; input: CreateTransferPublicTransportInput };
 export type UpdateTransferPublicTransportVariables = { publicTransportId: string; tripId: string; input: UpdateTransferPublicTransportInput };
 export type DeleteTransferPublicTransportVariables = { publicTransportId: string; tripId: string };
+export type AddPublicTransportPassengerVariables = { publicTransportId: string; tripId: string; userId: string };
+export type RemovePublicTransportPassengerVariables = { publicTransportId: string; tripId: string; userId: string };
 
 // --- Expense mutation variables ---
 export type CreateExpenseVariables = { tripId: string; input: CreateExpenseInput };
