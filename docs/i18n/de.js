@@ -70,7 +70,7 @@ window.VACATIONIST_I18N = {
   'feat.1.title': 'Aktivitäten abstimmen',
   'feat.1.desc': 'Ideen vorschlagen und die Gruppe entscheiden lassen — von „Muss sein" bis „Gruppenhindernis". Die besten Optionen setzen sich ganz natürlich durch, ohne endlose Debatten.',
   'feat.2.title': 'Ausgaben fair aufteilen',
-  'feat.2.desc': 'Jede Ausgabe mit Kategorie und angehängtem Beleg erfassen, gleichmäßig oder nach eigenen Beträgen aufteilen und eine Live-Aufschlüsselung sehen, wer wem was schuldet — und wohin das Geld geflossen ist.',
+  'feat.2.desc': 'Jede Ausgabe mit Kategorie und angehängtem Beleg erfassen, gleichmäßig oder nach eigenen Beträgen aufteilen und eine Live-Aufschlüsselung sehen, wer wem was schuldet — und was dich die Reise gekostet hat, pro Reise und über alle Reisen, die du gemacht hast.',
   'feat.3.title': 'Geteilte Listen in Echtzeit',
   'feat.3.desc': 'Einkaufslisten, Packlisten — alles, was die Gruppe verfolgt. Alle fügen Artikel hinzu und haken sie gleichzeitig in Echtzeit ab.',
   'feat.4.title': 'Transfers, Flüge & Tickets',
@@ -82,7 +82,7 @@ window.VACATIONIST_I18N = {
   'feat.7.title': 'Gruppenchat',
   'feat.7.desc': 'Ein eigener Chat-Tab für jede Reise — schreib der ganzen Gruppe, bearbeite oder lösche eigene Nachrichten und bleib mit Echtzeit-Zustellung immer auf dem neuesten Stand. Organisatoren können die Unterhaltung moderieren.',
   'feat.8.title': 'Belege, Tickets & Ausgabenberichte',
-  'feat.8.desc': 'Jeder Beleg liegt bei seiner Ausgabe, jede Bordkarte bei ihrem Flug — privat für deine Gruppe. Geschäftsausgaben markieren und für Geschäftsreisen einen PDF-Bericht pro Person exportieren.',
+  'feat.8.desc': 'Jeder Beleg liegt bei seiner Ausgabe, jede Bordkarte bei ihrem Flug — privat für deine Gruppe. Geschäftskosten bei Ausgaben, Hotels und Flügen markieren und für Geschäftsreisen einen PDF-Bericht pro Person exportieren.',
 
   // Feature card 8 — document preview panel
   'doc.1.name': 'Villa — Restzahlung',
@@ -147,7 +147,7 @@ window.VACATIONIST_I18N = {
   'faq.6.q': 'Wie funktionieren Urlaubsverfolgung und Teilen mit der Gruppe?',
   'faq.6.a': 'Jede Reise in Vacationist ist ein gemeinsamer Arbeitsbereich. Per Link einladen — alle treten sofort bei, kein Konto zum Mitmachen nötig. Die Urlaubsübersicht zeigt die gesamte Reise-Zeitleiste, alle Termine außerhalb des Kalenders und Ausgaben auf einen Blick. Änderungen synchronisieren sich in Echtzeit, sodass alle immer auf dem neuesten Stand sind.',
   'faq.7.q': 'Kann ich Belege anhängen und eine Geschäftsreise abrechnen?',
-  'faq.7.a': 'Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftsausgaben unterwegs und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen.',
+  'faq.7.a': 'Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftskosten unterwegs — Ausgaben, Hotels, Flüge, Transport — und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen.',
 
   // Trust strip
   'trust.aes': 'Dokumente verschlüsselt gespeichert',

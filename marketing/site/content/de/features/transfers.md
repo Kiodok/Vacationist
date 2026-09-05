@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-09-03
 altPath: /features/transfers/
 keywords: Gruppenflug planen App, Transfer Gruppenreise, Mietwagenkosten teilen, ÖPNV Reiseplaner, Bordkarten speichern App
-related: /de/features/expenses/, /de/features/voting/, /de/features/travel-documents/
+related: /de/features/expenses/, /de/features/analytics/, /de/features/voting/, /de/features/travel-documents/
 breadcrumbLabel: Transfers
 ---
 
@@ -23,7 +23,7 @@ Der Transfer-Bereich hat für jede Art, wie eine Gruppe wirklich reist, einen ei
 - **Flüge** — Optionen vorschlagen, die Gruppe stimmt mit dem gleichen fünfstufigen System wie bei Aktivitäten ab, die Buchung wird nach dem Buchen erfasst, und es wird zugeordnet, wer auf welchem Flug ist.
 - **Eigene Autos** — die Autos eintragen, die Leute fahren, den Fahrer markieren und Mitfahrer zuordnen, damit alle wissen, wer mit wem fährt und in welchem Auto noch ein Platz frei ist.
 - **Mietwagen** — Vermietfirma, Abhol- und Rückgabedetails, Buchungsnummer und Kosten dort, wo die ganze Gruppe sie findet — nicht nur die Person, die gebucht hat.
-- **Öffentliche Verkehrsmittel** — Züge, Fernbusse, Fähren und Busse: Route, Zeiten, Anbieter, Buchungsnummer und ein Link zur Seite des Anbieters, alles in einer Karte pro Fahrt.
+- **Öffentliche Verkehrsmittel** — Züge, Fernbusse, Fähren und Busse: Route, Zeiten, Anbieter, Buchungsnummer und ein Link zur Seite des Anbieters, alles in einer Karte pro Fahrt. Jede:r kann einer Fahrt beitreten oder sie verlassen, sodass die Gruppe sieht, wer tatsächlich mitfährt.
 
 Alles mit einem Datum landet automatisch im gemeinsamen Reisekalender — der Reiseplan baut sich von selbst auf, während die Buchungen eintrudeln.
 
@@ -39,6 +39,8 @@ Hochgeladene Tickets liegen in privatem, zugriffsgeschütztem Speicher — nur d
 ## Kosten, die in die Gruppensalden fließen
 
 Transfers sind meist die größten Posten einer Reise und werden selten gleichmäßig geteilt — eine Person bucht den Mietwagen, zwei sind auf einem teureren Flug, jemand fährt das eigene Auto und alle geben was fürs Benzin dazu. Erfasse alles davon als [Ausgabe](/de/features/expenses/) mit individueller Aufteilung, und es wird mit allem anderen verrechnet, was die Gruppe schuldet. Häng den Beleg gleich an die Ausgabe.
+
+Jeder Flug, Mietwagen und ÖPNV-Eintrag behält **seine eigene Währung** — ein Preis, den du in Dollar eingegeben hast, bleibt in Dollar, auch wenn jemand später die Währung der Reise umstellt. Und jeder davon kann als **Geschäftskosten** markiert werden, sodass ein Arbeitsflug oder Mietwagen direkt in die [Geschäftsausgaben-Übersicht](/de/features/expenses/) neben deinen Ausgaben fließt. All das speist die [Kostensumme der Reise und deinen persönlichen Anteil](/de/features/analytics/).
 
 <!--CTA-->
 

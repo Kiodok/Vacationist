@@ -70,7 +70,7 @@ window.VACATIONIST_I18N = {
   'feat.1.title': 'Vote on activities',
   'feat.1.desc': 'Suggest ideas and let the group decide — from "must do" to "group blocker". The best options rise naturally, with no endless debates.',
   'feat.2.title': 'Split expenses fairly',
-  'feat.2.desc': 'Log every cost with a category and a receipt attached, split it equally or by custom amounts, and see a live breakdown of who owes what — and where the money went.',
+  'feat.2.desc': 'Log every cost with a category and a receipt attached, split it equally or by custom amounts, and see a live breakdown of who owes what — and what the trip cost you, per trip and across every trip you\'ve taken.',
   'feat.3.title': 'Real-time shared lists',
   'feat.3.desc': 'Shopping lists, packing checklists — anything the group tracks. Everyone adds and checks off items simultaneously, in real time.',
   'feat.4.title': 'Transfers, flights & tickets',
@@ -82,7 +82,7 @@ window.VACATIONIST_I18N = {
   'feat.7.title': 'Group chat',
   'feat.7.desc': 'A dedicated chat tab for every trip — message the whole group, edit or delete your own messages, and catch up instantly with real-time delivery. Organizers can moderate the conversation.',
   'feat.8.title': 'Receipts, tickets & expense reports',
-  'feat.8.desc': 'Every receipt sits on its expense, every boarding pass on its flight — private to your group. Flag business expenses and export a per-person PDF report for work trips.',
+  'feat.8.desc': 'Every receipt sits on its expense, every boarding pass on its flight — private to your group. Flag business costs on expenses, hotels and flights and export a per-person PDF report for work trips.',
 
   // Feature card 8 — document preview panel
   'doc.1.name': 'Villa — final payment',
@@ -147,7 +147,7 @@ window.VACATIONIST_I18N = {
   'faq.6.q': 'How does vacation tracking and group sharing work?',
   'faq.6.a': 'Each trip in Vacationist acts as a shared workspace. Invite anyone via a single link — they join instantly, no account needed to participate. The vacation tracker view shows your full trip timeline, off-calendar events, and spending at a glance. Changes sync in real time so everyone stays up to date.',
   'faq.7.q': 'Can I attach receipts and expense a work trip?',
-  'faq.7.a': 'Yes. Attach a photo or PDF receipt to any expense — it stays private to your trip\'s members. For work trips, flag business expenses as you go and export a per-person report as a PDF, itemised by date and category, with links to the receipts.',
+  'faq.7.a': 'Yes. Attach a photo or PDF receipt to any expense — it stays private to your trip\'s members. For work trips, flag business costs as you go — expenses, hotels, flights, transport — and export a per-person report as a PDF, itemised by date and category, with links to the receipts.',
 
   // Trust strip
   'trust.aes': 'Documents encrypted at rest',

@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-07-17
 altPath: /de/features/expenses/
 keywords: travel expense splitting app, group travel expense app, split hotel costs app, vacation expense tracker
-related: /features/voting/, /features/transfers/, /vs/splitwise/, /blog/how-to-split-travel-expenses/, /blog/group-trip-receipts-and-expense-reports/
+related: /features/voting/, /features/transfers/, /features/analytics/, /vs/splitwise/, /blog/how-to-split-travel-expenses/, /blog/group-trip-receipts-and-expense-reports/
 breadcrumbLabel: Expense splitting
 ---
 
@@ -34,7 +34,7 @@ Plenty of apps split bills. Vacationist splits bills *inside the trip you're alr
 
 - **Expenses tied to the trip.** Every cost lives with its trip — no mixing up the Croatia balance with your flatmate's electricity bill.
 - **Everyone's already there.** Because the group planned the trip in Vacationist, nobody has to install yet another app just to owe you money. Guests who joined by invite link participate in expenses too.
-- **Vacation spending at a glance.** The trip overview shows total and per-person spending as the trip unfolds, plus a category breakdown — accommodation, transport, food, activities — so an over-budget week has an obvious cause.
+- **Vacation spending at a glance.** The trip overview shows total and per-person spending as the trip unfolds, plus a category breakdown — accommodation, transport, food, activities — so an over-budget week has an obvious cause. The [Analytics tab](/features/analytics/) carries it further: your own share of every trip you've taken, year by year.
 - **Offline first.** Log expenses in the mountains, on the ferry, wherever. They sync when you're back online.
 
 ## Fair splits for real situations
@@ -59,7 +59,7 @@ Receipts go into private, access-controlled storage restricted to your trip's me
 
 If the trip is for work — a team offsite, a client visit, a conference with colleagues — the group split is only half the job. You also need a report you can file.
 
-Mark any expense as a **business expense** as you log it. When it's time to claim, export a **business expense summary**: a per-person report, itemised by date, category, and payer, with links to the attached receipts. On the web you get both a PDF and a Markdown file; in the app you get the PDF. The receipt links stay valid for 30 days — long enough to submit and have the claim processed. See the [corporate offsite planner guide](/use-cases/corporate-offsite-planner/) for the full workflow.
+Mark any cost as a **business cost** as you record it — not only expenses, but accommodations, flights, rental cars, and public transport too. When it's time to claim, export a **business expense summary**: a per-person report that merges all of those sources, itemised by date, category, and payer, with links to the attached receipts. Amounts in different currencies are converted for you. Only committed bookings are included — a hotel or flight the group is still voting on won't appear in an employer-facing report. On the web you get both a PDF and a Markdown file; in the app you get the PDF. The receipt links stay valid for 30 days — long enough to submit and have the claim processed. See the [corporate offsite planner guide](/use-cases/corporate-offsite-planner/) for the full workflow.
 
 <!--CTA-->
 
@@ -75,7 +75,7 @@ Yes. Add one or more photos or PDFs (up to 10 MB each) to any expense. Every tri
 
 ### Can I export expenses for a work reimbursement?
 
-Yes. Flag the relevant expenses as business expenses and export a per-person business summary as a PDF (plus Markdown on the web), itemised by date, category, and payer, with links to the receipts.
+Yes. Flag the relevant costs as business costs — expenses, accommodations, flights, rental cars, or public transport — and export a per-person business summary as a PDF (plus Markdown on the web), itemised by date, category, and payer, with links to the receipts. Amounts in other currencies are converted in the report.
 
 ### How does the exchange rate work for expenses in another currency?
 
@@ -91,4 +91,4 @@ Splitwise is excellent at pure debt tracking across all areas of life. Vacationi
 
 ### Can I track my own spending, not just shared costs?
 
-Yes — the vacation tracker view shows the trip's spending picture, including your personal share, so you always know what the trip actually cost you.
+Yes. The trip overview shows the trip's spending picture including your personal share, and the [Analytics tab](/features/analytics/) totals your share across every trip you've taken, grouped by year.

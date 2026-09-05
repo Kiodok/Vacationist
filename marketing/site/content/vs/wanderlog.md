@@ -24,7 +24,7 @@ breadcrumbLabel: vs. Wanderlog
 | Maps & place discovery | ❌ | ✅ Excellent |
 | Group voting on activities | ✅ Unique 5-tier system | ❌ |
 | Expense splitting | ✅ Full: custom splits, live balances, settle-up | ⚠️ Basic |
-| Receipts & business-expense report | ✅ Receipts on every expense; per-person PDF export | ❌ |
+| Receipts & business-cost report | ✅ Receipts on every expense; per-person PDF export across expenses, hotels & transport | ❌ |
 | Shared shopping & packing lists | ✅ Real-time, with recipe sync | ❌ |
 | Flights, rentals & public transport, with tickets | ✅ Manage + attach tickets | ⚠️ Reads confirmations from email |
 | Join without an account | ✅ One invite link | ❌ Account required |

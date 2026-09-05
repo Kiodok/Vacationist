@@ -24,7 +24,7 @@ breadcrumbLabel: vs. Wanderlog
 | Karten & Orts-Entdeckung | ❌ | ✅ Exzellent |
 | Gruppen-Abstimmung über Aktivitäten | ✅ Einzigartiges 5-Stufen-System | ❌ |
 | Kostenteilung | ✅ Voll: eigene Splits, Live-Salden, Abrechnung | ⚠️ Rudimentär |
-| Belege & Geschäftsausgaben-Bericht | ✅ Belege an jeder Ausgabe; PDF-Export pro Person | ❌ |
+| Belege & Geschäftskosten-Bericht | ✅ Belege an jeder Ausgabe; PDF-Export pro Person über Ausgaben, Hotels & Transport | ❌ |
 | Gemeinsame Einkaufs- & Packlisten | ✅ Echtzeit, mit Rezept-Übernahme | ❌ |
 | Flüge, Mietwagen & ÖPNV, mit Tickets | ✅ Verwalten + Tickets anhängen | ⚠️ Liest Bestätigungen aus E-Mails |
 | Beitreten ohne Konto | ✅ Ein Einladungslink | ❌ Konto erforderlich |

@@ -44,7 +44,7 @@ A usable expense report has four things per line:
 3. **Who paid** — the person filing for reimbursement.
 4. **The receipt** — attached or linked, not "available on request."
 
-If you tracked the trip properly as you went, producing this is an export, not an evening of work. In [Vacationist](/features/expenses/), you mark the business expenses as you log them and export a **business expense summary** — a per-person PDF, itemised by date, category, and payer, with links straight to each attached receipt. On the web you also get a Markdown version. The receipt links stay valid for 30 days, which is the window that actually matters: long enough to submit and have the claim processed.
+If you tracked the trip properly as you went, producing this is an export, not an evening of work. In [Vacationist](/features/expenses/), you mark the business costs as you go — expenses, but also the hotel, the flights, and the rental car — and export a **business expense summary** that merges them all: a per-person PDF, itemised by date, category, and payer, with links straight to each attached receipt, and amounts in other currencies converted for you. On the web you also get a Markdown version. The receipt links stay valid for 30 days, which is the window that actually matters: long enough to submit and have the claim processed.
 
 ## The work-trip case: team offsites and client trips
 
@@ -61,7 +61,7 @@ We wrote a dedicated walkthrough for this: [the corporate offsite planner guide]
 - Agree what's shared **before** you leave — one message, not a debate on day three.
 - Log every cost at the moment of payment, with the receipt attached.
 - Pick the split rule once for the negotiable stuff.
-- For a work trip, flag business expenses as you go — don't sort them afterwards.
+- For a work trip, flag business costs as you go — the expenses, but the hotel and flights too — don't sort them afterwards.
 - Settle up (or export the report) while the trip is still fresh in everyone's mind.
 
 <!--CTA-->

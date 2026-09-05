@@ -45,7 +45,7 @@ Koordinieren, wer Zelt und Kocher mitbringt, Campingplatzgebühren und Einkäufe
 
 ### [Firmen-Offsite planen →](/de/use-cases/corporate-offsite-planner/)
 
-Über die Agenda abstimmen, gemeinsame Kosten mit angehängten Belegen erfassen und für die Buchhaltung einen Geschäftsausgaben-Bericht pro Person exportieren — ohne Firmenkonten, ohne IT-Freigabe.
+Über die Agenda abstimmen, gemeinsame Kosten — Ausgaben, Hotels, Flüge, Transport — mit angehängten Belegen erfassen und für die Buchhaltung einen Geschäftsausgaben-Bericht pro Person exportieren — ohne Firmenkonten, ohne IT-Freigabe.
 
 ## Das Muster hinter allen
 

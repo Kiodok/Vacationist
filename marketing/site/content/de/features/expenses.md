@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-07-21
 altPath: /features/expenses/
 keywords: Reisekosten teilen App, Kosten teilen Urlaub App, Hotelkosten teilen App, Urlaubsausgaben Tracker
-related: /de/features/voting/, /de/features/transfers/, /de/vs/splitwise/, /de/blog/how-to-split-travel-expenses/, /de/blog/group-trip-receipts-and-expense-reports/
+related: /de/features/voting/, /de/features/transfers/, /de/features/analytics/, /de/vs/splitwise/, /de/blog/how-to-split-travel-expenses/, /de/blog/group-trip-receipts-and-expense-reports/
 breadcrumbLabel: Kostenteilung
 ---
 
@@ -34,7 +34,7 @@ Viele Apps teilen Rechnungen. Vacationist teilt Rechnungen *innerhalb der Reise,
 
 - **Ausgaben gehören zur Reise.** Jede Ausgabe lebt bei ihrer Reise — kein Vermischen der Kroatien-Abrechnung mit der Stromrechnung deiner WG.
 - **Alle sind schon da.** Weil die Gruppe die Reise in Vacationist geplant hat, muss niemand noch eine App installieren, nur um dir Geld zu schulden. Auch Gäste, die per Einladungslink beigetreten sind, machen bei den Ausgaben mit.
-- **Urlaubsausgaben auf einen Blick.** Die Reiseübersicht zeigt Gesamt- und Pro-Kopf-Ausgaben, während die Reise läuft, plus eine Kategorienübersicht — Unterkunft, Transport, Essen, Aktivitäten —, sodass eine Budgetüberschreitung eine offensichtliche Ursache hat.
+- **Urlaubsausgaben auf einen Blick.** Die Reiseübersicht zeigt Gesamt- und Pro-Kopf-Ausgaben, während die Reise läuft, plus eine Kategorienübersicht — Unterkunft, Transport, Essen, Aktivitäten —, sodass eine Budgetüberschreitung eine offensichtliche Ursache hat. Der [Analyse-Tab](/de/features/analytics/) führt das weiter: dein eigener Anteil an jeder Reise, die du gemacht hast, Jahr für Jahr.
 - **Offline first.** Ausgaben in den Bergen erfassen, auf der Fähre, wo auch immer. Sie synchronisieren, sobald du wieder online bist.
 
 ## Faire Splits für echte Situationen
@@ -59,7 +59,7 @@ Belege liegen in privatem, zugriffsgeschütztem Speicher, der auf die Mitglieder
 
 Wenn die Reise geschäftlich ist — ein Team-Offsite, ein Kundentermin, eine Konferenz mit Kolleg:innen — ist die Gruppenaufteilung nur die halbe Arbeit. Du brauchst auch einen Bericht, den du einreichen kannst.
 
-Markiere jede Ausgabe beim Erfassen als **Geschäftsausgabe**. Zum Einreichen exportierst du eine **Geschäftsausgaben-Übersicht**: einen Bericht pro Person, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen. Im Web bekommst du eine PDF- und eine Markdown-Datei; in der App bekommst du das PDF. Die Beleg-Links bleiben 30 Tage gültig — lang genug, um die Forderung einzureichen und bearbeiten zu lassen. Der [Guide zum Firmen-Offsite planen](/de/use-cases/corporate-offsite-planner/) zeigt den ganzen Ablauf.
+Markiere jede Kosten beim Erfassen als **Geschäftskosten** — nicht nur Ausgaben, sondern auch Unterkünfte, Flüge, Mietwagen und öffentliche Verkehrsmittel. Zum Einreichen exportierst du eine **Geschäftsausgaben-Übersicht**: einen Bericht pro Person, der all diese Quellen zusammenführt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen. Beträge in verschiedenen Währungen werden für dich umgerechnet. Nur bestätigte Buchungen sind enthalten — ein Hotel oder Flug, über den die Gruppe noch abstimmt, taucht in einem Bericht für den Arbeitgeber nicht auf. Im Web bekommst du eine PDF- und eine Markdown-Datei; in der App bekommst du das PDF. Die Beleg-Links bleiben 30 Tage gültig — lang genug, um die Forderung einzureichen und bearbeiten zu lassen. Der [Guide zum Firmen-Offsite planen](/de/use-cases/corporate-offsite-planner/) zeigt den ganzen Ablauf.
 
 <!--CTA-->
 
@@ -75,7 +75,7 @@ Ja. Füge einer Ausgabe ein oder mehrere Fotos oder PDFs hinzu (je bis 10 MB). J
 
 ### Kann ich Ausgaben für eine Arbeitgeber-Erstattung exportieren?
 
-Ja. Markiere die betreffenden Ausgaben als Geschäftsausgaben und exportiere eine Geschäftsausgaben-Übersicht pro Person als PDF (im Web zusätzlich Markdown), aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den Belegen.
+Ja. Markiere die betreffenden Kosten als Geschäftskosten — Ausgaben, Unterkünfte, Flüge, Mietwagen oder öffentliche Verkehrsmittel — und exportiere eine Geschäftsausgaben-Übersicht pro Person als PDF (im Web zusätzlich Markdown), aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den Belegen. Beträge in anderen Währungen werden im Bericht umgerechnet.
 
 ### Wie funktioniert der Wechselkurs bei Ausgaben in einer anderen Währung?
 
@@ -91,4 +91,4 @@ Splitwise ist hervorragend im reinen Schulden-Tracking über alle Lebensbereiche
 
 ### Kann ich auch meine eigenen Ausgaben verfolgen, nicht nur gemeinsame Kosten?
 
-Ja — die Urlaubsübersicht zeigt das Ausgabenbild der Reise inklusive deines persönlichen Anteils. Du weißt also immer, was dich die Reise tatsächlich gekostet hat.
+Ja. Die Reiseübersicht zeigt das Ausgabenbild der Reise inklusive deines persönlichen Anteils, und der [Analyse-Tab](/de/features/analytics/) summiert deinen Anteil über alle Reisen, die du gemacht hast, nach Jahr gruppiert.

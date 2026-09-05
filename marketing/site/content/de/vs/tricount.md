@@ -22,7 +22,7 @@ breadcrumbLabel: vs. Tricount
 |---|---|---|
 | Kostenteilung | ✅ Gleichmäßige & eigene Splits, Live-Salden | ✅ Schnell, einfach, sehr ausgereift |
 | Belege an Ausgaben | ✅ Kostenlos | ✅ Kostenlos |
-| Geschäftsausgaben-Markierung + Bericht pro Person | ✅ Export als PDF + Markdown | ❌ |
+| Geschäftskosten-Markierung (Ausgaben, Hotels, Flüge, Transport) + Bericht pro Person | ✅ Export als PDF + Markdown | ❌ |
 | Ausgaben-Export | ✅ Geschäftsausgaben-Übersicht (PDF + Markdown) | ⚠️ CSV/PDF-Export eingestellt |
 | Reiseplanung (Aktivitäten, Kalender) | ✅ Eingebaut | ❌ Keine |
 | Gruppen-Abstimmung über Aktivitäten | ✅ Einzigartiges 5-Stufen-System | ❌ |
@@ -32,7 +32,7 @@ breadcrumbLabel: vs. Tricount
 | Beitreten ohne Konto | ✅ Ein Einladungslink, volle Teilnahme | ✅ Teilnahme ohne Mitgliedschaft möglich |
 | Gruppenchat in der App | ✅ | ❌ |
 | Offline-Unterstützung | ✅ Offline-first | ⚠️ Eingeschränkt |
-| Multi-Währung | ⚠️ Einfach | ✅ Stark, eine Kernstärke |
+| Multi-Währung | ✅ Eigene Währung pro Posten, Tageskurse | ✅ Stark, eine Kernstärke |
 | Verbreitung in Europa | ⚠️ Neu (2026) | ✅ Sehr hoch, besonders DACH |
 | Plattformen | iOS, Android, Web | iOS, Android, Web |
 | Preis | Kostenlos, ohne Werbung; optionales Pro | Kostenlos, mit einigen Premium-Extras |
@@ -42,7 +42,7 @@ breadcrumbLabel: vs. Tricount
 Ehrlichkeit zuerst:
 
 - **Reine, fokussierte Einfachheit.** Tricount macht eine Sache — einen gemeinsamen Ausgabentopf teilen — und das nahezu reibungslos. Tricount erstellen, Ausgaben hinzufügen, fertig.
-- **Multi-Währungs-Handling.** Tricounts Währungsumrechnung ist eine echte Stärke, gebaut für Reisen über Landesgrenzen hinweg.
+- **Multi-Währungs-Handling.** Beide Apps decken es jetzt ab — Vacationist gibt jeder Ausgabe, Buchung und jedem Transfer eine eigene Währung und rechnet mit einem gespeicherten Tageskurs um. Tricounts Variante ist für ständiges grenzüberschreitendes Abrechnen noch etwas tiefer, und es ist ein Feature, für das es bekannt ist.
 - **Teilnahme ohne Mitgliedschaft.** Wie Vacationist lässt Tricount Personen hinzufügen und abrechnen, ohne dass sie zwingend die volle App-Erfahrung brauchen — eine echte, sinnvoll umgesetzte Option.
 - **Etabliert und vertraut, besonders in Europa.** Tricount hat eine lange Geschichte und wird in der DACH-Region und im übrigen Europa stark genutzt — deine Gruppe kennt es vielleicht schon.
 
@@ -51,7 +51,7 @@ Ehrlichkeit zuerst:
 - **Die ganze Reise, nicht nur der Geldtopf.** Eine Gruppenreise ist nicht nur geteilte Ausgaben — es geht darum, zu entscheiden, wohin es geht, was ihr unternehmt und wer was mitbringt. Tricount endet beim Kassenbuch; Vacationist [übernimmt auch die Entscheidungen](/de/features/voting/), in derselben App, in der die Kosten landen.
 - **Gruppen-Abstimmung, die Debatten wirklich löst.** Tricount hat keinen Mechanismus, damit sich eine Gruppe auf eine Aktivität oder ein Lokal einigt — dieses Gespräch findet woanders statt (meist ein Chat, der sich im Kreis dreht). Vacationists 5-Stufen-Abstimmung macht aus „Will das eigentlich jemand?" eine klare Antwort.
 - **Gemeinsame Listen und Rezepte.** Der Supermarkt-Einkauf für die Villa, der Camping-Essensplan — [gemeinsame Einkaufs- und Packlisten mit Rezept-Übernahme](/de/features/shopping-lists/) machen daraus einen Ablauf statt einer separaten Notiz-App.
-- **Belege und ein Geschäftsausgaben-Bericht.** Beide Apps lassen dich kostenlos einen Beleg an eine Ausgabe hängen. Vacationist ergänzt eine Geschäftsausgaben-Markierung und einen [Bericht pro Person](/de/features/expenses/) (PDF + Markdown, mit verlinkten Belegen) — nützlich für eine Geschäftsreise oder ein Team-Offsite. Tricount hat keinen Geschäftsbericht, und sein eigener CSV/PDF-Export wurde eingestellt.
+- **Belege und ein Geschäftskosten-Bericht.** Beide Apps lassen dich kostenlos einen Beleg an eine Ausgabe hängen. Vacationist ergänzt eine Geschäftskosten-Markierung — bei Ausgaben, Hotels, Flügen und Transport — und einen [Bericht pro Person](/de/features/expenses/) (PDF + Markdown, der sie alle mit verlinkten Belegen zusammenführt) — nützlich für eine Geschäftsreise oder ein Team-Offsite. Tricount hat keinen Geschäftsbericht, und sein eigener CSV/PDF-Export wurde eingestellt.
 - **Verschlüsselte Reisedokumente.** Gruppenbuchungen brauchen Passdaten, die irgendwo geteilt werden; Vacationist bietet stattdessen einen [AES-256-verschlüsselten Tresor mit widerrufbarem Organisator-Zugriff](/de/features/travel-documents/) statt eines Chat-Screenshots.
 - **Gruppenchat neben dem Plan.** Koordination passiert in derselben App wie die Kosten und der Kalender, nicht verteilt auf einen separaten Nachrichten-Thread.
 
@@ -76,7 +76,7 @@ Ja — Vacationist-Gäste treten per einzelnem Einladungslink ohne Konto bei und
 
 ### Handhabt Vacationist mehrere Währungen so gut wie Tricount?
 
-Tricounts Multi-Währungs-Unterstützung ist heute umfangreicher. Wenn deine Gruppe Kosten über mehrere Währungen mit häufiger Umrechnung teilt, ist das aktuell Tricounts stärkeres Terrain.
+Beide erledigen den Alltag. Vacationist gibt jeder Ausgabe, Buchung und jedem Transfer eine eigene Währung und rechnet mit einem gespeicherten Tageskurs in deine bevorzugte Währung um. Tricounts Multi-Währungs-Handling ist für Gruppen, die ständig über mehrere Währungen abrechnen, etwas tiefer — das bleibt sein stärkeres Terrain.
 
 ### Welche App ist besser für eine Reise mit Aktivitäten, nicht nur geteilten Kosten?
 

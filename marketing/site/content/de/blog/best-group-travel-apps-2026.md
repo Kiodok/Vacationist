@@ -26,8 +26,8 @@ Die Kern-Einsicht für die Wahl: Eine Gruppenreise hat ungefähr fünf Aufgaben 
 [Vacationist](/de/) (das sind wir) existiert wegen des Zusammenklebe-Problems von oben. Es packt den ganzen Gruppenreise-Workflow in eine App: Aktivitäten werden vorgeschlagen und [mit einem 5-Stufen-System abgestimmt](/de/features/voting/) — inklusive einer „Gruppenhindernis"-Stimme für echte Einwände, die keine andere Reise-App hat — Kosten werden [mit Live-Salden und angehängtem Beleg geteilt](/de/features/expenses/), [Einkaufs- und Packlisten](/de/features/shopping-lists/) synchronisieren in Echtzeit, [Flüge, Mietwagen und öffentliche Verkehrsmittel](/de/features/transfers/) werden mit angehängten Tickets verwaltet, und der Chat sitzt direkt neben dem Plan.
 
 - **Die herausragende Funktion:** Gäste treten über einen Einladungslink bei — **ganz ohne Konto** — und stimmen trotzdem ab, bearbeiten Listen und tauchen in Kostensplits auf. Der „Ich installiere keine weitere App"-Freund ist kein Blocker mehr.
-- **Ebenfalls bemerkenswert:** Belege und Bordkarten hängen an der Ausgabe bzw. dem Flug, zu dem sie gehören; Geschäftsausgaben lassen sich markieren und für Geschäftsreisen als Bericht pro Person exportieren; offline-first (funktioniert in Flugzeugen und Bergen, synchronisiert später); [verschlüsselte Reisedokumente](/de/features/travel-documents/) mit widerrufbarem Organisator-Zugriff; Rezept-zu-Einkaufsliste-Übernahme.
-- **Ehrliche Schwächen:** keine Karten oder Orts-Entdeckung, einfache Multi-Währungs-Unterstützung, junge Nutzerbasis (Start 2026).
+- **Ebenfalls bemerkenswert:** Belege und Bordkarten hängen an der Ausgabe bzw. dem Flug, zu dem sie gehören; Geschäftskosten lassen sich bei Ausgaben, Hotels, Flügen und Transport markieren und für Geschäftsreisen als Bericht pro Person exportieren; ein [Analyse-Tab](/de/features/analytics/) summiert deinen Anteil über alle Reisen; offline-first (funktioniert in Flugzeugen und Bergen, synchronisiert später); [verschlüsselte Reisedokumente](/de/features/travel-documents/) mit widerrufbarem Organisator-Zugriff; Rezept-zu-Einkaufsliste-Übernahme.
+- **Ehrliche Schwächen:** keine Karten oder Orts-Entdeckung, Währungsumrechnung nur mit Tageskursen (kein manueller Kurs pro Transaktion), junge Nutzerbasis (Start 2026).
 - **Preis:** kostenlos, ohne Werbung; optionales Pro für mehr Planungstage und unbegrenzte Mitglieder.
 - **Wähle es, wenn:** dein Schmerz die *Gruppe* ist — entscheiden, zahlen, synchron bleiben — und nicht die Ziel-Recherche.
 
@@ -109,7 +109,7 @@ Ein gut gebautes Notion-Template kann eine ganze Reise halten — Datenbanken, B
 | WG/Paare mit ganzjährigen gemeinsamen Kosten | Splitwise (+ Vacationist für Reisen) |
 | Solo/Paar mit tiefer Ziel-Recherche | Wanderlog |
 | Solo-Geschäftsreisende mit vielen Flugbuchungen | TripIt |
-| Ein Team-Offsite oder eine Geschäftsreise zum Abrechnen | **Vacationist** (Geschäftsausgaben-Markierung + Bericht pro Person) |
+| Ein Team-Offsite oder eine Geschäftsreise zum Abrechnen | **Vacationist** (Geschäftskosten-Markierung bei Ausgaben, Hotels & Flügen + Bericht pro Person) |
 | Ein Abendessen oder Wochenende, minimales Werkzeug | Tricount |
 | Alles davon, plus Erinnerungen | + Polarsteps danach |
 

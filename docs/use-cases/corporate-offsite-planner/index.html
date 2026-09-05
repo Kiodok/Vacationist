@@ -88,7 +88,7 @@
         "name": "Can each person get their own expense report?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. The business expense summary is generated per person, itemised by date, category, and who paid, with links to the attached receipts — so each colleague can file their own claim and finance gets a consistent format from everyone."
+          "text": "Yes. The business expense summary is generated per person, itemised by date, category, and who paid, with links to the attached receipts — and it pulls in flagged hotels, flights, and transport, not just expenses — so each colleague can file their own claim and finance gets a consistent format from everyone."
         }
       },
       {
@@ -127,8 +127,8 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.33.1",
-    "description": "The free group trip planning app. Vote on activities, split travel expenses with receipts attached, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, and keep the whole group in sync — from the first idea to the last flight home.",
+    "softwareVersion": "1.34.2",
+    "description": "The free group trip planning app. Vote on activities, split travel expenses with receipts attached, flag business costs on bookings and transport, track what each trip cost you across every trip, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, and keep the whole group in sync — from the first idea to the last flight home.",
     "url": "https://vacationist.app/",
     "installUrl": [
       "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
@@ -143,7 +143,7 @@
       "de"
     ],
     "isAccessibleForFree": true,
-    "featureList": "Group activity voting, Travel expense splitting, Expense receipts and documents, Business expense reports, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Offline support, Guest access without account",
+    "featureList": "Group activity voting, Travel expense splitting, Expense receipts and documents, Business cost reports across expenses, bookings and transport, Cross-trip spending analytics, Per-item currencies with daily exchange rates, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Offline support, Guest access without account",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -195,14 +195,14 @@
 <h1 id="plan-the-offsite-then-expense-it-cleanly">Plan the offsite, then expense it cleanly</h1>
 <div class="tldr">
   <p class="tldr-label">Short answer</p>
-  <p>Vacationist lets a team vote on the offsite agenda, tracks shared costs with receipts attached to each one, and exports a per-person business expense report as a PDF — so planning the trip and filing it with finance are the same workflow. It's free, and colleagues join with one link, no account and no IT approval.</p>
+  <p>Vacationist lets a team vote on the offsite agenda, tracks shared costs — expenses, hotels, flights, and transport — with receipts attached, and exports a per-person business expense report as a PDF — so planning the trip and filing it with finance are the same workflow. It's free, and colleagues join with one link, no account and no IT approval.</p>
 </div><h2 id="the-problem-with-planning-a-corporate-offsite">The problem with planning a corporate offsite</h2>
 <p>A team offsite runs on two documents that never quite agree: a planning doc nobody keeps current, and an expense reconciliation someone rebuilds from screenshots two weeks after everyone&#39;s home. Half the team doesn&#39;t know the final agenda, the person who fronted the Airbnb is chasing five colleagues for their share, and finance wants an itemised report with receipts that no single tool actually produced. Meanwhile the &quot;just use this app&quot; suggestion dies because it needs everyone to make an account and get it past IT.</p>
 <h2 id="how-vacationist-handles-it">How Vacationist handles it</h2>
 <h3 id="vote-on-the-agenda-instead-of-a-40-message-thread">Vote on the agenda instead of a 40-message thread</h3>
 <p>Put the workshop slot, the team dinner, and the optional Saturday hike in as proposals and let the team vote with a five-tier system — from &quot;must do&quot; to &quot;group blocker.&quot; The plan reflects what the team actually wants, and the decision is visible instead of buried in chat. See <a href="/features/voting/">how activity voting works</a>.</p>
-<h3 id="flag-business-expenses-and-export-the-report">Flag business expenses and export the report</h3>
-<p>Mark any expense as a business expense as you log it. When it&#39;s time to file, export a <strong>business expense summary</strong> — a clean per-person report as a PDF (and Markdown on the web), itemised by date, category, and payer, with links to the attached receipts. Hand it to finance or drop it into your own reimbursement claim. See <a href="/features/expenses/">how expense splitting works</a>.</p>
+<h3 id="flag-business-costs-and-export-the-report">Flag business costs and export the report</h3>
+<p>Mark any cost as a business cost as you record it — an expense, but also the hotel, the flights, the rental car, the airport train. When it&#39;s time to file, export a <strong>business expense summary</strong> — a clean per-person report as a PDF (and Markdown on the web) that merges all of those sources, itemised by date, category, and payer, with links to the attached receipts, and amounts in other currencies converted for you. Only committed bookings are included, so nothing the team is still deciding on lands in a finance report. Hand it to finance or drop it into your own reimbursement claim. See <a href="/features/expenses/">how expense splitting works</a>.</p>
 <h3 id="receipts-attached-so-reimbursement-isnt-a-scavenger-hunt">Receipts attached, so reimbursement isn&#39;t a scavenger hunt</h3>
 <p>Photograph the receipt into the expense the moment you pay. It lives in private, access-controlled storage with the expense itself — not in a camera roll you&#39;ll be scrolling through on the flight back. The exported report links straight to each one.</p>
 <h3 id="one-link-no-accounts-no-it-ticket">One link, no accounts, no IT ticket</h3>
@@ -219,7 +219,7 @@
   </div>
 </div><h2 id="frequently-asked-questions">Frequently asked questions</h2>
 <h3 id="can-each-person-get-their-own-expense-report">Can each person get their own expense report?</h3>
-<p>Yes. The business expense summary is generated per person, itemised by date, category, and who paid, with links to the attached receipts — so each colleague can file their own claim and finance gets a consistent format from everyone.</p>
+<p>Yes. The business expense summary is generated per person, itemised by date, category, and who paid, with links to the attached receipts — and it pulls in flagged hotels, flights, and transport, not just expenses — so each colleague can file their own claim and finance gets a consistent format from everyone.</p>
 <h3 id="do-the-receipt-links-in-the-export-keep-working">Do the receipt links in the export keep working?</h3>
 <p>Each receipt link in the exported report stays valid for 30 days — long enough to submit and process a reimbursement claim. The receipt itself stays in the trip for as long as the trip exists.</p>
 <h3 id="does-anyone-need-a-company-account-or-admin-approval">Does anyone need a company account or admin approval?</h3>
@@ -262,6 +262,7 @@
       <a href="/features/shopping-lists/">Shared lists</a>
       <a href="/features/travel-documents/">Travel documents</a>
       <a href="/features/transfers/">Transfers &amp; flights</a>
+      <a href="/features/analytics/">Trip costs &amp; analytics</a>
       <a href="/use-cases/">Use cases</a>
       <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
       <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>

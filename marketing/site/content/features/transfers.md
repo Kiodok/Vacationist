@@ -8,7 +8,7 @@ schema: WebPage
 date: 2026-09-03
 altPath: /de/features/transfers/
 keywords: group flight planning app, group travel transfer planner, split rental car costs, public transport trip planner, boarding pass storage app
-related: /features/expenses/, /features/voting/, /features/travel-documents/
+related: /features/expenses/, /features/analytics/, /features/voting/, /features/travel-documents/
 breadcrumbLabel: Transfers
 ---
 
@@ -23,7 +23,7 @@ The Transfer section has a segment for each way a group actually travels:
 - **Flights** — suggest options, let the group vote with the same five-tier system used for activities, record the booking once it's made, and assign who's on which flight.
 - **Own cars** — add the cars people are driving, mark the driver, and assign passengers so everyone knows who's riding with whom and which car has a spare seat.
 - **Rental cars** — keep the rental company, pick-up and drop-off details, booking reference, and cost where the whole group can find them, not just the person who booked.
-- **Public transport** — trains, coaches, ferries, and buses: route, times, operator, booking reference, and a link to the operator's site, all in one card per journey.
+- **Public transport** — trains, coaches, ferries, and buses: route, times, operator, booking reference, and a link to the operator's site, all in one card per journey. Anyone can join or leave a journey, so the group can see who's actually travelling on it.
 
 Everything that has a date lands on the shared trip calendar automatically, so the itinerary builds itself as bookings come in.
 
@@ -39,6 +39,8 @@ Uploaded tickets go into private, access-controlled storage — only your trip's
 ## Costs that flow into the group balance
 
 Transfers are usually the biggest line items on a trip, and they're rarely split evenly — one person books the rental, two people are on a pricier flight, someone drives their own car and everyone chips in for fuel. Log any of it as an [expense](/features/expenses/) with a custom split, and it nets out against everything else the group owes. Attach the receipt to the expense while you're there.
+
+Each flight, rental, and public-transport entry keeps **its own currency** — a price you entered in dollars stays in dollars even if someone switches the trip's currency later. And any of them can be marked a **business cost**, so a work flight or rental car flows straight into the [business expense summary](/features/expenses/) alongside your expenses. All of it feeds the trip's [cost total and your personal share](/features/analytics/).
 
 <!--CTA-->
 

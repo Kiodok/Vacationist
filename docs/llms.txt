@@ -4,7 +4,7 @@
 
 ## TL;DR
 
-Vacationist is a free group trip planning app for iOS, Android, and web. Groups vote on activities (five-tier system: must do → group blocker), split expenses with live balances, receipts attached to each expense, and settle-up; flag business expenses and export a per-person report; share real-time packing/shopping lists; manage flights, rental cars and public transport with tickets attached; and store travel documents in an AES-256 encrypted vault. Anyone can join a trip via a single link with no account required. No ads, no tracking. Built in Switzerland by an independent developer.
+Vacationist is a free group trip planning app for iOS, Android, and web. Groups vote on activities (five-tier system: must do → group blocker), split expenses with live balances, receipts attached to each expense, and settle-up; flag business costs on expenses, accommodations and transport and export a per-person report; see each trip's cost total and their own share across every trip in an Analytics tab; share real-time packing/shopping lists; manage flights, rental cars and public transport (with passenger assignment and tickets attached); and store travel documents in an AES-256 encrypted vault. Every accommodation and transfer keeps its own currency, converted with stored daily rates. Anyone can join a trip via a single link with no account required. No ads, no tracking. Built in Switzerland by an independent developer.
 
 ## What is Vacationist?
 
@@ -21,30 +21,32 @@ Key use cases:
 - **Group day trips and weekenders** — lightweight coordination without a full travel agent
 - **Bar and dinner nights** — vote on venue, split the bill
 - **Hobby groups and clubs** — recurring meetups with shared costs
-- **Corporate offsites and work trips** — vote on the agenda, split shared costs, attach receipts, and export a per-person business expense report; no company accounts or IT approval needed
+- **Corporate offsites and work trips** — vote on the agenda, split shared costs, attach receipts, flag business costs on expenses, hotels and flights, and export a per-person business expense report; no company accounts or IT approval needed
 
 ## Core Features
 
 - **Activity voting** — suggest activities; group votes on a five-tier scale: "must do", "like", "open", "skip", or "group blocker"
-- **Expense splitting** — log costs with a category, description, and receipt attached (photos/PDFs, private to the trip); choose who paid; split equally or with custom amounts; automatic balance tracking; a simplified settle-up plan; multi-currency expenses show the exchange rate used; a category breakdown of spending
-- **Business expense reports** — flag any expense as a business expense; export a per-person summary (PDF, plus Markdown on the web) itemised by date, category, and payer, with links to the attached receipts (links valid 30 days) — for team offsites and work trips
+- **Expense splitting** — log costs with a category, description, and receipt attached (photos/PDFs by upload or camera, private to the trip); choose who paid; split equally or with custom amounts; automatic balance tracking; a simplified settle-up plan; multi-currency expenses show the exchange rate used; a category breakdown of spending
+- **Trip cost analytics** — a per-trip cost card on the trip overview (group total, per-person estimate, budget progress), plus a cross-trip Analytics tab showing the user's own share of every trip they're in, grouped by year, in their preferred currency (flights/public transport counted only when they're a passenger or ticket-holder; a priced booking suppresses its matching expense category so nothing is double-counted; unconvertible currencies are excluded and flagged)
+- **Per-item currency** — every accommodation, flight, rental car and public-transport entry keeps its own currency, independent of later trip-currency changes; conversion uses stored daily exchange rates
+- **Business cost reports** — flag any expense, accommodation, flight, rental car or public-transport cost as a business cost; export a per-person summary (PDF, plus Markdown on the web) that merges all of those sources, itemised by date, category, and payer, with amounts converted across currencies and links to the attached receipts (links valid 30 days); only committed bookings are included — for team offsites and work trips
 - **Group chat** — dedicated real-time chat tab per trip; send, edit, and delete messages; drafts persist across tab switches; organizers can moderate the conversation; paginated message history
 - **Vacation tracker & shared calendar** — visual timeline of activities, transfers, and check-ins in the trip's timezone; off-calendar view of every day
 - **Real-time shared lists** — shopping lists, packing checklists; concurrent updates across all group members; recipe-to-shopping-list sync
-- **Transfer & flight management** — four segments: flights (suggest, vote, book, assign passengers, per-passenger boarding-pass/ticket uploads), own cars (driver + passengers, who rides with whom), rental cars, and public transport (train/coach/ferry, with per-member ticket uploads); everything dated lands on the shared calendar
+- **Transfer & flight management** — four segments: flights (suggest, vote, book, assign passengers, per-passenger boarding-pass/ticket uploads, round-trip flight numbers), own cars (driver + passengers, who rides with whom), rental cars, and public transport (train/coach/ferry, with passenger join/leave and per-member ticket uploads); everything dated lands on the shared calendar
 - **Encrypted travel documents** — passport and ID details protected by biometric authentication and AES-256 encryption; temporary organiser access that starts counting only on the organiser's first view, expires after the duration the owner set, lapses after a 7-day outer deadline if unused, shows a "Not opened yet" status, and can be revoked at any time
 - **Group sharing** — invite via single link; members join instantly, no account required to participate
 - **Offline support** — mutations queued offline and replayed automatically on reconnect
-- **Notifications** — push notifications for votes, expenses, activity updates, and when a member is granted document access
+- **Notifications** — push notifications for votes, expenses, activity updates, and when a member is granted document access; also delivered as web push in the browser app when the visitor grants permission
 - **Home-screen quick action** — long-press the app icon to jump straight to adding an expense for the active trip (iOS and Android)
 
 ## Comparisons
 
-- **[Vacationist vs. Splitwise](https://vacationist.app/vs/splitwise/):** Splitwise is a mature, excellent pure expense tracker for ongoing shared finances (roommates, couples). Vacationist covers expense splitting with receipts, categories, a business-expense flag and per-person report export, plus trip planning, activity voting, shared lists, transfer management, and no-account guest joins — built specifically for group trips, not everyday shared costs.
+- **[Vacationist vs. Splitwise](https://vacationist.app/vs/splitwise/):** Splitwise is a mature, excellent pure expense tracker for ongoing shared finances (roommates, couples). Vacationist covers expense splitting with receipts, categories, a business-cost flag (on expenses, bookings and transport) and per-person report export, cross-trip cost analytics, plus trip planning, activity voting, shared lists, transfer management, and no-account guest joins — built specifically for group trips, not everyday shared costs.
 - **[Vacationist vs. Wanderlog](https://vacationist.app/vs/wanderlog/):** Wanderlog is the stronger itinerary-research tool — maps, place discovery, route optimization. Vacationist is the stronger group-coordination tool — voting, expense splitting with receipts, shared lists, transfer and ticket management, and guests who join without an account.
-- **[Vacationist vs. TripIt](https://vacationist.app/vs/tripit/):** TripIt automatically builds an itinerary from forwarded confirmation emails for one traveler. Vacationist has no email parsing, but adds what TripIt lacks entirely: group voting, expense splitting with receipts and a business-expense report, shared lists, per-passenger ticket storage, and no-account participation.
-- **[Vacationist vs. Tricount](https://vacationist.app/vs/tricount/):** Tricount is a fast, focused, and popular (especially in Europe) expense-splitting app with strong multi-currency support. Vacationist matches its expense splitting and no-account participation, adds receipts attached to each expense and a business-expense report, then adds trip planning, activity voting, shared lists, transfers, and encrypted travel documents.
-- **[Vacationist vs. Troupe](https://vacationist.app/vs/troupe/):** Both are group-first trip coordination apps with polls and expense splitting. Vacationist differentiates on receipts and a business-expense report attached to the trip, AES-256 encrypted travel document storage, offline-first sync for every user, and a fully free core app with no ads.
+- **[Vacationist vs. TripIt](https://vacationist.app/vs/tripit/):** TripIt automatically builds an itinerary from forwarded confirmation emails for one traveler. Vacationist has no email parsing, but adds what TripIt lacks entirely: group voting, expense splitting with receipts and a business-cost report spanning expenses, hotels and transport, shared lists, per-passenger ticket storage, and no-account participation.
+- **[Vacationist vs. Tricount](https://vacationist.app/vs/tricount/):** Tricount is a fast, focused, and popular (especially in Europe) expense-splitting app with strong multi-currency support. Vacationist matches its expense splitting and no-account participation, gives each expense, booking and transfer its own currency (converted with daily rates), adds receipts attached to each expense and a business-cost report, then adds trip planning, activity voting, shared lists, transfers, and encrypted travel documents.
+- **[Vacationist vs. Troupe](https://vacationist.app/vs/troupe/):** Both are group-first trip coordination apps with polls and expense splitting. Vacationist differentiates on receipts and a business-cost report attached to the trip (covering expenses, hotels and transport), cross-trip cost analytics, AES-256 encrypted travel document storage, offline-first sync for every user, and a fully free core app with no ads.
 
 ## Technology
 
@@ -55,7 +57,7 @@ Key use cases:
 
 ## Keywords
 
-group trip planner, group vacation planning app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, vacation tracker, shared trip organizer, holiday planner group, travel expense splitting, group travel app, trip planning app, van life trip planner, ski trip group budget, stag do planner, group trip receipts, travel expense report, business travel expense report, corporate offsite planner, group flight planning, public transport trip planner
+group trip planner, group vacation planning app, split travel expenses, activity voting app, bachelorette trip planning app, family vacation app, group road trip planner, vacation tracker, shared trip organizer, holiday planner group, travel expense splitting, group travel app, trip planning app, van life trip planner, ski trip group budget, stag do planner, group trip receipts, travel expense report, business travel expense report, corporate offsite planner, group flight planning, public transport trip planner, travel spending tracker, trip cost calculator
 
 ## Product
 
@@ -70,12 +72,14 @@ group trip planner, group vacation planning app, split travel expenses, activity
 - [Features overview](https://vacationist.app/features/): All Vacationist features in one page.
 - [Activity voting](https://vacationist.app/features/voting/): Five-tier group voting, must do → group blocker.
 - [Expense splitting](https://vacationist.app/features/expenses/): Log costs with receipts, split, track live balances, settle up, export a business report.
+- [Trip costs & analytics](https://vacationist.app/features/analytics/): Per-trip cost total against budget, plus your share of every trip by year.
 - [Shared lists](https://vacationist.app/features/shopping-lists/): Real-time shopping and packing lists.
 - [Transfers](https://vacationist.app/features/transfers/): Flights, own cars, rentals, and public transport, with tickets attached.
 - [Encrypted travel documents](https://vacationist.app/features/travel-documents/): AES-256 vault with biometric unlock.
 - [Funktionsübersicht](https://vacationist.app/de/features/): German features overview.
 - [Aktivitäten-Abstimmung](https://vacationist.app/de/features/voting/): German version of activity voting.
 - [Kostenteilung](https://vacationist.app/de/features/expenses/): German version of expense splitting.
+- [Reisekosten & Analyse](https://vacationist.app/de/features/analytics/): German version of the trip costs & analytics page.
 - [Geteilte Listen](https://vacationist.app/de/features/shopping-lists/): German version of shared lists.
 - [Transfers](https://vacationist.app/de/features/transfers/): German version of the transfers page.
 - [Verschlüsselte Reisedokumente](https://vacationist.app/de/features/travel-documents/): German version of encrypted travel documents.

@@ -33,7 +33,7 @@ const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
 
 /* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
    release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
-const APP_VERSION = '1.33.1';
+const APP_VERSION = '1.34.2';
 
 /**
  * Single source of truth for the SoftwareApplication/WebSite JSON-LD text,
@@ -44,13 +44,13 @@ const APP_VERSION = '1.33.1';
  */
 const APP_LD = {
   en: {
-    description: 'The free group trip planning app. Vote on activities, split travel expenses with receipts attached, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, and keep the whole group in sync — from the first idea to the last flight home.',
-    featureList: 'Group activity voting, Travel expense splitting, Expense receipts and documents, Business expense reports, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Offline support, Guest access without account',
+    description: 'The free group trip planning app. Vote on activities, split travel expenses with receipts attached, flag business costs on bookings and transport, track what each trip cost you across every trip, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, and keep the whole group in sync — from the first idea to the last flight home.',
+    featureList: 'Group activity voting, Travel expense splitting, Expense receipts and documents, Business cost reports across expenses, bookings and transport, Cross-trip spending analytics, Per-item currencies with daily exchange rates, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Offline support, Guest access without account',
     siteDescription: 'The free group trip planner — vote on activities, split travel expenses and attach receipts, share packing lists, and keep everyone in sync.',
   },
   de: {
-    description: 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.',
-    featureList: 'Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftsausgaben-Berichte, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto',
+    description: 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.',
+    featureList: 'Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftskosten-Berichte über Ausgaben, Buchungen und Transport, Ausgaben-Analyse über alle Reisen, Eigene Währung pro Posten mit Tageskursen, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto',
     siteDescription: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen und alle synchron halten.',
   },
 };
@@ -111,12 +111,12 @@ function webSiteLd(lang) {
 
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-09-03';
+const DE_HOME_LASTMOD = '2026-09-06';
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
   {
-    loc: `${SITE}/`, lastmod: '2026-09-03', changefreq: 'monthly', priority: '1.0',
+    loc: `${SITE}/`, lastmod: '2026-09-06', changefreq: 'monthly', priority: '1.0',
     alternates: [
       { hreflang: 'en', href: `${SITE}/` },
       { hreflang: 'de', href: `${SITE}/de/` },
@@ -196,6 +196,7 @@ const FOOTER_LINKS = {
       ['/features/shopping-lists/', 'Shared lists'],
       ['/features/travel-documents/', 'Travel documents'],
       ['/features/transfers/', 'Transfers & flights'],
+      ['/features/analytics/', 'Trip costs & analytics'],
       // Only 2 of 6 /use-cases/ niches are footer-linked sitewide (space —
       // the product column is already 5 features + these). Bachelorette +
       // van-life chosen as the broadest-appeal pair; revisit once Search
@@ -234,6 +235,7 @@ const FOOTER_LINKS = {
       ['/de/features/shopping-lists/', 'Gemeinsame Listen'],
       ['/de/features/travel-documents/', 'Reisedokumente'],
       ['/de/features/transfers/', 'Transfers & Flüge'],
+      ['/de/features/analytics/', 'Reisekosten & Analyse'],
       // Same provisional 2-of-6 selection as FOOTER_LINKS.en.product above —
       // see that comment for the rationale.
       ['/de/use-cases/', 'Anwendungsfälle'],

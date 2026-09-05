@@ -25,9 +25,9 @@ Zuerst Fairness gegenüber dem Platzhirsch: **Splitwise bleibt hervorragend im r
 
 [Vacationist](/de/) geht einen anderen Weg als alle anderen Apps auf dieser Liste: Statt ein besseres Schuldenbuch zu sein, baut es die Kostenteilung *in die Reise selbst* ein. Die Gruppe plant Aktivitäten und stimmt darüber ab, verwaltet Unterkünfte und Transfers, führt Einkaufs- und Packlisten in Echtzeit, chattet — und jede gemeinsame Ausgabe wird am selben Ort erfasst und aufgeteilt.
 
-- **Was es Splitwise voraus hat:** Aktivitäten-Abstimmung (fünf Stufen bis zum „Gruppenhindernis"-Veto), gemeinsamer Reisekalender, Unterkunftsverwaltung, Flüge/Mietwagen/ÖPNV mit angehängten Tickets, Echtzeit-Einkaufslisten mit Rezept-Übernahme, verschlüsselte Reisedokumente, Gruppenchat, Offline-first. Speziell beim Geld: Belege hängen im kostenlosen Tarif an jeder Ausgabe (Splitwise sperrt das Beleg-Scannen hinter Pro), eine Kategorienübersicht der Ausgaben und — für Geschäftsreisen — eine Geschäftsausgaben-Markierung mit Bericht-Export pro Person (PDF + Markdown, mit verlinkten Belegen), was Splitwise in keinem Tarif hat.
+- **Was es Splitwise voraus hat:** Aktivitäten-Abstimmung (fünf Stufen bis zum „Gruppenhindernis"-Veto), gemeinsamer Reisekalender, Unterkunftsverwaltung, Flüge/Mietwagen/ÖPNV mit angehängten Tickets, Echtzeit-Einkaufslisten mit Rezept-Übernahme, verschlüsselte Reisedokumente, Gruppenchat, Offline-first. Speziell beim Geld: Belege hängen im kostenlosen Tarif an jeder Ausgabe (Splitwise sperrt das Beleg-Scannen hinter Pro), eine Kategorienübersicht der Ausgaben, ein Analyse-Tab, der deinen Anteil über alle Reisen summiert, und — für Geschäftsreisen — eine Geschäftskosten-Markierung bei Ausgaben, Hotels, Flügen und Transport mit Bericht-Export pro Person (PDF + Markdown, mit verlinkten Belegen), was Splitwise in keinem Tarif hat.
 - **Der Reibungskiller:** Freunde treten per Einladungslink bei — **ganz ohne Konto** — und können trotzdem abstimmen, Listen bearbeiten und bei der Kostenteilung dabei sein. Das „Ich installiere nichts"-Problem verschwindet.
-- **Was ihm gegenüber Splitwise fehlt:** schmalere Multi-Währungs-Unterstützung, keine PayPal-Anbindung, junge Nutzerbasis (Start 2026).
+- **Was ihm gegenüber Splitwise fehlt:** Währungsumrechnung nur mit gespeicherten Tageskursen (keine historischen oder manuellen Kurse pro Transaktion), keine PayPal-Anbindung, junge Nutzerbasis (Start 2026).
 - **Preis:** kostenlos, ohne Werbung. Optionales Pro für mehr Planungstage und unbegrenzte Mitglieder.
 - **Ideal für:** Freundesgruppen, Familien und Crews, die die ganze Reise — nicht nur die Schulden — in einer App wollen. Und: entwickelt in der Schweiz, mit entsprechendem Datenschutz-Anspruch.
 
@@ -52,7 +52,7 @@ Settle Up ist ein sauberer Splitwise-Verwandter mit Echtzeit-Sync auf iOS, Andro
 Splid funktioniert komplett ohne Konten und sogar ohne Internet; Gruppen synchronisieren per Einladungscode, sobald sie online sind.
 
 - **Stärken:** keine Konten, funktioniert komplett offline, Einmalkauf-Modell.
-- **Schwächen:** Bezahl-Freischaltung für größere Gruppen; nur Ausgaben, keine Belege, kein Reise-Kontext. (Vacationist funktioniert ebenfalls offline und exportiert ebenfalls einen Bericht — eine Geschäftsausgaben-Übersicht pro Person als PDF — und macht dabei den Rest der Reise mit.)
+- **Schwächen:** Bezahl-Freischaltung für größere Gruppen; nur Ausgaben, keine Belege, kein Reise-Kontext. (Vacationist funktioniert ebenfalls offline und exportiert ebenfalls einen Bericht — eine Geschäftskosten-Übersicht pro Person als PDF — und macht dabei den Rest der Reise mit.)
 - **Ideal für:** Reisen mit schlechtem Empfang, bei denen nur das Geld geregelt werden muss und man kein Abo will.
 
 ## 5. Kittysplit — die beste Null-Installation-Option
@@ -84,7 +84,7 @@ Von der anderen Seite kommend: Wanderlog ist eine Reiseplaner-App (Karten, Orte,
 | Deine Situation… | Empfehlung |
 |---|---|
 | Eine **Gruppenreise** mit Aktivitäten, Listen und Kosten | **Vacationist** |
-| Eine Geschäftsreise oder ein Team-Offsite, das danach abgerechnet wird | **Vacationist** (Geschäftsausgaben-Markierung + Bericht pro Person) |
+| Eine Geschäftsreise oder ein Team-Offsite, das danach abgerechnet wird | **Vacationist** (Geschäftskosten-Markierung bei Ausgaben, Hotels & Flügen + Bericht pro Person) |
 | Nur Kosten teilen, ohne Konten | Tricount |
 | Splitwise-Mechanik, anderes Preismodell | Settle Up |
 | Abgelegene Reise, schlechter Empfang, nur Geld | Splid |
@@ -115,4 +115,4 @@ Generell nein — auch bei Vacationist nicht. In der Praxis ist das für Reisen 
 
 ### Wie sieht es mit mehreren Währungen aus?
 
-Hier bleibt Splitwise am stärksten, Tricount dicht dahinter. Vacationists Multi-Währungs-Unterstützung ist einfacher gehalten — wenn deine Reise über mehrere Währungen mit ständiger Umrechnung läuft, wäge das ehrlich ab.
+Alle erledigen den Alltag. Vacationist gibt jeder Ausgabe, Buchung und jedem Transfer eine eigene Währung und rechnet mit einem gespeicherten Tageskurs in deine bevorzugte Währung um; Splitwise und Tricount gehen für ständiges grenzüberschreitendes Abrechnen etwas weiter (historische Kurse, längere Währungslisten). Wenn das deine Situation ist, wäge es ehrlich ab.

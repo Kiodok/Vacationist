@@ -26,8 +26,8 @@ The core insight for choosing: a group trip has roughly five jobs — **deciding
 [Vacationist](https://vacationist.app/) (that's us) exists because of the duct-tape problem above. It puts the whole group-trip workflow in one app: activities are suggested and [voted on with a 5-tier system](/features/voting/) — including a "group blocker" vote for genuine objections, which no other travel app has — costs are [split with live balances and a receipt attached to each one](/features/expenses/), [shopping and packing lists](/features/shopping-lists/) sync in real time, [flights, rentals and public transport](/features/transfers/) get managed with tickets attached, and there's chat next to the plan.
 
 - **The standout feature:** guests join by one invite link with **no account required** — and still vote, edit lists, and appear in expense splits. The "I'm not installing another app" friend stops being a blocker.
-- **Also notable:** receipts and boarding passes attach to the expense or flight they belong to; business expenses can be flagged and exported as a per-person report for work trips; offline-first (works on planes and mountains, syncs later); [encrypted travel document storage](/features/travel-documents/) with revocable organizer access; recipe-to-shopping-list sync.
-- **Honest weaknesses:** no maps or place discovery, basic multi-currency support, and a young user base (launched 2026).
+- **Also notable:** receipts and boarding passes attach to the expense or flight they belong to; business costs can be flagged on expenses, hotels, flights and transport and exported as a per-person report for work trips; an [Analytics tab](/features/analytics/) totals your share across every trip; offline-first (works on planes and mountains, syncs later); [encrypted travel document storage](/features/travel-documents/) with revocable organizer access; recipe-to-shopping-list sync.
+- **Honest weaknesses:** no maps or place discovery, currency conversion uses daily rates only (no manual per-transaction rate), and a young user base (launched 2026).
 - **Price:** free, no ads; optional Pro for more planning days and unlimited members.
 - **Choose it if:** your pain is the *group* — deciding, paying, syncing — rather than destination research.
 
@@ -109,7 +109,7 @@ A well-built Notion template can hold an entire trip — databases, budgets, pac
 | Flatmates/couples with year-round shared costs | Splitwise (+ Vacationist for trips) |
 | Solo/couple researching a destination deeply | Wanderlog |
 | Solo business traveler with lots of flight bookings | TripIt |
-| A team offsite or work trip to expense afterwards | **Vacationist** (business-expense flag + per-person report) |
+| A team offsite or work trip to expense afterwards | **Vacationist** (business-cost flag on expenses, hotels & flights + per-person report) |
 | One dinner or weekend, minimal tooling | Tricount |
 | Any of the above, plus memories | + Polarsteps after |
 

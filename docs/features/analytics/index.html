@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
+
+  <title>Trip Cost Tracker — Your Share of Every Trip | Vacationist</title>
+  <meta name="description" content="See what every trip actually costs — a live per-trip total against your budget, plus your own share across all your trips, converted to your currency. Free.">
+  <meta name="keywords" content="travel spending tracker, trip cost calculator, group trip budget tracker, my share of trip costs, travel expense analytics">
+
+  <link rel="canonical" href="https://vacationist.app/features/analytics/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/features/analytics/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/analytics/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/analytics/">
+
+  <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/blog/feed.xml">
+  <meta property="og:title" content="Trip Cost Tracker — Your Share of Every Trip | Vacationist">
+  <meta property="og:description" content="See what every trip actually costs — a live per-trip total against your budget, plus your own share across all your trips, converted to your currency. Free.">
+  <meta property="og:url" content="https://vacationist.app/features/analytics/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/assets/og/features-analytics.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Trip Cost Tracker — Your Share of Every Trip | Vacationist">
+  <meta name="twitter:description" content="See what every trip actually costs — a live per-trip total against your budget, plus your own share across all your trips, converted to your currency. Free.">
+  <meta name="twitter:image" content="https://vacationist.app/assets/og/features-analytics.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Trip Cost Tracker — Your Share of Every Trip | Vacationist",
+    "description": "See what every trip actually costs — a live per-trip total against your budget, plus your own share across all your trips, converted to your currency. Free.",
+    "url": "https://vacationist.app/features/analytics/",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "inLanguage": "en",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://vacationist.app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Features",
+        "item": "https://vacationist.app/features/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Analytics",
+        "item": "https://vacationist.app/features/analytics/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does the Analytics tab show the whole group's spending or just mine?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Just yours. It's your personal share of every trip you're in, added up by year. The whole-group total for a single trip lives on that trip's overview, in the Trip costs card."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is my share different from the trip total divided by the group size?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Because an even split would bill you for things you didn't take part in. Flights and public transport only count if you're a passenger or ticket-holder; expenses use your actual split; the rest is divided evenly. The result is what the trip genuinely cost you."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens if a booking and an expense cover the same thing?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It's counted once. If a category has a priced booking of its own, that price is used and the matching expense category is not added on top — so a hotel that's both a booking and an \"accommodation\" expense doesn't show up twice."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which currency are the totals in?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your preferred currency if you've set one, otherwise the trip's currency. Amounts in other currencies are converted with a stored daily rate, and anything that can't be converted is excluded and flagged rather than counted as zero."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is any of this behind Pro?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The per-trip Trip costs card and the cross-trip Analytics tab are both free, with no ads."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#6C63FF"/><stop offset="100%" stop-color="#18162D"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/features/">Features</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web app</a>
+    <a href="#get-app" class="nav-cta">Get the app</a>
+    <span class="lang-pair" aria-label="Language"><a href="/de/features/analytics/" title="Deutsche Version">DE</a><span class="lp-on">EN</span></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span class="crumb-sep">/</span> <a href="/features/">Features</a> <span class="crumb-sep">/</span> <span aria-current="page">Analytics</span></nav>
+  <article class="article">
+<h1 id="what-did-the-trip-actually-cost-me">What did the trip actually cost me?</h1>
+<p class="lede">By the time everyone's home, "how much was that trip?" is a question nobody can answer without opening four apps and a bank statement. Vacationist already knows — it's been adding up accommodations, transport, activities, and expenses as you planned. Two screens turn that into a number: one for the trip you're on, one for every trip you've ever taken.</p><h2 id="two-views-of-the-same-money">Two views of the same money</h2>
+<h3 id="the-trip-youre-on">The trip you&#39;re on</h3>
+<p>The trip overview has a <strong>Trip costs</strong> card that fills in as bookings and expenses land. It shows the group total, roughly what that is per person, and — if you set a budget when you created the trip — how far along that budget you are, with a bar that turns red once you go over. No spreadsheet, no month-end reckoning; the number is just there while the trip is still happening.</p>
+<h3 id="every-trip-youve-taken">Every trip you&#39;ve taken</h3>
+<p>The <strong>Analytics</strong> tab, in the app&#39;s main navigation, answers the bigger question: what have group trips cost <em>you</em>? It lists every trip you&#39;re part of with your personal share of its cost, grouped by year, so you can see that 2026 was the expensive one and why.</p>
+<h2 id="how-your-share-is-worked-out">How &quot;your share&quot; is worked out</h2>
+<p>Your share is not the group total divided by the number of members — that would charge you for a flight you weren&#39;t on. Vacationist works it out line by line:</p>
+<ul>
+<li><strong>Flights and public transport</strong> count for you only if you&#39;re an assigned passenger or you hold a ticket for that leg. If you sat one out, it&#39;s not in your number.</li>
+<li><strong>Expenses</strong> use what you actually owe on each one — your real split, not an even slice. A dinner five of nine people had is split among those five.</li>
+<li><strong>Accommodation, rental cars, and activities</strong> are split evenly across the group.</li>
+</ul>
+<p>When a cost is already covered two ways — say a hotel that&#39;s both a booking with a price <em>and</em> logged as an &quot;accommodation&quot; expense — it&#39;s counted once, not twice. The priced booking wins; the matching expense category steps aside. Free-form and shopping expenses always count.</p>
+<h2 id="currencies-converted-for-you">Currencies, converted for you</h2>
+<p>Every trip&#39;s costs are shown in your preferred currency (or the trip&#39;s own currency if you haven&#39;t set one). Amounts booked or spent in another currency are converted using a stored daily rate. If a rate genuinely isn&#39;t available for some currency, those amounts are left out of the total and the screen tells you so — rather than silently counting them as zero.</p>
+<h2 id="free-like-the-rest-of-it">Free, like the rest of it</h2>
+<p>The Trip costs card and the Analytics tab are part of the free app, with no ads. Pro adds more planning days per year; it doesn&#39;t unlock your own spending history.</p>
+<div class="cta-band" id="get-app">
+  <h3>Plan your next group trip with Vacationist</h3>
+  <p>Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Get it on Play Store</a>
+    <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Get it on App Store</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Open the Web App</a>
+  </div>
+</div><h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="does-the-analytics-tab-show-the-whole-groups-spending-or-just-mine">Does the Analytics tab show the whole group&#39;s spending or just mine?</h3>
+<p>Just yours. It&#39;s your personal share of every trip you&#39;re in, added up by year. The whole-group total for a single trip lives on that trip&#39;s overview, in the Trip costs card.</p>
+<h3 id="why-is-my-share-different-from-the-trip-total-divided-by-the-group-size">Why is my share different from the trip total divided by the group size?</h3>
+<p>Because an even split would bill you for things you didn&#39;t take part in. Flights and public transport only count if you&#39;re a passenger or ticket-holder; expenses use your actual split; the rest is divided evenly. The result is what the trip genuinely cost you.</p>
+<h3 id="what-happens-if-a-booking-and-an-expense-cover-the-same-thing">What happens if a booking and an expense cover the same thing?</h3>
+<p>It&#39;s counted once. If a category has a priced booking of its own, that price is used and the matching expense category is not added on top — so a hotel that&#39;s both a booking and an &quot;accommodation&quot; expense doesn&#39;t show up twice.</p>
+<h3 id="which-currency-are-the-totals-in">Which currency are the totals in?</h3>
+<p>Your preferred currency if you&#39;ve set one, otherwise the trip&#39;s currency. Amounts in other currencies are converted with a stored daily rate, and anything that can&#39;t be converted is excluded and flagged rather than counted as zero.</p>
+<h3 id="is-any-of-this-behind-pro">Is any of this behind Pro?</h3>
+<p>No. The per-trip Trip costs card and the cross-trip Analytics tab are both free, with no ads.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Keep reading</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/features/expenses/">
+      <span class="related-title">Expense splitting</span>
+      <span class="related-desc">Split every trip cost with your group — hotels, dinners, fuel, anything. Vacationist tracks who paid, who owes whom, and settles up in one tap. Free.</span>
+    </a>
+    <a class="related-card" href="/features/transfers/">
+      <span class="related-title">Transfers</span>
+      <span class="related-desc">Plan every leg of a group trip — vote on flights, manage rental cars and public transport, and keep every ticket and boarding pass with the trip.</span>
+    </a>
+    <a class="related-card" href="/use-cases/corporate-offsite-planner/">
+      <span class="related-title">Corporate offsite planner</span>
+      <span class="related-desc">Plan a team offsite without a spreadsheet and an approval thread. Vote on the agenda, split shared costs, attach receipts, and export a per-person expense report.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>The free group trip planner — vote on activities, split expenses with receipts, share lists, and keep everyone in sync.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="/features/">All features</a>
+      <a href="/features/voting/">Activity voting</a>
+      <a href="/features/expenses/">Expense splitting</a>
+      <a href="/features/shopping-lists/">Shared lists</a>
+      <a href="/features/travel-documents/">Travel documents</a>
+      <a href="/features/transfers/">Transfers &amp; flights</a>
+      <a href="/features/analytics/">Trip costs &amp; analytics</a>
+      <a href="/use-cases/">Use cases</a>
+      <a href="/use-cases/bachelorette-party-planner/">Bachelorette party planner</a>
+      <a href="/use-cases/van-life-trip-planner/">Van life trip planner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Compare</h4>
+      <a href="/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/alternatives/splitwise/">Splitwise alternatives</a>
+      <a href="/alternatives/wanderlog/">Wanderlog alternatives</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="/blog/">Blog</a>
+      <a href="/blog/how-to-plan-a-group-trip/">Group trip planning guide</a>
+      <a href="/blog/best-group-travel-apps-2026/">Best group travel apps</a>
+      <a href="/blog/how-to-split-travel-expenses/">Expense splitting guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/delete-account.html">Delete Account</a>
+      <a href="#cookie-settings">Cookie settings</a>
+      <a href="mailto:meetdeep.de@gmail.com">Contact</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Switzerland</div>
+</footer>
+
+</body>
+</html>

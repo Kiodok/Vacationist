@@ -24,7 +24,7 @@ breadcrumbLabel: vs. TripIt
 | Flight status & delay alerts | ❌ | ✅ TripIt Pro |
 | Group voting on activities | ✅ Unique 5-tier system | ❌ |
 | Expense splitting | ✅ Full: custom splits, live balances, settle-up | ❌ None |
-| Business expense report | ✅ Per-person PDF + Markdown export | ❌ |
+| Business cost report (expenses, hotels, flights, transport) | ✅ Per-person PDF + Markdown export | ❌ |
 | Per-passenger flight tickets & boarding passes | ✅ Attach to the flight, one per passenger | ⚠️ Stores your own confirmations only |
 | Shared shopping & packing lists | ✅ Real-time | ❌ |
 | Join without an account | ✅ One invite link, full participation | ⚠️ View-only sharing; contributing needs an account |
@@ -47,7 +47,7 @@ Credit where due:
 
 TripIt organizes one person's inbox. It was never built to help a *group* decide anything or split a single cost:
 
-- **No expense splitting, at all.** TripIt has no concept of who paid for what or who owes whom — the single biggest functional gap for a group trip, where money is usually the most stressful part. And where a work trip needs a filed report, Vacationist flags business expenses and [exports a per-person summary](/features/expenses/) with receipts linked; TripIt has nothing equivalent.
+- **No expense splitting, at all.** TripIt has no concept of who paid for what or who owes whom — the single biggest functional gap for a group trip, where money is usually the most stressful part. And where a work trip needs a filed report, Vacationist flags business costs — on expenses, hotels, flights and transport — and [exports a per-person summary](/features/expenses/) with receipts linked; TripIt has nothing equivalent.
 - **No group decisions.** TripIt itineraries can be shared read-only or followed, but there's no [voting on activities](/features/voting/) — no way for eight people to weigh in on where to eat and land on an answer.
 - **Real collaboration, not just sharing.** TripIt's sharing is built around one organizer's plan that others view. Vacationist guests [join with a single link](/features/voting/) — no account — and can vote, edit shared lists, add expenses, and chat like full members.
 - **Everything the group needs, in one place.** [Expense splitting](/features/expenses/), [shared shopping and packing lists](/features/shopping-lists/), and a dedicated group chat tab sit next to the plan instead of scattered across email, WhatsApp, and a separate ledger app.

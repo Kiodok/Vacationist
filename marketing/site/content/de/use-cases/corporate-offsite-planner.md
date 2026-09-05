@@ -17,7 +17,7 @@ breadcrumbLabel: Firmen-Offsite planen
 
 <div class="tldr">
   <p class="tldr-label">Kurz gesagt</p>
-  <p>Vacationist lässt ein Team über die Offsite-Agenda abstimmen, erfasst gemeinsame Kosten mit angehängten Belegen und exportiert pro Person einen Geschäftsausgaben-Bericht als PDF — Reise planen und bei der Buchhaltung einreichen sind derselbe Ablauf. Es ist kostenlos, und Kolleg:innen treten mit einem Link bei, ohne Konto und ohne IT-Freigabe.</p>
+  <p>Vacationist lässt ein Team über die Offsite-Agenda abstimmen, erfasst gemeinsame Kosten — Ausgaben, Hotels, Flüge und Transport — mit angehängten Belegen und exportiert pro Person einen Geschäftsausgaben-Bericht als PDF — Reise planen und bei der Buchhaltung einreichen sind derselbe Ablauf. Es ist kostenlos, und Kolleg:innen treten mit einem Link bei, ohne Konto und ohne IT-Freigabe.</p>
 </div>
 
 ## Das Problem beim Planen eines Firmen-Offsites
@@ -30,9 +30,9 @@ Ein Team-Offsite läuft auf zwei Dokumenten, die nie ganz übereinstimmen: einem
 
 Trag den Workshop-Slot, das Team-Dinner und die optionale Samstagswanderung als Vorschläge ein und lass das Team mit einem fünfstufigen System abstimmen — von „Muss sein" bis „Gruppenhindernis". Der Plan spiegelt, was das Team wirklich will, und die Entscheidung ist sichtbar statt im Chat vergraben. Siehe [wie die Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
 
-### Geschäftsausgaben markieren und den Bericht exportieren
+### Geschäftskosten markieren und den Bericht exportieren
 
-Markiere jede Ausgabe beim Erfassen als Geschäftsausgabe. Zum Einreichen exportierst du eine **Geschäftsausgaben-Übersicht** — einen sauberen Bericht pro Person als PDF (im Web zusätzlich als Markdown), aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen. Gib ihn der Buchhaltung oder häng ihn an deine eigene Erstattungsforderung. Siehe [wie die Kostenteilung funktioniert](/de/features/expenses/).
+Markiere jede Kosten beim Erfassen als Geschäftskosten — eine Ausgabe, aber auch das Hotel, die Flüge, den Mietwagen, den Flughafenzug. Zum Einreichen exportierst du eine **Geschäftsausgaben-Übersicht** — einen sauberen Bericht pro Person als PDF (im Web zusätzlich als Markdown), der all diese Quellen zusammenführt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen und Beträgen in anderen Währungen für dich umgerechnet. Nur bestätigte Buchungen sind enthalten, damit nichts, worüber das Team noch entscheidet, in einem Buchhaltungsbericht landet. Gib ihn der Buchhaltung oder häng ihn an deine eigene Erstattungsforderung. Siehe [wie die Kostenteilung funktioniert](/de/features/expenses/).
 
 ### Belege angehängt — die Erstattung wird keine Schnitzeljagd
 
@@ -52,7 +52,7 @@ Kostenlos, ohne Werbung. Abstimmung, Kostenteilung, Belege, der Geschäftsausgab
 
 ### Kann jede Person einen eigenen Ausgabenbericht bekommen?
 
-Ja. Die Geschäftsausgaben-Übersicht wird pro Person erzeugt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen — so kann jede:r die eigene Forderung einreichen, und die Buchhaltung bekommt von allen ein einheitliches Format.
+Ja. Die Geschäftsausgaben-Übersicht wird pro Person erzeugt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen — und sie zieht markierte Hotels, Flüge und Transport mit ein, nicht nur Ausgaben — so kann jede:r die eigene Forderung einreichen, und die Buchhaltung bekommt von allen ein einheitliches Format.
 
 ### Funktionieren die Beleg-Links im Export dauerhaft?
 

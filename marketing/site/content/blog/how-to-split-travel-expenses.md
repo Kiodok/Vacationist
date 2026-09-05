@@ -68,7 +68,7 @@ Whatever tool you use, four rules make tracking stick:
 
 - **A spreadsheet** works for disciplined small groups — but it lives on one person's phone, does netting only if someone builds the formulas, and updates exactly as often as its owner has energy.
 - **Splitwise** is the dedicated-ledger classic and genuinely good at netting and multi-currency — the friction is that everyone must install it and make an account, and it only does money. Full comparison: [Vacationist vs. Splitwise](/vs/splitwise/).
-- **Vacationist** (ours) builds the ledger [into the trip itself](/features/expenses/): whoever pays logs it with a category, a note, and a receipt photo, then a split — equal or custom — balances net out live for everyone, it works offline, and crucially, **guests who joined the trip by invite link are in the splits without ever creating an account**. The friend who refuses to install Splitwise stops being a hole in your ledger. For work trips, expenses can be flagged as business expenses and exported as a per-person report with the receipts attached.
+- **Vacationist** (ours) builds the ledger [into the trip itself](/features/expenses/): whoever pays logs it with a category, a note, and a receipt photo, then a split — equal or custom — balances net out live for everyone, it works offline, and crucially, **guests who joined the trip by invite link are in the splits without ever creating an account**. The friend who refuses to install Splitwise stops being a hole in your ledger. For work trips, costs can be flagged as business costs — expenses, hotels, flights, transport — and exported as a per-person report with the receipts attached.
 
 ## Handling the awkward classics
 
@@ -97,7 +97,7 @@ And then — genuinely important — **stop**. Once settled at the agreed rules,
 
 ## When the trip was for work
 
-A team offsite or a client trip needs the group split *and* a report each person can file for reimbursement. The two are easiest when they come from the same record: everyone logs their own costs into the shared trip, flags the ones that are business expenses, and exports a per-person summary — itemised by date, category, and payer, with the receipts attached. Rebuilding that from screenshots two weeks later is the classic version of this going wrong. There's a full walkthrough in [the corporate offsite planner guide](/use-cases/corporate-offsite-planner/) and [a dedicated post on trip receipts and expense reports](/blog/group-trip-receipts-and-expense-reports/).
+A team offsite or a client trip needs the group split *and* a report each person can file for reimbursement. The two are easiest when they come from the same record: everyone logs their own costs into the shared trip, flags the ones that are business costs — expenses as well as hotels, flights, and transport — and exports a per-person summary that merges them, itemised by date, category, and payer, with the receipts attached. Rebuilding that from screenshots two weeks later is the classic version of this going wrong. There's a full walkthrough in [the corporate offsite planner guide](/use-cases/corporate-offsite-planner/) and [a dedicated post on trip receipts and expense reports](/blog/group-trip-receipts-and-expense-reports/).
 
 <!--CTA-->
 

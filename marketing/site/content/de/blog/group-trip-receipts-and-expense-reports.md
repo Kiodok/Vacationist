@@ -44,7 +44,7 @@ Ein brauchbarer Ausgabenbericht hat vier Dinge pro Zeile:
 3. **Wer gezahlt hat** — die Person, die die Erstattung beantragt.
 4. **Der Beleg** — angehängt oder verlinkt, nicht „auf Anfrage verfügbar".
 
-Wenn du die Reise unterwegs sauber erfasst hast, ist das ein Export, keine Abendarbeit. In [Vacationist](/de/features/expenses/) markierst du die Geschäftsausgaben beim Erfassen und exportierst eine **Geschäftsausgaben-Übersicht** — ein PDF pro Person, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links direkt zu jedem angehängten Beleg. Im Web bekommst du zusätzlich eine Markdown-Version. Die Beleg-Links bleiben 30 Tage gültig — genau das Zeitfenster, das zählt: lang genug, um die Forderung einzureichen und bearbeiten zu lassen.
+Wenn du die Reise unterwegs sauber erfasst hast, ist das ein Export, keine Abendarbeit. In [Vacationist](/de/features/expenses/) markierst du die Geschäftskosten unterwegs — Ausgaben, aber auch das Hotel, die Flüge und den Mietwagen — und exportierst eine **Geschäftsausgaben-Übersicht**, die alles zusammenführt: ein PDF pro Person, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links direkt zu jedem angehängten Beleg und Beträgen in anderen Währungen für dich umgerechnet. Im Web bekommst du zusätzlich eine Markdown-Version. Die Beleg-Links bleiben 30 Tage gültig — genau das Zeitfenster, das zählt: lang genug, um die Forderung einzureichen und bearbeiten zu lassen.
 
 ## Der Geschäftsreise-Fall: Team-Offsites und Kundentermine
 
@@ -61,7 +61,7 @@ Dafür haben wir eine eigene Anleitung geschrieben: [der Guide zum Firmen-Offsit
 - Klärt **vor** der Abreise, was gemeinsam ist — eine Nachricht, keine Debatte am dritten Tag.
 - Erfasse jede Ausgabe im Moment der Zahlung, mit angehängtem Beleg.
 - Legt die Aufteilungsregel für das Verhandelbare einmal fest.
-- Bei einer Geschäftsreise: markiere Geschäftsausgaben unterwegs — sortiere sie nicht hinterher.
+- Bei einer Geschäftsreise: markiere Geschäftskosten unterwegs — die Ausgaben, aber auch Hotel und Flüge — sortiere sie nicht hinterher.
 - Rechnet ab (oder exportiert den Bericht), solange die Reise allen noch frisch im Kopf ist.
 
 <!--CTA-->

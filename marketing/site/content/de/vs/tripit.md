@@ -24,7 +24,7 @@ breadcrumbLabel: vs. TripIt
 | Flugstatus & Verspätungsalarme | ❌ | ✅ TripIt Pro |
 | Gruppen-Abstimmung über Aktivitäten | ✅ Einzigartiges 5-Stufen-System | ❌ |
 | Kostenteilung | ✅ Voll: eigene Splits, Live-Salden, Abrechnung | ❌ Keine |
-| Geschäftsausgaben-Bericht | ✅ Export pro Person als PDF + Markdown | ❌ |
+| Geschäftskosten-Bericht (Ausgaben, Hotels, Flüge, Transport) | ✅ Export pro Person als PDF + Markdown | ❌ |
 | Flugtickets & Bordkarten pro Passagier | ✅ An den Flug anhängen, eines pro Passagier | ⚠️ Speichert nur deine eigenen Bestätigungen |
 | Gemeinsame Einkaufs- & Packlisten | ✅ Echtzeit | ❌ |
 | Beitreten ohne Konto | ✅ Ein Einladungslink, volle Teilnahme | ⚠️ Nur-Ansicht-Freigabe; Mitwirken braucht ein Konto |
@@ -47,7 +47,7 @@ Ehrlichkeit zuerst:
 
 TripIt organisiert den Posteingang einer einzelnen Person. Es wurde nie dafür gebaut, dass eine *Gruppe* etwas entscheidet oder eine Ausgabe teilt:
 
-- **Keine Kostenteilung, überhaupt keine.** TripIt kennt kein Konzept von „wer hat was bezahlt" oder „wer schuldet wem" — die größte funktionale Lücke bei einer Gruppenreise, wo Geld meist der stressigste Teil ist. Und wo eine Geschäftsreise einen eingereichten Bericht braucht, markiert Vacationist Geschäftsausgaben und [exportiert eine Übersicht pro Person](/de/features/expenses/) mit verlinkten Belegen; TripIt hat dafür kein Gegenstück.
+- **Keine Kostenteilung, überhaupt keine.** TripIt kennt kein Konzept von „wer hat was bezahlt" oder „wer schuldet wem" — die größte funktionale Lücke bei einer Gruppenreise, wo Geld meist der stressigste Teil ist. Und wo eine Geschäftsreise einen eingereichten Bericht braucht, markiert Vacationist Geschäftskosten — bei Ausgaben, Hotels, Flügen und Transport — und [exportiert eine Übersicht pro Person](/de/features/expenses/) mit verlinkten Belegen; TripIt hat dafür kein Gegenstück.
 - **Keine Gruppenentscheidungen.** TripIt-Reisepläne lassen sich nur-lesend teilen oder verfolgen, aber es gibt kein [Abstimmen über Aktivitäten](/de/features/voting/) — keine Möglichkeit für acht Leute, sich zum Restaurant zu äußern und zu einer Antwort zu kommen.
 - **Echte Zusammenarbeit statt bloßem Teilen.** TripIts Teilen-Funktion dreht sich um den Plan einer Organisatorin, den andere ansehen. Vacationist-Gäste [treten per einzelnem Link bei](/de/features/voting/) — ohne Konto — und können wie vollwertige Mitglieder abstimmen, Listen bearbeiten, Ausgaben hinzufügen und chatten.
 - **Alles, was die Gruppe braucht, an einem Ort.** [Kostenteilung](/de/features/expenses/), [gemeinsame Einkaufs- und Packlisten](/de/features/shopping-lists/) und ein eigener Gruppenchat-Tab liegen neben dem Plan statt verteilt auf E-Mail, WhatsApp und eine separate Ledger-App.

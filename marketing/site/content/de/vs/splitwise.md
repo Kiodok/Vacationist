@@ -22,7 +22,7 @@ breadcrumbLabel: vs. Splitwise
 |---|---|---|
 | Kostenteilung | ✅ Gleichmäßige & eigene Splits, Live-Salden | ✅ Klassenbester, sehr ausgereift |
 | Belege an Ausgaben | ✅ Kostenlos (Fotos & PDFs) | ⚠️ Nur Splitwise Pro |
-| Geschäftsausgaben-Bericht | ✅ Export pro Person als PDF + Markdown | ❌ |
+| Geschäftskosten-Bericht (Ausgaben, Hotels, Flüge, Transport) | ✅ Export pro Person als PDF + Markdown | ❌ |
 | Kategorienübersicht der Ausgaben | ✅ Eingebaut | ⚠️ Diagramme in Pro |
 | Reiseplanung (Aktivitäten, Kalender) | ✅ Eingebaut | ❌ Keine |
 | Gruppen-Abstimmung über Aktivitäten | ✅ Einzigartiges 5-Stufen-System | ❌ |
@@ -31,7 +31,7 @@ breadcrumbLabel: vs. Splitwise
 | Flüge, Mietwagen & ÖPNV, mit Tickets | ✅ | ❌ |
 | Beitreten ohne Konto | ✅ Ein Einladungslink | ❌ Konto erforderlich |
 | Offline-Unterstützung | ✅ Offline-first | ⚠️ Eingeschränkt |
-| Multi-Währung | ⚠️ Einfach | ✅ Umfangreich |
+| Multi-Währung | ✅ Eigene Währung pro Posten, Tageskurse | ✅ Umfangreich, historische Kurse |
 | Zahlungs-Integrationen (PayPal, Venmo) | ❌ | ✅ |
 | Etablierte Nutzerbasis | ⚠️ Neu (2026) | ✅ 50 Mio.+ Nutzer |
 | Plattformen | iOS, Android, Web | iOS, Android, Web |
@@ -42,7 +42,7 @@ breadcrumbLabel: vs. Splitwise
 Ehrlichkeit zuerst, denn sie zählt bei der Werkzeugwahl:
 
 - **Reines Schulden-Tracking über dein ganzes Leben.** Splitwise ist keine Reise-App — es verfolgt gemeinsame Kosten mit deinen Mitbewohnern, deinem Partner und deinen Freunden, das ganze Jahr. Das versucht Vacationist gar nicht; Ausgaben leben in Reisen.
-- **Multi-Währungs-Tiefe.** Splitwise' Währungsunterstützung ist breiter — relevant, wenn deine Gruppe über drei Währungen mit Umrechnung abrechnet.
+- **Multi-Währungs-Tiefe.** Beide Apps können mehrere Währungen — Vacationist gibt jeder Ausgabe, Buchung und jedem Transfer eine eigene Währung und rechnet mit einem gespeicherten Tageskurs um. Splitwise geht bei Randfällen weiter: längere Währungsliste, historische Kurse. Wenn deine Gruppe ständig über mehrere Währungen abrechnet, wäge das ab.
 - **Zahlungs-Integrationen.** Direkt aus der App per PayPal oder Venmo begleichen ist praktisch, wo diese Dienste verbreitet sind.
 - **Reife und Netzwerk.** 50 Mio.+ Nutzer heißt: Deine Freunde haben es vielleicht schon installiert.
 
@@ -52,7 +52,7 @@ Ehrlichkeit zuerst, denn sie zählt bei der Werkzeugwahl:
 - **Niemand muss etwas installieren.** Das größte Splitwise-Problem in der Praxis ist sozial: der eine Freund, der sich weigert, ein Konto anzulegen, sodass seine Ausgaben in irgendjemandes Kopf leben. Vacationist-Gäste treten per einzelnem Link bei — ohne Konto — und können trotzdem abstimmen, Listen bearbeiten und Teil der [Kostenteilung](/de/features/expenses/) sein.
 - **Offline first.** Reisen passieren in Flugzeugen, auf Fähren und Bergstraßen. Vacationist funktioniert ohne Empfang weiter und synchronisiert später.
 - **Gemeinsame Listen und Rezepte.** Der Supermarkt-Einkauf für die Villa, der Camping-Essensplan — [gemeinsame Listen mit Rezept-Übernahme](/de/features/shopping-lists/) machen daraus einen Ablauf: planen, kaufen, teilen.
-- **Belege und Ausgabenberichte im kostenlosen Tarif.** Häng einen Beleg an jede Ausgabe — kostenlos (Splitwise sperrt das Beleg-Scannen hinter Pro) — und markiere für Geschäftsreisen Geschäftsausgaben, um einen [Bericht pro Person](/de/features/expenses/) mit verlinkten Belegen zu exportieren, was Splitwise in keinem Tarif kann.
+- **Belege und Ausgabenberichte im kostenlosen Tarif.** Häng einen Beleg an jede Ausgabe — kostenlos (Splitwise sperrt das Beleg-Scannen hinter Pro) — und markiere für Geschäftsreisen Geschäftskosten — bei Ausgaben, Hotels, Flügen und Transport — um einen [Bericht pro Person](/de/features/expenses/) zu exportieren, der sie alle mit verlinkten Belegen zusammenführt, was Splitwise in keinem Tarif kann.
 - **Verschlüsselte Reisedokumente.** Gruppenbuchungen brauchen Passdaten; Chat-Screenshots sind der übliche Weg. Vacationist hat stattdessen einen [verschlüsselten Tresor mit widerrufbarem Organisator-Zugriff](/de/features/travel-documents/).
 
 ## Die realistische Empfehlung

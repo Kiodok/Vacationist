@@ -29,8 +29,9 @@ verified against the migrations — getting them wrong is the easy mistake:**
   "encrypted at rest" / AES-256 / pgcrypto — that story belongs **only** to travel-document text
   fields (name, document number, DOB). Never blur the two into one security claim.
 - Upload limits: 10 MB/file; JPEG, PNG, WebP, HEIC, PDF only.
-- Public transport (`transfer_public_transport`) has **no voting and no passenger assignment**
-  (mirrors rentals). Only **flights** vote. Real segment list:
+- Public transport (`transfer_public_transport`) has **no voting** — only **flights** vote (still
+  true). But the old "no passenger assignment" claim is **dead as of v1.34.1**: PT now has
+  join/leave passenger lists like own cars (see [[marketing-v1-34-0-rollout]]). Real segment list:
   `All | Flights | Vehicles | Rentals | PublicTransport` — "Vehicles" (own cars, who rides with
   whom) is distinct from "Rentals".
 - Flight tickets: one per (flight, passenger), replaceable, organizer can upload on a

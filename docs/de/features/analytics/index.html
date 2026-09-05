@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
+
+  <title>Reisekosten-Tracker — Dein Anteil an jeder Reise | Vacationist</title>
+  <meta name="description" content="Sehen, was jede Reise wirklich kostet — eine laufende Reise-Summe gegen dein Budget, plus dein eigener Anteil über alle Reisen, in deiner Währung. Kostenlos.">
+  <meta name="keywords" content="Reisekosten Tracker, Reisekosten berechnen, Gruppenreise Budget, mein Anteil Reisekosten, Reiseausgaben Analyse">
+
+  <link rel="canonical" href="https://vacationist.app/de/features/analytics/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/features/analytics/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/analytics/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/analytics/">
+
+  <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/de/blog/feed.xml">
+  <meta property="og:title" content="Reisekosten-Tracker — Dein Anteil an jeder Reise | Vacationist">
+  <meta property="og:description" content="Sehen, was jede Reise wirklich kostet — eine laufende Reise-Summe gegen dein Budget, plus dein eigener Anteil über alle Reisen, in deiner Währung. Kostenlos.">
+  <meta property="og:url" content="https://vacationist.app/de/features/analytics/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/assets/og/de-features-analytics.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Reisekosten-Tracker — Dein Anteil an jeder Reise | Vacationist">
+  <meta name="twitter:description" content="Sehen, was jede Reise wirklich kostet — eine laufende Reise-Summe gegen dein Budget, plus dein eigener Anteil über alle Reisen, in deiner Währung. Kostenlos.">
+  <meta name="twitter:image" content="https://vacationist.app/assets/og/de-features-analytics.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Reisekosten-Tracker — Dein Anteil an jeder Reise | Vacationist",
+    "description": "Sehen, was jede Reise wirklich kostet — eine laufende Reise-Summe gegen dein Budget, plus dein eigener Anteil über alle Reisen, in deiner Währung. Kostenlos.",
+    "url": "https://vacationist.app/de/features/analytics/",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "inLanguage": "de",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Startseite",
+        "item": "https://vacationist.app/de/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Funktionen",
+        "item": "https://vacationist.app/de/features/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Analyse",
+        "item": "https://vacationist.app/de/features/analytics/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Zeigt der Analyse-Tab die Ausgaben der ganzen Gruppe oder nur meine?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nur deine. Es ist dein persönlicher Anteil an jeder Reise, an der du beteiligt bist, nach Jahr summiert. Die Gesamtsumme der Gruppe für eine einzelne Reise steht in der Übersicht dieser Reise, in der Reisekosten-Karte."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Warum unterscheidet sich mein Anteil von der Reise-Summe geteilt durch die Gruppengröße?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Weil eine gleichmäßige Aufteilung dir Dinge berechnen würde, an denen du nicht teilgenommen hast. Flüge und öffentliche Verkehrsmittel zählen nur, wenn du Mitfahrer oder Ticket-Inhaber bist; Ausgaben nutzen deinen tatsächlichen Anteil; der Rest wird gleichmäßig geteilt. Das Ergebnis ist, was dich die Reise wirklich gekostet hat."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Was passiert, wenn eine Buchung und eine Ausgabe dasselbe abdecken?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Es wird einmal gezählt. Hat eine Kategorie eine eigene Buchung mit Preis, wird dieser Preis genutzt und die passende Ausgaben-Kategorie wird nicht obendrauf gerechnet — ein Hotel, das sowohl Buchung als auch „Unterkunft\"-Ausgabe ist, taucht also nicht zweimal auf."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "In welcher Währung sind die Summen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In deiner bevorzugten Währung, falls du eine gesetzt hast, sonst in der Währung der Reise. Beträge in anderen Währungen werden mit einem gespeicherten Tageskurs umgerechnet, und was sich nicht umrechnen lässt, wird herausgelassen und markiert, statt als null gezählt zu werden."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Ist irgendetwas davon hinter Pro?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nein. Die Reisekosten-Karte pro Reise und der reiseübergreifende Analyse-Tab sind beide kostenlos, ohne Werbung."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/de/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#6C63FF"/><stop offset="100%" stop-color="#18162D"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/de/features/">Funktionen</a>
+    <a href="/de/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web-App</a>
+    <a href="#get-app" class="nav-cta">App holen</a>
+    <span class="lang-pair" aria-label="Sprache"><span class="lp-on">DE</span><a href="/features/analytics/" title="English version">EN</a></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/de/">Startseite</a> <span class="crumb-sep">/</span> <a href="/de/features/">Funktionen</a> <span class="crumb-sep">/</span> <span aria-current="page">Analyse</span></nav>
+  <article class="article">
+<h1 id="was-hat-mich-die-reise-eigentlich-gekostet">Was hat mich die Reise eigentlich gekostet?</h1>
+<p class="lede">Wenn alle wieder zu Hause sind, kann „wie viel war die Reise?" niemand beantworten, ohne vier Apps und einen Kontoauszug zu öffnen. Vacationist weiß es längst — es hat Unterkünfte, Transport, Aktivitäten und Ausgaben während der Planung mitgezählt. Zwei Bildschirme machen daraus eine Zahl: einer für die aktuelle Reise, einer für jede Reise, die du je gemacht hast.</p><h2 id="zwei-sichten-auf-dasselbe-geld">Zwei Sichten auf dasselbe Geld</h2>
+<h3 id="die-reise-auf-der-du-bist">Die Reise, auf der du bist</h3>
+<p>Die Reiseübersicht hat eine <strong>Reisekosten</strong>-Karte, die sich füllt, während Buchungen und Ausgaben eintreffen. Sie zeigt die Gruppensumme, ungefähr wie viel das pro Person ist und — falls du beim Anlegen der Reise ein Budget gesetzt hast — wie weit du in diesem Budget bist, mit einem Balken, der rot wird, sobald du darüber liegst. Keine Tabelle, keine Abrechnung am Monatsende; die Zahl ist einfach da, während die Reise noch läuft.</p>
+<h3 id="jede-reise-die-du-gemacht-hast">Jede Reise, die du gemacht hast</h3>
+<p>Der <strong>Analyse</strong>-Tab in der Hauptnavigation der App beantwortet die größere Frage: Was haben Gruppenreisen <em>dich</em> gekostet? Er listet jede Reise, an der du beteiligt bist, mit deinem persönlichen Kostenanteil, nach Jahr gruppiert — so siehst du, dass 2026 das teure Jahr war, und warum.</p>
+<h2 id="wie-dein-anteil-berechnet-wird">Wie „dein Anteil&quot; berechnet wird</h2>
+<p>Dein Anteil ist nicht die Gruppensumme geteilt durch die Mitgliederzahl — das würde dir einen Flug berechnen, auf dem du nicht warst. Vacationist rechnet Posten für Posten:</p>
+<ul>
+<li><strong>Flüge und öffentliche Verkehrsmittel</strong> zählen für dich nur, wenn du zugeordneter Mitfahrer bist oder ein Ticket für diese Etappe hast. Wenn du eine ausgelassen hast, ist sie nicht in deiner Zahl.</li>
+<li><strong>Ausgaben</strong> nutzen das, was du bei jeder tatsächlich schuldest — deinen echten Anteil, nicht eine gleichmäßige Scheibe. Ein Abendessen, bei dem fünf von neun dabei waren, wird unter diesen fünf geteilt.</li>
+<li><strong>Unterkunft, Mietwagen und Aktivitäten</strong> werden gleichmäßig auf die Gruppe verteilt.</li>
+</ul>
+<p>Wenn eine Kosten doppelt erfasst ist — etwa ein Hotel, das sowohl eine Buchung mit Preis <em>als auch</em> als „Unterkunft&quot;-Ausgabe eingetragen ist — wird es einmal gezählt, nicht zweimal. Die Buchung mit Preis gewinnt; die passende Ausgaben-Kategorie tritt zurück. Freie Ausgaben und Einkaufsausgaben zählen immer.</p>
+<h2 id="währungen-für-dich-umgerechnet">Währungen, für dich umgerechnet</h2>
+<p>Die Kosten jeder Reise werden in deiner bevorzugten Währung angezeigt (oder in der Währung der Reise, wenn du keine gesetzt hast). Beträge, die in einer anderen Währung gebucht oder ausgegeben wurden, werden mit einem gespeicherten Tageskurs umgerechnet. Wenn für eine Währung wirklich kein Kurs verfügbar ist, werden diese Beträge aus der Summe herausgelassen und der Bildschirm sagt es dir — statt sie stillschweigend als null zu zählen.</p>
+<h2 id="kostenlos-wie-der-rest">Kostenlos, wie der Rest</h2>
+<p>Die Reisekosten-Karte und der Analyse-Tab gehören zur kostenlosen App, ohne Werbung. Pro ergänzt mehr Planungstage pro Jahr; es schaltet nicht deine eigene Ausgabenhistorie frei.</p>
+<div class="cta-band" id="get-app">
+  <h3>Plane deine nächste Gruppenreise mit Vacationist</h3>
+  <p>Über Aktivitäten abstimmen, Kosten teilen und Belege anhängen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Bei Google Play laden</a>
+    <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Im App Store laden</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Web-App öffnen</a>
+  </div>
+</div><h2 id="häufige-fragen">Häufige Fragen</h2>
+<h3 id="zeigt-der-analyse-tab-die-ausgaben-der-ganzen-gruppe-oder-nur-meine">Zeigt der Analyse-Tab die Ausgaben der ganzen Gruppe oder nur meine?</h3>
+<p>Nur deine. Es ist dein persönlicher Anteil an jeder Reise, an der du beteiligt bist, nach Jahr summiert. Die Gesamtsumme der Gruppe für eine einzelne Reise steht in der Übersicht dieser Reise, in der Reisekosten-Karte.</p>
+<h3 id="warum-unterscheidet-sich-mein-anteil-von-der-reise-summe-geteilt-durch-die-gruppengröße">Warum unterscheidet sich mein Anteil von der Reise-Summe geteilt durch die Gruppengröße?</h3>
+<p>Weil eine gleichmäßige Aufteilung dir Dinge berechnen würde, an denen du nicht teilgenommen hast. Flüge und öffentliche Verkehrsmittel zählen nur, wenn du Mitfahrer oder Ticket-Inhaber bist; Ausgaben nutzen deinen tatsächlichen Anteil; der Rest wird gleichmäßig geteilt. Das Ergebnis ist, was dich die Reise wirklich gekostet hat.</p>
+<h3 id="was-passiert-wenn-eine-buchung-und-eine-ausgabe-dasselbe-abdecken">Was passiert, wenn eine Buchung und eine Ausgabe dasselbe abdecken?</h3>
+<p>Es wird einmal gezählt. Hat eine Kategorie eine eigene Buchung mit Preis, wird dieser Preis genutzt und die passende Ausgaben-Kategorie wird nicht obendrauf gerechnet — ein Hotel, das sowohl Buchung als auch „Unterkunft&quot;-Ausgabe ist, taucht also nicht zweimal auf.</p>
+<h3 id="in-welcher-währung-sind-die-summen">In welcher Währung sind die Summen?</h3>
+<p>In deiner bevorzugten Währung, falls du eine gesetzt hast, sonst in der Währung der Reise. Beträge in anderen Währungen werden mit einem gespeicherten Tageskurs umgerechnet, und was sich nicht umrechnen lässt, wird herausgelassen und markiert, statt als null gezählt zu werden.</p>
+<h3 id="ist-irgendetwas-davon-hinter-pro">Ist irgendetwas davon hinter Pro?</h3>
+<p>Nein. Die Reisekosten-Karte pro Reise und der reiseübergreifende Analyse-Tab sind beide kostenlos, ohne Werbung.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Weiterlesen</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/de/features/expenses/">
+      <span class="related-title">Kostenteilung</span>
+      <span class="related-desc">Jede Reiseausgabe mit der Gruppe teilen — Hotels, Abendessen, Sprit, alles. Vacationist verfolgt, wer gezahlt hat, wer wem was schuldet, und rechnet mit einem Tipp ab. Kostenlos.</span>
+    </a>
+    <a class="related-card" href="/de/features/transfers/">
+      <span class="related-title">Transfers</span>
+      <span class="related-desc">Jede Etappe einer Gruppenreise an einem Ort — über Flüge abstimmen, Mietwagen und öffentliche Verkehrsmittel verwalten und jedes Ticket dabei behalten.</span>
+    </a>
+    <a class="related-card" href="/de/use-cases/corporate-offsite-planner/">
+      <span class="related-title">Firmen-Offsite planen</span>
+      <span class="related-desc">Ein Team-Offsite ohne Tabelle und Freigabe-Thread planen: über die Agenda abstimmen, Kosten teilen, Belege anhängen und pro Person einen Ausgabenbericht exportieren.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Listen gemeinsam führen.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produkt</h4>
+      <a href="/de/features/">Alle Funktionen</a>
+      <a href="/de/features/voting/">Aktivitäten-Voting</a>
+      <a href="/de/features/expenses/">Kosten teilen</a>
+      <a href="/de/features/shopping-lists/">Gemeinsame Listen</a>
+      <a href="/de/features/travel-documents/">Reisedokumente</a>
+      <a href="/de/features/transfers/">Transfers &amp; Flüge</a>
+      <a href="/de/features/analytics/">Reisekosten &amp; Analyse</a>
+      <a href="/de/use-cases/">Anwendungsfälle</a>
+      <a href="/de/use-cases/bachelorette-party-planner/">Junggesellinnenabschied planen</a>
+      <a href="/de/use-cases/van-life-trip-planner/">Van-Life-Reiseplaner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Vergleiche</h4>
+      <a href="/de/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/de/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/de/alternatives/splitwise/">Splitwise-Alternativen</a>
+      <a href="/de/alternatives/wanderlog/">Wanderlog-Alternativen</a>
+    </div>
+    <div class="footer-col">
+      <h4>Ressourcen</h4>
+      <a href="/de/blog/">Blog</a>
+      <a href="/de/blog/how-to-plan-a-group-trip/">Gruppenreise-Planungs-Guide</a>
+      <a href="/de/blog/best-group-travel-apps-2026/">Beste Gruppenreise-Apps</a>
+      <a href="/de/blog/how-to-split-travel-expenses/">Reisekosten-Guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Rechtliches</h4>
+      <a href="/de/privacy-policy/">Datenschutz</a>
+      <a href="/de/terms-of-service/">Nutzungsbedingungen</a>
+      <a href="/de/impressum/">Impressum</a>
+      <a href="/de/delete-account/">Konto löschen</a>
+      <a href="#cookie-settings">Cookie-Einstellungen</a>
+      <a href="mailto:meetdeep.de@gmail.com">Kontakt</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Schweiz</div>
+</footer>
+
+</body>
+</html>

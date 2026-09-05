@@ -24,7 +24,7 @@ Suggest activities and let the group decide with a 5-tier voting system — from
 
 ### [Expense splitting →](/features/expenses/)
 
-Log every shared cost with a category and a receipt attached, split it equally or with custom amounts, and watch balances update in real time. Flag business expenses and export a per-person report for work trips. [See how expense splitting works.](/features/expenses/)
+Log every shared cost with a category and a receipt attached, split it equally or with custom amounts, and watch balances update in real time. Flag business costs — on expenses, bookings, or transport — and export a per-person report for work trips. [See how expense splitting works.](/features/expenses/)
 
 ### [Shared shopping & packing lists →](/features/shopping-lists/)
 
@@ -38,13 +38,17 @@ Vote on flights, manage rental cars and public transport, assign who rides with 
 
 Passports and IDs stored encrypted at rest, protected by a biometric lock, shareable with the organizer temporarily — and revocable anytime. [Read about the document vault.](/features/travel-documents/)
 
+### [Trip costs & analytics →](/features/analytics/)
+
+A live per-trip cost total against your budget, plus an Analytics tab showing your own share of every trip you've taken, by year — in your currency. [See how trip cost tracking works.](/features/analytics/)
+
 ## And everything around them
 
 - **Guest access without an account** — send one link and the whole group is in. Nobody has to sign up to vote, edit lists, or be part of expenses.
 - **Real-time sync** — every vote, expense, and list change appears on everyone's device instantly.
 - **Offline first** — the app keeps working on planes, ferries, and mountain trails, then syncs when you're back.
 - **Shared trip calendar** — winning activities, accommodations, and transfers in one timeline everyone can see.
-- **Accommodation management** — collect options, vote on them, and keep confirmations where the group can find them.
+- **Accommodation management** — collect options, vote on them, and keep confirmations where the group can find them. Each place keeps its own currency and can be flagged as a business cost.
 - **Group chat** — trip discussion next to the plan it's about, not lost in a parallel WhatsApp thread. Drafts survive switching tabs.
 - **Add an expense from your home screen** — a long-press shortcut on the app icon jumps straight to logging a cost for your active trip.
 - **Vacation tracker** — the whole trip and its spending at a glance.

@@ -45,7 +45,7 @@ Vote on activities so the best man isn't the tie-breaker for everything, split d
 
 ### [Corporate offsite planner →](/use-cases/corporate-offsite-planner/)
 
-Vote on the agenda, track shared costs with receipts attached, and export a per-person business expense report for finance — no company accounts, no IT approval.
+Vote on the agenda, track shared costs — expenses, hotels, flights, transport — with receipts attached, and export a per-person business expense report for finance — no company accounts, no IT approval.
 
 ## The pattern behind all of them
 

@@ -47,8 +47,8 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.33.1",
-    "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
+    "softwareVersion": "1.34.2",
+    "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
     "url": "https://vacationist.app/",
     "installUrl": [
       "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
@@ -63,7 +63,7 @@
       "de"
     ],
     "isAccessibleForFree": true,
-    "featureList": "Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftsausgaben-Berichte, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto",
+    "featureList": "Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftskosten-Berichte über Ausgaben, Buchungen und Transport, Ausgaben-Analyse über alle Reisen, Eigene Währung pro Posten mit Tageskursen, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -165,7 +165,7 @@
         "name": "Kann ich Belege anhängen und eine Geschäftsreise abrechnen?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftsausgaben unterwegs und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen."
+          "text": "Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftskosten unterwegs — Ausgaben, Hotels, Flüge, Transport — und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen."
         }
       }
     ]
@@ -981,7 +981,7 @@
       <div class="feat-card reveal d2">
         <div class="feat-icon">💸</div>
         <div class="feat-title" data-i18n="feat.2.title">Ausgaben fair aufteilen</div>
-        <div class="feat-desc" data-i18n="feat.2.desc">Jede Ausgabe mit Kategorie und angehängtem Beleg erfassen, gleichmäßig oder nach eigenen Beträgen aufteilen und eine Live-Aufschlüsselung sehen, wer wem was schuldet — und wohin das Geld geflossen ist.</div>
+        <div class="feat-desc" data-i18n="feat.2.desc">Jede Ausgabe mit Kategorie und angehängtem Beleg erfassen, gleichmäßig oder nach eigenen Beträgen aufteilen und eine Live-Aufschlüsselung sehen, wer wem was schuldet — und was dich die Reise gekostet hat, pro Reise und über alle Reisen, die du gemacht hast.</div>
       </div>
       <div class="feat-card reveal d3">
         <div class="feat-icon">🛒</div>
@@ -1007,7 +1007,7 @@
         <div>
           <div class="feat-icon">🧾</div>
           <div class="feat-title" data-i18n="feat.8.title">Belege, Tickets &amp; Ausgabenberichte</div>
-          <div class="feat-desc" data-i18n="feat.8.desc">Jeder Beleg liegt bei seiner Ausgabe, jede Bordkarte bei ihrem Flug — privat für deine Gruppe. Geschäftsausgaben markieren und für Geschäftsreisen einen PDF-Bericht pro Person exportieren.</div>
+          <div class="feat-desc" data-i18n="feat.8.desc">Jeder Beleg liegt bei seiner Ausgabe, jede Bordkarte bei ihrem Flug — privat für deine Gruppe. Geschäftskosten bei Ausgaben, Hotels und Flügen markieren und für Geschäftsreisen einen PDF-Bericht pro Person exportieren.</div>
         </div>
         <div class="feat-doc-preview" aria-hidden="true">
           <div class="doc-row">
@@ -1239,7 +1239,7 @@
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a" hidden>
-          <p data-i18n="faq.7.a">Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftsausgaben unterwegs und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen.</p>
+          <p data-i18n="faq.7.a">Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftskosten unterwegs — Ausgaben, Hotels, Flüge, Transport — und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen.</p>
         </div>
       </div>
     </div>
