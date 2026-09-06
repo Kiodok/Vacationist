@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferFlight,
@@ -35,9 +36,7 @@ export async function getTransferFlight(flightId: string): Promise<TransferFligh
 }
 
 export async function createTransferFlight(tripId: string, input: CreateTransferFlightInput): Promise<TransferFlight> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('transfer_flights')
@@ -134,9 +133,7 @@ export async function getTransferFlightVotesBatch(flightIds: string[]): Promise<
 }
 
 export async function castTransferFlightVote(flightId: string, vote: VoteType): Promise<TransferFlightVote> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('transfer_flight_votes')
@@ -152,9 +149,7 @@ export async function castTransferFlightVote(flightId: string, vote: VoteType): 
 }
 
 export async function removeTransferFlightVote(flightId: string): Promise<void> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { error } = await supabase
     .from('transfer_flight_votes')

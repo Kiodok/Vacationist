@@ -3,9 +3,8 @@ import {
   getTransferFlightVotes,
   getTransferFlightVotesBatch,
   castTransferFlightVote,
-  removeTransferFlightVote,
 } from '@vacationist/api';
-import type { TransferFlightVote, CastTransferFlightVoteVariables } from '@vacationist/types';
+import type { TransferFlightVote, CastTransferFlightVoteVariables, RemoveTransferFlightVoteVariables } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
@@ -74,17 +73,28 @@ export function useCastTransferFlightVote() {
   });
 }
 
-export function useRemoveTransferFlightVote(tripId: string, flightId: string) {
+// Persisted (mutationFn + onSuccess in mutationDefaults). Call
+// `.mutate({ flightId, tripId })`.
+export function useRemoveTransferFlightVote() {
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: () => removeTransferFlightVote(flightId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
+  return useMutation<void, Error, RemoveTransferFlightVoteVariables, { previous: TransferFlightVote[] | undefined }>({
+    mutationKey: ['removeTransferFlightVote'],
+    onMutate: async ({ flightId }) => {
+      await queryClient.cancelQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
+      const previous = queryClient.getQueryData<TransferFlightVote[]>(['transfer-flights', flightId, 'votes']);
+      queryClient.setQueryData<TransferFlightVote[]>(
+        ['transfer-flights', flightId, 'votes'],
+        (old) => old?.filter((v) => v.user_id !== currentUserId),
+      );
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { flightId }, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['transfer-flights', flightId, 'votes'], context.previous);
+      }
       addToast('error', i18n.t('transfer:toast.removeVoteFailed'));
     },
   });

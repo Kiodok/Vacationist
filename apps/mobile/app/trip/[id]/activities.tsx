@@ -487,7 +487,7 @@ function ActivityCardWithVotes({
   const { data: votes = [] } = useActivityVotes(activity.id);
   const { data: members } = useTripMembers(tripId);
   const castVote = useCastVote();
-  const removeVote = useRemoveVote(tripId, activity.id);
+  const removeVote = useRemoveVote();
   const [showVoteSheet, setShowVoteSheet] = useState(false);
   const [showDetail, setShowDetail] = useState(initialExpanded ?? false);
   // Frozen at mount, exactly like showDetail above — deliberately NOT read
@@ -529,7 +529,7 @@ function ActivityCardWithVotes({
 
   const handleRemoveVote = () => {
     setShowVoteSheet(false);
-    removeVote.mutate(undefined);
+    removeVote.mutate({ activityId: activity.id, tripId });
   };
 
   const detailContent = showDetail ? (

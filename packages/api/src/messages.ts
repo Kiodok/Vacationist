@@ -110,6 +110,7 @@ export interface MessageRealtimeCallbacks {
 export function subscribeToMessages(
   tripId: string,
   callbacks: MessageRealtimeCallbacks,
+  onStatus?: (status: string) => void,
 ): RealtimeChannel {
   const channel = freshChannel(`trip-messages:${tripId}`)
     .on(
@@ -132,7 +133,7 @@ export function subscribeToMessages(
       },
       (payload) => callbacks.onUpdate(payload.new as unknown as TripMessage),
     )
-    .subscribe();
+    .subscribe((status) => onStatus?.(status));
 
   return channel;
 }

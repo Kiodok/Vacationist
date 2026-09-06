@@ -11,10 +11,6 @@ import {
   getExpenseSplits,
   getTripBalances,
   getTripExpenseCategoryTotals,
-  settleExpenseSplit,
-  unsettleExpenseSplit,
-  coverSplit,
-  uncoverSplit,
   settleAllForPair,
   settleAllExpenses,
   getSettlementReceipts,
@@ -31,9 +27,45 @@ import type {
   UncoverSplitVariables,
   SettleAllForPairVariables,
   SettleAllExpensesVariables,
+  ExpenseSplit,
 } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
+import { useAuthStore } from '../../../stores/authStore';
+
+/**
+ * Optimistically patch one split row in the `['expenses', <id>, 'splits']` cache
+ * so settle / cover toggles feel instant offline. mutationFn + the real
+ * invalidation still live in mutationDefaults for cold-start replay.
+ */
+function makeSplitPatchHook<V extends { splitId: string; expenseId: string }>(
+  mutationKey: string,
+  patch: (split: ExpenseSplit) => ExpenseSplit,
+  onFail: (addToast: ReturnType<typeof useToastStore.getState>['addToast']) => void,
+) {
+  return function useSplitPatch() {
+    const queryClient = useQueryClient();
+    const addToast = useToastStore((s) => s.addToast);
+    return useMutation<void, Error, V, { previous: ExpenseSplit[] | undefined }>({
+      mutationKey: [mutationKey],
+      onMutate: async ({ splitId, expenseId }) => {
+        const key = ['expenses', expenseId, 'splits'];
+        await queryClient.cancelQueries({ queryKey: key });
+        const previous = queryClient.getQueryData<ExpenseSplit[]>(key);
+        queryClient.setQueryData<ExpenseSplit[]>(key, (old) =>
+          old?.map((s) => (s.id === splitId ? patch(s) : s)),
+        );
+        return { previous };
+      },
+      onError: (_err, { expenseId }, context) => {
+        if (context !== undefined) {
+          queryClient.setQueryData(['expenses', expenseId, 'splits'], context.previous);
+        }
+        onFail(addToast);
+      },
+    });
+  };
+}
 
 export function useExpenses(tripId: string) {
   return useInfiniteQuery({
@@ -178,53 +210,29 @@ export function useUnarchiveExpense() {
   });
 }
 
-export function useSettleExpenseSplit() {
-  const addToast = useToastStore((s) => s.addToast);
+export const useSettleExpenseSplit = makeSplitPatchHook<SettleExpenseSplitVariables>(
+  'settleExpenseSplit',
+  (s) => ({ ...s, status: 'settled' }),
+  (addToast) => addToast('error', i18n.t('expenses:toast.settleFailed')),
+);
 
-  return useMutation({
-    mutationKey: ['settleExpenseSplit'],
-    mutationFn: ({ splitId }: SettleExpenseSplitVariables) => settleExpenseSplit(splitId),
-    onError: () => {
-      addToast('error', i18n.t('expenses:toast.settleFailed'));
-    },
-  });
-}
+export const useUnsettleExpenseSplit = makeSplitPatchHook<UnsettleExpenseSplitVariables>(
+  'unsettleExpenseSplit',
+  (s) => ({ ...s, status: 'open' }),
+  (addToast) => addToast('error', i18n.t('expenses:toast.reopenFailed')),
+);
 
-export function useUnsettleExpenseSplit() {
-  const addToast = useToastStore((s) => s.addToast);
+export const useCoverSplit = makeSplitPatchHook<CoverSplitVariables>(
+  'coverSplit',
+  (s) => ({ ...s, covered_by: useAuthStore.getState().user?.id ?? null }),
+  (addToast) => addToast('error', i18n.t('expenses:toast.coverFailed')),
+);
 
-  return useMutation({
-    mutationKey: ['unsettleExpenseSplit'],
-    mutationFn: ({ splitId }: UnsettleExpenseSplitVariables) => unsettleExpenseSplit(splitId),
-    onError: () => {
-      addToast('error', i18n.t('expenses:toast.reopenFailed'));
-    },
-  });
-}
-
-export function useCoverSplit() {
-  const addToast = useToastStore((s) => s.addToast);
-
-  return useMutation({
-    mutationKey: ['coverSplit'],
-    mutationFn: ({ splitId }: CoverSplitVariables) => coverSplit(splitId),
-    onError: () => {
-      addToast('error', i18n.t('expenses:toast.coverFailed'));
-    },
-  });
-}
-
-export function useUncoverSplit() {
-  const addToast = useToastStore((s) => s.addToast);
-
-  return useMutation({
-    mutationKey: ['uncoverSplit'],
-    mutationFn: ({ splitId }: UncoverSplitVariables) => uncoverSplit(splitId),
-    onError: () => {
-      addToast('error', i18n.t('expenses:toast.uncoverFailed'));
-    },
-  });
-}
+export const useUncoverSplit = makeSplitPatchHook<UncoverSplitVariables>(
+  'uncoverSplit',
+  (s) => ({ ...s, covered_by: null }),
+  (addToast) => addToast('error', i18n.t('expenses:toast.uncoverFailed')),
+);
 
 export function useSettleAllForPair() {
   const queryClient = useQueryClient();

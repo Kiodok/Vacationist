@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text } from 'react-native';
+import { Image } from 'expo-image';
 import { AVATAR_COLORS } from '@vacationist/ui';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
@@ -44,6 +45,11 @@ export function MemberAvatar({ name, avatarUrl, size = 'md', colorSeed }: Member
       <Image
         source={{ uri: avatarUrl }}
         style={{ width: config.sizePx, height: config.sizePx, borderRadius: config.sizePx / 2 }}
+        // Disk cache so avatars render offline; recyclingKey avoids a stale
+        // image flashing when the same <Image> node is reused for a different member.
+        cachePolicy="disk"
+        recyclingKey={avatarUrl}
+        contentFit="cover"
         onError={() => setImgError(true)}
       />
     );

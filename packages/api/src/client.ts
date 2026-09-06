@@ -4,6 +4,11 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import { ExpoSecureStoreAdapter } from './storage';
 
+// Re-exported so `session.ts` can read the persisted auth blob without importing
+// `./storage` directly — tests mock `./client` wholesale, and a direct
+// `./storage` import would drag `react-native` into the node test environment.
+export { ExpoSecureStoreAdapter };
+
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
@@ -26,6 +31,24 @@ function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}): Pro
   return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timer));
 }
 
+/**
+ * The exact SecureStore/localStorage key auth-js uses for the persisted session.
+ * auth-js derives this from the Supabase URL host as `sb-<ref>-auth-token` when
+ * no explicit `storageKey` is set — we replicate that derivation (rather than
+ * setting an explicit key, which would orphan every already-installed user's
+ * session on update) so `session.ts` can read the stored session straight out
+ * of storage offline, without the network round-trip `getSession()` does when
+ * the access token is expired (see Phase 19 / offline-session-durability skill).
+ */
+export const AUTH_STORAGE_KEY = (() => {
+  try {
+    const ref = new URL(SUPABASE_URL).hostname.split('.')[0];
+    return `sb-${ref}-auth-token`;
+  } catch {
+    return 'sb-auth-token';
+  }
+})();
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     storage: ExpoSecureStoreAdapter,
@@ -38,6 +61,36 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
     fetch: fetchWithTimeout,
   },
 });
+
+/**
+ * Force the realtime socket to reconnect. Call on an offline→online transition:
+ * Supabase's socket does eventually retry on its own, but only after its own
+ * backoff, and a device that regains signal with the app already foregrounded
+ * can otherwise sit on a dead socket for a long time (Phase 19). Existing
+ * channels rejoin automatically once the socket is back up.
+ */
+export function reconnectRealtime(): void {
+  try {
+    supabase.realtime.disconnect();
+    supabase.realtime.connect();
+  } catch {
+    // realtime not initialised / already connecting — nothing to do
+  }
+}
+
+/**
+ * Best-effort proactive token refresh. Call when connectivity returns so the
+ * access token is as fresh as possible before the next disconnect, and so the
+ * offline trust window's "last verified" timestamp advances (via the
+ * TOKEN_REFRESHED → onAuthStateChange path). Swallows all errors.
+ */
+export async function refreshSessionQuietly(): Promise<void> {
+  try {
+    await supabase.auth.refreshSession();
+  } catch {
+    // offline again already, or nothing to refresh
+  }
+}
 
 /**
  * Returns a fresh Supabase realtime channel, evicting any stale channel with

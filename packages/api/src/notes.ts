@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { TripNote, CreateTripNoteInput, UpdateTripNoteInput } from '@vacationist/types';
 
 export async function getNotes(tripId: string): Promise<TripNote[]> {
@@ -14,14 +15,13 @@ export async function getNotes(tripId: string): Promise<TripNote[]> {
 }
 
 export async function createNote(tripId: string, input: CreateTripNoteInput): Promise<TripNote> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await supabase
     .from('trip_notes')
     .insert({
       trip_id: tripId,
-      created_by: session.user.id,
+      created_by: userId,
       title: input.title,
       description: input.description ?? null,
     })

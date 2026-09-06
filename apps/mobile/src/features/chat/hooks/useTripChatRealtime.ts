@@ -11,9 +11,13 @@ import {
   type MessagesData,
 } from '../utils/messageCache';
 
+const BACKOFF_DELAYS = [2000, 5000, 10000, 30000];
+
 export function useTripChatRealtime(tripId: string) {
   const queryClient = useQueryClient();
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backoffIndexRef = useRef(0);
 
   const queryKey = ['trips', tripId, 'messages'];
 
@@ -21,6 +25,10 @@ export function useTripChatRealtime(tripId: string) {
     if (channelRef.current) {
       unsubscribeFromMessages(channelRef.current);
       channelRef.current = null;
+    }
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
     }
   }, []);
 
@@ -58,17 +66,35 @@ export function useTripChatRealtime(tripId: string) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId, queryClient]);
 
+  const reconcile = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryClient, tripId]);
+
   const subscribe = useCallback(() => {
     cleanup();
 
-    const channel = subscribeToMessages(tripId, {
-      onInsert: (message) => { void fetchAndMergeInsert(message); },
-      onUpdate: (message) => { void fetchAndMergeUpdate(message); },
-    });
+    const channel = subscribeToMessages(
+      tripId,
+      {
+        onInsert: (message) => { void fetchAndMergeInsert(message); },
+        onUpdate: (message) => { void fetchAndMergeUpdate(message); },
+      },
+      (status) => {
+        if (status === 'SUBSCRIBED') {
+          backoffIndexRef.current = 0;
+          reconcile();
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          const delay = BACKOFF_DELAYS[Math.min(backoffIndexRef.current, BACKOFF_DELAYS.length - 1)];
+          backoffIndexRef.current++;
+          reconnectTimerRef.current = setTimeout(() => subscribe(), delay);
+        }
+      },
+    );
 
     channelRef.current = channel;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripId, queryClient, cleanup, fetchAndMergeInsert, fetchAndMergeUpdate]);
+  }, [tripId, queryClient, cleanup, reconcile, fetchAndMergeInsert, fetchAndMergeUpdate]);
 
   useAppForeground(() => {
     subscribe();

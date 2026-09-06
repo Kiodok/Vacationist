@@ -1510,3 +1510,54 @@ measurable. Web only — `Platform.OS === 'web'` guarded; nothing renders on nat
 no native change → OTA-eligible; the actual value ships on the Vercel push to `main`.
 **Not yet done:** narrow-viewport visual spot-check; `git commit` (migration + client land in the
 same commit on `main` per the no-branches rule); `eas update --branch production` after commit.
+
+---
+
+## 📴 Phase 19: Offline Mode Overhaul (v1.37.0)
+*Dependencies: Phase 12 (offline foundation), Phase 1 (Auth), Phase 17 (Zero-Tap restore).*
+
+**Why:** users reported not being able to sign in without internet. Root cause: `jwt_expiry =
+3600` → an hour into any offline session the access token expires, `getSession()` returns `null`,
+`useAuthInit` called `reset()`, and `AuthGate` redirected to a login screen whose Turnstile
+WebView can't load offline — a total lockout with valid credentials in the Keychain. Investigation
+surfaced four more failures (silent offline-queue loss on the 24h cache cliff, ~40 helpers that
+mis-classified an offline refresh as "not authenticated", realtime never reconnecting on regained
+signal, whole tabs blank offline). Single release, MINOR / **full store build**. **No DB
+migration.** Plan: `~/.claude/plans/snappy-crafting-bird.md`; skill `v1-37-0-batch`.
+
+### Decisions (Tech Lead, 2026-09-06)
+- Offline session trust: **7 days** since last server contact, then **biometric / device-PIN** to
+  extend — never a hard dead-end while offline.
+- Travel documents: **no change** (stay server-only).
+- Trip-usable-offline: **auto-prefetch** the active trip's tabs + `expo-image` disk cache.
+
+### Status
+- [x] **A — auth session durability.** `packages/api/src/session.ts` (`readStoredSession` /
+  `getUserIdOfflineSafe` / `hasStoredSession`); `AUTH_STORAGE_KEY` derived in `client.ts`;
+  `getSession()` wrapper returns `null` not throw; ~33-site `Not authenticated` sweep;
+  `authSnapshot.ts` (7-day window); `OfflineReauthGate.tsx` + `authStore.offlineReauthRequired`;
+  `useAuthInit.ts` rewritten (splash off the network critical path; never `reset()` offline;
+  `SIGNED_OUT` only clears when storage is truly empty); `auth` i18n `offlineReauth.*` (en/de).
+- [x] **B — persistence.** `mutationQueue.ts` (separate MMKV `MUTATION_QUEUE_v1`, 14-day cap);
+  `QueryProvider` `maxAge: 30d` + version `buster`, `shouldDehydrateMutation: () => false`;
+  `queryClient` `gcTime` 30d; `settleAllExpenses` + `deleteAllNotifications` added to
+  `PERSISTED_MUTATION_KEYS` (+ default); `persistedMutationKeys.test.ts` guard;
+  `mmkvStorage.web.ts` quota-eviction guard.
+- [x] **C — realtime reconnect.** `NetworkProvider` offline→online edge →
+  `refreshSessionQuietly` + `reconnectRealtime` + `resumePausedMutations` + `invalidateQueries`.
+  Plus per-hook `BACKOFF_DELAYS` + reconcile for the 4 status-callback-less realtime hooks
+  (chat / shopping / recipes / ingredients) and their `packages/api` builders (+`onStatus`).
+- [~] **D — optimistic-feedback sweep (partial).** Done: shopping `createShoppingItem` /
+  `createShoppingList` / `updateShoppingItemGlobal`; expense split settle/unsettle/cover/uncover
+  (`makeSplitPatchHook`); vote removal now persisted + optimistic (activity / accommodation /
+  transfer-flight — call `.mutate({ id, tripId })`); recipe `addIngredient` → `onMutate`.
+  Deferred: `createExpense`/`updateExpenseWithSplits` optimistic row, archive/unarchive expense,
+  transfer passengers, prework prefs, entity notes.
+- [x] **E1/E2 — trip pack.** `expo-image` (disk cache) on avatars; `useTripOfflinePrefetch(tripId)`
+  in `app/trip/[id]/_layout.tsx`.
+- [ ] **E3** — `OfflineEmptyState` on trip calendar / global calendar / trip overview.
+- [x] **F** — CLAUDE.md, `software_engineering_guide.md` §7, this entry, `supabase.md`; 3 skills;
+  2 memories; `session.test.ts` + `persistedMutationKeys.test.ts`. Remaining: authSnapshot /
+  mutationQueue round-trip tests.
+
+`npm run typecheck` + `npm test` green (utils 196 / api 13 / mobile 187). **Nothing committed.**

@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import { broadcastShoppingItemsRemoved } from './shopping';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
@@ -53,9 +54,7 @@ export async function getRecipe(recipeId: string): Promise<RecipeWithIngredients
 }
 
 export async function createRecipe(tripId: string, input: CreateRecipeInput): Promise<Recipe> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('recipes')
@@ -301,9 +300,13 @@ async function propagateIngredientAdd(
   const listIds = await getLinkedShoppingListIds(recipeId);
   if (listIds.length === 0) return;
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) return;
-  const user = session.user;
+  let userId: string;
+  try {
+    userId = await getUserIdOfflineSafe();
+  } catch {
+    return;
+  }
+  const user = { id: userId };
 
   // Each linked list is independent (distinct shopping_list_id, its own
   // position counter scoped inside propagateIngredientAddToList) — safe to
@@ -497,9 +500,7 @@ export async function addRecipeToShoppingList(
   shoppingListId: string,
   targetServings: number,
 ): Promise<{ added: number; merged: number }> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const recipe = await getRecipe(recipeId);
   const ingredients = recipe.recipe_ingredients;
@@ -594,6 +595,7 @@ export interface RecipeRealtimeCallbacks {
 export function subscribeToRecipesRealtime(
   tripId: string,
   callbacks: RecipeRealtimeCallbacks,
+  onStatus?: (status: string) => void,
 ): RealtimeChannel {
   const channel = freshChannel(`recipes:${tripId}`)
     .on(
@@ -626,7 +628,7 @@ export function subscribeToRecipesRealtime(
       },
       (payload) => callbacks.onDelete(payload.old as { id: string }),
     )
-    .subscribe();
+    .subscribe((status) => onStatus?.(status));
 
   return channel;
 }
@@ -648,6 +650,7 @@ export interface IngredientRealtimeCallbacks {
 export function subscribeToIngredientsRealtime(
   recipeId: string,
   callbacks: IngredientRealtimeCallbacks,
+  onStatus?: (status: string) => void,
 ): RealtimeChannel {
   const channel = freshChannel(`ingredients:${recipeId}`)
     .on(
@@ -680,7 +683,7 @@ export function subscribeToIngredientsRealtime(
       },
       (payload) => callbacks.onDelete(payload.old as { id: string; recipe_id: string }),
     )
-    .subscribe();
+    .subscribe((status) => onStatus?.(status));
 
   return channel;
 }

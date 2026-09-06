@@ -37,6 +37,7 @@ import { colorScheme as cssColorScheme } from 'react-native-css-interop';
 import { syncSystemColorScheme } from '../src/utils/themeSync';
 import VercelWebTools from '../src/components/VercelWebTools';
 import { ForceUpdateGate } from '../src/components/ForceUpdateGate';
+import { OfflineReauthGate } from '../src/features/auth/components/OfflineReauthGate';
 import { colors, ThemeProvider, setLiveColors } from '@vacationist/ui';
 import type { ResolvedTheme } from '@vacationist/ui';
 import { ConsentBanner } from '../src/features/consent/components/ConsentBanner';
@@ -137,6 +138,7 @@ function AuthGate() {
   const pathname = usePathname();
   const hasSession = useAuthStore((s) => s.hasSession);
   const isLoading = useAuthStore((s) => s.isLoading);
+  const offlineReauthRequired = useAuthStore((s) => s.offlineReauthRequired);
   const user = useAuthStore((s) => s.user);
   const pendingInviteToken = useAuthStore((s) => s.pendingInviteToken);
   const setPendingInviteToken = useAuthStore((s) => s.setPendingInviteToken);
@@ -197,6 +199,9 @@ function AuthGate() {
 
   useEffect(() => {
     if (isLoading) return;
+    // OfflineReauthGate is covering the screen — don't churn navigation
+    // underneath it. Its confirm handler sets hasSession, which re-runs this.
+    if (offlineReauthRequired) return;
 
     const inAuth = segments[0] === '(auth)';
     // captcha-redirect is a standalone target for the native CAPTCHA browser
@@ -234,7 +239,7 @@ function AuthGate() {
       }
       router.replace(redirect as never);
     }
-  }, [hasSession, isLoading, segments, globalParams.token, router]);
+  }, [hasSession, isLoading, offlineReauthRequired, segments, globalParams.token, router]);
 
   // Process invite token saved before OAuth redirect (Zustand or sessionStorage).
   // Waits for `user` to be set — the profile must exist before the RLS-gated
@@ -386,6 +391,7 @@ function RootLayoutInner() {
       <ThemeController />
       <OfflineBanner />
       <ForceUpdateGate />
+      <OfflineReauthGate />
       <AuthGate />
       <ToastContainer />
       <VercelWebTools />

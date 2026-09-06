@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getActivityVotes, getTripActivityVotes, getActivityVotesForTrips, castActivityVote, removeActivityVote } from '@vacationist/api';
-import type { ActivityVote, CastActivityVoteVariables } from '@vacationist/types';
+import { getActivityVotes, getTripActivityVotes, getActivityVotesForTrips, castActivityVote } from '@vacationist/api';
+import type { ActivityVote, CastActivityVoteVariables, RemoveActivityVoteVariables } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
@@ -76,19 +76,28 @@ export function useCastVote() {
   });
 }
 
-export function useRemoveVote(tripId: string, activityId: string) {
+// Persisted (mutationFn + onSuccess in mutationDefaults) so a vote removal made
+// offline replays after a cold start. Call `.mutate({ activityId, tripId })`.
+export function useRemoveVote() {
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: () => removeActivityVote(activityId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activity-votes'] });
-      queryClient.invalidateQueries({ queryKey: ['activity-votes', 'trips'] });
+  return useMutation<void, Error, RemoveActivityVoteVariables, { previous: ActivityVote[] | undefined }>({
+    mutationKey: ['removeActivityVote'],
+    onMutate: async ({ activityId }) => {
+      await queryClient.cancelQueries({ queryKey: ['activities', activityId, 'votes'] });
+      const previous = queryClient.getQueryData<ActivityVote[]>(['activities', activityId, 'votes']);
+      queryClient.setQueryData<ActivityVote[]>(
+        ['activities', activityId, 'votes'],
+        (old) => old?.filter((v) => v.user_id !== currentUserId),
+      );
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { activityId }, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['activities', activityId, 'votes'], context.previous);
+      }
       addToast('error', i18n.t('activities:toast.removeVoteFailed'));
     },
   });

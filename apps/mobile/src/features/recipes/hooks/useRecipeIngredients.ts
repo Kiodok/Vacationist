@@ -7,6 +7,7 @@ import type {
   UpdateRecipeIngredientInput,
 } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
+import { createOptimisticId, isOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 
 function useInvalidateShoppingQueries(tripId: string) {
@@ -22,24 +23,45 @@ export function useAddIngredient(recipeId: string, tripId: string) {
   const addToast = useToastStore((s) => s.addToast);
   const invalidateShopping = useInvalidateShoppingQueries(tripId);
 
-  return useMutation({
-    mutationFn: (input: CreateRecipeIngredientInput) => addIngredient(recipeId, input),
+  return useMutation<RecipeIngredient, Error, CreateRecipeIngredientInput, { previous: RecipeWithIngredients | undefined }>({
+    mutationFn: (input) => addIngredient(recipeId, input),
+    onMutate: async (input) => {
+      await queryClient.cancelQueries({ queryKey: ['recipes', recipeId] });
+      const previous = queryClient.getQueryData<RecipeWithIngredients>(['recipes', recipeId]);
+      queryClient.setQueryData<RecipeWithIngredients>(['recipes', recipeId], (old) => {
+        if (!old) return old;
+        const optimistic: RecipeIngredient = {
+          id: createOptimisticId(),
+          recipe_id: recipeId,
+          title: input.title,
+          quantity: input.quantity ?? null,
+          unit: input.unit ?? null,
+          sort_order: old.recipe_ingredients.length,
+        };
+        return {
+          ...old,
+          recipe_ingredients: [...old.recipe_ingredients, optimistic],
+          ingredient_count: old.ingredient_count + 1,
+        };
+      });
+      return { previous };
+    },
     onSuccess: (newIngredient) => {
-      queryClient.setQueryData<RecipeWithIngredients>(
-        ['recipes', recipeId],
-        (old) => {
-          if (!old) return old;
-          if (old.recipe_ingredients.some((i) => i.id === newIngredient.id)) return old;
-          return {
-            ...old,
-            recipe_ingredients: [...old.recipe_ingredients, newIngredient],
-            ingredient_count: old.ingredient_count + 1,
-          };
-        },
-      );
+      queryClient.setQueryData<RecipeWithIngredients>(['recipes', recipeId], (old) => {
+        if (!old) return old;
+        const base = old.recipe_ingredients.filter((i) => !isOptimisticId(i.id));
+        if (base.some((i) => i.id === newIngredient.id)) {
+          return { ...old, recipe_ingredients: base, ingredient_count: base.length };
+        }
+        const merged = [...base, newIngredient];
+        return { ...old, recipe_ingredients: merged, ingredient_count: merged.length };
+      });
       invalidateShopping();
     },
-    onError: () => {
+    onError: (_err, _input, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(['recipes', recipeId], context.previous);
+      }
       addToast('error', i18n.t('recipes:toast.ingredientAddFailed'));
     },
   });

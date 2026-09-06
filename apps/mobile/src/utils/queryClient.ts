@@ -17,6 +17,9 @@ export const PERSISTED_MUTATION_KEYS = [
   'castActivityVote',
   'castAccommodationVote',
   'castTransferFlightVote',
+  'removeActivityVote',
+  'removeAccommodationVote',
+  'removeTransferFlightVote',
   // Trips
   'updateTrip',
   // Accommodations
@@ -53,6 +56,7 @@ export const PERSISTED_MUTATION_KEYS = [
   'coverSplit',
   'uncoverSplit',
   'settleAllForPair',
+  'settleAllExpenses',
   // Shopping lists
   'createShoppingList',
   'updateShoppingList',
@@ -91,6 +95,7 @@ export const PERSISTED_MUTATION_KEYS = [
   'markNotificationRead',
   'markAllNotificationsRead',
   'deleteNotification',
+  'deleteAllNotifications',
 ] as const;
 
 export function isPersistedMutationKey(key: unknown): boolean {
@@ -131,7 +136,7 @@ export const queryClient = new QueryClient({
       // invalidations, and per-screen refetchInterval polling — all of which
       // bypass staleTime.
       staleTime: 30 * 1000,
-      gcTime: 24 * 60 * 60 * 1000,      // 24 h — matches PersistQueryClientProvider.maxAge
+      gcTime: 30 * 24 * 60 * 60 * 1000, // 30 d — matches PersistQueryClientProvider.maxAge
       refetchOnWindowFocus: true,
       networkMode: 'offlineFirst',
     },

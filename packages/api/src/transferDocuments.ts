@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { getUserIdOfflineSafe } from './session';
 import { uploadDocumentFile, getSignedDocumentUrl, deleteDocumentFile, buildTransferTicketPath } from './documentStorage';
 import type { TransferDocument } from '@vacationist/types';
 
@@ -27,9 +28,7 @@ export async function uploadTransferFlightDocument(
   fileName: string,
   mimeType: string,
 ): Promise<TransferDocument> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const uploadedBy = session?.user.id;
-  if (!uploadedBy) throw new Error('Not authenticated');
+  const uploadedBy = await getUserIdOfflineSafe();
 
   const path = buildTransferTicketPath(tripId, flightId, passengerUserId);
   await uploadDocumentFile(BUCKET, path, fileData, mimeType);
@@ -80,9 +79,7 @@ export async function uploadPublicTransportDocument(
   fileName: string,
   mimeType: string,
 ): Promise<TransferDocument> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const uploadedBy = session?.user.id;
-  if (!uploadedBy) throw new Error('Not authenticated');
+  const uploadedBy = await getUserIdOfflineSafe();
 
   const path = buildTransferTicketPath(tripId, publicTransportId, passengerUserId);
   await uploadDocumentFile(BUCKET, path, fileData, mimeType);

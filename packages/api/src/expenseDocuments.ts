@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { getUserIdOfflineSafe } from './session';
 import { uploadDocumentFile, getSignedDocumentUrl, deleteDocumentFile, buildExpenseDocumentPath } from './documentStorage';
 import type { ExpenseDocument } from '@vacationist/types';
 
@@ -22,9 +23,7 @@ export async function uploadExpenseDocument(
   fileName: string,
   mimeType: string,
 ): Promise<ExpenseDocument> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const userId = session?.user.id;
-  if (!userId) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const path = buildExpenseDocumentPath(tripId, expenseId, userId, fileName);
   await uploadDocumentFile(BUCKET, path, fileData, mimeType);

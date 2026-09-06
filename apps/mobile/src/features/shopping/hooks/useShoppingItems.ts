@@ -14,7 +14,9 @@ import type {
   DeleteShoppingItemVariables,
 } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
+import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
+import { useAuthStore } from '../../../stores/authStore';
 
 export function useShoppingItems(listId: string) {
   return useQuery({
@@ -35,12 +37,42 @@ export function useAllTripShoppingItems(tripId: string) {
 }
 
 export function useCreateShoppingItem() {
+  const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
+  return useMutation<ShoppingItem, Error, CreateShoppingItemVariables, { previous: ShoppingItem[] | undefined }>({
     mutationKey: ['createShoppingItem'],
-    mutationFn: ({ listId, input }: CreateShoppingItemVariables) => createShoppingItem(listId, input),
-    onError: () => {
+    // mutationFn + onSuccess (resolve optimistic row + invalidate) live in mutationDefaults
+    // so a queued offline add replays correctly after a cold start.
+    onMutate: async ({ listId, input }) => {
+      const key = ['shopping-lists', listId, 'items'];
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<ShoppingItem[]>(key);
+      const now = new Date().toISOString();
+      const optimistic: ShoppingItem = {
+        id: createOptimisticId(),
+        trip_id: '',
+        shopping_list_id: listId,
+        title: input.title,
+        quantity: null,
+        unit: null,
+        notes: null,
+        position: (previous?.length ?? 0),
+        status: 'open',
+        source_recipe_id: null,
+        source_ingredient_id: null,
+        created_by: useAuthStore.getState().user?.id ?? '',
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+      };
+      queryClient.setQueryData<ShoppingItem[]>(key, (old) => [...(old ?? []), optimistic]);
+      return { previous };
+    },
+    onError: (_err, { listId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(['shopping-lists', listId, 'items'], context.previous);
+      }
       addToast('error', i18n.t('shopping:toast.itemAddFailed'));
     },
   });
@@ -75,12 +107,25 @@ export function useUpdateShoppingItem() {
 }
 
 export function useUpdateShoppingItemGlobal() {
+  const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
+  return useMutation<ShoppingItem, Error, UpdateShoppingItemGlobalVariables, { previous: ShoppingItem[] | undefined }>({
     mutationKey: ['updateShoppingItemGlobal'],
-    mutationFn: ({ itemId, input }: UpdateShoppingItemGlobalVariables) => updateShoppingItem(itemId, input),
-    onError: () => {
+    // mutationFn + onSuccess in mutationDefaults for cold-start replay.
+    onMutate: async ({ itemId, tripId, input }) => {
+      const key = ['trips', tripId, 'all-shopping-items'];
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<ShoppingItem[]>(key);
+      queryClient.setQueryData<ShoppingItem[]>(key, (old) =>
+        old?.map((i) => (i.id === itemId ? { ...i, ...input } : i)),
+      );
+      return { previous };
+    },
+    onError: (_err, { tripId }, context) => {
+      if (context !== undefined) {
+        queryClient.setQueryData(['trips', tripId, 'all-shopping-items'], context.previous);
+      }
       addToast('error', i18n.t('shopping:toast.itemUpdateFailed'));
     },
   });

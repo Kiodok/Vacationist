@@ -201,6 +201,27 @@ Every new component and screen **must be verified across all four modes**: `dark
 - [ ] Web-specific `boxShadow` added for colorful card surfaces
 - [ ] No hardcoded `'#ffffff'` or `'#000000'` in JSX styles
 
+### 🔴 Offline Mode (Phase 19 / v1.37.0)
+
+The app must stay usable offline for **7 days** without a connection — reading cached trip data,
+queuing writes — and must **never** show the login screen while valid credentials are on disk
+(the login screen's Turnstile widget can't load offline = a total lockout). See
+`.claude/skills/offline-session-durability/SKILL.md`.
+
+- **Never `reset()` / sign the user out on a network error.** `getSession()` returning `null`
+  offline means "token expired, can't refresh right now", not "signed out" — the refresh token
+  is still valid. `useAuthInit` trusts the stored session inside the 7-day window; past it,
+  `<OfflineReauthGate>` asks for biometric/PIN to extend.
+- **Every new `packages/api` write helper reads identity via `getUserIdOfflineSafe()`**
+  (`packages/api/src/session.ts`) — never `if (!session?.user) throw new Error('Not authenticated')`.
+- **The offline mutation queue is persisted separately** in MMKV `MUTATION_QUEUE_v1`
+  (`apps/mobile/src/utils/mutationQueue.ts`), not inside the query-cache blob. Query cache is
+  `maxAge: 30d` + an automatic app-version `buster` — no more hand-bumping `REACT_QUERY_CACHE_v2`.
+- Every `PERSISTED_MUTATION_KEYS` entry must have a matching `setMutationDefaults` registration —
+  `apps/mobile/src/utils/persistedMutationKeys.test.ts` fails the build otherwise.
+- Offline UX conventions (`isMutationBusy`, `getQueryDisplayState`, optimistic `onMutate` +
+  rollback) still apply to every new mutation/screen — see `offline-ux-patterns` skill.
+
 ---
 
 ## Supabase Changes Workflow

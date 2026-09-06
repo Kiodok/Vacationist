@@ -649,7 +649,7 @@ function FlightCardWithVotes({
   const isColorful = theme === 'colorful';
   const { data: passengers = [] } = useTransferFlightPassengers(flight.id);
   const castVote = useCastTransferFlightVote();
-  const removeVote = useRemoveTransferFlightVote(tripId, flight.id);
+  const removeVote = useRemoveTransferFlightVote();
   const setPassengers = useSetTransferFlightPassengers(tripId, flight.id);
 
   const [showVoteSheet, setShowVoteSheet] = useState(false);
@@ -697,7 +697,7 @@ function FlightCardWithVotes({
 
   const handleRemoveVote = () => {
     setShowVoteSheet(false);
-    removeVote.mutate(undefined);
+    removeVote.mutate({ flightId: flight.id, tripId });
   };
 
   const handleBook = (input: BookTransferFlightInput) => {

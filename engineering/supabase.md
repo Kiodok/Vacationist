@@ -1,5 +1,15 @@
 # Supabase Changes Log
 
+## 2026-09-06 (v1.37.0) — Phase 19 Offline Mode Overhaul: **NO migration**
+
+**Status: no DB change.** The v1.37.0 offline overhaul (session durability, separate offline
+mutation queue, realtime reconnect-on-network) is entirely client-side. `config.toml` is
+unchanged: `jwt_expiry` stays `3600`, no `[auth.sessions]` timebox/inactivity block is added —
+the 7-day offline trust window is enforced in the app (`authSnapshot.ts`), not the server. If a
+future call raises `jwt_expiry` (a Dashboard change, not this repo), note it here. See
+`~/.claude/plans/snappy-crafting-bird.md` and the `v1-37-0-batch` / `offline-session-durability`
+skills.
+
 ## 2026-09-06 (v1.35.1) — `users.show_store_badges` (web-app store download badges)
 
 **Status: DEV + PROD.** Migration `20260906130000_add_show_store_badges.sql` applied to dev

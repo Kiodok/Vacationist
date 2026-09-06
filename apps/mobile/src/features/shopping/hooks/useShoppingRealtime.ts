@@ -9,13 +9,14 @@ import {
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { ShoppingItem } from '@vacationist/types';
 
-const RECONNECT_DELAY_MS = 3000;
+const BACKOFF_DELAYS = [2000, 5000, 10000, 30000];
 
 export function useShoppingRealtime(listId: string) {
   const queryClient = useQueryClient();
   const channelRef = useRef<RealtimeChannel | null>(null);
   const syncChannelRef = useRef<RealtimeChannel | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backoffIndexRef = useRef(0);
 
   const queryKey = ['shopping-lists', listId, 'items'];
 
@@ -61,6 +62,15 @@ export function useShoppingRealtime(listId: string) {
           old?.filter((i) => i.id !== oldItem.id),
         );
       },
+    }, (status) => {
+      if (status === 'SUBSCRIBED') {
+        backoffIndexRef.current = 0;
+        queryClient.invalidateQueries({ queryKey });
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        const delay = BACKOFF_DELAYS[Math.min(backoffIndexRef.current, BACKOFF_DELAYS.length - 1)];
+        backoffIndexRef.current++;
+        reconnectTimerRef.current = setTimeout(() => subscribe(), delay);
+      }
     });
 
     channelRef.current = channel;

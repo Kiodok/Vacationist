@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Notification, NotificationPreference, UpdateNotificationPreferencesInput } from '@vacationist/types';
 
@@ -82,15 +83,14 @@ export async function updateNotificationPreferences(
   tripId: string,
   prefs: UpdateNotificationPreferencesInput,
 ): Promise<NotificationPreference> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await supabase
     .from('notification_preferences')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .update(prefs as any)
     .eq('trip_id', tripId)
-    .eq('user_id', session.user.id)
+    .eq('user_id', userId)
     .select()
     .single();
 

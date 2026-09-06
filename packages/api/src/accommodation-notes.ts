@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { TablesInsert } from './database.types';
 import type { AccommodationNote, CreateAccommodationNoteInput, UpdateAccommodationNoteInput } from '@vacationist/types';
 
@@ -17,14 +18,13 @@ export async function createAccommodationNote(
   accommodationId: string,
   input: CreateAccommodationNoteInput,
 ): Promise<AccommodationNote> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await supabase
     .from('accommodation_notes')
     .insert({
       accommodation_id: accommodationId,
-      created_by: session.user.id,
+      created_by: userId,
       content: input.content,
       // trip_id is NOT NULL in the schema but intentionally omitted — the
       // trg_set_accommodation_note_trip_id BEFORE INSERT trigger populates it

@@ -628,7 +628,9 @@ export type DeleteActivityVariables = { activityId: string; tripId: string };
 export type CloseActivityVotingVariables = { activityId: string; tripId: string };
 export type ReopenActivityVotingVariables = { activityId: string; tripId: string };
 export type CastActivityVoteVariables = { vote: (typeof VOTE_TYPE)[number]; activityId: string; tripId: string };
+export type RemoveActivityVoteVariables = { activityId: string; tripId: string };
 export type CastAccommodationVoteVariables = { vote: (typeof VOTE_TYPE)[number]; accommodationId: string; tripId: string };
+export type RemoveAccommodationVoteVariables = { accommodationId: string; tripId: string };
 export type CreateAccommodationVariables = { tripId: string; input: CreateAccommodationInput };
 export type UpdateAccommodationVariables = { accommodationId: string; tripId: string; input: UpdateAccommodationInput };
 export type DeleteAccommodationVariables = { accommodationId: string; tripId: string };
@@ -637,6 +639,7 @@ export type UnbookAccommodationVariables = { accommodationId: string; tripId: st
 export type CloseAccommodationVotingVariables = { accommodationId: string; tripId: string };
 export type ReopenAccommodationVotingVariables = { accommodationId: string; tripId: string };
 export type CastTransferFlightVoteVariables = { vote: (typeof VOTE_TYPE)[number]; flightId: string; tripId: string };
+export type RemoveTransferFlightVoteVariables = { flightId: string; tripId: string };
 
 // --- Transfer mutation variables ---
 export type CreateTransferFlightVariables = { tripId: string; input: CreateTransferFlightInput };

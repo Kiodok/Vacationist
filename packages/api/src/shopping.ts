@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   ShoppingList,
@@ -19,9 +20,7 @@ export async function getShoppingLists(tripId: string): Promise<ShoppingListWith
 }
 
 export async function createShoppingList(tripId: string, input: CreateShoppingListInput): Promise<ShoppingList> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('shopping_lists')
@@ -102,9 +101,7 @@ export async function getAllShoppingItemsForTrip(tripId: string): Promise<(Shopp
 }
 
 export async function createShoppingItem(listId: string, input: CreateShoppingItemInput): Promise<ShoppingItem> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('shopping_items')
@@ -146,6 +143,7 @@ export interface ShoppingRealtimeCallbacks {
 export function subscribeToShoppingItems(
   listId: string,
   callbacks: ShoppingRealtimeCallbacks,
+  onStatus?: (status: string) => void,
 ): RealtimeChannel {
   const channel = freshChannel(`shopping-items:${listId}`)
     .on(
@@ -178,7 +176,7 @@ export function subscribeToShoppingItems(
       },
       (payload) => callbacks.onDelete(payload.old as { id: string }),
     )
-    .subscribe();
+    .subscribe((status) => onStatus?.(status));
 
   return channel;
 }
@@ -190,12 +188,13 @@ export function unsubscribeFromShoppingItems(channel: RealtimeChannel): void {
 export function subscribeToShoppingSync(
   listId: string,
   onItemsRemoved: (ids: string[]) => void,
+  onStatus?: (status: string) => void,
 ): RealtimeChannel {
   return freshChannel(`shopping-sync:${listId}`)
     .on('broadcast', { event: 'items-removed' }, ({ payload }) => {
       onItemsRemoved(payload.ids);
     })
-    .subscribe();
+    .subscribe((status) => onStatus?.(status));
 }
 
 export async function broadcastShoppingItemsRemoved(

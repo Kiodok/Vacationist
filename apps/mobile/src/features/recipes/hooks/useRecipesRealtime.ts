@@ -5,9 +5,13 @@ import { subscribeToRecipesRealtime, unsubscribeFromRecipes } from '@vacationist
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Recipe } from '@vacationist/types';
 
+const BACKOFF_DELAYS = [2000, 5000, 10000, 30000];
+
 export function useRecipesRealtime(tripId: string) {
   const queryClient = useQueryClient();
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backoffIndexRef = useRef(0);
 
   const queryKey = ['trips', tripId, 'recipes'];
 
@@ -15,6 +19,10 @@ export function useRecipesRealtime(tripId: string) {
     if (channelRef.current) {
       unsubscribeFromRecipes(channelRef.current);
       channelRef.current = null;
+    }
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
     }
   }, []);
 
@@ -41,6 +49,15 @@ export function useRecipesRealtime(tripId: string) {
         );
         queryClient.removeQueries({ queryKey: ['recipes', oldRecipe.id] });
       },
+    }, (status) => {
+      if (status === 'SUBSCRIBED') {
+        backoffIndexRef.current = 0;
+        queryClient.invalidateQueries({ queryKey });
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        const delay = BACKOFF_DELAYS[Math.min(backoffIndexRef.current, BACKOFF_DELAYS.length - 1)];
+        backoffIndexRef.current++;
+        reconnectTimerRef.current = setTimeout(() => subscribe(), delay);
+      }
     });
 
     channelRef.current = channel;

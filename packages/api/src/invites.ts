@@ -1,5 +1,6 @@
 import * as ExpoCrypto from 'expo-crypto';
 import { supabase } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { InviteToken, CreateInviteInput, InviteExpiry } from '@vacationist/types';
 
 function getExpiresAt(expiresIn: InviteExpiry): string {
@@ -16,9 +17,7 @@ export async function createInviteToken(
   tripId: string,
   input: CreateInviteInput
 ): Promise<InviteToken> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const token = ExpoCrypto.randomUUID();
 

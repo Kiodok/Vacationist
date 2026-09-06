@@ -188,10 +188,24 @@ export async function signOut() {
   }
 }
 
+/**
+ * Returns the live session, or `null` when there isn't one.
+ *
+ * Deliberately does NOT rethrow the `getSession()` error. When the access token
+ * is expired and the device is offline, auth-js returns `{ session: null, error:
+ * <retryable network error> }` while *keeping* the session in storage. Rethrowing
+ * that turned a transient offline state into `reset()` → the login screen, which
+ * needs the network to load Turnstile — a dead end (Phase 19). Callers that need
+ * to distinguish "no credentials at all" from "offline with a valid refresh
+ * token" should use `readStoredSession()` from `./session`.
+ */
 export async function getSession() {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw error;
-  return data.session;
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data.session;
+  } catch {
+    return null;
+  }
 }
 
 export function onAuthStateChange(

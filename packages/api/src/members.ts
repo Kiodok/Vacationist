@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { TripMember, User, MemberRole } from '@vacationist/types';
 
 export type TripMemberWithUser = TripMember & { user: User };
@@ -31,9 +32,7 @@ export async function removeTripMember(tripId: string, userId: string): Promise<
 }
 
 export async function leaveTrip(tripId: string): Promise<void> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('trip_members')
@@ -63,9 +62,13 @@ export async function updateMemberRole(
 }
 
 export async function getCurrentMemberRole(tripId: string): Promise<MemberRole | null> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) return null;
-  const user = session.user;
+  let userId: string;
+  try {
+    userId = await getUserIdOfflineSafe();
+  } catch {
+    return null;
+  }
+  const user = { id: userId };
 
   const { data, error } = await supabase
     .from('trip_members')

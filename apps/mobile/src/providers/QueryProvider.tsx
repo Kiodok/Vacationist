@@ -6,10 +6,18 @@ import type { PersistedClient } from '@tanstack/react-query-persist-client';
 import { AppState } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import type { ReactNode } from 'react';
+import Constants from 'expo-constants';
 import { mmkvStorageAdapter } from '../utils/mmkvStorage';
 import { stripOptimisticRows } from '../utils/persistOptimistic';
-import { queryClient, isPersistedMutationKey } from '../utils/queryClient';
+import { queryClient } from '../utils/queryClient';
+import { hydrateMutationQueue, subscribeMutationQueue } from '../utils/mutationQueue';
 import '../utils/mutationDefaults';
+
+// Bump the persisted cache automatically whenever the app version changes, so a
+// build that changed a query's shape gets one clean refetch instead of
+// rehydrating a mismatched blob (this used to require hand-bumping the persister
+// key — see the v1.34.x activities-InfiniteData incident).
+const CACHE_BUSTER = Constants.expoConfig?.version ?? 'dev';
 
 focusManager.setEventListener((handleFocus) => {
   const subscription = AppState.addEventListener('change', (state: AppStateStatus) => {
@@ -66,7 +74,10 @@ export function QueryProvider({ children }: Props) {
       client={queryClient}
       persistOptions={{
         persister,
-        maxAge: 24 * 60 * 60 * 1000,
+        // 30 days — a trip's data should survive a multi-week absence; stale
+        // reads are clearly labelled (OfflineBanner + getQueryDisplayState).
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        buster: CACHE_BUSTER,
         dehydrateOptions: {
           shouldDehydrateQuery: (query) => {
             const key = query.queryKey[0];
@@ -75,15 +86,17 @@ export function QueryProvider({ children }: Props) {
             }
             return query.state.status === 'success';
           },
-          shouldDehydrateMutation: (mutation) => {
-            return (
-              mutation.state.isPaused &&
-              isPersistedMutationKey(mutation.options.mutationKey?.[0])
-            );
-          },
+          // Offline mutations are persisted SEPARATELY now (utils/mutationQueue.ts)
+          // so they aren't discarded with the query cache when maxAge lapses.
+          shouldDehydrateMutation: () => false,
         },
       }}
       onSuccess={async () => {
+        // Rehydrate the offline mutation queue from its own MMKV key (runs after
+        // mutationDefaults registered — hydrated mutations get their fn there).
+        hydrateMutationQueue(queryClient);
+        subscribeMutationQueue(queryClient);
+
         // NetworkProvider.useEffect has NOT yet run at this point — child
         // effects fire before parent effects in React, so onlineManager may
         // still hold its default (online=true). getInitialOnlineStatus()

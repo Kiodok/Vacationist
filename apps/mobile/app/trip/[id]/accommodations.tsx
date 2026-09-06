@@ -172,7 +172,7 @@ function AccommodationCardWithVotes({
   const { data: votes = [] } = useAccommodationVotes(accommodation.id);
   const { data: members } = useTripMembers(tripId);
   const castVote = useCastAccommodationVote();
-  const removeVote = useRemoveAccommodationVote(tripId, accommodation.id);
+  const removeVote = useRemoveAccommodationVote();
   const bookMutation = useBookAccommodation();
   const unbookMutation = useUnbookAccommodation();
   const [showVoteSheet, setShowVoteSheet] = useState(false);
@@ -206,7 +206,7 @@ function AccommodationCardWithVotes({
 
   const handleRemoveVote = () => {
     setShowVoteSheet(false);
-    removeVote.mutate(undefined);
+    removeVote.mutate({ accommodationId: accommodation.id, tripId });
   };
 
   const detailContent = showDetail ? (

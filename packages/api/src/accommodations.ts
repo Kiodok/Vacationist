@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Accommodation, AccommodationVote, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
 
@@ -25,9 +26,7 @@ export async function getAccommodation(accommodationId: string): Promise<Accommo
 }
 
 export async function createAccommodation(tripId: string, input: CreateAccommodationInput): Promise<Accommodation> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('accommodations')
@@ -91,9 +90,7 @@ export async function getAccommodationVotes(accommodationId: string): Promise<Ac
 }
 
 export async function castAccommodationVote(accommodationId: string, vote: VoteType): Promise<AccommodationVote> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('accommodation_votes')
@@ -109,9 +106,7 @@ export async function castAccommodationVote(accommodationId: string, vote: VoteT
 }
 
 export async function removeAccommodationVote(accommodationId: string): Promise<void> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { error } = await supabase
     .from('accommodation_votes')

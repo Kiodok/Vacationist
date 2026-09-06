@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, Image, RefreshControl, SectionList, Platform } from 'react-native';
+import { View, Text, Pressable, RefreshControl, SectionList, Platform } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -187,7 +188,10 @@ export default function TripsScreen() {
                   {user?.avatar_url && !avatarError ? (
                     <Image
                       source={{ uri: user.avatar_url }}
-                      className="w-full h-full"
+                      style={{ width: '100%', height: '100%' }}
+                      cachePolicy="disk"
+                      recyclingKey={user.avatar_url}
+                      contentFit="cover"
                       onError={() => setAvatarError(true)}
                     />
                   ) : (

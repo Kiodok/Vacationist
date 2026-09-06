@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Activity, ActivityVote, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 
@@ -175,9 +176,7 @@ export async function getActivityVotesForTrips(tripIds: string[]): Promise<Activ
 }
 
 export async function castActivityVote(activityId: string, vote: VoteType): Promise<ActivityVote> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('activity_votes')
@@ -193,9 +192,7 @@ export async function castActivityVote(activityId: string, vote: VoteType): Prom
 }
 
 export async function removeActivityVote(activityId: string): Promise<void> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { error } = await supabase
     .from('activity_votes')

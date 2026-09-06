@@ -361,14 +361,22 @@ The data model determines whether the app stays maintainable or becomes chaotic.
 
 ### 7. Error Handling, Network Resilience & Offline Mode
 
-Vacationist is **offline-first** (overhauled June 2026). The app must stay fully responsive without a connection: cached data renders, queued changes apply optimistically and sync on reconnect, and no button or screen may ever hang on a network call.
+Vacationist is **offline-first** (foundation June 2026; durability overhaul Phase 19 / v1.37.0). The app must stay fully responsive without a connection for **at least a week**: cached data renders, queued changes apply optimistically and sync on reconnect, no button or screen may ever hang on a network call, and **the login screen must never appear while valid credentials are on disk**.
 
 #### Offline Foundation
 
-- TanStack Query runs with `networkMode: 'offlineFirst'` for queries and mutations (`apps/mobile/src/utils/queryClient.ts`). Defaults: `retry: 2` (queries) / `retry: 3` (mutations), `staleTime: 30s`, `gcTime: 24h`.
-- The query cache is persisted to MMKV via `PersistQueryClientProvider` (`apps/mobile/src/providers/QueryProvider.tsx`, `maxAge: 24h` — matches `gcTime`). `travelDocuments` is excluded from persistence (sensitive); optimistic-ID list entries are stripped on serialize.
-- `NetworkProvider` feeds a single NetInfo subscription into both the `useNetworkStatus()` context and TanStack's `onlineManager`. On rehydrate-while-online, paused mutations are resumed and queries invalidated.
-- The Supabase client (`packages/api/src/client.ts`) wraps `fetch` with a hard timeout: **15 s** default, **60 s** for `/storage/v1/` uploads. A hung request on a flaky connection aborts into the retry → offline-pause path instead of blocking the UI for the OS default (60 s+).
+- TanStack Query runs with `networkMode: 'offlineFirst'` for queries and mutations (`apps/mobile/src/utils/queryClient.ts`). Defaults: `retry: 2` (queries) / `retry: 3` (mutations), `staleTime: 30s`, `gcTime: 30d`.
+- The query cache is persisted to MMKV via `PersistQueryClientProvider` (`apps/mobile/src/providers/QueryProvider.tsx`, `maxAge: 30d`, `buster` = the app version from `expo-constants` so a shape-changing build auto-discards the old blob). `travelDocuments` is excluded from persistence (sensitive); optimistic-ID list entries are stripped on serialize.
+- **The offline mutation queue is persisted separately** in MMKV `MUTATION_QUEUE_v1` (`apps/mobile/src/utils/mutationQueue.ts`), NOT inside the query-cache blob — a query-cache eviction used to silently drop every queued write. The queue is valid until it drains (14-day safety cap). `PersistQueryClientProvider` sets `shouldDehydrateMutation: () => false`.
+- `NetworkProvider` feeds a single NetInfo subscription into both `useNetworkStatus()` and TanStack's `onlineManager`. On an **offline→online edge** it fires `refreshSessionQuietly()` + `reconnectRealtime()` + `resumePausedMutations()` + `invalidateQueries()` (debounced 1s).
+- The Supabase client (`packages/api/src/client.ts`) wraps `fetch` with a hard timeout: **15 s** default, **60 s** for `/storage/v1/` uploads.
+
+#### CRITICAL — Offline Session Durability (Phase 19)
+
+- `jwt_expiry = 3600`, so the access token expires within an hour of going offline. `supabase.auth.getSession()` then does a network refresh that fails and returns `null` — **this is not "signed out"**, the refresh token stays valid. The `getSession()` wrapper returns `null` instead of throwing; `useAuthInit` trusts the stored session for a **7-day** window (`authSnapshot.ts`), then shows `<OfflineReauthGate>` (biometric / device-PIN to extend) — never the login screen.
+- Every `packages/api` write helper reads identity via **`getUserIdOfflineSafe()`** (`packages/api/src/session.ts`), never `if (!session?.user) throw new Error('Not authenticated')` — the old pattern threw a non-network error that bypassed the offline queue.
+- `useAuthInit`'s `SIGNED_OUT` handler only clears state when `readStoredSession()` is genuinely `null`; it must never wipe the MMKV `userCache` on a transient refresh failure (that cache is the offline profile fallback).
+- Every `PERSISTED_MUTATION_KEYS` entry needs a matching `setMutationDefaults` registration — `persistedMutationKeys.test.ts` enforces it.
 
 #### CRITICAL — Paused-Mutation Semantics
 

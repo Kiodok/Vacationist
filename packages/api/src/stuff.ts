@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type {
   PackingCategory,
   PackingItem,
@@ -30,14 +31,13 @@ export async function getPackingCategories(): Promise<PackingCategory[]> {
 // ─── Private Packing Items ────────────────────────────────────────────────────
 
 export async function getPackingItems(tripId: string): Promise<PackingItem[]> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await db
     .from('packing_items')
     .select('*')
     .eq('trip_id', tripId)
-    .eq('user_id', session.user.id)
+    .eq('user_id', userId)
     .is('deleted_at', null)
     .order('is_packed', { ascending: true })
     .order('sort_order', { ascending: true })
@@ -48,14 +48,13 @@ export async function getPackingItems(tripId: string): Promise<PackingItem[]> {
 }
 
 export async function createPackingItem(tripId: string, input: CreatePackingItemInput): Promise<PackingItem> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await db
     .from('packing_items')
     .insert({
       trip_id: tripId,
-      user_id: session.user.id,
+      user_id: userId,
       category: input.category,
       title: input.title,
       notes: input.notes ?? null,
@@ -109,8 +108,7 @@ export async function getSharedPackingItems(tripId: string): Promise<SharedPacki
 }
 
 export async function createSharedPackingItem(tripId: string, input: CreateSharedPackingItemInput): Promise<SharedPackingItem> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const is_resolved = input.item_type !== 'who_has';
 
@@ -121,7 +119,7 @@ export async function createSharedPackingItem(tripId: string, input: CreateShare
       title: input.title,
       item_type: input.item_type,
       notes: input.notes ?? null,
-      created_by: session.user.id,
+      created_by: userId,
       is_resolved,
     })
     .select()
@@ -173,8 +171,7 @@ export async function getLostFoundCases(tripId: string): Promise<LostFoundCase[]
 }
 
 export async function createLostFoundCase(tripId: string, input: CreateLostFoundCaseInput): Promise<LostFoundCase> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await db
     .from('lost_found_cases')
@@ -183,7 +180,7 @@ export async function createLostFoundCase(tripId: string, input: CreateLostFound
       case_type: input.case_type,
       title: input.title,
       description: input.description ?? null,
-      created_by: session.user.id,
+      created_by: userId,
       target_user: input.target_user ?? null,
     })
     .select()

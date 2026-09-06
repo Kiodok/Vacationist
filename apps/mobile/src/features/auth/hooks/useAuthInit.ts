@@ -6,19 +6,46 @@ import {
   ensureUserProfile,
   onAuthStateChange,
   setSessionFromUrl,
+  readStoredSession,
 } from '@vacationist/api';
+import type { User } from '@vacationist/types';
 import { useAuthStore } from '../../../stores/authStore';
 import { saveUserToCache, loadUserFromCache, clearUserCache } from '../../../utils/userCache';
+import { getInitialOnlineStatus } from '../../../hooks/netInfoUtils';
 import { persistLocale, SUPPORTED_LOCALES } from '@vacationist/i18n';
 import { setSentryUser, clearSentryUser } from '../../../utils/sentry';
 import type { SupportedLocale } from '@vacationist/types';
 import { maybeTrackSignUp } from '../../consent/utils/trackSignUp';
 import { attemptRestoreSignIn, ensureRestoreKey } from '../utils/restoreCredential';
+import { markVerified, offlineWindowState, clearAuthSnapshot } from '../utils/authSnapshot';
+
+/**
+ * A stand-in User for the rare case of a restored SecureStore session with no
+ * cached profile while offline (fresh install from a device backup, then no
+ * signal). Lets the app open instead of dead-ending on the network-only login
+ * screen; the real profile replaces it the moment `ensureUserProfile` succeeds.
+ */
+function minimalUser(id: string): User {
+  return {
+    id,
+    name: '',
+    email: null,
+    avatar_url: null,
+    locale: null,
+    timezone: 'UTC',
+    is_guest: false,
+    preferred_currency: null,
+    show_store_badges: true,
+    created_at: new Date(0).toISOString(),
+    updated_at: new Date(0).toISOString(),
+  };
+}
 
 export function useAuthInit() {
   const setUser = useAuthStore((s) => s.setUser);
   const setHasSession = useAuthStore((s) => s.setHasSession);
   const setLoading = useAuthStore((s) => s.setLoading);
+  const setOfflineReauthRequired = useAuthStore((s) => s.setOfflineReauthRequired);
   const reset = useAuthStore((s) => s.reset);
 
   useEffect(() => {
@@ -39,54 +66,106 @@ export function useAuthInit() {
       }
     }
 
-    async function loadSession() {
+    // Confirms the session against the server and refreshes the profile, off the
+    // splash critical path. Never signs the user out on a network failure — it
+    // falls back to the offline trust window instead (Phase 19).
+    async function verifyInBackground() {
       try {
         const session = await getSession();
-        if (!mounted) return;
-
         if (!session) {
-          // No local session. On a fresh Android device restored from backup / a D2D transfer,
-          // try the Zero-Tap restore credential before falling back to the login screen. This
-          // runs while the splash screen is still up (setLoading(false) is in the finally), so a
-          // successful restore never flashes the login screen. onAuthStateChange picks up the
-          // new session. No-ops fast on iOS / web / a device with no restore key.
-          const restored = await attemptRestoreSignIn();
-          if (restored && mounted) return;
-          if (mounted) reset();
+          // "Online" per NetInfo but the token refresh still failed (captive
+          // portal, flaky Wi-Fi). Don't sign out — respect the trust window.
+          const state = await offlineWindowState();
+          if (!mounted) return;
+          if (state === 'no-credentials') {
+            clearSentryUser();
+            reset();
+          } else if (state === 'needs-extend') {
+            setOfflineReauthRequired(true);
+          }
           return;
         }
 
-        // Restore immediately from cache so the app is usable offline
-        setHasSession(true);
-        const cached = loadUserFromCache();
-        if (cached && mounted) setUser(cached);
-
-        try {
-          // Fetch fresh profile; updates the cache on success
-          const profile = await ensureUserProfile(session);
-          if (mounted) {
-            setUser(profile);
-            saveUserToCache(profile);
-            setSentryUser(profile.id, profile.locale);
-            maybeTrackSignUp(profile);
-            void ensureRestoreKey(profile); // Android Zero-Tap — fire-and-forget, best-effort
-            // Sync all locale singletons from the server-saved preference.
-            // Only fires when profile.locale is non-null (null = new user, use device locale).
-            // persistLocale propagates to dayjs + formatCurrency via the registered callback.
-            if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
-              persistLocale(profile.locale as SupportedLocale);
-            }
-          }
-        } catch {
-          // Network unavailable — cached profile already set above.
-          // Only sign the user out if we have NO cached profile
-          // (first install with no prior successful sign-in).
-          if (!cached && mounted) { clearSentryUser(); reset(); }
+        const profile = await ensureUserProfile(session);
+        if (!mounted) return;
+        setUser(profile);
+        saveUserToCache(profile);
+        setSentryUser(profile.id, profile.locale);
+        await markVerified(profile.id);
+        maybeTrackSignUp(profile);
+        void ensureRestoreKey(profile);
+        if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
+          persistLocale(profile.locale as SupportedLocale);
         }
       } catch {
-        // getSession() itself failed (shouldn't happen — reads local storage)
-        if (mounted) { clearSentryUser(); reset(); }
+        // Network blip mid-verify — cached data is already on screen; leave it.
+      }
+    }
+
+    async function loadSession() {
+      try {
+        const stored = await readStoredSession();
+        const cached = loadUserFromCache();
+
+        if (!stored) {
+          // No credentials on disk. Show the login screen now, but still try a
+          // silent Android Zero-Tap restore in the background — onAuthStateChange
+          // swaps to the app if it lands. (No-ops fast on iOS/web.)
+          if (mounted) {
+            reset();
+            setLoading(false);
+          }
+          void attemptRestoreSignIn();
+          return;
+        }
+
+        const online = await getInitialOnlineStatus().catch(() => true);
+
+        if (!online) {
+          const state = await offlineWindowState();
+          if (!mounted) return;
+          if (state === 'no-credentials') {
+            reset();
+            setLoading(false);
+            return;
+          }
+          if (state === 'needs-extend') {
+            setOfflineReauthRequired(true);
+            setLoading(false);
+            return;
+          }
+          // 'valid' — trust the stored session and open the app from cache.
+          setHasSession(true);
+          const offlineUser = cached ?? minimalUser(stored.userId);
+          setUser(offlineUser);
+          if (cached) setSentryUser(cached.id, cached.locale);
+          if (cached?.locale && (SUPPORTED_LOCALES as readonly string[]).includes(cached.locale)) {
+            persistLocale(cached.locale as SupportedLocale);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Online with credentials: open from cache immediately, verify after.
+        if (mounted) {
+          setHasSession(true);
+          if (cached) {
+            setUser(cached);
+            setSentryUser(cached.id, cached.locale);
+            if ((SUPPORTED_LOCALES as readonly string[]).includes(cached.locale ?? '')) {
+              persistLocale(cached.locale as SupportedLocale);
+            }
+          }
+          setLoading(false);
+        }
+        void verifyInBackground();
+      } catch {
+        if (mounted) {
+          clearSentryUser();
+          reset();
+        }
       } finally {
+        // Branches above already clear loading; this covers a thrown error.
         if (mounted) setLoading(false);
       }
     }
@@ -140,35 +219,36 @@ export function useAuthInit() {
       if (!mounted) return;
 
       if (event === 'SIGNED_OUT' || !session) {
-        // Only clear state on an explicit sign-out, not a transient token
-        // refresh failure (which Supabase also surfaces as SIGNED_OUT).
-        // We distinguish by checking whether we still have a locally
-        // stored session: getSession() reads SecureStore synchronously.
-        getSession().then((localSession) => {
+        // Supabase surfaces BOTH an explicit sign-out and a transient offline
+        // token-refresh failure as SIGNED_OUT. Only treat it as real when there
+        // is genuinely nothing left on disk — a retryable failure keeps the
+        // session blob, and the auto-refresh ticker heals it on reconnect.
+        // NEVER clear the user cache here on a transient failure: it's the
+        // offline fallback (Phase 19 — this used to wipe it).
+        readStoredSession().then((localSession) => {
           if (!localSession && mounted) {
             clearUserCache();
             clearSentryUser();
+            void clearAuthSnapshot();
             reset();
           }
         }).catch(() => {
-          if (mounted) {
-            clearUserCache();
-            clearSentryUser();
-            reset();
-          }
+          // A failed storage read is not proof of sign-out — leave state intact.
         });
         return;
       }
 
       setHasSession(true);
+      setOfflineReauthRequired(false);
       ensureUserProfile(session)
         .then((profile) => {
           if (mounted) {
             setUser(profile);
             saveUserToCache(profile);
             setSentryUser(profile.id, profile.locale);
+            void markVerified(profile.id);
             maybeTrackSignUp(profile);
-            void ensureRestoreKey(profile); // Android Zero-Tap — fire-and-forget, best-effort
+            void ensureRestoreKey(profile);
             if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
               persistLocale(profile.locale as SupportedLocale);
             }
@@ -184,5 +264,5 @@ export function useAuthInit() {
       linkSub.remove();
       subscription.unsubscribe();
     };
-  }, [setUser, setHasSession, setLoading, reset]);
+  }, [setUser, setHasSession, setLoading, setOfflineReauthRequired, reset]);
 }

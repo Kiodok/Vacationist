@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAccommodationVotes, castAccommodationVote, removeAccommodationVote } from '@vacationist/api';
-import type { AccommodationVote, CastAccommodationVoteVariables } from '@vacationist/types';
+import { getAccommodationVotes, castAccommodationVote } from '@vacationist/api';
+import type { AccommodationVote, CastAccommodationVoteVariables, RemoveAccommodationVoteVariables } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { createOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
@@ -49,17 +49,28 @@ export function useCastAccommodationVote() {
   });
 }
 
-export function useRemoveAccommodationVote(tripId: string, accommodationId: string) {
+// Persisted (mutationFn + onSuccess in mutationDefaults). Call
+// `.mutate({ accommodationId, tripId })`.
+export function useRemoveAccommodationVote() {
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  return useMutation({
-    mutationFn: () => removeAccommodationVote(accommodationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
+  return useMutation<void, Error, RemoveAccommodationVoteVariables, { previous: AccommodationVote[] | undefined }>({
+    mutationKey: ['removeAccommodationVote'],
+    onMutate: async ({ accommodationId }) => {
+      await queryClient.cancelQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
+      const previous = queryClient.getQueryData<AccommodationVote[]>(['accommodations', accommodationId, 'votes']);
+      queryClient.setQueryData<AccommodationVote[]>(
+        ['accommodations', accommodationId, 'votes'],
+        (old) => old?.filter((v) => v.user_id !== currentUserId),
+      );
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { accommodationId }, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['accommodations', accommodationId, 'votes'], context.previous);
+      }
       addToast('error', i18n.t('accommodations:toast.removeVoteFailed'));
     },
   });

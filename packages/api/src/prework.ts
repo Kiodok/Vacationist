@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   PreworkTopic,
@@ -32,8 +33,7 @@ export async function createPreworkTopic(
   tripId: string,
   input: CreatePreworkTopicInput
 ): Promise<PreworkTopic> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { count } = await db
     .from('prework_topics')
@@ -48,7 +48,7 @@ export async function createPreworkTopic(
       description: input.description?.trim() || null,
       seeded_labels: input.seeded_labels ?? [],
       position: count ?? 0,
-      created_by: session.user.id,
+      created_by: userId,
     } as never)
     .select()
     .single();
@@ -98,14 +98,13 @@ export async function getTopicPreferences(topicId: string): Promise<PreworkPrefe
 }
 
 export async function getMyTopicPreferences(topicId: string): Promise<PreworkPreferences | null> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await db
     .from('prework_preferences')
     .select('*')
     .eq('topic_id', topicId)
-    .eq('user_id', session.user.id)
+    .eq('user_id', userId)
     .maybeSingle();
 
   if (error) throw error;
@@ -117,8 +116,7 @@ export async function upsertTopicPreferences(
   tripId: string,
   input: UpsertPreworkPreferencesInput
 ): Promise<PreworkPreferences> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await db
     .from('prework_preferences')
@@ -126,7 +124,7 @@ export async function upsertTopicPreferences(
       {
         topic_id: topicId,
         trip_id: tripId,
-        user_id: session.user.id,
+        user_id: userId,
         filters: input.filters,
       },
       { onConflict: 'topic_id,user_id' }
@@ -139,14 +137,13 @@ export async function upsertTopicPreferences(
 }
 
 export async function deleteTopicPreferences(topicId: string): Promise<void> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { error } = await db
     .from('prework_preferences')
     .delete()
     .eq('topic_id', topicId)
-    .eq('user_id', session.user.id);
+    .eq('user_id', userId);
 
   if (error) throw error;
 }

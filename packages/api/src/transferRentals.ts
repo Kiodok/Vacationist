@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferRental,
@@ -20,9 +21,7 @@ export async function getTransferRentals(tripId: string): Promise<TransferRental
 }
 
 export async function createTransferRental(tripId: string, input: CreateTransferRentalInput): Promise<TransferRental> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('transfer_rentals')

@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { ActivityNote, CreateActivityNoteInput, UpdateActivityNoteInput } from '@vacationist/types';
 
 export async function getActivityNotes(activityId: string): Promise<ActivityNote[]> {
@@ -16,14 +17,13 @@ export async function createActivityNote(
   activityId: string,
   input: CreateActivityNoteInput,
 ): Promise<ActivityNote> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
+  const userId = await getUserIdOfflineSafe();
 
   const { data, error } = await supabase
     .from('activity_notes')
     .insert({
       activity_id: activityId,
-      created_by: session.user.id,
+      created_by: userId,
       content: input.content,
     })
     .select()

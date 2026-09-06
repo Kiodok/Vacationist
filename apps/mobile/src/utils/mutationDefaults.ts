@@ -14,6 +14,9 @@ import {
   castActivityVote,
   castAccommodationVote,
   castTransferFlightVote,
+  removeActivityVote,
+  removeAccommodationVote,
+  removeTransferFlightVote,
   createExpense,
   updateExpenseWithSplits,
   archiveExpense,
@@ -35,6 +38,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   deleteNotification,
+  deleteAllNotifications,
   createPackingItem,
   updatePackingItem,
   softDeletePackingItem,
@@ -89,11 +93,15 @@ import type {
   AccommodationVote,
   TransferFlightVote,
   ShoppingList,
+  ShoppingListWithCounts,
   ShoppingItem,
   CreateActivityVariables,
   CastActivityVoteVariables,
   CastAccommodationVoteVariables,
   CastTransferFlightVoteVariables,
+  RemoveActivityVoteVariables,
+  RemoveAccommodationVoteVariables,
+  RemoveTransferFlightVoteVariables,
   CreateExpenseVariables,
   UpdateExpenseWithSplitsVariables,
   ArchiveExpenseVariables,
@@ -116,6 +124,7 @@ import type {
   MarkNotificationReadVariables,
   MarkAllNotificationsReadVariables,
   DeleteNotificationVariables,
+  DeleteAllNotificationsVariables,
   PackingItem,
   SharedPackingItem,
   LostFoundCase,
@@ -165,6 +174,7 @@ import type {
 import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
 import { addSentryBreadcrumb } from './sentry';
+import { isOptimisticId } from './optimisticId';
 import {
   resolveOptimistic,
   replaceMessage,
@@ -254,6 +264,33 @@ queryClient.setMutationDefaults(['castTransferFlightVote'], {
   mutationFn: ({ vote, flightId }: CastTransferFlightVoteVariables) =>
     castTransferFlightVote(flightId, vote),
   onSuccess: (_data: TransferFlightVote, { flightId, tripId }: CastTransferFlightVoteVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
+  },
+});
+
+queryClient.setMutationDefaults(['removeActivityVote'], {
+  mutationFn: ({ activityId }: RemoveActivityVoteVariables) => removeActivityVote(activityId),
+  onSuccess: (_data: void, { activityId, tripId }: RemoveActivityVoteVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['activities', activityId, 'votes'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activities'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'activity-votes'] });
+    queryClient.invalidateQueries({ queryKey: ['activity-votes', 'trips'] });
+  },
+});
+
+queryClient.setMutationDefaults(['removeAccommodationVote'], {
+  mutationFn: ({ accommodationId }: RemoveAccommodationVoteVariables) =>
+    removeAccommodationVote(accommodationId),
+  onSuccess: (_data: void, { accommodationId, tripId }: RemoveAccommodationVoteVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['accommodations', accommodationId, 'votes'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'accommodations'] });
+  },
+});
+
+queryClient.setMutationDefaults(['removeTransferFlightVote'], {
+  mutationFn: ({ flightId }: RemoveTransferFlightVoteVariables) => removeTransferFlightVote(flightId),
+  onSuccess: (_data: void, { flightId, tripId }: RemoveTransferFlightVoteVariables) => {
     queryClient.invalidateQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'transfer-flights'] });
   },
@@ -365,6 +402,11 @@ queryClient.setMutationDefaults(['settleAllExpenses'], {
 queryClient.setMutationDefaults(['createShoppingList'], {
   mutationFn: ({ tripId, input }: CreateShoppingListVariables) => createShoppingList(tripId, input),
   onSuccess: (_data: ShoppingList, { tripId }: CreateShoppingListVariables) => {
+    // Drop the hook's optimistic placeholder(s) before the invalidate refetch.
+    queryClient.setQueryData<ShoppingListWithCounts[]>(
+      ['trips', tripId, 'shopping-lists'],
+      (old) => old?.filter((l) => !isOptimisticId(l.id)),
+    );
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
     useToastStore.getState().addToast('success', i18n.t('shopping:toast.listCreated'));
   },
@@ -410,9 +452,11 @@ queryClient.setMutationDefaults(['createShoppingItem'], {
     queryClient.setQueryData<ShoppingItem[]>(
       ['shopping-lists', listId, 'items'],
       (old) => {
-        if (!old) return [newItem];
-        if (old.some((i) => i.id === newItem.id)) return old;
-        return [...old, newItem];
+        // Drop any optimistic placeholder rows from the hook's onMutate, then
+        // append the real row (dedup against a realtime INSERT that already landed).
+        const base = (old ?? []).filter((i) => !isOptimisticId(i.id));
+        if (base.some((i) => i.id === newItem.id)) return base;
+        return [...base, newItem];
       },
     );
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
@@ -854,6 +898,18 @@ queryClient.setMutationDefaults(['deleteNotification'], {
   mutationFn: ({ notificationId }: DeleteNotificationVariables) => deleteNotification(notificationId),
   onSuccess: (_data: void, { tripId }: DeleteNotificationVariables) => {
     queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    if (tripId) {
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notifications', 'unread-count'] });
+    }
+  },
+});
+
+queryClient.setMutationDefaults(['deleteAllNotifications'], {
+  mutationFn: ({ tripId }: DeleteAllNotificationsVariables) => deleteAllNotifications(tripId),
+  onSuccess: (_data: void, { tripId }: DeleteAllNotificationsVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
     if (tripId) {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notifications'] });
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'notifications', 'unread-count'] });

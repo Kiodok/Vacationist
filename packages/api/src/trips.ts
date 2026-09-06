@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { getUserIdOfflineSafe } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Trip, CreateTripInput, UpdateTripInput, TripTabContent, CostSummaryRow, MyCostShareRow } from '@vacationist/types';
 
@@ -54,9 +55,7 @@ export async function getTripTabContent(tripId: string): Promise<TripTabContent>
 }
 
 export async function createTrip(input: CreateTripInput): Promise<Trip> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) throw new Error('Not authenticated');
-  const user = session.user;
+  const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('trips')
