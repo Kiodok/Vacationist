@@ -6,6 +6,8 @@
   "edit.timezone": "Zeitzone",
   "edit.preferredCurrency": "Bevorzugte Währung",
   "edit.preferredCurrencyNone": "Nicht festgelegt — verwendet die Währung der jeweiligen Reise",
+  "edit.showStoreBadges": "App-Download-Buttons anzeigen",
+  "edit.showStoreBadgesHint": "Wird nur in der Web-App angezeigt — ausschalten, wenn du die App bereits hast.",
   "edit.saveButton": "Änderungen speichern",
   "edit.saving": "Wird gespeichert…",
   "section.travelDocuments": "Reisedokumente",

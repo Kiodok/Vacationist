@@ -1471,3 +1471,42 @@ Build order: migration → types → API service → native module → util → 
 then prod (approved exception per the Tech Lead — new deny-all tables, no client skew).
 **Not yet done:** `RESTORE_EXTRA_APK_KEY_HASHES` secret (if needed); full store builds; device
 testing; `git commit`.
+
+---
+
+## 📲 Phase 18: Web-App Store Download Badges (v1.35.1)
+*Dependencies: Phase 10 (marketing store URLs), Phase 14 (`track-event` funnel).*
+*Goal: a large share of new accounts are created on `web.vacationist.app` and never convert to a
+native install. Surface "Get it on Play Store" / "Get it on App Store" text pills on the two
+highest-traffic web-app surfaces, with a per-user opt-out and click tracking so the lift is
+measurable. Web only — `Platform.OS === 'web'` guarded; nothing renders on native.*
+
+- [x] **Migration `20260906130000_add_show_store_badges.sql`** — `users.show_store_badges BOOLEAN
+  NOT NULL DEFAULT TRUE`. Additive; no RLS/`delete_own_account()` change. **DEPLOYED dev + prod
+  2026-09-06** (safe additive column; parity reconfirmed — see `engineering/supabase.md`).
+- [x] **Types** — `show_store_badges` on `User` (`database.ts`) + `updateProfileSchema`
+  (`schemas.ts`); `npm run supabase:types` regenerated. Also folded a pre-existing fix:
+  `ANALYTICS_EVENT_NAME` was missing `'app_store_click'` (in the DB CHECK since `20260817110000`).
+- [x] **Utils** — `apps/mobile/src/utils/storeUrl.ts` gains `PLAY_STORE_URL` / `APP_STORE_URL`
+  named exports; `STORE_URL` unchanged for native consumers.
+- [x] **Component** — `apps/mobile/src/components/StoreBadges.tsx`. Renders null unless web + not
+  opted out. Text-only pills (no glyph — Tech Lead call); labels shorten to "Play Store" /
+  "App Store" below 640px. `window.open` on tap; consent-gated `logAnalyticsEvent`
+  (`play_store_click` / `app_store_click`, `surface: 'web_app'`) — first `track-event` call site
+  in `apps/mobile`. Colorful: `borderWidth: 2` + web `boxShadow`.
+- [x] **Screens** — Trips tab header (next to avatar, `app/(tabs)/index.tsx`); trip header before
+  the alerts bell (`app/trip/[id]/index.tsx`) → order Play · App Store · bell · status; opt-out
+  Switch after "Preferred currency" in `EditProfileSheet.tsx`.
+- [x] **i18n** — `storeBadge.play/appStore/playShort/appStoreShort` in `common.json` (en/de);
+  `edit.showStoreBadges` + `edit.showStoreBadgesHint` in `profile.json` (en/de).
+- [x] **Verification** — `npm run typecheck` + `npm test` (root) clean. Live in Chrome
+  (`npm run web`): badges on both surfaces in dark / light / colorful; text-only; toggle off →
+  both headers drop the badges immediately, persists across reload; a real Play-badge click fired
+  a `play_store_click` POST to `track-event` (extension capture showed 503 — the known
+  keepalive-beacon artifact; direct `curl` with the localhost Origin returned 204). Compact
+  (<640px) label swap verified by code (viewport resize unavailable in the test harness).
+
+**Release:** `app.config.ts` bumped `1.35.0` → `1.35.1` (PATCH — Tech Lead). Web-only feature,
+no native change → OTA-eligible; the actual value ships on the Vercel push to `main`.
+**Not yet done:** narrow-viewport visual spot-check; `git commit` (migration + client land in the
+same commit on `main` per the no-branches rule); `eas update --branch production` after commit.

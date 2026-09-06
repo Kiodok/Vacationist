@@ -2710,6 +2710,7 @@ export type Database = {
           locale: string | null
           name: string
           preferred_currency: string | null
+          show_store_badges: boolean
           signup_attribution_claimed_at: string | null
           timezone: string
           updated_at: string
@@ -2723,6 +2724,7 @@ export type Database = {
           locale?: string | null
           name: string
           preferred_currency?: string | null
+          show_store_badges?: boolean
           signup_attribution_claimed_at?: string | null
           timezone?: string
           updated_at?: string
@@ -2736,6 +2738,7 @@ export type Database = {
           locale?: string | null
           name?: string
           preferred_currency?: string | null
+          show_store_badges?: boolean
           signup_attribution_claimed_at?: string | null
           timezone?: string
           updated_at?: string

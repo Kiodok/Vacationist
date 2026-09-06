@@ -1,5 +1,41 @@
 # Supabase Changes Log
 
+## 2026-09-06 (v1.35.1) — `users.show_store_badges` (web-app store download badges)
+
+**Status: DEV + PROD.** Migration `20260906130000_add_show_store_badges.sql` applied to dev
+(`aejywkbkcwyanhyzhrle`) then prod (`fsfsqghbejwvgxujoyne`) on 2026-09-06. Ledger parity
+reconfirmed — both remotes show 240 migrations, `20260906130000` = `remote` on both; re-linked to
+dev. `npm run supabase:types` re-run (adds `show_store_badges` to the `users` Row/Insert/Update in
+`packages/api/src/database.types.ts`).
+
+**Why:** A large share of new accounts are created on `web.vacationist.app` and never convert to a
+native install. v1.35.0+ adds "Get it on Play Store" / "Get it on App Store" badges to the web app
+(next to the avatar on the global Trips tab; next to the alerts bell inside a trip — web only,
+`Platform.OS === 'web'` guarded). This column is the per-user opt-out, surfaced as a switch in
+Profile → Edit Profile, right after "Preferred currency".
+
+**Migration (non-destructive, additive):**
+```sql
+ALTER TABLE public.users
+  ADD COLUMN show_store_badges BOOLEAN NOT NULL DEFAULT TRUE;
+```
+- Backfills every existing row to `TRUE` (badges shown) — the intended default.
+- **No RLS change** — `users_update_own` (`20260511000001`) is column-agnostic;
+  `restrict_user_self_update()` (`20260523195339`) only guards `is_guest`.
+- **No `delete_own_account()` change** — plain column on an existing table, no new FK to
+  `public.users`.
+
+**Client code NOT committed yet** — the migration is safe ahead of the client (a `NOT NULL
+DEFAULT TRUE` add that no existing client reads or writes), but per the no-branches rule the
+matching client change (new `StoreBadges` component, `updateProfileSchema` + `User` type,
+`EditProfileSheet` switch, i18n) lands in the **same commit on `main`**. Also folds an unrelated
+pre-existing fix: `packages/types/src/analytics.ts` `ANALYTICS_EVENT_NAME` was missing
+`'app_store_click'` (added to the DB CHECK by `20260817110000`, already accepted by the
+`track-event` Edge Function) — the web-app badge clicks emit it via `logAnalyticsEvent`.
+
+No Edge Function change. No `db dump` diff (Docker unavailable on this machine — migration-ledger
+parity check used instead, per `engineering/` no-Docker note).
+
 ## 2026-09-06 (v1.35.0) — Zero-Tap Sign-In: restore_credentials + restore-credential Edge Function
 
 **Status: DEV + PROD.** Migration `20260906120000` applied to dev (`aejywkbkcwyanhyzhrle`) then

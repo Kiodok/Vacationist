@@ -1,10 +1,12 @@
 import { z } from 'zod';
 
 // Mirrors the CHECK constraints on public.analytics_events
-// (supabase/migrations/20260808100000_create_analytics_events.sql). Keep in sync manually.
+// (supabase/migrations/20260808100000_create_analytics_events.sql, event_name list last
+// widened by 20260817110000_add_app_store_click_event.sql). Keep in sync manually.
 export const ANALYTICS_EVENT_NAME = [
   'page_visit',
   'play_store_click',
+  'app_store_click',
   'web_app_click',
   'app_store_interest',
   'sign_up',

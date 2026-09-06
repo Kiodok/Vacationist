@@ -28,6 +28,7 @@ export interface User {
   timezone: string;
   is_guest: boolean;
   preferred_currency: Currency | null;
+  show_store_badges: boolean;
   created_at: string;
   updated_at: string;
 }

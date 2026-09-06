@@ -17,6 +17,7 @@ import { StatusBadge } from '../../../src/features/trips/components/StatusBadge'
 import { getEffectiveStatus } from '../../../src/features/trips/components/TripCard';
 import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary';
 import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
+import { StoreBadges } from '../../../src/components/StoreBadges';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { TripTabContent } from '@vacationist/types';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
@@ -218,6 +219,7 @@ export default function TripDetailScreen() {
               </Text>
             </Pressable>
           </View>
+          <StoreBadges />
           <TripNotificationBell tripId={id!} />
           <StatusBadge status={getEffectiveStatus(trip)} />
         </View>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, Pressable, Modal, TextInput, ScrollView, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
@@ -36,6 +36,7 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
         locale: (user.locale ?? getCurrentLocale()) as 'en' | 'de',
         timezone: user.timezone as typeof SUPPORTED_TIMEZONES[number],
         preferred_currency: user.preferred_currency,
+        show_store_badges: user.show_store_badges ?? true,
       });
     }
   }, [visible, user]);
@@ -172,6 +173,30 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
                     )}
                   </Pressable>
                 </View>
+
+                <Controller
+                  control={control}
+                  name="show_store_badges"
+                  render={({ field: { onChange, value } }) => (
+                    <View className="gap-xs">
+                      <View className="flex-row items-center justify-between py-xs">
+                        <Text className="text-body text-text-primary flex-1 pr-md">
+                          {t('edit.showStoreBadges')}
+                        </Text>
+                        <Switch
+                          value={value ?? true}
+                          onValueChange={onChange}
+                          trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                          thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                          ios_backgroundColor="#3E3E3E"
+                        />
+                      </View>
+                      <Text className="text-body-small text-text-muted">
+                        {t('edit.showStoreBadgesHint')}
+                      </Text>
+                    </View>
+                  )}
+                />
               </View>
             </ScrollView>
 

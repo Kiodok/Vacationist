@@ -12,6 +12,7 @@ import { useAuthStore } from '../../src/stores/authStore';
 import { useCollapsibleSections } from '../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../src/components/CollapsibleSectionHeader';
 import { SearchInput } from '../../src/components/SearchInput';
+import { StoreBadges } from '../../src/components/StoreBadges';
 import type { Trip } from '@vacationist/types';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
@@ -177,22 +178,25 @@ export default function TripsScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
         ListHeaderComponent={
           <View className="pt-md pb-sm gap-sm">
-            <View className="flex-row items-center justify-between">
-              <Pressable
-                onPress={() => router.navigate('/(tabs)/profile' as never)}
-                className="w-[40px] h-[40px] rounded-full bg-surface items-center justify-center overflow-hidden"
-              >
-                {user?.avatar_url && !avatarError ? (
-                  <Image
-                    source={{ uri: user.avatar_url }}
-                    className="w-full h-full"
-                    onError={() => setAvatarError(true)}
-                  />
-                ) : (
-                  <ThemedIcon name="person" size={20} color={colors.textMuted} />
-                )}
-              </Pressable>
-              <Text className="text-heading-xl text-text-primary">{t('screen.title')}</Text>
+            <View className="flex-row items-center justify-between gap-sm">
+              <View className="flex-row items-center gap-sm shrink">
+                <Pressable
+                  onPress={() => router.navigate('/(tabs)/profile' as never)}
+                  className="w-[40px] h-[40px] rounded-full bg-surface items-center justify-center overflow-hidden"
+                >
+                  {user?.avatar_url && !avatarError ? (
+                    <Image
+                      source={{ uri: user.avatar_url }}
+                      className="w-full h-full"
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <ThemedIcon name="person" size={20} color={colors.textMuted} />
+                  )}
+                </Pressable>
+                <StoreBadges />
+              </View>
+              <Text className="text-heading-xl text-text-primary" numberOfLines={1}>{t('screen.title')}</Text>
               <View className="w-[40px]" />
             </View>
             <SearchInput

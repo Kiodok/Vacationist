@@ -24,6 +24,7 @@ export const updateProfileSchema = z.object({
   locale: z.enum(SUPPORTED_LOCALES).optional(),
   timezone: z.enum(SUPPORTED_TIMEZONES).optional(),
   preferred_currency: currencyCodeSchema.nullable().optional(),
+  show_store_badges: z.boolean().optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
