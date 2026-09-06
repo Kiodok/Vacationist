@@ -2,6 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
 import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
+import { isExpectedMutationError } from './errorClassification';
 
 // Keys whose mutations are persisted to MMKV and replayed on reconnect.
 // Only include mutations where every needed variable lives in the variables
@@ -172,12 +173,24 @@ queryClient.getMutationCache().subscribe((event) => {
 
   // Report final mutation errors to Sentry (after all retries exhausted).
   // Paused mutations are not errors — they're queued offline, so we skip those.
+  // Expected business-rule / permission / concurrent-edit errors (Postgres P0001
+  // etc.) already reach the user as a toast via the hook's onError — they are not
+  // bugs and must not create Sentry issues.
   if (mut.state.status === 'error' && mut.state.error && !mut.state.isPaused) {
     if (!erroredMutationsSeen.has(mut)) {
       erroredMutationsSeen.add(mut);
-      Sentry.captureException(mut.state.error, {
-        tags: { source: 'mutation', mutationKey: String(key ?? 'unknown') },
-      });
+      if (isExpectedMutationError(mut.state.error)) {
+        Sentry.addBreadcrumb({
+          category: 'mutation',
+          level: 'info',
+          message: `expected mutation error: ${String(key ?? 'unknown')}`,
+          data: { code: (mut.state.error as { code?: unknown }).code },
+        });
+      } else {
+        Sentry.captureException(mut.state.error, {
+          tags: { source: 'mutation', mutationKey: String(key ?? 'unknown') },
+        });
+      }
     }
   }
 

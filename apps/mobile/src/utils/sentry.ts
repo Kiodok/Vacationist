@@ -21,6 +21,11 @@ export function initSentry() {
       /window\.webkit\.messageHandlers/,
       /evaluating 'window\.webkit/,
       'sendDataToNative',
+      // Benign web-only unmount race in a third-party measurement path
+      // (react-native-safe-area-context / react-remove-scroll call
+      // getComputedStyle on a node that detached before a late transitionend).
+      /getComputedStyle' must be an instance of Element/,
+      /Argument 1 \('element'\) to Window\.getComputedStyle/,
     ],
     // app:/// is the synthetic URL scheme used by IAB-injected scripts — never our code.
     denyUrls: [
@@ -59,13 +64,24 @@ export function initSentry() {
 
       // The Turnstile fallback chain (embedded widget -> browser tab) is a working,
       // by-design recovery path, not a bug — see TurnstileWidget.tsx / useCaptchaToken.ts /
-      // captchaBrowserFallback.ts. It's now triggered only from a submit handler
-      // (never automatically on mount), so these events should be rare.
-      // Downgrade both messages so they stop surfacing as issues needing triage. A
-      // dismissed fallback (user backed out of the browser tab) is normal user
-      // behavior, not a fault, so drop it entirely rather than just downgrading it.
-      if (event.message === 'turnstile_widget_failed' || event.message === 'turnstile_browser_fallback_failed') {
-        if (event.tags?.reason === 'dismissed') return null;
+      // captchaBrowserFallback.ts.
+      //
+      // `turnstile_widget_failed`: the embedded widget's onError only sets a flag; the
+      // browser fallback then recovers the flow. Zero user impact, high volume, and the
+      // real signal is `turnstile_browser_fallback_failed`. Drop it entirely from issue
+      // ingestion — TurnstileWidget.tsx still records it as a breadcrumb + Sentry log so
+      // the volume stays observable in Logs.
+      if (event.message === 'turnstile_widget_failed') return null;
+
+      // `turnstile_browser_fallback_failed`: only a genuine problem when the fallback
+      // could not run. User-cancelled / benign outcomes (Android `dismissed`, the iOS
+      // `cancel`/`dismiss`/`locked` from ASWebAuthenticationSession, a missing token on
+      // return) are normal behaviour — drop them; keep the rest at info level.
+      if (event.message === 'turnstile_browser_fallback_failed') {
+        const benign = new Set([
+          'dismissed', 'cancel', 'dismiss', 'locked', 'opened', 'callback-missing-token',
+        ]);
+        if (benign.has(String(event.tags?.reason ?? ''))) return null;
         event.level = 'info';
       }
 

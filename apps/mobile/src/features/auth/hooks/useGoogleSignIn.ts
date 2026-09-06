@@ -3,6 +3,7 @@ import { NativeModules, Platform } from 'react-native';
 import { signInWithGoogleIdToken } from '@vacationist/api';
 import { i18n } from '@vacationist/i18n';
 import { tryStartGoogleSignIn, endGoogleSignIn } from '../utils/googleSignInGuard';
+import { awaitAppActiveForNativePresent } from '../utils/awaitAppActive';
 
 type GoogleSigninType =
   typeof import('@react-native-google-signin/google-signin').GoogleSignin;
@@ -65,6 +66,15 @@ export function useGoogleSignIn(
 
       if (!GoogleSignin) {
         throw new Error(i18n.t('auth:login.googleUnavailable'));
+      }
+
+      // A captcha browser fallback immediately before this leaves iOS with no
+      // presented view controller for a beat — GoogleSignin.signIn() would then
+      // raise an un-catchable NSInvalidArgumentException. Wait for the app to be
+      // foreground-active first.
+      if (!(await awaitAppActiveForNativePresent())) {
+        onError(i18n.t('auth:login.googleFailed'));
+        return;
       }
 
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });

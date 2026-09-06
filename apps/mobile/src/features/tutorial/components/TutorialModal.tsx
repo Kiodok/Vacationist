@@ -3,6 +3,7 @@ import { View, Text, Modal, Pressable, Dimensions, FlatList, Platform } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { ThemedIcon, colors, useResolvedTheme } from '@vacationist/ui';
+import { safeScrollToIndex } from '../../../utils/safeListScroll';
 
 const SLIDES = [
   { titleKey: 'slide1.title', descKey: 'slide1.description', icon: 'earth-outline' },
@@ -35,14 +36,14 @@ export function TutorialModal({ visible, onDismiss }: TutorialModalProps) {
       return;
     }
     const next = activeIndex + 1;
-    flatListRef.current?.scrollToIndex({ index: next, animated: true });
+    safeScrollToIndex(flatListRef, SLIDES.length, { index: next, animated: true });
     setActiveIndex(next);
   }
 
   function goBack() {
     if (isFirst) return;
     const prev = activeIndex - 1;
-    flatListRef.current?.scrollToIndex({ index: prev, animated: true });
+    safeScrollToIndex(flatListRef, SLIDES.length, { index: prev, animated: true });
     setActiveIndex(prev);
   }
 

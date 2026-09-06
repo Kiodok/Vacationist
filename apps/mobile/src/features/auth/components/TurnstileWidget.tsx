@@ -28,11 +28,17 @@ interface Props {
 // component only reports what actually happened to the embedded challenge.
 export function TurnstileWidget({ onToken, onExpired, onError, resetNonce }: Props) {
   function reportFailure(reason: string, detail?: string) {
-    Sentry.captureMessage('turnstile_widget_failed', {
+    // Not an issue: onError only sets a flag and the browser fallback recovers the
+    // flow. Record it as a breadcrumb + a Sentry log so the volume stays visible in
+    // Logs, but never create a Sentry issue (see sentry.ts beforeSend, which also
+    // drops any 'turnstile_widget_failed' message defensively).
+    Sentry.addBreadcrumb({
+      category: 'turnstile',
       level: 'warning',
-      tags: { source: 'turnstile', reason },
-      extra: { detail },
+      message: 'turnstile_widget_failed',
+      data: { reason, detail },
     });
+    Sentry.logger.warn('turnstile_widget_failed', { reason, detail: detail ?? null });
     onError?.();
   }
 

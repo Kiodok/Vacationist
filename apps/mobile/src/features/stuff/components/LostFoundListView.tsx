@@ -10,6 +10,7 @@ import { CreateLostFoundCaseSheet } from './CreateLostFoundCaseSheet';
 import { EditLostFoundCaseSheet } from './EditLostFoundCaseSheet';
 import { EmptyLostFound } from './EmptyPacking';
 import { isMutationBusy } from '../../../utils/mutationStatus';
+import { safeScrollToIndex } from '../../../utils/safeListScroll';
 import { getQueryDisplayState } from '../../../hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../components/OfflineEmptyState';
 
@@ -45,10 +46,9 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
 
   useEffect(() => {
     if (!highlightId || !sortedCases.length) return;
-    const idx = sortedCases.findIndex((c) => c.id === highlightId);
-    if (idx < 0) return;
     const timer = setTimeout(() => {
-      listRef.current?.scrollToIndex({ index: idx, animated: true });
+      const idx = sortedCases.findIndex((c) => c.id === highlightId);
+      safeScrollToIndex(listRef, sortedCases.length, { index: idx, animated: true });
     }, 300);
     return () => clearTimeout(timer);
   }, [highlightId, sortedCases]);

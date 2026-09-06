@@ -28,6 +28,7 @@ import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import { SearchInput } from '../../../src/components/SearchInput';
 import { flattenActivities, type ActivitiesData } from '../../../src/features/activities/utils/activityCache';
 import { compareActivitiesForDisplay } from '../../../src/features/activities/utils/activityOrder';
+import { safeScrollToSectionLocation } from '../../../src/utils/safeListScroll';
 
 function isTripLocked(endDate: string | null | undefined): boolean {
   if (!endDate) return false;
@@ -233,20 +234,27 @@ export default function ActivitiesTab() {
       // +1: within a section, flat index 0 is the section header itself
       // (see VirtualizedSectionList.scrollToLocation) — data row n sits at n + 1.
       const target = { sectionIndex, itemIndex: itemIndex + 1 };
+      let innerTimer: ReturnType<typeof setTimeout> | undefined;
       const timer = setTimeout(() => {
         scrolledForRef.current = activityId;
         scrollTargetRef.current = target;
         scrollAttemptsRef.current = 0;
-        sectionListRef.current?.scrollToLocation({ ...target, animated: true, viewOffset: 80 });
+        // Validate against the sections the list actually holds now — realtime vote
+        // reshuffles / paging / clock-based re-bucketing can have emptied or reordered
+        // sections since `target` was computed (crashes as REACT-NATIVE-5 otherwise).
+        safeScrollToSectionLocation(sectionListRef, sections, { ...target, animated: true, viewOffset: 80 });
         // The scrolled-to card renders expanded and grows asynchronously as its notes load;
         // re-issue the scroll once things have settled so it doesn't drift off-target.
-        setTimeout(() => {
-          sectionListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+        innerTimer = setTimeout(() => {
+          safeScrollToSectionLocation(sectionListRef, sections, { ...target, animated: false, viewOffset: 80 });
         }, 650);
       }, 250);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        if (innerTimer) clearTimeout(innerTimer);
+      };
     }
-  }, [activityId, rawSections, isCollapsed, expand]);
+  }, [activityId, rawSections, sections, isCollapsed, expand]);
 
   // A deep-linked activity (from a notification, the calendar, or a shared
   // highlight) may not be on a loaded page yet — the scroll effect above only
@@ -317,7 +325,7 @@ export default function ActivitiesTab() {
               animated: false,
             });
             setTimeout(() => {
-              sectionListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+              safeScrollToSectionLocation(sectionListRef, sections, { ...target, animated: false, viewOffset: 80 });
             }, 80);
           }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}

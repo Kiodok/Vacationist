@@ -50,6 +50,7 @@ import { EmptyRentals } from '../../../src/features/transfer/components/EmptyRen
 import { EmptyPublicTransport } from '../../../src/features/transfer/components/EmptyPublicTransport';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { safeScrollToSectionLocation, safeScrollToIndex } from '../../../src/utils/safeListScroll';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
@@ -175,7 +176,7 @@ export default function TransferTab() {
             // (see VirtualizedSectionList.scrollToLocation) — data row n sits at n + 1.
             flightScrollTargetRef.current = { sectionIndex: si, itemIndex: ii + 1 };
             flightScrollAttemptsRef.current = 0;
-            flightListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
+            safeScrollToSectionLocation(flightListRef, flightSections, { sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
             break;
           }
         }
@@ -185,19 +186,19 @@ export default function TransferTab() {
           if (ii >= 0) {
             vehicleScrollTargetRef.current = { sectionIndex: si, itemIndex: ii + 1 };
             vehicleScrollAttemptsRef.current = 0;
-            vehicleListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
+            safeScrollToSectionLocation(vehicleListRef, vehicleSections, { sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
             break;
           }
         }
       } else if (activeSegment === 'Rentals') {
         const idx = rentals.findIndex((r) => r.id === highlightId);
         if (idx >= 0) {
-          rentalListRef.current?.scrollToIndex({ index: idx, animated: true, viewOffset: 80 });
+          safeScrollToIndex(rentalListRef, rentals.length, { index: idx, animated: true, viewOffset: 80 });
         }
       } else if (activeSegment === 'PublicTransport') {
         const idx = publicTransport.findIndex((p) => p.id === highlightId);
         if (idx >= 0) {
-          publicTransportListRef.current?.scrollToIndex({ index: idx, animated: true, viewOffset: 80 });
+          safeScrollToIndex(publicTransportListRef, publicTransport.length, { index: idx, animated: true, viewOffset: 80 });
         }
       }
     }, 200);
@@ -342,7 +343,7 @@ export default function TransferTab() {
                 animated: false,
               });
               setTimeout(() => {
-                flightListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+                safeScrollToSectionLocation(flightListRef, flightSections, { ...target, animated: false, viewOffset: 80 });
               }, 80);
             }}
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
@@ -404,7 +405,7 @@ export default function TransferTab() {
                 animated: false,
               });
               setTimeout(() => {
-                vehicleListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+                safeScrollToSectionLocation(vehicleListRef, vehicleSections, { ...target, animated: false, viewOffset: 80 });
               }, 80);
             }}
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}

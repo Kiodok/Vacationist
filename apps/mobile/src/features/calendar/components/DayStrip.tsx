@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback } from 'react';
 import { FlatList, View, Platform } from 'react-native';
 import type { SupportedTimezone } from '@vacationist/types';
 import { DayCell } from './DayCell';
+import { safeScrollToIndex } from '../../../utils/safeListScroll';
 
 const ITEM_WIDTH = 52;
 const ITEM_GAP = 4;
@@ -38,7 +39,9 @@ export function DayStrip({
     const idx = dateRange.indexOf(selectedDate);
     if (idx >= 0 && listRef.current) {
       requestAnimationFrame(() => {
-        listRef.current?.scrollToIndex({ index: idx, animated: true, viewPosition: 0.4 });
+        // dateRange can be live-shortened (trip dates edited) between scheduling and
+        // running this — validate against its current length.
+        safeScrollToIndex(listRef, dateRange.length, { index: dateRange.indexOf(selectedDate), animated: true, viewPosition: 0.4 });
       });
     }
   }, [selectedDate, dateRange]);
@@ -70,7 +73,7 @@ export function DayStrip({
         initialScrollIndex={Platform.OS === 'web' ? 0 : Math.max(0, dateRange.indexOf(selectedDate))}
         onScrollToIndexFailed={(info) => {
           requestAnimationFrame(() => {
-            listRef.current?.scrollToIndex({ index: info.index, animated: false, viewPosition: 0.4 });
+            safeScrollToIndex(listRef, dateRange.length, { index: info.index, animated: false, viewPosition: 0.4 });
           });
         }}
       />

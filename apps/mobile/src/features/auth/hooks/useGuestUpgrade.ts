@@ -4,13 +4,8 @@ import { linkGuestWithGoogle, linkGuestWithApple, exchangeAppleAuthCode, linkGue
 import { tryStartGoogleSignIn, endGoogleSignIn } from '../utils/googleSignInGuard';
 import { tryStartAppleSignIn, endAppleSignIn } from '../utils/appleSignInGuard';
 import { performNativeAppleAuth, isAppleSignInCancelled, maybeSaveAppleName } from '../utils/appleAuth';
-
-type GoogleSigninType = typeof import('@react-native-google-signin/google-signin').GoogleSignin;
-let GoogleSignin: GoogleSigninType | null = null;
-if (Platform.OS !== 'web') {
-  const mod = require('@react-native-google-signin/google-signin');
-  GoogleSignin = mod.GoogleSignin;
-}
+import { getConfiguredGoogleSignin } from '../utils/configureGoogleSignin';
+import { awaitAppActiveForNativePresent } from '../utils/awaitAppActive';
 
 export function useGuestUpgrade() {
   const [isPending, setIsPending] = useState(false);
@@ -18,10 +13,20 @@ export function useGuestUpgrade() {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
   const upgradeWithGoogle = useCallback(async (captchaToken?: string) => {
+    // configure() the singleton here too — this sheet is reachable without the
+    // login screen (which is the only other place it's configured) ever mounting.
+    const GoogleSignin = getConfiguredGoogleSignin();
     if (!GoogleSignin || !tryStartGoogleSignIn()) return;
     setIsPending(true);
     setError(null);
     try {
+      // See awaitAppActive.ts — a captcha browser fallback right before this can
+      // leave iOS with no presented VC, making signIn() raise an un-catchable
+      // NSInvalidArgumentException.
+      if (!(await awaitAppActiveForNativePresent())) {
+        setError('Sign-in failed');
+        return;
+      }
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.idToken;

@@ -16,6 +16,7 @@ import { EditNoteSheet } from '../../../src/features/notes/components/EditNoteSh
 import { ViewNoteSheet } from '../../../src/features/notes/components/ViewNoteSheet';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { safeScrollToIndex } from '../../../src/utils/safeListScroll';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 
@@ -63,10 +64,10 @@ export default function NotesTab() {
   const listRef = useRef<FlashListRef<TripNote>>(null);
   useEffect(() => {
     if (!highlightId || !activeNotes.length) return;
-    const idx = activeNotes.findIndex((n) => n.id === highlightId);
-    if (idx < 0) return;
     const timer = setTimeout(() => {
-      listRef.current?.scrollToIndex({ index: idx, animated: true });
+      // Recompute against the current list — the row may have moved/gone in the delay.
+      const idx = activeNotes.findIndex((n) => n.id === highlightId);
+      safeScrollToIndex(listRef, activeNotes.length, { index: idx, animated: true });
     }, 300);
     return () => clearTimeout(timer);
   }, [highlightId, activeNotes]);

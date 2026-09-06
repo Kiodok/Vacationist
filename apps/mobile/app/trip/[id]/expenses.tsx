@@ -35,6 +35,7 @@ import { CurrencyPickerSheet } from '../../../src/features/currencies/components
 import { useCurrencyConversion } from '../../../src/features/currencies/hooks/useCurrencies';
 import { shareText, shareFile, downloadTextFile, deliverBase64File } from '../../../src/utils/share';
 import { useToastStore } from '../../../src/stores/toastStore';
+import { safeScrollToSectionLocation } from '../../../src/utils/safeListScroll';
 
 // Business summary document links are embedded in a file the user downloads and may open well
 // after the fact (e.g. handing it to an employer) — a long TTL, not the 5-minute in-app default.
@@ -386,7 +387,10 @@ export default function ExpensesTab() {
       const timer = setTimeout(() => {
         scrollTargetRef.current = { sectionIndex: si, itemIndex: ii + 1 };
         scrollRetriedRef.current = false;
-        sectionListRef.current?.scrollToLocation({ sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
+        // Validate against the sections the list holds now — a concurrent settle/archive
+        // (useExpensesRealtime) can move rows between sections during the 300 ms delay,
+        // leaving `ii` past the end (crashes as REACT-NATIVE-5 otherwise).
+        safeScrollToSectionLocation(sectionListRef, sections, { sectionIndex: si, itemIndex: ii + 1, animated: true, viewOffset: 80 });
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -422,7 +426,7 @@ export default function ExpensesTab() {
             if (!target || scrollRetriedRef.current) return;
             scrollRetriedRef.current = true;
             requestAnimationFrame(() => {
-              sectionListRef.current?.scrollToLocation({ ...target, animated: false, viewOffset: 80 });
+              safeScrollToSectionLocation(sectionListRef, sections, { ...target, animated: false, viewOffset: 80 });
             });
           }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
@@ -624,8 +628,11 @@ function ExpenseCardWithSplits({
   const canEdit =
     !expense.archived_at && (role === 'organizer' || expense.created_by === currentUserId);
   const isArchived = !!expense.archived_at;
+  // Guests cannot delete/archive any content, including their own (software guide;
+  // enforced server-side by archive_expense, which raises "Guests cannot archive
+  // expenses" — surfacing that control to a guest only produces a failed RPC).
   const canArchiveOrRestore =
-    role === 'organizer' || expense.created_by === currentUserId;
+    role !== 'guest' && (role === 'organizer' || expense.created_by === currentUserId);
   const canManage = role === 'organizer';
 
   const detailContent = showDetail ? (
