@@ -1371,3 +1371,103 @@ DB trigger (AFTER INSERT on notifications)
 **Deployed 2026-08-17 (Tech Lead go-ahead given):** both migrations and both Edge Function redeploys (`push-notification`, `track-event`) applied to dev then prod Supabase, verified end-to-end. See `engineering/supabase.md` 2026-08-17 entry for details.
 
 **Not yet done:** `git commit`/`git push` of the app code and marketing site changes to `main` — separate action, pending explicit approval (GitHub Pages deploy + OTA update aren't gated by the Supabase Changes Workflow the way the DB/Edge Function side was).
+
+---
+
+## 🔐 Phase 17: Zero-Tap Sign-In & Play 2027 Quality Requirements (v1.35.0)
+*Dependencies: Phase 1 (Auth), Phase 8/12 (push pipeline for the Nudge-on-web item)*
+*Goal: (a) enable "Send a Nudge" on web now that Web Push is live; (b) meet Google Play's newly
+announced technical-quality requirements — Zero-Tap Sign-In (Android Restore Credentials API,
+enforced April 2027) and the memory / DEX-optimization thresholds (enforced Feb 2027).*
+
+**This release ships a new local native module → full Play Store + App Store build, NOT OTA.**
+
+### 1. Nudge on web
+
+- [x] `NudgeSheet.tsx` — replaced `Alert.alert` (a hard no-op on react-native-web) with an inline
+  per-row confirm, matching `ExpenseDocumentsSection` / `TicketsSection`. Colorful-safe
+  (`useResolvedTheme`, `colors.surface` text on `bg-primary`, web `boxShadow`).
+- [x] `app/trip/[id]/settings.tsx` — dropped the `Platform.OS !== 'web'` gate on both the
+  organizer Nudge card and `NotificationPreferencesSection` (web users already receive Web Push
+  and must be able to toggle "Reminders & nudges"). Server side (`send_organizer_nudge` RPC,
+  set-based fanout, `push-notification` Edge Function) was already platform-agnostic — no change.
+- [x] Swept the remaining web-reachable `Alert.alert` confirms/alerts: `TravelDocumentCard.tsx`
+  (inline confirm), `profile.tsx` avatar + delete-account alerts (→ toast store). `overview.tsx`
+  and `BiometricGate.tsx` left as-is — their `Alert.alert` calls are already behind a
+  `Platform.OS !== 'web'` / web-bypass guard and never run on web.
+- [x] Fixed the stale "not supported on web" comment in `usePushNotificationHandler.web.ts`.
+
+### 2a. Zero-Tap Sign-In — Android Restore Credentials
+
+Build order: migration → types → API service → native module → util → auth integration.
+
+- [x] **Migration `20260906120000_create_restore_credentials.sql`** — `public.restore_credentials`
+  (one WebAuthn credential per user, public key only, `user_id` **ON DELETE CASCADE** so
+  `delete_own_account()` needs no companion change) + `public.restore_credential_challenges`
+  (single-use, 2-min TTL, `user_id` nullable ON DELETE SET NULL) + a daily
+  `private.prune_restore_credential_challenges()` pg_cron job. RLS on both = deny-all for
+  anon/authenticated (same posture as `analytics_events`). No SECURITY DEFINER RPC — the
+  unauthenticated half of the flow can't call one anyway.
+- [x] **Types** — `RestoreCredential` interface (`database.ts`); five opaque-JSON Zod schemas
+  (`schemas.ts`).
+- [x] **API — `packages/api/src/restoreCredentials.ts`** — `getRestoreRegistrationOptions`,
+  `verifyRestoreRegistration`, `getRestoreAuthenticationOptions`, `verifyRestoreAuthentication`
+  (→ `{ tokenHash }`), `deleteRestoreCredential`, `signInWithRestoreTokenHash` (wraps
+  `verifyOtp({ type: 'magiclink' })`). Explicit `Authorization` header on the authed calls.
+- [x] **Edge Function — `supabase/functions/restore-credential/index.ts`** — `action`-dispatched
+  (`register-options` / `register-verify` / `register-clear` [authed] · `auth-options` /
+  `auth-verify` [no session]). Full WebAuthn verification via `jsr:@simplewebauthn/server@13`.
+  `expectedOrigin` = `android:apk-key-hash:<hash>` (Play App Signing cert, same fingerprint as
+  `assetlinks.json`; three encodings listed defensively; `RESTORE_EXTRA_APK_KEY_HASHES` env for
+  an EAS upload keystore). `auth-verify` mints the session with
+  `auth.admin.generateLink({ type: 'magiclink' })` (no email sent) → returns only
+  `properties.hashed_token`. `verify_jwt = false` (config.toml) — deploy remotely with
+  `--no-verify-jwt`. **Consequence: guests (no email) can't be restored** — only full accounts
+  get a restore key. **DEPLOYED to dev + prod 2026-09-06** (approved exception — brand-new
+  deny-all tables, no client skew); `supabase:types` regenerated.
+- [x] **Native module — `apps/mobile/modules/expo-restore-credentials/`** — first local native
+  module in this repo. Android-only (`expo-module.config.json` declares only `android`).
+  Kotlin over Credential Manager (`androidx.credentials:credentials(-play-services-auth):1.5.0`):
+  `isSupported()`, `createRestoreKey()` (retries `isCloudBackupEnabled = false` on
+  `E2eeUnavailableException`), `getRestoreKey()` (returns null on `GetCredentialException`),
+  `clearRestoreKey()`. JS side uses `requireOptionalNativeModule` + a `Platform.OS === 'android'`
+  guard so iOS/web resolve to "unsupported". **BackupAgent / `onRestoreFinished()` deliberately
+  out of scope** — calling `getCredential` at first launch satisfies the requirement.
+- [x] **Util — `apps/mobile/src/features/auth/utils/restoreCredential.ts`** — `ensureRestoreKey`
+  (fire-and-forget after sign-in of a full account, MMKV-flagged idempotent), `attemptRestoreSignIn`
+  (cold-start, runs inside `useAuthInit` **while the splash is still up** so a success never
+  flashes the login screen), `clearRestoreKey` (sign-out + account deletion).
+- [x] **Integration** — `useAuthInit.ts` (`attemptRestoreSignIn` before `reset()`;
+  `ensureRestoreKey` in both profile-load success paths), `useSignOut.ts` (chained before
+  `signOut()`, like `unregisterWebPushAsync`), `useDeleteAccount.ts` (local key clear; DB row
+  cascades). Post-restore FCM re-registration is covered by the existing
+  `[hasSession, userId]` effect in `_layout.tsx`.
+- [ ] **Manual, before deploy:** `npx supabase secrets set RESTORE_EXTRA_APK_KEY_HASHES=...` if
+  the EAS preview/internal keystore differs from Play App Signing (get it from `eas credentials`).
+- [ ] **Device test (required):** preview APK → sign in → confirm `restore_credentials` row →
+  uninstall → **restore via Google backup / D2D transfer** → app opens signed in, zero taps.
+  A same-device reinstall is NOT a valid test.
+
+### 2b. Memory & DEX optimization — measure + hygiene
+
+- [ ] Build a production AAB; `apkanalyzer dex packages` → confirm R8 obfuscation actually
+  happened and record total DEX size (**if < 10 MB the requirement doesn't apply**).
+  `enableProguardInReleaseBuilds` + `enableShrinkResourcesInReleaseBuilds` are already set in
+  `app.config.ts` — this is a verification task, not a config change.
+- [ ] `adb shell dumpsys meminfo com.vacationist.mobile` — foreground / just-backgrounded /
+  cached, after exercising the heaviest surfaces (many avatars, expense doc viewer, business PDF,
+  Turnstile WebView). Record the baseline in `engineering/` for the next release to compare.
+- [ ] Low-risk hygiene **only if the numbers justify it** — no `expo-image` migration (adds a
+  native module, touches every `<Image>`; revisit only if Android Vitals flags bitmap memory).
+
+### 3. Docs / legal
+
+- [x] `docs/privacy-policy.html` + `marketing/site/content/de/legal/privacy-policy.md` — Android
+  restore-credential disclosure (public key + id only; private key in Google's E2EE store;
+  deleted on sign-out + account deletion). Site rebuilt (twice, deterministic).
+- [x] CLAUDE.md — "Native modules" note pointing at `apps/mobile/modules/`.
+
+**Deployed 2026-09-06:** migration `20260906120000` + `restore-credential` Edge Function on dev
+then prod (approved exception per the Tech Lead — new deny-all tables, no client skew).
+**Not yet done:** `RESTORE_EXTRA_APK_KEY_HASHES` secret (if needed); full store builds; device
+testing; `git commit`.

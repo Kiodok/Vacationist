@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../stores/authStore';
 import { clearUserCache } from '../../../utils/userCache';
 import { clearSentryUser } from '../../../utils/sentry';
 import { unregisterWebPushAsync } from '../../notifications/utils/unregisterWebPush';
+import { clearRestoreKey } from '../utils/restoreCredential';
 
 type GoogleSigninType =
   typeof import('@react-native-google-signin/google-signin').GoogleSignin;
@@ -34,12 +35,11 @@ export function useSignOut(): SignOutResult {
       setPushToken(null);
       deletePushToken(pushToken).catch(() => {});
     }
-    // delete_web_push_subscription's auth.uid() check needs the Supabase session that signOut()
-    // is about to clear — chained (not raced) so the subscription row is actually deleted before
-    // the session that authorizes deleting it goes away. Still fire-and-forget from the caller's
+    // Both the web-push subscription delete and the restore-credential row delete need the
+    // Supabase session that signOut() is about to clear — chained (not raced) so they run while
+    // the session that authorizes them is still valid. Still fire-and-forget from the caller's
     // perspective: reset() below runs immediately, unaffected by this chain's completion.
-    unregisterWebPushAsync()
-      .catch(() => {})
+    Promise.allSettled([unregisterWebPushAsync(), clearRestoreKey()])
       .finally(() => {
         signOut().catch(() => {});
       });

@@ -1,5 +1,68 @@
 # Supabase Changes Log
 
+## 2026-09-06 (v1.35.0) — Zero-Tap Sign-In: restore_credentials + restore-credential Edge Function
+
+**Status: DEV + PROD.** Migration `20260906120000` applied to dev (`aejywkbkcwyanhyzhrle`) then
+prod (`fsfsqghbejwvgxujoyne`) on 2026-09-06; ledger parity reconfirmed (`20260906120000` shows
+`remote` on both), re-linked to dev. Edge Function `restore-credential` deployed to both with
+`--no-verify-jwt`. Smoke-tested on both: `auth-options` returns a fresh challenge,
+`register-options` without a real user JWT → 401, unknown action → 400, `auth-verify` with an
+unknown credential id → `{"error":"unknown_credential"}`. `npm run supabase:types` re-run (adds
+`restore_credentials` + `restore_credential_challenges` to `database.types.ts`). **Client code
+NOT committed and no app build yet** — the tables/function are inert until a build ships the
+native module. This was an approved exception to "never let migrations get ahead of the client"
+(Tech Lead call): the tables are brand-new, deny-all RLS, and nothing existing reads them, so
+there is zero skew risk on the live web/app clients.
+
+**Why:** Google Play's "Zero-Tap Sign-In" technical-quality requirement (enforced April 2027)
+needs any app with sign-in to restore the signed-in state on device migration, via the Android
+Restore Credentials API — which is WebAuthn, so it needs server-side key storage + signature
+verification.
+
+**Migration `20260906120000_create_restore_credentials.sql`** (non-destructive, additive):
+- `public.restore_credentials` — `user_id UUID … ON DELETE CASCADE`, `credential_id TEXT UNIQUE`,
+  `public_key TEXT` (base64url COSE), `sign_count BIGINT`, `aaguid`, `created_at`, `last_used_at`.
+  Index on `user_id`.
+- `public.restore_credential_challenges` — `challenge TEXT` (unique), `user_id UUID … ON DELETE
+  SET NULL` (nullable — the authenticate flow has no session), `purpose CHECK ('register',
+  'authenticate')`, `expires_at`, `created_at`. Indexes on `challenge` (unique) and `expires_at`.
+- **RLS on both = deny-all for `anon` + `authenticated`** (explicit `USING (false)` /
+  `WITH CHECK (false)` on SELECT/INSERT/UPDATE/DELETE), same posture as `analytics_events`
+  (`20260808100000`). Only the Edge Function's service-key client touches these tables. No
+  SECURITY DEFINER RPC — the unauthenticated half of the flow (new device, no session) couldn't
+  call one anyway.
+- `private.prune_restore_credential_challenges()` + daily pg_cron `prune-restore-credential-challenges`
+  at 03:15 UTC (sweeps challenges issued-but-never-completed; consumed ones are deleted inline by
+  the Edge Function).
+
+**`delete_own_account()` — NO companion change.** `restore_credentials.user_id` is declared
+`ON DELETE CASCADE` and `restore_credential_challenges.user_id` `ON DELETE SET NULL` in the
+migration DDL (which applied cleanly) — both resolve themselves on user delete, unlike the
+`trip_messages` gap fixed 2026-07-27. `delete_own_account()` only needs sentinel-reassignment
+lines for FKs that are *neither* CASCADE nor SET NULL/DEFAULT, so neither of these qualifies.
+
+**Edge Function `restore-credential`** (new): `action`-dispatched, `verify_jwt = false` (added to
+`supabase/config.toml` — deploy remotely with `supabase functions deploy restore-credential
+--no-verify-jwt`). Actions: `register-options` / `register-verify` / `register-clear` (authed,
+re-derive identity via `auth.getUser(jwt)`), `auth-options` / `auth-verify` (no session — gated
+by a single-use 2-min challenge row + full ES256 assertion verification via
+`jsr:@simplewebauthn/server@13`). No CORS layer (native-only caller — an origin allowlist would
+wrongly reject the no-Origin native request). `expectedOrigin` =
+`android:apk-key-hash:FOizwfJx0qKH82cPicZt7WotWIJ7bx_37fC96H9TtIk` (Play App Signing cert —
+same fingerprint as `docs/.well-known/assetlinks.json`; the standard-base64 padded/unpadded
+encodings are also listed, and `RESTORE_EXTRA_APK_KEY_HASHES` env adds an EAS upload-keystore
+hash for direct-install preview APKs). `auth-verify` mints the session with
+`auth.admin.generateLink({ type: 'magiclink', email })` (sends no email) and returns only
+`properties.hashed_token`; the client exchanges it via `verifyOtp({ type: 'magiclink' })`.
+**Guests / anonymous users have no email → cannot be restored; only full accounts get a key.**
+
+**Deploy — DONE 2026-09-06:** migration + Edge Function on dev then prod; `supabase:types`
+regenerated; ledger parity confirmed. Remaining before the app can use any of it: set
+`RESTORE_EXTRA_APK_KEY_HASHES` secret if the EAS keystore ≠ Play App Signing; full store build;
+device test (restore via Google backup / D2D transfer, NOT a same-device reinstall); commit.
+
+---
+
 ## 2026-09-05 (v1.34.2) — Analytics "my share": break out my expense debt by related_type + gate flight/PT presence (2 migrations)
 
 **Status: DEV + PROD.** Both migrations applied to dev (`aejywkbkcwyanhyzhrle`) then prod

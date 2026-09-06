@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Platform, View, Text, Pressable, TouchableOpacity, ActivityIndicator, AppState, Alert } from 'react-native';
+import { Platform, View, Text, Pressable, TouchableOpacity, ActivityIndicator, AppState } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { AppStateStatus } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,6 +30,7 @@ import { isMutationBusy } from '../../src/utils/mutationStatus';
 import { GuestUpgradeBanner } from '../../src/features/profile/components/GuestUpgradeBanner';
 import { GuestUpgradeSheet } from '../../src/features/profile/components/GuestUpgradeSheet';
 import { useThemeStore } from '../../src/stores/themeStore';
+import { useToastStore } from '../../src/stores/toastStore';
 
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -51,6 +52,7 @@ export default function ProfileScreen() {
   const { t: tCommon } = useTranslation("common");
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const addToast = useToastStore((s) => s.addToast);
 
   const [docsUnlocked, setDocsUnlocked] = useState(false);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
@@ -104,7 +106,7 @@ export default function ProfileScreen() {
   async function handleAvatarChange() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert(t('avatar.permissionTitle'), t('avatar.permissionBody'));
+      addToast('warning', t('avatar.permissionBody'));
       return;
     }
 
@@ -119,7 +121,7 @@ export default function ProfileScreen() {
 
     const asset = result.assets[0];
     if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
-      Alert.alert(t('avatar.tooLargeTitle'), t('avatar.tooLargeBody'));
+      addToast('error', t('avatar.tooLargeBody'));
       return;
     }
 
@@ -132,7 +134,7 @@ export default function ProfileScreen() {
       const updated = await updateUserProfile(user!.id, { avatar_url: publicUrl });
       setUser(updated);
     } catch {
-      Alert.alert(t('avatar.uploadFailedTitle'), t('avatar.uploadFailedBody'));
+      addToast('error', t('avatar.uploadFailedBody'));
     } finally {
       setAvatarUploading(false);
     }
@@ -355,7 +357,7 @@ export default function ProfileScreen() {
                   try {
                     await handleDeleteAccount();
                   } catch {
-                    Alert.alert('', t('deleteAccount.failed'));
+                    addToast('error', t('deleteAccount.failed'));
                   }
                 }}
                 style={{ flex: 1, minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: tc.danger, alignItems: 'center', justifyContent: 'center', backgroundColor: hexToRgba(tc.danger, 0.1) }}

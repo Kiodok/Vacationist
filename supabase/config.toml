@@ -144,6 +144,14 @@ verify_jwt = false
 [functions.fetch-exchange-rates]
 verify_jwt = false
 
+# Phase 17 — Android Zero-Tap Sign-In. verify_jwt = false because the auth-options / auth-verify
+# actions run on a brand-new device with no session at all. The unauthenticated half is gated by
+# a single-use server challenge + WebAuthn signature verification; the register-* actions
+# re-derive identity with auth.getUser(jwt) themselves. Deploy remotely with
+# `supabase functions deploy restore-credential --no-verify-jwt`.
+[functions.restore-credential]
+verify_jwt = false
+
 [edge_runtime]
 enabled = true
 policy = "per_worker"

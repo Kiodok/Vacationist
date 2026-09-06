@@ -104,6 +104,14 @@ npm workspaces. Packages are symlinked under `node_modules/@vacationist/`.
 | `packages/utils` | `@vacationist/utils` | dayjs setup (UTC + timezone plugins), formatters |
 | `packages/i18n` | `@vacationist/i18n` | i18next translations (`en`/`de`), `useLocale()` hook |
 
+### Native modules (`apps/mobile/modules/`)
+Local Expo native modules live here (autolinked by name). First one: `expo-restore-credentials`
+(Phase 17, v1.35.0) — Android-only Kotlin bridge over Credential Manager's Restore Credentials
+API for Zero-Tap Sign-In. **Any change to a native module — or adding one — is a full store
+build, never OTA.** iOS/web must keep working: declare `"platforms"` narrowly in
+`expo-module.config.json` and use `requireOptionalNativeModule` + a `Platform.OS` guard on the
+JS side so the unsupported platforms resolve to a no-op.
+
 ---
 
 ## App Architecture

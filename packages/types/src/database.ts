@@ -529,6 +529,20 @@ export interface WebPushSubscription {
   updated_at: string;
 }
 
+/** A WebAuthn credential backing Android Zero-Tap Sign-In (Phase 17 — Android Restore
+ * Credentials API). Only the public half is stored server-side; the private key lives in
+ * Google's end-to-end-encrypted credential store and travels to a new device on migration. */
+export interface RestoreCredential {
+  id: string;
+  user_id: string;
+  credential_id: string;
+  public_key: string;
+  sign_count: number;
+  aaguid: string | null;
+  created_at: string;
+  last_used_at: string | null;
+}
+
 export interface Notification {
   id: string;
   trip_id: string;

@@ -302,13 +302,13 @@ export default function SettingsTab() {
         </View>
       )}
 
-      {/* Push Notification Preferences */}
-      {Platform.OS !== 'web' && (
-        <NotificationPreferencesSection tripId={tripId} />
-      )}
+      {/* Push Notification Preferences — web included: web users receive Web Push (v1.34.0)
+          and must be able to turn "Reminders & nudges" off. */}
+      <NotificationPreferencesSection tripId={tripId} />
 
-      {/* Organizer nudge */}
-      {isOrganizer && Platform.OS !== 'web' && (
+      {/* Organizer nudge — web included: the fanout + push pipeline are platform-agnostic and
+          NudgeSheet now uses an inline (web-safe) confirm. */}
+      {isOrganizer && (
         <View>
           <Text className="text-label text-text-muted uppercase mb-sm">{t('settings.nudge')}</Text>
           <View className="bg-surface border border-border rounded-md p-md">

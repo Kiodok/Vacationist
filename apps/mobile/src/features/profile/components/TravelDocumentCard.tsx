@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Pressable, Alert } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TravelDocument } from '@vacationist/types';
 import dayjs from 'dayjs';
@@ -35,6 +35,8 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation("common");
   const [revealed, setRevealed] = useState(false);
+  // Alert.alert is a no-op on react-native-web — inline confirm instead (see NudgeSheet / ExpenseDocumentsSection).
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const DOCUMENT_LABELS: Record<string, string> = {
     passport: t('docType.passport'),
@@ -47,17 +49,6 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
     const timer = setTimeout(() => setRevealed(false), 30_000);
     return () => clearTimeout(timer);
   }, [revealed]);
-
-  function handleDelete() {
-    Alert.alert(
-      t('doc.delete.title'),
-      t('doc.delete.confirm', { type: DOCUMENT_LABELS[document.document_type] }),
-      [
-        { text: tCommon('button.cancel'), style: 'cancel' },
-        { text: tCommon('button.delete'), style: 'destructive', onPress: onDelete },
-      ]
-    );
-  }
 
   const docNumber = revealed ? document.document_number : maskNumber(document.document_number);
   const expColor = expiryColor(document.expiry_date);
@@ -79,11 +70,31 @@ export function TravelDocumentCard({ document, onEdit, onDelete, isDeleting }: T
           <Pressable onPress={onEdit} hitSlop={8}>
             <ThemedIcon name="pencil-outline" size={18} color={colors.textSecondary} />
           </Pressable>
-          <Pressable onPress={handleDelete} disabled={isDeleting} hitSlop={8}>
+          <Pressable onPress={() => setConfirmingDelete(true)} disabled={isDeleting} hitSlop={8}>
             <ThemedIcon name="trash-outline" size={18} color={colors.danger} />
           </Pressable>
         </View>
       </View>
+
+      {confirmingDelete && (
+        <View className="bg-background border border-border rounded-sm p-sm gap-sm">
+          <Text className="text-body-small text-text-secondary">
+            {t('doc.delete.confirm', { type: DOCUMENT_LABELS[document.document_type] })}
+          </Text>
+          <View className="flex-row justify-end gap-sm">
+            <Pressable onPress={() => setConfirmingDelete(false)} className="px-md py-sm rounded-sm bg-surface active:opacity-70">
+              <Text className="text-body-small text-text-secondary">{tCommon('button.cancel')}</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => { setConfirmingDelete(false); onDelete(); }}
+              disabled={isDeleting}
+              className="px-md py-sm rounded-sm bg-danger active:opacity-70"
+            >
+              <Text className="text-body-small text-white font-semibold">{tCommon('button.delete')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
 
       <View className="gap-xs">
         <View className="flex-row justify-between">

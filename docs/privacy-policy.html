@@ -186,6 +186,9 @@
     <p>
       If you use Vacationist in a web browser and grant notification permission when prompted, we also store a browser push subscription — an endpoint URL and a pair of cryptographic keys the browser generates, which we need to deliver push notifications to that browser. No personal content is stored in the subscription itself, only these keys. It is deleted when you sign out, or if you revoke notification permission in your browser.
     </p>
+    <p>
+      On Android, if you are signed in with a full account (not a guest), we store a "restore credential" so that you stay signed in when you set up a new Android phone and transfer your apps. This is a public key and a credential identifier only — the matching private key is generated and held on your device by Android's Credential Manager and, if you have backup enabled, in Google's end-to-end-encrypted backup, never by us. It contains no personal content. It is deleted when you sign out and when you delete your account.
+    </p>
 
     <h2 style="font-size:0.95rem; border:none; margin-top:1rem; padding:0; color:#9ca3af;">Website Analytics & Advertising Measurement Data</h2>
     <p>When you visit the Website, and only after you actively accept via the cookie banner, Google Analytics 4 and the <strong>Reddit Pixel</strong> automatically collect the following data via cookies and similar technologies:</p>

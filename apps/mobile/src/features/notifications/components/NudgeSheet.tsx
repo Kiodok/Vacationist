@@ -1,10 +1,11 @@
-import { View, Text, Pressable, Modal, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Pressable, Modal, FlatList, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from "react-i18next";
 import { i18n as i18nInstance } from "@vacationist/i18n";
 import { NUDGE_KEYS } from '@vacationist/types';
 import { useSendNudge } from '../hooks/useSendNudge';
-import { colors , ThemedIcon } from '@vacationist/ui';
+import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 
 interface NudgeSheetProps {
   tripId: string;
@@ -18,21 +19,21 @@ export function NudgeSheet({ tripId, tripName, visible, onClose }: Readonly<Nudg
   const { t } = useTranslation('notifications');
   const { t: tCommon } = useTranslation('common');
   const { mutate: sendNudge, isPending } = useSendNudge(tripId);
+  const isColorful = useResolvedTheme() === 'colorful';
+  // Alert.alert is a documented no-op on react-native-web, so an inline per-row confirm is used
+  // instead — same pattern as ExpenseDocumentsSection / TicketsSection. Without this the sheet
+  // opened on web but tapping a nudge did nothing.
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
 
-  const handleSelect = (key: string) => {
-    const title = (i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.title`, { tripName });
-    const body = (i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.body`, { tripName });
-    Alert.alert(
-      t('nudge.confirmTitle'),
-      t('nudge.confirmBody'),
-      [
-        { text: tCommon('button.cancel'), style: 'cancel' },
-        {
-          text: t('nudge.confirmSend'),
-          onPress: () => sendNudge({ title, body }, { onSuccess: onClose }),
-        },
-      ],
+  const label = (key: string, part: 'title' | 'body') =>
+    (i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.${part}`, { tripName });
+
+  const handleSend = (key: string) => {
+    sendNudge(
+      { title: label(key, 'title'), body: label(key, 'body') },
+      { onSuccess: onClose },
     );
+    setPendingKey(null);
   };
 
   return (
@@ -50,23 +51,51 @@ export function NudgeSheet({ tripId, tripName, visible, onClose }: Readonly<Nudg
             data={NUDGE_KEYS}
             keyExtractor={(key) => key}
             contentContainerStyle={{ padding: 12, gap: 8 }}
-            renderItem={({ item: key }) => (
-              <Pressable
-                onPress={() => handleSelect(key)}
-                disabled={isPending}
-                className="bg-background border border-border rounded-md p-md gap-xs active:opacity-70"
-              >
-                <Text className="text-body-default font-semibold text-text-primary">{(i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.title`, { tripName })}</Text>
-                <Text className="text-body-small text-text-secondary">{(i18nInstance.t as (k: string, opts?: object) => string)(`notifications:nudge.${key}.body`, { tripName })}</Text>
-              </Pressable>
-            )}
-            ListFooterComponent={
-              isPending ? (
-                <View className="items-center py-md">
-                  <ActivityIndicator size="small" color={colors.primary} />
-                </View>
-              ) : null
-            }
+            renderItem={({ item: key }) => {
+              if (pendingKey === key) {
+                return (
+                  <View
+                    className="bg-background border border-border rounded-md p-md gap-md"
+                    style={isColorful ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : undefined}
+                  >
+                    <Text className="text-body-small text-text-secondary">{t('nudge.confirmBody')}</Text>
+                    <View className="flex-row justify-end gap-sm">
+                      <Pressable
+                        onPress={() => setPendingKey(null)}
+                        disabled={isPending}
+                        className="px-md py-sm rounded-sm bg-surface active:opacity-70"
+                      >
+                        <Text className="text-body-small text-text-secondary">{tCommon('button.cancel')}</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => handleSend(key)}
+                        disabled={isPending}
+                        className="px-md py-sm rounded-sm bg-primary active:opacity-70 flex-row items-center gap-xs"
+                      >
+                        {isPending && <ActivityIndicator size="small" color={isColorful ? colors.surface : '#FFFFFF'} />}
+                        <Text
+                          className="text-body-small font-semibold"
+                          style={{ color: isColorful ? colors.surface : '#FFFFFF' }}
+                        >
+                          {t('nudge.confirmSend')}
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              }
+
+              return (
+                <Pressable
+                  onPress={() => setPendingKey(key)}
+                  disabled={isPending}
+                  className="bg-background border border-border rounded-md p-md gap-xs active:opacity-70"
+                >
+                  <Text className="text-body-default font-semibold text-text-primary">{label(key, 'title')}</Text>
+                  <Text className="text-body-small text-text-secondary">{label(key, 'body')}</Text>
+                </Pressable>
+              );
+            }}
           />
           <View style={{ height: Math.max(insets.bottom, 32) }} />
         </View>

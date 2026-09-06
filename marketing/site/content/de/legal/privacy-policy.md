@@ -51,6 +51,8 @@ Wir erheben nur die Daten, die zur Bereitstellung des Dienstes erforderlich sind
 
 Wenn du Vacationist im Webbrowser nutzt und bei Aufforderung die Benachrichtigungserlaubnis erteilst, speichern wir zusätzlich ein Browser-Push-Abonnement — eine Endpunkt-URL sowie ein Paar kryptografischer Schlüssel, das der Browser erzeugt und das wir benötigen, um Push-Benachrichtigungen an diesen Browser zuzustellen. Im Abonnement selbst werden keine persönlichen Inhalte gespeichert, nur diese Schlüssel. Es wird gelöscht, wenn du dich abmeldest oder die Benachrichtigungserlaubnis in deinem Browser widerrufst.
 
+Unter Android speichern wir, wenn du mit einem vollständigen Konto (kein Gast) angemeldet bist, einen „Wiederherstellungs-Berechtigungsnachweis" (Restore Credential), damit du beim Einrichten eines neuen Android-Geräts und dem Übertragen deiner Apps angemeldet bleibst. Dabei handelt es sich ausschließlich um einen öffentlichen Schlüssel und eine Kennung — der zugehörige private Schlüssel wird von Androids Credential Manager auf deinem Gerät und, sofern du Backups aktiviert hast, in Googles Ende-zu-Ende-verschlüsseltem Backup erzeugt und verwahrt, niemals von uns. Er enthält keine persönlichen Inhalte. Er wird gelöscht, wenn du dich abmeldest und wenn du dein Konto löschst.
+
 **Website-Analyse- & Werbemessdaten**
 
 Beim Besuch der Website erfassen Google Analytics 4 und das **Reddit-Pixel** automatisch die folgenden Daten über Cookies und ähnliche Technologien — jedoch erst, nachdem du im Cookie-Banner aktiv zugestimmt hast:

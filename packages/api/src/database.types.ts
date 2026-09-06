@@ -1445,6 +1445,82 @@ export type Database = {
           },
         ]
       }
+      restore_credential_challenges: {
+        Row: {
+          challenge: string
+          created_at: string
+          expires_at: string
+          id: string
+          purpose: string
+          user_id: string | null
+        }
+        Insert: {
+          challenge: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          purpose: string
+          user_id?: string | null
+        }
+        Update: {
+          challenge?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          purpose?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restore_credential_challenges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restore_credentials: {
+        Row: {
+          aaguid: string | null
+          created_at: string
+          credential_id: string
+          id: string
+          last_used_at: string | null
+          public_key: string
+          sign_count: number
+          user_id: string
+        }
+        Insert: {
+          aaguid?: string | null
+          created_at?: string
+          credential_id: string
+          id?: string
+          last_used_at?: string | null
+          public_key: string
+          sign_count?: number
+          user_id: string
+        }
+        Update: {
+          aaguid?: string | null
+          created_at?: string
+          credential_id?: string
+          id?: string
+          last_used_at?: string | null
+          public_key?: string
+          sign_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restore_credentials_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settlement_receipts: {
         Row: {
           created_at: string

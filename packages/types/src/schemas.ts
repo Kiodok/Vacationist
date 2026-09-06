@@ -733,3 +733,29 @@ export const webPushSubscriptionSchema = z.object({
 });
 
 export type WebPushSubscriptionInput = z.infer<typeof webPushSubscriptionSchema>;
+
+// --- Android Restore Credentials / Zero-Tap Sign-In (Phase 17) ---
+// The registration/authentication option blobs and the browser responses are all opaque
+// WebAuthn JSON strings — validated as non-empty strings here, parsed only in the Edge Function.
+
+export const restoreRegistrationOptionsResponseSchema = z.object({
+  registrationJson: z.string().min(1),
+});
+
+export const restoreRegistrationVerifySchema = z.object({
+  registrationResponseJson: z.string().min(1),
+});
+
+export const restoreAuthenticationOptionsResponseSchema = z.object({
+  authenticationJson: z.string().min(1),
+});
+
+export const restoreAuthenticationVerifySchema = z.object({
+  assertionResponseJson: z.string().min(1),
+});
+
+export const restoreAuthenticationVerifyResponseSchema = z.object({
+  tokenHash: z.string().min(1),
+});
+
+export type RestoreAuthenticationVerifyResponse = z.infer<typeof restoreAuthenticationVerifyResponseSchema>;

@@ -4,6 +4,7 @@ import { deleteOwnAccount, deletePushToken, revokeAppleToken, signOut } from '@v
 import { useAuthStore } from '../../../stores/authStore';
 import { clearUserCache } from '../../../utils/userCache';
 import { clearSentryUser } from '../../../utils/sentry';
+import { clearRestoreKey } from '../utils/restoreCredential';
 
 type GoogleSigninType =
   typeof import('@react-native-google-signin/google-signin').GoogleSignin;
@@ -54,6 +55,9 @@ export function useDeleteAccount(): DeleteAccountResult {
       setPushToken(null);
       deletePushToken(pushToken).catch(() => {});
     }
+    // The restore_credentials row is already gone via the ON DELETE CASCADE — this just clears
+    // the on-device key + local flag. Best-effort.
+    clearRestoreKey().catch(() => {});
     signOut().catch(() => {});
     clearUserCache();
     clearSentryUser();

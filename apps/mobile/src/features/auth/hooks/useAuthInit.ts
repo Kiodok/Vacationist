@@ -13,6 +13,7 @@ import { persistLocale, SUPPORTED_LOCALES } from '@vacationist/i18n';
 import { setSentryUser, clearSentryUser } from '../../../utils/sentry';
 import type { SupportedLocale } from '@vacationist/types';
 import { maybeTrackSignUp } from '../../consent/utils/trackSignUp';
+import { attemptRestoreSignIn, ensureRestoreKey } from '../utils/restoreCredential';
 
 export function useAuthInit() {
   const setUser = useAuthStore((s) => s.setUser);
@@ -44,8 +45,14 @@ export function useAuthInit() {
         if (!mounted) return;
 
         if (!session) {
-          // No local session — must sign in
-          reset();
+          // No local session. On a fresh Android device restored from backup / a D2D transfer,
+          // try the Zero-Tap restore credential before falling back to the login screen. This
+          // runs while the splash screen is still up (setLoading(false) is in the finally), so a
+          // successful restore never flashes the login screen. onAuthStateChange picks up the
+          // new session. No-ops fast on iOS / web / a device with no restore key.
+          const restored = await attemptRestoreSignIn();
+          if (restored && mounted) return;
+          if (mounted) reset();
           return;
         }
 
@@ -62,6 +69,7 @@ export function useAuthInit() {
             saveUserToCache(profile);
             setSentryUser(profile.id, profile.locale);
             maybeTrackSignUp(profile);
+            void ensureRestoreKey(profile); // Android Zero-Tap — fire-and-forget, best-effort
             // Sync all locale singletons from the server-saved preference.
             // Only fires when profile.locale is non-null (null = new user, use device locale).
             // persistLocale propagates to dayjs + formatCurrency via the registered callback.
@@ -160,6 +168,7 @@ export function useAuthInit() {
             saveUserToCache(profile);
             setSentryUser(profile.id, profile.locale);
             maybeTrackSignUp(profile);
+            void ensureRestoreKey(profile); // Android Zero-Tap — fire-and-forget, best-effort
             if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
               persistLocale(profile.locale as SupportedLocale);
             }

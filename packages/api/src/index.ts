@@ -308,3 +308,12 @@ export { logAnalyticsEvent, reportSignUpAttribution } from './analytics';
 export { getCurrencies, getLatestExchangeRates } from './currencies';
 
 export { upsertWebPushSubscription, deleteWebPushSubscription } from './webPush';
+
+export {
+  getRestoreRegistrationOptions,
+  verifyRestoreRegistration,
+  getRestoreAuthenticationOptions,
+  verifyRestoreAuthentication,
+  deleteRestoreCredential,
+  signInWithRestoreTokenHash,
+} from './restoreCredentials';
