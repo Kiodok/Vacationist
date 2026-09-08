@@ -28,7 +28,7 @@ The core insight for choosing: a group trip has roughly five jobs — **deciding
 - **The standout feature:** guests join by one invite link with **no account required** — and still vote, edit lists, and appear in expense splits. The "I'm not installing another app" friend stops being a blocker.
 - **Also notable:** receipts and boarding passes attach to the expense or flight they belong to; business costs can be flagged on expenses, hotels, flights and transport and exported as a per-person report for work trips; an [Analytics tab](/features/analytics/) totals your share across every trip; offline-first (works on planes and mountains, syncs later); [encrypted travel document storage](/features/travel-documents/) with revocable organizer access; recipe-to-shopping-list sync.
 - **Honest weaknesses:** no maps or place discovery, currency conversion uses daily rates only (no manual per-transaction rate), and a young user base (launched 2026).
-- **Price:** free, no ads; optional Pro for more planning days and unlimited members.
+- **Price:** free, no ads.
 - **Choose it if:** your pain is the *group* — deciding, paying, syncing — rather than destination research.
 
 ## 2. Splitwise — best pure expense tracker

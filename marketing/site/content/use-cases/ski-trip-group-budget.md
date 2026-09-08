@@ -44,7 +44,7 @@ Every cost updates the group's balances immediately, so settling up happens natu
 
 ## What it costs
 
-Free, with no ads. Voting, expense splitting, shared lists, and guest access are free for the whole group. A Pro tier exists for organizers running multiple trips a year, but it isn't required for a single ski week.
+Free, with no ads. Voting, expense splitting, shared lists, and guest access are free for the whole group.
 
 <!--CTA-->
 

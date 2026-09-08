@@ -44,7 +44,7 @@ One shared, real-time list for decorations, the sash, the "who's bringing extra 
 
 ## What it costs
 
-Free, with no ads. The core planning tools — voting, expense splitting, lists, and guest access — cost nothing for the whole bridal party. A Pro tier exists for organizers running multiple trips a year, but it isn't required for a single bachelorette weekend.
+Free, with no ads. The core planning tools — voting, expense splitting, lists, and guest access — cost nothing for the whole bridal party.
 
 <!--CTA-->
 

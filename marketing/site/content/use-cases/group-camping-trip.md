@@ -44,7 +44,7 @@ Votes, expenses, and list updates are saved locally with no connection and sync 
 
 ## What it costs
 
-Free, with no ads. Voting, expense splitting, shared lists, and guest access are free for the whole group. A Pro tier exists for organizers running frequent trips, but it isn't required for a single camping weekend.
+Free, with no ads. Voting, expense splitting, shared lists, and guest access are free for the whole group.
 
 <!--CTA-->
 

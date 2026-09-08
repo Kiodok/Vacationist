@@ -175,6 +175,8 @@ import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
 import { addSentryBreadcrumb } from './sentry';
 import { isOptimisticId } from './optimisticId';
+import { trackFeatureEvent } from './trackFeatureEvent';
+import { isCachedExampleTrip } from './exampleTrip';
 import {
   resolveOptimistic,
   replaceMessage,
@@ -305,6 +307,10 @@ queryClient.setMutationDefaults(['createExpense'], {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
     useToastStore.getState().addToast('success', i18n.t('expenses:toast.added'));
     addSentryBreadcrumb('expense', 'Expense created', { tripId });
+    // Web-app activation funnel (Growth Plan Q4 2026, Phase 0). Fired here, not in
+    // the hook, because createExpense is a persisted mutation that replays after a
+    // cold start — a hook-level onSuccess would override this default.
+    trackFeatureEvent('expense_added', { isExampleTrip: isCachedExampleTrip(tripId) });
   },
 });
 

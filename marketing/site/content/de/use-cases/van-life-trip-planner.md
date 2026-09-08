@@ -44,7 +44,7 @@ Abstimmungen, Ausgaben und Listenänderungen werden automatisch zwischengespeich
 
 ## Was es kostet
 
-Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang für die ganze Crew kosten nichts. Ein Pro-Tarif existiert für Organisatoren mit häufigen oder ganzjährigen Reisen, ist aber für einen einzelnen Roadtrip nicht nötig.
+Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang für die ganze Crew kosten nichts.
 
 <!--CTA-->
 

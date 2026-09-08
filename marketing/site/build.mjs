@@ -33,7 +33,7 @@ const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
 
 /* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
    release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
-const APP_VERSION = '1.34.2';
+const APP_VERSION = '1.37.0';
 
 /**
  * Single source of truth for the SoftwareApplication/WebSite JSON-LD text,
@@ -44,16 +44,32 @@ const APP_VERSION = '1.34.2';
  */
 const APP_LD = {
   en: {
-    description: 'The free group trip planning app. Vote on activities, split travel expenses with receipts attached, flag business costs on bookings and transport, track what each trip cost you across every trip, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, and keep the whole group in sync — from the first idea to the last flight home.',
-    featureList: 'Group activity voting, Travel expense splitting, Expense receipts and documents, Business cost reports across expenses, bookings and transport, Cross-trip spending analytics, Per-item currencies with daily exchange rates, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Offline support, Guest access without account',
-    siteDescription: 'The free group trip planner — vote on activities, split travel expenses and attach receipts, share packing lists, and keep everyone in sync.',
+    description: 'The free group trip planning app. Vote on activities, split travel expenses with receipts attached, flag business costs on bookings and transport, track what each trip cost you across every trip, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, work for a week offline with no connection, and keep the whole group in sync — from the first idea to the last flight home.',
+    featureList: 'Group activity voting, Travel expense splitting, Expense receipts and documents, Business cost reports across expenses, bookings and transport, Cross-trip spending analytics, Per-item currencies with daily exchange rates, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Works offline for a week without a connection, Zero-tap sign-in on Android, Guest access without account',
+    siteDescription: 'The free group trip planner — vote on activities, split travel expenses and attach receipts, share packing lists, and keep everyone in sync, online or offline.',
   },
   de: {
-    description: 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.',
-    featureList: 'Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftskosten-Berichte über Ausgaben, Buchungen und Transport, Ausgaben-Analyse über alle Reisen, Eigene Währung pro Posten mit Tageskursen, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Offline-Unterstützung, Gastzugang ohne Konto',
-    siteDescription: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen und alle synchron halten.',
+    description: 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten, eine Woche lang offline weiterarbeiten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.',
+    featureList: 'Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftskosten-Berichte über Ausgaben, Buchungen und Transport, Ausgaben-Analyse über alle Reisen, Eigene Währung pro Posten mit Tageskursen, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Eine Woche lang offline nutzbar, Zero-Tap-Anmeldung auf Android, Gastzugang ohne Konto',
+    siteDescription: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen und alle synchron halten, online wie offline.',
   },
 };
+
+/* Real in-app screenshots (docs/assets/img/, generated by
+   scripts/generate-web-screenshots.mjs from play-store/screenshots/). Fed into
+   SoftwareApplication.screenshot and also shown inline on the matching
+   /features/* pages. Captions are EN — schema ImageObject captions aren't a
+   user-facing SEO surface. */
+const APP_SCREENSHOTS = [
+  ['vacationist-activities-greece.webp', 'Group activity voting with five-tier responses'],
+  ['vacationist-expenses-greece.webp', 'Shared trip expenses with categories and live balances'],
+  ['vacationist-expenses-settlements-greece.webp', 'Settle-up: who owes whom at the end of a trip'],
+  ['vacationist-transfer-flights-greece.webp', 'Flights: vote on options, record the booking, assign passengers'],
+].map(([file, caption]) => ({
+  '@type': 'ImageObject',
+  url: `${SITE}/assets/img/${file}`,
+  caption,
+}));
 
 // For fresh insertion into head templates where the calling template literal
 // has no indentation of its own (see jsonLd()'s block array, joined at column
@@ -87,6 +103,7 @@ function softwareApplicationLd(lang) {
     inLanguage: ['en', 'de'],
     isAccessibleForFree: true,
     featureList: a.featureList,
+    screenshot: APP_SCREENSHOTS,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
     author: {
       '@type': 'Person',
@@ -111,12 +128,12 @@ function webSiteLd(lang) {
 
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-09-06';
+const DE_HOME_LASTMOD = '2026-09-08';
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
   {
-    loc: `${SITE}/`, lastmod: '2026-09-06', changefreq: 'monthly', priority: '1.0',
+    loc: `${SITE}/`, lastmod: '2026-09-08', changefreq: 'monthly', priority: '1.0',
     alternates: [
       { hreflang: 'en', href: `${SITE}/` },
       { hreflang: 'de', href: `${SITE}/de/` },
@@ -125,7 +142,7 @@ const STATIC_SITEMAP_ENTRIES = [
   },
   { loc: `${SITE}/scan/android-qr`, lastmod: '2026-08-17', changefreq: 'monthly', priority: '0.6' },
   {
-    loc: `${SITE}/privacy-policy.html`, lastmod: '2026-09-03', changefreq: 'yearly', priority: '0.4',
+    loc: `${SITE}/privacy-policy.html`, lastmod: '2026-09-08', changefreq: 'yearly', priority: '0.4',
     alternates: [
       { hreflang: 'en', href: `${SITE}/privacy-policy.html` },
       { hreflang: 'de', href: `${SITE}/de/privacy-policy/` },
@@ -197,6 +214,7 @@ const FOOTER_LINKS = {
       ['/features/travel-documents/', 'Travel documents'],
       ['/features/transfers/', 'Transfers & flights'],
       ['/features/analytics/', 'Trip costs & analytics'],
+      ['/features/offline/', 'Offline mode'],
       // Only 2 of 6 /use-cases/ niches are footer-linked sitewide (space —
       // the product column is already 5 features + these). Bachelorette +
       // van-life chosen as the broadest-appeal pair; revisit once Search
@@ -236,6 +254,7 @@ const FOOTER_LINKS = {
       ['/de/features/travel-documents/', 'Reisedokumente'],
       ['/de/features/transfers/', 'Transfers & Flüge'],
       ['/de/features/analytics/', 'Reisekosten & Analyse'],
+      ['/de/features/offline/', 'Offline-Modus'],
       // Same provisional 2-of-6 selection as FOOTER_LINKS.en.product above —
       // see that comment for the rationale.
       ['/de/use-cases/', 'Anwendungsfälle'],

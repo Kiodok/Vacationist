@@ -44,7 +44,7 @@ Abstimmungen, Ausgaben und Listenänderungen werden ohne Verbindung lokal gespei
 
 ## Was es kostet
 
-Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang sind für die ganze Gruppe kostenlos. Ein Pro-Tarif existiert für Organisatoren mit häufigen Reisen, ist aber für ein einzelnes Camping-Wochenende nicht nötig.
+Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang sind für die ganze Gruppe kostenlos.
 
 <!--CTA-->
 

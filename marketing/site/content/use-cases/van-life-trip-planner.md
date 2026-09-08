@@ -44,7 +44,7 @@ Votes, expenses, and list updates queue automatically when there's no connection
 
 ## What it costs
 
-Free, with no ads. Voting, expense splitting, shared lists, and guest access for the whole crew cost nothing. A Pro tier exists for organizers running frequent or year-round trips, but it isn't required for a single road trip.
+Free, with no ads. Voting, expense splitting, shared lists, and guest access for the whole crew cost nothing.
 
 <!--CTA-->
 

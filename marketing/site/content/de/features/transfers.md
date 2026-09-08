@@ -8,13 +8,18 @@ schema: WebPage
 date: 2026-09-03
 altPath: /features/transfers/
 keywords: Gruppenflug planen App, Transfer Gruppenreise, Mietwagenkosten teilen, ÖPNV Reiseplaner, Bordkarten speichern App
-related: /de/features/expenses/, /de/features/analytics/, /de/features/voting/, /de/features/travel-documents/
+related: /de/features/expenses/, /de/features/analytics/, /de/features/voting/, /de/features/travel-documents/, /de/features/offline/
 breadcrumbLabel: Transfers
 ---
 
 # Ankommen, geregelt — Flüge, Autos, Züge und Tickets.
 
 <p class="lede">Der Plan steht, die Termine sind fix, und dann fragt jemand: „Moment, wie kommen wir eigentlich alle hin?" Plötzlich gibt es vier Buchungsnummern in drei verschiedenen Chats, zwei Leute auf einem anderen Flug, und niemand weiß, wer in welchem Mietwagen sitzt. Vacationist hält jede Etappe der Anreise — und jedes Ticket — an einem Ort, den die ganze Gruppe sieht.</p>
+
+<figure class="app-shot">
+  <img src="/assets/img/vacationist-transfer-flights-greece.webp" alt="Vacationist-Flugbildschirm mit Flugoptionen der Gruppe, Stimmen und zugewiesenen Passagieren" loading="lazy" decoding="async">
+  <figcaption>Flüge: über Optionen abstimmen, Buchung erfassen, Passagiere zuweisen.</figcaption>
+</figure>
 
 ## Vier Arten von Transfer, ein Bildschirm
 

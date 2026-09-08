@@ -82,4 +82,4 @@ Splitting is about the group: who owes whom so nobody's out of pocket. Expensing
 
 ### Do I need a paid app for this?
 
-No. [Vacationist](/features/expenses/) includes expense splitting, receipt attachments, and the business expense report on its free tier, with no ads. A Pro tier exists for people organising many trips a year, but the expense and report features aren't paywalled.
+No. [Vacationist](/features/expenses/) includes expense splitting, receipt attachments, and the business expense report for free, with no ads and none of it paywalled.

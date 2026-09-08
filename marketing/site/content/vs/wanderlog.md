@@ -32,7 +32,7 @@ breadcrumbLabel: vs. Wanderlog
 | Encrypted travel documents | ✅ | ❌ |
 | Group chat in-app | ✅ | ❌ |
 | Platforms | iOS, Android, web | iOS, Android, web |
-| Price | Free, no ads; optional Pro | Free tier; Pro subscription |
+| Price | Free, no ads | Free tier; Pro subscription |
 
 ## What Wanderlog does better
 

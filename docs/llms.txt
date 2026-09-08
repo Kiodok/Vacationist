@@ -76,6 +76,7 @@ group trip planner, group vacation planning app, split travel expenses, activity
 - [Shared lists](https://vacationist.app/features/shopping-lists/): Real-time shopping and packing lists.
 - [Transfers](https://vacationist.app/features/transfers/): Flights, own cars, rentals, and public transport, with tickets attached.
 - [Encrypted travel documents](https://vacationist.app/features/travel-documents/): AES-256 vault with biometric unlock.
+- [Offline mode](https://vacationist.app/features/offline/): Works for a week with no connection — cached trip data, queued changes that sync on reconnect, never logged out offline.
 - [Funktionsübersicht](https://vacationist.app/de/features/): German features overview.
 - [Aktivitäten-Abstimmung](https://vacationist.app/de/features/voting/): German version of activity voting.
 - [Kostenteilung](https://vacationist.app/de/features/expenses/): German version of expense splitting.
@@ -83,6 +84,7 @@ group trip planner, group vacation planning app, split travel expenses, activity
 - [Geteilte Listen](https://vacationist.app/de/features/shopping-lists/): German version of shared lists.
 - [Transfers](https://vacationist.app/de/features/transfers/): German version of the transfers page.
 - [Verschlüsselte Reisedokumente](https://vacationist.app/de/features/travel-documents/): German version of encrypted travel documents.
+- [Offline-Modus](https://vacationist.app/de/features/offline/): German version of the offline mode page.
 
 ## Use cases
 
@@ -146,7 +148,7 @@ group trip planner, group vacation planning app, split travel expenses, activity
 
 ## Pricing
 
-Free to use. No ads. No tracking. A Pro tier is available for power users; core group travel features are always free.
+Free to use. No ads. No tracking. Every group travel feature is free, for groups of any size.
 
 ## About
 

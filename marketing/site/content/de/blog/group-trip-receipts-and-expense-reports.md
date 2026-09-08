@@ -82,4 +82,4 @@ Teilen betrifft die Gruppe: wer wem was schuldet, damit niemand auf den Kosten s
 
 ### Brauche ich dafür eine kostenpflichtige App?
 
-Nein. [Vacationist](/de/features/expenses/) enthält Kostenteilung, Beleg-Anhänge und den Geschäftsausgaben-Bericht im kostenlosen Tarif, ohne Werbung. Für Leute, die viele Reisen im Jahr organisieren, gibt es einen Pro-Tarif, aber die Ausgaben- und Berichtsfunktionen sind nicht hinter einer Bezahlschranke.
+Nein. [Vacationist](/de/features/expenses/) enthält Kostenteilung, Beleg-Anhänge und den Geschäftsausgaben-Bericht kostenlos, ohne Werbung und ohne Bezahlschranke.

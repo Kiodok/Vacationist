@@ -42,11 +42,14 @@ Passports and IDs stored encrypted at rest, protected by a biometric lock, share
 
 A live per-trip cost total against your budget, plus an Analytics tab showing your own share of every trip you've taken, by year — in your currency. [See how trip cost tracking works.](/features/analytics/)
 
+### [Offline mode →](/features/offline/)
+
+Read the whole plan, add expenses, and vote with no connection — for a week. Everything syncs when you're back online, and you're never logged out on a plane. [See how offline mode works.](/features/offline/)
+
 ## And everything around them
 
 - **Guest access without an account** — send one link and the whole group is in. Nobody has to sign up to vote, edit lists, or be part of expenses.
 - **Real-time sync** — every vote, expense, and list change appears on everyone's device instantly.
-- **Offline first** — the app keeps working on planes, ferries, and mountain trails, then syncs when you're back.
 - **Shared trip calendar** — winning activities, accommodations, and transfers in one timeline everyone can see.
 - **Accommodation management** — collect options, vote on them, and keep confirmations where the group can find them. Each place keeps its own currency and can be flagged as a business cost.
 - **Group chat** — trip discussion next to the plan it's about, not lost in a parallel WhatsApp thread. Drafts survive switching tabs.
@@ -59,7 +62,7 @@ A live per-trip cost total against your budget, plus an Analytics tab showing yo
 
 ### Is Vacationist free?
 
-Yes — the core app is free with no ads. A Pro tier adds more planning days per year and unlimited members for large groups.
+Yes — the core app is free with no ads, for groups of any size.
 
 ### What platforms does it run on?
 

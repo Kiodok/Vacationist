@@ -44,7 +44,7 @@ One shared, real-time list for who's bringing what — food, chairs, games — s
 
 ## What it costs
 
-Free, with no ads. Voting, expense splitting, and guest access are free for the whole extended family, at any size. A Pro tier exists for organizers running frequent trips, but it isn't required for a single reunion.
+Free, with no ads. Voting, expense splitting, and guest access are free for the whole extended family, at any size.
 
 <!--CTA-->
 

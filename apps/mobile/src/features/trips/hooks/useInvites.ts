@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getActiveInvites, createInviteToken, revokeInvite, redeemInviteToken } from '@vacationist/api';
 import type { CreateInviteInput } from '@vacationist/types';
 import { useToastStore } from '../../../stores/toastStore';
+import { trackFeatureEvent } from '../../../utils/trackFeatureEvent';
+import { isCachedExampleTrip } from '../../../utils/exampleTrip';
 
 export function useActiveInvites(tripId: string) {
   return useQuery({
@@ -20,6 +22,7 @@ export function useCreateInvite(tripId: string) {
     mutationFn: (input: CreateInviteInput) => createInviteToken(tripId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'invites'] });
+      trackFeatureEvent('invite_sent', { isExampleTrip: isCachedExampleTrip(tripId) });
     },
     onError: () => {
       addToast('error', 'Failed to create invite link.');

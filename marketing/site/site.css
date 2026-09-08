@@ -205,6 +205,17 @@ body {
 /* Images */
 .article img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); }
 
+/* Phone screenshots on feature pages — portrait, so cap the width and centre. */
+.app-shot { margin: 1.75rem auto; max-width: 300px; }
+.app-shot img {
+  display: block;
+  width: 100%;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+}
+.app-shot figcaption { margin-top: 0.6rem; font-size: 0.82rem; color: var(--text3); text-align: center; }
+
 /* ── CTA BAND ── */
 .cta-band {
   background: linear-gradient(135deg, var(--pri-dim), var(--surface));

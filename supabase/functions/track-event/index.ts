@@ -30,6 +30,13 @@ const EVENT_NAMES = new Set([
   'web_app_click',
   'app_store_interest',
   'sign_up',
+  // Product-funnel events (Growth Plan Q4 2026, Phase 0) — web-app surface only,
+  // fired by apps/mobile's trackFeatureEvent helper. Mirrors the CHECK constraint
+  // added in 20260908130000_add_product_funnel_events.sql.
+  'trip_created',
+  'invite_sent',
+  'invite_accepted',
+  'expense_added',
 ]);
 
 const SURFACES = new Set(['marketing', 'web_app', 'native_app']);

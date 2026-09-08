@@ -16,6 +16,11 @@ breadcrumbLabel: Expense splitting
 
 <p class="lede">Money is where group trips go wrong. Someone fronts the hotel, someone else covers dinner, three people send half-remembered PayPal requests a month later. Vacationist tracks every shared cost as it happens — so settling up takes seconds, not spreadsheets.</p>
 
+<figure class="app-shot">
+  <img src="/assets/img/vacationist-expenses-greece.webp" alt="Vacationist expenses screen showing shared trip costs with categories and running balances" loading="lazy" decoding="async">
+  <figcaption>Every shared cost, categorised, with live balances.</figcaption>
+</figure>
+
 ## How expense splitting works
 
 Log any group cost — accommodation, dinner, fuel, tickets, groceries — and choose who paid and who it covers:
@@ -67,7 +72,7 @@ Mark any cost as a **business cost** as you record it — not only expenses, but
 
 ### Is expense splitting free?
 
-Yes. Expense splitting — including receipts and the business expense report — is part of Vacationist's free tier, with no ads. Pro adds more planning days per year, but the expense features are not paywalled.
+Yes. Expense splitting — including receipts and the business expense report — is part of the free Vacationist app, with no ads and nothing about expenses paywalled.
 
 ### Can I attach a receipt to an expense?
 

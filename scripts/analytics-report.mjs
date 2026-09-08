@@ -100,6 +100,21 @@ const stageDefs = [
 ];
 const funnel = stageDefs.map((s) => ({ label: s.label, count: s.events.length }));
 
+// Activation funnel (Growth Plan Q4 2026, Phase 0): what a web-app user does after
+// signing up. surface === 'web_app' only — these events are never fired on native
+// (see apps/mobile trackFeatureEvent). Actions inside the auto-seeded demo trip are
+// already excluded client-side, so every count here is a real trip / invite / expense.
+// Same conservative "count of events, not session-linked" caveat as the funnel above.
+const webApp = (name) => events.filter((e) => e.event_name === name && e.surface === 'web_app');
+const activationFunnel = [
+  { label: 'Sign up (web)', count: webApp('sign_up').length },
+  { label: 'Created a trip', count: webApp('trip_created').length },
+  { label: 'Sent an invite', count: webApp('invite_sent').length },
+  { label: 'Invite accepted', count: webApp('invite_accepted').length },
+  { label: 'Added an expense', count: webApp('expense_added').length },
+];
+const hasActivationData = activationFunnel.some((s) => s.count > 0);
+
 // app_store_interest tracked clicks on the old dead "App Store — Coming Soon" placeholder
 // divs (no href, matched by class). Now that iOS is GA and those divs are real links, new
 // clicks land in isClick()/app_store_click instead — app_store_interest stops accumulating
@@ -394,6 +409,14 @@ const html = `<!doctype html>
     <h2>Funnel</h2>
     ${funnelChart(funnel)}
     <p class="footnote">"Visit → sign-up" is not a true session-linked conversion rate: the sign-up count includes native-app and web-app sign-ups regardless of whether that user ever visited the marketing site, while the visit count is marketing-site page visits only. Treat it as a rough system-wide ratio, not a per-visitor funnel.</p>
+  </div>
+
+  <div class="card">
+    <h2>Activation funnel (web app)</h2>
+    ${hasActivationData
+      ? funnelChart(activationFunnel)
+      : '<p class="empty">No web-app product events yet — trackFeatureEvent is deployed but no consented web-app user has created a trip / invite / expense in this window.</p>'}
+    <p class="footnote">web.vacationist.app only (the native app fires none of these, by design). Demo-trip actions are excluded client-side. Counts are events, not session-linked users — the same caveat as the funnel above.</p>
   </div>
 
   <div class="card">

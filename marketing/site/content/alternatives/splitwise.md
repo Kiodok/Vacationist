@@ -28,7 +28,7 @@ First, to be fair to the incumbent: **Splitwise is still excellent at pure debt 
 - **What it adds over Splitwise:** activity voting, shared trip calendar, accommodation management, flights/rentals/public-transport with tickets attached, real-time shopping lists with recipe sync, encrypted travel documents, group chat, offline-first sync. On the money side specifically: receipts attach to each expense on the free tier (Splitwise gates receipt scanning behind Pro), a category breakdown of spending, an Analytics tab that totals your share across every trip, and — for work trips — a business-cost flag on expenses, hotels, flights and transport with a per-person report export (PDF + Markdown, receipts linked), which Splitwise has at no tier.
 - **The friction-killer:** friends join by one invite link, **no account needed** — and can still vote, edit lists, and be part of expense splits. The "one friend who won't install Splitwise" problem disappears.
 - **What it lacks vs. Splitwise:** currency conversion uses stored daily rates only (no historical or manual per-transaction rate), no PayPal/Venmo settlement integrations, and a small user base (launched 2026).
-- **Price:** free, no ads. Optional Pro for more planning days and unlimited members.
+- **Price:** free, no ads.
 - **Best for:** groups of friends, families, and crews who want the whole trip — not just the debts — in one app.
 
 ## 2. Tricount — best lightweight option

@@ -16,6 +16,11 @@ breadcrumbLabel: Analyse
 
 <p class="lede">Wenn alle wieder zu Hause sind, kann „wie viel war die Reise?" niemand beantworten, ohne vier Apps und einen Kontoauszug zu öffnen. Vacationist weiß es längst — es hat Unterkünfte, Transport, Aktivitäten und Ausgaben während der Planung mitgezählt. Zwei Bildschirme machen daraus eine Zahl: einer für die aktuelle Reise, einer für jede Reise, die du je gemacht hast.</p>
 
+<figure class="app-shot">
+  <img src="/assets/img/vacationist-expenses-settlements-greece.webp" alt="Vacationist-Abrechnungsbildschirm: wer wem am Ende einer Gruppenreise wie viel schuldet" loading="lazy" decoding="async">
+  <figcaption>Abrechnung: die kürzeste Zahlungskette, um die Reise auszugleichen.</figcaption>
+</figure>
+
 ## Zwei Sichten auf dasselbe Geld
 
 ### Die Reise, auf der du bist
@@ -42,7 +47,7 @@ Die Kosten jeder Reise werden in deiner bevorzugten Währung angezeigt (oder in 
 
 ## Kostenlos, wie der Rest
 
-Die Reisekosten-Karte und der Analyse-Tab gehören zur kostenlosen App, ohne Werbung. Pro ergänzt mehr Planungstage pro Jahr; es schaltet nicht deine eigene Ausgabenhistorie frei.
+Die Reisekosten-Karte und der Analyse-Tab gehören zur kostenlosen App, ohne Werbung. Deine eigene Ausgabenhistorie steht nie hinter einer Paywall.
 
 <!--CTA-->
 

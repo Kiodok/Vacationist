@@ -42,11 +42,14 @@ Reisepässe und Ausweise verschlüsselt gespeichert, gesichert durch eine biomet
 
 Eine laufende Kostensumme pro Reise gegen dein Budget, plus ein Analyse-Tab, der deinen eigenen Anteil an jeder Reise zeigt — nach Jahr, in deiner Währung. [So funktioniert das Reisekosten-Tracking.](/de/features/analytics/)
 
+### [Offline-Modus →](/de/features/offline/)
+
+Den ganzen Plan lesen, Ausgaben erfassen und abstimmen — ohne Verbindung, eine Woche lang. Alles gleicht sich ab, sobald du wieder online bist, und du wirst offline nie abgemeldet. [So funktioniert der Offline-Modus.](/de/features/offline/)
+
 ## Und alles drumherum
 
 - **Gastzugang ohne Konto** — einen Link verschicken und die ganze Gruppe ist drin. Niemand muss sich registrieren, um abzustimmen, Listen zu bearbeiten oder bei den Ausgaben dabei zu sein.
 - **Echtzeit-Sync** — jede Stimme, jede Ausgabe und jede Listenänderung erscheint sofort auf allen Geräten.
-- **Offline first** — die App funktioniert im Flugzeug, auf der Fähre und auf dem Bergpfad weiter und synchronisiert, sobald du wieder online bist.
 - **Gemeinsamer Reisekalender** — gewählte Aktivitäten, Unterkünfte und Transfers in einer Zeitleiste, die alle sehen.
 - **Unterkunftsverwaltung** — Optionen sammeln, darüber abstimmen und Buchungsbestätigungen dort aufbewahren, wo die Gruppe sie findet. Jede Unterkunft behält ihre eigene Währung und kann als Geschäftskosten markiert werden.
 - **Gruppenchat** — die Reisediskussion direkt neben dem Plan, um den es geht, statt verloren in einem parallelen WhatsApp-Thread. Entwürfe überstehen den Tab-Wechsel.
@@ -59,7 +62,7 @@ Eine laufende Kostensumme pro Reise gegen dein Budget, plus ein Analyse-Tab, der
 
 ### Ist Vacationist kostenlos?
 
-Ja — die Kern-App ist kostenlos und werbefrei. Ein Pro-Tarif ergänzt mehr Planungstage pro Jahr und unbegrenzte Mitglieder für große Gruppen.
+Ja — die Kern-App ist kostenlos und werbefrei, für Gruppen jeder Größe.
 
 ### Auf welchen Plattformen läuft die App?
 

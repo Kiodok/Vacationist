@@ -31,7 +31,7 @@ breadcrumbLabel: vs. Troupe
 | Offline-Unterstützung | ✅ Offline-first — funktioniert ohne Empfang | ⚠️ Nicht bestätigt |
 | Verschlüsselte Reisedokumente | ✅ AES-256, biometrische Entsperrung, widerrufbarer Organisator-Zugriff | ❌ Kein Feature |
 | Werbung / Tracking | ✅ Keine | ⚠️ Aktuelle App prüfen |
-| Preis | Kostenlos, ohne Werbung; optionales Pro | Aktuelle Preise prüfen |
+| Preis | Kostenlos, ohne Werbung | Aktuelle Preise prüfen |
 
 Die Funktionslisten beider Apps ändern sich schnell — diese Tabelle spiegelt Vacationists aktuellen, überprüfbaren Funktionsumfang wider; prüfe Troupes aktuelle Details direkt vor der Entscheidung.
 
@@ -45,7 +45,7 @@ Wer beide angesehen hat, kennt das ähnliche Versprechen: Schluss mit der Koordi
 - **Belege und ein Geschäftskosten-Bericht.** Jede Ausgabe kann einen Beleg (Foto oder PDF) tragen, und für eine Geschäftsreise lassen sich Geschäftskosten — bei Ausgaben, Hotels, Flügen und Transport — markieren und als [Bericht pro Person](/de/features/expenses/) exportieren, der sie mit verlinkten Belegen zusammenführt — bei Gruppenreise-Apps unüblich.
 - **Reibungsloser Gästebeitritt.** Jeder kann [einer Reise per einzelnem Link beitreten](/de/features/voting/) und sofort abstimmen, Ausgaben hinzufügen und gemeinsame Listen bearbeiten — kein Konto, kein App-Store-Umweg für den einen Freund, der es nie schafft, sich anzumelden.
 - **Offline-first von Haus aus.** Gruppenreisen passieren in Flugzeugen, auf Fähren und Bergstraßen ohne Empfang. Vacationist speichert Abstimmungen, Ausgaben und Listenänderungen zwischen und synchronisiert automatisch bei Verbindung — für alle, nicht als kostenpflichtiges Extra.
-- **Wirklich kostenlos, ohne Werbung.** Die Kern-App — Abstimmungen, [Kostenteilung](/de/features/expenses/), Listen, Chat — ist werbe- und trackingfrei. Ein Pro-Tarif existiert für größere oder häufigere Gruppen; er sperrt keine Kern-Koordinationsfunktionen.
+- **Wirklich kostenlos, ohne Werbung.** Die Kern-App — Abstimmungen, [Kostenteilung](/de/features/expenses/), Listen, Chat — ist werbe- und trackingfrei, und keine der Kern-Koordinationsfunktionen ist gesperrt.
 - **In der Schweiz entwickelt, mit Privatsphäre als Standard.** Für Gruppen, die Finanz- und Reisedokumentendaten teilen, ist es Teil der Entscheidung, wie und wo das Unternehmen mit Privatsphäre umgeht — kein Nachgedanke.
 
 ## Die realistische Empfehlung

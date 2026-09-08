@@ -28,7 +28,7 @@ To be fair to Wanderlog first: if your trip is mostly *research* — where to ea
 - **Offline:** offline-first for everyone, not a Pro feature.
 - **Also unique:** [encrypted travel document storage](/features/travel-documents/) with revocable organizer access, recipe-to-shopping-list sync, in-app group chat.
 - **What it lacks vs. Wanderlog:** no maps integration or place discovery, no automatic email import of bookings.
-- **Price:** free, no ads; optional Pro.
+- **Price:** free, no ads.
 - **Best for:** friend groups, families, bachelorette crews — any trip where the coordination is harder than the research.
 
 ## 2. TripIt — best for automatic itineraries

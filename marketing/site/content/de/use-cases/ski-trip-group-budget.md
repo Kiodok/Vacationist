@@ -44,7 +44,7 @@ Jede Ausgabe aktualisiert die Salden der Gruppe sofort, sodass sich das Abrechne
 
 ## Was es kostet
 
-Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang sind für die ganze Gruppe kostenlos. Ein Pro-Tarif existiert für Organisatoren mit mehreren Reisen im Jahr, ist aber für eine einzelne Skiwoche nicht nötig.
+Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang sind für die ganze Gruppe kostenlos.
 
 <!--CTA-->
 

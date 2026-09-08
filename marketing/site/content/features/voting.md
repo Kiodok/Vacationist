@@ -16,6 +16,11 @@ breadcrumbLabel: Activity voting
 
 <p class="lede">Every group trip has the same problem: ten people, thirty ideas, and no way to decide. Vacationist replaces the endless "so what do you all think?" messages with a voting system built for real groups.</p>
 
+<figure class="app-shot">
+  <img src="/assets/img/vacationist-activities-greece.webp" alt="Vacationist activity voting screen showing five-tier group votes on trip activities" loading="lazy" decoding="async">
+  <figcaption>The activities list, with each idea's votes at a glance.</figcaption>
+</figure>
+
 ## How activity voting works
 
 Anyone in the trip can suggest an activity — a restaurant, a hike, a museum, a beach day. Then everyone votes on it with one of five options:

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
+  <script defer src="/assets/consent.js"></script>
+  <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
+  <script defer src="/assets/track.js"></script>
+
+  <title>Reiseplaner, der ohne Signal funktioniert | Vacationist</title>
+  <meta name="description" content="Vacationist funktioniert eine Woche ohne Verbindung — Reisepläne offline lesen, Ausgaben erfassen und abstimmen; alles gleicht sich ab, sobald du online bist.">
+  <meta name="keywords" content="Offline Reiseplaner, Reise-App offline nutzbar, Gruppenreise App ohne Internet, Ausgaben teilen ohne Internet, Reiseplaner ohne Empfang">
+
+  <link rel="canonical" href="https://vacationist.app/de/features/offline/">
+  <link rel="alternate" hreflang="en" href="https://vacationist.app/features/offline/">
+  <link rel="alternate" hreflang="de" href="https://vacationist.app/de/features/offline/">
+  <link rel="alternate" hreflang="x-default" href="https://vacationist.app/features/offline/">
+
+  <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/de/blog/feed.xml">
+  <meta property="og:title" content="Reiseplaner, der ohne Signal funktioniert | Vacationist">
+  <meta property="og:description" content="Vacationist funktioniert eine Woche ohne Verbindung — Reisepläne offline lesen, Ausgaben erfassen und abstimmen; alles gleicht sich ab, sobald du online bist.">
+  <meta property="og:url" content="https://vacationist.app/de/features/offline/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://vacationist.app/assets/og/de-features-offline.png">
+  <meta property="og:site_name" content="Vacationist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Reiseplaner, der ohne Signal funktioniert | Vacationist">
+  <meta name="twitter:description" content="Vacationist funktioniert eine Woche ohne Verbindung — Reisepläne offline lesen, Ausgaben erfassen und abstimmen; alles gleicht sich ab, sobald du online bist.">
+  <meta name="twitter:image" content="https://vacationist.app/assets/og/de-features-offline.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Reiseplaner, der ohne Signal funktioniert | Vacationist",
+    "description": "Vacationist funktioniert eine Woche ohne Verbindung — Reisepläne offline lesen, Ausgaben erfassen und abstimmen; alles gleicht sich ab, sobald du online bist.",
+    "url": "https://vacationist.app/de/features/offline/",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".lede",
+        ".tldr"
+      ]
+    },
+    "inLanguage": "de",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Startseite",
+        "item": "https://vacationist.app/de/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Funktionen",
+        "item": "https://vacationist.app/de/features/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Offline-Modus",
+        "item": "https://vacationist.app/de/features/offline/"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Wie lange funktioniert Vacationist offline?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mindestens eine Woche. Reisedaten bleiben 30 Tage gespeichert, und du bleibst 7 Tage ohne Serverkontakt angemeldet — danach verlängert ein Fingerabdruck oder die Geräte-PIN die Anmeldung, komplett ohne Internet. In der Praxis müsstest du für eine sehr lange Reise ohne Netz sein, um überhaupt an eine Grenze zu kommen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Können meine Offline-Änderungen verloren gehen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nein. Was du offline änderst, landet in einer Warteschlange, die getrennt vom App-Cache gespeichert ist und ein Schließen oder Beenden der App übersteht. Sobald du wieder online bist, gehen die Änderungen in der Reihenfolge raus, in der du sie gemacht hast. Lässt sich eine davon auf dem Server nicht anwenden — etwa weil jemand die Aktivität gelöscht hat, über die du abgestimmt hast —, bekommst du eine klare Meldung, und es schlägt nicht einfach unbemerkt fehl."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Sehen andere meine Änderungen, während ich offline bin?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Erst wenn du wieder online bist — vorher gibt es keine Verbindung, über die sie gehen könnten. Sobald du zurück bist, synchronisieren sich deine Änderungen auf die Geräte der anderen, und ihre auf deins. Haben zwei Leute unabhängig voneinander dasselbe bearbeitet, gewinnt die jüngste Änderung, und du siehst das Ergebnis beim Synchronisieren."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Funktioniert die Web-Version auch offline?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Die Offline-Funktionen sind für die mobilen Apps (iOS und Android) gemacht, wo die Reisedaten auf dem Gerät liegen. Die Web-App unter web.vacationist.app braucht eine Verbindung — sie ist am besten, wenn jemand vom Laptop aus einer Reise beitritt, nicht für unterwegs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Warum sind Reisedokumente nicht offline verfügbar?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Reisepass- und Ausweisfelder werden verschlüsselt gespeichert und nur im Arbeitsspeicher entschlüsselt — hinter der biometrischen Sperre deines Geräts und nur, während du online bist. Sie gar nicht erst aufs Gerät zu legen heißt: Ein verlorenes oder gestohlenes Handy hat sie schlicht nicht. Jeder andere Teil der Reise ist zwischengespeichert und funktioniert offline."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/inter-face.css">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/de/">
+    <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="nlg" cx="42%" cy="38%" r="72%"><stop offset="0%" stop-color="#6C63FF"/><stop offset="100%" stop-color="#18162D"/></radialGradient></defs>
+      <rect width="512" height="512" fill="url(#nlg)" rx="96"/>
+      <path d="M 108 108 L 256 366 L 404 108" stroke="#fff" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="256" cy="366" r="52" fill="#6C63FF"/><circle cx="256" cy="366" r="22" fill="#fff"/>
+    </svg>
+    Vacationist
+  </a>
+  <div class="nav-links">
+    <a href="/de/features/">Funktionen</a>
+    <a href="/de/blog/">Blog</a>
+    <a href="https://web.vacationist.app" class="nav-cta-web" target="_blank" rel="noopener noreferrer">🌐 Web-App</a>
+    <a href="#get-app" class="nav-cta">App holen</a>
+    <span class="lang-pair" aria-label="Sprache"><span class="lp-on">DE</span><a href="/features/offline/" title="English version">EN</a></span>
+  </div>
+</nav>
+
+<main class="page">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/de/">Startseite</a> <span class="crumb-sep">/</span> <a href="/de/features/">Funktionen</a> <span class="crumb-sep">/</span> <span aria-current="page">Offline-Modus</span></nav>
+  <article class="article">
+<h1 id="der-reiseplaner-der-kein-signal-braucht">Der Reiseplaner, der kein Signal braucht</h1>
+<p class="lede">Genau dann, wenn du deinen Reiseplan wirklich brauchst, hast du meistens keinen Empfang: im Flugzeug beim Boarding, auf der Fähre zwischen zwei Inseln, in einem Tal ohne Netz, mit einer ausländischen SIM, die noch nicht freigeschaltet ist. Die meisten Reise-Apps zeigen dann einen Ladekreis oder eine leere Seite. Vacationist läuft weiter — eine ganze Woche lang ohne Verbindung — und gleicht im Hintergrund alles ab, sobald du wieder online bist.</p><h2 id="was-ohne-verbindung-weiterhin-geht">Was ohne Verbindung weiterhin geht</h2>
+<p>Alles, was du schon einmal geöffnet hast, liegt auf deinem Handy und nicht nur auf einem Server:</p>
+<ul>
+<li><strong>Den ganzen Plan lesen</strong> — Reiseverlauf, Aktivitäten, Unterkünfte, Flüge und Transfers, Einkaufs- und Packlisten, Ausgaben und Salden, den Reisekalender. Was du online einmal angesehen hast, ist auch offline da.</li>
+<li><strong>Weiterplanen</strong> — eine Ausgabe eintragen, einen Punkt auf der Packliste abhaken, abstimmen, eine Aktivität ergänzen, eine Notiz ändern. Deine Änderungen erscheinen sofort und landen in einer Warteschlange.</li>
+<li><strong>Angemeldet bleiben</strong> — Vacationist wirft dich nie zurück auf den Anmeldebildschirm, solange eine gültige Reise auf deinem Handy liegt. (Das alte Ärgernis — die Reise-App meldet dich im Flugzeug ab, und danach kommst du nicht wieder rein, weil die Anmeldeseite nicht lädt — kann hier nicht passieren.)</li>
+</ul>
+<p>Sobald dein Handy wieder Empfang hat, gehen deine Änderungen nacheinander automatisch raus, die Ansichten aktualisieren sich, und die Echtzeit-Verbindung zur Gruppe stellt sich von selbst wieder her. Du musst nichts auf „Synchronisieren&quot; tippen.</p>
+<h2 id="auf-eine-woche-ausgelegt-nicht-auf-ein-paar-minuten">Auf eine Woche ausgelegt, nicht auf ein paar Minuten</h2>
+<p>Vacationist ist von Anfang an offline-first, und eine Überarbeitung 2026 hat das Offline-Fenster deutlich verlängert:</p>
+<ul>
+<li><strong>Reisedaten bleiben 30 Tage lang gespeichert</strong> — genug für eine zweiwöchige Reise mit einem Funkloch mittendrin.</li>
+<li><strong>Du bleibst 7 Tage offline angemeldet</strong>, ganz ohne Serverkontakt. Erst danach fragt Vacationist nach Fingerabdruck oder Geräte-PIN, um die Anmeldung zu verlängern — ein kurzes Entsperren, nie ein erneutes Anmelden, das du ohne Internet gar nicht abschließen könntest.</li>
+<li><strong>Änderungen in der Warteschlange überstehen einen Neustart der App</strong> und ein Abschalten bei leerem Akku. Sie liegen getrennt von allem anderen, damit ein Aufräumen des Caches sie nicht mitnimmt.</li>
+<li><strong>Die aktive Reise wird vorgeladen.</strong> Öffnest du eine Reise, holt die App ihre Tabs und Bilder im Hintergrund aufs Gerät — sie sind da, selbst wenn du offline gehst, bevor du sie überhaupt angetippt hast.</li>
+</ul>
+<h2 id="das-eine-das-bewusst-online-bleibt">Das Eine, das bewusst online bleibt</h2>
+<p><a href="/de/features/travel-documents/">Verschlüsselte Reisedokumente</a> — Reisepass- und Ausweisdaten — werden <strong>nicht</strong> auf dem Gerät zwischengespeichert. Sie werden nur entschlüsselt, während du online bist und den Tresor entsperrst, und nie auf dem Gerät abgelegt. Das ist eine bewusste Abwägung: Deine sensibelsten Daten liegen nicht auf einem Handy, das verloren gehen kann. Alles Übrige zur Reise ist offline verfügbar.</p>
+<div class="cta-band" id="get-app">
+  <h3>Plane deine nächste Gruppenreise mit Vacationist</h3>
+  <p>Über Aktivitäten abstimmen, Kosten teilen und Belege anhängen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.</p>
+  <div class="cta-actions">
+    <a class="btn-white" href="https://play.google.com/store/apps/details?id=com.vacationist.mobile" target="_blank" rel="noopener noreferrer">Bei Google Play laden</a>
+    <a class="btn-white" href="https://apps.apple.com/us/app/vacationist/id6800049398" target="_blank" rel="noopener noreferrer">Im App Store laden</a>
+    <a class="btn-outline" href="https://web.vacationist.app" target="_blank" rel="noopener noreferrer">Web-App öffnen</a>
+  </div>
+</div><h2 id="häufige-fragen">Häufige Fragen</h2>
+<h3 id="wie-lange-funktioniert-vacationist-offline">Wie lange funktioniert Vacationist offline?</h3>
+<p>Mindestens eine Woche. Reisedaten bleiben 30 Tage gespeichert, und du bleibst 7 Tage ohne Serverkontakt angemeldet — danach verlängert ein Fingerabdruck oder die Geräte-PIN die Anmeldung, komplett ohne Internet. In der Praxis müsstest du für eine sehr lange Reise ohne Netz sein, um überhaupt an eine Grenze zu kommen.</p>
+<h3 id="können-meine-offline-änderungen-verloren-gehen">Können meine Offline-Änderungen verloren gehen?</h3>
+<p>Nein. Was du offline änderst, landet in einer Warteschlange, die getrennt vom App-Cache gespeichert ist und ein Schließen oder Beenden der App übersteht. Sobald du wieder online bist, gehen die Änderungen in der Reihenfolge raus, in der du sie gemacht hast. Lässt sich eine davon auf dem Server nicht anwenden — etwa weil jemand die Aktivität gelöscht hat, über die du abgestimmt hast —, bekommst du eine klare Meldung, und es schlägt nicht einfach unbemerkt fehl.</p>
+<h3 id="sehen-andere-meine-änderungen-während-ich-offline-bin">Sehen andere meine Änderungen, während ich offline bin?</h3>
+<p>Erst wenn du wieder online bist — vorher gibt es keine Verbindung, über die sie gehen könnten. Sobald du zurück bist, synchronisieren sich deine Änderungen auf die Geräte der anderen, und ihre auf deins. Haben zwei Leute unabhängig voneinander dasselbe bearbeitet, gewinnt die jüngste Änderung, und du siehst das Ergebnis beim Synchronisieren.</p>
+<h3 id="funktioniert-die-web-version-auch-offline">Funktioniert die Web-Version auch offline?</h3>
+<p>Die Offline-Funktionen sind für die mobilen Apps (iOS und Android) gemacht, wo die Reisedaten auf dem Gerät liegen. Die Web-App unter web.vacationist.app braucht eine Verbindung — sie ist am besten, wenn jemand vom Laptop aus einer Reise beitritt, nicht für unterwegs.</p>
+<h3 id="warum-sind-reisedokumente-nicht-offline-verfügbar">Warum sind Reisedokumente nicht offline verfügbar?</h3>
+<p>Reisepass- und Ausweisfelder werden verschlüsselt gespeichert und nur im Arbeitsspeicher entschlüsselt — hinter der biometrischen Sperre deines Geräts und nur, während du online bist. Sie gar nicht erst aufs Gerät zu legen heißt: Ein verlorenes oder gestohlenes Handy hat sie schlicht nicht. Jeder andere Teil der Reise ist zwischengespeichert und funktioniert offline.</p>
+
+  </article>
+
+<section class="related">
+  <h2 class="related-heading">Weiterlesen</h2>
+  <div class="related-grid">
+    <a class="related-card" href="/de/features/travel-documents/">
+      <span class="related-title">Reisedokumente</span>
+      <span class="related-desc">Reisepässe, Ausweise und Reisedokumente verschlüsselt speichern, gesichert durch eine biometrische Sperre auf deinem Gerät. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.</span>
+    </a>
+    <a class="related-card" href="/de/features/expenses/">
+      <span class="related-title">Kostenteilung</span>
+      <span class="related-desc">Jede Reiseausgabe mit der Gruppe teilen — Hotels, Abendessen, Sprit, alles. Vacationist verfolgt, wer gezahlt hat, wer wem was schuldet, und rechnet mit einem Tipp ab. Kostenlos.</span>
+    </a>
+    <a class="related-card" href="/de/features/voting/">
+      <span class="related-title">Aktivitäten-Voting</span>
+      <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppenhindernis. Schluss mit endlosen Chat-Debatten.</span>
+    </a>
+    <a class="related-card" href="/de/features/transfers/">
+      <span class="related-title">Transfers</span>
+      <span class="related-desc">Jede Etappe einer Gruppenreise an einem Ort — über Flüge abstimmen, Mietwagen und öffentliche Verkehrsmittel verwalten und jedes Ticket dabei behalten.</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Vacationist</span>
+      <p>Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Listen gemeinsam führen.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produkt</h4>
+      <a href="/de/features/">Alle Funktionen</a>
+      <a href="/de/features/voting/">Aktivitäten-Voting</a>
+      <a href="/de/features/expenses/">Kosten teilen</a>
+      <a href="/de/features/shopping-lists/">Gemeinsame Listen</a>
+      <a href="/de/features/travel-documents/">Reisedokumente</a>
+      <a href="/de/features/transfers/">Transfers &amp; Flüge</a>
+      <a href="/de/features/analytics/">Reisekosten &amp; Analyse</a>
+      <a href="/de/features/offline/">Offline-Modus</a>
+      <a href="/de/use-cases/">Anwendungsfälle</a>
+      <a href="/de/use-cases/bachelorette-party-planner/">Junggesellinnenabschied planen</a>
+      <a href="/de/use-cases/van-life-trip-planner/">Van-Life-Reiseplaner</a>
+    </div>
+    <div class="footer-col">
+      <h4>Vergleiche</h4>
+      <a href="/de/vs/splitwise/">Vacationist vs. Splitwise</a>
+      <a href="/de/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/de/alternatives/splitwise/">Splitwise-Alternativen</a>
+      <a href="/de/alternatives/wanderlog/">Wanderlog-Alternativen</a>
+    </div>
+    <div class="footer-col">
+      <h4>Ressourcen</h4>
+      <a href="/de/blog/">Blog</a>
+      <a href="/de/blog/how-to-plan-a-group-trip/">Gruppenreise-Planungs-Guide</a>
+      <a href="/de/blog/best-group-travel-apps-2026/">Beste Gruppenreise-Apps</a>
+      <a href="/de/blog/how-to-split-travel-expenses/">Reisekosten-Guide</a>
+    </div>
+    <div class="footer-col">
+      <h4>Rechtliches</h4>
+      <a href="/de/privacy-policy/">Datenschutz</a>
+      <a href="/de/terms-of-service/">Nutzungsbedingungen</a>
+      <a href="/de/impressum/">Impressum</a>
+      <a href="/de/delete-account/">Konto löschen</a>
+      <a href="#cookie-settings">Cookie-Einstellungen</a>
+      <a href="mailto:meetdeep.de@gmail.com">Kontakt</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2026 Vacationist · Gary Lude, Schweiz</div>
+</footer>
+
+</body>
+</html>

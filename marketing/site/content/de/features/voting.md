@@ -16,6 +16,11 @@ breadcrumbLabel: Aktivitäten-Voting
 
 <p class="lede">Jede Gruppenreise hat dasselbe Problem: zehn Leute, dreißig Ideen und keine Möglichkeit zu entscheiden. Vacationist ersetzt die endlosen „Und, was meint ihr?"-Nachrichten durch ein Abstimmungssystem, das für echte Gruppen gebaut ist.</p>
 
+<figure class="app-shot">
+  <img src="/assets/img/vacationist-activities-greece.webp" alt="Vacationist-Abstimmungsbildschirm mit fünfstufiger Gruppenabstimmung zu Reiseaktivitäten" loading="lazy" decoding="async">
+  <figcaption>Die Aktivitätenliste, mit den Stimmen jeder Idee auf einen Blick.</figcaption>
+</figure>
+
 ## So funktioniert die Aktivitäten-Abstimmung
 
 Jeder in der Reise kann eine Aktivität vorschlagen — ein Restaurant, eine Wanderung, ein Museum, einen Strandtag. Dann stimmen alle mit einer von fünf Optionen ab:

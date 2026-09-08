@@ -35,7 +35,7 @@ breadcrumbLabel: vs. Tricount
 | Multi-currency | ✅ Per-item currencies, daily rates | ✅ Strong, a core strength |
 | Popularity in Europe | ⚠️ New (2026) | ✅ Very high, especially DACH |
 | Platforms | iOS, Android, web | iOS, Android, web |
-| Price | Free, no ads; optional Pro | Free, with some premium extras |
+| Price | Free, no ads | Free, with some premium extras |
 
 ## What Tricount does better
 
@@ -68,7 +68,7 @@ If your group has been "using Tricount for the money" and still drowning in chat
 
 ### Is Vacationist really free like Tricount?
 
-Yes. The core app — voting, expenses, lists, chat — is free with no ads. A Pro tier adds more planning days per year and unlimited members for large groups.
+Yes. The core app — voting, expenses, lists, chat — is free with no ads, for groups of any size.
 
 ### Can people join without creating an account, like Tricount's non-member option?
 

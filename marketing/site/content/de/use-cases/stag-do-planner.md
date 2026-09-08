@@ -44,7 +44,7 @@ Eine Echtzeit-Liste für alles, was die Gruppe mitbringen oder buchen muss — s
 
 ## Was es kostet
 
-Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang kosten für die ganze Gruppe nichts. Ein Pro-Tarif existiert für Organisatoren mit mehreren Reisen im Jahr, ist aber für ein einzelnes Wochenende nicht nötig.
+Kostenlos, ohne Werbung. Abstimmen, Kostenteilung, gemeinsame Listen und Gästezugang kosten für die ganze Gruppe nichts.
 
 <!--CTA-->
 

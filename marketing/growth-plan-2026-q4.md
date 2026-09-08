@@ -37,25 +37,30 @@ All four are active priorities. They are **not** parallel: Product Hunt and the 
 
 *(`Phase 5` below is a separate thing — a backlog of product-led-growth feature ideas, not a fifth sequenced workstream. It's parked there so the idea bank lives next to the plan.)*
 
-### Phase 0 — Instrument the product funnel  *(repo work, ~half a day)*
+### Phase 0 — Instrument the product funnel  *(repo work, ~1 day)*
 
-Add `trip_created`, `invite_sent`, `invite_accepted`, `expense_added` (names TBD) to the existing pipeline:
-- `packages/types/src/analytics.ts` — `ANALYTICS_EVENT_NAME` + schema
-- `supabase/functions/track-event/index.ts` — `EVENT_NAMES` set
-- DB CHECK constraint — new migration (the allowlist is enforced in 3 places, kept in sync by hand)
-- App call sites — the mutation `onSuccess` for trip create, invite generate, invite accept, expense add. Consent-gated via `useConsentStore`, surface `native_app`.
-- Note the known constraint (`engineering/play_data_safety.md`): `track-event`'s origin allowlist rejects originless native requests today. Resolve that (allow an app auth header / dedicated native path) as part of this phase or the events go nowhere.
+**Finalized 2026-09-08. Full plan: `~/.claude/plans/cosmic-booping-dewdrop.md`.**
+
+Add four events — `trip_created`, `invite_sent`, `invite_accepted`, `expense_added` — **web-app surface only** (`web.vacationist.app`, the Expo web build). Not native: `track-event` hard-rejects originless native calls (403), native has no consent mechanism, and the privacy policy + "No tracking" marketing bar native analytics. Web still captures the growth-relevant joins — someone without the app lands on `web.vacationist.app/join`; someone who already has it deep-links to native (retention, not acquisition).
+
+- Migration: add the four to the `analytics_events_event_name_check` constraint (DROP+ADD, template `20260817110000`); mirror in `track-event`'s `EVENT_NAMES` set (+redeploy dev+prod) and `packages/types/src/analytics.ts`.
+- New helper `apps/mobile/src/features/consent/utils/trackFeatureEvent.ts` — `Platform.OS==='web'` + `consentStore.decision==='granted'` gate + `logAnalyticsEvent({ surface: 'web_app' })` (mirrors `StoreBadges.tsx`).
+- Call sites: `useCreateTrip` / `useCreateInvite` hook `onSuccess`; after `redeemInviteToken` in `join.tsx` + `join-confirm.tsx`; `mutationDefaults.ts` for `createExpense` (persisted — not the hook).
+- **Exclude auto-seeded example trips.** New `trips.is_example` column (migration + set `true` in `create-example-trip`); `invite_sent` / `expense_added` skip the event when the trip `is_example`. `trip_created` is N/A (example trips are server-side).
+- `scripts/analytics-report.mjs` gets a second "Activation funnel" block; privacy policy EN+DE enumeration extended.
 
 **Why first:** every downstream decision — did Product Hunt work, is the invite loop self-sustaining, which Reddit creative drives real trips not just installs — is guesswork without it.
 
-### Phase 1 — Dress the shop window  *(repo work, ~1 day)*
+### Phase 1 — Dress the shop window  *(EXECUTED 2026-09-08 — staged, NOT committed)*
 
-1. **Wire the real screenshots into the marketing site.** Use the **Greece set** (`play-store/screenshots/` — matches the live store listings). `docs/` has zero `<img>` tags today; the homepage phone is pure CSS. Add real product screenshots to the homepage hero and each `/features/*` page. Conventions (naming, alt-text formula, `ImageObject` + `SoftwareApplication.screenshot` JSON-LD) are already written in `seo-strategy.md` Pillar 8 and become directly executable.
-2. **Catch `APP_VERSION` up to 1.37.0** in `build.mjs` and refresh `featureList` / descriptions across `appLd` pages + homepage. Follow the process in `.claude/skills/marketing-v1-34-0-rollout/SKILL.md`.
-3. **Give offline mode real copy** — a `/features/` entry or a homepage block. "Works for a week with no signal" is a concrete differentiator no competitor has.
-4. **Soften the premature Pro copy** (see Decision 1) — Pro is ~10× MAU away; the site shouldn't state it as a current tier yet.
+Full plan: `~/.claude/plans/cosmic-booping-dewdrop.md`.
 
-**Why here:** cheap, unblocks the deferred `SoftwareApplication.screenshot` schema, and lifts conversion on *every* channel at once — paid, organic, and Product Hunt all land on the same pages.
+1. **Screenshots** — new `scripts/generate-web-screenshots.mjs` (`npm run screenshots:web`) crops the Greece set → 720w WebP (29–52 KB) in `docs/assets/img/` (8 files). Shown inline on `/features/{voting,expenses,analytics,transfers}/` (EN+DE) via a `<figure class="app-shot">` after the lede, styled by a new `site.css` rule. Fed into `SoftwareApplication.screenshot` JSON-LD (new `APP_SCREENSHOTS` in `build.mjs`). **Homepage hero mockup kept as-is** (deviation — see plan): the CSS phone is bilingual + animated; English static screenshots would regress the `/de/` hero. Schema covers the homepage instead.
+2. **`APP_VERSION` 1.34.2 → 1.37.0** in `build.mjs`; `APP_LD.{en,de}.{description,featureList,siteDescription}` refreshed (offline-week + Android zero-tap sign-in); `DE_HOME_LASTMOD` + sitemap `/` & `/privacy-policy.html` lastmods → 2026-09-08.
+3. **New `/features/offline/` EN+DE pair** — "works for at least 7 days with no connection". Wired into `features/index.md` (7th core card), `travel-documents.md` + `transfers.md` `related:`, `FOOTER_LINKS`, `docs/llms.txt`.
+4. **Premature Pro copy removed** — ~20 EN + ~18 DE hits across `/features/`, `/vs/`, `/alternatives/`, `/blog/`, all 7 `/use-cases/`, `docs/llms.txt`. "A Pro tier adds more planning days…" → "free, no ads, for groups of any size." No hedging. Competitor Pro mentions (Wanderlog, TripIt) left intact.
+
+Verified: `npm run build:site` idempotent (full-tree hash stable across 3 runs); no new `[seo]` warnings on new/changed pages; offline pages in sitemap with hreflang + OG cards; FAQPage JSON-LD generated. Browser spot-check blocked (Chrome extension not connected).
 
 ### Phase 2 — Harvest social proof  *(founder time + small repo follow-up)*
 

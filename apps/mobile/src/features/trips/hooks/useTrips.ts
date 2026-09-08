@@ -5,6 +5,7 @@ import type { CreateTripInput, Trip, UpdateTripVariables } from '@vacationist/ty
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { trackFeatureEvent } from '../../../utils/trackFeatureEvent';
 
 export function useTrips() {
   const hasSession = useAuthStore((s) => s.hasSession);
@@ -73,6 +74,8 @@ export function useCreateTrip() {
       queryClient.setQueryData(['trips', data.id], { ...data, member_count: 1 });
       queryClient.invalidateQueries({ queryKey: ['trips'], exact: true });
       addToast('success', i18n.t('trips:toast.created'));
+      // A user-created trip is never the demo trip (that's server-side), so no is_example check.
+      trackFeatureEvent('trip_created');
     },
     onError: () => {
       addToast('error', i18n.t('trips:toast.createFailed'));

@@ -35,7 +35,7 @@ breadcrumbLabel: vs. Splitwise
 | Payment integrations (PayPal, Venmo) | ❌ | ✅ |
 | Established user base | ⚠️ New (2026) | ✅ 50M+ users |
 | Platforms | iOS, Android, web | iOS, Android, web |
-| Price | Free, no ads; optional Pro | Free with ads/limits; Splitwise Pro |
+| Price | Free, no ads | Free with ads/limits; Splitwise Pro |
 
 ## What Splitwise does better
 
@@ -68,7 +68,7 @@ If your group has been "using Splitwise for the trip" and still drowning in chat
 
 ### Is Vacationist really free?
 
-Yes. The core app — voting, expenses, lists, chat — is free with no ads. A Pro tier adds more planning days per year and unlimited members for big groups.
+Yes. The core app — voting, expenses, lists, chat — is free with no ads, for groups of any size.
 
 ### Can I import my Splitwise history into Vacationist?
 

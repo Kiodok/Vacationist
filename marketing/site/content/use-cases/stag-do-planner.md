@@ -44,7 +44,7 @@ One real-time list for anything the group needs to bring or book — updated ins
 
 ## What it costs
 
-Free, with no ads. Voting, expense splitting, shared lists, and guest access cost nothing for the whole group. A Pro tier exists for organizers running multiple trips a year, but it isn't required for a single stag weekend.
+Free, with no ads. Voting, expense splitting, shared lists, and guest access cost nothing for the whole group.
 
 <!--CTA-->
 

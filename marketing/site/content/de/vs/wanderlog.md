@@ -32,7 +32,7 @@ breadcrumbLabel: vs. Wanderlog
 | Verschlüsselte Reisedokumente | ✅ | ❌ |
 | Gruppenchat in der App | ✅ | ❌ |
 | Plattformen | iOS, Android, Web | iOS, Android, Web |
-| Preis | Kostenlos, ohne Werbung; optionales Pro | Gratis-Tarif; Pro-Abo |
+| Preis | Kostenlos, ohne Werbung | Gratis-Tarif; Pro-Abo |
 
 ## Was Wanderlog besser macht
 

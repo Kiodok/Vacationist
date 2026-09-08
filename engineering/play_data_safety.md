@@ -34,7 +34,7 @@ plain "collection".
 
 - **Reddit client-side pixel** (`apps/mobile/src/utils/webPixel.ts`, `useConsentPixel.ts`) — `Platform.OS === 'web'`-guarded, no-ops on native.
 - **Vercel Analytics / Speed Insights** — listed in `apps/mobile/package.json` but only imported from `VercelWebTools.web.tsx`; the platform-suffixed file is excluded from native Metro bundles. The unsuffixed `VercelWebTools.tsx` renders `null`.
-- **First-party `analytics_events` logging** (`logAnalyticsEvent`, `packages/api/src/analytics.ts`) — exported from the shared API package but has **no call site in `apps/mobile`**; the `track-event` Edge Function's CORS allowlist is web-origin-based and rejects native's originless requests in practice.
+- **First-party `analytics_events` logging** (`logAnalyticsEvent`, `packages/api/src/analytics.ts`) — the `track-event` Edge Function's CORS allowlist is web-origin-based and rejects native's originless requests in practice, so nothing in the Android bundle can post to it. `apps/mobile` call sites (`StoreBadges.tsx`, and the `trackFeatureEvent` helper wired into trip/invite/expense mutations for the Growth Plan Q4 2026 activation funnel) are all `Platform.OS === 'web'`-guarded and no-op on native — the events only fire from the `web.vacationist.app` build.
 
 ## Play Console taxonomy mapping
 

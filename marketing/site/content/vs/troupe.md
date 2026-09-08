@@ -31,7 +31,7 @@ breadcrumbLabel: vs. Troupe
 | Offline support | ✅ Offline-first — works with no signal | ⚠️ Not confirmed |
 | Encrypted travel documents | ✅ AES-256, biometric unlock, revocable organizer access | ❌ Not a feature |
 | Ads / tracking | ✅ None | ⚠️ Check current app |
-| Price | Free, no ads; optional Pro | Check current pricing |
+| Price | Free, no ads | Check current pricing |
 
 Feature sets for both apps change quickly — this table reflects Vacationist's current, verifiable feature set; verify Troupe's latest specifics directly before deciding.
 
@@ -45,7 +45,7 @@ If you've looked at both, you've probably noticed the pitch is similar: stop coo
 - **Receipts and a business-cost report.** Every expense can carry a receipt (photo or PDF), and for a work trip you can flag business costs — on expenses, hotels, flights and transport — and [export a per-person report](/features/expenses/) that merges them with the receipts linked — not something group-trip apps usually offer.
 - **Zero-friction guest joins.** Anyone can [join a trip via a single link](/features/voting/) and immediately vote, add expenses, and edit shared lists — no account, no app-store detour for the one friend who never gets around to signing up.
 - **Offline-first by default.** Group trips happen on planes, ferries, and mountain roads with no signal. Vacationist queues votes, expenses, and list changes and syncs automatically on reconnect — for everyone, not as a paid add-on.
-- **Genuinely free, no ads.** The core app — voting, [expense splitting](/features/expenses/), lists, chat — has no ads and no tracking. A Pro tier exists for larger or more frequent groups; it doesn't gate core coordination features.
+- **Genuinely free, no ads.** The core app — voting, [expense splitting](/features/expenses/), lists, chat — has no ads and no tracking, and none of the core coordination features are gated.
 - **Built in Switzerland with a privacy-first default.** For groups sharing financial and travel-document data, where and how the company handles privacy is part of the decision, not an afterthought.
 
 ## The realistic recommendation

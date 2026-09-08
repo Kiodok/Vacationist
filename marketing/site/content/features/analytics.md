@@ -16,6 +16,11 @@ breadcrumbLabel: Analytics
 
 <p class="lede">By the time everyone's home, "how much was that trip?" is a question nobody can answer without opening four apps and a bank statement. Vacationist already knows — it's been adding up accommodations, transport, activities, and expenses as you planned. Two screens turn that into a number: one for the trip you're on, one for every trip you've ever taken.</p>
 
+<figure class="app-shot">
+  <img src="/assets/img/vacationist-expenses-settlements-greece.webp" alt="Vacationist settle-up screen showing who owes whom at the end of a group trip" loading="lazy" decoding="async">
+  <figcaption>Settle-up: the shortest set of payments to clear the trip.</figcaption>
+</figure>
+
 ## Two views of the same money
 
 ### The trip you're on
@@ -42,7 +47,7 @@ Every trip's costs are shown in your preferred currency (or the trip's own curre
 
 ## Free, like the rest of it
 
-The Trip costs card and the Analytics tab are part of the free app, with no ads. Pro adds more planning days per year; it doesn't unlock your own spending history.
+The Trip costs card and the Analytics tab are part of the free app, with no ads. Your own spending history is never paywalled.
 
 <!--CTA-->
 

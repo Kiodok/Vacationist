@@ -15,6 +15,7 @@ const baseTrip: Trip & { member_count?: number } = {
   base_currency: 'EUR',
   timezone: 'Europe/Vienna',
   status: 'planning',
+  is_example: false,
   created_by: 'u1',
   created_at: '2026-01-01',
   updated_at: '2026-01-01',

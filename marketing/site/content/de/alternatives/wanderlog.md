@@ -28,7 +28,7 @@ Zuerst Fairness gegenüber Wanderlog: Wenn deine Reise vor allem *Recherche* ist
 - **Offline:** offline-first für alle, keine Pro-Funktion.
 - **Ebenfalls einzigartig:** [verschlüsselte Reisedokumente](/de/features/travel-documents/) mit widerrufbarem Organisator-Zugriff, Rezept-zu-Einkaufsliste-Übernahme, Gruppenchat in der App.
 - **Was ihm gegenüber Wanderlog fehlt:** keine Karten-Integration oder Orts-Entdeckung, kein automatischer E-Mail-Import von Buchungen.
-- **Preis:** kostenlos, ohne Werbung; optionales Pro.
+- **Preis:** kostenlos, ohne Werbung.
 - **Ideal für:** Freundesgruppen, Familien, JGA-Crews — jede Reise, bei der die Koordination schwieriger ist als die Recherche.
 
 ## 2. TripIt — am besten für automatische Reisepläne

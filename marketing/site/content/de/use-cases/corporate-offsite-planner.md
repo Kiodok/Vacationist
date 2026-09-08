@@ -44,7 +44,7 @@ Kolleg:innen treten der Reise über einen einzigen Link bei und können abstimme
 
 ## Was es kostet
 
-Kostenlos, ohne Werbung. Abstimmung, Kostenteilung, Belege, der Geschäftsausgaben-Bericht und der Gastzugang sind für das ganze Team kostenlos. Für Leute, die viele Reisen im Jahr organisieren, gibt es einen Pro-Tarif — für ein einzelnes Offsite braucht es ihn nicht.
+Kostenlos, ohne Werbung. Abstimmung, Kostenteilung, Belege, der Geschäftsausgaben-Bericht und der Gastzugang sind für das ganze Team kostenlos.
 
 <!--CTA-->
 

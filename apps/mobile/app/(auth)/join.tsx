@@ -8,6 +8,7 @@ import { Button, Input, colors, ThemedIcon } from '@vacationist/ui';
 import { signInAnonymously, redeemInviteToken, previewInviteToken, getSession } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
 import { useAuthStore } from '../../src/stores/authStore';
+import { trackFeatureEvent } from '../../src/utils/trackFeatureEvent';
 import { useCaptchaToken } from '../../src/features/auth/hooks/useCaptchaToken';
 import { TurnstileWidget } from '../../src/features/auth/components/TurnstileWidget';
 
@@ -86,6 +87,9 @@ export default function JoinScreen() {
       if (token) {
         try {
           const tripId = await redeemInviteToken(token);
+          // Web-app activation funnel (Growth Plan Q4 2026, Phase 0). No is_example
+          // check — the trip isn't loaded yet, and demo trips are single-user/unshared.
+          trackFeatureEvent('invite_accepted');
           router.replace({ pathname: '/trip/[id]', params: { id: tripId } } as never);
           return;
         } catch (err) {

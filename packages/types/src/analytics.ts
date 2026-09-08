@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 // Mirrors the CHECK constraints on public.analytics_events
 // (supabase/migrations/20260808100000_create_analytics_events.sql, event_name list last
-// widened by 20260817110000_add_app_store_click_event.sql). Keep in sync manually.
+// widened by 20260908130000_add_product_funnel_events.sql). Also mirrored in
+// supabase/functions/track-event/index.ts EVENT_NAMES. Keep all three in sync manually.
 export const ANALYTICS_EVENT_NAME = [
   'page_visit',
   'play_store_click',
@@ -10,7 +11,24 @@ export const ANALYTICS_EVENT_NAME = [
   'web_app_click',
   'app_store_interest',
   'sign_up',
+  // Product-funnel events (Growth Plan Q4 2026, Phase 0) — web-app surface only,
+  // fired by apps/mobile's trackFeatureEvent helper.
+  'trip_created',
+  'invite_sent',
+  'invite_accepted',
+  'expense_added',
 ] as const;
+
+// The web-app activation-funnel events, fired via trackFeatureEvent (a subset of
+// AnalyticsEventName that helper is allowed to send).
+export const PRODUCT_FUNNEL_EVENT = [
+  'trip_created',
+  'invite_sent',
+  'invite_accepted',
+  'expense_added',
+] as const;
+
+export type ProductFunnelEvent = typeof PRODUCT_FUNNEL_EVENT[number];
 
 export type AnalyticsEventName = typeof ANALYTICS_EVENT_NAME[number];
 

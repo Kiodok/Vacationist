@@ -44,7 +44,7 @@ Eine gemeinsame Echtzeit-Liste, wer was mitbringt — Essen, Stühle, Spiele —
 
 ## Was es kostet
 
-Kostenlos, ohne Werbung. Abstimmen, Kostenteilung und Gästezugang sind für die ganze Großfamilie kostenlos, egal wie groß. Ein Pro-Tarif existiert für Organisatoren mit häufigen Reisen, ist aber für ein einzelnes Treffen nicht nötig.
+Kostenlos, ohne Werbung. Abstimmen, Kostenteilung und Gästezugang sind für die ganze Großfamilie kostenlos, egal wie groß.
 
 <!--CTA-->
 

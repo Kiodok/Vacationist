@@ -32,7 +32,7 @@ breadcrumbLabel: vs. TripIt
 | Points & loyalty tracking | ❌ | ✅ TripIt Pro |
 | Encrypted travel documents | ✅ AES-256 vault | ⚠️ Stores confirmations, not a dedicated document vault |
 | Platforms | iOS, Android, web | iOS, Android, web |
-| Price | Free, no ads; optional Pro | Free tier; TripIt Pro subscription |
+| Price | Free, no ads | Free tier; TripIt Pro subscription |
 
 ## What TripIt does better
 

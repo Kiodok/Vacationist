@@ -16,6 +16,11 @@ breadcrumbLabel: Kostenteilung
 
 <p class="lede">Beim Geld gehen Gruppenreisen schief. Jemand streckt das Hotel vor, jemand anderes übernimmt das Abendessen, drei Leute schicken einen Monat später halb erinnerte PayPal-Anfragen. Vacationist erfasst jede gemeinsame Ausgabe, während sie passiert — so dauert das Abrechnen Sekunden, nicht Tabellenkalkulationen.</p>
 
+<figure class="app-shot">
+  <img src="/assets/img/vacationist-expenses-greece.webp" alt="Vacationist-Ausgabenbildschirm mit gemeinsamen Reisekosten nach Kategorie und laufenden Salden" loading="lazy" decoding="async">
+  <figcaption>Jede gemeinsame Ausgabe, kategorisiert, mit laufenden Salden.</figcaption>
+</figure>
+
 ## So funktioniert die Kostenteilung
 
 Jede Gruppenausgabe erfassen — Unterkunft, Abendessen, Sprit, Tickets, Einkäufe — und auswählen, wer gezahlt hat und für wen sie gilt:
@@ -67,7 +72,7 @@ Markiere jede Kosten beim Erfassen als **Geschäftskosten** — nicht nur Ausgab
 
 ### Ist die Kostenteilung kostenlos?
 
-Ja. Die Kostenteilung — inklusive Belege und Geschäftsausgaben-Bericht — ist Teil des kostenlosen Vacationist-Tarifs, ohne Werbung. Pro ergänzt mehr Planungstage pro Jahr, aber die Ausgaben-Funktionen stehen nicht hinter einer Paywall.
+Ja. Die Kostenteilung — inklusive Belege und Geschäftsausgaben-Bericht — ist Teil der kostenlosen Vacationist-App, ohne Werbung und ohne Paywall bei den Ausgaben.
 
 ### Kann ich einen Beleg an eine Ausgabe anhängen?
 

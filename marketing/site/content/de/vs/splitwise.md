@@ -35,7 +35,7 @@ breadcrumbLabel: vs. Splitwise
 | Zahlungs-Integrationen (PayPal, Venmo) | ❌ | ✅ |
 | Etablierte Nutzerbasis | ⚠️ Neu (2026) | ✅ 50 Mio.+ Nutzer |
 | Plattformen | iOS, Android, Web | iOS, Android, Web |
-| Preis | Kostenlos, ohne Werbung; optionales Pro | Kostenlos mit Werbung/Limits; Splitwise Pro |
+| Preis | Kostenlos, ohne Werbung | Kostenlos mit Werbung/Limits; Splitwise Pro |
 
 ## Was Splitwise besser macht
 
@@ -68,7 +68,7 @@ Wenn deine Gruppe bislang „Splitwise für die Reise" nutzt und trotzdem für a
 
 ### Ist Vacationist wirklich kostenlos?
 
-Ja. Die Kern-App — Abstimmungen, Ausgaben, Listen, Chat — ist kostenlos und werbefrei. Ein Pro-Tarif ergänzt mehr Planungstage pro Jahr und unbegrenzte Mitglieder für große Gruppen.
+Ja. Die Kern-App — Abstimmungen, Ausgaben, Listen, Chat — ist kostenlos und werbefrei, für Gruppen jeder Größe.
 
 ### Kann ich meine Splitwise-Historie in Vacationist importieren?
 

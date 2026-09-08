@@ -44,7 +44,7 @@ Eine gemeinsame Echtzeit-Liste für Deko, Schärpe, die „Wer bringt Ersatzkabe
 
 ## Was es kostet
 
-Kostenlos, ohne Werbung. Die zentralen Planungswerkzeuge — Abstimmen, Kostenteilung, Listen und Gästezugang — kosten für die ganze Brautgesellschaft nichts. Ein Pro-Tarif existiert für Organisatorinnen mit mehreren Reisen im Jahr, ist aber für ein einzelnes Wochenende nicht nötig.
+Kostenlos, ohne Werbung. Die zentralen Planungswerkzeuge — Abstimmen, Kostenteilung, Listen und Gästezugang — kosten für die ganze Brautgesellschaft nichts.
 
 <!--CTA-->
 

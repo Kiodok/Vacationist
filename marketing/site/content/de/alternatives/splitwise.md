@@ -28,7 +28,7 @@ Zuerst Fairness gegenüber dem Platzhirsch: **Splitwise bleibt hervorragend im r
 - **Was es Splitwise voraus hat:** Aktivitäten-Abstimmung (fünf Stufen bis zum „Gruppenhindernis"-Veto), gemeinsamer Reisekalender, Unterkunftsverwaltung, Flüge/Mietwagen/ÖPNV mit angehängten Tickets, Echtzeit-Einkaufslisten mit Rezept-Übernahme, verschlüsselte Reisedokumente, Gruppenchat, Offline-first. Speziell beim Geld: Belege hängen im kostenlosen Tarif an jeder Ausgabe (Splitwise sperrt das Beleg-Scannen hinter Pro), eine Kategorienübersicht der Ausgaben, ein Analyse-Tab, der deinen Anteil über alle Reisen summiert, und — für Geschäftsreisen — eine Geschäftskosten-Markierung bei Ausgaben, Hotels, Flügen und Transport mit Bericht-Export pro Person (PDF + Markdown, mit verlinkten Belegen), was Splitwise in keinem Tarif hat.
 - **Der Reibungskiller:** Freunde treten per Einladungslink bei — **ganz ohne Konto** — und können trotzdem abstimmen, Listen bearbeiten und bei der Kostenteilung dabei sein. Das „Ich installiere nichts"-Problem verschwindet.
 - **Was ihm gegenüber Splitwise fehlt:** Währungsumrechnung nur mit gespeicherten Tageskursen (keine historischen oder manuellen Kurse pro Transaktion), keine PayPal-Anbindung, junge Nutzerbasis (Start 2026).
-- **Preis:** kostenlos, ohne Werbung. Optionales Pro für mehr Planungstage und unbegrenzte Mitglieder.
+- **Preis:** kostenlos, ohne Werbung.
 - **Ideal für:** Freundesgruppen, Familien und Crews, die die ganze Reise — nicht nur die Schulden — in einer App wollen. Und: entwickelt in der Schweiz, mit entsprechendem Datenschutz-Anspruch.
 
 ## 2. Tricount — die beste leichtgewichtige Option

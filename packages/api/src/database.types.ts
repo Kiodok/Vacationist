@@ -2527,6 +2527,7 @@ export type Database = {
           description: string | null
           end_date: string
           id: string
+          is_example: boolean
           member_count: number
           review_nudge_sent_at: string | null
           start_date: string
@@ -2544,6 +2545,7 @@ export type Database = {
           description?: string | null
           end_date: string
           id?: string
+          is_example?: boolean
           member_count?: number
           review_nudge_sent_at?: string | null
           start_date: string
@@ -2561,6 +2563,7 @@ export type Database = {
           description?: string | null
           end_date?: string
           id?: string
+          is_example?: boolean
           member_count?: number
           review_nudge_sent_at?: string | null
           start_date?: string

@@ -34,7 +34,8 @@
     "serve:docs": "npx serve docs -p 3001",
     "build:site": "node marketing/site/build.mjs",
     "analytics:report": "node scripts/analytics-report.mjs",
-    "screenshots:ios": "node scripts/generate-ios-screenshots.mjs"
+    "screenshots:ios": "node scripts/generate-ios-screenshots.mjs",
+    "screenshots:web": "node scripts/generate-web-screenshots.mjs"
   },
   "devDependencies": {
     "marked": "^18.0.6",

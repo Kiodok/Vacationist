@@ -8,13 +8,18 @@ schema: WebPage
 date: 2026-09-03
 altPath: /de/features/transfers/
 keywords: group flight planning app, group travel transfer planner, split rental car costs, public transport trip planner, boarding pass storage app
-related: /features/expenses/, /features/analytics/, /features/voting/, /features/travel-documents/
+related: /features/expenses/, /features/analytics/, /features/voting/, /features/travel-documents/, /features/offline/
 breadcrumbLabel: Transfers
 ---
 
 # Getting there, sorted — flights, cars, trains, and tickets.
 
 <p class="lede">The plan is agreed, the dates are set, and then someone asks "wait, how are we all actually getting there?" Suddenly there are four booking references in three different chats, two people on a different flight, and nobody knows who's in which rental car. Vacationist keeps every leg of the journey — and every ticket — in one place the whole group can see.</p>
+
+<figure class="app-shot">
+  <img src="/assets/img/vacationist-transfer-flights-greece.webp" alt="Vacationist flights screen showing group flight options with votes and assigned passengers" loading="lazy" decoding="async">
+  <figcaption>Flights: vote on options, record the booking, assign passengers.</figcaption>
+</figure>
 
 ## Four kinds of transfer, one screen
 

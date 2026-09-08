@@ -43,6 +43,9 @@ export interface Trip {
   base_currency: Currency;
   timezone: SupportedTimezone;
   status: TripStatus;
+  /** True only for the auto-seeded demo trip (create-example-trip). Used to keep
+   *  demo-trip activity out of the web-app product-funnel analytics. */
+  is_example: boolean;
   created_by: string;
   created_at: string;
   updated_at: string;

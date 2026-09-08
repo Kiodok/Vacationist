@@ -70,6 +70,10 @@ Deno.serve(async (req: Request) => {
         base_currency: 'EUR',
         timezone: 'Europe/Madrid',
         status: 'planning',
+        // Growth Plan Q4 2026, Phase 0: marks this as the auto-seeded demo trip so
+        // the web app's product-funnel analytics (trackFeatureEvent) don't count a
+        // user exploring it as real activation. See 20260908120000_add_trips_is_example.sql.
+        is_example: true,
         created_by: userId,
       })
       .select('id')

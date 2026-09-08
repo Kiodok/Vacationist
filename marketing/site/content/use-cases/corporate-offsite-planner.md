@@ -44,7 +44,7 @@ Colleagues join the trip from a single link and can vote, add expenses, and see 
 
 ## What it costs
 
-Free, with no ads. Voting, expense splitting, receipts, the business expense report, and guest access are all free for the whole team. A Pro tier exists for people organising many trips a year, but a single offsite doesn't need it.
+Free, with no ads. Voting, expense splitting, receipts, the business expense report, and guest access are all free for the whole team.
 
 <!--CTA-->
 

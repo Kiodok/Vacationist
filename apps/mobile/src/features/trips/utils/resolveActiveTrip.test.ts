@@ -25,6 +25,7 @@ function makeTrip(overrides: Partial<Trip>): Trip {
     base_currency: 'EUR',
     timezone: 'Europe/Berlin',
     status: 'planning',
+    is_example: false,
     created_by: 'u1',
     created_at: '2020-01-01T00:00:00.000Z',
     updated_at: '2020-01-01T00:00:00.000Z',

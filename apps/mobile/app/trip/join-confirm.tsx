@@ -7,6 +7,7 @@ import { formatDateRange } from '@vacationist/utils';
 import { Button, ThemedIcon, useThemeColors } from '@vacationist/ui';
 import { previewInviteToken, redeemInviteToken } from '@vacationist/api';
 import { useToastStore } from '../../src/stores/toastStore';
+import { trackFeatureEvent } from '../../src/utils/trackFeatureEvent';
 
 export default function JoinConfirmScreen() {
   const { t } = useTranslation('auth');
@@ -53,6 +54,9 @@ export default function JoinConfirmScreen() {
     setLoading(true);
     try {
       const tripId = await redeemInviteToken(token);
+      // Web-app activation funnel (Growth Plan Q4 2026, Phase 0). No is_example
+      // check — the trip isn't loaded yet, and demo trips are single-user/unshared.
+      trackFeatureEvent('invite_accepted');
       addToast('success', t('invite.joined'));
       router.replace({ pathname: '/trip/[id]', params: { id: tripId } } as never);
     } catch (err) {

@@ -67,26 +67,47 @@ Not committed — Tech Lead reviews and commits, per [[commit-discipline]]. Docs
 - **Product Hunt**: launching is free; ~$200–500 optional supporting spend. Timing after Phases 1–2.
 - **Screenshots: Greece set** (`play-store/screenshots/`). Barcelona = Reddit ads only.
 
-## Phase 0 & 1 implementation plan (2026-09-08 — researched, NOT yet executed)
+## Phase 0 — EXECUTED 2026-09-08 (dev + prod deployed; client staged, NOT committed)
 
-Full plan: `~/.claude/plans/cosmic-booping-dewdrop.md` (user paused at approval, "continue later").
+Full plan: `~/.claude/plans/cosmic-booping-dewdrop.md`.
 
-- **Phase 0 = web-app surface ONLY.** Native is out: `track-event` 403s originless native calls,
-  native has no consent UI, and the privacy policy + "No tracking" marketing bar native analytics.
-  New helper `apps/mobile/src/features/consent/utils/trackFeatureEvent.ts` (mirrors
-  `StoreBadges.tsx` — `Platform.OS==='web'` + `consentStore.decision==='granted'` +
-  `logAnalyticsEvent({surface:'web_app'})`). Events `trip_created` / `invite_sent` /
-  `invite_accepted` / `expense_added`. Call sites: `useTrips.ts` + `useInvites.ts` hook
-  `onSuccess`; `join.tsx` + `join-confirm.tsx` after `redeemInviteToken`; `mutationDefaults.ts`
-  for `createExpense` (persisted — NOT the hook). A new `event_name` needs 3 manual syncs: DB
-  CHECK migration (template `20260817110000`), `track-event` `EVENT_NAMES` (+redeploy dev+prod),
-  `packages/types/src/analytics.ts` tuple. Plus `analytics-report.mjs` activation-funnel block +
-  privacy-policy EN/DE.
-- **Phase 1 =** `APP_VERSION` 1.34.2→1.37.0; new `/features/offline/` EN+DE pair ("at least 7
-  days offline"); new `scripts/generate-web-screenshots.mjs` (template
-  `generate-ios-screenshots.mjs` → webp in `docs/assets/img/`); screenshots into `/features/*` +
-  homepage hero (remove orphaned `phone.*` keys, add `data-i18n-alt`, bump `CACHE_VER`); drop
-  premature Pro copy across ~17 EN + 17 DE files + `llms.txt`.
+- **Web-app surface ONLY.** Helper `apps/mobile/src/utils/trackFeatureEvent.ts` (`src/utils/`, not
+  `features/consent/` — sits with `exampleTrip.ts`): `Platform.OS==='web'` +
+  `useConsentStore.decision==='granted'` + `logAnalyticsEvent({surface:'web_app'})`, mirrors
+  `StoreBadges.tsx`. Events `trip_created` / `invite_sent` / `invite_accepted` / `expense_added`
+  (+ `PRODUCT_FUNNEL_EVENT` const, `packages/types/src/analytics.ts`). Call sites: `useTrips.ts`
+  `useCreateTrip.onSuccess`; `useInvites.ts` `useCreateInvite.onSuccess`; `join.tsx` +
+  `join-confirm.tsx` after `redeemInviteToken`; `mutationDefaults.ts` `['createExpense']`
+  onSuccess (NOT the hook — persisted).
+- **Example-trip exclusion:** migration `20260908120000_add_trips_is_example.sql`
+  (`trips.is_example BOOLEAN NOT NULL DEFAULT false` + backfill on seeded description);
+  `create-example-trip/index.ts` sets `is_example: true`; `Trip` interface + `database.types.ts`
+  regen'd; `apps/mobile/src/utils/exampleTrip.ts` `isCachedExampleTrip()`. `invite_sent` +
+  `expense_added` pass `{isExampleTrip}`; `invite_accepted` best-effort no-check; `trip_created`
+  N/A (server-side).
+- **Events migration** `20260908130000_add_product_funnel_events.sql` (DROP+ADD
+  `analytics_events_event_name_check`, template `20260817110000`) + `track-event` `EVENT_NAMES`.
+  A future new `event_name` still needs all 3 synced by hand.
+- **Deployed** both migrations + both Edge Functions to dev AND prod; ledger parity confirmed;
+  curl-verified (new events → 204, bad origin → 403). `analytics-report.mjs` has an "Activation
+  funnel (web app)" card. Privacy policy EN + DE updated (DE rebuilt via `npm run build:site`).
+  `engineering/supabase.md` + `play_data_safety.md` logged. typecheck + tests green (196/13/187).
+- **NOT committed** — staged, awaiting Tech Lead test/approval (migrations + client one commit).
+## Phase 1 — EXECUTED 2026-09-08 (staged, NOT committed)
+
+- `build.mjs` `APP_VERSION` → `1.37.0`; `APP_LD` refreshed; `DE_HOME_LASTMOD` + sitemap `/` &
+  `/privacy-policy.html` lastmods → 2026-09-08; `FOOTER_LINKS` += `/features/offline/`.
+- New `scripts/generate-web-screenshots.mjs` (`npm run screenshots:web`) → 8 WebP 720w in
+  `docs/assets/img/`. Inline `<figure class="app-shot">` (new `site.css` rule) after the lede on
+  `/features/{voting,expenses,analytics,transfers}/` EN+DE. `APP_SCREENSHOTS` const in `build.mjs`
+  → `SoftwareApplication.screenshot`.
+- **Homepage hero mockup KEPT** (deviation): bilingual + animated CSS phone; an English static
+  screenshot would regress `/de/`. No `docs/index.html` markup / `docs/i18n` / `CACHE_VER` change.
+- New `/features/offline/` EN+DE pair (model `transfers.md`; "at least 7 days with no connection").
+- Pro copy removed across ~38 files (`/features/`, `/vs/`, `/alternatives/`, `/blog/`, 7
+  `/use-cases/`, `docs/llms.txt`). Competitor Pro mentions left intact.
+- `npm run build:site` idempotent; no new `[seo]` warnings; 153 files changed (footer link hits
+  every generated page). Chrome spot-check blocked (extension not connected).
 
 ## Phase 5 — PLG sharing idea bank (added to the doc 2026-09-08, not scheduled)
 

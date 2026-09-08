@@ -1,5 +1,55 @@
 # Supabase Changes Log
 
+## 2026-09-08 (Growth Plan Q4 2026, Phase 0) — product-funnel analytics + `trips.is_example` (2 migrations + 2 Edge Function redeploys)
+
+**Status: DEV + PROD.** Both migrations applied to dev (`aejywkbkcwyanhyzhrle`) then prod
+(`fsfsqghbejwvgxujoyne`) on 2026-09-08. Ledger parity reconfirmed — dev shows 242 migrations, 0
+local/remote mismatches; prod push applied the same two; re-linked to dev afterward.
+`npm run supabase:types` re-run (adds `is_example` to the `trips` Row/Insert/Update in
+`packages/api/src/database.types.ts`). `track-event` and `create-example-trip` Edge Functions
+redeployed to **both** projects (`supabase functions deploy`).
+
+**Why:** Phase 0 of the Q4 growth plan (`marketing/growth-plan-2026-q4.md`) instruments the
+web-app activation funnel — `trip_created` / `invite_sent` / `invite_accepted` / `expense_added`,
+fired only from the `web.vacationist.app` build (`apps/mobile/src/utils/trackFeatureEvent.ts`,
+`Platform.OS === 'web'` + consent-gated, mirrors `StoreBadges.tsx`). Native is deliberately
+excluded: `track-event` rejects originless native requests, the native app has no consent
+mechanism, and `docs/privacy-policy.html` + the marketing site commit to no analytics inside the
+native app.
+
+**Migration 1 — `20260908120000_add_trips_is_example.sql` (non-destructive, additive):**
+```sql
+ALTER TABLE public.trips ADD COLUMN is_example BOOLEAN NOT NULL DEFAULT false;
+UPDATE public.trips SET is_example = true
+  WHERE description = 'An example trip to explore Vacationist. Edit or delete anything!'
+    AND deleted_at IS NULL;   -- best-effort backfill of pre-flag demo trips
+```
+- Constant `DEFAULT` ⇒ metadata-only, no table rewrite.
+- **No RLS change** (ordinary readable column). **No `delete_own_account()` change** (not an FK).
+- `create-example-trip/index.ts`'s trip insert now sets `is_example: true`. The client
+  (`isCachedExampleTrip()` in `apps/mobile/src/utils/exampleTrip.ts`) uses it to keep demo-trip
+  pokes out of `invite_sent` / `expense_added` (`trip_created` is N/A — demo trips are
+  server-side; `invite_accepted` is best-effort no-check since demo trips are unshared).
+
+**Migration 2 — `20260908130000_add_product_funnel_events.sql` (non-destructive, additive):**
+Same DROP + re-ADD pattern as `20260817110000_add_app_store_click_event.sql`. Adds
+`trip_created`, `invite_sent`, `invite_accepted`, `expense_added` to
+`analytics_events_event_name_check`. Permissive superset ⇒ `ADD CONSTRAINT` validates existing
+rows instantly. Mirrored by hand in `supabase/functions/track-event/index.ts` (`EVENT_NAMES`) and
+`packages/types/src/analytics.ts` (`ANALYTICS_EVENT_NAME`).
+
+**Verified (curl, both dev + prod):** each new `event_name` with `Origin: https://web.vacationist.app`
+→ `204` (was `400` before the function redeploy); unknown event → `400`; missing/disallowed
+`Origin` (native-shaped) → `403`. Synthetic verification rows (`path: '/deploy-verify-phase0'`)
+left in `analytics_events` on both projects, consistent with prior sessions' handling.
+
+**Client code NOT committed yet** — per the no-branches rule the matching client change
+(`trackFeatureEvent.ts` / `exampleTrip.ts` helpers, 4 mutation call sites, `Trip` type,
+`analytics-report.mjs` activation-funnel card, privacy-policy EN/DE) lands in the same commit as
+these migrations, pending Tech Lead review/test. The migrations are safe ahead of the client
+(permissive additive changes nothing reads yet). `npm run typecheck` + `npm test` green
+(utils 196 / api 13 / mobile 187).
+
 ## 2026-09-06 (v1.37.0) — Phase 19 Offline Mode Overhaul: **NO migration**
 
 **Status: no DB change.** The v1.37.0 offline overhaul (session durability, separate offline
