@@ -3,17 +3,21 @@
 
 ---
 
+> **Status (2026-09-08): this is a research document, not the current plan.** The personas (§3), competitor teardowns (§2), keyword clusters (§6), and the content-idea banks (§5) are still the reference for those topics. **The conclusions have moved on** — the SEO section (§6) already carries its own dated status note; the Executive Summary "critical blockers" below are corrected inline; §7 ASO's "current state" is unverified against the live listing. The current sequenced roadmap is `marketing/growth-plan-2026-q4.md`. For search specifically, `marketing/seo-strategy.md` is the living reference.
+
+---
+
 ## Executive Summary
 
 Vacationist is a genuinely good product solving a real, painful problem: group travel coordination is a mess, and the current market forces people to duct-tape 3–5 apps together (Splitwise + Wanderlog or Notion + WhatsApp + a notes app). Vacationist replaces them all.
 
 **The brutal truth:** The product is technically solid and well-designed. The growth problem is awareness, not product quality. But there are real structural weaknesses that must be addressed before paid acquisition makes sense.
 
-**Critical blockers to fix first:**
-1. Android-only is a death sentence for viral growth. iOS users are more vocal, more likely to recommend apps, and dominate the travel early-adopter demographic in Europe. iOS launch should be treated as a business priority, not a nice-to-have.
-2. The 15-day free tier is too restrictive. Someone planning a 10-day trip with friends burns 67% of their annual quota on their first trip. This kills the "try before you pay" loop.
-3. There is no social proof yet. Zero reviews, zero public user-generated content, zero influencer presence. The app is invisible.
-4. The invite system is the best growth lever you have and it is currently being underutilized.
+**Critical blockers to fix first:** *(2026-09-08 status in italics)*
+1. Android-only is a death sentence for viral growth. iOS users are more vocal, more likely to recommend apps, and dominate the travel early-adopter demographic in Europe. iOS launch should be treated as a business priority, not a nice-to-have. — *✅ RESOLVED. iOS live since v1.32.0 (2026-08-17).*
+2. The 15-day free tier is too restrictive. Someone planning a 10-day trip with friends burns 67% of their annual quota on their first trip. This kills the "try before you pay" loop. — *N/A. There is no free tier and no Pro — monetization is an unbuilt spec (`engineering/implementation_guide.md`). The app is fully free.*
+3. There is no social proof yet. Zero reviews, zero public user-generated content, zero influencer presence. The app is invisible. — *STILL OPEN, now the top priority. `growth-plan-2026-q4.md` Phase 2.*
+4. The invite system is the best growth lever you have and it is currently being underutilized. — *PARTLY ADDRESSED. `docs/join.html` is now a marketing page (feature grid, dual store badges, tracked CTA). But the invite loop is still unmeasurable — no `invite_sent`/`invite_accepted` events. `growth-plan-2026-q4.md` Phase 0.*
 
 **The opportunity:** No single app owns "collaborative group travel planning" as a category. Splitwise is the closest incumbent (50M+ users) but it only does expenses. Wanderlog has brand awareness but its collaboration is shallow. The window to own this category is open — but not forever.
 
@@ -137,12 +141,12 @@ Vacationist is a genuinely good product solving a real, painful problem: group t
 | Calendar view | ✅ | ❌ | ✅ | ✅ | ❌ |
 | Maps integration | ❌ | ❌ | ✅ | ✅ | ✅ |
 | Place discovery | ❌ | ❌ | ✅ | ❌ | ⚠️ |
-| iOS | ❌ Yet | ✅ | ✅ | ✅ | ✅ |
+| iOS | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Web app | ✅ Basic | ✅ | ✅ | ✅ | ✅ |
 | Social/sharing | ❌ | ❌ | ⚠️ | ❌ | ✅ |
 
 ### Missing Features vs. Competitors (Prioritized)
-1. **iOS app** — non-negotiable for growth
+1. ~~**iOS app** — non-negotiable for growth~~ — *✅ shipped v1.32.0, 2026-08-17*
 2. **Maps integration** — the single most-requested travel app feature
 3. **Post-trip memory/recap** — Polarsteps' killer feature
 4. **Place discovery from within the app** — Wanderlog's advantage
@@ -685,7 +689,9 @@ These searchers are already product-aware and actively looking to switch.
 ## 7. App Store Optimization (ASO)
 
 ### Current State Assessment
-**App Name:** "Vacationist - Plan Trips Together"
+> *2026-09-08: the "App Name" value below is stale. The live listings are now **"Vacationist Group Trip Planner"** (EN) / **"Vacationist Gruppenreiseplaner"** (DE), same on both stores — the app-name recommendation in this section is **already implemented**. Short description and screenshots still worth re-verifying against the console; `play-store/listing.md` is the repo's copy. Rating gap is still open — see `growth-plan-2026-q4.md` Phase 2.*
+
+**App Name:** ~~"Vacationist - Plan Trips Together"~~ → now "Vacationist Group Trip Planner" / "Vacationist Gruppenreiseplaner"
 **Short Description:** "Collaborative trip planning: activities, expenses & more."
 **Rating:** New (no reviews yet — critical gap)
 
@@ -1045,16 +1051,16 @@ The product has deliberately avoided AI features. That was the right V1 decision
 - Encrypted travel documents is a premium, trust-building differentiator that justifies Pro pricing
 - The voting system is unique and genuinely solves a real social problem
 
-**What must change immediately:**
-- Android-only is a critical limitation. Every day without iOS is market share lost.
-- The free tier is too tight. 15 days/year is punishing for an app whose core loop requires planning real trips. Loosen it or offer more days as referral incentives.
-- No social proof. The app is invisible. Zero reviews, zero influencer content, zero press. This is fixable in 30 days but it requires proactive outreach, not passive waiting.
-- The invite/join page is underutilized. This is the moment when the most new eyes see Vacationist. It needs to be a marketing page.
-- There is no post-trip retention strategy. Once the trip ends, users have no reason to return until they start planning the next trip. This is a retention gap.
+**What must change immediately:** *(2026-09-08: items 1–2 and 4 are resolved or moot — see the Executive Summary status notes and `growth-plan-2026-q4.md`)*
+- ~~Android-only is a critical limitation.~~ *iOS shipped 2026-08-17.*
+- ~~The free tier is too tight (15 days/year).~~ *There is no free tier; monetization is unbuilt.*
+- No social proof. The app is invisible. Zero reviews, zero influencer content, zero press. This is fixable in 30 days but it requires proactive outreach, not passive waiting. *— still true; now the top priority.*
+- ~~The invite/join page is underutilized.~~ *`docs/join.html` is now a marketing page — though the invite loop is still unmeasurable (no product-usage events).*
+- There is no post-trip retention strategy. Once the trip ends, users have no reason to return until they start planning the next trip. This is a retention gap. *— still true.*
 
-**The three most important decisions in the next 90 days:**
-1. Ship iOS
-2. Get 25+ authentic reviews on Play Store
-3. Start creating content (one TikTok and one Reddit post per week minimum)
+**The three most important decisions in the next 90 days:** *(as written June 2026)*
+1. ~~Ship iOS~~ — *done, 2026-08-17*
+2. Get 25+ authentic reviews (both stores) — *still open; top priority*
+3. Start creating content (one TikTok and one Reddit post per week minimum) — *still open*
 
-Without these three, everything else in this strategy is premature.
+*Superseded by the sequenced phases in `growth-plan-2026-q4.md`.*

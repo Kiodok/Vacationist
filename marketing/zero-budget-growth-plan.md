@@ -3,6 +3,14 @@
 
 ---
 
+> **Status (2026-09-08): the week-by-week calendar below has expired.** It was written June 2026 with "ship iOS" as the central Week 7–10 task. iOS shipped 2026-08-17; the SEO/blog build-out is done; a small Reddit Ads budget is now live. The **current** sequenced plan is `marketing/growth-plan-2026-q4.md`.
+>
+> **What in this file is still good:** the per-channel playbooks (Reddit value-first, TikTok formats, the LinkedIn "why I built this" structure, micro-influencer outreach, the SEO article), the leading-vs-lagging indicator table, and "The One Thing That Ruins This Plan." Use those verbatim.
+>
+> **What is dead:** the three opening "fixes" — (1) the free tier does not exist (no Pro, no quota, no paywall anywhere in the code — it is an unbuilt spec), (2) ASO changes are superseded by `growth-plan-2026-q4.md` Phase 1, (3) PostHog was never installed and is not the plan — a first-party funnel stack (`supabase/functions/track-event`, Reddit Pixel + CAPI, `npm run analytics:report`) is what exists.
+
+---
+
 ## The Honest Preamble
 
 Most "growth guides" are written for funded startups. This one is not.
@@ -27,18 +35,11 @@ The single biggest unlock is iOS. Every other milestone gets 30–50% easier the
 
 ## Before Anything: The 3 Things to Fix This Week
 
-These aren't growth actions. They are minimum viable prerequisites. Nothing else in this plan works as well without them.
-
-### Fix 1 — Loosen the Free Tier
-Change the annual day limit from 15 → 30 days. Right now, someone planning a 10-day trip burns 67% of their year's quota on trip #1. That person has no room to recommend the app to someone else who then creates their own trip. Every extra free day is a growth multiplier, not a revenue loss — you have no revenue yet.
-
-### Fix 2 — Update the Play Store
-- App name: "Vacationist - Group Trip Planner" (replaces "Plan Trips Together")
-- Screenshots: take real device screenshots today, replace the HTML mockups
-- Short description: "Vote on activities, split expenses, sync in real time"
-
-### Fix 3 — Set Up Basic Analytics
-Install PostHog (free tier). You need to know: where users come from, where they drop off, how many complete their first invite. Without this, you're flying blind through everything that follows.
+> **Superseded 2026-09-08.** All three are handled elsewhere or moot. Kept for the record.
+>
+> - **Fix 1 (loosen the free tier)** — there is no free tier. Pro is an unbuilt spec; the app is fully free. Nothing to loosen. Revisit if/when Pro ships.
+> - **Fix 2 (Play Store)** — screenshots now exist in-repo (`play-store/screenshots/`, `social-media/reddit/ads/`); wiring them into the site + stores is `growth-plan-2026-q4.md` Phase 1. The app-name change is still an open Tech Lead decision.
+> - **Fix 3 (analytics)** — done differently: a first-party funnel stack, not PostHog. Product-usage events (the invite loop) are still missing — that is `growth-plan-2026-q4.md` Phase 0.
 
 ---
 
