@@ -2,12 +2,12 @@ import 'react-native-url-polyfill/auto';
 import { Platform } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
-import { ExpoSecureStoreAdapter } from './storage';
+import { ExpoSecureStoreAdapter, lastSecureReadFailed } from './storage';
 
 // Re-exported so `session.ts` can read the persisted auth blob without importing
 // `./storage` directly — tests mock `./client` wholesale, and a direct
 // `./storage` import would drag `react-native` into the node test environment.
-export { ExpoSecureStoreAdapter };
+export { ExpoSecureStoreAdapter, lastSecureReadFailed };
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -75,6 +75,31 @@ export function reconnectRealtime(): void {
     supabase.realtime.connect();
   } catch {
     // realtime not initialised / already connecting — nothing to do
+  }
+}
+
+/**
+ * Start / stop auth-js's token auto-refresh ticker in step with app foreground
+ * state. `autoRefreshToken: true` starts a ~30s ticker at client construction
+ * that never stops on its own — a tick on a backgrounded, *locked* iOS device
+ * hits the Keychain and throws `errSecInteractionNotAllowed` (Sentry
+ * REACT-NATIVE-M). The React Native contract is to gate it on AppState; the
+ * mobile app does that via `useSupabaseAutoRefresh`. Both swallow errors — the
+ * Supabase client must not leak outside `packages/api`.
+ */
+export function startAuthAutoRefresh(): void {
+  try {
+    void supabase.auth.startAutoRefresh();
+  } catch {
+    // not initialised / already running
+  }
+}
+
+export function stopAuthAutoRefresh(): void {
+  try {
+    void supabase.auth.stopAutoRefresh();
+  } catch {
+    // not initialised / already stopped
   }
 }
 

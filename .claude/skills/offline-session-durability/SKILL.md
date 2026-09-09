@@ -33,6 +33,11 @@ biometric / device-PIN confirmation to extend — **never** a hard dead-end at t
    drags `react-native` into the node test env.
 6. On an **offline→online** edge, `NetworkProvider` fires `refreshSessionQuietly()` +
    `reconnectRealtime()` + `resumePausedMutations()` + `invalidateQueries()` (debounced 1s).
+7. **A failed Keychain read is not a sign-out (v1.37.2).** iOS auth Keychain items use
+   `SECURE_STORE_OPTIONS` (`AFTER_FIRST_UNLOCK`), the storage adapter never throws and serves a
+   last-known-good value, and any code where a null session would gate a sign-out or the login
+   screen must use **`readStoredSessionResult()`** and bail on `storageUnavailable`. The auto-refresh
+   ticker is foreground-gated (`useSupabaseAutoRefresh`). See [[keychain-accessibility]].
 
 ## Key files
 

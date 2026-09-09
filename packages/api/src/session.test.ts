@@ -7,6 +7,8 @@ const state = vi.hoisted(() => ({
   session: null as { user: { id: string } } | null,
   getSessionThrows: false,
   stored: null as string | null,
+  /** null value read + this true = "storage was unreadable" (locked Keychain) */
+  readFailed: false,
 }));
 
 vi.mock('./client', () => ({
@@ -20,13 +22,20 @@ vi.mock('./client', () => ({
     },
   },
   ExpoSecureStoreAdapter: {
+    // Mirrors the hardened adapter: never throws, serves the last-known value.
     getItem: async () => state.stored,
     setItem: async () => {},
     removeItem: async () => {},
   },
+  lastSecureReadFailed: () => state.readFailed,
 }));
 
-import { readStoredSession, getUserIdOfflineSafe, NotAuthenticatedError } from './session';
+import {
+  readStoredSession,
+  readStoredSessionResult,
+  getUserIdOfflineSafe,
+  NotAuthenticatedError,
+} from './session';
 
 const STORED_BLOB = JSON.stringify({
   access_token: 'at',
@@ -39,6 +48,7 @@ beforeEach(() => {
   state.session = null;
   state.getSessionThrows = false;
   state.stored = null;
+  state.readFailed = false;
 });
 
 describe('readStoredSession', () => {
@@ -67,6 +77,33 @@ describe('readStoredSession', () => {
   it('returns null when the blob lacks tokens or a user id', async () => {
     state.stored = JSON.stringify({ access_token: 'at' });
     expect(await readStoredSession()).toBeNull();
+  });
+});
+
+describe('readStoredSessionResult', () => {
+  it('reports storageUnavailable when the read failed and there is no value', async () => {
+    state.stored = null;
+    state.readFailed = true;
+    const res = await readStoredSessionResult();
+    expect(res.session).toBeNull();
+    expect(res.storageUnavailable).toBe(true);
+    // The thin wrapper still just returns the (null) session.
+    expect(await readStoredSession()).toBeNull();
+  });
+
+  it('does NOT report storageUnavailable when the key is genuinely absent', async () => {
+    state.stored = null;
+    state.readFailed = false;
+    const res = await readStoredSessionResult();
+    expect(res).toEqual({ session: null, storageUnavailable: false });
+  });
+
+  it('never reports storageUnavailable once a session was parsed', async () => {
+    state.stored = STORED_BLOB;
+    state.readFailed = true; // stale flag — a value came back, so it is moot
+    const res = await readStoredSessionResult();
+    expect(res.session?.userId).toBe('stored-user');
+    expect(res.storageUnavailable).toBe(false);
   });
 });
 

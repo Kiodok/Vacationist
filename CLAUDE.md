@@ -212,6 +212,11 @@ queuing writes — and must **never** show the login screen while valid credenti
   offline means "token expired, can't refresh right now", not "signed out" — the refresh token
   is still valid. `useAuthInit` trusts the stored session inside the 7-day window; past it,
   `<OfflineReauthGate>` asks for biometric/PIN to extend.
+- **A failed Keychain read is also not a sign-out (iOS, v1.37.2).** Auth Keychain items use
+  `SECURE_STORE_OPTIONS` = `AFTER_FIRST_UNLOCK` (never expo-secure-store's `WHEN_UNLOCKED` default,
+  which throws on a locked device — Sentry `REACT-NATIVE-M`). Use `readStoredSessionResult()`
+  (`storageUnavailable` flag) — not bare `readStoredSession()` — when a null result would gate a
+  sign-out or the login screen. See the `keychain-accessibility` skill.
 - **Every new `packages/api` write helper reads identity via `getUserIdOfflineSafe()`**
   (`packages/api/src/session.ts`) — never `if (!session?.user) throw new Error('Not authenticated')`.
 - **The offline mutation queue is persisted separately** in MMKV `MUTATION_QUEUE_v1`

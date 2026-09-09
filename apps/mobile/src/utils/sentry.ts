@@ -62,6 +62,27 @@ export function initSentry() {
         return null;
       }
 
+      // SecureStore Keychain read while the device is locked
+      // (`errSecInteractionNotAllowed` — "User interaction is not allowed").
+      // v1.37.2 moves the auth Keychain items to AFTER_FIRST_UNLOCK, gates the
+      // auto-refresh ticker on foreground, and stops treating a failed read as a
+      // sign-out — but builds already in the field (this first hit on 1.33.1) and
+      // the residual pre-first-unlock window can still produce it, and it is now
+      // handled gracefully. Match on BOTH markers so a genuine Keychain fault
+      // still reports. See packages/api/src/storage.ts.
+      {
+        const values = event.exception?.values ?? [];
+        const text = values
+          .map((v) => `${v.type ?? ''} ${v.value ?? ''}`)
+          .join(' ');
+        if (
+          /getValueWithKeyAsync/.test(text) &&
+          /User interaction is not allowed/i.test(text)
+        ) {
+          return null;
+        }
+      }
+
       // The Turnstile fallback chain (embedded widget -> browser tab) is a working,
       // by-design recovery path, not a bug — see TurnstileWidget.tsx / useCaptchaToken.ts /
       // captchaBrowserFallback.ts.

@@ -1,4 +1,9 @@
-import { supabase, AUTH_STORAGE_KEY, ExpoSecureStoreAdapter } from './client';
+import {
+  supabase,
+  AUTH_STORAGE_KEY,
+  ExpoSecureStoreAdapter,
+  lastSecureReadFailed,
+} from './client';
 
 /**
  * Offline-safe session access (Phase 19).
@@ -32,16 +37,8 @@ export class NotAuthenticatedError extends Error {
   }
 }
 
-/** Reads and parses the persisted auth session. No network, no refresh. */
-export async function readStoredSession(): Promise<StoredSession | null> {
-  let raw: string | null;
-  try {
-    raw = await ExpoSecureStoreAdapter.getItem(AUTH_STORAGE_KEY);
-  } catch {
-    return null;
-  }
+function parseStoredSession(raw: string | null): StoredSession | null {
   if (!raw) return null;
-
   try {
     const parsed = JSON.parse(raw) as {
       access_token?: string;
@@ -62,6 +59,39 @@ export async function readStoredSession(): Promise<StoredSession | null> {
   } catch {
     return null;
   }
+}
+
+export interface StoredSessionResult {
+  session: StoredSession | null;
+  /**
+   * True when the storage read itself failed (locked Keychain, Keystore fault)
+   * rather than there genuinely being no session on disk. Callers must NOT treat
+   * this as "signed out" — the credentials are still there, just unreadable right
+   * now. See Sentry REACT-NATIVE-M / the storage adapter.
+   */
+  storageUnavailable: boolean;
+}
+
+/**
+ * Reads and parses the persisted auth session, distinguishing "no session on
+ * disk" from "storage was unreadable". No network, no refresh.
+ */
+export async function readStoredSessionResult(): Promise<StoredSessionResult> {
+  let raw: string | null = null;
+  try {
+    raw = await ExpoSecureStoreAdapter.getItem(AUTH_STORAGE_KEY);
+  } catch {
+    // The hardened adapter shouldn't throw, but be defensive.
+    return { session: null, storageUnavailable: true };
+  }
+  const session = parseStoredSession(raw);
+  const storageUnavailable = session === null && lastSecureReadFailed(AUTH_STORAGE_KEY);
+  return { session, storageUnavailable };
+}
+
+/** Reads and parses the persisted auth session. No network, no refresh. */
+export async function readStoredSession(): Promise<StoredSession | null> {
+  return (await readStoredSessionResult()).session;
 }
 
 /**

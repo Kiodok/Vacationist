@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { readStoredSession } from '@vacationist/api';
+import { readStoredSessionResult, SECURE_STORE_OPTIONS } from '@vacationist/api';
 
 /**
  * Offline session-trust window (Phase 19).
@@ -45,7 +45,7 @@ async function read(): Promise<AuthSnapshot | null> {
 
 async function write(snap: AuthSnapshot): Promise<void> {
   try {
-    await SecureStore.setItemAsync(KEY, JSON.stringify(snap));
+    await SecureStore.setItemAsync(KEY, JSON.stringify(snap), SECURE_STORE_OPTIONS);
   } catch {
     // best-effort — a missing snapshot degrades to `needs-extend`, not a lockout
   }
@@ -84,8 +84,13 @@ export async function clearAuthSnapshot(): Promise<void> {
  * - `needs-extend` — credentials exist but the window lapsed; show OfflineReauthGate.
  */
 export async function offlineWindowState(): Promise<OfflineWindowState> {
-  const stored = await readStoredSession();
-  if (!stored) return 'no-credentials';
+  const { session: stored, storageUnavailable } = await readStoredSessionResult();
+  if (!stored) {
+    // A locked/faulted Keychain read is NOT proof the user signed out — the
+    // credentials are still on disk. Keep the app open; the auto-refresh ticker
+    // and the next foregrounded launch heal it. (Sentry REACT-NATIVE-M.)
+    return storageUnavailable ? 'valid' : 'no-credentials';
+  }
 
   const snap = await read();
   const now = Date.now();

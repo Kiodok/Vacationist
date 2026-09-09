@@ -25,6 +25,7 @@ import { GlobalErrorBoundary } from '../src/components/GlobalErrorBoundary';
 import { QueryProvider } from '../src/providers/QueryProvider';
 import { ToastContainer } from '../src/components/Toast';
 import { useAuthInit } from '../src/features/auth/hooks/useAuthInit';
+import { useSupabaseAutoRefresh } from '../src/features/auth/hooks/useSupabaseAutoRefresh';
 import { useAuthStore } from '../src/stores/authStore';
 import { registerForPushNotificationsAsync } from '../src/features/notifications/utils/registerForPushNotifications';
 import { registerForWebPushAsync } from '../src/features/notifications/utils/registerForWebPush';
@@ -146,6 +147,7 @@ function AuthGate() {
   const userId = user?.id;
 
   useAuthInit();
+  useSupabaseAutoRefresh();
   usePushNotificationHandler();
   // Home-screen quick action doesn't conceptually exist on web (no home screen icon) — the
   // underlying library also ships a safe no-op web stub, but gating here keeps intent explicit.

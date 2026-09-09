@@ -1,5 +1,14 @@
 # Supabase Changes Log
 
+## 2026-09-09 (v1.37.2 — locked-device Keychain read / Sentry REACT-NATIVE-M): **NO migration**
+
+**Status: no DB change.** Client-only PATCH. The auth Keychain items (iOS) move from
+expo-secure-store's `WHEN_UNLOCKED` default to `AFTER_FIRST_UNLOCK`, auth-js's auto-refresh ticker
+is gated on app foreground, and a failed Keychain read is no longer treated as a sign-out. No
+`config.toml` change — `jwt_expiry` stays `3600`; the 7-day offline trust window is still enforced
+app-side (`authSnapshot.ts`). See `engineering/implementation_guide.md` Phase 19.1 and the
+`keychain-accessibility` / `v1-37-2-batch` skills.
+
 ## 2026-09-08 (Growth Plan Q4 2026, Phase 0) — product-funnel analytics + `trips.is_example` (2 migrations + 2 Edge Function redeploys)
 
 **Status: DEV + PROD.** Both migrations applied to dev (`aejywkbkcwyanhyzhrle`) then prod

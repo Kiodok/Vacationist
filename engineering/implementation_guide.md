@@ -1561,3 +1561,38 @@ migration.** Plan: `~/.claude/plans/snappy-crafting-bird.md`; skill `v1-37-0-bat
   mutationQueue round-trip tests.
 
 `npm run typecheck` + `npm test` green (utils 196 / api 13 / mobile 187). **Nothing committed.**
+
+---
+
+## 🔒 Phase 19.1: Locked-device Keychain read (v1.37.2)
+*PATCH / OTA-eligible on the 1.37.1 runtime. No native module, no plugin, no DB migration.*
+
+**Why:** the only open Sentry issue, `REACT-NATIVE-M` — `Error: Calling the 'getValueWithKeyAsync'
+function has failed → User interaction is not allowed` (`errSecInteractionNotAllowed`), fired as an
+unhandled rejection ~6 min after start with `in_foreground: false` on iOS. Root cause: the Supabase
+auth storage adapter (`packages/api/src/storage.ts`) called `expo-secure-store` with no options, so
+iOS used the `WHEN_UNLOCKED` default — the session blob is unreadable while the phone is locked. With
+`autoRefreshToken: true` and no `AppState` gating anywhere, auth-js's ~30s refresh ticker keeps
+running after the app backgrounds; a tick on a locked device throws out of the un-`try/catch`'d
+adapter. Latent second bug: a failed Keychain read was indistinguishable from "no credentials" →
+`offlineWindowState()` → login screen / `SIGNED_OUT` → hard sign-out (the exact Phase 19 lockout).
+
+- [x] **Storage adapter** — `SECURE_STORE_OPTIONS` (`AFTER_FIRST_UNLOCK`, Tech Lead call; keeps
+  encrypted-backup migration); adapter never throws; in-memory last-known-good cache;
+  `lastSecureReadFailed(key)`. `authSnapshot.ts` writes through the same options.
+- [x] **`readStoredSessionResult()`** (`packages/api/src/session.ts`) — `{ session, storageUnavailable }`;
+  `readStoredSession()` kept as a thin wrapper (≈40 call sites untouched). Consumed by
+  `offlineWindowState()`, `useAuthInit` boot, and the `SIGNED_OUT` handler — a locked read now
+  keeps the app open.
+- [x] **`useSupabaseAutoRefresh`** — native-only `AppState` gate on `startAutoRefresh`/`stopAutoRefresh`
+  (`packages/api/src/client.ts` wrappers), mounted in `app/_layout.tsx`.
+- [x] **One-time re-key** — `keychainAccessibilityMigration.ts` (iOS, MMKV flag
+  `keychain_accessible_afu_v1`), delete + re-add the auth blob (a bare `setItemAsync` does NOT
+  re-apply `kSecAttrAccessible`), fired from `verifyInBackground()` after a verified load.
+- [x] **Sentry safety net** — `beforeSend` drops events matching both `getValueWithKeyAsync` and
+  `User interaction is not allowed` (for field builds + the residual pre-first-unlock window).
+- [x] **Version** `app.config.ts` `1.37.1` → `1.37.2`. Tests: api 13 → 16 green (utils 196 / mobile 187).
+
+**Not yet done:** iOS device test (install over a signed-in 1.37.1 → lock → wait past `jwt_expiry` →
+unlock, expect still signed in); `git commit`; `eas update --branch production`; resolve
+`REACT-NATIVE-M` in Sentry after release.

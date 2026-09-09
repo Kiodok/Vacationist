@@ -6,7 +6,7 @@ import {
   ensureUserProfile,
   onAuthStateChange,
   setSessionFromUrl,
-  readStoredSession,
+  readStoredSessionResult,
 } from '@vacationist/api';
 import type { User } from '@vacationist/types';
 import { useAuthStore } from '../../../stores/authStore';
@@ -18,6 +18,7 @@ import type { SupportedLocale } from '@vacationist/types';
 import { maybeTrackSignUp } from '../../consent/utils/trackSignUp';
 import { attemptRestoreSignIn, ensureRestoreKey } from '../utils/restoreCredential';
 import { markVerified, offlineWindowState, clearAuthSnapshot } from '../utils/authSnapshot';
+import { migrateKeychainAccessibility } from '../utils/keychainAccessibilityMigration';
 
 /**
  * A stand-in User for the rare case of a restored SecureStore session with no
@@ -94,6 +95,10 @@ export function useAuthInit() {
         await markVerified(profile.id);
         maybeTrackSignUp(profile);
         void ensureRestoreKey(profile);
+        // Foregrounded + unlocked + online + live session — the one safe moment
+        // to re-key the auth Keychain items to AFTER_FIRST_UNLOCK (iOS-only,
+        // one-shot). Fixes Sentry REACT-NATIVE-M for already-installed users.
+        void migrateKeychainAccessibility(profile.id);
         if (profile.locale && (SUPPORTED_LOCALES as readonly string[]).includes(profile.locale)) {
           persistLocale(profile.locale as SupportedLocale);
         }
@@ -104,10 +109,22 @@ export function useAuthInit() {
 
     async function loadSession() {
       try {
-        const stored = await readStoredSession();
+        const { session: stored, storageUnavailable } = await readStoredSessionResult();
         const cached = loadUserFromCache();
 
         if (!stored) {
+          if (storageUnavailable && cached && mounted) {
+            // The Keychain was unreadable (locked / faulted), not empty — the
+            // session is still on disk. Open the app from the cached profile
+            // rather than dead-ending on the network-only login screen; the
+            // auto-refresh ticker and verifyInBackground heal it once unlocked.
+            setHasSession(true);
+            setUser(cached);
+            setSentryUser(cached.id, cached.locale);
+            setLoading(false);
+            void verifyInBackground();
+            return;
+          }
           // No credentials on disk. Show the login screen now, but still try a
           // silent Android Zero-Tap restore in the background — onAuthStateChange
           // swaps to the app if it lands. (No-ops fast on iOS/web.)
@@ -225,7 +242,10 @@ export function useAuthInit() {
         // session blob, and the auto-refresh ticker heals it on reconnect.
         // NEVER clear the user cache here on a transient failure: it's the
         // offline fallback (Phase 19 — this used to wipe it).
-        readStoredSession().then((localSession) => {
+        readStoredSessionResult().then(({ session: localSession, storageUnavailable }) => {
+          // A failed/locked Keychain read is not proof of sign-out — the blob is
+          // still there. Only the genuinely-empty case is a real sign-out.
+          if (storageUnavailable) return;
           if (!localSession && mounted) {
             clearUserCache();
             clearSentryUser();

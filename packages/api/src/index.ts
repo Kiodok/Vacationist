@@ -1,13 +1,22 @@
-export { supabase, AUTH_STORAGE_KEY, reconnectRealtime, refreshSessionQuietly } from './client';
+export {
+  supabase,
+  AUTH_STORAGE_KEY,
+  reconnectRealtime,
+  refreshSessionQuietly,
+  startAuthAutoRefresh,
+  stopAuthAutoRefresh,
+} from './client';
+export { SECURE_STORE_OPTIONS, lastSecureReadFailed } from './storage';
 export type { Database } from './database.types';
 
 export {
   readStoredSession,
+  readStoredSessionResult,
   getUserIdOfflineSafe,
   hasStoredSession,
   NotAuthenticatedError,
 } from './session';
-export type { StoredSession } from './session';
+export type { StoredSession, StoredSessionResult } from './session';
 
 export {
   getGoogleOAuthUrl,
