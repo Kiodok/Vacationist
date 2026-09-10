@@ -11,6 +11,8 @@ import { useTripMembers, useCurrentMemberRole } from '../../trips/hooks/useMembe
 import { useAuthStore } from '../../../stores/authStore';
 import { colors, METADATA_ICON_COLORS, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface CalendarActivitySheetProps {
   visible: boolean;
@@ -74,12 +76,11 @@ export function CalendarActivitySheet({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View className="flex-1 justify-end">
-        <Pressable
-          className="absolute inset-0 bg-background/80"
-          onPress={onClose}
-        />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+        onDismiss={onClose}
+        className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+        style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+      >
           {/* Handle bar */}
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -162,6 +163,7 @@ export function CalendarActivitySheet({
                   />
                 </Pressable>
                 {showVotes && (
+                  <SheetScrollArea>
                   <ScrollView className="mt-sm" style={{ maxHeight: 140 }}>
                     {voterDetails.map((v, i) => (
                       <View key={i} className="flex-row items-center gap-sm py-xs">
@@ -170,6 +172,7 @@ export function CalendarActivitySheet({
                       </View>
                     ))}
                   </ScrollView>
+                  </SheetScrollArea>
                 )}
               </View>
             ) : (
@@ -196,8 +199,7 @@ export function CalendarActivitySheet({
               <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>{t('viewFullDetails')}</Text>
             </Pressable>
           </View>
-        </View>
-      </View>
+      </SwipeToDismiss>
     </Modal>
   );
 }

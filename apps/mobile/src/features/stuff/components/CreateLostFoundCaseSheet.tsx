@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { createLostFoundCaseSchema, type CreateLostFoundCaseInput, LOST_FOUND_CASE_TYPE, type LostFoundCaseType } from '@vacationist/types';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { colors, useResolvedTheme } from '@vacationist/ui';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface CreateLostFoundCaseSheetProps {
   visible: boolean;
@@ -68,9 +70,11 @@ export function CreateLostFoundCaseSheet({ visible, members, currentUserId, onCl
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-        <View className="flex-1 justify-end">
-          <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+        <SwipeToDismiss
+          onDismiss={handleClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
@@ -81,6 +85,7 @@ export function CreateLostFoundCaseSheet({ visible, members, currentUserId, onCl
               </Pressable>
             </View>
 
+            <SheetScrollArea>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View className="gap-md">
                 {/* Case type picker */}
@@ -198,8 +203,8 @@ export function CreateLostFoundCaseSheet({ visible, members, currentUserId, onCl
                 </Pressable>
               </View>
             </ScrollView>
-          </View>
-        </View>
+            </SheetScrollArea>
+          </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>
   );

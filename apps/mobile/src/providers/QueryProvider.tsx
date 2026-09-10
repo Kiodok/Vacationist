@@ -62,6 +62,11 @@ const persister = createSyncStoragePersister({
   storage: mmkvStorageAdapter,
   key: 'REACT_QUERY_CACHE_v2',
   serialize: serializeWithoutOptimisticEntries,
+  // 4 s (v1.37.3, up from the 1 s default). serialize() deep-copies every query
+  // entry and JSON.stringifies the whole cache synchronously on the JS thread —
+  // at 1 Hz that's a measurable main-thread stall on a large cache. Durability
+  // cost of the extra lag is nil: queued writes persist separately (mutationQueue).
+  throttleTime: 4000,
 });
 
 interface Props {

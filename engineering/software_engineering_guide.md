@@ -365,8 +365,8 @@ Vacationist is **offline-first** (foundation June 2026; durability overhaul Phas
 
 #### Offline Foundation
 
-- TanStack Query runs with `networkMode: 'offlineFirst'` for queries and mutations (`apps/mobile/src/utils/queryClient.ts`). Defaults: `retry: 2` (queries) / `retry: 3` (mutations), `staleTime: 30s`, `gcTime: 30d`.
-- The query cache is persisted to MMKV via `PersistQueryClientProvider` (`apps/mobile/src/providers/QueryProvider.tsx`, `maxAge: 30d`, `buster` = the app version from `expo-constants` so a shape-changing build auto-discards the old blob). `travelDocuments` is excluded from persistence (sensitive); optimistic-ID list entries are stripped on serialize.
+- TanStack Query runs with `networkMode: 'offlineFirst'` for queries and mutations (`apps/mobile/src/utils/queryClient.ts`). Defaults: `retry: 2` (queries) / `retry: 3` (mutations), `staleTime: 30s`, `gcTime: 24h`. **`gcTime` (in-memory retention) is deliberately shorter than the persister's `maxAge: 30d` (disk)** — offline survival is backed by the disk blob, which is re-hydrated in full on every launch and re-activated when a screen mounts, so a long in-memory `gcTime` buys no offline benefit and only lets the cache grow unbounded over a long foreground session (v1.37.3, was 30d). Don't re-raise it to "match" `maxAge`.
+- The query cache is persisted to MMKV via `PersistQueryClientProvider` (`apps/mobile/src/providers/QueryProvider.tsx`, `maxAge: 30d`, `buster` = the app version from `expo-constants` so a shape-changing build auto-discards the old blob). `travelDocuments` is excluded from persistence (sensitive); optimistic-ID list entries are stripped on serialize. The persister is **synchronous** (`createSyncStoragePersister`) — `serialize` deep-copies + `JSON.stringify`s the whole cache on the JS thread — so its `throttleTime` is set to **4s** (was the 1s default) to keep that off the critical path.
 - **The offline mutation queue is persisted separately** in MMKV `MUTATION_QUEUE_v1` (`apps/mobile/src/utils/mutationQueue.ts`), NOT inside the query-cache blob — a query-cache eviction used to silently drop every queued write. The queue is valid until it drains (14-day safety cap). `PersistQueryClientProvider` sets `shouldDehydrateMutation: () => false`.
 - `NetworkProvider` feeds a single NetInfo subscription into both `useNetworkStatus()` and TanStack's `onlineManager`. On an **offline→online edge** it fires `refreshSessionQuietly()` + `reconnectRealtime()` + `resumePausedMutations()` + `invalidateQueries()` (debounced 1s).
 - The Supabase client (`packages/api/src/client.ts`) wraps `fetch` with a hard timeout: **15 s** default, **60 s** for `/storage/v1/` uploads.
@@ -461,7 +461,9 @@ See Section 8 for reconnection logic specific to Supabase Realtime channels.
 ## Package Definitions
 
 ### `/packages/ui`
-Shared design system components built with NativeWind. Includes primitives: Button, Card, Badge, Avatar, Input, BottomSheet, Skeleton, Toast.
+Shared design system components built with NativeWind: `Button`, `Input`, `Skeleton`, `EmptyState`, `LoadingScreen`, `FloatingActionButton`, `GoogleSignInButton`, `ThemedIcon`, `RichText`, `PersistentScrollView`, plus the theme tokens/hooks (`colors`, `useThemeColors`, `useResolvedTheme`).
+
+Bottom sheets are **not** in `packages/ui` — each sheet is its own `apps/mobile` feature component that renders a React Native `<Modal>` and wraps its panel in `<SwipeToDismiss>` (`apps/mobile/src/components/SwipeToDismiss.tsx`). See §18 Bottom Sheets.
 
 ### `/packages/types`
 All shared TypeScript types and Zod schemas. These types are generated from or aligned with the Supabase database schema. This package is the single source of truth for data shape across frontend features.
@@ -2154,6 +2156,16 @@ Vacationist can become data-heavy very quickly.
 
 ---
 
+### 6. Cap Background Fan-Outs
+
+`useTripOfflinePrefetch` warms ~20 queries on trip open — run them through
+`runWithConcurrency(tasks, 4)` (`apps/mobile/src/utils/concurrency.ts`), never a bare
+`Promise.all`/`allSettled` over the whole list. A 20-wide burst of network + JSON-parse work is a
+real memory/CPU spike on a mid device (v1.37.3). Same rule for any future "prefetch everything"
+helper.
+
+---
+
 # 17. UX Principles
 
 # EXTREMELY IMPORTANT
@@ -2263,6 +2275,42 @@ Used for: creating items, editing details, viewing vote breakdowns, confirmation
 - Drag-to-dismiss: enabled
 - Backdrop: `bg-background/80` with blur
 
+**Every sheet must use `<SwipeToDismiss>`** (`apps/mobile/src/components/SwipeToDismiss.tsx`).
+It renders the `flex-1 justify-end` container + scrim + panel and owns the swipe-down gesture
+(react-native-gesture-handler + reanimated). Shape:
+
+```tsx
+<Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+  {/* optional <KeyboardAvoidingView behavior="padding" className="flex-1"> */}
+  <SwipeToDismiss
+    onDismiss={handleClose}                         // the sheet's LOCAL close (form reset etc.), never the raw onClose
+    className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+    style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+  >
+    <View className="items-center mb-md"><View className="w-[36px] h-[4px] rounded-full bg-border" /></View>
+    {/* header + body */}
+    <SheetScrollArea>                                {/* wrap the ONE outermost scrollable */}
+      <ScrollView …>{/* … */}</ScrollView>
+    </SheetScrollArea>
+  </SwipeToDismiss>
+</Modal>
+```
+
+- **Down-only drag**, from the grabber / header / any non-scrolling area. A drag inside a
+  `<SheetScrollArea>`-wrapped scrollable scrolls instead. Thresholds + the pure decision function
+  live in `apps/mobile/src/utils/sheetGesture.ts` (`shouldDismissSheet`, unit-tested).
+- **`<SheetScrollArea>`** wraps the single outermost `ScrollView`/`FlatList` and must have the
+  scrollable as its **direct** child. `BoundedVirtualList` self-registers, so lists built on it
+  need no wrapper. Sheets with no scrollable need only `<SwipeToDismiss>`.
+- **Native only.** On web (`SwipeToDismiss.web.tsx` / `SheetScrollArea.web.tsx`) these are plain
+  passthroughs — react-native-gesture-handler stays out of the web bundle; web keeps tap-scrim /
+  Cancel-button dismissal.
+- **`max-h-[NN%]` is required** on the panel `className` (85–92%) so a tall sheet's grabber never
+  goes off-screen and unreachable.
+- Excluded from the gesture by design: `ForceUpdateGate`, `OfflineReauthGate`, `TutorialModal`
+  (non-dismissible), and the iOS tray in `DateTimePickerField` (the native date wheel owns
+  vertical drag).
+
 ---
 
 ### Vote Chips
@@ -2304,7 +2352,10 @@ archived:   bg-border/20    text-muted
 ## Motion and Interaction
 
 - Screen transitions: native Expo Router slide/fade defaults
-- Bottom sheet: spring animation, natural feel
+- Bottom sheet: native `Modal` slide-in; swipe-down-to-dismiss via `<SwipeToDismiss>` — panel
+  follows the finger, scrim opacity interpolates with the drag, released past threshold it
+  `withTiming`s out, otherwise `withSpring`s back. `GestureHandlerRootView` is mounted at
+  `app/_layout.tsx` (through `src/components/GestureRoot.tsx`, a `.web.tsx` no-op on web).
 - Vote selection: subtle scale pulse on tap (scale 0.95 → 1.0)
 - Skeleton: linear shimmer only, no bounce or spin
 - Toasts: slide in from top, fade out

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { TripMemberWithUser } from '@vacationist/api';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 
 interface PassengerSelectSheetProps {
   visible: boolean;
@@ -53,9 +54,11 @@ export function PassengerSelectSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[75%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={handleClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[75%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -117,8 +120,7 @@ export function PassengerSelectSheet({
               {isPending ? 'Saving...' : `Confirm (${selected.size})`}
             </Text>
           </Pressable>
-        </View>
-      </View>
+        </SwipeToDismiss>
     </Modal>
   );
 }

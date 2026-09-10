@@ -1457,8 +1457,11 @@ Build order: migration → types → API service → native module → util → 
 - [ ] `adb shell dumpsys meminfo com.vacationist.mobile` — foreground / just-backgrounded /
   cached, after exercising the heaviest surfaces (many avatars, expense doc viewer, business PDF,
   Turnstile WebView). Record the baseline in `engineering/` for the next release to compare.
-- [ ] Low-risk hygiene **only if the numbers justify it** — no `expo-image` migration (adds a
-  native module, touches every `<Image>`; revisit only if Android Vitals flags bitmap memory).
+- [~] Low-risk hygiene **only if the numbers justify it** — ~~no `expo-image` migration~~
+  *(overtaken: Phase 19 shipped `expo-image` for avatars — 3 surfaces, `cachePolicy: 'disk'`)*.
+  Client-side memory hygiene done in **Phase 19.2 (v1.37.3)**: Sentry replay/trace/profile
+  sampling cut, query-cache `gcTime` 30 d → 24 h, persister throttle 1 s → 4 s, prefetch
+  concurrency capped, iOS `memoryWarning` handler. Android AAB/meminfo measurement still open.
 
 ### 3. Docs / legal
 
@@ -1596,3 +1599,76 @@ adapter. Latent second bug: a failed Keychain read was indistinguishable from "n
 **Not yet done:** iOS device test (install over a signed-in 1.37.1 → lock → wait past `jwt_expiry` →
 unlock, expect still signed in); `git commit`; `eas update --branch production`; resolve
 `REACT-NATIVE-M` in Sentry after release.
+
+---
+
+## 🧠 Phase 19.2: iOS WatchdogTermination / memory headroom (v1.37.3)
+*PATCH / OTA-eligible on the 1.37.2 runtime. JS only — no native module, plugin, or DB migration.*
+
+**Why:** Sentry `REACT-NATIVE-N` — `WatchdogTermination` (no stack, `in_foreground: true`), **1
+event / 1 user** on release 1.37.2, iPhone 16 Pro (8 GB), ~18 min after build 21 finished; the
+first watchdog termination ever. **Assessment: almost certainly a Sentry false positive** —
+`enableWatchdogTerminationTracking` (default on) is a stackless diagnosis-by-elimination heuristic
+that misfires on force-quit-from-switcher and first-launch-after-install, and every fact here fits
+that. No corroborating OOM signal anywhere. But an audit surfaced genuine pre-existing memory /
+main-thread-thrash pressure worth trimming.
+
+- [x] **Sentry config diet** (`apps/mobile/src/utils/sentry.ts`) — `enableWatchdogTerminationTracking:
+  false`; `profilesSampleRate` 0.1→0; `tracesSampleRate` 0.2→0 + `enableAutoPerformanceTracing:
+  false` (also disables stall/frame tracking — accepted); `replaysOnErrorSampleRate` 1→0.2 (~80% of
+  sessions then carry no rolling in-memory replay buffer). Kept: session replay 0.1, masking,
+  `attachScreenshot`.
+- [x] **`gcTime` 30 d → 24 h** (`apps/mobile/src/utils/queryClient.ts`). The persister's `maxAge:
+  30 d` (disk blob, re-hydrated in full each launch) is what backs offline survival — a shorter
+  in-memory `gcTime` costs nothing there and bounds unbounded cache growth over long foreground
+  sessions.
+- [x] **Persister `throttleTime` 1 s → 4 s** (`apps/mobile/src/providers/QueryProvider.tsx`) — the
+  synchronous whole-cache deep-copy + `JSON.stringify` + MMKV write ran on the JS thread at 1 Hz.
+- [x] **Prefetch concurrency cap** — `runWithConcurrency(tasks, 4)` (`apps/mobile/src/utils/
+  concurrency.ts` + test) replaces the ~20-way `Promise.allSettled` in `useTripOfflinePrefetch`.
+  Still prefetches everything (full offline calendar kept).
+- [x] **`memoryPressure.ts`** — iOS `AppState` `memoryWarning` → `Image.clearMemoryCache()` +
+  breadcrumb; mounted in `app/_layout.tsx`. Does NOT trim the query cache (would erode the offline
+  disk blob).
+- [x] **Version** `app.config.ts` `1.37.2` → `1.37.3`. Tests green (utils 196 / api 16 / mobile 191).
+
+This also covers, in spirit, the two open Phase 17 §2b memory items below — and the "no `expo-image`
+migration" line there (`:1460`) is already overtaken: Phase 19 shipped `expo-image` for avatars.
+
+**Not yet done:** iOS device check (heavy tab navigation → resident memory should plateau, not
+climb per trip); `git commit`; `eas update --branch production`; resolve `REACT-NATIVE-N` in Sentry
+after release.
+
+---
+
+## 👆 Phase 20: Sheet swipe-to-dismiss (v1.38.0)
+*MINOR / FULL Play + App Store build — `react-native-gesture-handler` is a new native module, so
+this cannot ship as an OTA. The uncommitted Phase 19.2 memory work folds into the same build.*
+
+**Why:** `software_engineering_guide.md` §18 has always specified bottom sheets as
+"Drag-to-dismiss: enabled". It never was — all 56 sheets drew the grabber pill but had no gesture;
+a sheet could only be closed by tapping the scrim, Cancel, or Android back.
+
+- [x] `react-native-gesture-handler` `~2.30.0` installed (`npx expo install`); `GestureHandlerRootView`
+  mounted at `app/_layout.tsx` via `src/components/GestureRoot.tsx` (+ `.web.tsx` no-op — RNGH stays
+  out of the web bundle).
+- [x] `src/utils/sheetGesture.ts` — pure `shouldDismissSheet` (distance `min(120, panelHeight*0.3)`
+  OR velocity > 800; down-only) + `sheetGesture.test.ts` (9 cases).
+- [x] `src/components/SwipeToDismiss.tsx` (+ `.web.tsx`) — Modal-content gesture root + scrim
+  (opacity interpolates with drag) + panel (`Gesture.Pan().activeOffsetY(10).failOffsetX([-20,20])`,
+  `withTiming` out / `withSpring` back). Also centralises the colorful-mode web `boxShadow`.
+- [x] `src/components/SheetScrollArea.tsx` (+ `.web.tsx`) — wraps the one outermost scrollable in
+  `<GestureDetector gesture={Gesture.Native().blocksExternalGesture(pan)}>` so a drag on it scrolls,
+  not dismisses. `BoundedVirtualList` self-registers.
+- [x] All **56** `<Modal transparent animationType="slide">` sheets migrated. Bug fixes folded in:
+  `NudgeSheet` gained the tap-outside scrim it never had; 9 uncapped sheets got `max-h-[85%]`;
+  `ExpenseSplitBreakdown`'s split list is now a real `ScrollView`.
+- [x] Excluded by design: `ForceUpdateGate`, `OfflineReauthGate`, `TutorialModal`,
+  `DateTimePickerField` iOS tray.
+- [x] `app.config.ts` `1.37.3` → `1.38.0`. typecheck 0; tests utils 196 / api 16 / mobile 200.
+  Web smoke-tested (bundle builds, sheets render + close via `.web.tsx` passthrough, nested stacking
+  + colorful shadow OK).
+
+**Not yet done:** new `eas build --profile development` for on-device QA (grabber/header/dead-space
+drag, ScrollView hand-off, nested sheets, keyboard, 4 themes, RNGH-in-`<Modal>` on Android);
+`git commit`; production build + submit + staged rollout.

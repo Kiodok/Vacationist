@@ -7,6 +7,8 @@ import { colors , ThemedIcon } from '@vacationist/ui';
 import { useTrips } from '../../trips/hooks/useTrips';
 import { useCopyPackingList } from '../hooks/usePackingItems';
 import { isMutationBusy } from '../../../utils/mutationStatus';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface CopyPackingListSheetProps {
   visible: boolean;
@@ -50,9 +52,11 @@ export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPa
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={handleClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -94,6 +98,7 @@ export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPa
               </Text>
             </View>
           ) : (
+            <SheetScrollArea>
             <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
               <View className="gap-sm">
                 {filteredTrips.map((trip) => (
@@ -115,9 +120,9 @@ export function CopyPackingListSheet({ visible, currentTripId, onClose }: CopyPa
                 ))}
               </View>
             </ScrollView>
+            </SheetScrollArea>
           )}
-        </View>
-      </View>
+        </SwipeToDismiss>
     </Modal>
   );
 }

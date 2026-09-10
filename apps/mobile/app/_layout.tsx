@@ -26,6 +26,7 @@ import { QueryProvider } from '../src/providers/QueryProvider';
 import { ToastContainer } from '../src/components/Toast';
 import { useAuthInit } from '../src/features/auth/hooks/useAuthInit';
 import { useSupabaseAutoRefresh } from '../src/features/auth/hooks/useSupabaseAutoRefresh';
+import { installMemoryPressureHandler } from '../src/utils/memoryPressure';
 import { useAuthStore } from '../src/stores/authStore';
 import { registerForPushNotificationsAsync } from '../src/features/notifications/utils/registerForPushNotifications';
 import { registerForWebPushAsync } from '../src/features/notifications/utils/registerForWebPush';
@@ -33,6 +34,7 @@ import { usePushNotificationHandler } from '../src/features/notifications/hooks/
 import { useAppIconQuickAction } from '../src/features/trips/hooks/useAppIconQuickAction';
 import { NetworkProvider } from '../src/providers/NetworkProvider';
 import { OfflineBanner } from '../src/components/OfflineBanner';
+import { GestureRoot } from '../src/components/GestureRoot';
 import { useThemeStore } from '../src/stores/themeStore';
 import { colorScheme as cssColorScheme } from 'react-native-css-interop';
 import { syncSystemColorScheme } from '../src/utils/themeSync';
@@ -175,6 +177,9 @@ function AuthGate() {
     });
     return () => sub.remove();
   }, []);
+
+  // Drop expo-image's bitmap cache on an iOS low-memory warning (v1.37.3).
+  useEffect(() => installMemoryPressureHandler(), []);
 
   // Record every screen transition as a Sentry breadcrumb for crash context.
   useEffect(() => {
@@ -405,13 +410,15 @@ function RootLayoutInner() {
 function RootLayout() {
   return (
     <GlobalErrorBoundary>
-      <I18nProvider>
-        <NetworkProvider>
-          <QueryProvider>
-            <RootLayoutInner />
-          </QueryProvider>
-        </NetworkProvider>
-      </I18nProvider>
+      <GestureRoot>
+        <I18nProvider>
+          <NetworkProvider>
+            <QueryProvider>
+              <RootLayoutInner />
+            </QueryProvider>
+          </NetworkProvider>
+        </I18nProvider>
+      </GestureRoot>
     </GlobalErrorBoundary>
   );
 }

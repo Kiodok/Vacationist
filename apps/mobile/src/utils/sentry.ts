@@ -32,9 +32,19 @@ export function initSentry() {
       /^app:\/\/\//,
     ],
 
-    // 20% performance tracing, 10% CPU profiling. Zero in local dev.
-    tracesSampleRate: __DEV__ ? 0 : 0.2,
-    profilesSampleRate: __DEV__ ? 0 : 0.1,
+    // Performance tracing + CPU profiling off (v1.37.3). They add sampled
+    // profilers and per-transaction span/stall/frame tracking — main-thread work
+    // and memory for near-zero product value on an app this size. This also
+    // turns off stall/slow-frame tracking; accepted trade-off.
+    tracesSampleRate: 0,
+    profilesSampleRate: 0,
+    enableAutoPerformanceTracing: false,
+
+    // Watchdog-termination ("Out of Memory") tracking off (v1.37.3). It's a
+    // stackless diagnosis-by-elimination heuristic that misfires on
+    // force-quit-from-switcher and first-launch-after-install — high noise, not
+    // actionable. A real OOM would surface first as a JS render/allocation crash.
+    enableWatchdogTerminationTracking: false,
 
     // Do NOT send default PII (IP, cookies). User is set explicitly via setSentryUser().
     sendDefaultPii: false,
@@ -44,7 +54,9 @@ export function initSentry() {
     maxBreadcrumbs: 50,
 
     replaysSessionSampleRate: __DEV__ ? 0 : 0.1,
-    replaysOnErrorSampleRate: 1,
+    // < 1 so the SDK dice-rolls replay eligibility at session start — ~80% of
+    // sessions then carry no rolling in-memory frame buffer at all (v1.37.3).
+    replaysOnErrorSampleRate: __DEV__ ? 0 : 0.2,
 
     integrations: Platform.OS !== 'web' ? [
       Sentry.mobileReplayIntegration({

@@ -9,6 +9,8 @@ import type { User } from '@vacationist/types';
 import { useTranslation } from 'react-i18next';
 import { LOCALE_LABELS, SUPPORTED_LOCALES, getCurrentLocale } from '@vacationist/i18n';
 import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface EditProfileSheetProps {
   visible: boolean;
@@ -56,9 +58,11 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-        <View className="flex-1 justify-end">
-          <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+        <SwipeToDismiss
+          onDismiss={handleClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
@@ -70,6 +74,7 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
               </Pressable>
             </View>
 
+            <SheetScrollArea>
             <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View className="gap-md">
                 <View className="gap-xs">
@@ -199,6 +204,7 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
                 />
               </View>
             </ScrollView>
+            </SheetScrollArea>
 
             <CurrencyPickerSheet
               visible={currencyPickerVisible}
@@ -222,8 +228,7 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
                 {isPending ? t('edit.saving') : t('edit.saveButton')}
               </Text>
             </Pressable>
-          </View>
-        </View>
+        </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>
   );

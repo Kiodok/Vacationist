@@ -25,6 +25,11 @@ biometric / device-PIN confirmation to extend — **never** a hard dead-end at t
    `apps/mobile/src/utils/mutationQueue.ts`), NOT inside the main query-cache blob. The query
    cache is `maxAge: 30d` + version-`buster`; the queue is valid until it drains (14-day safety
    cap). `PersistQueryClientProvider` has `shouldDehydrateMutation: () => false`.
+   **In-memory `gcTime` is 24h, NOT 30d** (v1.37.3) — the disk blob (`maxAge: 30d`) backs offline,
+   re-hydrates in full each launch, and re-activates on screen mount, so a long `gcTime` adds no
+   offline benefit and only grows the cache unbounded over a long foreground session. Persister
+   `throttleTime` is `4s` (sync serialize is on the JS thread). Don't "re-sync" `gcTime` to
+   `maxAge`. See [[v1-37-3-batch]].
 4. **Every new persisted mutation key needs a matching `setMutationDefaults` registration** —
    enforced by `apps/mobile/src/utils/persistedMutationKeys.test.ts`. A key without a default
    silently no-ops on cold-start replay.

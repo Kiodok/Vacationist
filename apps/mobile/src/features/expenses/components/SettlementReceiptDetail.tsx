@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { dayjs, formatCurrency } from '@vacationist/utils';
 import { colors , ThemedIcon } from '@vacationist/ui';
 import type { SettlementReceipt, Currency } from '@vacationist/types';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface SettlementReceiptDetailProps {
   visible: boolean;
@@ -21,9 +23,11 @@ export function SettlementReceiptDetail({ visible, onClose, receipt, currency }:
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={onClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -41,7 +45,8 @@ export function SettlementReceiptDetail({ visible, onClose, receipt, currency }:
             </Pressable>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <SheetScrollArea>
+            <ScrollView showsVerticalScrollIndicator={false}>
             {/* Meta info */}
             <View className="bg-surface rounded-md px-sm py-sm mb-md gap-xs">
               <View className="flex-row items-center gap-xs">
@@ -101,8 +106,8 @@ export function SettlementReceiptDetail({ visible, onClose, receipt, currency }:
               </Text>
             </View>
           </ScrollView>
-        </View>
-      </View>
+            </SheetScrollArea>
+        </SwipeToDismiss>
     </Modal>
   );
 }

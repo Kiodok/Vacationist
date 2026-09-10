@@ -1,5 +1,13 @@
 # Supabase Changes Log
 
+## 2026-09-09 (v1.37.3 — iOS WatchdogTermination / memory headroom / Sentry REACT-NATIVE-N): **NO migration**
+
+**Status: no DB change.** Client-only PATCH / OTA. Sentry `enableWatchdogTerminationTracking: false`
++ replay/trace/profile sampling cut; query-cache in-memory `gcTime` 30 d → 24 h (persister `maxAge`
+stays 30 d — the disk blob still backs offline); persister `throttleTime` 1 s → 4 s; trip prefetch
+fan-out concurrency-capped; iOS `memoryWarning` handler. No `config.toml` / auth change. See
+`engineering/implementation_guide.md` Phase 19.2 and the `v1-37-3-batch` skill.
+
 ## 2026-09-09 (v1.37.2 — locked-device Keychain read / Sentry REACT-NATIVE-M): **NO migration**
 
 **Status: no DB change.** Client-only PATCH. The auth Keychain items (iOS) move from

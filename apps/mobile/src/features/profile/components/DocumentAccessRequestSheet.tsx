@@ -3,6 +3,7 @@ import { View, Text, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 
 interface DocumentAccessRequestSheetProps {
   visible: boolean;
@@ -36,9 +37,11 @@ export function DocumentAccessRequestSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={onClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -96,8 +99,7 @@ export function DocumentAccessRequestSheet({
               <Text className="text-body text-white font-semibold" style={isColorful ? { color: colors.surface } : undefined}>{t('accessRequest.send')}</Text>
             )}
           </Pressable>
-        </View>
-      </View>
+        </SwipeToDismiss>
     </Modal>
   );
 }

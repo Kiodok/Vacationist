@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { VOTE_TYPE, type VoteType } from '@vacationist/types';
 import { VoteChip } from './VoteChip';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 
 interface VoteRecord {
   user_id: string;
@@ -45,12 +46,11 @@ export function VoteSheet({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View className="flex-1 justify-end">
-        <Pressable
-          className="absolute inset-0 bg-background/80"
-          onPress={onClose}
-        />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={onClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           {/* Handle bar */}
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -107,8 +107,7 @@ export function VoteSheet({
           ) : !votingOpen ? (
             <Text className="text-body text-text-muted text-center py-md">{t('vote.noVotes')}</Text>
           ) : null}
-        </View>
-      </View>
+        </SwipeToDismiss>
     </Modal>
   );
 }

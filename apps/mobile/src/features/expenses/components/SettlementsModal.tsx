@@ -10,6 +10,8 @@ import { shareText } from '../../../utils/share';
 import { useToastStore } from '../../../stores/toastStore';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 import { CollapsibleSectionHeader } from '../../../components/CollapsibleSectionHeader';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 import { useExpenseCategoryTotals } from '../hooks/useExpenses';
 import { ExpenseCategoryChart } from './ExpenseCategoryChart';
 
@@ -89,9 +91,11 @@ export function SettlementsModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+        onDismiss={onClose}
+        className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+        style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+      >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -108,6 +112,7 @@ export function SettlementsModal({
             </Pressable>
           </View>
 
+          <SheetScrollArea>
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Your balance — always visible, plain-language summary for the current user */}
             {myBalance && (
@@ -337,8 +342,8 @@ export function SettlementsModal({
               />
             )}
           </ScrollView>
-        </View>
-      </View>
+          </SheetScrollArea>
+      </SwipeToDismiss>
     </Modal>
   );
 }

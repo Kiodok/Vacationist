@@ -222,6 +222,9 @@ queuing writes — and must **never** show the login screen while valid credenti
 - **The offline mutation queue is persisted separately** in MMKV `MUTATION_QUEUE_v1`
   (`apps/mobile/src/utils/mutationQueue.ts`), not inside the query-cache blob. Query cache is
   `maxAge: 30d` + an automatic app-version `buster` — no more hand-bumping `REACT_QUERY_CACHE_v2`.
+- **Query-cache `gcTime` (in-memory) is 24h, deliberately shorter than the persister `maxAge: 30d`
+  (disk)** — the disk blob backs offline, not in-memory retention. Don't re-raise `gcTime` to
+  "match" `maxAge` (v1.37.3, memory-growth fix). Persister `throttleTime` is 4s for the same reason.
 - Every `PERSISTED_MUTATION_KEYS` entry must have a matching `setMutationDefaults` registration —
   `apps/mobile/src/utils/persistedMutationKeys.test.ts` fails the build otherwise.
 - Offline UX conventions (`isMutationBusy`, `getQueryDisplayState`, optimistic `onMutate` +

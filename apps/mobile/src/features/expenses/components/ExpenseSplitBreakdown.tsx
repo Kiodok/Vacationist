@@ -1,9 +1,11 @@
-import { View, Text, Pressable, Modal } from 'react-native';
+import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
 import { colors , ThemedIcon } from '@vacationist/ui';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface ExpenseSplitBreakdownProps {
   visible: boolean;
@@ -48,12 +50,11 @@ export function ExpenseSplitBreakdown({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View className="flex-1 justify-end">
-        <Pressable
-          className="absolute inset-0 bg-background/80"
-          onPress={onClose}
-        />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={onClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           {/* Handle bar */}
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -71,7 +72,8 @@ export function ExpenseSplitBreakdown({
             </Text>
           )}
 
-          <View className="gap-sm">
+          <SheetScrollArea>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-sm">
             {owerSplits.map((split) => {
               const user = members.get(split.user_id);
               const coveredByUser = split.covered_by ? members.get(split.covered_by) : null;
@@ -166,7 +168,8 @@ export function ExpenseSplitBreakdown({
                 </View>
               );
             })}
-          </View>
+          </ScrollView>
+          </SheetScrollArea>
 
           <View className="border-t border-border pt-sm mt-md">
             <Text className="text-text-secondary text-body-small text-center">
@@ -176,8 +179,7 @@ export function ExpenseSplitBreakdown({
               })}
             </Text>
           </View>
-        </View>
-      </View>
+        </SwipeToDismiss>
     </Modal>
   );
 }

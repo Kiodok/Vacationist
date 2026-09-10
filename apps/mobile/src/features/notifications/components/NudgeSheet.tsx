@@ -6,6 +6,8 @@ import { i18n as i18nInstance } from "@vacationist/i18n";
 import { NUDGE_KEYS } from '@vacationist/types';
 import { useSendNudge } from '../hooks/useSendNudge';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface NudgeSheetProps {
   tripId: string;
@@ -38,15 +40,22 @@ export function NudgeSheet({ tripId, tripName, visible, onClose }: Readonly<Nudg
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-surface rounded-t-2xl" style={{ maxHeight: '70%' }}>
-          <View className="flex-row items-center justify-between px-lg pt-lg pb-md border-b border-border">
+      <SwipeToDismiss
+        onDismiss={onClose}
+        className="bg-surface rounded-t-2xl"
+        style={{ maxHeight: '70%' }}
+      >
+          <View className="items-center pt-sm pb-xs">
+            <View className="w-[36px] h-[4px] rounded-full bg-border" />
+          </View>
+          <View className="flex-row items-center justify-between px-lg pt-xs pb-md border-b border-border">
             <Text className="text-heading-m text-text-primary">{t('nudge.sheetTitle')}</Text>
             <Pressable onPress={onClose} hitSlop={8}>
               <ThemedIcon name="close" size={22} color={colors.textMuted} />
             </Pressable>
           </View>
 
+          <SheetScrollArea>
           <FlatList
             data={NUDGE_KEYS}
             keyExtractor={(key) => key}
@@ -97,9 +106,9 @@ export function NudgeSheet({ tripId, tripName, visible, onClose }: Readonly<Nudg
               );
             }}
           />
+          </SheetScrollArea>
           <View style={{ height: Math.max(insets.bottom, 32) }} />
-        </View>
-      </View>
+      </SwipeToDismiss>
     </Modal>
   );
 }

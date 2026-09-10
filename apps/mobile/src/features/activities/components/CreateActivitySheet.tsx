@@ -10,6 +10,8 @@ import { getCurrencySymbol } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface CreateActivitySheetProps {
   visible: boolean;
@@ -51,12 +53,11 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-      <View className="flex-1 justify-end">
-        <Pressable
-          className="absolute inset-0 bg-background/80"
-          onPress={handleClose}
-        />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={handleClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           {/* Handle bar */}
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -69,7 +70,8 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
             </Pressable>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <SheetScrollArea>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <View className="gap-md">
               {/* Title */}
               <View className="gap-xs">
@@ -327,8 +329,8 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
               </Pressable>
             </View>
           </ScrollView>
-        </View>
-      </View>
+            </SheetScrollArea>
+        </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>
   );

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, ThemedIcon } from '@vacationist/ui';
 import type { TripMessageWithSender } from '@vacationist/types';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 
 interface MessageActionsSheetProps {
   message: TripMessageWithSender | null;
@@ -36,12 +37,11 @@ export function MessageActionsSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View
-          className="bg-surface-elevated rounded-t-lg px-md pt-md gap-sm"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
-        >
+      <SwipeToDismiss
+        onDismiss={onClose}
+        className="bg-surface-elevated rounded-t-lg px-md pt-md gap-sm"
+        style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+      >
           <View className="items-center mb-xs">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -111,8 +111,7 @@ export function MessageActionsSheet({
           >
             <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
           </Pressable>
-        </View>
-      </View>
+      </SwipeToDismiss>
     </Modal>
   );
 }

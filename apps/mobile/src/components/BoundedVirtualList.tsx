@@ -1,6 +1,7 @@
 import { View, ScrollView } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
+import { SheetScrollArea } from './SheetScrollArea';
 
 const DEFAULT_VIRTUALIZE_THRESHOLD = 20;
 const DEFAULT_MAX_VIRTUALIZED_HEIGHT = 420;
@@ -66,10 +67,15 @@ export function BoundedVirtualList<T>({
     const rows = data.map((item, index) => (
       <View key={keyExtractor(item, index)}>{renderItem(item, index)}</View>
     ));
+    // SheetScrollArea is a no-op unless this list is the scrollable inside a
+    // bottom sheet (SwipeToDismiss) — there it keeps a drag on the list
+    // scrolling instead of dismissing the sheet.
     return scrollable ? (
-      <ScrollView style={style} showsVerticalScrollIndicator={false}>
-        {rows}
-      </ScrollView>
+      <SheetScrollArea>
+        <ScrollView style={style} showsVerticalScrollIndicator={false}>
+          {rows}
+        </ScrollView>
+      </SheetScrollArea>
     ) : (
       <View style={style}>{rows}</View>
     );
@@ -77,11 +83,13 @@ export function BoundedVirtualList<T>({
 
   return (
     <View style={[{ height: Math.min(data.length * itemHeight, maxVirtualizedHeight) }, style]}>
-      <FlashList
-        data={data}
-        keyExtractor={keyExtractor}
-        renderItem={({ item, index }) => renderItem(item, index)}
-      />
+      <SheetScrollArea>
+        <FlashList
+          data={data}
+          keyExtractor={keyExtractor}
+          renderItem={({ item, index }) => renderItem(item, index)}
+        />
+      </SheetScrollArea>
     </View>
   );
 }

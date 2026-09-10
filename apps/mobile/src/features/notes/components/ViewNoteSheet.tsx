@@ -3,6 +3,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { RichText } from '@vacationist/ui';
 import type { TripNote } from '@vacationist/types';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface ViewNoteSheetProps {
   visible: boolean;
@@ -16,9 +18,11 @@ export function ViewNoteSheet({ visible, note, onClose }: ViewNoteSheetProps) {
   const { t: tCommon } = useTranslation('common');
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={onClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -30,7 +34,8 @@ export function ViewNoteSheet({ visible, note, onClose }: ViewNoteSheetProps) {
             </Pressable>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <SheetScrollArea>
+            <ScrollView showsVerticalScrollIndicator={false}>
             <View className="gap-md">
               <RichText className="text-body text-text-primary font-semibold" selectable>
                 {note.title}
@@ -42,8 +47,8 @@ export function ViewNoteSheet({ visible, note, onClose }: ViewNoteSheetProps) {
               )}
             </View>
           </ScrollView>
-        </View>
-      </View>
+            </SheetScrollArea>
+        </SwipeToDismiss>
     </Modal>
   );
 }

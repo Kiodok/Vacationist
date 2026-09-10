@@ -22,6 +22,8 @@ import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/use
 import { setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 import { ExpenseDocumentsSection } from './ExpenseDocumentsSection';
 
 interface EditExpenseSheetProps {
@@ -199,9 +201,11 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+        onDismiss={onClose}
+        className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+        style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+      >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -219,6 +223,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
             </Text>
           )}
 
+          <SheetScrollArea>
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <View className="gap-md">
               {/* Title */}
@@ -553,8 +558,8 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
               </Pressable>
             </View>
           </ScrollView>
-        </View>
-      </View>
+          </SheetScrollArea>
+      </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>
   );

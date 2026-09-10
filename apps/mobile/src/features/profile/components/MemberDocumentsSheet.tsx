@@ -7,6 +7,8 @@ import { dayjs } from '@vacationist/utils';
 import { colors, ThemedIcon } from '@vacationist/ui';
 import { MemberAvatar } from '../../trips/components/MemberAvatar';
 import { useMemberDocumentAccessList, useRevealMemberDocuments } from '../hooks/useMemberDocumentAccessList';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 interface MemberDocumentsSheetProps {
   visible: boolean;
@@ -61,9 +63,11 @@ export function MemberDocumentsSheet({ visible, onClose, tripId, isOrganizer }: 
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end">
-        <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-        <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+      <SwipeToDismiss
+          onDismiss={onClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
@@ -87,6 +91,7 @@ export function MemberDocumentsSheet({ visible, onClose, tripId, isOrganizer }: 
               <Text className="text-body text-text-muted text-center">{t('memberDocs.empty')}</Text>
             </View>
           ) : (
+            <SheetScrollArea>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View className="gap-md pb-md">
                 {members.map((m) => {
@@ -150,9 +155,9 @@ export function MemberDocumentsSheet({ visible, onClose, tripId, isOrganizer }: 
                 })}
               </View>
             </ScrollView>
+            </SheetScrollArea>
           )}
-        </View>
-      </View>
+        </SwipeToDismiss>
     </Modal>
   );
 }

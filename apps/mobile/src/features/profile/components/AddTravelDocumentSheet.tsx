@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { upsertTravelDocumentSchema, type UpsertTravelDocumentInput, DOCUMENT_TYPE } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
 const DOCUMENT_LABELS: Record<string, string> = {
   passport: 'Passport',
@@ -54,9 +56,11 @@ export function AddTravelDocumentSheet({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-        <View className="flex-1 justify-end">
-          <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+        <SwipeToDismiss
+          onDismiss={handleClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
@@ -68,6 +72,7 @@ export function AddTravelDocumentSheet({
               </Pressable>
             </View>
 
+            <SheetScrollArea>
             <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View className="gap-md pb-md">
                 {/* Document type picker */}
@@ -255,6 +260,7 @@ export function AddTravelDocumentSheet({
                 </View>
               </View>
             </ScrollView>
+            </SheetScrollArea>
 
             <Pressable
               onPress={handleSubmit(onValid)}
@@ -267,8 +273,7 @@ export function AddTravelDocumentSheet({
                 {isPending ? tCommon('label.saving') : t('document.saveButton')}
               </Text>
             </Pressable>
-          </View>
-        </View>
+          </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>
   );

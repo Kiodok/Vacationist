@@ -1,8 +1,10 @@
-import { View, Text, Pressable, Modal, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, Pressable, Modal, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
+import { SwipeToDismiss } from './SwipeToDismiss';
+import { SheetScrollArea } from './SheetScrollArea';
 
 export interface OptionPickerOption {
   value: string;
@@ -35,15 +37,11 @@ export function OptionPickerSheet({ visible, title, options, selectedValue, onSe
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-        <View className="flex-1 justify-end">
-          <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-          <View
-            className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-            style={{
-              paddingBottom: Math.max(insets.bottom, 32),
-              ...(isColorful && Platform.OS === 'web' ? { boxShadow: '0 1px 4px rgba(0,0,0,0.12)' } : {}),
-            }}
-          >
+        <SwipeToDismiss
+          onDismiss={onClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
@@ -55,6 +53,7 @@ export function OptionPickerSheet({ visible, title, options, selectedValue, onSe
               </Pressable>
             </View>
 
+            <SheetScrollArea>
             <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
               <View className="gap-sm">
                 {clearable && (
@@ -102,8 +101,8 @@ export function OptionPickerSheet({ visible, title, options, selectedValue, onSe
                 })}
               </View>
             </ScrollView>
-          </View>
-        </View>
+            </SheetScrollArea>
+        </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>
   );

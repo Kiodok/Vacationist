@@ -25,6 +25,7 @@ import {
   getTripMessages,
 } from '@vacationist/api';
 import { useNetworkStatus } from '../../../hooks/useNetworkStatus';
+import { runWithConcurrency } from '../../../utils/concurrency';
 
 /**
  * When a trip screen opens while online, warm every tab's primary query in the
@@ -72,26 +73,30 @@ export function useTripOfflinePrefetch(tripId: string | undefined) {
         [['exchangeRates'], () => getLatestExchangeRates()],
       ];
 
-      await Promise.allSettled([
+      // Bounded fan-out (v1.37.3) — ~20 prefetches incl. two whole-trip fetches
+      // used to fire at once, a network + parse + memory burst 1.2 s after every
+      // trip open. Cap at 4 in flight; order doesn't matter here.
+      const tasks: Array<() => Promise<unknown>> = [
         ...plain.map(([queryKey, queryFn]) =>
-          queryClient.prefetchQuery({ queryKey, queryFn }),
+          () => queryClient.prefetchQuery({ queryKey, queryFn }),
         ),
-        queryClient.prefetchInfiniteQuery({
+        () => queryClient.prefetchInfiniteQuery({
           queryKey: ['trips', tripId, 'activities'],
           queryFn: ({ pageParam }) => getActivitiesPage(tripId, (pageParam as number) ?? 0),
           initialPageParam: 0,
         }),
-        queryClient.prefetchInfiniteQuery({
+        () => queryClient.prefetchInfiniteQuery({
           queryKey: ['trips', tripId, 'expenses'],
           queryFn: ({ pageParam }) => getExpenses(tripId, (pageParam as number) ?? 0),
           initialPageParam: 0,
         }),
-        queryClient.prefetchInfiniteQuery({
+        () => queryClient.prefetchInfiniteQuery({
           queryKey: ['trips', tripId, 'messages'],
           queryFn: ({ pageParam }) => getTripMessages(tripId, pageParam as string | undefined),
           initialPageParam: undefined as string | undefined,
         }),
-      ]);
+      ];
+      await runWithConcurrency(tasks, 4);
 
       if (cancelled) return;
 

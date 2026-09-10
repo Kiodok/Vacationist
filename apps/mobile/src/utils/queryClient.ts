@@ -136,7 +136,13 @@ export const queryClient = new QueryClient({
       // invalidations, and per-screen refetchInterval polling — all of which
       // bypass staleTime.
       staleTime: 30 * 1000,
-      gcTime: 30 * 24 * 60 * 60 * 1000, // 30 d — matches PersistQueryClientProvider.maxAge
+      // 24 h in-memory retention (v1.37.3, down from 30 d). Offline survival is
+      // backed by the PERSISTER's maxAge: 30 d — the disk blob is re-hydrated in
+      // full on every launch and mounting a screen re-activates its queries, so a
+      // shorter in-memory gcTime costs nothing for the offline-reopen path (JS
+      // timers are suspended while backgrounded). It only bounds unbounded cache
+      // growth during long continuous foreground sessions.
+      gcTime: 24 * 60 * 60 * 1000,
       refetchOnWindowFocus: true,
       networkMode: 'offlineFirst',
     },

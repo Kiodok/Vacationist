@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { noteContentSchema, type NoteContentInput } from '@vacationist/types';
 import type { NoteSheetNamespace } from './CreateNoteSheet';
+import { SwipeToDismiss } from './SwipeToDismiss';
+import { SheetScrollArea } from './SheetScrollArea';
 
 // Shared edit sheet for entity-scoped notes (activity + accommodation notes),
 // including the owner/organizer delete flow with inline confirmation.
@@ -59,9 +61,11 @@ export function EditNoteSheet({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
-        <View className="flex-1 justify-end">
-          <Pressable className="absolute inset-0 bg-background/80" onPress={handleClose} />
-          <View className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]" style={{ paddingBottom: Math.max(insets.bottom, 32) }}>
+        <SwipeToDismiss
+          onDismiss={handleClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
+          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
@@ -73,6 +77,7 @@ export function EditNoteSheet({
               </Pressable>
             </View>
 
+            <SheetScrollArea>
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <View className="gap-md">
                 <View className="gap-xs">
@@ -152,8 +157,8 @@ export function EditNoteSheet({
                 )}
               </View>
             </ScrollView>
-          </View>
-        </View>
+            </SheetScrollArea>
+          </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>
   );

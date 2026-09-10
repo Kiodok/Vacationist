@@ -6,6 +6,8 @@ import { requireOptionalNativeModule } from 'expo-modules-core';
 import * as Sharing from 'expo-sharing';
 import type { HighlightFormat } from '@vacationist/types';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { SheetScrollArea } from '../../../components/SheetScrollArea';
 import { useToastStore } from '../../../stores/toastStore';
 import { useHighlightCandidates } from '../hooks/useTripHighlightData';
 import { useHighlightSelection } from '../hooks/useHighlightSelection';
@@ -134,12 +136,11 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
       )}
 
       <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-        <View className="flex-1 justify-end">
-          <Pressable className="absolute inset-0 bg-background/80" onPress={onClose} />
-          <View
-            className="bg-surface-elevated rounded-t-lg px-md pt-md"
-            style={{ paddingBottom: Math.max(insets.bottom, 32), maxHeight: '92%' }}
-          >
+        <SwipeToDismiss
+          onDismiss={onClose}
+          className="bg-surface-elevated rounded-t-lg px-md pt-md"
+          style={{ paddingBottom: Math.max(insets.bottom, 32), maxHeight: '92%' }}
+        >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
@@ -209,6 +210,7 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
                   </View>
                 )}
 
+                <SheetScrollArea>
                 <ScrollView showsVerticalScrollIndicator={false} className="mb-lg">
                   {candidates && selection ? (
                     <HighlightContentPicker
@@ -227,6 +229,7 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
                     </View>
                   )}
                 </ScrollView>
+                </SheetScrollArea>
 
                 {/* Continue to preview */}
                 <Pressable
@@ -244,6 +247,7 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
             ) : (
               <>
                 {/* Card preview — display only, captured from the off-screen surface above */}
+                <SheetScrollArea>
                 <ScrollView showsVerticalScrollIndicator={false} className="mb-lg">
                   {renderData ? (
                     <View style={{ alignItems: 'center' }}>
@@ -255,6 +259,7 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
                     </View>
                   )}
                 </ScrollView>
+                </SheetScrollArea>
 
                 {/* Share button */}
                 <Pressable
@@ -277,8 +282,7 @@ export function TripHighlightSheet({ visible, onClose, tripId }: TripHighlightSh
                 </Pressable>
               </>
             )}
-          </View>
-        </View>
+        </SwipeToDismiss>
       </Modal>
     </>
   );
