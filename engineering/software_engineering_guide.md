@@ -545,10 +545,11 @@ The following tables use `deleted_at TIMESTAMPTZ DEFAULT NULL` instead of hard d
 - `trips`
 - `activities`
 - `accommodations`
-- `expenses`
 - `shopping_items`
 
 All queries on these tables must filter `WHERE deleted_at IS NULL` unless explicitly querying history.
+
+`expenses` is the exception: it uses `archived_at TIMESTAMPTZ DEFAULT NULL` (see the `expenses` table below), not `deleted_at` — filter `WHERE archived_at IS NULL` instead.
 
 Tables that do NOT use soft deletes (rows are fully removed):
 - `trip_members` (leaving a trip is a clean removal)

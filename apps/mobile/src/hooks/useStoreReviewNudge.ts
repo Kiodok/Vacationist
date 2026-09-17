@@ -3,6 +3,8 @@ import { Platform } from 'react-native';
 import * as StoreReview from 'expo-store-review';
 import { storage } from '../utils/mmkvStorage';
 import { getEffectiveStatus } from '../features/trips/components/TripCard';
+import { useAuthStore } from '../stores/authStore';
+import { isGuest } from '@vacationist/types';
 import type { Trip } from '@vacationist/types';
 
 const REVIEW_PROMPTED_TRIPS_KEY = 'review_prompted_trips';
@@ -12,8 +14,11 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 type TripWithCount = Trip & { member_count: number };
 
 export function useStoreReviewNudge(trips: TripWithCount[] | undefined) {
+  const user = useAuthStore((s) => s.user);
+
   useEffect(() => {
     if (Platform.OS === 'web' || !trips || trips.length === 0) return;
+    if (!user || isGuest(user)) return;
 
     const trigger = async () => {
       const lastPrompted = storage.getNumber(REVIEW_LAST_PROMPTED_KEY);
@@ -23,7 +28,7 @@ export function useStoreReviewNudge(trips: TripWithCount[] | undefined) {
       const prompted: string[] = promptedRaw ? (JSON.parse(promptedRaw) as string[]) : [];
 
       const eligible = trips.find(
-        (t) => getEffectiveStatus(t) === 'completed' && !prompted.includes(t.id),
+        (t) => !t.is_example && getEffectiveStatus(t) === 'completed' && !prompted.includes(t.id),
       );
       if (!eligible) return;
 
@@ -38,5 +43,5 @@ export function useStoreReviewNudge(trips: TripWithCount[] | undefined) {
 
     const timer = setTimeout(trigger, 3000);
     return () => clearTimeout(timer);
-  }, [trips]);
+  }, [trips, user]);
 }

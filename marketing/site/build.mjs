@@ -35,6 +35,36 @@ const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
    release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
 const APP_VERSION = '1.37.0';
 
+/* Growth Plan Q4 2026, Phase 2 — "harvest social proof". 25+ reviews is a documented
+   threshold (marketing/growth-plan-2026-q4.md), not a gradient: below it, no rating is shown
+   anywhere and no aggregateRating is emitted (dormant by default, verified zero-diff while
+   marketing/site/store-ratings.json's combined count stays under this). Numbers come only from
+   scripts/fetch-store-ratings.mjs (npm run ratings:sync) — never estimated by hand, per
+   marketing/seo-strategy.md Pillar 4. */
+const REVIEW_SCHEMA_MIN = 25;
+
+function readStoreRatings() {
+  try {
+    const raw = readFileSync(join(ROOT, 'marketing', 'site', 'store-ratings.json'), 'utf8');
+    const json = JSON.parse(raw);
+    return json.combined ?? { ratingValue: null, ratingCount: 0 };
+  } catch {
+    // Not yet generated (fresh clone before the first `npm run ratings:sync`) — treat as zero,
+    // never fabricate a number.
+    return { ratingValue: null, ratingCount: 0 };
+  }
+}
+const STORE_RATINGS = readStoreRatings();
+const RATING_SCHEMA_ELIGIBLE = (STORE_RATINGS.ratingCount ?? 0) >= REVIEW_SCHEMA_MIN;
+
+function ratingProofText(lang) {
+  if (!RATING_SCHEMA_ELIGIBLE) return '';
+  const { ratingValue, ratingCount } = STORE_RATINGS;
+  return lang === 'de'
+    ? `★ ${ratingValue} — ${ratingCount} Bewertungen bei Google Play und im App Store`
+    : `★ ${ratingValue} — ${ratingCount} ratings across Google Play and the App Store`;
+}
+
 /**
  * Single source of truth for the SoftwareApplication/WebSite JSON-LD text,
  * shared by the hand-authored homepage's German transform (renderGermanHome)
@@ -111,6 +141,16 @@ function softwareApplicationLd(lang) {
       address: { '@type': 'PostalAddress', addressCountry: 'CH' },
     },
     publisher: { '@id': `${SITE}/#org` },
+    // Only emitted once the combined store review count clears REVIEW_SCHEMA_MIN — see
+    // readStoreRatings() above. Must match a rating visible on the page (Pillar 4); the
+    // homepage's #rating-proof line is kept in sync with the same STORE_RATINGS values.
+    ...(RATING_SCHEMA_ELIGIBLE && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: STORE_RATINGS.ratingValue,
+        ratingCount: STORE_RATINGS.ratingCount,
+      },
+    }),
   };
 }
 
@@ -737,6 +777,13 @@ function renderGermanHome() {
     /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "WebSite"[\s\S]*?<\/script>/,
     ldScriptInPlace(webSiteLd('de')));
 
+  // 4c. #rating-proof line → German text (build-time only, not a data-i18n element — see
+  // syncEnglishHomepageAppLd and ratingProofText). Runs after step 3's title/description
+  // replacements, on the same already-English-synced content syncEnglishHomepageAppLd wrote.
+  html = html.replace(
+    /<p class="rating-proof" id="rating-proof">[\s\S]*?<\/p>/,
+    `<p class="rating-proof" id="rating-proof">${esc(ratingProofText('de'))}</p>`);
+
   // 5. Root-relative URLs (page lives one level deeper), then German-specific links
   html = html.replace(/href="\.\//g, 'href="/').replace(/src="\.\//g, 'src="/');
   html = html.replace('class="nav-logo" href="/"', 'class="nav-logo" href="/de/"');
@@ -774,6 +821,9 @@ function syncEnglishHomepageAppLd() {
   html = html.replace(
     /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "WebSite"[\s\S]*?<\/script>/,
     ldScriptInPlace(webSiteLd('en')));
+  html = html.replace(
+    /<p class="rating-proof" id="rating-proof">[\s\S]*?<\/p>/,
+    `<p class="rating-proof" id="rating-proof">${esc(ratingProofText('en'))}</p>`);
   writeOut(file, html);
 }
 

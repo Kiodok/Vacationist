@@ -19,3 +19,11 @@ dist/
 
 # Local-only funnel report (scripts/analytics-report.mjs) — regenerated on demand, never committed
 /analytics-reports/
+
+# Google service account keys — never committed. play-store-service-account.json (EAS submit,
+# referenced by apps/mobile/eas.json) was already kept out by discipline alone with no rule here;
+# play-ratings-service-account.json (scripts/fetch-store-ratings.mjs, Growth Plan Q4 2026 Phase 2)
+# is new. Both named explicitly rather than a blanket *-service-account.json in case a future
+# non-secret file happens to share the suffix.
+/play-store-service-account.json
+/play-ratings-service-account.json

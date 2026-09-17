@@ -62,11 +62,29 @@ Full plan: `~/.claude/plans/cosmic-booping-dewdrop.md`.
 
 Verified: `npm run build:site` idempotent (full-tree hash stable across 3 runs); no new `[seo]` warnings on new/changed pages; offline pages in sitemap with hreflang + OG cards; FAQPage JSON-LD generated. Browser spot-check blocked (Chrome extension not connected).
 
-### Phase 2 — Harvest social proof  *(founder time + small repo follow-up)*
+### Phase 2 — Harvest social proof  *(founder time + small repo follow-up — repo side EXECUTED 2026-09-17)*
 
-- Direct personal asks to the users onboarded so far — after a real moment (first trip planned, first expense settled), not a random prompt. Target 25+ reviews across both stores.
-- In-app review prompt at a success moment if not already present (check `apps/mobile/src/features` for an existing rating nudge — Phase 16 added a native review flow per `ios-app-store-rollout` skill).
-- **Once the count is real and verifiable in the console:** add `aggregateRating` to the `SoftwareApplication` JSON-LD. `seo-strategy.md` Pillar 4 specifies the exact shape and warns — never estimate or round the number; it must match the store exactly.
+- **In-app review prompt already existed** (Phase 16, `ios-app-store-rollout` skill) —
+  `openStoreReviewOrFallback()` + the `review_nudge` cron notification + the client
+  `useStoreReviewNudge` hook. Nothing new needed there.
+- **Bug found and fixed:** both mechanisms were firing on the auto-seeded example trip (its
+  ~3-months-out `start_date` eventually "ends") and on guest accounts (no store account to
+  review from) — spending the ~3/year native iOS review-prompt budget on a fake trip. Fixed:
+  migration `20260917100000_review_nudge_exclude_example_and_guests.sql` (function-body replace
+  of `create_review_nudge_notifications()`, excludes `is_example` trips + `is_guest` users) +
+  the same exclusions in `useStoreReviewNudge.ts`. **Not yet deployed to dev/prod** — pending
+  Tech Lead approval per commit-discipline.
+- **New `npm run reviews:outreach`** (`scripts/review-outreach.mjs`) — lists real users (no demo
+  trip, no guests, must have an email) at a genuine success moment (completed trip or settled
+  expense), flags who the app already nudged, and includes EN/DE ask templates. Use this to work
+  the personal-ask list instead of guessing.
+- **New `npm run ratings:sync`** (`scripts/fetch-store-ratings.mjs`) + `marketing/site/build.mjs`
+  now conditionally emit a visible homepage rating line and `aggregateRating` JSON-LD once the
+  combined count clears `REVIEW_SCHEMA_MIN` (25) — see `seo-strategy.md` Pillar 4 for the full
+  pipeline. Verified dormant today: App Store DE = 1 rating, US = 0, Play Store unchecked (needs
+  Play Console — no public API); `npm run build:site` twice is still a zero diff.
+- Founder-time work still outstanding: run `reviews:outreach`, make the personal asks, target
+  25+ across both stores, then `npm run ratings:sync` → `build:site` → commit.
 
 **Why here:** 25 reviews is a documented threshold, not a gradient. Product Hunt traffic converts materially better against a listing that clears it.
 

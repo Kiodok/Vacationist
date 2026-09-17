@@ -1,7 +1,7 @@
 # Vacationist - Play Store Listing
 
 ## App Name
-Vacationist - Plan Trips Together
+Vacationist Group Trip Planner (EN) / Vacationist Gruppenreiseplaner (DE) — per-locale listing name, live since the Growth Plan Q4 2026 Decision 2 (2026-09-08).
 
 ## Short Description (60 chars)
 Collaborative trip planning: activities, expenses & more.

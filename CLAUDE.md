@@ -164,7 +164,7 @@ Run `npm test` from the repo root after any change to utilities or business logi
 Use `supabase.auth.getSession()` (local storage, synchronous) for reading `user.id` in mutation functions. Reserve `supabase.auth.getUser()` (server round-trip) for security-sensitive server validation.
 
 ### Soft Deletes
-`trips`, `activities`, `accommodations`, `expenses`, `shopping_items` use `deleted_at TIMESTAMPTZ`. Always filter `WHERE deleted_at IS NULL`. Tables that do NOT soft-delete: `trip_members`, `votes`, `tour_activities`, `recipe_ingredients`, `trip_notes`, `activity_notes`.
+`trips`, `activities`, `accommodations`, `shopping_items` use `deleted_at TIMESTAMPTZ`. Always filter `WHERE deleted_at IS NULL`. `expenses` is the exception — it uses `archived_at TIMESTAMPTZ` instead; filter `WHERE archived_at IS NULL`. Tables that do NOT soft-delete: `trip_members`, `votes`, `tour_activities`, `recipe_ingredients`, `trip_notes`, `activity_notes`.
 
 ### No `any` Types
 TypeScript strict mode is always enabled. Use Zod for validation at all system boundaries.

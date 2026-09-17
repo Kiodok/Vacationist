@@ -416,6 +416,11 @@
     }
     .note-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
 
+    .rating-proof:empty { display: none; }
+    .rating-proof {
+      font-size: 0.79rem; color: var(--text3); margin-top: 10px;
+    }
+
     /* ── PHONE MOCKUP ── */
     .hero-visual { flex-shrink: 0; position: relative; z-index: 1; }
     @media (max-width: 920px) { .hero-visual { display: none; } }
@@ -872,6 +877,10 @@
           <div class="note-dot"></div>
           <span data-i18n="hero.note">Free · No ads · No account needed to join</span>
         </div>
+        <!-- Build-time only (marketing/site/build.mjs, Growth Plan Q4 2026 Phase 2): empty
+             until aggregateRating clears REVIEW_SCHEMA_MIN. Not part of the client-side
+             data-i18n system — see syncRatingProof() / renderGermanHome() step 4c. -->
+        <p class="rating-proof" id="rating-proof"></p>
       </div>
     </div>
 

@@ -1,5 +1,40 @@
 # Supabase Changes Log
 
+## 2026-09-17 (Growth Plan Q4 2026, Phase 2) — review-nudge excludes example trips + guests (1 migration, function-body replace)
+
+**Status: deployed to dev AND prod.** `20260917100000_review_nudge_exclude_example_and_guests.sql`
+— `CREATE OR REPLACE FUNCTION private.create_review_nudge_notifications()`, no schema change
+(same pattern as `20260817100000_review_nudge_store_neutral.sql`).
+
+**Bug found:** both review-ask mechanisms were firing on the auto-seeded example trip.
+`create-example-trip` sets `start_date` ~3 months out, so once that date passes the hourly cron
+treated the demo "Barcelona Weekend" trip as a real completed trip — sending the
+`review_nudge` notification and (client-side) opening the native App Store / Play Store review
+sheet for a trip nobody actually took. Guest accounts (`is_guest = true`, no store account to
+review from) were also nudged. iOS allows roughly 3 native review prompts per user per year, so
+this was spending that budget on a fake trip.
+
+**Fix:** trip loop gains `AND is_example = false`; member loop joins `public.users` and adds
+`AND u.is_guest = false`. Client-side companion fix (same commit):
+`apps/mobile/src/hooks/useStoreReviewNudge.ts` — `eligible` trip search now requires
+`!t.is_example`, and the whole hook bails out early for guest users
+(`isGuest(useAuthStore(s => s.user))`). JS-only, no version bump (rides the pending v1.38.0
+build already forced by `react-native-gesture-handler`).
+
+**Verification:** dev push confirmed 3 `is_example` trips + several `is_guest` users exist in
+that environment (none had matured past `end_date` at push time, so no live notification
+behavior to compare before/after — the SQL predicate change itself was read back via
+`pg_get_functiondef` on both dev and prod and matches the migration file exactly). Did **not**
+call the function manually (it has side effects — inserts real notifications). Prod push
+matched dev's clean ledger (up to `20260908130000`) with only this migration pending. `npm run
+typecheck` exit 0; `npm test` 196/16/200 green.
+
+**Also in this pass (no schema change):** `npm run reviews:outreach` (new
+`scripts/review-outreach.mjs`) for personal review-ask targeting, and `npm run ratings:sync`
+(new `scripts/fetch-store-ratings.mjs`) + a dormant `aggregateRating`/homepage-rating-line gate
+in `marketing/site/build.mjs` (`REVIEW_SCHEMA_MIN = 25`, not yet met — see
+`marketing/seo-strategy.md` Pillar 4 and the `marketing-growth-plan-q4-2026` skill).
+
 ## 2026-09-09 (v1.37.3 — iOS WatchdogTermination / memory headroom / Sentry REACT-NATIVE-N): **NO migration**
 
 **Status: no DB change.** Client-only PATCH / OTA. Sentry `enableWatchdogTerminationTracking: false`

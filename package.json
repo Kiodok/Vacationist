@@ -34,10 +34,13 @@
     "serve:docs": "npx serve docs -p 3001",
     "build:site": "node marketing/site/build.mjs",
     "analytics:report": "node scripts/analytics-report.mjs",
+    "reviews:outreach": "node scripts/review-outreach.mjs",
+    "ratings:sync": "node scripts/fetch-store-ratings.mjs",
     "screenshots:ios": "node scripts/generate-ios-screenshots.mjs",
     "screenshots:web": "node scripts/generate-web-screenshots.mjs"
   },
   "devDependencies": {
+    "@google-cloud/storage": "^8.2.0",
     "marked": "^18.0.6",
     "node-addon-api": "^8.5.0",
     "node-gyp": "^11.0.0",

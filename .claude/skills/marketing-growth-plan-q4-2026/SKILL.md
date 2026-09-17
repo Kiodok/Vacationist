@@ -67,6 +67,14 @@ Not committed — Tech Lead reviews and commits, per [[commit-discipline]]. Docs
 - **Product Hunt**: launching is free; ~$200–500 optional supporting spend. Timing after Phases 1–2.
 - **Screenshots: Greece set** (`play-store/screenshots/`). Barcelona = Reddit ads only.
 
+## Phases 0 + 1 — COMMITTED `39a8334` on main (2026-09-08 23:59:23)
+
+Verified 2026-09-17 (`git log`/`git status`): both phases below landed together in one commit,
+"feat: web-app activation analytics + marketing site to v1.37.0", 162 files. `git status` is
+clean — nothing from Phases 0–1 is sitting uncommitted. Treat every "staged, NOT committed" line
+below as historical (accurate for about an hour on 2026-09-08, before the commit that same night).
+Phase 2 (social proof / reviews) has not started as of 2026-09-17.
+
 ## Phase 0 — EXECUTED 2026-09-08 (dev + prod deployed; client staged, NOT committed)
 
 Full plan: `~/.claude/plans/cosmic-booping-dewdrop.md`.
@@ -162,6 +170,121 @@ Privacy 101"; scale `/use-cases/` only once Search Console shows the first 8 ran
   shipped. It hadn't as of 2026-09-08.
 - Marketing-site edits still follow [[marketing-site-build]]: source in `marketing/site/`,
   `npm run build:site` twice, never hand-edit `docs/`.
+
+## Phase 2 — "Harvest social proof": repo side EXECUTED 2026-09-17, migration deployed dev+prod, nothing committed
+
+- **Bug found + fixed:** both review-ask mechanisms — the hourly
+  `private.create_review_nudge_notifications()` cron and the client
+  `apps/mobile/src/hooks/useStoreReviewNudge.ts` hook — were firing on the auto-seeded example
+  trip (`create-example-trip` sets `start_date` ~3 months out, so it eventually "ends" and both
+  mechanisms treat it as real) and on guest accounts (`is_guest`, no store account to review
+  from). Spent the ~3/year native iOS review-prompt budget on a fake trip, live in prod.
+  Fixed by migration `20260917100000_review_nudge_exclude_example_and_guests.sql`
+  (function-body replace, precedent `20260817100000_review_nudge_store_neutral.sql`: adds
+  `AND is_example = false` to the trip loop, joins `public.users` + `AND u.is_guest = false` to
+  the member loop) plus matching exclusions in `useStoreReviewNudge.ts`'s `eligible` predicate
+  and an early guest bail-out. **Deployed to dev AND prod** (verified via `pg_get_functiondef` on
+  both — bodies match the migration file exactly); migration + client land in one commit with
+  the Tech Lead's approval, not yet committed.
+- **New `npm run reviews:outreach`** (`scripts/review-outreach.mjs`, modelled on
+  `scripts/analytics-report.mjs` — same `.env.production` / service-role-key setup, same
+  gitignored `analytics-reports/` output) — lists real users (excludes `is_example` trips,
+  `is_guest` users, anyone without an email) at a genuine success moment (a completed trip, via
+  `trip_members` + `trips.end_date`, or a settled expense, via `expenses` + `expense_splits`
+  `status = 'settled'`), flags anyone who already has a `review_nudge` notification so you don't
+  double-ask, and includes EN/DE ask templates. Ran against prod 2026-09-17: 44 candidates, 8
+  not yet app-nudged.
+- **New `npm run ratings:sync`** (`scripts/fetch-store-ratings.mjs`) — App Store ratings are
+  fetched live and free from the public, unauthenticated `itunes.apple.com/lookup?id=6800049398`
+  endpoint across a handful of storefronts (Apple ratings are per-storefront — there's no single
+  global number) and combined count-weighted. **Play Store has no public aggregate rating API** —
+  the documented route is the Play Console's private per-app ratings CSVs (Cloud Storage bucket)
+  or the Play Developer Reporting API, both needing a service-account key with Storage read
+  access; `apps/mobile/eas.json` references `./play-store-service-account.json` for EAS submit
+  but that file is **not present on this machine**, so Play automation isn't built — fill it by
+  hand via `--play-rating=<v> --play-count=<n>` from Play Console → Ratings until a suitable key
+  exists. Writes committed `marketing/site/store-ratings.json` (committed, not gitignored — the
+  published number must always be visible in a git diff).
+- **Verified live rating state (2026-09-17):** App Store DE storefront = 5.0 from 1 rating; US
+  storefront = 0. Play Store unchecked. Nowhere near the 25-review gate.
+- **`marketing/site/build.mjs`** reads `store-ratings.json` once (`STORE_RATINGS`,
+  `RATING_SCHEMA_ELIGIBLE = combined.ratingCount >= REVIEW_SCHEMA_MIN` where
+  `REVIEW_SCHEMA_MIN = 25`) and gates two things on it: `softwareApplicationLd()`'s
+  `aggregateRating` block, and a homepage `#rating-proof` line in **both** hero sections
+  (`docs/index.html` EN, `docs/de/index.html` DE via `renderGermanHome()` step 4c) — both pull
+  the exact same values so the JSON-LD can never diverge from what a visitor sees (Pillar 4).
+  Below threshold today: fully dormant — `npm run build:site` run 3× produces byte-identical
+  `docs/index.html`/`docs/de/index.html` (md5-verified). `docs/index.html` got a permanent empty
+  `<p id="rating-proof"></p>` scaffold hand-added to the hero (source file, not generated —
+  see `marketing-site-build`) for `syncEnglishHomepageAppLd()` to populate later; CSS
+  `.rating-proof:empty { display: none; }` keeps it invisible until then.
+  `marketing/seo-strategy.md` Pillar 4 rewritten to document this pipeline (replacing the old
+  "planned checklist" prose).
+- To activate once 25+ is real: `npm run ratings:sync` (verify by eye against both consoles) →
+  `npm run build:site` → visually check the homepage line → commit.
+- Housekeeping: a background fork spawned mid-session to check live review counts kept running
+  briefly after being stopped and left a duplicate stray `scripts/review-outreach-candidates.mjs`
+  — deleted, not part of the real deliverable. Also corrected in this pass: the "Phase 0/1
+  staged, NOT committed" language above was stale by about an hour on 2026-09-08 — see the note
+  at the top of the Phase 0 section.
+
+### Play Store ratings automation (set up 2026-09-17)
+
+The real Play Console developer account is under **meetdeep.de@gmail.com**
+(GCP project `vacationist`, number `632483929424`) — not whatever gcloud identity is active by
+default on this machine (was `tdkiodok@gmail.com`; run
+`gcloud auth login meetdeep.de@gmail.com` if that account isn't already credentialed —
+`gcloud auth list` shows what's available). That project already has
+`eas-play-store-builder@vacationist.iam.gserviceaccount.com` (broad EAS-submit permissions,
+`apps/mobile/eas.json` — never reuse for read-only reporting) and `firebase-adminsdk-fbsvc@...`.
+
+Created a **new, dedicated, zero-IAM-role** service account for this one job:
+`play-ratings-reader@vacationist.iam.gserviceaccount.com` (confirmed via
+`gcloud projects get-iam-policy vacationist --filter="bindings.members:play-ratings-reader"` →
+no bindings — its only possible access is whatever Play Console itself grants by email invite,
+not anything on the GCP project). Key downloaded to `play-ratings-service-account.json` at repo
+root; `.gitignore` gained explicit entries for it and for the pre-existing
+`play-store-service-account.json` (which had been kept out of git by discipline alone, no rule).
+
+`scripts/fetch-store-ratings.mjs` now tries an automated Play fetch first: reads
+`stats/ratings/ratings_com.vacationist.mobile_<yyyyMM>_overview.csv` from the developer's private
+Cloud Storage bucket via `@google-cloud/storage` (new devDependency), tries the two most recent
+months (the newest can be nearly-empty for the first few days of a month), parses the UTF-16LE
+CSV **by header name** ("Total Average Rating" / "Total Average Rating Count" — Google's own docs
+say never rely on column position), and throws with the raw header line rather than guessing if
+those columns aren't found. Falls back to the pre-existing manual
+`--play-rating=<v> --play-count=<n>` entry when the key file or bucket id isn't available.
+
+**Both manual steps done 2026-09-17, but automation still not working — status:**
+1. **Done and verified correct.** Play Console (account under **meetdeep.de@gmail.com** —
+   switch to it in Chrome/gcloud if you land on the wrong Google identity; developer/account id
+   `4871205259084418605`, which is also the bucket id) → Users and permissions →
+   `play-ratings-reader@vacationist.iam.gserviceaccount.com` → **Account permissions** tab
+   (not App permissions) → **"App-Informationen ansehen und Bulk-Berichte herunterladen
+   (schreibgeschützt)"** ("View app information and download bulk reports (read only)") is
+   checked. Verified directly via `mcp__claude-in-chrome` — this is not a guess.
+2. **Done.** Bucket id: `pubsite_prod_4871205259084418605` (note: no `_rev_` segment — some
+   accounts use the older `pubsite_prod_<id>` form, not `pubsite_prod_rev_<id>`).
+3. **Still failing.** `npm run ratings:sync -- --play-bucket=pubsite_prod_4871205259084418605`
+   gets `storage.objects.list` / `storage.objects.get` permission-denied — identically across
+   4+ retries, including after the permission was independently confirmed correct via the
+   browser. Read straight through: this is not a config problem, it's Play's backend
+   propagation from its own permission system down to the actual bucket ACL being slow
+   (community reports: up to ~24h for this specific legacy path). **Don't re-debug the
+   permission grant — it's already right.** Just retry the same command later; the bucket id
+   isn't cached in `store-ratings.json` yet (automated fetch has never succeeded), so pass
+   `--play-bucket=` again when retrying.
+
+**Stopgap in place:** real numbers filled in manually 2026-09-17 —
+`--play-rating=4.9 --play-count=14` (Play), combined with App Store 5.0/1 → 4.91/15 combined.
+Still 10 short of `REVIEW_SCHEMA_MIN` (25); confirmed the homepage build is still byte-identical
+to the pre-numbers version (fully dormant, as designed).
+
+**Unverified:** the CSV column-name assumptions in `parseRatingsOverviewCsv()` haven't been
+checked against a real file yet (blocked on the propagation delay above) — if Google's actual
+header text differs, the function throws loudly with the real header row rather than silently
+producing a wrong number; fix the two regexes in that function to match once a real file is
+finally readable.
 
 See [[marketing-site-build]], [[marketing-v1-34-0-rollout]], [[reddit-ad-creatives]],
 [[ios-app-store-rollout]], [[commit-discipline]], [[no-branches-main-only]].

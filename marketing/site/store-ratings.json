@@ -1,0 +1,41 @@
+{
+  "appStore": {
+    "ratingValue": 5,
+    "ratingCount": 1,
+    "byStorefront": {
+      "de": {
+        "ratingValue": 5,
+        "ratingCount": 1
+      },
+      "at": {
+        "ratingValue": 0,
+        "ratingCount": 0
+      },
+      "ch": {
+        "ratingValue": 0,
+        "ratingCount": 0
+      },
+      "us": {
+        "ratingValue": 0,
+        "ratingCount": 0
+      },
+      "gb": {
+        "ratingValue": 0,
+        "ratingCount": 0
+      }
+    },
+    "source": "itunes-lookup",
+    "checkedAt": "2026-09-17"
+  },
+  "playStore": {
+    "ratingValue": 4.9,
+    "ratingCount": 14,
+    "bucket": null,
+    "source": "manual",
+    "checkedAt": "2026-09-17"
+  },
+  "combined": {
+    "ratingValue": 4.91,
+    "ratingCount": 15
+  }
+}

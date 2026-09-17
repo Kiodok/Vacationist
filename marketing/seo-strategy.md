@@ -82,7 +82,10 @@ Living reference for search and AI-answer-engine visibility. Covers all 9 SEO pi
 }
 ```
 
-**Deliberately no `aggregateRating` / `Review` schema.** No verifiable Play Store rating data exists; fabricated or thin review markup is a Google manual-action risk under the review-snippet spam policy. Add it only when there's a real, checkable rating count — see the checklist below.
+**Deliberately no `aggregateRating` / `Review` schema (still true — 2026-09-17: App Store DE
+storefront is 1 rating, US is 0, Play Store not yet checked; nowhere near the threshold).**
+Fabricated or thin review markup is a Google manual-action risk under the review-snippet spam
+policy. Add it only when there's a real, checkable rating count — see the pipeline below.
 
 `FAQPage` — auto-generated from any markdown page with a `## Frequently asked questions` heading (`extractFaq()` in `build.mjs`), so the FAQ content authors write is the FAQ schema Google sees, with zero drift risk. Live on 20+ pages.
 
@@ -108,11 +111,25 @@ Living reference for search and AI-answer-engine visibility. Covers all 9 SEO pi
 
 **Regression fixed this pass:** the German homepage (`/de/`) previously inherited **English** `SoftwareApplication.description`/`featureList` and `WebSite.description` because `renderGermanHome()` only rebuilt the `FAQPage` block from translated strings. Fixed by extracting `softwareApplicationLd(lang)`/`webSiteLd(lang)` as shared helpers, consumed by both the homepage transform and `jsonLd()`. Verified: `docs/de/index.html` now carries German schema text (checked via direct build output inspection).
 
-**📋 Planned checklist for `aggregateRating`:** once Play Store review count is verifiable (Play Console → Ratings), add:
-```jsonc
-"aggregateRating": { "@type": "AggregateRating", "ratingValue": "<real value>", "ratingCount": "<real count>" }
-```
-Never estimate or round up this number — Google's structured-data guidelines require it match the visible, user-facing rating exactly.
+**✅ Pipeline built (Growth Plan Q4 2026, Phase 2, 2026-09-17) — dormant until the count clears
+`REVIEW_SCHEMA_MIN` (25) in `marketing/site/build.mjs`:**
+
+- `npm run ratings:sync` (`scripts/fetch-store-ratings.mjs`) fetches App Store ratings live and
+  free from the public `itunes.apple.com/lookup` endpoint across a handful of storefronts
+  (Apple's ratings are per-storefront, no single global number exists) and writes the combined
+  figure to committed `marketing/site/store-ratings.json`. Play Store has no public aggregate
+  endpoint — the documented route is the Play Console's private ratings CSVs / Developer
+  Reporting API, both needing a service-account key with Storage access that isn't on this
+  machine; `--play-rating=<v> --play-count=<n>` fills it in by hand from Play Console → Ratings
+  until that's automated.
+- `build.mjs` reads that JSON once at build start. Below threshold: nothing is emitted, output
+  is byte-identical to before this pipeline existed (verified: `npm run build:site` twice = zero
+  diff). At/above threshold: the homepage's `#rating-proof` line (EN + DE, both hero sections)
+  and `softwareApplicationLd()`'s `aggregateRating` are populated from the **same**
+  `STORE_RATINGS` values, so the schema always matches what a visitor can see — never estimated,
+  never rounded, never diverges from the visible number.
+- To activate once real: `npm run ratings:sync` (verify by eye against both consoles) →
+  `npm run build:site` → check the homepage rating line renders correctly → commit.
 
 ---
 
