@@ -286,5 +286,45 @@ header text differs, the function throws loudly with the real header row rather 
 producing a wrong number; fix the two regexes in that function to match once a real file is
 finally readable.
 
+## Phase 3 — Product Hunt: repo side PREPARED 2026-09-18, staged, NOT committed
+
+**Operational doc: `marketing/product-hunt-launch.md`** (listing copy, first-comment draft, UTM
+scheme, launch-day timeline in Swiss time, measurement caveats, Tech Lead manual checklist). Launch
+gate is still **25 reviews** (15 combined on 2026-09-17) — launch is a single trigger once it clears.
+
+- **Blocker found + fixed:** `trackFeatureEvent.ts` never forwarded `utm_*`, so `trip_created` /
+  `invite_sent` / `invite_accepted` / `expense_added` were unattributed — a campaign was measurable
+  only to `sign_up`. Now spreads `getWebAttribution()`; 7-test regression
+  `trackFeatureEvent.test.ts` (mutation-checked: removing the fix fails exactly the 2 attribution
+  tests). Client-only — no migration/Edge Function. **Must be deployed (push to `main` → Vercel)
+  BEFORE launch day.**
+- **`?ref=producthunt` correction:** PH appends it to outbound links itself (third-party-sourced,
+  not PH docs); `track.js` / `webAttribution.ts` ignore `ref` and need `utm_source` or `rdt_cid`.
+  Put `?utm_source=producthunt&utm_medium=launch&utm_campaign=ph-launch-2026` in the listing's
+  website field; one campaign for the whole launch, a different `utm_source` per channel. Verified
+  by running the real `track.js` in a Node stub (bare `?ref=` dropped, PH-appended `&ref=`
+  harmless, first-touch holds).
+- **PH forbids asking for upvotes** (may demote/remove the launch — PH help center). The older
+  docs' "supporters who will upvote" lines are annotated as superseded; supporter DMs ask for
+  feedback/comments.
+- **Assets:** `npm run assets:producthunt` → 6 gallery cards 1270×760 + 240×240 thumbnail in
+  `social-media/product-hunt/`; 60.00 s 1920×1080 silent demo MP4 from the committed generator
+  `scripts/generate-producthunt-video.mjs` (ffmpeg is NOT a repo dep — run `ffmpeg-static` in a
+  scratch dir, pass `--ffmpeg=<path>`). Shared `scripts/lib/phoneFrame.mjs` + `brandSvg.mjs`. PH
+  video must be a full YouTube URL (no uploads); the tagline cap (~60 chars) is unverified, and the
+  canonical 75-char tagline is too long — it goes in the first comment.
+- **`npm run analytics:report -- --campaign=<name>`** scopes the report; "Top campaigns" gained a
+  "Trips created" column. Numbers are a floor: consent-gated, web-app only (iOS installs are
+  invisible after the store click).
+- **Site freshness:** `APP_VERSION` 1.38.0 (18 `docs/` files, one line each, build idempotent).
+  `play-store/listing.md` rewritten EN + DE (it predated offline/receipts/tickets/trip costs);
+  `play-store/README.md` rewritten (it documented screenshot HTML mockups that no longer exist).
+- **Placeholders only the Tech Lead can fill:** the founder origin story + one question in the first
+  comment (deliberately not invented), and the "is it free forever?" wording (Pro is planned at
+  ~500 MAU — a business commitment, not the doc's call).
+- **Not verified:** the Chrome extension was not connected, so there was no real-browser / web-app
+  end-to-end check of attribution — only the unit test + Node harness. The runbook ends with a
+  Verification section for the Tech Lead to run once deployed.
+
 See [[marketing-site-build]], [[marketing-v1-34-0-rollout]], [[reddit-ad-creatives]],
 [[ios-app-store-rollout]], [[commit-discipline]], [[no-branches-main-only]].

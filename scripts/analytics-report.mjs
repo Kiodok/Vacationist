@@ -12,7 +12,11 @@
  *   Point it at dev instead if you're testing the pipeline itself. .env.production is
  *   gitignored.
  *
- * Run:      node scripts/analytics-report.mjs [--days=7]
+ * Run:      node scripts/analytics-report.mjs [--days=7] [--campaign=<utm_campaign>]
+ *           (via npm: npm run analytics:report -- --days=3 --campaign=ph-launch-2026)
+ *           --campaign scopes every view below to events tagged with that utm_campaign —
+ *           e.g. a launch day, where the source-bucket chart's top-3 fold would otherwise
+ *           bury a small campaign under Organic / Reddit.
  * Output:   analytics-reports/report.html (gitignored — overwritten each run), opened
  *           automatically in your default browser.
  */
@@ -43,6 +47,13 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 const daysArg = process.argv.find((a) => a.startsWith('--days='));
 const DAYS = daysArg ? Math.max(1, parseInt(daysArg.slice('--days='.length), 10)) : 7;
 
+const campaignArg = process.argv.find((a) => a.startsWith('--campaign='));
+const CAMPAIGN = campaignArg ? campaignArg.slice('--campaign='.length).trim() : '';
+if (campaignArg && !CAMPAIGN) {
+  console.error('--campaign needs a value, e.g. --campaign=ph-launch-2026');
+  process.exit(1);
+}
+
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -51,17 +62,21 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSessio
 
 const since = new Date(Date.now() - DAYS * 24 * 60 * 60 * 1000);
 
-console.log(`Fetching analytics_events since ${since.toISOString().slice(0, 10)} …`);
+console.log(
+  `Fetching analytics_events since ${since.toISOString().slice(0, 10)}${CAMPAIGN ? ` for campaign "${CAMPAIGN}"` : ''} …`,
+);
 
 const PAGE_SIZE = 1000;
 let events = [];
 {
   let from = 0;
   for (;;) {
-    const { data, error } = await supabase
+    let query = supabase
       .from('analytics_events')
       .select('event_name, surface, path, rdt_cid, utm_source, utm_campaign, referrer_host, created_at')
-      .gte('created_at', since.toISOString())
+      .gte('created_at', since.toISOString());
+    if (CAMPAIGN) query = query.eq('utm_campaign', CAMPAIGN);
+    const { data, error } = await query
       .order('created_at', { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
     if (error) {
@@ -172,18 +187,22 @@ const topPages = [...pathCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 
 // Top campaigns by sign-ups, falling back to visits when tied. Only events carrying a
 // utm_campaign appear here — organic/direct traffic has none and is excluded by design (this
 // is a breakdown of tagged-campaign performance, not a funnel — see the segmentation chart
-// above for the organic-vs-paid picture).
+// above for the organic-vs-paid picture). `trips` counts web-app trip_created events — the
+// activation signal, so a campaign is judged on trips created, not just installs/sign-ups.
+// It only accumulates once trackFeatureEvent forwards attribution (Growth Plan Q4 2026,
+// Phase 3); earlier trip_created rows have no utm_campaign and never land in this table.
 const campaignStats = new Map();
 for (const e of events) {
   if (!e.utm_campaign) continue;
-  const s = campaignStats.get(e.utm_campaign) ?? { visits: 0, clicks: 0, signups: 0 };
+  const s = campaignStats.get(e.utm_campaign) ?? { visits: 0, clicks: 0, signups: 0, trips: 0 };
   if (e.event_name === 'page_visit') s.visits++;
   else if (isClick(e)) s.clicks++;
   else if (e.event_name === 'sign_up') s.signups++;
+  else if (e.event_name === 'trip_created') s.trips++;
   campaignStats.set(e.utm_campaign, s);
 }
 const topCampaigns = [...campaignStats.entries()]
-  .sort((a, b) => b[1].signups - a[1].signups || b[1].visits - a[1].visits)
+  .sort((a, b) => b[1].signups - a[1].signups || b[1].trips - a[1].trips || b[1].visits - a[1].visits)
   .slice(0, 10);
 
 const kpis = {
@@ -318,9 +337,9 @@ function topPagesTable(pages) {
 function topCampaignsTable(campaigns) {
   if (campaigns.length === 0) return '<p class="empty">No utm_campaign-tagged events recorded in this window.</p>';
   const rows = campaigns
-    .map(([name, s]) => `<tr><td>${esc(name)}</td><td class="num">${fmt(s.visits)}</td><td class="num">${fmt(s.clicks)}</td><td class="num">${fmt(s.signups)}</td></tr>`)
+    .map(([name, s]) => `<tr><td>${esc(name)}</td><td class="num">${fmt(s.visits)}</td><td class="num">${fmt(s.clicks)}</td><td class="num">${fmt(s.signups)}</td><td class="num">${fmt(s.trips)}</td></tr>`)
     .join('');
-  return `<table class="data-table"><thead><tr><th>Campaign</th><th class="num">Visits</th><th class="num">Clicks</th><th class="num">Sign-ups</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `<table class="data-table"><thead><tr><th>Campaign</th><th class="num">Visits</th><th class="num">Clicks</th><th class="num">Sign-ups</th><th class="num">Trips created</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 const hasData = events.length > 0;
@@ -394,7 +413,7 @@ const html = `<!doctype html>
 <body>
 <main>
   <h1>Vacationist — Funnel Report</h1>
-  <p class="subtitle">Last ${DAYS} days · generated ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC · ${SUPABASE_URL.includes('fsfsqghbejwvgxujoyne') ? 'prod' : 'dev'}</p>
+  <p class="subtitle">Last ${DAYS} days${CAMPAIGN ? ` · campaign: ${esc(CAMPAIGN)}` : ''} · generated ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC · ${SUPABASE_URL.includes('fsfsqghbejwvgxujoyne') ? 'prod' : 'dev'}</p>
 
   ${!hasData ? '<div class="card"><p class="empty">No events recorded in this window yet — the pipeline is deployed but traffic hasn\'t flowed through it. Re-run once the campaign is live and consented visits start arriving.</p></div>' : ''}
 
@@ -428,7 +447,7 @@ const html = `<!doctype html>
   <div class="card">
     <h2>Top campaigns (by sign-ups)</h2>
     ${topCampaignsTable(topCampaigns)}
-    <p class="footnote">Only events carrying a utm_campaign parameter appear here — organic/direct traffic has none and is excluded by design. Ranked by sign-ups, falling back to visits when tied.</p>
+    <p class="footnote">Only events carrying a utm_campaign parameter appear here — organic/direct traffic has none and is excluded by design. Ranked by sign-ups, then trips created, then visits. "Trips created" is web-app only and counts from the release that started forwarding attribution on activation events — trips created before that carry no campaign.</p>
   </div>
 
   <div class="card">

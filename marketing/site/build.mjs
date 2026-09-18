@@ -33,7 +33,7 @@ const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
 
 /* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
    release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
-const APP_VERSION = '1.37.0';
+const APP_VERSION = '1.38.0';
 
 /* Growth Plan Q4 2026, Phase 2 — "harvest social proof". 25+ reviews is a documented
    threshold (marketing/growth-plan-2026-q4.md), not a gradient: below it, no rating is shown

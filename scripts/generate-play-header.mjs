@@ -1,6 +1,6 @@
 /**
  * Generates the Google Play Console header image (Kopfzeilenbild).
- * Output: docs/play-store/header.png — 4096 × 2304 px
+ * Output: play-store/header.png — 4096 × 2304 px
  *
  * Run from repo root:  node scripts/generate-play-header.mjs
  */

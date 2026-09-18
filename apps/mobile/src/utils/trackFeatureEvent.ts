@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { logAnalyticsEvent } from '@vacationist/api';
 import type { ProductFunnelEvent } from '@vacationist/types';
 import { useConsentStore } from '../stores/consentStore';
+import { getWebAttribution } from '../features/consent/utils/webAttribution';
 
 /**
  * Records a web-app activation-funnel event (Growth Plan Q4 2026, Phase 0) — a trip
@@ -16,6 +17,11 @@ import { useConsentStore } from '../stores/consentStore';
  * Consent-gated exactly like StoreBadges (imperative read of the web consent store).
  * Best-effort: packages/api's logAnalyticsEvent throws by contract, so the error is
  * swallowed here — analytics must never block or fail a mutation.
+ *
+ * Carries the visitor's first-touch attribution (utm_* / rdt_cid) so an activation event can
+ * be credited to the campaign that brought the user in — without it, a campaign is only
+ * measurable up to `sign_up`. The stored value only exists once consent was granted
+ * (webAttribution.commitPendingWebAttribution), which the gate above already requires.
  *
  * @param opts.isExampleTrip pass the result of isCachedExampleTrip(tripId) for
  *   events tied to a trip; the auto-seeded demo trip is excluded from the funnel.
@@ -32,5 +38,6 @@ export function trackFeatureEvent(
     event_name: eventName,
     surface: 'web_app',
     path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+    ...(getWebAttribution() ?? {}),
   }).catch(() => {});
 }

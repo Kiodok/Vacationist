@@ -2,7 +2,7 @@
 
 *Living document. Supersedes the week-by-week calendar in `zero-budget-growth-plan.md` (expired ~June–Sept 2026) and the conclusions of `marketing-strategy.md` (June 2026). Both of those remain useful as research and channel playbooks — see "How the older docs relate" at the bottom.*
 
-**Last updated:** 2026-09-08
+**Last updated:** 2026-09-18 (Phase 3 prepared — see `product-hunt-launch.md`)
 
 ---
 
@@ -88,14 +88,18 @@ Verified: `npm run build:site` idempotent (full-tree hash stable across 3 runs);
 
 **Why here:** 25 reviews is a documented threshold, not a gradient. Product Hunt traffic converts materially better against a listing that clears it.
 
-### Phase 3 — Product Hunt launch  *(founder time, 1 prep week + launch day)*
+### Phase 3 — Product Hunt launch  *(repo side PREPARED 2026-09-18; launch itself gated on 25 reviews)*
 
-The spike event the June docs gated on iOS. Now unblocked.
-- Assets: 60-second demo video, 5 screenshots (from Phase 1), tagline ("The group trip planner that replaces Splitwise + Wanderlog + WhatsApp polls"), pre-written first comment, 20 supporters lined up individually.
-- Launch Tue/Wed/Thu, 12:01 AM PST. Founder available all day to reply.
-- Wire a `?ref=producthunt` UTM so Phase 0's events attribute the spike.
+The spike event the June docs gated on iOS. Now unblocked. **The operational document is `product-hunt-launch.md`** — listing copy, first-comment draft, UTM scheme, launch-day timeline, measurement, and the Tech Lead's manual checklist. Summary:
 
-**Why after 1–2:** the landing page shows the product and the store listing has reviews — the traffic has somewhere good to land.
+- **Assets (done, committed by `npm run assets:producthunt` + `scripts/generate-producthunt-video.mjs`):** 6 gallery cards at 1270×760, a 240×240 thumbnail, and a 60 s / 1920×1080 silent demo video — all in `social-media/product-hunt/`, built from the Greece screenshot set. Tagline, description, first comment and supporter templates are drafted in the runbook.
+- **Launch Tue/Wed/Thu, 12:01 AM PT** (= 09:01 in Switzerland). Founder available all day to reply.
+- **Attribution — the real blocker, now fixed.** Phase 0's activation events (`trip_created` / `invite_sent` / `invite_accepted` / `expense_added`) carried **no** `utm_*`, so a campaign was measurable only as far as `sign_up`. `trackFeatureEvent.ts` now forwards the stored first-touch attribution, and `npm run analytics:report -- --campaign=<name>` scopes the report to one campaign with a "Trips created" column. Web-app surface only — an iOS install from a PH click is invisible after the store click (see the runbook's measurement caveats).
+- **`?ref=producthunt` was never going to work, and is not what to wire.** PH reportedly appends `?ref=producthunt` to outbound links itself, and `track.js` ignores `ref` (it needs `utm_source` or `rdt_cid`). The listing's website field carries `?utm_source=producthunt&utm_medium=launch&utm_campaign=ph-launch-2026`; one campaign for the whole launch, a different `utm_source` per channel.
+- **Do not ask supporters to upvote.** The older docs' "20 supporters who will upvote" contradicts Product Hunt's rules (asking may drop the launch in the rankings or remove it from the homepage). The 20 individual messages ask for feedback and comments instead.
+- **Site freshness fixes:** `APP_VERSION` → `1.38.0`; `play-store/listing.md` refreshed (EN + DE) — it predated offline mode, receipts, tickets and trip costs.
+
+**Why after 1–2:** the landing page shows the product and the store listing has reviews — the traffic has somewhere good to land. **Launch gate: combined ratings ≥ 25** (15 on 2026-09-17).
 
 ### Phase 4 — Compound  *(continuous, mixed)*
 

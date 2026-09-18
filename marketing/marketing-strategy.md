@@ -814,7 +814,7 @@ Current feature graphic exists. Ensure it:
 - [ ] Prepare 60-second demo video (Product Hunt loves video)
 - [ ] Write a compelling tagline: "The collaborative trip planner that replaces Splitwise + Wanderlog + WhatsApp polls"
 - [ ] Prepare 5 high-quality screenshots
-- [ ] Line up 20+ supporters who will upvote on launch day
+- [ ] Line up 20+ supporters who will upvote on launch day — **⚠️ superseded 2026-09-18: PH forbids asking for upvotes; ask for feedback/comments (see `product-hunt-launch.md` §1).**
 - [ ] Choose launch day: Tuesday, Wednesday, or Thursday (highest PH traffic)
 - [ ] Launch at 12:01 AM PST
 

@@ -828,7 +828,7 @@ You cannot predict which spike event happens. You can maximize the probability o
 - [ ] Create Product Hunt maker profile
 - [ ] Prepare 60-second demo video (this is the most important PH asset)
 - [ ] Write PH description: "The group trip planner that replaced WhatsApp polls — vote on activities, split expenses, sync offline"
-- [ ] Line up 20 supporters who will upvote on launch day (message personally, ask each one directly)
+- [ ] Line up 20 supporters who will upvote on launch day (message personally, ask each one directly) — **⚠️ superseded 2026-09-18: Product Hunt forbids asking for upvotes and may demote the launch for it. Ask for feedback/comments instead — see `product-hunt-launch.md` §1 and §6.**
 - [ ] Choose launch day: Tuesday, Wednesday, or Thursday
 
 **Week 9–10 target:** iOS live. 250–400 cumulative installs. First genuine organic TikTok engagement.
@@ -841,7 +841,7 @@ You cannot predict which spike event happens. You can maximize the probability o
 
 **Week 11 (pre-launch):**
 - [ ] Final Product Hunt assets ready: video, screenshots, description, first comment
-- [ ] Warm up supporters — "we're launching [day], will you upvote at 12:01 AM PST?"
+- [ ] Warm up supporters — "we're launching [day], will you upvote at 12:01 AM PST?" — **⚠️ don't phrase it as an upvote ask (see the note above); ask for feedback: `product-hunt-launch.md` §6.**
 - [ ] Post on LinkedIn and TikTok: "Big launch happening [day] — more details soon"
 - [ ] Write the first comment for PH post in advance: the context, the story, the "why this exists"
 

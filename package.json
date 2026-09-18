@@ -37,7 +37,8 @@
     "reviews:outreach": "node scripts/review-outreach.mjs",
     "ratings:sync": "node scripts/fetch-store-ratings.mjs",
     "screenshots:ios": "node scripts/generate-ios-screenshots.mjs",
-    "screenshots:web": "node scripts/generate-web-screenshots.mjs"
+    "screenshots:web": "node scripts/generate-web-screenshots.mjs",
+    "assets:producthunt": "node scripts/generate-producthunt-assets.mjs"
   },
   "devDependencies": {
     "@google-cloud/storage": "^8.2.0",
