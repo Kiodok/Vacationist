@@ -22,7 +22,7 @@ Zuerst Fairness gegenüber Wanderlog: Wenn deine Reise vor allem *Recherche* ist
 
 *(Unsere App — beurteile die Argumente, nicht die Platzierung.)*
 
-[Vacationist](/de/) ist um den Teil herum gebaut, den Wanderlog stiefmütterlich behandelt: die Gruppe. Über jeden Vorschlag wird [mit einem 5-Stufen-System abgestimmt](/de/features/voting/) (von „Muss sein" bis „Gruppenhindernis" — keine andere Reise-App hat das), jede Ausgabe wird [richtig geteilt](/de/features/expenses/) mit Live-Salden und Abrechnung, und gemeinsame [Einkaufs- und Packlisten](/de/features/shopping-lists/) synchronisieren in Echtzeit.
+[Vacationist](/de/) ist um den Teil herum gebaut, den Wanderlog stiefmütterlich behandelt: die Gruppe. Über jeden Vorschlag wird [mit einem 5-Stufen-System abgestimmt](/de/features/voting/) (von „Muss sein" bis „Gruppen-Blocker" — keine andere Reise-App hat das), jede Ausgabe wird [richtig geteilt](/de/features/expenses/) mit Live-Salden und Abrechnung, und gemeinsame [Einkaufs- und Packlisten](/de/features/shopping-lists/) synchronisieren in Echtzeit.
 
 - **Der Unterschied:** Freunde treten per Einladungslink bei — **ganz ohne Konto** — und können trotzdem abstimmen, Listen bearbeiten und in Kostensplits auftauchen. Wanderlog-Zusammenarbeit verlangt von allen eine Registrierung.
 - **Offline:** offline-first für alle, keine Pro-Funktion.

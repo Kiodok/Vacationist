@@ -51,7 +51,7 @@ Das ist die spezielle Hölle von JGA-Gruppenchats: vierzehn Frauen, die sich gr�
 Die Lösung ist strukturell, nicht sozial: **Optionen sammeln, dann abstimmen lassen.** Höflichkeit verzerrt Gespräche; sie verzerrt keine Abstimmung.
 
 - Pro große Entscheidung 2–3 Optionen shortlisten (Haus, Haupt-Restaurant, die eine große Aktivität). Mehr Optionen zersplittern Stimmen zu Rauschen.
-- Alle mit *abgestuften* Präferenzen abstimmen lassen, nicht Ja/Nein — der Unterschied zwischen „Muss sein" und „okay, von mir aus" ist genau die Information, die die Höflichkeit des Chats verbirgt. Genau dafür ist [Vacationists 5-Stufen-Voting](/de/features/voting/) gebaut: von „Muss sein" über „Auslassen" (geht ohne mich) bis „Gruppenhindernis" (ein echter Einwand, den niemand öffentlich posten würde — unbezahlbar in einer Gruppe von Halb-Fremden).
+- Alle mit *abgestuften* Präferenzen abstimmen lassen, nicht Ja/Nein — der Unterschied zwischen „Muss sein" und „okay, von mir aus" ist genau die Information, die die Höflichkeit des Chats verbirgt. Genau dafür ist [Vacationists 5-Stufen-Voting](/de/features/voting/) gebaut: von „Muss sein" über „Auslassen" (geht ohne mich) bis „Gruppen-Blocker" (ein echter Einwand, den niemand öffentlich posten würde — unbezahlbar in einer Gruppe von Halb-Fremden).
 - Die Veto-Liste der Braut filtert alles vor. Ihr „Muss sein" gewinnt bei Gleichstand.
 
 Praktischer JGA-Bonus: In Vacationist tritt die ganze Gruppe über **einen Einladungslink bei, ohne Konten** — was enorm zählt, wenn ein Drittel der Gruppe Leute sind, denen du schlecht befehlen kannst, eine App zu installieren. Schick den Link in der Einladungsnachricht; Tanten im Oma-Alter und App-Verweigerinnen machen im Browser mit. ([So funktioniert der Gastzugang.](/de/features/))

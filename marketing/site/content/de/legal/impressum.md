@@ -43,7 +43,7 @@ Diese Website und die Vacationist-Mobil-App werden als persönliches Nebenprojek
 
 ## 3. Rechtsrahmen & Gerichtsstand
 
-Da dieses Projekt derzeit keine Einnahmen erzielt (siehe Ziffer 1), besteht keine gesetzliche Pflicht zur Führung eines Impressums nach **Art. 3 Abs. 1 lit. s des Bundesgesetzes gegen den unlauteren Wettbewerb (UWG)** — diese Bestimmung betrifft das elektronische Anbieten von Waren oder Dienstleistungen. Der Betreiber stellt dieses Impressum freiwillig und in der von Art. 3 Abs. 1 lit. s UWG vorgesehenen Form zur Verfügung, damit Nutzerinnen und Nutzer jederzeit wissen, mit wem sie es zu tun haben. Sobald kostenpflichtige Funktionen eingeführt werden, wird die Pflicht zur Führung dieses Impressums verbindlich.
+Da dieses Projekt derzeit keine Einnahmen erzielt (siehe Ziffer 1), besteht keine gesetzliche Pflicht zur Führung eines Impressums nach **Art. 3 Abs. 1 lit. s des Bundesgesetzes gegen den unlauteren Wettbewerb (UWG)** — diese Bestimmung betrifft das elektronische Anbieten von Waren oder Dienstleistungen. Der Betreiber stellt dieses Impressum freiwillig und in der von Art. 3 Abs. 1 lit. s UWG vorgesehenen Form zur Verfügung, damit Nutzerinnen und Nutzer jederzeit wissen, mit wem sie es zu tun haben.
 
 Dieses Impressum und die zugehörigen Bedingungen unterliegen im Übrigen Schweizer Recht, insbesondere dem Obligationenrecht (OR), dem Bundesgesetz über den Datenschutz (DSG, in Kraft seit 1. September 2023) und — soweit EU-Ansässige betroffen sind — der EU-Datenschutz-Grundverordnung (DSGVO).
 

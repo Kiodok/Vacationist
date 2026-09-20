@@ -9,6 +9,7 @@ date: 2026-07-17
 altPath: /de/blog/how-to-plan-a-group-trip/
 keywords: how to plan a group trip, group trip planning, group trip planning app, plan a trip with friends
 blogIndex: true
+howTo: true
 related: /blog/how-to-split-travel-expenses/, /features/voting/, /blog/best-group-travel-apps-2026/, /blog/travel-document-safety-guide/
 breadcrumbLabel: Group trip planning guide
 ---

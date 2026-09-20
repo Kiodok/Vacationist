@@ -19,6 +19,7 @@
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/corporate-offsite-planner/">
 
   <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/de/blog/feed.xml">
+  <link rel="alternate" type="text/plain" title="llms.txt" href="https://vacationist.app/llms.txt">
   <meta property="og:title" content="Firmen-Offsite planen — Teamreise koordinieren &amp; abrechnen">
   <meta property="og:description" content="Ein Team-Offsite ohne Tabelle und Freigabe-Thread planen: über die Agenda abstimmen, Kosten teilen, Belege anhängen und pro Person einen Ausgabenbericht exportieren.">
   <meta property="og:url" content="https://vacationist.app/de/use-cases/corporate-offsite-planner/">
@@ -127,7 +128,7 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.38.0",
+    "softwareVersion": "1.38.1",
     "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten, eine Woche lang offline weiterarbeiten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
     "url": "https://vacationist.app/",
     "installUrl": [
@@ -173,7 +174,10 @@
     },
     "author": {
       "@type": "Person",
+      "@id": "https://vacationist.app/about/#gary-lude",
       "name": "Gary Lude",
+      "url": "https://vacationist.app/about/",
+      "jobTitle": "Founder and developer",
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "CH"
@@ -222,7 +226,7 @@
 <p>Ein Team-Offsite läuft auf zwei Dokumenten, die nie ganz übereinstimmen: einem Planungsdokument, das niemand aktuell hält, und einer Kostenaufstellung, die jemand zwei Wochen nach der Rückkehr aus Screenshots rekonstruiert. Das halbe Team kennt die finale Agenda nicht, die Person, die das Airbnb vorgestreckt hat, läuft fünf Kolleg:innen wegen ihres Anteils hinterher, und die Buchhaltung will einen aufgeschlüsselten Bericht mit Belegen, den kein einziges Tool tatsächlich erzeugt hat. Der Vorschlag „nutzt einfach diese App&quot; stirbt, weil alle ein Konto anlegen und es an der IT vorbeibringen müssten.</p>
 <h2 id="wie-vacationist-das-löst">Wie Vacationist das löst</h2>
 <h3 id="über-die-agenda-abstimmen-statt-in-einem-40-nachrichten-thread">Über die Agenda abstimmen statt in einem 40-Nachrichten-Thread</h3>
-<p>Trag den Workshop-Slot, das Team-Dinner und die optionale Samstagswanderung als Vorschläge ein und lass das Team mit einem fünfstufigen System abstimmen — von „Muss sein&quot; bis „Gruppenhindernis&quot;. Der Plan spiegelt, was das Team wirklich will, und die Entscheidung ist sichtbar statt im Chat vergraben. Siehe <a href="/de/features/voting/">wie die Aktivitäten-Abstimmung funktioniert</a>.</p>
+<p>Trag den Workshop-Slot, das Team-Dinner und die optionale Samstagswanderung als Vorschläge ein und lass das Team mit einem fünfstufigen System abstimmen — von „Muss sein&quot; bis „Gruppen-Blocker&quot;. Der Plan spiegelt, was das Team wirklich will, und die Entscheidung ist sichtbar statt im Chat vergraben. Siehe <a href="/de/features/voting/">wie die Aktivitäten-Abstimmung funktioniert</a>.</p>
 <h3 id="geschäftskosten-markieren-und-den-bericht-exportieren">Geschäftskosten markieren und den Bericht exportieren</h3>
 <p>Markiere jede Kosten beim Erfassen als Geschäftskosten — eine Ausgabe, aber auch das Hotel, die Flüge, den Mietwagen, den Flughafenzug. Zum Einreichen exportierst du eine <strong>Geschäftsausgaben-Übersicht</strong> — einen sauberen Bericht pro Person als PDF (im Web zusätzlich als Markdown), der all diese Quellen zusammenführt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen und Beträgen in anderen Währungen für dich umgerechnet. Nur bestätigte Buchungen sind enthalten, damit nichts, worüber das Team noch entscheidet, in einem Buchhaltungsbericht landet. Gib ihn der Buchhaltung oder häng ihn an deine eigene Erstattungsforderung. Siehe <a href="/de/features/expenses/">wie die Kostenteilung funktioniert</a>.</p>
 <h3 id="belege-angehängt-die-erstattung-wird-keine-schnitzeljagd">Belege angehängt — die Erstattung wird keine Schnitzeljagd</h3>
@@ -260,7 +264,7 @@
     </a>
     <a class="related-card" href="/de/features/voting/">
       <span class="related-title">Aktivitäten-Voting</span>
-      <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppenhindernis. Schluss mit endlosen Chat-Debatten.</span>
+      <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppen-Blocker. Schluss mit endlosen Chat-Debatten.</span>
     </a>
     <a class="related-card" href="/de/features/transfers/">
       <span class="related-title">Transfers</span>
@@ -292,8 +296,10 @@
     </div>
     <div class="footer-col">
       <h4>Vergleiche</h4>
+      <a href="/de/vs/">Alle Vergleiche</a>
       <a href="/de/vs/splitwise/">Vacationist vs. Splitwise</a>
       <a href="/de/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/de/alternatives/">Alle Alternativen</a>
       <a href="/de/alternatives/splitwise/">Splitwise-Alternativen</a>
       <a href="/de/alternatives/wanderlog/">Wanderlog-Alternativen</a>
     </div>
@@ -303,6 +309,9 @@
       <a href="/de/blog/how-to-plan-a-group-trip/">Gruppenreise-Planungs-Guide</a>
       <a href="/de/blog/best-group-travel-apps-2026/">Beste Gruppenreise-Apps</a>
       <a href="/de/blog/how-to-split-travel-expenses/">Reisekosten-Guide</a>
+      <a href="/de/pricing/">Preise</a>
+      <a href="/de/about/">Über Vacationist</a>
+      <a href="/llms.txt">llms.txt</a>
     </div>
     <div class="footer-col">
       <h4>Rechtliches</h4>

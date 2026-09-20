@@ -19,6 +19,7 @@
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/ski-trip-group-budget/">
 
   <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/de/blog/feed.xml">
+  <link rel="alternate" type="text/plain" title="llms.txt" href="https://vacationist.app/llms.txt">
   <meta property="og:title" content="Vacationist für Skireisen — Kostenloser Budget-Planer für Gruppen">
   <meta property="og:description" content="Plane das Budget einer Ski-Gruppenreise ohne Chalet-Rechenkopfschmerzen. Skipässe, Ausrüstungsverleih und Chalet fair teilen, über Ruhetage versus Pistentage abstimmen.">
   <meta property="og:url" content="https://vacationist.app/de/use-cases/ski-trip-group-budget/">
@@ -127,7 +128,7 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.38.0",
+    "softwareVersion": "1.38.1",
     "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten, eine Woche lang offline weiterarbeiten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
     "url": "https://vacationist.app/",
     "installUrl": [
@@ -173,7 +174,10 @@
     },
     "author": {
       "@type": "Person",
+      "@id": "https://vacationist.app/about/#gary-lude",
       "name": "Gary Lude",
+      "url": "https://vacationist.app/about/",
+      "jobTitle": "Founder and developer",
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "CH"
@@ -222,7 +226,7 @@
 <p>Eine Skireise hat mehr bewegliche Kostenteile als die meisten Gruppenreisen: das Chalet oder Airbnb, aufgeteilt nach Zimmergröße, Skipässe, die manche für die ganze Woche kaufen und andere nur für drei Tage brauchen, Ausrüstungsverleih für die zwei, die keine eigenen Skier mitgebracht haben, und die Après-Ski-Rechnung, die immer länger wird als geplant. Nichts davon teilt sich gleichmäßig, aber Gruppenchats greifen standardmäßig zu „teilen wir&#39;s einfach gleichmäßig&quot;, weil die echte Rechnerei nervt — was die stillschweigend ärgert, die mehr als ihren Anteil zahlen. Dazu kommt: Wer einen Ruhetag will und wer noch einen Pistentag, wird meist von der lautesten Beschwerde entschieden.</p>
 <h2 id="so-löst-vacationist-das">So löst Vacationist das</h2>
 <h3 id="über-ruhetage-und-aprs-ski-gemeinsam-abstimmen">Über Ruhetage und Après-Ski gemeinsam abstimmen</h3>
-<p>Einen Ruhetag, ein anderes Skigebiet oder den Après-Ski-Ort vorschlagen und die Gruppe mit einem 5-Stufen-System abstimmen lassen — von „Muss sein&quot; bis „Gruppenhindernis&quot; —, sodass der Plan widerspiegelt, was die Leute wirklich wollen, nicht wer sich zuerst gemeldet hat. Mehr dazu: <a href="/de/features/voting/">wie Aktivitäten-Abstimmung funktioniert</a>.</p>
+<p>Einen Ruhetag, ein anderes Skigebiet oder den Après-Ski-Ort vorschlagen und die Gruppe mit einem 5-Stufen-System abstimmen lassen — von „Muss sein&quot; bis „Gruppen-Blocker&quot; —, sodass der Plan widerspiegelt, was die Leute wirklich wollen, nicht wer sich zuerst gemeldet hat. Mehr dazu: <a href="/de/features/voting/">wie Aktivitäten-Abstimmung funktioniert</a>.</p>
 <h3 id="chalet-skipässe-und-ausrüstungsverleih-fair-teilen">Chalet, Skipässe und Ausrüstungsverleih fair teilen</h3>
 <p>Chalet-Kosten, Skipässe und Ausrüstungsverleih getrennt erfassen, die Belege anhängen und jeweils mit eigenen Beträgen aufteilen — denn wer Skier gemietet und einen 6-Tage-Pass gekauft hat, sollte nicht dasselbe schulden wie die Person mit eigener Ausrüstung, die nur zwei Tage gefahren ist. Salden aktualisieren sich live, mit einer Kategorienübersicht, wohin das Geld geflossen ist. Mehr dazu: <a href="/de/features/expenses/">wie Kostenteilung funktioniert</a>.</p>
 <h3 id="eine-gemeinsame-packliste-für-die-ausrüstung">Eine gemeinsame Packliste für die Ausrüstung</h3>
@@ -260,7 +264,7 @@
     </a>
     <a class="related-card" href="/de/features/voting/">
       <span class="related-title">Aktivitäten-Voting</span>
-      <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppenhindernis. Schluss mit endlosen Chat-Debatten.</span>
+      <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppen-Blocker. Schluss mit endlosen Chat-Debatten.</span>
     </a>
     <a class="related-card" href="/de/blog/how-to-plan-a-group-trip/">
       <span class="related-title">Gruppenreise-Planungs-Guide</span>
@@ -292,8 +296,10 @@
     </div>
     <div class="footer-col">
       <h4>Vergleiche</h4>
+      <a href="/de/vs/">Alle Vergleiche</a>
       <a href="/de/vs/splitwise/">Vacationist vs. Splitwise</a>
       <a href="/de/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/de/alternatives/">Alle Alternativen</a>
       <a href="/de/alternatives/splitwise/">Splitwise-Alternativen</a>
       <a href="/de/alternatives/wanderlog/">Wanderlog-Alternativen</a>
     </div>
@@ -303,6 +309,9 @@
       <a href="/de/blog/how-to-plan-a-group-trip/">Gruppenreise-Planungs-Guide</a>
       <a href="/de/blog/best-group-travel-apps-2026/">Beste Gruppenreise-Apps</a>
       <a href="/de/blog/how-to-split-travel-expenses/">Reisekosten-Guide</a>
+      <a href="/de/pricing/">Preise</a>
+      <a href="/de/about/">Über Vacationist</a>
+      <a href="/llms.txt">llms.txt</a>
     </div>
     <div class="footer-col">
       <h4>Rechtliches</h4>

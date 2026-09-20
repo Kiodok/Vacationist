@@ -33,7 +33,7 @@ const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
 
 /* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
    release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
-const APP_VERSION = '1.38.0';
+const APP_VERSION = '1.38.1';
 
 /* Growth Plan Q4 2026, Phase 2 — "harvest social proof". 25+ reviews is a documented
    threshold (marketing/growth-plan-2026-q4.md), not a gradient: below it, no rating is shown
@@ -115,6 +115,138 @@ const ldScript = (obj) =>
 const ldScriptInPlace = (obj) =>
   `<script type="application/ld+json">\n  ${JSON.stringify(obj, null, 2).split('\n').join('\n  ')}\n  </script>`;
 
+/* Replace the homepage's JSON-LD block of the given @type with `obj`. Throws if
+   the block is absent — a plain String.replace would silently no-op and let the
+   hand-authored homepage drift, which is the exact bug class this file exists to
+   prevent. Function replacer (not a string) so `$` in the JSON is never treated
+   as a replacement pattern. Every block object must list @context then @type
+   first so the match below lines up. */
+function replaceLdBlock(html, type, obj) {
+  const re = new RegExp(
+    `<script type="application/ld\\+json">\\s*\\{\\s*"@context": "https:\\/\\/schema\\.org",\\s*"@type": "${type}"[\\s\\S]*?<\\/script>`);
+  if (!re.test(html)) throw new Error(`docs/index.html has no "${type}" JSON-LD block to update`);
+  return html.replace(re, () => ldScriptInPlace(obj));
+}
+
+/* Founder/author entity. Embedded in full (never just an @id) wherever it is
+   referenced — Organization.founder, SoftwareApplication.author, every Article
+   author — because consumers don't fetch cross-document @id references; the
+   shared @id + /about/ url is what lets them all resolve to one Person. The name
+   stays literal because Google's Article guidelines want an author name, not
+   only a reference. */
+const PERSON_ID = `${SITE}/about/#gary-lude`;
+function personLd() {
+  return {
+    '@type': 'Person',
+    '@id': PERSON_ID,
+    name: 'Gary Lude',
+    url: `${SITE}/about/`,
+    jobTitle: 'Founder and developer',
+    address: { '@type': 'PostalAddress', addressCountry: 'CH' },
+  };
+}
+
+/* Only profiles that verifiably exist. The two store listings + the web app are
+   the entity's real, checkable presences, plus the Reddit account the Tech Lead
+   confirmed (2026-09-20). Other social profiles (Instagram, Product Hunt,
+   LinkedIn) are deliberately NOT listed until the Tech Lead confirms an exact
+   URL: asserting one that doesn't resolve would poison the very
+   entity-consolidation signal sameAs exists to provide. */
+const REDDIT_URL = 'https://www.reddit.com/user/vacationist-app/';
+const SAME_AS = [APP_STORE_URL, PLAY_URL, WEB_APP_URL, REDDIT_URL];
+const CONTACT_EMAIL = 'meetdeep.de@gmail.com';
+
+const ORG_LD = {
+  en: {
+    slogan: 'Plan trips together, effortlessly.',
+    knowsAbout: ['group travel planning', 'travel expense splitting', 'trip itinerary coordination', 'shared packing lists'],
+  },
+  de: {
+    slogan: 'Reisen gemeinsam planen.',
+    knowsAbout: ['Gruppenreiseplanung', 'Reisekosten teilen', 'Reiseablauf-Koordination', 'gemeinsame Packlisten'],
+  },
+};
+
+function organizationLd(lang) {
+  const o = ORG_LD[lang];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${SITE}/#org`,
+    name: 'Vacationist',
+    url: `${SITE}/`,
+    logo: `${SITE}/favicon.svg`,
+    slogan: o.slogan,
+    description: APP_LD[lang].siteDescription,
+    email: CONTACT_EMAIL,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: CONTACT_EMAIL,
+      availableLanguage: ['en', 'de'],
+    },
+    founder: personLd(),
+    foundingLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressCountry: 'CH' } },
+    knowsAbout: o.knowsAbout,
+    sameAs: SAME_AS,
+  };
+}
+
+/* HowTo for the homepage's "Ready in three steps" section. Step names/text are
+   read from the same docs/i18n/{en,de}.js keys that render the on-page steps, so
+   the markup can never drift from what a visitor sees; only the HowTo's own
+   name/description (which have no on-page counterpart) live here.
+   NB: Google removed HowTo rich results in Aug 2023 — this is an extraction aid
+   for answer engines, not a SERP feature. */
+const HOWTO_LD = {
+  en: {
+    name: 'How to plan a group trip with Vacationist',
+    description: 'Create a trip, invite your group with one link, and plan together — voting, expenses and lists in one place.',
+  },
+  de: {
+    name: 'So planst du eine Gruppenreise mit Vacationist',
+    description: 'Reise anlegen, die Gruppe mit einem Link einladen und gemeinsam planen — Abstimmungen, Kosten und Listen an einem Ort.',
+  },
+};
+
+function homeUrl(lang) { return lang === 'de' ? `${SITE}/de/` : `${SITE}/`; }
+
+function howToLd(lang) {
+  const t = loadTranslations(lang);
+  const h = HOWTO_LD[lang];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: h.name,
+    description: h.description,
+    step: [1, 2, 3].map((n) => ({
+      '@type': 'HowToStep',
+      position: n,
+      name: t[`how.${n}.title`],
+      text: t[`how.${n}.desc`],
+      url: `${homeUrl(lang)}#how`,
+    })),
+  };
+}
+
+/* WebPage for the two homepages, carrying the same SpeakableSpecification every
+   generated page gets from jsonLd(). Selectors match elements that exist in
+   docs/index.html: the hero entity sentence and the TL;DR block. */
+function homePageLd(lang) {
+  const t = loadTranslations(lang);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: t['meta.title'],
+    description: t['meta.description'],
+    url: homeUrl(lang),
+    inLanguage: lang,
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.entity-def', '.tldr'] },
+    about: { '@id': `${SITE}/#app` },
+    isPartOf: { '@type': 'WebSite', name: 'Vacationist', url: `${SITE}/` },
+  };
+}
+
 function softwareApplicationLd(lang) {
   const a = APP_LD[lang];
   return {
@@ -135,11 +267,7 @@ function softwareApplicationLd(lang) {
     featureList: a.featureList,
     screenshot: APP_SCREENSHOTS,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-    author: {
-      '@type': 'Person',
-      name: 'Gary Lude',
-      address: { '@type': 'PostalAddress', addressCountry: 'CH' },
-    },
+    author: personLd(),
     publisher: { '@id': `${SITE}/#org` },
     // Only emitted once the combined store review count clears REVIEW_SCHEMA_MIN — see
     // readStoreRatings() above. Must match a rating visible on the page (Pillar 4); the
@@ -168,12 +296,12 @@ function webSiteLd(lang) {
 
 /* Bump when docs/i18n/de.js or docs/index.html content changes materially —
    it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-09-08';
+const DE_HOME_LASTMOD = '2026-09-20';
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
   {
-    loc: `${SITE}/`, lastmod: '2026-09-08', changefreq: 'monthly', priority: '1.0',
+    loc: `${SITE}/`, lastmod: '2026-09-20', changefreq: 'monthly', priority: '1.0',
     alternates: [
       { hreflang: 'en', href: `${SITE}/` },
       { hreflang: 'de', href: `${SITE}/de/` },
@@ -215,6 +343,7 @@ const STR = {
   en: {
     navFeatures: 'Features', navBlog: 'Blog', navWebApp: '🌐 Web app', navGetApp: 'Get the app',
     breadcrumbHome: 'Home', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Features', breadcrumbUseCases: 'Use cases',
+    breadcrumbVs: 'Comparisons', breadcrumbAlternatives: 'Alternatives',
     ctaTitle: 'Plan your next group trip with Vacationist',
     ctaText: 'Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.',
     ctaPlay: 'Get it on Play Store', ctaAppStore: 'Get it on App Store', ctaWeb: 'Open the Web App',
@@ -230,6 +359,7 @@ const STR = {
   de: {
     navFeatures: 'Funktionen', navBlog: 'Blog', navWebApp: '🌐 Web-App', navGetApp: 'App holen',
     breadcrumbHome: 'Startseite', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Funktionen', breadcrumbUseCases: 'Anwendungsfälle',
+    breadcrumbVs: 'Vergleiche', breadcrumbAlternatives: 'Alternativen',
     ctaTitle: 'Plane deine nächste Gruppenreise mit Vacationist',
     ctaText: 'Über Aktivitäten abstimmen, Kosten teilen und Belege anhängen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.',
     ctaPlay: 'Bei Google Play laden', ctaAppStore: 'Im App Store laden', ctaWeb: 'Web-App öffnen',
@@ -265,8 +395,10 @@ const FOOTER_LINKS = {
       ['/use-cases/van-life-trip-planner/', 'Van life trip planner'],
     ],
     compare: [
+      ['/vs/', 'All comparisons'],
       ['/vs/splitwise/', 'Vacationist vs. Splitwise'],
       ['/vs/wanderlog/', 'Vacationist vs. Wanderlog'],
+      ['/alternatives/', 'All alternatives'],
       ['/alternatives/splitwise/', 'Splitwise alternatives'],
       ['/alternatives/wanderlog/', 'Wanderlog alternatives'],
     ],
@@ -275,6 +407,9 @@ const FOOTER_LINKS = {
       ['/blog/how-to-plan-a-group-trip/', 'Group trip planning guide'],
       ['/blog/best-group-travel-apps-2026/', 'Best group travel apps'],
       ['/blog/how-to-split-travel-expenses/', 'Expense splitting guide'],
+      ['/pricing/', 'Pricing'],
+      ['/about/', 'About'],
+      ['/llms.txt', 'llms.txt'],
     ],
     legal: [
       ['/privacy-policy.html', 'Privacy Policy'],
@@ -302,8 +437,10 @@ const FOOTER_LINKS = {
       ['/de/use-cases/van-life-trip-planner/', 'Van-Life-Reiseplaner'],
     ],
     compare: [
+      ['/de/vs/', 'Alle Vergleiche'],
       ['/de/vs/splitwise/', 'Vacationist vs. Splitwise'],
       ['/de/vs/wanderlog/', 'Vacationist vs. Wanderlog'],
+      ['/de/alternatives/', 'Alle Alternativen'],
       ['/de/alternatives/splitwise/', 'Splitwise-Alternativen'],
       ['/de/alternatives/wanderlog/', 'Wanderlog-Alternativen'],
     ],
@@ -312,6 +449,9 @@ const FOOTER_LINKS = {
       ['/de/blog/how-to-plan-a-group-trip/', 'Gruppenreise-Planungs-Guide'],
       ['/de/blog/best-group-travel-apps-2026/', 'Beste Gruppenreise-Apps'],
       ['/de/blog/how-to-split-travel-expenses/', 'Reisekosten-Guide'],
+      ['/de/pricing/', 'Preise'],
+      ['/de/about/', 'Über Vacationist'],
+      ['/llms.txt', 'llms.txt'],
     ],
     legal: [
       ['/de/privacy-policy/', 'Datenschutz'],
@@ -392,6 +532,45 @@ function extractFaq(body) {
   return faqs;
 }
 
+/**
+ * Ranked-listicle items (`## 1. Name`, `## 2. Name`, …) for ItemList JSON-LD.
+ * Derived from the same headings the reader sees, exactly like extractFaq(), so
+ * the schema cannot drift from the page. `id` reproduces the heading-anchor the
+ * marked renderer below assigns, so each ListItem can point at its own section.
+ */
+function extractListItems(body) {
+  const items = [];
+  for (const m of body.matchAll(/^##\s+(\d+)\.\s+(.+?)\s*$/gm)) {
+    items.push({
+      position: Number(m[1]),
+      name: mdToText(m[2]),
+      id: slugify(marked.parseInline(m[2]).replace(/<[^>]*>/g, '')),
+    });
+  }
+  return items;
+}
+
+/**
+ * HowTo steps from `## Phase N: Title` headings (opt-in via `howTo: true` front
+ * matter). Step text is the first prose paragraph under each heading — lists,
+ * tables and sub-headings are skipped. Only the group-trip planning pillar has
+ * this step-shaped structure; a post without it simply doesn't opt in.
+ */
+function extractHowToSteps(body) {
+  const steps = [];
+  const heads = [...body.matchAll(/^##\s+Phase\s+(\d+):\s+(.+?)\s*$/gm)];
+  heads.forEach((m, i) => {
+    const start = m.index + m[0].length;
+    const end = i + 1 < heads.length ? heads[i + 1].index : body.length;
+    const nextH2 = body.slice(start, end).search(/^##\s/m);
+    const section = body.slice(start, nextH2 === -1 ? end : start + nextH2);
+    const para = section.split(/\n\s*\n/).map((s) => s.trim())
+      .find((s) => s && !/^(#|\||[-*]\s|\d+\.\s|>)/.test(s));
+    steps.push({ position: Number(m[1]), name: mdToText(m[2]), text: para ? mdToText(para) : mdToText(m[2]) });
+  });
+  return steps;
+}
+
 /* marked setup: GFM on, heading ids for in-page anchors */
 marked.use({
   gfm: true,
@@ -429,9 +608,12 @@ function loadPages() {
       schema: meta.schema || 'WebPage',
       blogIndex: meta.blogIndex === 'true',
       appLd: meta.appLd === 'true',
+      orgLd: meta.orgLd === 'true',
       related: meta.related ? meta.related.split(',').map((s) => s.trim()).filter(Boolean) : [],
       body,
       faqs: extractFaq(body),
+      listItems: meta.type === 'listicle' ? extractListItems(body) : [],
+      howToSteps: meta.howTo === 'true' ? extractHowToSteps(body) : [],
       file: relative(ROOT, file),
     });
   }
@@ -458,10 +640,15 @@ function breadcrumbs(page, registry) {
   if (rel[0] === 'blog' && rel.length > 1) crumbs.push({ name: t.breadcrumbBlog, path: isDe ? '/de/blog/' : '/blog/' });
   if (rel[0] === 'features' && rel.length > 1) crumbs.push({ name: t.breadcrumbFeatures, path: isDe ? '/de/features/' : '/features/' });
   if (rel[0] === 'use-cases' && rel.length > 1) crumbs.push({ name: t.breadcrumbUseCases, path: isDe ? '/de/use-cases/' : '/use-cases/' });
+  if (rel[0] === 'vs' && rel.length > 1) crumbs.push({ name: t.breadcrumbVs, path: isDe ? '/de/vs/' : '/vs/' });
+  if (rel[0] === 'alternatives' && rel.length > 1) crumbs.push({ name: t.breadcrumbAlternatives, path: isDe ? '/de/alternatives/' : '/alternatives/' });
   const label = page.breadcrumbLabel || page.title.split(/[:|—|]/)[0].trim();
   crumbs.push({ name: label, path: page.path });
   return crumbs;
 }
+
+/* `schema:` front-matter values that are plain WebPage subtypes (no Article fields). */
+const WEBPAGE_SUBTYPES = new Set(['WebPage', 'AboutPage', 'CollectionPage']);
 
 function jsonLd(page, registry) {
   const blocks = [];
@@ -488,22 +675,26 @@ function jsonLd(page, registry) {
       datePublished: page.date,
       dateModified: page.updated,
       inLanguage: page.lang,
-      author: { '@type': 'Person', 'name': 'Gary Lude', 'address': { '@type': 'PostalAddress', 'addressCountry': 'CH' } },
+      author: personLd(),
       publisher: { '@type': 'Organization', 'name': 'Vacationist', 'url': `${SITE}/`, 'logo': { '@type': 'ImageObject', 'url': `${SITE}/favicon.svg` } },
       image: pageOgImage(page),
     });
   } else {
     blocks.push({
       '@context': 'https://schema.org',
-      '@type': 'WebPage',
+      '@type': WEBPAGE_SUBTYPES.has(page.schema) ? page.schema : 'WebPage',
       name: page.title,
       description: page.description,
       url,
       speakable,
       inLanguage: page.lang,
       isPartOf: { '@type': 'WebSite', 'name': 'Vacationist', 'url': `${SITE}/` },
+      // AboutPage: the page's subject is the organization, emitted in full just below.
+      ...(page.orgLd && { mainEntity: { '@id': `${SITE}/#org` } }),
     });
   }
+
+  if (page.orgLd) blocks.push(organizationLd(page.lang));
 
   blocks.push({
     '@context': 'https://schema.org',
@@ -519,6 +710,33 @@ function jsonLd(page, registry) {
       '@type': 'FAQPage',
       mainEntity: page.faqs.map(({ q, a }) => ({
         '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a },
+      })),
+    });
+  }
+
+  // Ranked listicles (## 1. … ## 7.) → ItemList, derived from the visible headings.
+  if (page.listItems?.length) {
+    blocks.push({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: page.title,
+      itemListOrder: 'https://schema.org/ItemListOrderAscending',
+      numberOfItems: page.listItems.length,
+      itemListElement: page.listItems.map((it) => ({
+        '@type': 'ListItem', position: it.position, name: it.name, url: `${url}#${it.id}`,
+      })),
+    });
+  }
+
+  // Step-shaped guides that opt in with `howTo: true` (see extractHowToSteps).
+  if (page.howToSteps?.length) {
+    blocks.push({
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: page.title,
+      description: page.description,
+      step: page.howToSteps.map((s) => ({
+        '@type': 'HowToStep', position: s.position, name: s.name, text: s.text,
       })),
     });
   }
@@ -669,6 +887,7 @@ ${page.keywords ? `  <meta name="keywords" content="${esc(page.keywords)}">\n` :
   <link rel="canonical" href="${url}">
 ${hreflangLinks(page)}
   <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="${page.lang === 'de' ? `${SITE}/de/blog/feed.xml` : `${SITE}/blog/feed.xml`}">
+  <link rel="alternate" type="text/plain" title="llms.txt" href="${SITE}/llms.txt">
   <meta property="og:title" content="${esc(page.title)}">
   <meta property="og:description" content="${esc(page.description)}">
   <meta property="og:url" content="${url}">
@@ -714,14 +933,28 @@ ${footerHtml(page.lang)}
  * source of truth stays index.html + de.js.
  */
 
-function loadDeTranslations() {
-  const code = readFileSync(join(DOCS_DIR, 'i18n', 'de.js'), 'utf8');
+const translationCache = {};
+function loadTranslations(lang) {
+  if (translationCache[lang]) return translationCache[lang];
+  const code = readFileSync(join(DOCS_DIR, 'i18n', `${lang}.js`), 'utf8');
   const win = {};
   new Function('window', code)(win);
-  if (!win.VACATIONIST_I18N || win.VACATIONIST_I18N.__lang !== 'de') {
-    throw new Error('Failed to load docs/i18n/de.js translations');
+  if (!win.VACATIONIST_I18N || win.VACATIONIST_I18N.__lang !== lang) {
+    throw new Error(`Failed to load docs/i18n/${lang}.js translations`);
   }
-  return win.VACATIONIST_I18N;
+  return (translationCache[lang] = win.VACATIONIST_I18N);
+}
+const loadDeTranslations = () => loadTranslations('de');
+
+/* Numbers N for which both faq.N.q and faq.N.a exist, ascending. Derived from
+   the translation keys so an 8th FAQ can never render on /de/ yet be silently
+   missing from its FAQPage schema (this used to be a hardcoded [1..7]). */
+function faqNumbers(t) {
+  return Object.keys(t)
+    .map((k) => /^faq\.(\d+)\.q$/.exec(k)?.[1])
+    .filter((n) => n !== undefined && t[`faq.${n}.a`])
+    .map(Number)
+    .sort((a, b) => a - b);
 }
 
 const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -742,8 +975,7 @@ function renderGermanHome() {
   html = html.replace('<html lang="en">', '<html lang="de">');
   html = html.replace(/<title>[^<]*<\/title>/, `<title>${escText(t['meta.title'])}</title>`);
   html = html.replace(/(<meta name="description" content=")[^"]*(">)/, `$1${esc(t['meta.description'])}$2`);
-  html = html.replace(/(<meta name="keywords" content=")[^"]*(">)/,
-    '$1Gruppenreise planen App, Reise App Gruppe, Urlaubsplaner App Gruppe, Reisekosten teilen App, Kosten teilen Urlaub App, Gruppenreise-Planer, Reiseplaner Gruppe, Packliste App, Junggesellinnenabschied planen App$2');
+  html = html.replace(/(<meta name="keywords" content=")[^"]*(">)/, `$1${esc(t['meta.keywords'])}$2`);
   html = html.replace(/(<meta property="og:title" content=")[^"]*(">)/, `$1${esc(t['meta.og_title'])}$2`);
   html = html.replace(/(<meta property="og:description" content=")[^"]*(">)/, `$1${esc(t['meta.og_description'])}$2`);
   html = html.replace(/(<meta name="twitter:title" content=")[^"]*(">)/, `$1${esc(t['meta.twitter_title'])}$2`);
@@ -756,26 +988,21 @@ function renderGermanHome() {
   const faqLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: [1, 2, 3, 4, 5, 6, 7]
-      .filter((n) => t[`faq.${n}.q`] && t[`faq.${n}.a`])
-      .map((n) => ({
-        '@type': 'Question', name: t[`faq.${n}.q`],
-        acceptedAnswer: { '@type': 'Answer', text: t[`faq.${n}.a`] },
-      })),
+    mainEntity: faqNumbers(t).map((n) => ({
+      '@type': 'Question', name: t[`faq.${n}.q`],
+      acceptedAnswer: { '@type': 'Answer', text: t[`faq.${n}.a`] },
+    })),
   };
-  html = html.replace(
-    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "FAQPage"[\s\S]*?<\/script>/,
-    `<script type="application/ld+json">\n  ${JSON.stringify(faqLd, null, 2).split('\n').join('\n  ')}\n  </script>`);
+  html = replaceLdBlock(html, 'FAQPage', faqLd);
 
-  // 4b. SoftwareApplication / WebSite JSON-LD → German description text.
-  // These previously stayed English on /de/ because only the FAQ block above
-  // was rebuilt from translated strings.
-  html = html.replace(
-    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "SoftwareApplication"[\s\S]*?<\/script>/,
-    ldScriptInPlace(softwareApplicationLd('de')));
-  html = html.replace(
-    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "WebSite"[\s\S]*?<\/script>/,
-    ldScriptInPlace(webSiteLd('de')));
+  // 4b. SoftwareApplication / WebSite / Organization / WebPage / HowTo JSON-LD →
+  // German text. These previously stayed English on /de/ because only the FAQ
+  // block above was rebuilt from translated strings.
+  html = replaceLdBlock(html, 'SoftwareApplication', softwareApplicationLd('de'));
+  html = replaceLdBlock(html, 'WebSite', webSiteLd('de'));
+  html = replaceLdBlock(html, 'Organization', organizationLd('de'));
+  html = replaceLdBlock(html, 'WebPage', homePageLd('de'));
+  html = replaceLdBlock(html, 'HowTo', howToLd('de'));
 
   // 4c. #rating-proof line → German text (build-time only, not a data-i18n element — see
   // syncEnglishHomepageAppLd and ratingProofText). Runs after step 3's title/description
@@ -815,12 +1042,11 @@ function renderGermanHome() {
 function syncEnglishHomepageAppLd() {
   const file = join(DOCS_DIR, 'index.html');
   let html = readFileSync(file, 'utf8');
-  html = html.replace(
-    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "SoftwareApplication"[\s\S]*?<\/script>/,
-    ldScriptInPlace(softwareApplicationLd('en')));
-  html = html.replace(
-    /<script type="application\/ld\+json">\s*\{\s*"@context": "https:\/\/schema\.org",\s*"@type": "WebSite"[\s\S]*?<\/script>/,
-    ldScriptInPlace(webSiteLd('en')));
+  html = replaceLdBlock(html, 'SoftwareApplication', softwareApplicationLd('en'));
+  html = replaceLdBlock(html, 'WebSite', webSiteLd('en'));
+  html = replaceLdBlock(html, 'Organization', organizationLd('en'));
+  html = replaceLdBlock(html, 'WebPage', homePageLd('en'));
+  html = replaceLdBlock(html, 'HowTo', howToLd('en'));
   html = html.replace(
     /<p class="rating-proof" id="rating-proof">[\s\S]*?<\/p>/,
     `<p class="rating-proof" id="rating-proof">${esc(ratingProofText('en'))}</p>`);

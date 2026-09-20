@@ -18,6 +18,7 @@
   <link rel="alternate" hreflang="de" href="https://vacationist.app/de/">
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/">
   <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/blog/feed.xml">
+  <link rel="alternate" type="text/plain" title="llms.txt" href="https://vacationist.app/llms.txt">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Group Trip Planner — Vote & Split Expenses | Vacationist">
@@ -36,8 +37,10 @@
   <meta name="twitter:image" content="https://vacationist.app/og-image.png">
 
   <!-- JSON-LD: separate blocks for maximum parser compatibility -->
-  <!-- SoftwareApplication + WebSite blocks below are rewritten by `npm run build:site`
-       from APP_LD.en / APP_VERSION in marketing/site/build.mjs — edit there, not here. -->
+  <!-- The SoftwareApplication, WebSite, WebPage, Organization and HowTo blocks below are
+       rewritten by `npm run build:site` (see syncEnglishHomepageAppLd in
+       marketing/site/build.mjs) — edit them there, not here. The FAQPage block is the
+       one hand-authored block; it must match the faq.N.q/a keys in docs/i18n/en.js. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -47,7 +50,7 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.38.0",
+    "softwareVersion": "1.38.1",
     "description": "The free group trip planning app. Vote on activities, split travel expenses with receipts attached, flag business costs on bookings and transport, track what each trip cost you across every trip, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, work for a week offline with no connection, and keep the whole group in sync — from the first idea to the last flight home.",
     "url": "https://vacationist.app/",
     "installUrl": [
@@ -93,7 +96,10 @@
     },
     "author": {
       "@type": "Person",
+      "@id": "https://vacationist.app/about/#gary-lude",
       "name": "Gary Lude",
+      "url": "https://vacationist.app/about/",
+      "jobTitle": "Founder and developer",
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "CH"
@@ -117,16 +123,78 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Group Trip Planner — Vote & Split Expenses | Vacationist",
+    "description": "Plan group trips together: vote on activities, split travel expenses, and share packing lists. Free, and no account needed to join.",
+    "url": "https://vacationist.app/",
+    "inLanguage": "en",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [
+        ".entity-def",
+        ".tldr"
+      ]
+    },
+    "about": {
+      "@id": "https://vacationist.app/#app"
+    },
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Vacationist",
+      "url": "https://vacationist.app/"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
     "@type": "Organization",
     "@id": "https://vacationist.app/#org",
     "name": "Vacationist",
     "url": "https://vacationist.app/",
     "logo": "https://vacationist.app/favicon.svg",
     "slogan": "Plan trips together, effortlessly.",
+    "description": "The free group trip planner — vote on activities, split travel expenses and attach receipts, share packing lists, and keep everyone in sync, online or offline.",
     "email": "meetdeep.de@gmail.com",
-    "founder": { "@type": "Person", "name": "Gary Lude" },
-    "foundingLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressCountry": "CH" } },
-    "knowsAbout": ["group travel planning", "travel expense splitting", "trip itinerary coordination", "shared packing lists"]
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "meetdeep.de@gmail.com",
+      "availableLanguage": [
+        "en",
+        "de"
+      ]
+    },
+    "founder": {
+      "@type": "Person",
+      "@id": "https://vacationist.app/about/#gary-lude",
+      "name": "Gary Lude",
+      "url": "https://vacationist.app/about/",
+      "jobTitle": "Founder and developer",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CH"
+      }
+    },
+    "foundingLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CH"
+      }
+    },
+    "knowsAbout": [
+      "group travel planning",
+      "travel expense splitting",
+      "trip itinerary coordination",
+      "shared packing lists"
+    ],
+    "sameAs": [
+      "https://apps.apple.com/us/app/vacationist/id6800049398",
+      "https://play.google.com/store/apps/details?id=com.vacationist.mobile",
+      "https://web.vacationist.app",
+      "https://www.reddit.com/user/vacationist-app/"
+    ]
   }
   </script>
   <script type="application/ld+json">
@@ -168,6 +236,37 @@
         "@type": "Question",
         "name": "Can I attach receipts and expense a work trip?",
         "acceptedAnswer": { "@type": "Answer", "text": "Yes. Attach a photo or PDF receipt to any expense — it stays private to your trip's members. For work trips, flag business costs as you go — expenses, hotels, flights, transport — and export a per-person report as a PDF, itemised by date and category, with links to the receipts." }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to plan a group trip with Vacationist",
+    "description": "Create a trip, invite your group with one link, and plan together — voting, expenses and lists in one place.",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "Create a trip",
+        "text": "Set your destination, pick your dates, and add a budget if you like. Ready in under a minute.",
+        "url": "https://vacationist.app/#how"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "Invite your crew",
+        "text": "Share a single link in any chat. Friends join instantly — no account sign-up required to participate.",
+        "url": "https://vacationist.app/#how"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "Plan together",
+        "text": "Vote on ideas, split costs, share lists and notes. Everyone in the loop, in real time.",
+        "url": "https://vacationist.app/#how"
       }
     ]
   }
@@ -793,6 +892,48 @@
       .blog-strip-grid { grid-template-columns: 1fr; }
     }
 
+    /* ── LINKED CARDS (feature + use-case cards that point at their own page) ── */
+    a.feat-card, a.alt-card { color: inherit; text-decoration: none; }
+    a.feat-card:not(.feat-card--wide) { display: block; }
+    a.feat-card:focus-visible, a.alt-card:focus-visible, .pill-link:focus-visible {
+      outline: 2px solid var(--pri-lite); outline-offset: 3px;
+    }
+
+    /* ── PILL LINK ROWS (secondary links under a section's card grid) ── */
+    .link-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: .55rem;
+      margin-top: 1.75rem;
+    }
+    .link-row-label { font-size: .8rem; font-weight: 600; color: var(--text3); margin-right: .35rem; }
+    .pill-link {
+      font-size: .82rem; font-weight: 600; color: var(--text2); text-decoration: none;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 999px; padding: .4rem .95rem;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .pill-link:hover { border-color: rgba(108,99,255,.45); color: var(--text); background: var(--pri-dim); }
+    .pill-link--all { color: var(--pri-lite); border-color: rgba(108,99,255,.28); }
+
+    /* ── COMPARISON TABLE ── */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+    .cmp-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+    .cmp { width: 100%; border-collapse: collapse; min-width: 640px; font-size: .9rem; }
+    .cmp th, .cmp td { padding: .95rem 1.1rem; text-align: center; border-bottom: 1px solid var(--border); }
+    .cmp thead th { font-size: .8rem; font-weight: 700; color: var(--text2); letter-spacing: .01em; background: var(--surf-el); }
+    .cmp tbody tr:last-child th, .cmp tbody tr:last-child td { border-bottom: 0; }
+    .cmp th[scope="row"] { text-align: left; font-weight: 500; color: var(--text); }
+    .cmp .cmp-us { background: var(--pri-dim); }
+    .cmp thead th.cmp-us { color: var(--text); }
+    .cmp td.yes { color: var(--success); font-weight: 700; }
+    .cmp td.no { color: var(--text3); }
+    .cmp td.part { color: var(--warning); font-weight: 700; }
+    .cmp td.cmp-text { font-size: .82rem; color: var(--text2); line-height: 1.45; }
+    .cmp td.cmp-us.cmp-text { color: var(--text); font-weight: 600; }
+    .cmp-note { max-width: 760px; margin: 1.25rem 0 0; font-size: .88rem; line-height: 1.65; color: var(--text2); }
+
     /* ── REVEAL ── */
     .reveal { opacity:0; transform:translateY(22px); transition:opacity .6s ease,transform .6s ease; }
     .reveal.in { opacity:1; transform:none; }
@@ -987,37 +1128,37 @@
       <p class="s-sub" data-i18n="feat.sub">Built for real trips with real people — messy schedules, split opinions, and all.</p>
     </div>
     <div class="feat-grid">
-      <div class="feat-card reveal d1">
+      <a class="feat-card reveal d1" href="./features/voting/" data-i18n-href="feat.1.href">
         <div class="feat-icon">🗳️</div>
         <div class="feat-title" data-i18n="feat.1.title">Vote on activities</div>
         <div class="feat-desc" data-i18n="feat.1.desc">Suggest ideas and let the group decide — from "must do" to "group blocker". The best options rise naturally, with no endless debates.</div>
-      </div>
-      <div class="feat-card reveal d2">
+      </a>
+      <a class="feat-card reveal d2" href="./features/expenses/" data-i18n-href="feat.2.href">
         <div class="feat-icon">💸</div>
         <div class="feat-title" data-i18n="feat.2.title">Split expenses fairly</div>
         <div class="feat-desc" data-i18n="feat.2.desc">Log every cost with a category and a receipt attached, split it equally or by custom amounts, and see a live breakdown of who owes what — and what the trip cost you, per trip and across every trip you've taken.</div>
-      </div>
-      <div class="feat-card reveal d3">
+      </a>
+      <a class="feat-card reveal d3" href="./features/shopping-lists/" data-i18n-href="feat.3.href">
         <div class="feat-icon">🛒</div>
         <div class="feat-title" data-i18n="feat.3.title">Real-time shared lists</div>
         <div class="feat-desc" data-i18n="feat.3.desc">Shopping lists, packing checklists — anything the group tracks. Everyone adds and checks off items simultaneously, in real time.</div>
-      </div>
-      <div class="feat-card reveal d1">
+      </a>
+      <a class="feat-card reveal d1" href="./features/transfers/" data-i18n-href="feat.4.href">
         <div class="feat-icon">✈️</div>
         <div class="feat-title" data-i18n="feat.4.title">Transfers, flights &amp; tickets</div>
         <div class="feat-desc" data-i18n="feat.4.desc">Vote on flights, manage rental cars and public transport, assign who rides with whom, and keep every boarding pass and ticket attached to the trip.</div>
-      </div>
-      <div class="feat-card reveal d2">
+      </a>
+      <a class="feat-card reveal d2" href="./features/travel-documents/" data-i18n-href="feat.5.href">
         <div class="feat-icon">🔒</div>
         <div class="feat-title" data-i18n="feat.5.title">Encrypted travel documents</div>
         <div class="feat-desc" data-i18n="feat.5.desc">Passport and ID details encrypted at rest and protected by biometric authentication. Share temporary organiser access and revoke it any time.</div>
-      </div>
-      <div class="feat-card reveal d3">
+      </a>
+      <a class="feat-card reveal d3" href="./features/" data-i18n-href="feat.6.href">
         <div class="feat-icon">🗓️</div>
         <div class="feat-title" data-i18n="feat.6.title">Vacation tracker &amp; calendar</div>
         <div class="feat-desc" data-i18n="feat.6.desc">A visual timeline of all planned activities, transfers, and check-ins — your vacation tracker displayed in the trip's timezone. See every day off at a glance.</div>
-      </div>
-      <div class="feat-card feat-card--wide reveal d3">
+      </a>
+      <a class="feat-card feat-card--wide reveal d3" href="./blog/group-trip-receipts-and-expense-reports/" data-i18n-href="feat.8.href">
         <div>
           <div class="feat-icon">🧾</div>
           <div class="feat-title" data-i18n="feat.8.title">Receipts, tickets &amp; expense reports</div>
@@ -1046,7 +1187,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </a>
       <div class="feat-card feat-card--wide reveal d1">
         <div>
           <div class="feat-icon">💬</div>
@@ -1077,6 +1218,12 @@
         </div>
       </div>
     </div>
+    <nav class="link-row reveal" aria-labelledby="feat-more-label">
+      <span class="link-row-label" id="feat-more-label" data-i18n="feat.more.label">Also worth a look</span>
+      <a class="pill-link" href="./features/analytics/" data-i18n="feat.more.analytics" data-i18n-href="feat.more.analytics.href">Trip costs &amp; analytics</a>
+      <a class="pill-link" href="./features/offline/" data-i18n="feat.more.offline" data-i18n-href="feat.more.offline.href">Offline mode</a>
+      <a class="pill-link pill-link--all" href="./features/" data-i18n="feat.more.all" data-i18n-href="features.href">All features →</a>
+    </nav>
   </div>
 </section>
 
@@ -1117,7 +1264,7 @@
       <p class="s-sub" data-i18n="use.sub">Vacationist works wherever a group needs to coordinate — whether it's a summer holiday or a Tuesday barbecue.</p>
     </div>
     <div class="alt-grid">
-      <div class="alt-card alt-card--anchor reveal d1">
+      <a class="alt-card alt-card--anchor reveal d1" href="./use-cases/" data-i18n-href="use.1.href">
         <div class="alt-icon">✈️</div>
         <div class="alt-title" data-i18n="use.1.title">Vacation trips</div>
         <div class="alt-desc" data-i18n="use.1.desc">The original use case — and still the best. Flights, accommodations, activities, expenses, travel documents, shopping lists. Everything for a group trip, in one app.</div>
@@ -1125,8 +1272,8 @@
           <span class="alt-tag" data-i18n="use.1.tag1">Made for this</span>
           <span class="alt-tag" data-i18n="use.1.tag2">Full feature set</span>
         </div>
-      </div>
-      <div class="alt-card reveal d2">
+      </a>
+      <a class="alt-card reveal d2" href="./use-cases/van-life-trip-planner/" data-i18n-href="use.2.href">
         <div class="alt-icon">🚐</div>
         <div class="alt-title" data-i18n="use.2.title">Van life &amp; road trips</div>
         <div class="alt-desc" data-i18n="use.2.desc">Plan your van road trip stop by stop. The shared calendar tracks every campsite and city, expense splitting keeps fuel and food costs fair, and the shared packing list keeps the van organized for the whole crew.</div>
@@ -1134,7 +1281,7 @@
           <span class="alt-tag" data-i18n="use.2.tag1">Route planning</span>
           <span class="alt-tag" data-i18n="use.2.tag2">Expense splitting</span>
         </div>
-      </div>
+      </a>
       <div class="alt-card reveal d3">
         <div class="alt-icon">🍻</div>
         <div class="alt-title" data-i18n="use.3.title">Bar &amp; dinner nights</div>
@@ -1172,6 +1319,16 @@
         </div>
       </div>
     </div>
+    <nav class="link-row reveal" aria-labelledby="use-pills-label">
+      <span class="link-row-label" id="use-pills-label" data-i18n="use.pills.label">Planning something specific?</span>
+      <a class="pill-link" href="./use-cases/bachelorette-party-planner/" data-i18n="use.pill.1" data-i18n-href="use.pill.1.href">Bachelorette party planner</a>
+      <a class="pill-link" href="./use-cases/stag-do-planner/" data-i18n="use.pill.2" data-i18n-href="use.pill.2.href">Stag do planner</a>
+      <a class="pill-link" href="./use-cases/ski-trip-group-budget/" data-i18n="use.pill.3" data-i18n-href="use.pill.3.href">Ski trip group budget</a>
+      <a class="pill-link" href="./use-cases/family-reunion-planner/" data-i18n="use.pill.4" data-i18n-href="use.pill.4.href">Family reunion planner</a>
+      <a class="pill-link" href="./use-cases/group-camping-trip/" data-i18n="use.pill.5" data-i18n-href="use.pill.5.href">Group camping trip</a>
+      <a class="pill-link" href="./use-cases/corporate-offsite-planner/" data-i18n="use.pill.6" data-i18n-href="use.pill.6.href">Corporate offsite planner</a>
+      <a class="pill-link pill-link--all" href="./use-cases/" data-i18n="use.pill.all" data-i18n-href="use.1.href">All use cases →</a>
+    </nav>
   </div>
 </section>
 
@@ -1260,6 +1417,92 @@
   </div>
 </section>
 
+<!-- COMPARE — every cell is sourced from the /vs/ pages' own tables (see the note in i18n/en.js) -->
+<section class="section alt-bg" id="compare">
+  <div class="wrap">
+    <div class="s-head reveal">
+      <div class="s-label" data-i18n="cmp.label">Honest comparison</div>
+      <h2 class="s-title" data-i18n="cmp.title">How Vacationist compares.</h2>
+      <p class="s-sub" data-i18n="cmp.sub">Splitwise, Wanderlog and TripIt are good at what they do. Here is where a group-first trip app works differently — and where they are still the better pick.</p>
+    </div>
+    <div class="cmp-wrap reveal">
+      <table class="cmp">
+        <caption class="sr-only" data-i18n="cmp.caption">Vacationist compared with Splitwise, Wanderlog and TripIt</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-i18n="cmp.col.feature">Feature</th>
+            <th scope="col" class="cmp-us">Vacationist</th>
+            <th scope="col">Splitwise</th>
+            <th scope="col">Wanderlog</th>
+            <th scope="col">TripIt</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" data-i18n="cmp.row.1">Group voting on activities</th>
+            <td class="cmp-us yes"><span aria-hidden="true">✓</span><span class="sr-only" data-i18n="cmp.yes">Yes</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+          </tr>
+          <tr>
+            <th scope="row" data-i18n="cmp.row.2">Expense splitting</th>
+            <td class="cmp-us yes"><span aria-hidden="true">✓</span><span class="sr-only" data-i18n="cmp.yes">Yes</span></td>
+            <td class="yes"><span aria-hidden="true">✓</span><span class="sr-only" data-i18n="cmp.yes">Yes</span></td>
+            <td class="part"><span aria-hidden="true">~</span><span class="sr-only" data-i18n="cmp.partial">Partly</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+          </tr>
+          <tr>
+            <th scope="row" data-i18n="cmp.row.3">Business-cost report across expenses, hotels &amp; transport</th>
+            <td class="cmp-us yes"><span aria-hidden="true">✓</span><span class="sr-only" data-i18n="cmp.yes">Yes</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+          </tr>
+          <tr>
+            <th scope="row" data-i18n="cmp.row.4">Shared shopping &amp; packing lists</th>
+            <td class="cmp-us yes"><span aria-hidden="true">✓</span><span class="sr-only" data-i18n="cmp.yes">Yes</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+          </tr>
+          <tr>
+            <th scope="row" data-i18n="cmp.row.5">Join without an account</th>
+            <td class="cmp-us yes"><span aria-hidden="true">✓</span><span class="sr-only" data-i18n="cmp.yes">Yes</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+            <td class="no"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="cmp.no">No</span></td>
+            <td class="part"><span aria-hidden="true">~</span><span class="sr-only" data-i18n="cmp.partial">Partly</span></td>
+          </tr>
+          <tr>
+            <th scope="row" data-i18n="cmp.row.6">Price</th>
+            <td class="cmp-us cmp-text" data-i18n="cmp.price.free">Free, no ads</td>
+            <td class="cmp-text" data-i18n="cmp.price.paid">Free tier + paid subscription</td>
+            <td class="cmp-text" data-i18n="cmp.price.paid">Free tier + paid subscription</td>
+            <td class="cmp-text" data-i18n="cmp.price.paid">Free tier + paid subscription</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cmp-note reveal" data-i18n="cmp.note">Where the others are stronger: Wanderlog for maps and place discovery, TripIt for building an itinerary automatically from confirmation emails, Splitwise for payment integrations and a far larger user base. Each comparison page has the full table.</p>
+    <nav class="link-row reveal" aria-labelledby="cmp-vs-label">
+      <span class="link-row-label" id="cmp-vs-label" data-i18n="cmp.vs.label">Head-to-head</span>
+      <a class="pill-link" href="./vs/splitwise/" data-i18n-href="cmp.vs.1.href">Vacationist vs. Splitwise</a>
+      <a class="pill-link" href="./vs/wanderlog/" data-i18n-href="cmp.vs.2.href">Vacationist vs. Wanderlog</a>
+      <a class="pill-link" href="./vs/tripit/" data-i18n-href="cmp.vs.3.href">Vacationist vs. TripIt</a>
+      <a class="pill-link" href="./vs/tricount/" data-i18n-href="cmp.vs.4.href">Vacationist vs. Tricount</a>
+      <a class="pill-link" href="./vs/troupe/" data-i18n-href="cmp.vs.5.href">Vacationist vs. Troupe</a>
+      <a class="pill-link pill-link--all" href="./vs/" data-i18n="cmp.vs.all" data-i18n-href="cmp.vs.all.href">All comparisons →</a>
+    </nav>
+    <nav class="link-row reveal" aria-labelledby="cmp-alt-label">
+      <span class="link-row-label" id="cmp-alt-label" data-i18n="cmp.alt.label">Best alternatives</span>
+      <a class="pill-link" href="./alternatives/splitwise/" data-i18n="cmp.alt.1" data-i18n-href="cmp.alt.1.href">Splitwise alternatives</a>
+      <a class="pill-link" href="./alternatives/wanderlog/" data-i18n="cmp.alt.2" data-i18n-href="cmp.alt.2.href">Wanderlog alternatives</a>
+      <a class="pill-link" href="./alternatives/tripit/" data-i18n="cmp.alt.3" data-i18n-href="cmp.alt.3.href">TripIt alternatives</a>
+      <a class="pill-link pill-link--all" href="./alternatives/" data-i18n="cmp.alt.all" data-i18n-href="cmp.alt.all.href">All alternatives →</a>
+    </nav>
+  </div>
+</section>
+
 <!-- TRUST STRIP -->
 <div class="trust">
   <div class="trust-inner">
@@ -1322,12 +1565,15 @@
   <div class="f-links">
     <a href="./features/" data-i18n="footer.features" data-i18n-href="features.href">Features</a>
     <a href="./blog/" data-i18n="footer.blog" data-i18n-href="blog.href">Blog</a>
+    <a href="./pricing/" data-i18n="footer.pricing" data-i18n-href="pricing.href">Pricing</a>
+    <a href="./about/" data-i18n="footer.about" data-i18n-href="about.href">About</a>
     <a href="./privacy-policy.html" data-i18n="footer.privacy" data-i18n-href="privacy.href">Privacy Policy</a>
     <a href="./terms-of-service.html" data-i18n="footer.terms" data-i18n-href="terms.href">Terms of Service</a>
     <a href="./impressum.html" data-i18n="footer.impressum" data-i18n-href="impressum.href">Impressum</a>
     <a href="./delete-account.html" data-i18n="footer.deleteAccount" data-i18n-href="deleteAccount.href">Delete Account</a>
     <a href="#cookie-settings" data-i18n="footer.cookies">Cookie settings</a>
     <a href="mailto:meetdeep.de@gmail.com" data-i18n="footer.contact">Contact</a>
+    <a href="./llms.txt">llms.txt</a>
   </div>
 </footer>
 

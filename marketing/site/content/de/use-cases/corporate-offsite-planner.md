@@ -28,7 +28,7 @@ Ein Team-Offsite läuft auf zwei Dokumenten, die nie ganz übereinstimmen: einem
 
 ### Über die Agenda abstimmen statt in einem 40-Nachrichten-Thread
 
-Trag den Workshop-Slot, das Team-Dinner und die optionale Samstagswanderung als Vorschläge ein und lass das Team mit einem fünfstufigen System abstimmen — von „Muss sein" bis „Gruppenhindernis". Der Plan spiegelt, was das Team wirklich will, und die Entscheidung ist sichtbar statt im Chat vergraben. Siehe [wie die Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
+Trag den Workshop-Slot, das Team-Dinner und die optionale Samstagswanderung als Vorschläge ein und lass das Team mit einem fünfstufigen System abstimmen — von „Muss sein" bis „Gruppen-Blocker". Der Plan spiegelt, was das Team wirklich will, und die Entscheidung ist sichtbar statt im Chat vergraben. Siehe [wie die Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
 
 ### Geschäftskosten markieren und den Bericht exportieren
 

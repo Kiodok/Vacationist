@@ -27,10 +27,14 @@ const BADGE = {
   en: {
     comparison: 'COMPARISON', listicle: 'ALTERNATIVES', pillar: 'GUIDE',
     article: 'GUIDE', 'use-case': 'USE CASE', feature: 'FEATURE',
+    'comparison-index': 'COMPARISONS', 'alternatives-index': 'ALTERNATIVES',
+    about: 'ABOUT', pricing: 'PRICING',
   },
   de: {
     comparison: 'VERGLEICH', listicle: 'ALTERNATIVEN', pillar: 'RATGEBER',
     article: 'RATGEBER', 'use-case': 'ANWENDUNGSFALL', feature: 'FUNKTION',
+    'comparison-index': 'VERGLEICHE', 'alternatives-index': 'ALTERNATIVEN',
+    about: 'ÜBER UNS', pricing: 'PREISE',
   },
 };
 

@@ -19,6 +19,7 @@
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/stag-do-planner/">
 
   <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/de/blog/feed.xml">
+  <link rel="alternate" type="text/plain" title="llms.txt" href="https://vacationist.app/llms.txt">
   <meta property="og:title" content="Vacationist für Junggesellenabschiede — Kostenloser Gruppenreise-Planer">
   <meta property="og:description" content="Plane einen Junggesellenabschied, ohne zum inoffiziellen Kassenwart der Gruppe zu werden. Stimmt über Aktivitäten ab, teilt Anzahlung und Abendessen fair und holt jeden Auswärtigen mit einem Link an Bord.">
   <meta property="og:url" content="https://vacationist.app/de/use-cases/stag-do-planner/">
@@ -127,7 +128,7 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.38.0",
+    "softwareVersion": "1.38.1",
     "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten, eine Woche lang offline weiterarbeiten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
     "url": "https://vacationist.app/",
     "installUrl": [
@@ -173,7 +174,10 @@
     },
     "author": {
       "@type": "Person",
+      "@id": "https://vacationist.app/about/#gary-lude",
       "name": "Gary Lude",
+      "url": "https://vacationist.app/about/",
+      "jobTitle": "Founder and developer",
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "CH"
@@ -222,7 +226,7 @@
 <p>Jemand — meist der Trauzeuge — streckt am Ende die Anzahlung vor, läuft allen einzeln für ihren Anteil hinterher und muss trotzdem noch zwischen Paintball, Kartfahren und Kneipentour entscheiden, weil sich der Gruppenchat auf nichts einigen kann. Ein Teil der Gruppe ist vor Ort, ein Teil fliegt fürs Wochenende ein, und alle auf denselben Plan zu bringen, ohne ein Dutzend Hin-und-her-Nachrichten, ist selbst schon ein Job. Dazu ein gemeinsames Abendessen, dessen Rechnung immer länger wird als gedacht — und „teilen wir einfach gleichmäßig&quot; sorgt dann für stillen Unmut bei denen, die nicht drei Runden Drinks bestellt haben.</p>
 <h2 id="so-löst-vacationist-das">So löst Vacationist das</h2>
 <h3 id="über-aktivitäten-abstimmen-damit-nicht-der-trauzeuge-den-ausschlag-geben-muss">Über Aktivitäten abstimmen, damit nicht der Trauzeuge den Ausschlag geben muss</h3>
-<p>Paintball, Kartfahren, die Kneipentour vorschlagen — was auch immer zur Debatte steht — und die Gruppe mit einem 5-Stufen-System abstimmen lassen, von „Muss sein&quot; bis „Gruppenhindernis&quot;. Der Plan spiegelt wider, was die Gruppe wirklich will, statt wem der Trauzeuge zuletzt zugestimmt hat. Mehr dazu: <a href="/de/features/voting/">wie Aktivitäten-Abstimmung funktioniert</a>.</p>
+<p>Paintball, Kartfahren, die Kneipentour vorschlagen — was auch immer zur Debatte steht — und die Gruppe mit einem 5-Stufen-System abstimmen lassen, von „Muss sein&quot; bis „Gruppen-Blocker&quot;. Der Plan spiegelt wider, was die Gruppe wirklich will, statt wem der Trauzeuge zuletzt zugestimmt hat. Mehr dazu: <a href="/de/features/voting/">wie Aktivitäten-Abstimmung funktioniert</a>.</p>
 <h3 id="anzahlung-aktivitäten-und-abendessen-fair-teilen">Anzahlung, Aktivitäten und Abendessen fair teilen</h3>
 <p>Anzahlung, jede Aktivität und die Abendessen-Rechnung als getrennte Kosten erfassen, gleichmäßig teilen, wo das fair ist, oder mit eigenen Beträgen, wenn jemand deutlich mehr bestellt hat als der Rest. Salden aktualisieren sich live, sodass niemand nach dem Wochenende noch Geld einsammeln muss. Mehr dazu: <a href="/de/features/expenses/">wie Kostenteilung funktioniert</a>.</p>
 <h3 id="ein-link-alle-sind-dabei-auch-der-der-nie-aufs-handy-schaut">Ein Link, alle sind dabei — auch der, der nie aufs Handy schaut</h3>
@@ -260,7 +264,7 @@
     </a>
     <a class="related-card" href="/de/features/voting/">
       <span class="related-title">Aktivitäten-Voting</span>
-      <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppenhindernis. Schluss mit endlosen Chat-Debatten.</span>
+      <span class="related-desc">Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppen-Blocker. Schluss mit endlosen Chat-Debatten.</span>
     </a>
     <a class="related-card" href="/de/blog/bachelorette-trip-planning-guide/">
       <span class="related-title">JGA-Guide</span>
@@ -292,8 +296,10 @@
     </div>
     <div class="footer-col">
       <h4>Vergleiche</h4>
+      <a href="/de/vs/">Alle Vergleiche</a>
       <a href="/de/vs/splitwise/">Vacationist vs. Splitwise</a>
       <a href="/de/vs/wanderlog/">Vacationist vs. Wanderlog</a>
+      <a href="/de/alternatives/">Alle Alternativen</a>
       <a href="/de/alternatives/splitwise/">Splitwise-Alternativen</a>
       <a href="/de/alternatives/wanderlog/">Wanderlog-Alternativen</a>
     </div>
@@ -303,6 +309,9 @@
       <a href="/de/blog/how-to-plan-a-group-trip/">Gruppenreise-Planungs-Guide</a>
       <a href="/de/blog/best-group-travel-apps-2026/">Beste Gruppenreise-Apps</a>
       <a href="/de/blog/how-to-split-travel-expenses/">Reisekosten-Guide</a>
+      <a href="/de/pricing/">Preise</a>
+      <a href="/de/about/">Über Vacationist</a>
+      <a href="/llms.txt">llms.txt</a>
     </div>
     <div class="footer-col">
       <h4>Rechtliches</h4>

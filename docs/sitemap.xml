@@ -4,7 +4,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://vacationist.app/</loc>
-    <lastmod>2026-09-08</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/"/>
@@ -46,6 +46,30 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/delete-account.html"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/delete-account/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/delete-account.html"/>
+  </url>
+  <url>
+    <loc>https://vacationist.app/about/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/about/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/about/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/about.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://vacationist.app/alternatives/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/alternatives.png</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vacationist.app/alternatives/splitwise/</loc>
@@ -193,7 +217,7 @@
   </url>
   <url>
     <loc>https://vacationist.app/de/</loc>
-    <lastmod>2026-09-08</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/"/>
@@ -201,6 +225,30 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/"/>
     <image:image>
       <image:loc>https://vacationist.app/og-image.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/about/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/about/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/about/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-about.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/alternatives/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/alternatives/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/alternatives/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/alternatives/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-alternatives.png</image:loc>
     </image:image>
   </url>
   <url>
@@ -465,6 +513,18 @@
     </image:image>
   </url>
   <url>
+    <loc>https://vacationist.app/de/pricing/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/pricing/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/pricing/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/pricing/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-pricing.png</image:loc>
+    </image:image>
+  </url>
+  <url>
     <loc>https://vacationist.app/de/privacy-policy/</loc>
     <lastmod>2026-08-09</lastmod>
     <changefreq>monthly</changefreq>
@@ -582,6 +642,18 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/van-life-trip-planner/"/>
     <image:image>
       <image:loc>https://vacationist.app/assets/og/de-use-cases-van-life-trip-planner.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://vacationist.app/de/vs/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/de-vs.png</image:loc>
     </image:image>
   </url>
   <url>
@@ -741,6 +813,18 @@
     </image:image>
   </url>
   <url>
+    <loc>https://vacationist.app/pricing/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/pricing/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/pricing/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/pricing/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/pricing.png</image:loc>
+    </image:image>
+  </url>
+  <url>
     <loc>https://vacationist.app/use-cases/</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
@@ -834,6 +918,18 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/use-cases/van-life-trip-planner/"/>
     <image:image>
       <image:loc>https://vacationist.app/assets/og/use-cases-van-life-trip-planner.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://vacationist.app/vs/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vacationist.app/vs/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://vacationist.app/de/vs/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vacationist.app/vs/"/>
+    <image:image>
+      <image:loc>https://vacationist.app/assets/og/vs.png</image:loc>
     </image:image>
   </url>
   <url>

@@ -28,7 +28,7 @@ Jemand — meist der Trauzeuge — streckt am Ende die Anzahlung vor, läuft all
 
 ### Über Aktivitäten abstimmen, damit nicht der Trauzeuge den Ausschlag geben muss
 
-Paintball, Kartfahren, die Kneipentour vorschlagen — was auch immer zur Debatte steht — und die Gruppe mit einem 5-Stufen-System abstimmen lassen, von „Muss sein" bis „Gruppenhindernis". Der Plan spiegelt wider, was die Gruppe wirklich will, statt wem der Trauzeuge zuletzt zugestimmt hat. Mehr dazu: [wie Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
+Paintball, Kartfahren, die Kneipentour vorschlagen — was auch immer zur Debatte steht — und die Gruppe mit einem 5-Stufen-System abstimmen lassen, von „Muss sein" bis „Gruppen-Blocker". Der Plan spiegelt wider, was die Gruppe wirklich will, statt wem der Trauzeuge zuletzt zugestimmt hat. Mehr dazu: [wie Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
 
 ### Anzahlung, Aktivitäten und Abendessen fair teilen
 

@@ -122,6 +122,10 @@ group trip planner, group vacation planning app, split travel expenses, activity
 
 ## Comparisons and alternatives
 
+- [All comparisons](https://vacationist.app/vs/): Hub for the five head-to-head comparisons, with a guide to which kind of app fits which job.
+- [All alternatives](https://vacationist.app/alternatives/): Hub for the Splitwise, Wanderlog and TripIt alternatives lists.
+- [Alle Vergleiche (Deutsch)](https://vacationist.app/de/vs/): German version of the comparisons hub.
+- [Alle Alternativen (Deutsch)](https://vacationist.app/de/alternatives/): German version of the alternatives hub.
 - [Vacationist vs. Splitwise](https://vacationist.app/vs/splitwise/): Feature comparison against Splitwise.
 - [Vacationist vs. Wanderlog](https://vacationist.app/vs/wanderlog/): Feature comparison against Wanderlog.
 - [Vacationist vs. TripIt](https://vacationist.app/vs/tripit/): Feature comparison against TripIt.
@@ -148,8 +152,8 @@ group trip planner, group vacation planning app, split travel expenses, activity
 
 ## Pricing
 
-Free to use. No ads. No tracking. Every group travel feature is free, for groups of any size.
+Free to use. No ads. No tracking in the app (the website loads analytics only after cookie consent). Every group travel feature is free, for groups of any size. Details: [Pricing](https://vacationist.app/pricing/) ([Preise, Deutsch](https://vacationist.app/de/pricing/)).
 
 ## About
 
-Built by Gary Lude, Switzerland. Independent developer. Launched 2026.
+Built by Gary Lude, an independent developer based in Switzerland, together with Gary's wife. It grew out of more than 30 couple and friend trips organized over three years, which used to run on WhatsApp chats, documents on a local PC and scattered tickets; Vacationist's features came from using it on real trips. Launched 2026. Trip data is stored on Supabase infrastructure in the EU (Paris, France); travel documents are additionally encrypted with AES-256. Details: [About Vacationist](https://vacationist.app/about/) ([Über Vacationist, Deutsch](https://vacationist.app/de/about/)).

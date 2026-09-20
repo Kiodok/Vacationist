@@ -32,7 +32,7 @@ Einen einzigen Einladungslink verschicken, und jeder kann beitreten und voll mit
 
 ### Über Aktivitäten abstimmen, die für jede Generation passen
 
-Eine Wanderung, einen Pooltag, einen Spieleabend vorschlagen und alle mit einem 5-Stufen-System abstimmen lassen — von „Muss sein" bis „Gruppenhindernis". Ein „Gruppenhindernis" von jemandem mit eingeschränkter Mobilität wird klar sichtbar, statt von der Begeisterung des Rests überstimmt zu werden. Mehr dazu: [wie Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
+Eine Wanderung, einen Pooltag, einen Spieleabend vorschlagen und alle mit einem 5-Stufen-System abstimmen lassen — von „Muss sein" bis „Gruppen-Blocker". Ein „Gruppen-Blocker" von jemandem mit eingeschränkter Mobilität wird klar sichtbar, statt von der Begeisterung des Rests überstimmt zu werden. Mehr dazu: [wie Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
 
 ### Location, Catering und Miete fair nach Haushalt aufteilen
 
@@ -60,7 +60,7 @@ Ja. Jede Ausgabe unterstützt eigene Beträge, sodass eine fünfköpfige Familie
 
 ### Gibt es etwas wie eine Zusage, damit wir wissen, wer wirklich kommt?
 
-Es gibt keine eigene Zusage-Funktion, aber die Aktivitäten-Abstimmung erfüllt einen ähnlichen Zweck — wenn jemand ein Event als „Muss sein" oder „Gruppenhindernis" markiert, gibt das Organisatoren ein klares Bild, wer plant zu kommen.
+Es gibt keine eigene Zusage-Funktion, aber die Aktivitäten-Abstimmung erfüllt einen ähnlichen Zweck — wenn jemand ein Event als „Muss sein" oder „Gruppen-Blocker" markiert, gibt das Organisatoren ein klares Bild, wer plant zu kommen.
 
 ### Kann das Budget des Treffens Beiträge mehrerer Haushalte an einem Ort erfassen?
 

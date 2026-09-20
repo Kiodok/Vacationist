@@ -1,6 +1,6 @@
 ---
 title: Über Reise-Aktivitäten abstimmen — Gruppenentscheidungen, die funktionieren | Vacationist
-description: Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppenhindernis. Schluss mit endlosen Chat-Debatten.
+description: Vacationists fünfstufige Aktivitäten-Abstimmung lässt die ganze Gruppe entscheiden — Muss sein, Gefällt mir, Offen, Auslassen oder Gruppen-Blocker. Schluss mit endlosen Chat-Debatten.
 path: /de/features/voting/
 lang: de
 type: feature
@@ -31,15 +31,15 @@ Jeder in der Reise kann eine Aktivität vorschlagen — ein Restaurant, eine Wan
 | **Gefällt mir** | „Klingt gut, ich bin dabei." |
 | **Offen** | „Keine starke Meinung, weder noch." |
 | **Auslassen** | „Nichts für mich, aber lasst euch nicht aufhalten." |
-| **Gruppenhindernis** | „Damit habe ich ein echtes Problem." |
+| **Gruppen-Blocker** | „Damit habe ich ein echtes Problem." |
 
 Die Ergebnisse sind für alle in Echtzeit sichtbar. Du siehst auf einen Blick, welche Ideen die Gruppe begeistern und welche still gestorben sind — ohne dass jemand öffentlich diskutieren muss.
 
 ## Warum fünf Stufen statt Daumen hoch / Daumen runter
 
-Ein simples Ja/Nein-Voting verschluckt genau die Information, auf die es in einer Gruppe ankommt. „Auslassen" und „Gruppenhindernis" sind völlig verschiedene Antworten: Das eine heißt *geht ohne mich*, das andere heißt *wir müssen reden*. Die Trennung schützt die Gruppe vor zwei klassischen Fehlern:
+Ein simples Ja/Nein-Voting verschluckt genau die Information, auf die es in einer Gruppe ankommt. „Auslassen" und „Gruppen-Blocker" sind völlig verschiedene Antworten: Das eine heißt *geht ohne mich*, das andere heißt *wir müssen reden*. Die Trennung schützt die Gruppe vor zwei klassischen Fehlern:
 
-- **Der stille Verweigerer** — jemand, der einen Plan innerlich ablehnt, gegen den er nie ein Veto einlegen konnte. Die Gruppenhindernis-Stimme gibt ihm einen legitimen, sichtbaren Weg, einen echten Einwand zu äußern.
+- **Der stille Verweigerer** — jemand, der einen Plan innerlich ablehnt, gegen den er nie ein Veto einlegen konnte. Die Gruppen-Blocker-Stimme gibt ihm einen legitimen, sichtbaren Weg, einen echten Einwand zu äußern.
 - **Das versehentliche Veto** — ein lauwarmes „nö", das eine Aktivität killt, die neun Leute wollten. Ein „Auslassen" blockiert nichts; die neun können trotzdem gehen.
 
 Jede Gruppe hat diesen einen Freund, der sagt „Mir egal, was ihr wollt" und dann jeden Plan torpediert. Das Abstimmungssystem macht Vorlieben explizit — *bevor* jemand etwas bucht.
@@ -59,7 +59,7 @@ Jede Gruppe hat diesen einen Freund, der sagt „Mir egal, was ihr wollt" und da
 
 Nein. Jeder kann über den Einladungslink der Reise beitreten und als Gast abstimmen — in der Web-App, ohne ein Konto zu erstellen. Die iOS- oder Android-App zu installieren macht es nur bequemer.
 
-### Was passiert, wenn jemand die Gruppenhindernis-Stimme nutzt?
+### Was passiert, wenn jemand die Gruppen-Blocker-Stimme nutzt?
 
 Die Aktivität wird deutlich markiert, damit die Gruppe weiß, dass es einen echten Einwand zu besprechen gibt. Nichts wird automatisch gelöscht — der Sinn ist, den Konflikt früh sichtbar zu machen, solange die Pläne noch flexibel sind, statt erst vor der Restauranttür.
 

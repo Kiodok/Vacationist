@@ -20,7 +20,7 @@ breadcrumbLabel: vs. Troupe
 
 | | Vacationist | Troupe |
 |---|---|---|
-| Gruppenumfragen / Aktivitäten-Abstimmung | ✅ 5-Stufen-System (Muss sein → Gruppenhindernis) | ✅ Umfragen |
+| Gruppenumfragen / Aktivitäten-Abstimmung | ✅ 5-Stufen-System (Muss sein → Gruppen-Blocker) | ✅ Umfragen |
 | Kostenteilung | ✅ Eigene Splits, Live-Salden, Abrechnung | ✅ Kostenteilung |
 | Belege & Geschäftskosten-Bericht | ✅ Belege an jeder Ausgabe; PDF pro Person über Ausgaben, Hotels & Transport | ⚠️ Kein dokumentiertes Feature |
 | Gemeinsamer Reiseplan / Kalender | ✅ | ✅ |
@@ -66,7 +66,7 @@ Es gibt keinen direkten Import zwischen beiden. Eine neue Vacationist-Reise ist 
 
 ### Hat Vacationist Umfragen wie Troupe?
 
-Ja — [Aktivitäten-Abstimmung](/de/features/voting/) funktioniert wie eine Umfrage, aber mit fünf Antwortstufen (von „Muss sein" bis „Gruppenhindernis"), sodass die echten Präferenzen der Gruppe sichtbar werden statt einer einfachen Ja/Nein-Zählung.
+Ja — [Aktivitäten-Abstimmung](/de/features/voting/) funktioniert wie eine Umfrage, aber mit fünf Antwortstufen (von „Muss sein" bis „Gruppen-Blocker"), sodass die echten Präferenzen der Gruppe sichtbar werden statt einer einfachen Ja/Nein-Zählung.
 
 ### Welche App ist besser, um Passdaten für eine Gruppenbuchung zu speichern?
 

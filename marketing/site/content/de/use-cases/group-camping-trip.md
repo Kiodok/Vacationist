@@ -36,7 +36,7 @@ Campingplatzbuchung, Feuerholz und jeden Einkauf als eigene Ausgabe erfassen, gl
 
 ### Über Campingplatz oder Wochenende gemeinsam abstimmen
 
-Einen Campingplatz oder ein Datum vorschlagen und die Gruppe mit einem 5-Stufen-System abstimmen lassen — von „Muss sein" bis „Gruppenhindernis" —, nützlich, wenn die Hälfte der Gruppe einen See-Platz will und die andere Hälfte die Berge.
+Einen Campingplatz oder ein Datum vorschlagen und die Gruppe mit einem 5-Stufen-System abstimmen lassen — von „Muss sein" bis „Gruppen-Blocker" —, nützlich, wenn die Hälfte der Gruppe einen See-Platz will und die andere Hälfte die Berge.
 
 ### Funktioniert offline-first, genau dort, wo der Empfang meist verschwindet
 

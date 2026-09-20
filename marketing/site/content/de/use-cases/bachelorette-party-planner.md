@@ -28,7 +28,7 @@ Irgendjemand landet immer als inoffizielle Trauzeugin-plus-Kassenwartin-plus-Rei
 
 ### Über das Programm abstimmen, statt nur zu streiten
 
-Spa-Tag, Bootstour, Club vorschlagen — die Gruppe stimmt mit einem 5-Stufen-System ab, von „Muss sein" bis „Gruppenhindernis". Wenn jemand die Kneipentour wirklich nicht mitmachen kann, wird das klar sichtbar, statt in einem Gruppenchat unterzugehen, in dem die lauteste Meinung gewinnt. Mehr dazu: [wie Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
+Spa-Tag, Bootstour, Club vorschlagen — die Gruppe stimmt mit einem 5-Stufen-System ab, von „Muss sein" bis „Gruppen-Blocker". Wenn jemand die Kneipentour wirklich nicht mitmachen kann, wird das klar sichtbar, statt in einem Gruppenchat unterzugehen, in dem die lauteste Meinung gewinnt. Mehr dazu: [wie Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
 
 ### Villa, Abendessen und Anzahlung fair teilen
 
@@ -60,7 +60,7 @@ Ja. Jede Ausgabe lässt sich gleichmäßig oder mit eigenen Beträgen pro Person
 
 ### Gibt es eine Möglichkeit, Aktivitäten zu markieren, die sich manche nicht leisten können oder wollen?
 
-Ja — das Abstimmungssystem hat genau dafür eine „Gruppenhindernis"-Stufe, sodass ein echtes Nein für alle klar sichtbar wird, statt in einem Chat-Verlauf unterzugehen.
+Ja — das Abstimmungssystem hat genau dafür eine „Gruppen-Blocker"-Stufe, sodass ein echtes Nein für alle klar sichtbar wird, statt in einem Chat-Verlauf unterzugehen.
 
 ### Funktioniert es für einen Junggesellinnenabschied im Ausland mit einer anderen Währung?
 

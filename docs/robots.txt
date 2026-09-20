@@ -22,4 +22,6 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
+# LLM-readable summary of the site (Markdown): https://vacationist.app/llms.txt
+
 Sitemap: https://vacationist.app/sitemap.xml

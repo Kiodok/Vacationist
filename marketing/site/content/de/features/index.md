@@ -20,7 +20,7 @@ breadcrumbLabel: Funktionen
 
 ### [Aktivitäten-Abstimmung →](/de/features/voting/)
 
-Aktivitäten vorschlagen und die Gruppe mit einem fünfstufigen Voting entscheiden lassen — von „Muss sein" bis „Gruppenhindernis". Keine andere Reise-App hat das, und es beendet die endlosen Gruppenchat-Debatten. [So funktioniert das Voting.](/de/features/voting/)
+Aktivitäten vorschlagen und die Gruppe mit einem fünfstufigen Voting entscheiden lassen — von „Muss sein" bis „Gruppen-Blocker". Keine andere Reise-App hat das, und es beendet die endlosen Gruppenchat-Debatten. [So funktioniert das Voting.](/de/features/voting/)
 
 ### [Kostenteilung →](/de/features/expenses/)
 

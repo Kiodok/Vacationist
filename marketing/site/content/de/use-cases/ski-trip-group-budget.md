@@ -28,7 +28,7 @@ Eine Skireise hat mehr bewegliche Kostenteile als die meisten Gruppenreisen: das
 
 ### Über Ruhetage und Après-Ski gemeinsam abstimmen
 
-Einen Ruhetag, ein anderes Skigebiet oder den Après-Ski-Ort vorschlagen und die Gruppe mit einem 5-Stufen-System abstimmen lassen — von „Muss sein" bis „Gruppenhindernis" —, sodass der Plan widerspiegelt, was die Leute wirklich wollen, nicht wer sich zuerst gemeldet hat. Mehr dazu: [wie Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
+Einen Ruhetag, ein anderes Skigebiet oder den Après-Ski-Ort vorschlagen und die Gruppe mit einem 5-Stufen-System abstimmen lassen — von „Muss sein" bis „Gruppen-Blocker" —, sodass der Plan widerspiegelt, was die Leute wirklich wollen, nicht wer sich zuerst gemeldet hat. Mehr dazu: [wie Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
 
 ### Chalet, Skipässe und Ausrüstungsverleih fair teilen
 

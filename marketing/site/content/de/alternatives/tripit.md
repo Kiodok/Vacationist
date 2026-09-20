@@ -22,7 +22,7 @@ Fairerweise zuerst zu TripIt: Wer oft und meist allein reist und Flugalarme plus
 
 *(Unsere App — beurteile die Aussagen nach ihrem Inhalt.)*
 
-[Vacationist](https://vacationist.app/) ist genau um das gebaut, was TripIt komplett außen vor lässt: die Gruppe. Jeder Vorschlag wird mit einem [5-Stufen-System abgestimmt](/de/features/voting/) (von „Muss sein" bis „Gruppenhindernis"), jede Ausgabe wird [sauber geteilt](/de/features/expenses/) mit Live-Salden und Abrechnung, und gemeinsame [Einkaufs- und Packlisten](/de/features/shopping-lists/) synchronisieren in Echtzeit.
+[Vacationist](https://vacationist.app/) ist genau um das gebaut, was TripIt komplett außen vor lässt: die Gruppe. Jeder Vorschlag wird mit einem [5-Stufen-System abgestimmt](/de/features/voting/) (von „Muss sein" bis „Gruppen-Blocker"), jede Ausgabe wird [sauber geteilt](/de/features/expenses/) mit Live-Salden und Abrechnung, und gemeinsame [Einkaufs- und Packlisten](/de/features/shopping-lists/) synchronisieren in Echtzeit.
 
 - **Der Unterschied:** Freunde treten per einzelnem Einladungslink bei, **ohne Konto** — und können trotzdem abstimmen, Listen bearbeiten und Teil der Kostenteilung sein. TripIts Teilen-Funktion ist nur lesend; echte Teilnahme braucht für alle ein eigenes Konto.
 - **Geld:** TripIt hat überhaupt keine Kostenteilung. Vacationist verfolgt, wer gezahlt hat, wer wem was schuldet, und gleicht automatisch aus.
