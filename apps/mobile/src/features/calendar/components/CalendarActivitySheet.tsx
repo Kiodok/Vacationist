@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Text, Pressable, Modal, ScrollView, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import type { Activity, SupportedTimezone, VoteType } from '@vacationist/types';
+import type { Activity, VoteType } from '@vacationist/types';
 import { formatActivityTime, dayjs } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
 import { VoteSummary } from '../../activities/components/VoteChip';
@@ -18,7 +18,6 @@ interface CalendarActivitySheetProps {
   visible: boolean;
   onClose: () => void;
   activity: Activity | null;
-  timezone: SupportedTimezone;
   onViewFullDetails: (activityId: string) => void;
   onEdit?: (activity: Activity) => void;
 }
@@ -27,7 +26,6 @@ export function CalendarActivitySheet({
   visible,
   onClose,
   activity,
-  timezone,
   onViewFullDetails,
   onEdit,
 }: CalendarActivitySheetProps) {
@@ -79,7 +77,7 @@ export function CalendarActivitySheet({
       <SwipeToDismiss
         onDismiss={onClose}
         className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-        style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
       >
           {/* Handle bar */}
           <View className="items-center mb-md">
@@ -110,7 +108,7 @@ export function CalendarActivitySheet({
             <View className="flex-row items-center gap-xs mb-sm">
               <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
               <Text className="text-body-small text-text-secondary">
-                {dayjs.tz(activity.activity_date, timezone).format('dddd, D MMMM YYYY')}
+                {dayjs.utc(activity.activity_date).format('dddd, D MMMM YYYY')}
               </Text>
             </View>
           ) : null}

@@ -4,7 +4,7 @@ import { colors, useResolvedTheme } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateProfileSchema, type UpdateProfileInput, SUPPORTED_TIMEZONES } from '@vacationist/types';
+import { updateProfileSchema, type UpdateProfileInput } from '@vacationist/types';
 import type { User } from '@vacationist/types';
 import { useTranslation } from 'react-i18next';
 import { LOCALE_LABELS, SUPPORTED_LOCALES, getCurrentLocale } from '@vacationist/i18n';
@@ -36,7 +36,6 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
       reset({
         name: user.name,
         locale: (user.locale ?? getCurrentLocale()) as 'en' | 'de',
-        timezone: user.timezone as typeof SUPPORTED_TIMEZONES[number],
         preferred_currency: user.preferred_currency,
         show_store_badges: user.show_store_badges ?? true,
       });
@@ -61,7 +60,7 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
         <SwipeToDismiss
           onDismiss={handleClose}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+          style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -122,44 +121,6 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
                       </View>
                     )}
                   />
-                </View>
-
-                <View className="gap-xs">
-                  <Text className="text-label text-text-muted uppercase">{t('edit.timezone')}</Text>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    className="flex-row"
-                    contentContainerStyle={{ gap: 8 }}
-                  >
-                    <Controller
-                      control={control}
-                      name="timezone"
-                      render={({ field: { onChange, value } }) => (
-                        <>
-                          {SUPPORTED_TIMEZONES.map((tz) => (
-                            <Pressable
-                              key={tz}
-                              onPress={() => onChange(tz)}
-                              className={`px-sm py-xs rounded-sm border ${
-                                value === tz
-                                  ? 'bg-primary/20 border-primary'
-                                  : 'bg-surface border-border'
-                              }`}
-                            >
-                              <Text
-                                className={`text-body-small ${
-                                  value === tz ? 'text-primary' : 'text-text-secondary'
-                                }`}
-                              >
-                                {tz.replace('Europe/', '')}
-                              </Text>
-                            </Pressable>
-                          ))}
-                        </>
-                      )}
-                    />
-                  </ScrollView>
                 </View>
 
                 <View className="gap-xs">

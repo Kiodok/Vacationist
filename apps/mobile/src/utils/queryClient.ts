@@ -1,8 +1,9 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, onlineManager } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
 import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
 import { isExpectedMutationError } from './errorClassification';
+import { handleQueuedFailure } from './queuedFailure';
 
 // Keys whose mutations are persisted to MMKV and replayed on reconnect.
 // Only include mutations where every needed variable lives in the variables
@@ -55,7 +56,6 @@ export const PERSISTED_MUTATION_KEYS = [
   'unsettleExpenseSplit',
   'coverSplit',
   'uncoverSplit',
-  'settleAllForPair',
   'settleAllExpenses',
   // Shopping lists
   'createShoppingList',
@@ -111,7 +111,7 @@ export function isPersistedMutationKey(key: unknown): boolean {
 const COST_AFFECTING_MUTATION_KEYS = new Set<string>([
   'createExpense', 'updateExpenseWithSplits', 'archiveExpense', 'unarchiveExpense',
   'settleExpenseSplit', 'unsettleExpenseSplit', 'coverSplit', 'uncoverSplit',
-  'settleAllForPair', 'settleAllExpenses',
+  'settleAllExpenses',
   'createActivity', 'updateActivity', 'deleteActivity', 'closeActivityVoting',
   'createAccommodation', 'updateAccommodation', 'deleteAccommodation',
   'bookAccommodation', 'unbookAccommodation', 'closeAccommodationVoting',
@@ -164,6 +164,10 @@ const pausedMutationsSeen = new Set<unknown>();
 // Prevents duplicate Sentry events for the same mutation instance — the
 // 'updated' event fires on every state transition, including each retry attempt.
 const erroredMutationsSeen = new Set<unknown>();
+// Mutations that were PARKED while offline (or restored from the persisted queue after a restart). Only
+// these get the never-drop-user-data treatment on a terminal failure — a mutation that failed while the
+// user was online and watching already told them via the hook's own onError toast.
+const queuedOfflineMutations = new WeakSet<object>();
 
 queryClient.getMutationCache().subscribe((event) => {
   if (event.type === 'removed') {
@@ -171,9 +175,16 @@ queryClient.getMutationCache().subscribe((event) => {
     erroredMutationsSeen.delete(event.mutation);
     return;
   }
+  if (event.type === 'added') {
+    // A mutation that is born paused was hydrated from the persisted offline queue.
+    if (event.mutation.state.isPaused) queuedOfflineMutations.add(event.mutation);
+    return;
+  }
   if (event.type !== 'updated') return;
   const mut = event.mutation;
   const key = mut.options.mutationKey?.[0];
+
+  if (mut.state.isPaused && !onlineManager.isOnline()) queuedOfflineMutations.add(mut);
 
   // Refresh the cost roll-ups after any cost-affecting mutation succeeds (task 1). Fires for
   // both active mutations and persisted ones replayed after a cold start.
@@ -190,6 +201,11 @@ queryClient.getMutationCache().subscribe((event) => {
   if (mut.state.status === 'error' && mut.state.error && !mut.state.isPaused) {
     if (!erroredMutationsSeen.has(mut)) {
       erroredMutationsSeen.add(mut);
+      if (queuedOfflineMutations.has(mut) && isPersistedMutationKey(key)) {
+        // Queued offline and rejected on replay: refresh-and-retry a session error, otherwise park it
+        // in the "Couldn't sync" list. Never silently drop it (the OFF-8 finding).
+        void handleQueuedFailure(queryClient, mut);
+      }
       if (isExpectedMutationError(mut.state.error)) {
         Sentry.addBreadcrumb({
           category: 'mutation',
@@ -218,5 +234,11 @@ queryClient.getMutationCache().subscribe((event) => {
     // Non-persisted paused mutations are silently lost on app restart — tell
     // the user their action could not be saved so they can retry manually.
     useToastStore.getState().addToast('warning', i18n.t('common:offline.mutationFailed'));
+    // ...and drop it from the cache NOW. Left in place it stays paused in memory and
+    // resumePausedMutations() would fire it on reconnect — contradicting the "could not be
+    // saved" toast, and duplicating the action (two trips, two invites) once the user retries by
+    // hand. Removing it also lets `isMutationBusy` free the button. Its per-call callbacks
+    // (mutate(vars, { onSuccess })) never run, which is what "not saved" means.
+    queryClient.getMutationCache().remove(mut);
   }
 });

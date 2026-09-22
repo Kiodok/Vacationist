@@ -1,6 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { FlatList, View, Platform } from 'react-native';
-import type { SupportedTimezone } from '@vacationist/types';
 import { DayCell } from './DayCell';
 import { safeScrollToIndex } from '../../../utils/safeListScroll';
 
@@ -10,7 +9,6 @@ const ITEM_TOTAL = ITEM_WIDTH + ITEM_GAP;
 
 interface DayStripProps {
   dateRange: string[];
-  timezone: SupportedTimezone;
   selectedDate: string;
   activityCountByDate: Record<string, number>;
   onSelectDate: (date: string) => void;
@@ -18,7 +16,6 @@ interface DayStripProps {
 
 export function DayStrip({
   dateRange,
-  timezone,
   selectedDate,
   activityCountByDate,
   onSelectDate,
@@ -50,13 +47,12 @@ export function DayStrip({
     ({ item }: { item: string }) => (
       <DayCell
         date={item}
-        timezone={timezone}
         isSelected={item === selectedDate}
         hasActivities={(activityCountByDate[item] ?? 0) > 0}
         onPress={onSelectDate}
       />
     ),
-    [timezone, selectedDate, activityCountByDate, onSelectDate],
+    [selectedDate, activityCountByDate, onSelectDate],
   );
 
   return (

@@ -1,5 +1,4 @@
 import type { Activity } from './database';
-import type { SupportedTimezone } from './enums';
 
 export interface CalendarDay {
   date: string;
@@ -9,13 +8,12 @@ export interface CalendarDay {
 
 export interface TripCalendarData {
   tripId: string;
-  timezone: SupportedTimezone;
   dateRange: string[];
   dayMap: Record<string, CalendarDay>;
 }
 
 export interface GlobalCalendarTrip {
-  trip: { id: string; title: string; start_date: string; end_date: string; timezone: SupportedTimezone };
+  trip: { id: string; title: string; start_date: string; end_date: string };
   activities: Activity[];
 }
 

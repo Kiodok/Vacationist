@@ -39,6 +39,7 @@ import { colors ,  ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 export default function PreworkTab() {
   const { t } = useTranslation('prework');
@@ -185,6 +186,12 @@ export default function PreworkTab() {
   if (topicsUx.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetchTopics} />;
   }
+  // A genuine fetch failure used to fall straight through to `noTopics` below — indistinguishable
+  // from the trip really having zero topics (the confirmed "shows 'no topics yet' after
+  // reconnecting" finding, v1.39.0 round 3).
+  if (topicsUx.showError) {
+    return <QueryErrorState onRetry={refetchTopics} />;
+  }
 
   const noTopics = !topics || topics.length === 0;
 
@@ -210,6 +217,8 @@ export default function PreworkTab() {
         <>
           {prefsUx.showOfflineEmpty || myPrefsUx.showOfflineEmpty ? (
             <OfflineEmptyState onRetry={() => { prefsQuery.refetch(); myPrefsQuery.refetch(); }} />
+          ) : prefsUx.showError || myPrefsUx.showError ? (
+            <QueryErrorState onRetry={() => { prefsQuery.refetch(); myPrefsQuery.refetch(); }} />
           ) : prefsUx.showSkeleton || myPrefsUx.showSkeleton ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator color={colors.primary} />
@@ -260,8 +269,8 @@ export default function PreworkTab() {
                       recommendedLabels={recommendedLabels}
                       onSave={handleSave}
                       onClear={handleClear}
-                      isSaving={upsertMutation.isPending}
-                      isClearing={deleteMutation.isPending}
+                      isSaving={isMutationBusy(upsertMutation)}
+                      isClearing={isMutationBusy(deleteMutation)}
                     />
                   </>
                 ) : (
@@ -271,8 +280,8 @@ export default function PreworkTab() {
                       recommendedLabels={recommendedLabels}
                       onSave={handleSave}
                       onClear={handleClear}
-                      isSaving={upsertMutation.isPending}
-                      isClearing={deleteMutation.isPending}
+                      isSaving={isMutationBusy(upsertMutation)}
+                      isClearing={isMutationBusy(deleteMutation)}
                     />
 
                     <GroupSummarySection
@@ -293,10 +302,10 @@ export default function PreworkTab() {
                           <TouchableOpacity
                             activeOpacity={0.7}
                             onPress={handleResetAll}
-                            disabled={resetMutation.isPending}
+                            disabled={isMutationBusy(resetMutation)}
                             className="flex-1 py-sm rounded-md bg-danger/20 items-center"
                           >
-                            {resetMutation.isPending ? (
+                            {isMutationBusy(resetMutation) ? (
                               <ActivityIndicator size="small" color={colors.danger} />
                             ) : (
                               <Text className="text-danger text-body-small font-semibold">{t('resetAll.confirmAction')}</Text>
@@ -305,7 +314,7 @@ export default function PreworkTab() {
                           <TouchableOpacity
                             activeOpacity={0.7}
                             onPress={() => setConfirmingReset(false)}
-                            disabled={resetMutation.isPending}
+                            disabled={isMutationBusy(resetMutation)}
                             className="flex-1 py-sm rounded-md bg-surface border border-border items-center"
                           >
                             <Text className="text-text-secondary text-body-small">{t('resetAll.cancel')}</Text>
@@ -342,8 +351,8 @@ export default function PreworkTab() {
         onClose={() => setEditingTopic(null)}
         onSubmit={handleUpdateTopic}
         onDelete={handleDeleteTopic}
-        isSaving={updateTopicMutation.isPending}
-        isDeleting={deleteTopicMutation.isPending}
+        isSaving={isMutationBusy(updateTopicMutation)}
+        isDeleting={isMutationBusy(deleteTopicMutation)}
       />
     </View>
   );

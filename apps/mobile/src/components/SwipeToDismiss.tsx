@@ -38,7 +38,7 @@ interface SwipeToDismissProps {
   onDismiss: () => void;
   /** Panel classes, moved verbatim from the old panel `<View>` (e.g. `bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]`). */
   className?: string;
-  /** Panel inline style, moved verbatim (usually `{ paddingBottom: Math.max(insets.bottom, 32) }`). */
+  /** Panel inline style, moved verbatim (usually `{ paddingBottom: Math.max(insets.bottom, 32) + 16 }`). */
   style?: StyleProp<ViewStyle>;
   children: ReactNode;
 }

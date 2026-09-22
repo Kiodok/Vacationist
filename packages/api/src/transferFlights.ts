@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferFlight,
@@ -21,7 +21,7 @@ export async function getTransferFlights(tripId: string): Promise<TransferFlight
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as TransferFlight[];
+  return trustEmptyList(data as unknown as TransferFlight[]);
 }
 
 export async function getTransferFlight(flightId: string): Promise<TransferFlight> {
@@ -117,7 +117,7 @@ export async function getTransferFlightVotes(flightId: string): Promise<Transfer
     .eq('flight_id', flightId);
 
   if (error) throw error;
-  return data as unknown as TransferFlightVote[];
+  return trustEmptyList(data as unknown as TransferFlightVote[]);
 }
 
 export async function getTransferFlightVotesBatch(flightIds: string[]): Promise<TransferFlightVote[]> {
@@ -129,7 +129,7 @@ export async function getTransferFlightVotesBatch(flightIds: string[]): Promise<
     .in('flight_id', flightIds);
 
   if (error) throw error;
-  return data as unknown as TransferFlightVote[];
+  return trustEmptyList(data as unknown as TransferFlightVote[]);
 }
 
 export async function castTransferFlightVote(flightId: string, vote: VoteType): Promise<TransferFlightVote> {
@@ -167,7 +167,7 @@ export async function getTransferFlightPassengers(flightId: string): Promise<Tra
     .eq('flight_id', flightId);
 
   if (error) throw error;
-  return data as unknown as TransferFlightPassenger[];
+  return trustEmptyList(data as unknown as TransferFlightPassenger[]);
 }
 
 export async function setTransferFlightPassengers(flightId: string, userIds: string[]): Promise<void> {

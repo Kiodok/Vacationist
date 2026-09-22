@@ -1,5 +1,5 @@
 import { supabase } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import { uploadDocumentFile, getSignedDocumentUrl, deleteDocumentFile, buildTransferTicketPath } from './documentStorage';
 import type { TransferDocument } from '@vacationist/types';
 
@@ -12,7 +12,7 @@ export async function getTransferFlightDocuments(flightId: string): Promise<Tran
     .eq('flight_id', flightId);
 
   if (error) throw error;
-  return (data ?? []) as unknown as TransferDocument[];
+  return trustEmptyList((data ?? []) as unknown as TransferDocument[]);
 }
 
 /**
@@ -68,7 +68,7 @@ export async function getPublicTransportDocuments(publicTransportId: string): Pr
     .eq('public_transport_id', publicTransportId);
 
   if (error) throw error;
-  return (data ?? []) as unknown as TransferDocument[];
+  return trustEmptyList((data ?? []) as unknown as TransferDocument[]);
 }
 
 export async function uploadPublicTransportDocument(

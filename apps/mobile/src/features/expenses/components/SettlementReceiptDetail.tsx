@@ -12,21 +12,30 @@ interface SettlementReceiptDetailProps {
   onClose: () => void;
   receipt: SettlementReceipt;
   currency?: Currency;
+  /** The viewer's preferred currency. When it differs from the receipt's, the total gets an "≈"
+   * line converted at TODAY's rate. The receipt itself stays authoritative in its own currency —
+   * this is a convenience, never the recorded figure. */
+  preferredCurrency?: Currency | null;
+  convert?: (amount: number, from: Currency, to: Currency) => number | null;
 }
 
-export function SettlementReceiptDetail({ visible, onClose, receipt, currency }: SettlementReceiptDetailProps) {
+export function SettlementReceiptDetail({ visible, onClose, receipt, currency, preferredCurrency, convert }: SettlementReceiptDetailProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
 
   const settledByMember = receipt.snapshot.members.find((m) => m.user_id === receipt.settled_by);
   const displayCurrency = currency ?? receipt.currency;
+  const preferredTotal =
+    preferredCurrency && preferredCurrency !== displayCurrency && convert
+      ? convert(receipt.total_amount, displayCurrency, preferredCurrency)
+      : null;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <SwipeToDismiss
           onDismiss={onClose}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+          style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -65,6 +74,9 @@ export function SettlementReceiptDetail({ visible, onClose, receipt, currency }:
                 <ThemedIcon name="wallet-outline" size={14} color={colors.textMuted} />
                 <Text className="text-body-small text-text-secondary">
                   {t('receipt.totalAmount', { amount: formatCurrency(receipt.total_amount, displayCurrency) })}
+                  {preferredTotal != null && preferredCurrency
+                    ? `  ≈ ${formatCurrency(preferredTotal, preferredCurrency)}`
+                    : ''}
                 </Text>
               </View>
               <View className="flex-row items-center gap-xs">

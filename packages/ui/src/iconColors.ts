@@ -36,6 +36,26 @@ export const FEATURE_ICON_COLORS: Record<string, IconColorConfig> = {
   shopping:      { icon: 'cart-outline',          color: accentColors.orange },
 };
 
+// The icon + colour for every expense category (`expenses.related_type`). One table for both,
+// replacing ExpenseCard's separate icon switch and its FEATURE_ICON_COLORS colour lookup — the two
+// had drifted (`transport` had an icon but no colour, so transport expenses fell back to the amber
+// receipt colour). The first five keep exactly the colours they rendered with before; the last six
+// (v1.39.0) have no entity counterpart. Ionicons has no fuel-pump glyph, so fuel_parking uses the
+// speedometer.
+export const EXPENSE_CATEGORY_ICON_COLORS: Record<string, IconColorConfig> = {
+  accommodation: { icon: 'bed-outline',         color: accentColors.teal },
+  activity:      { icon: 'compass-outline',     color: PRIMARY },
+  transport:     { icon: 'car-outline',         color: accentColors.emerald },
+  shopping:      { icon: 'cart-outline',        color: accentColors.orange },
+  manual:        { icon: 'receipt-outline',     color: accentColors.amber },
+  food_drink:    { icon: 'restaurant-outline',  color: accentColors.rose },
+  groceries:     { icon: 'basket-outline',      color: accentColors.emerald },
+  fuel_parking:  { icon: 'speedometer-outline', color: NEUTRAL },
+  tickets_entry: { icon: 'ticket-outline',      color: accentColors.indigo },
+  health:        { icon: 'medkit-outline',      color: accentColors.sky },
+  souvenirs:     { icon: 'gift-outline',        color: accentColors.pink },
+};
+
 export const NOTIFICATION_ICON_COLORS: Record<string, IconColorConfig> = {
   new_activity:             { icon: 'add-circle-outline',       color: PRIMARY },
   vote_update:              { icon: 'thumbs-up-outline',        color: accentColors.emerald },

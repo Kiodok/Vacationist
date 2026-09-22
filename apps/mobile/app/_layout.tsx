@@ -32,8 +32,10 @@ import { registerForPushNotificationsAsync } from '../src/features/notifications
 import { registerForWebPushAsync } from '../src/features/notifications/utils/registerForWebPush';
 import { usePushNotificationHandler } from '../src/features/notifications/hooks/usePushNotificationHandler';
 import { useAppIconQuickAction } from '../src/features/trips/hooks/useAppIconQuickAction';
+import { useGlobalOfflinePrefetch } from '../src/features/trips/hooks/useGlobalOfflinePrefetch';
+import { useDeviceTimezoneSync } from '../src/features/auth/hooks/useDeviceTimezoneSync';
 import { NetworkProvider } from '../src/providers/NetworkProvider';
-import { OfflineBanner } from '../src/components/OfflineBanner';
+import { OfflineNotices } from '../src/components/OfflineNotices';
 import { GestureRoot } from '../src/components/GestureRoot';
 import { useThemeStore } from '../src/stores/themeStore';
 import { colorScheme as cssColorScheme } from 'react-native-css-interop';
@@ -154,6 +156,10 @@ function AuthGate() {
   // Home-screen quick action doesn't conceptually exist on web (no home screen icon) — the
   // underlying library also ships a safe no-op web stub, but gating here keeps intent explicit.
   useAppIconQuickAction(hasSession && Platform.OS !== 'web');
+  // Download every planning/ongoing trip + the global tabs while online, so offline just works.
+  useGlobalOfflinePrefetch();
+  // Keep users.timezone = the phone's zone, silently (reminders follow the traveller).
+  useDeviceTimezoneSync();
 
   // Fire-and-forget, as early as possible so it's ready before any sign-in flow completes.
   // Android + Play Store installs only; no-ops everywhere else. See installReferrer.ts.
@@ -396,7 +402,7 @@ function RootLayoutInner() {
         <title>{WEB_TITLE}</title>
       </Head>
       <ThemeController />
-      <OfflineBanner />
+      <OfflineNotices />
       <ForceUpdateGate />
       <OfflineReauthGate />
       <AuthGate />

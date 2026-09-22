@@ -18,6 +18,7 @@ import { i18n } from '@vacationist/i18n';
 import { createOptimisticId, isOptimisticId } from '../../../utils/optimisticId';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { addOptimisticShoppingList } from '../utils/shoppingItemCache';
 
 export function useShoppingLists(tripId: string) {
   return useQuery({
@@ -36,23 +37,18 @@ export function useCreateShoppingList() {
   return useMutation<ShoppingListWithCounts, Error, CreateShoppingListVariables, { previous: ShoppingListWithCounts[] | undefined }>({
     mutationKey: ['createShoppingList'],
     // mutationFn + onSuccess (resolve optimistic + toast) in mutationDefaults for replay.
-    onMutate: async ({ tripId, input }) => {
+    onMutate: async ({ tripId, input, id }) => {
       const key = ['trips', tripId, 'shopping-lists'];
       await queryClient.cancelQueries({ queryKey: key });
       const previous = queryClient.getQueryData<ShoppingListWithCounts[]>(key);
-      const now = new Date().toISOString();
-      const optimistic: ShoppingListWithCounts = {
-        id: createOptimisticId(),
-        trip_id: tripId,
+      // Also seeds the (empty) items cache so opening the new list OFFLINE shows an empty list — and lets
+      // items be added to it — instead of an "offline, nothing cached" dead end.
+      addOptimisticShoppingList(queryClient, {
+        id: id ?? createOptimisticId(),
+        tripId,
         title: input.title,
-        created_by: useAuthStore.getState().user?.id ?? '',
-        created_at: now,
-        updated_at: now,
-        archived_at: null,
-        item_count: 0,
-        bought_count: 0,
-      };
-      queryClient.setQueryData<ShoppingListWithCounts[]>(key, (old) => [...(old ?? []), optimistic]);
+        createdBy: useAuthStore.getState().user?.id ?? '',
+      });
       return { previous };
     },
     onError: (_err, { tripId }, context) => {

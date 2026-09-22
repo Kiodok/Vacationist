@@ -1,6 +1,5 @@
 import { dayjs, initDayjs } from './dayjs';
 import type { Activity, TripCalendarData, CalendarDay, MonthGridData, MonthGridDay } from '@vacationist/types';
-import type { SupportedTimezone } from '@vacationist/types';
 
 initDayjs();
 
@@ -77,7 +76,7 @@ export function formatActivityTime(
 }
 
 export function buildTripCalendarData(
-  trip: { id: string; start_date: string; end_date: string; timezone: SupportedTimezone },
+  trip: { id: string; start_date: string; end_date: string },
   activities: Activity[],
 ): TripCalendarData {
   const dateRange = generateDateRange(trip.start_date, trip.end_date);
@@ -95,7 +94,6 @@ export function buildTripCalendarData(
 
   return {
     tripId: trip.id,
-    timezone: trip.timezone,
     dateRange,
     dayMap,
   };
@@ -116,16 +114,13 @@ export function findTodayOrNextDate(dateRange: string[]): string | null {
 
 export function formatCalendarDayHeader(
   date: string,
-  timezone: SupportedTimezone,
 ): { dayName: string; dayNumber: string; monthShort: string; isToday: boolean } {
-  // dayName/dayNumber/monthShort are pure labels of an already-known calendar date — no
-  // dependency on a named timezone (see generateDateRange's doc comment for why dayjs.tz() on a
-  // date-only value is a Hermes-unreliable dependency this doesn't actually need).
+  // dayName/dayNumber/monthShort are pure labels of an already-known calendar date — no timezone
+  // involved (see generateDateRange's doc comment for why dayjs.tz() on a date-only value is a
+  // Hermes-unreliable dependency it never needed). `isToday` is the device's own calendar date: times
+  // float (an activity typed as 14:00 is 14:00 wherever the phone is), so "today" is simply today here.
   const d = dayjs.utc(date);
-  // isToday is a genuinely different question — "what is today's date from this trip's
-  // timezone's point of view" — which really does need to resolve the current instant against a
-  // named zone, so it keeps the real .tz() dependency the other three fields no longer have.
-  const today = dayjs().tz(timezone).format('YYYY-MM-DD');
+  const today = dayjs().format('YYYY-MM-DD');
 
   return {
     dayName: d.format('ddd'),

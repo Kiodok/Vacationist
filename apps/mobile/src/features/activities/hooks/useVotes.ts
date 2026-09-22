@@ -51,14 +51,17 @@ export function useCastVote() {
     onMutate: async ({ vote, activityId, tripId }) => {
       await queryClient.cancelQueries({ queryKey: ['activities', activityId, 'votes'] });
       const previous = queryClient.getQueryData<ActivityVote[]>(['activities', activityId, 'votes']);
-      if (previous) {
-        const exists = previous.findIndex((v) => v.user_id === currentUserId);
-        const optimistic: ActivityVote[] =
-          exists >= 0
-            ? previous.map((v) => (v.user_id === currentUserId ? { ...v, vote } : v))
-            : [...previous, { id: createOptimisticId(), activity_id: activityId, trip_id: tripId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
-        queryClient.setQueryData(['activities', activityId, 'votes'], optimistic);
-      }
+      // `previous ?? []` (not `if (previous)`): offline, this query is never prefetched
+      // per-entity, so `previous` is undefined the first time — the guard used to make an
+      // offline vote silently do nothing (it queues and syncs, but looks broken until
+      // reconnect). Seeding from an empty array always writes the optimistic row.
+      const base = previous ?? [];
+      const exists = base.findIndex((v) => v.user_id === currentUserId);
+      const optimistic: ActivityVote[] =
+        exists >= 0
+          ? base.map((v) => (v.user_id === currentUserId ? { ...v, vote } : v))
+            : [...base, { id: createOptimisticId(), activity_id: activityId, trip_id: tripId, user_id: currentUserId!, vote, created_at: new Date().toISOString() }];
+      queryClient.setQueryData(['activities', activityId, 'votes'], optimistic);
       return { previous };
     },
     onSuccess: (_data, { activityId, tripId }) => {
@@ -90,7 +93,7 @@ export function useRemoveVote() {
       const previous = queryClient.getQueryData<ActivityVote[]>(['activities', activityId, 'votes']);
       queryClient.setQueryData<ActivityVote[]>(
         ['activities', activityId, 'votes'],
-        (old) => old?.filter((v) => v.user_id !== currentUserId),
+        (old) => (old ?? []).filter((v) => v.user_id !== currentUserId),
       );
       return { previous };
     },

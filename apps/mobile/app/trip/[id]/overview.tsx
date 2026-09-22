@@ -14,7 +14,7 @@ import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trip
 import { useAuthStore } from '../../../src/stores/authStore';
 import { MemberAvatarGroup } from '../../../src/features/trips/components/MemberAvatarGroup';
 import { EditTripSheet } from '../../../src/features/trips/components/EditTripSheet';
-import { colors, ThemedIcon } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { useCalendarSync } from '../../../src/features/trips/hooks/useCalendarSync';
 import { CalendarPickerSheet } from '../../../src/features/trips/components/CalendarPickerSheet';
@@ -112,7 +112,8 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
 
         {trip.description ? (
           <View className="bg-surface border border-border rounded-md p-md">
-            <Text className="text-body text-text-primary">{trip.description}</Text>
+            {/* RichText: https:// links in the description are tappable (same component the activity/notes text uses). */}
+            <RichText className="text-body text-text-primary">{trip.description}</RichText>
           </View>
         ) : null}
 
@@ -266,12 +267,6 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
           <View className="flex-row justify-between">
             <Text className="text-body-small text-text-secondary">{t('overview.currency')}</Text>
             <Text className="text-body-small text-text-primary">{trip.base_currency}</Text>
-          </View>
-          <View className="flex-row justify-between">
-            <Text className="text-body-small text-text-secondary">{t('overview.timezone')}</Text>
-            <Text className="text-body-small text-text-primary">
-              {trip.timezone.replace('Europe/', '')}
-            </Text>
           </View>
         </View>
 

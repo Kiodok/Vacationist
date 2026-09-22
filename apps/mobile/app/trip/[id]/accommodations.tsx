@@ -21,6 +21,7 @@ import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 export default function AccommodationsTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -67,6 +68,9 @@ export default function AccommodationsTab() {
   if (ux.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
   }
+  if (ux.showError) {
+    return <QueryErrorState onRetry={refetch} />;
+  }
 
   return (
     <View className="flex-1">
@@ -76,7 +80,7 @@ export default function AccommodationsTab() {
         contentContainerStyle={
           accommodations?.length === 0
             ? { flex: 1, paddingHorizontal: 16, paddingVertical: 16 }
-            : { paddingHorizontal: 16, paddingVertical: 16 }
+            : { paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 88 }
         }
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         ListEmptyComponent={<EmptyAccommodations />}

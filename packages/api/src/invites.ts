@@ -1,6 +1,6 @@
 import * as ExpoCrypto from 'expo-crypto';
 import { supabase } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { InviteToken, CreateInviteInput, InviteExpiry } from '@vacationist/types';
 
 function getExpiresAt(expiresIn: InviteExpiry): string {
@@ -47,7 +47,7 @@ export async function getActiveInvites(tripId: string): Promise<InviteToken[]> {
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as InviteToken[];
+  return trustEmptyList(data as unknown as InviteToken[]);
 }
 
 export async function revokeInvite(tokenId: string): Promise<void> {

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_TIMEZONES, SUPPORTED_LOCALES, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE, SHARED_PACKING_ITEM_TYPE, LOST_FOUND_CASE_TYPE, HIGHLIGHT_FORMAT } from './enums';
+import { SUPPORTED_LOCALES, TRIP_STATUS, ACTIVITY_STATUS, ACCOMMODATION_STATUS, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, SHOPPING_ITEM_STATUS, TRANSFER_FLIGHT_STATUS, TRANSFER_DIRECTION, DOCUMENT_TYPE, SHARED_PACKING_ITEM_TYPE, LOST_FOUND_CASE_TYPE, HIGHLIGHT_FORMAT } from './enums';
 import type { VOTE_TYPE } from './enums';
 
 // Structural ISO-4217 shape check only — Currency is DB-driven (public.currency_catalog),
@@ -7,13 +7,19 @@ import type { VOTE_TYPE } from './enums';
 // (is this currency active/known?) happens inside the create/update_expense_with_splits RPCs.
 export const currencyCodeSchema = z.string().length(3).regex(/^[A-Z]{3}$/, 'Must be a 3-letter ISO 4217 currency code');
 
+// Timezones are no longer user-selectable (v1.39.0): times are floating wall-clock digits and the only
+// consumers of a stored zone are the server-side reminder cron and analytics. The value is filled in
+// silently from the device (`expo-localization`), so this only checks it looks like an IANA name — the DB
+// column has no CHECK either, and an unknown name falls back to Europe/Berlin in the reminder query.
+export const timezoneSchema = z.string().min(1).max(64);
+
 export const userSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(100),
   email: z.string().email().nullable(),
   avatar_url: z.string().url().nullable(),
   locale: z.enum(SUPPORTED_LOCALES),
-  timezone: z.enum(SUPPORTED_TIMEZONES),
+  timezone: timezoneSchema,
   is_guest: z.boolean(),
   created_at: z.string(),
 });
@@ -22,7 +28,7 @@ export const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   avatar_url: z.string().url().max(2048).nullable().optional(),
   locale: z.enum(SUPPORTED_LOCALES).optional(),
-  timezone: z.enum(SUPPORTED_TIMEZONES).optional(),
+  timezone: timezoneSchema.optional(),
   preferred_currency: currencyCodeSchema.nullable().optional(),
   show_store_badges: z.boolean().optional(),
 });
@@ -31,14 +37,17 @@ export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
 // --- Trip schemas ---
 
+/** Trip description limit (was 1000). There is no DB constraint on `trips.description` (plain TEXT). */
+export const TRIP_DESCRIPTION_MAX_LENGTH = 5000;
+
 export const createTripSchema = z.object({
   title: z.string().min(1).max(100),
-  description: z.string().max(1000).optional(),
+  description: z.string().max(TRIP_DESCRIPTION_MAX_LENGTH).optional(),
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   budget_per_person: z.number().positive().nullable().optional(),
   base_currency: currencyCodeSchema,
-  timezone: z.enum(SUPPORTED_TIMEZONES),
+  timezone: timezoneSchema,
 }).refine(
   (data) => data.end_date >= data.start_date,
   { message: 'End date must be on or after start date', path: ['end_date'] }
@@ -46,12 +55,12 @@ export const createTripSchema = z.object({
 
 export const updateTripSchema = z.object({
   title: z.string().min(1).max(100).optional(),
-  description: z.string().max(1000).nullable().optional(),
+  description: z.string().max(TRIP_DESCRIPTION_MAX_LENGTH).nullable().optional(),
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   budget_per_person: z.number().positive().nullable().optional(),
   base_currency: currencyCodeSchema.optional(),
-  timezone: z.enum(SUPPORTED_TIMEZONES).optional(),
+  timezone: timezoneSchema.optional(),
   status: z.enum(TRIP_STATUS).optional(),
 }).refine(
   (data) => {
@@ -195,6 +204,9 @@ export const createExpenseSchema = z.object({
   split_method: z.enum(EXPENSE_SPLIT_METHOD),
   splits: z.array(splitEntrySchema).min(1),
   is_business: z.boolean().optional(),
+  // `amount` is the grand total (bill + tip); tip_amount is the portion of it that was tip. The RPC
+  // enforces 0 <= tip <= amount, so the form's read-only Total can never disagree with what's stored.
+  tip_amount: z.number().nonnegative().optional(),
 });
 
 // currency was added in Phase 15 (multi-currency support) — editing an expense can now
@@ -214,6 +226,8 @@ export const updateExpenseWithSplitsSchema = z.object({
   split_method: z.enum(EXPENSE_SPLIT_METHOD),
   splits: z.array(splitEntrySchema).min(1),
   is_business: z.boolean().optional(),
+  // Omitted = the RPC keeps the stored tip (clamped to the new amount); the app always sends it.
+  tip_amount: z.number().nonnegative().optional(),
 });
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
@@ -662,7 +676,12 @@ export type AddPublicTransportPassengerVariables = { publicTransportId: string; 
 export type RemovePublicTransportPassengerVariables = { publicTransportId: string; tripId: string; userId: string };
 
 // --- Expense mutation variables ---
-export type CreateExpenseVariables = { tripId: string; input: CreateExpenseInput };
+// `id` on the three create-variables below is a CLIENT-generated UUID (v1.39.0). Minting it in the
+// variables — not on the server — is what makes an offline create addressable: the optimistic row, the
+// persisted queue entry and the replayed insert all share one id, so follow-up edits/deletes/child
+// creates queued behind it (an item in an offline-created list) target a row the server will really have.
+// Optional only so legacy queue entries persisted by an older build still replay.
+export type CreateExpenseVariables = { tripId: string; input: CreateExpenseInput; id?: string };
 export type UpdateExpenseWithSplitsVariables = { expenseId: string; tripId: string; input: UpdateExpenseWithSplitsInput };
 export type ArchiveExpenseVariables = { expenseId: string; tripId: string };
 export type UnarchiveExpenseVariables = { expenseId: string; tripId: string };
@@ -670,18 +689,17 @@ export type SettleExpenseSplitVariables = { splitId: string; expenseId: string; 
 export type UnsettleExpenseSplitVariables = { splitId: string; expenseId: string; tripId: string };
 export type CoverSplitVariables = { splitId: string; expenseId: string; tripId: string };
 export type UncoverSplitVariables = { splitId: string; expenseId: string; tripId: string };
-export type SettleAllForPairVariables = { debtor: string; creditor: string; tripId: string };
 export type SettleAllExpensesVariables = { tripId: string };
 
 // --- Shopping list mutation variables ---
-export type CreateShoppingListVariables = { tripId: string; input: CreateShoppingListInput };
+export type CreateShoppingListVariables = { tripId: string; input: CreateShoppingListInput; id?: string };
 export type UpdateShoppingListVariables = { listId: string; tripId: string; input: UpdateShoppingListInput };
 export type ArchiveShoppingListVariables = { listId: string; tripId: string };
 export type UnarchiveShoppingListVariables = { listId: string; tripId: string };
 export type DeleteShoppingListVariables = { listId: string; tripId: string };
 
 // --- Shopping item mutation variables ---
-export type CreateShoppingItemVariables = { listId: string; tripId: string; input: CreateShoppingItemInput };
+export type CreateShoppingItemVariables = { listId: string; tripId: string; input: CreateShoppingItemInput; id?: string };
 export type UpdateShoppingItemVariables = { itemId: string; listId: string; tripId: string; input: UpdateShoppingItemInput };
 export type UpdateShoppingItemGlobalVariables = { itemId: string; tripId: string; input: UpdateShoppingItemInput };
 export type DeleteShoppingItemVariables = { itemId: string; listId: string; tripId: string };

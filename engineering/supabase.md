@@ -1,5 +1,86 @@
 # Supabase Changes Log
 
+## 2026-09-20 (v1.39.0 items 8 + 13) — 6 new expense categories + `expenses.tip_amount` (1 migration)
+
+**Status: on DEV. On PROD it was applied and then REVERTED the same day (2026-09-20).**
+`20260920100000_extend_expense_categories_and_add_tip.sql`. Additive and backwards-compatible on its own.
+It was pushed to prod on the Tech Lead's go, then **reverted at the Tech Lead's request** (see "Prod
+revert" below). It is **pending on prod again** — a `db push` will re-apply it.
+
+> ⚠️ **Do NOT commit/deploy the v1.39.0 client until this migration is re-applied to prod.** The client's
+> `createExpense` / `updateExpenseWithSplits` now send `p_tip_amount`; against prod's restored 11/10-param
+> functions PostgREST finds no matching function, so **every expense create/edit would fail**, and any
+> new-category value would be rejected by the restored 5-value guard. Order must be: migration to prod
+> first, then the client.
+
+**One migration, not two.** The plan had `…100000_extend_expense_categories` and `…110000_add_expense_tip`,
+but both must rewrite the *same two* function bodies (`create_expense_with_splits`,
+`update_expense_with_splits`) — splitting would have meant writing ~400 lines of PL/pgSQL twice with a
+broken intermediate state.
+
+**Categories.** The expense "category" *is* `expenses.related_type` (`related_id` is never populated).
+Grows 5 → 11: `food_drink, groceries, fuel_parking, tickets_entry, health, souvenirs`. The value list was
+enforced in **three** places and all three are updated: the table CHECK **and the two hard-coded
+`NOT IN (…)` guards inside the RPCs** (`20260901150000`). Extending only the CHECK would have let the
+table accept a category the RPCs then reject — every expense write goes through those RPCs. The CHECK
+was inline/unnamed in `20260513100001`, so the migration drops "whatever CHECK on `public.expenses`
+mentions `related_type`" via `pg_constraint` (a wrong assumed name would make `DROP … IF EXISTS` a silent
+no-op and leave the old constraint blocking every new category), then re-adds
+`expenses_related_type_check`.
+
+**Tip.** `amount` keeps its meaning — the GRAND TOTAL that is split and converted — and
+`tip_amount NUMERIC(10,2) NOT NULL DEFAULT 0` records the tip portion of it. Because `amount` is
+untouched, FX (`converted_amount`), split maths, balances and every cost-summary RPC are unchanged; the
+tip is split with the bill and is metadata only. Table-level `CHECK (tip_amount >= 0 AND tip_amount <=
+amount)` (`expenses_tip_amount_range`). `create_expense_with_splits` gains `p_tip_amount NUMERIC DEFAULT
+0`; `update_expense_with_splits` gains `p_tip_amount NUMERIC DEFAULT NULL` (NULL = keep the stored tip,
+same convention as `p_related_type`/`p_description`/`p_is_business`) — **clamped with `LEAST(existing,
+p_amount)`** so an old client lowering an amount below a tip it can't see doesn't hit the CHECK with an
+opaque error. Old overloads `DROP`ped first (`CREATE OR REPLACE` cannot change an argument list; it
+creates an ambiguous second overload). No new non-CASCADE FK to `public.users` → `delete_own_account()`
+unchanged.
+
+**Verification (dev, real database — no Docker needed):**
+- `db push --dry-run` showed this migration as the only one pending (no ledger drift).
+- `supabase gen types typescript --linked` output is **byte-identical** to the hand-edited
+  `packages/api/src/database.types.ts` (0-line diff).
+- `pg_constraint` read-back: exactly one `related_type` CHECK, all 11 values (old 5-value one gone), plus
+  `expenses_tip_amount_range`.
+- A self-rolling-back `DO` block (calls the RPCs as a real member of a dev trip, then `RAISE EXCEPTION`s)
+  confirmed: create with a new category + tip stores `amount=55.00 tip=7.00` and the **splits sum to
+  55.00**; a call with no tip arg → tip `0.00`; explicit tip update; legacy NULL keeps the tip, and a
+  lowered amount clamps it (`2.00`); tip > amount, negative tip and an unknown category are all rejected;
+  all six new categories accepted (6/6). Afterwards `leaked_rows = 0`.
+- **Prod (read back after the push, before the revert):** dry-run showed only this migration pending (no
+  drift); one `related_type` CHECK with 11 values + `expenses_tip_amount_range`; one overload of each RPC
+  (12 / 11 params); `tip_amount numeric NOT NULL DEFAULT 0`; generated types a 0-line diff vs the repo.
+- **Not verified:** no client (web/device) has exercised the new RPC arguments end to end from the app.
+
+**Prod revert (2026-09-20, same day).** Done as a prod-only unwind, NOT a new revert migration, so the
+forward migration file stays unedited in the repo and can simply be pushed again:
+1. Checked prod first: **0** of 272 expenses had a tip or a new category, so the revert lost no data and
+   the restored 5-value CHECK could not be blocked by existing rows.
+2. One transaction (`supabase db query --linked -f`): dropped the two tip-aware overloads, recreated the
+   two functions **verbatim from `20260901150000`** (lines 24–204 / 212–427), dropped
+   `expenses_tip_amount_range` + `tip_amount`, restored `expenses_related_type_check` with the original 5 values.
+3. `supabase migration repair --status reverted 20260920100000` — prod's ledger no longer lists it, so
+   `db push --dry-run` shows it pending again (confirmed).
+4. Read back on prod: 5-value CHECK only; `create_expense_with_splits` 11 params, `update_expense_with_splits`
+   10 params (one overload each); no `tip_amount` column; expenses still 272; **`gen types --linked` is a
+   0-line diff against the committed `HEAD` `database.types.ts`** (i.e. prod is back to the pre-migration schema).
+**Dev is unchanged and still has the migration**, so dev and prod now differ by exactly this one migration.
+To bring the feature back: `npx supabase link --project-ref fsfsqghbejwvgxujoyne && npx supabase db push`,
+verify, re-link to dev — then commit the client. No new migration file is needed.
+
+**Client side (same commit):** `EXPENSE_RELATED_TYPE` (+6), `Expense.tip_amount`, both Zod schemas,
+`createExpense`/`updateExpenseWithSplits` pass `p_tip_amount`. **`computeTripCostSummary` had to change
+too:** the RPC emits sources as `'expense_' || related_type`, and the client hard-added only
+`expense_manual` + `expense_shopping` to the additive bucket — a new category (`expense_food_drink`…)
+would have been **silently dropped from the trip total**. It now treats every `expense_*` source that
+isn't one of the three entity-fallback sources as additive (9 regression tests, verified failing on the
+old code). `computeMyCostShares` needed no change: its `switch` `default:` already routes an unknown
+`related_type` to the additive `manual` bucket.
+
 ## 2026-09-17 (Growth Plan Q4 2026, Phase 2) — review-nudge excludes example trips + guests (1 migration, function-body replace)
 
 **Status: deployed to dev AND prod.** `20260917100000_review_nudge_exclude_example_and_guests.sql`
@@ -5493,3 +5574,102 @@ Guarded with the standard `auth.uid() IS NULL` / `private.is_trip_member(p_trip_
 **Prod push:** new function only, no schema/data change, `SECURITY INVOKER` means it can only ever see what the calling user's own RLS already allows — meets the standard "safe, backwards-compatible" bar, pushed immediately. Re-linked to dev afterward per the standard workflow.
 
 **App-side:** `TripTabContent` type (`packages/types`), `getTripTabContent` in `packages/api/src/trips.ts`, `useTripTabContent` hook (`apps/mobile/src/features/trips/hooks/useTrips.ts`) — invalidated on tab change rather than polled, since only the active tab is ever mounted. Tab bar border in `apps/mobile/app/trip/[id]/index.tsx` uses `colors.textPrimary` (theme-aware: `#F2F2F2` dark / `#1A1A1A` light / `#690F0C` colorful), shown only on inactive, populated tabs.
+
+---
+
+## 2026-09-21 — v1.39.0 device-test round 2 (dev only; prod pending with the client commit)
+
+Two migrations, both applied to **dev** (`aejywkbkcwyanhyzhrle`); **prod is NOT pushed** — it must go out in the same push as the client commit, together with `20260920100000_extend_expense_categories_and_add_tip.sql`, which is currently *reverted* on prod (the client sends `p_tip_amount` and `p_id`, which prod's restored functions reject).
+
+### `20260921100000_expense_client_ids.sql`
+`create_expense_with_splits` gains a trailing `p_id UUID DEFAULT NULL`; the 12-argument overload is dropped first (a different arg list under `CREATE OR REPLACE` would leave two overloads and PostgREST would call it ambiguous). NULL → server-generated id as before; set → used as the primary key, and a replay of an id that already exists for this caller in this trip returns it unchanged. This is what makes an offline-created expense addressable before it syncs and safe to replay twice. Verified on dev in a self-rolling-back `DO` block: same id returned on the 2nd call, one row, client id honoured, legacy (no `p_id`) call shape still resolves.
+
+### `20260921110000_per_recipient_activity_reminders.sql`
+`private.create_activity_reminders()` now computes "starts within 65 minutes" **per (activity, member)** from `COALESCE(users.timezone, trips.timezone, 'Europe/Berlin')` and inserts one notification per due member; dedup is per (activity, member) over 2 hours. Zone names are checked against `pg_timezone_names` so an unknown name falls through instead of raising. Delivery moved from the immediate dispatch of `create_trip_notification` to the existing push polling job (rows inserted with `push_sent_at NULL`, `app.batch_push_pending` set) — up to ~60 s later, immaterial for a 65-minute window. Verified on dev (rolled back): a member with `users.timezone = 'Europe/Lisbon'` is due for an activity 30 min ahead on a Lisbon wall clock, the second run does not duplicate, a member set to `Asia/Tokyo` is not due, and a garbage zone name does not abort the run.
+
+Client types were regenerated with `gen types --linked` (adds `tip_amount`, `p_tip_amount`, `p_id`).
+
+---
+
+## 2026-09-22 — v1.39.0 device-test round 3 (dev only; prod pending with the client commit)
+
+One migration, applied to **dev** (`aejywkbkcwyanhyzhrle`); **prod is NOT pushed** — same gate as round 2, goes out with the client commit alongside `20260920100000` (still reverted on prod) and the round-2 migrations.
+
+### `20260922100000_allow_deleted_user_sentinel_in_splits.sql`
+Root-caused from a real dev-DB row (expense `6960d767-13da-488b-8d92-41be9d16c419`, trip
+`2bf87b32-9ed0-485f-8d78-feae41cb6e5c`): a tester reported a member ("Alex") being incorrectly
+included in a split. Alex was never part of it — a *different* member deleted their account, and
+`delete_own_account()` correctly (and, per `docs/delete-account.html`, deliberately) reassigned
+their open `expense_splits.user_id` to the `00000000-0000-0000-0000-000000000000` sentinel rather
+than deleting the row. That sentinel-reassignment behavior is **not changed by this migration** —
+it's documented retention behavior for Play Store Data Safety disclosure.
+
+Two real bugs came out of the investigation, both fixed app-side without a migration:
+`ExpenseSplitBreakdown.tsx` now falls back to the split's own embedded `split_user` (already
+fetched, already named "Deleted User" in `public.users`) instead of the literal string "Unknown";
+`EditExpenseSheet.tsx` filters `initialSelectedIds` to ids present in `members` so the header can't
+read "4 of 4" next to a visibly-unchecked chip.
+
+The one bug that DID need a migration: any edit to such an expense failed outright, because the
+sheet's full-replace update always resubmits every stored split (the sentinel's included — the app
+must never silently drop or renumber a departed member's historical share) and
+`update_expense_with_splits`'s membership check rejected the sentinel as "not a trip member". Fix:
+both `create_expense_with_splits` and `update_expense_with_splits` (`CREATE OR REPLACE`, no
+signature change, no `DROP FUNCTION` needed) now accept the sentinel id specifically, in addition to
+real trip members. `create` got the same exemption for symmetry, though the client never offers the
+sentinel as a selectable member on a NEW expense — only editing a pre-existing expense can submit it.
+
+The client additionally **locks** split composition (method, per-member amounts, total amount, tip,
+currency) whenever a stored split belongs to the sentinel, and always resubmits the stored splits
+verbatim as `split_method: 'exact'` with each row's exact stored amount — so historical money can
+never be silently recomputed by a routine "just fix the title" edit. Title/description/category/
+paid_by/is_business stay editable.
+
+**Verified on dev** against the real expense, rolled back (`DO` block, `RAISE EXCEPTION` at the end):
+edited only the title with the sentinel-inclusive splits array resubmitted as `exact` — the update
+succeeded where it previously raised "All split members must be trip members"; `expense_splits` row
+count and the sentinel's `amount_owed` were byte-identical before and after (28.00, unchanged).
+`gen types --linked` confirms zero diff (no signature change on either function).
+
+---
+
+## 2026-09-22 (later) — v1.39.0 prod push: all 4 pending migrations deployed
+
+`20260920100000_extend_expense_categories_and_add_tip.sql`, `20260921100000_expense_client_ids.sql`,
+`20260921110000_per_recipient_activity_reminders.sql`, `20260922100000_allow_deleted_user_sentinel_in_splits.sql`
+pushed to **prod** (`fsfsqghbejwvgxujoyne`) via `supabase db push`, at the Tech Lead's explicit request,
+**ahead of the v1.39.0 client commit** (still uncommitted — see `project_v1_39_0_batch` memory / skill
+`v1-39-0-batch`).
+
+**Re-verified each file's safety against the currently-*live* (pre-v1.39.0) web client before pushing** —
+not just re-trusting the "additive" note in each file's own header:
+- `20260920100000`: `p_tip_amount` is a trailing `DEFAULT` on both RPCs; the category CHECK only grows
+  (5 → 11 values); `tip_amount` is `NOT NULL DEFAULT 0`. An old client that never sends the param is
+  unaffected.
+- `20260921100000`: `p_id` is a trailing `DEFAULT NULL` on `create_expense_with_splits`; omitting it
+  reproduces the old server-generated-id behavior exactly.
+- `20260921110000`: pure `CREATE OR REPLACE` on a cron-only function — no column or signature change,
+  nothing client-visible changes shape.
+- `20260922100000`: pure `CREATE OR REPLACE` on both expense RPCs, no signature change — only loosens
+  (never tightens) the split-membership check.
+
+All four are additive/backwards-compatible for the client that is *actually* live on `web.vacationist.app`
+right now (pre-v1.39.0) — this was the bar, not compatibility with the new, still-uncommitted client.
+
+**Push order:** `supabase migration list` (linked to prod) confirmed the ledger matched through
+`20260917100000` with exactly these four pending (`remote: ""`), so `supabase db push` applied them in
+filename order — required, since `20260921100000`'s `DROP FUNCTION` targets the exact 12-arg signature
+`20260920100000` creates. All four applied cleanly in one pass; `migration list` afterward shows all four
+with matching `local`/`remote` timestamps.
+
+**Schema parity:** `supabase gen types typescript --linked`, once against prod and once against dev
+(this machine has no Docker, so `db dump` isn't available — see `project_no_docker` memory; type
+generation is the established parity check here) — **zero diff**, byte-identical output.
+
+Re-linked to dev (`aejywkbkcwyanhyzhrle`) afterward per the standard workflow.
+
+**Still open before the client can ship:** `app.config.ts` is already `1.39.0`; the client code for all
+three device-test rounds is staged but not committed (repo rule: Tech Lead tests first). A
+`preview-dev` EAS build and a full manual/device pass are still pending — see the release-review
+artifact for the complete checklist. Prod's RPCs will silently accept the old client's calls in the
+meantime (verified above), so there is no window where prod is broken for the currently-live app.

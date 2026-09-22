@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Accommodation, AccommodationVote, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
 
@@ -11,7 +11,7 @@ export async function getAccommodations(tripId: string): Promise<Accommodation[]
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as Accommodation[];
+  return trustEmptyList(data as unknown as Accommodation[]);
 }
 
 export async function getAccommodation(accommodationId: string): Promise<Accommodation> {
@@ -86,7 +86,7 @@ export async function getAccommodationVotes(accommodationId: string): Promise<Ac
     .eq('accommodation_id', accommodationId);
 
   if (error) throw error;
-  return data as unknown as AccommodationVote[];
+  return trustEmptyList(data as unknown as AccommodationVote[]);
 }
 
 export async function castAccommodationVote(accommodationId: string, vote: VoteType): Promise<AccommodationVote> {

@@ -842,6 +842,7 @@ export type Database = {
           related_id: string | null
           related_type: string
           split_method: string
+          tip_amount: number
           title: string
           trip_id: string
           updated_at: string
@@ -862,6 +863,7 @@ export type Database = {
           related_id?: string | null
           related_type?: string
           split_method?: string
+          tip_amount?: number
           title: string
           trip_id: string
           updated_at?: string
@@ -882,6 +884,7 @@ export type Database = {
           related_id?: string | null
           related_type?: string
           split_method?: string
+          tip_amount?: number
           title?: string
           trip_id?: string
           updated_at?: string
@@ -2859,12 +2862,14 @@ export type Database = {
           p_amount: number
           p_currency: string
           p_description?: string
+          p_id?: string
           p_is_business?: boolean
           p_paid_by: string
           p_related_id: string
           p_related_type: string
           p_split_method: string
           p_splits: Json
+          p_tip_amount?: number
           p_title: string
           p_trip_id: string
         }
@@ -3229,6 +3234,7 @@ export type Database = {
           p_related_type?: string
           p_split_method: string
           p_splits: Json
+          p_tip_amount?: number
           p_title: string
         }
         Returns: undefined

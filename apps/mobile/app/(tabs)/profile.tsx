@@ -153,7 +153,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <PersistentScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 16, gap: 24 }}
@@ -195,11 +195,6 @@ export default function ProfileScreen() {
           <View className="flex-row gap-xs">
             <View className="bg-surface border border-border rounded-full px-sm py-xs">
               <Text className="text-label text-text-muted">{user.locale ?? '—'}</Text>
-            </View>
-            <View className="bg-surface border border-border rounded-full px-sm py-xs">
-              <Text className="text-label text-text-muted">
-                {user.timezone.replace('Europe/', '')}
-              </Text>
             </View>
           </View>
         </View>
@@ -255,7 +250,7 @@ export default function ProfileScreen() {
                     document={doc}
                     onEdit={() => setEditingDoc(doc)}
                     onDelete={() => deleteDoc.mutate(doc.id)}
-                    isDeleting={deleteDoc.isPending}
+                    isDeleting={isMutationBusy(deleteDoc)}
                   />
                 ))}
 

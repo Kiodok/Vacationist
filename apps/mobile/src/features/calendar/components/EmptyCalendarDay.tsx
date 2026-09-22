@@ -2,14 +2,12 @@ import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { colors , ThemedIcon } from '@vacationist/ui';
 import { dayjs } from '@vacationist/utils';
-import type { SupportedTimezone } from '@vacationist/types';
 
 interface EmptyCalendarDayProps {
   date: string;
-  timezone: SupportedTimezone;
 }
 
-export function EmptyCalendarDay({ date, timezone }: EmptyCalendarDayProps) {
+export function EmptyCalendarDay({ date }: EmptyCalendarDayProps) {
   const { t } = useTranslation('calendar');
   return (
     <View className="flex-1 items-center justify-center px-xl gap-md py-xl">
@@ -18,7 +16,7 @@ export function EmptyCalendarDay({ date, timezone }: EmptyCalendarDayProps) {
       </View>
       <Text className="text-heading-m text-text-primary text-center">{t('noActivities.title')}</Text>
       <Text className="text-body-small text-text-secondary text-center">
-        {t('noActivities.subtitle', { date: dayjs.tz(date, timezone).format('dddd, D MMMM') })}
+        {t('noActivities.subtitle', { date: dayjs.utc(date).format('dddd, D MMMM') })}
       </Text>
     </View>
   );

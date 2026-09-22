@@ -14,6 +14,7 @@ export {
   readStoredSessionResult,
   getUserIdOfflineSafe,
   hasStoredSession,
+  looksSessionValid,
   NotAuthenticatedError,
 } from './session';
 export type { StoredSession, StoredSessionResult } from './session';
@@ -109,7 +110,6 @@ export {
   unsettleExpenseSplit,
   coverSplit,
   uncoverSplit,
-  settleAllForPair,
   settleAllExpenses,
   getSettlementReceipts,
   getSettlementReceipt,

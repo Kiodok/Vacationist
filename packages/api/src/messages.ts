@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { trustEmptyList, trustNullResult } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TripMessage,
@@ -47,7 +48,7 @@ export async function getTripMessages(
   });
 
   if (error) throw error;
-  const items = ((data ?? []) as unknown as RpcMessageRow[]).map(toMessageWithSender);
+  const items = await trustEmptyList(((data ?? []) as unknown as RpcMessageRow[]).map(toMessageWithSender));
   return {
     items,
     nextCursor: items.length === MESSAGE_PAGE_SIZE ? items[items.length - 1].created_at : null,
@@ -98,7 +99,7 @@ export async function getMessageById(messageId: string): Promise<TripMessageWith
   });
   if (error) throw error;
   const rows = (data ?? []) as unknown as RpcMessageRow[];
-  return rows.length ? toMessageWithSender(rows[0]) : null;
+  return trustNullResult(rows.length ? toMessageWithSender(rows[0]) : null);
 }
 
 export interface MessageRealtimeCallbacks {

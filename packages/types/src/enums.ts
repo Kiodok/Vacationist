@@ -13,7 +13,23 @@ export type ActivityStatus = (typeof ACTIVITY_STATUS)[number];
 export const ACCOMMODATION_STATUS = ['suggested', 'requested', 'reserved', 'booked', 'completed'] as const;
 export type AccommodationStatus = (typeof ACCOMMODATION_STATUS)[number];
 
-export const EXPENSE_RELATED_TYPE = ['accommodation', 'activity', 'transport', 'shopping', 'manual'] as const;
+// The expense "category". The first five predate v1.39.0; the last six (food_drink … souvenirs) have
+// no entity counterpart, so cost-summary precedence treats them like `manual`/`shopping`. The value
+// list is ALSO enforced by the expenses CHECK constraint and by create/update_expense_with_splits
+// (20260920100000) — keep all three in sync.
+export const EXPENSE_RELATED_TYPE = [
+  'accommodation',
+  'activity',
+  'transport',
+  'shopping',
+  'manual',
+  'food_drink',
+  'groceries',
+  'fuel_parking',
+  'tickets_entry',
+  'health',
+  'souvenirs',
+] as const;
 export type ExpenseRelatedType = (typeof EXPENSE_RELATED_TYPE)[number];
 
 export const EXPENSE_SPLIT_METHOD = ['even', 'exact', 'shares', 'cover'] as const;
@@ -78,24 +94,3 @@ export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const HIGHLIGHT_FORMAT = ['square', 'story'] as const;
 export type HighlightFormat = (typeof HIGHLIGHT_FORMAT)[number];
-
-export const SUPPORTED_TIMEZONES = [
-  'Europe/Berlin',
-  'Europe/London',
-  'Europe/Paris',
-  'Europe/Rome',
-  'Europe/Madrid',
-  'Europe/Lisbon',
-  'Europe/Amsterdam',
-  'Europe/Zurich',
-  'Europe/Vienna',
-  'Europe/Warsaw',
-  'Europe/Prague',
-  'Europe/Stockholm',
-  'Europe/Helsinki',
-  'Europe/Athens',
-  'Europe/Bucharest',
-  'Europe/Budapest',
-  'Europe/Istanbul',
-] as const;
-export type SupportedTimezone = (typeof SUPPORTED_TIMEZONES)[number];

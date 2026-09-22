@@ -1,6 +1,9 @@
+import { AppState } from 'react-native';
 import { dehydrate, hydrate, type QueryClient, type Mutation } from '@tanstack/react-query';
 import { storage } from './mmkvStorage';
 import { isPersistedMutationKey } from './queryClient';
+import { reapplyOptimisticRows } from './optimisticRehydrate';
+import { useAuthStore } from '../stores/authStore';
 
 /**
  * Offline mutation queue persistence (Phase 19).
@@ -31,28 +34,42 @@ function shouldDehydrateMutation(mutation: Mutation): boolean {
 
 let writeScheduled = false;
 
+/** Serialize the current paused+persisted mutations to MMKV, right now. */
+function writeQueueNow(queryClient: QueryClient): void {
+  try {
+    const dehydrated = dehydrate(queryClient, {
+      shouldDehydrateQuery: () => false,
+      shouldDehydrateMutation,
+    });
+    const payload: StoredQueue = { t: Date.now(), mutations: dehydrated.mutations ?? [] };
+    if (payload.mutations.length === 0) {
+      storage.remove(QUEUE_KEY);
+    } else {
+      storage.set(QUEUE_KEY, JSON.stringify(payload));
+    }
+  } catch {
+    // A serialization failure must never crash the app — the queue just
+    // won't survive a kill this time.
+  }
+}
+
 /** Serialize the current paused+persisted mutations to MMKV. Debounced. */
 export function persistMutationQueue(queryClient: QueryClient): void {
   if (writeScheduled) return;
   writeScheduled = true;
   setTimeout(() => {
     writeScheduled = false;
-    try {
-      const dehydrated = dehydrate(queryClient, {
-        shouldDehydrateQuery: () => false,
-        shouldDehydrateMutation,
-      });
-      const payload: StoredQueue = { t: Date.now(), mutations: dehydrated.mutations ?? [] };
-      if (payload.mutations.length === 0) {
-        storage.remove(QUEUE_KEY);
-      } else {
-        storage.set(QUEUE_KEY, JSON.stringify(payload));
-      }
-    } catch {
-      // A serialization failure must never crash the app — the queue just
-      // won't survive a kill this time.
-    }
+    writeQueueNow(queryClient);
   }, 300);
+}
+
+/**
+ * Write the queue immediately, bypassing the 300 ms debounce. A change queued and then a hard kill
+ * inside that window would otherwise be lost — the queue would come back one change short.
+ */
+export function flushMutationQueue(queryClient: QueryClient): void {
+  writeScheduled = false; // a pending debounced write is now redundant
+  writeQueueNow(queryClient);
 }
 
 /**
@@ -74,10 +91,32 @@ export function hydrateMutationQueue(queryClient: QueryClient): void {
     hydrate(queryClient, { mutations: parsed.mutations });
   } catch {
     storage.remove(QUEUE_KEY);
+    return;
+  }
+
+  // The queue survived, but the optimistic rows it produced did not (stripOptimisticRows removes
+  // them before the query cache is written) — put them back so offline changes stay visible after a
+  // restart. Deliberately OUTSIDE the try/catch above: that catch treats any throw as a corrupt
+  // queue and deletes it, and a bug in a rehydrator must never cost the user their pending changes.
+  try {
+    reapplyOptimisticRows(queryClient, () => useAuthStore.getState().user?.id ?? '');
+  } catch {
+    // Cosmetic only — the mutations still replay on reconnect.
   }
 }
 
-/** Keep the on-disk queue in sync with the mutation cache. Returns an unsubscribe. */
+/**
+ * Keep the on-disk queue in sync with the mutation cache — debounced on every change, plus an
+ * immediate flush when the app leaves the foreground (the last chance before a kill). Returns an
+ * unsubscribe.
+ */
 export function subscribeMutationQueue(queryClient: QueryClient): () => void {
-  return queryClient.getMutationCache().subscribe(() => persistMutationQueue(queryClient));
+  const unsubscribeCache = queryClient.getMutationCache().subscribe(() => persistMutationQueue(queryClient));
+  const appState = AppState.addEventListener('change', (state) => {
+    if (state !== 'active') flushMutationQueue(queryClient);
+  });
+  return () => {
+    unsubscribeCache();
+    appState.remove();
+  };
 }

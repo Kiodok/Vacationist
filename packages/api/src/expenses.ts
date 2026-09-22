@@ -1,4 +1,5 @@
 import { supabase, freshChannel } from './client';
+import { trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Json } from './database.types';
 import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, ExpenseCategoryTotal, CreateExpenseInput, UpdateExpenseWithSplitsInput, SettlementReceipt, BusinessExpensePdfInput } from '@vacationist/types';
@@ -17,7 +18,7 @@ export async function getExpenses(
     .range(offset, offset + EXPENSE_PAGE_SIZE - 1);
 
   if (error) throw error;
-  const items = (data as unknown as ExpenseWithSplits[]) ?? [];
+  const items = await trustEmptyList((data as unknown as ExpenseWithSplits[]) ?? []);
   return { items, hasMore: items.length === EXPENSE_PAGE_SIZE };
 }
 
@@ -45,7 +46,7 @@ export async function getAllExpenses(tripId: string): Promise<ExpenseWithSplits[
     all.push(...batch);
     if (batch.length < ALL_EXPENSES_BATCH_SIZE) break;
   }
-  return all;
+  return trustEmptyList(all);
 }
 
 /** Cheap existence check ("does this trip have at least one business-flagged cost, from ANY
@@ -98,8 +99,13 @@ export async function renderBusinessExpensePdf(input: BusinessExpensePdfInput): 
   return data.pdfBase64;
 }
 
-export async function createExpense(tripId: string, input: CreateExpenseInput): Promise<string> {
+/**
+ * `id` is a client-generated UUID (see `createClientId`) sent as `p_id`. The RPC treats a replay of
+ * an id that already exists as a no-op that returns that id, so a create is safe to send twice.
+ */
+export async function createExpense(tripId: string, input: CreateExpenseInput, id?: string): Promise<string> {
   const { data, error } = await supabase.rpc('create_expense_with_splits', {
+    ...(id ? { p_id: id } : {}),
     p_trip_id: tripId,
     p_title: input.title,
     p_amount: input.amount,
@@ -112,6 +118,7 @@ export async function createExpense(tripId: string, input: CreateExpenseInput): 
     // '' clears/omits the description; the RPC stores '' as NULL.
     p_description: input.description ?? '',
     p_is_business: input.is_business ?? false,
+    p_tip_amount: input.tip_amount ?? 0,
   } as never);
 
   if (error) throw error;
@@ -134,6 +141,9 @@ export async function updateExpenseWithSplits(expenseId: string, input: UpdateEx
     // convention as p_related_type above — unlike createExpense's `?? false` (a brand-new
     // expense with no explicit flag should genuinely default false, not "keep existing").
     p_is_business: input.is_business ?? null,
+    // NULL = keep the stored tip (clamped to the new amount). The app always sends the field, so an
+    // edit that clears the tip sends 0 explicitly rather than relying on this sentinel.
+    p_tip_amount: input.tip_amount ?? null,
   });
 
   if (error) throw error;
@@ -156,24 +166,24 @@ export async function getExpenseSplits(expenseId: string): Promise<ExpenseSplit[
     .eq('expense_id', expenseId);
 
   if (error) throw error;
-  return data as unknown as ExpenseSplit[];
+  return trustEmptyList(data as unknown as ExpenseSplit[]);
 }
 
 export async function getTripBalances(tripId: string): Promise<MemberBalance[]> {
   const { data, error } = await supabase.rpc('get_trip_balances', { p_trip_id: tripId });
   if (error) throw error;
-  return (data as unknown as MemberBalance[]).map((b) => ({
+  return trustEmptyList((data as unknown as MemberBalance[]).map((b) => ({
     ...b,
     total_paid: Number(b.total_paid),
     total_owed: Number(b.total_owed),
     net_balance: Number(b.net_balance),
-  }));
+  })));
 }
 
 export async function getTripExpenseCategoryTotals(tripId: string): Promise<ExpenseCategoryTotal[]> {
   const { data, error } = await supabase.rpc('get_trip_expense_category_totals', { p_trip_id: tripId });
   if (error) throw error;
-  return (data as unknown as ExpenseCategoryTotal[]).map((c) => ({ ...c, total: Number(c.total) }));
+  return trustEmptyList((data as unknown as ExpenseCategoryTotal[]).map((c) => ({ ...c, total: Number(c.total) })));
 }
 
 export async function settleExpenseSplit(splitId: string): Promise<void> {
@@ -196,16 +206,6 @@ export async function uncoverSplit(splitId: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function settleAllForPair(tripId: string, debtor: string, creditor: string): Promise<number> {
-  const { data, error } = await (supabase.rpc as Function)('settle_all_for_pair', {
-    p_trip_id: tripId,
-    p_debtor: debtor,
-    p_creditor: creditor,
-  });
-  if (error) throw error;
-  return data as number;
-}
-
 export async function settleAllExpenses(tripId: string): Promise<string> {
   const { data, error } = await (supabase.rpc as Function)('settle_all_expenses', {
     p_trip_id: tripId,
@@ -222,7 +222,7 @@ export async function getSettlementReceipts(tripId: string): Promise<SettlementR
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as SettlementReceipt[];
+  return trustEmptyList((data ?? []) as SettlementReceipt[]);
 }
 
 export async function getSettlementReceipt(receiptId: string): Promise<SettlementReceipt> {

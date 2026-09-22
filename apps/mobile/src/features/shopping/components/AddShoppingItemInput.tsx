@@ -24,7 +24,7 @@ export function AddShoppingItemInput({ onAdd, isPending }: AddShoppingItemInputP
   };
 
   return (
-    <View className="flex-row items-center px-md py-sm gap-sm border-t border-border bg-surface">
+    <View className="flex-row items-center px-md pt-sm pb-md gap-sm border-t border-border bg-surface">
       <TextInput
         ref={inputRef}
         className="flex-1 bg-surface-elevated border border-border rounded-sm px-md py-sm text-text-primary text-body"

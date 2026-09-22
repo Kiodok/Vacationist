@@ -1671,4 +1671,271 @@ a sheet could only be closed by tapping the scrim, Cancel, or Android back.
 
 **Not yet done:** new `eas build --profile development` for on-device QA (grabber/header/dead-space
 drag, ScrollView hand-off, nested sheets, keyboard, 4 themes, RNGH-in-`<Modal>` on Android);
-`git commit`; production build + submit + staged rollout.
+production build + submit + staged rollout. *(Committed as `379706e` — this line used to also list
+"git commit".)*
+
+---
+
+## 🔌 Phase 21: Offline hardening + navigation/UX batch (v1.39.0)
+*MINOR / FULL store build (`version` `1.39.0` in `app.config.ts`). No new native module — RNGH and
+reanimated came with Phase 20; the drawer/picker use core RN APIs only. **Code-complete, NOT
+committed, NOT yet device-tested.***
+
+**Why:** device testing of the Phase 19 offline stack found items added offline missing from views,
+disappearing entirely after an app restart, infinite spinners, and an offline bar users found noisy;
+15 items in all (see the list below). Root causes, not symptoms:
+
+**Offline (items 1–7)**
+- [x] **Restart lost optimistic rows.** `stripOptimisticRows` removes them from the persisted cache
+  (correct pre-Phase-19), but the queue now *does* replay and `onMutate` lives in hooks that don't exist
+  at boot. `utils/optimisticRehydrate.ts` re-applies them after `hydrate()`, reusing the same pure cache
+  helpers as the hooks (`features/shopping/utils/shoppingItemCache.ts`,
+  `features/expenses/utils/expenseCache.ts`). Registered: `createShoppingItem`, `updateShoppingItem`,
+  `updateShoppingItemGlobal`, `deleteShoppingItem`, `createExpense`. Runs **outside** `hydrateMutationQueue`'s
+  try/catch, whose catch deletes the queue — a rehydrator bug must not cost the user their changes.
+  `flushMutationQueue` writes immediately on `AppState` → background (was a 300 ms debounce).
+- [x] **"All Items" is a separate query** (`['trips', id, 'all-shopping-items']`) from the list's
+  (`['shopping-lists', id, 'items']`); create/update/delete only patched one. Every patch now writes both;
+  the optimistic row gets the real `trip_id` + `list_title` (was `''`); never fabricates a partial All
+  Items cache; All Items is now in the offline prefetch.
+- [x] `createExpense` got its first optimistic row (previously nothing was inserted until replay).
+  Optimistic expenses aren't expandable and show "Waiting to sync".
+- [x] **Paused non-persisted mutations are now dropped** from the cache (`queryClient.ts` subscriber).
+  They were left paused in memory and would fire on reconnect — contradicting the "could not be saved"
+  toast and duplicating on manual retry. Makes `isMutationBusy` safe on `createTrip`/`leaveTrip`/etc.
+- [x] Raw `isLoading`/`isPending` → `getQueryDisplayState`/`isMutationBusy` on both calendars,
+  `settlement-receipt`, and `settings`/`prework`/`transfer`/`create`/`profile`/`expenses`.
+  Closes Phase 19 item E3 (OfflineEmptyState on the calendars).
+- [x] Offline bar deleted (`OfflineBanner.tsx`); `OfflineNotices` (launch toast once, "All changes
+  synced" after a drained reconnect) + `OfflineIndicator` header icon (Trips tab + trip screen).
+  `addToast` gained `{ durationMs }`. No change counter anywhere.
+- [x] `utils/replayQueue.ts` — refresh session → replay → refetch, in that order, bounded wait. **Defensive
+  only**: supabase-js already refreshes inside its fetch wrapper, so a stale-JWT root cause is unproven.
+- [x] Settle All: closes before `mutate()`, offline toast, `settleAllPending` via `useMutationState`
+  (also sees a replay after cold start). Its `settlingRef` reset in a per-call `onSettled` that never
+  fires for a paused mutation — the second reason every later tap was ignored. Dead `useSettleAllForPair`
+  removed (hook, default, keys, API fn, type).
+
+**UX / features (items 8–15)**
+- [x] Item 8/13 — migration `20260920100000` (see `engineering/supabase.md`): 6 categories + `tip_amount`.
+  `computeTripCostSummary` fixed to count any `expense_*` source; `EXPENSE_CATEGORY_ICON_COLORS` replaces
+  `ExpenseCard`'s icon switch + a `FEATURE_ICON_COLORS` lookup that had no `transport` key.
+  *Donut palette for the 6 new hues was NOT run through `scripts/validate_palette.js` (not on this
+  machine) — checked with an all-pairs ΔE instead; see the comment in `ExpenseCategoryChart.tsx`.*
+- [x] Item 9 — `edges={['top']}` on the Trips/Calendar/Profile tab screens (the tab bar already consumes
+  the bottom inset; Analytics/Notifications were already correct).
+- [x] ~~Item 10 — `TripNavDrawer` (left slide-over, ☰ opens it, core `Animated` + `PanResponder`, no
+  edge-swipe because both screen edges are back-gesture edges). The pill bar is gone.~~ **SUPERSEDED in round 2 (below): rejected in device testing; the pill bar is back plus a native-only "Menu" tab.**
+- [x] ~~Item 11 — `VoteSummary` pills are tappable (cast / switch / withdraw). **A stray tap can't cast a
+  `group_blocker`** (it escalates to "Discuss"); that pill is only tappable to withdraw your own.~~ **SUPERSEDED in round 2: removed ("too easy to vote by accident"). The read-only "my vote" ring stays.**
+- [x] Item 12 — iOS time-picker tray: scrim is now a sibling of the panel (the panel used to sit inside
+  the scrim and set `onStartShouldSetResponder`, claiming touches over the native `UIDatePicker`);
+  draft state so Cancel actually cancels; `themeVariant` follows the theme.
+- [x] Item 14 — display-only: confirm states which currency the receipt is recorded in; receipt rows +
+  detail show an "≈" conversion into `preferred_currency` with the recorded amount beneath. No total on
+  the button — minimal net transfers ≠ the receipt's gross open-split total.
+- [x] ~~Item 15 — `TimezoneField` + `TimezonePickerSheet` (search; Europe / world / fixed `UTC±N`) replace
+  the 17-pill bar in trip create, trip edit **and profile**. Pure helpers + 151 tests in
+  `packages/utils/src/timezones.ts` (the `Etc/GMT` sign is inverted; every bundled zone is checked).~~ **SUPERSEDED in round 2: all manual timezone selection was removed; times float. See "Floating wall-clock times" in the software engineering guide.**
+
+**Verification done:** typecheck 0; tests utils 362 / api 16 / mobile 231 (all green); migration applied
+to **dev** and read back (types byte-identical, constraints, RPC behaviour incl. rejections, rolled back,
+0 leaked rows). It was also pushed to prod and verified there, then **reverted on prod at the Tech Lead's
+request the same day** (prod is back to the pre-migration schema; see `supabase.md`).
+
+**Not yet done:**
+- ⚠️ **Verified in a real browser (web dev server, logged in, dev DB, 2026-09-20):** the trip drawer
+  (open/close, all 12 rows, "has content" dot, `?tab=` deep link, dark/light/colorful), the tip field's live
+  total (48 + 7 → €55.00), the new categories in the picker, the timezone field + picker (search `utc-5`,
+  offsets, fixed-offset warning), the tab bar with no dead strip, and the existing expense card. That run
+  found a real bug (the drawer's `className` on core `Animated.View` was ignored — see below) and the two
+  hand-stripped `Europe/` timezone labels. **Still NOT verified anywhere:** tap-to-vote, offline
+  toast/indicator/sync (web can't simulate offline through the tooling used), creating/editing an expense
+  with a tip end-to-end from the client, Settle All, and **the iOS picker fix — an unverified diagnosis that
+  needs a real iPhone/TestFlight run.** None of this has run on a device.
+- **Lesson — `className` on React Native's core `Animated.View` is not reliably applied** (NativeWind
+  interops reanimated's, not RN core's): `TripNavDrawer` first rendered with no scrim, background or size on
+  web. It uses explicit theme styles now (`useThemeColors()`). `ExpenseCard` already carried a web-only
+  `backgroundColor` workaround for the same reason. **Native behaviour of that pattern is unproven** — don't
+  claim it was broken on device.
+- **Lesson — Metro's cache can go stale on Windows:** after edits the dev server kept serving the OLD bundle
+  for the page's exact bundle URL (a hand-built URL got the new code). `npx expo start --web --clear` fixed
+  it. If a fix "doesn't work" in the browser, fetch the page's own script URL and grep it before debugging.
+- ⚠️ Item 6 (expense not syncing on reconnect): the *cause was not reproduced*. Fixed the plausible ones
+  (invisible expense, replay ordering, dropped optimistic rows) — needs an offline device run: create an
+  expense offline, kill + relaunch still offline, reboot, then reconnect.
+- ⚠️ **Prod migration is currently REVERTED (pending again).** Re-apply it (`link` prod → `db push`) **before**
+  committing/deploying the client — the client sends `p_tip_amount`, which prod's restored functions don't
+  accept, so expense create/edit would fail. Dev still has it. See `supabase.md` "Prod revert".
+- `git commit`; full Play/App Store build. Tutorial copy still to review (trip navigation changed).
+- Deferred (unchanged from Phase 19 item D): optimistic rows for `updateExpenseWithSplits`,
+  archive/unarchive expense, transfer passengers, prework prefs, entity notes. Only the five mutations
+  above are rehydrated after a restart.
+- Web ≥1024px persistent nav rail (the drawer is a slide-over at every width).
+
+
+### Round 2 — fixes from the 21.09.26 test session (`Test 21.09.26.docx`)
+
+The tester's findings (23 notes, German) drove this round. Root causes, not symptoms:
+
+**Offline**
+- [x] **Client-generated ids.** `createShoppingList` / `createShoppingItem` / `createExpense` used server-minted
+  ids, so the optimistic row carried a throwaway `__optimistic-…` id. An item added to a list *created offline*
+  (OFF4) targeted a list id the server had never seen and was dropped on replay, and the entire offline test
+  program hung off that. The device now mints the UUID (`createClientId()` in `utils/optimisticId.ts`), passes
+  it in the mutation variables (`id`) and to the API, and the optimistic row, the persisted queue entry and
+  the server row share it. `createShoppingList*`/`createShoppingItem` use it as the insert `id`; a duplicate
+  (23505) resolves to the existing row. `create_expense_with_splits` gained `p_id` (migration
+  `20260921100000`) with an idempotent replay. "Is it still pending?" can no longer be read off the id —
+  `useIsCreatePending(key, id)` (`hooks/`) reads the create mutation itself.
+- [x] **Replay order.** Mutations now carry a TanStack `scope` per family (`'shopping'`, `'expenses'`) in
+  `mutationDefaults.ts`: within a family they replay strictly in queued order, so a create and the edit/delete
+  queued behind it can't race. Family-scoped, not global, so one hung request only blocks its own family.
+- [x] **Never-loaded caches.** `addOptimisticShoppingList` seeds an empty items cache for a new list;
+  `addOptimisticShoppingItem` seeds a list's cache from the item when the list is known but its items were
+  never loaded (All Items is still never fabricated). Rehydrators use `variables.id`.
+- [x] **OFF-8 — a queued expense was lost without a trace.** A queued write that failed *terminally* on replay
+  ended as an `error` mutation, fell out of the persisted queue, and nothing told the user. Now
+  (`utils/queuedFailure.ts`, hooked from the `queryClient.ts` subscriber for mutations that were queued
+  offline or hydrated from the queue): a session error (`isAuthError` — expired JWT after a long offline
+  stretch) refreshes the session and retries once; anything else is parked in `FAILED_MUTATIONS_v1`
+  (`utils/failedMutations.ts`) with its full variables, the user gets one toast, and Profile → **Couldn't
+  sync** (`FailedSyncSection`) offers Retry / Discard. **The exact OFF-8 cause is unproven** — the dev DB had
+  no such row, so the replay never landed; the expired-JWT path is the leading hypothesis, not a confirmed one.
+- [x] **Predictable caching.** `utils/offlinePrefetch.ts` + `useGlobalOfflinePrefetch` (mounted in the root
+  layout): after sign-in, on reconnect and on foreground (throttled 5 min) the Trips list, global Calendar
+  (+ votes), Analytics, notifications and FX are fetched, then every *planning/ongoing* trip in full — trip
+  header, role, tab flags, all tab lists, votes, every shopping list's items — one trip at a time, 4 requests
+  in flight, aborting when offline. Completed/archived trips still cache on open (`useTripOfflinePrefetch`).
+- [x] `createTrip` offline: pre-checked with `onlineManager.isOnline()` — a clear "needs a connection" toast
+  instead of an open form with no outcome. Toasts de-duplicate by message, warnings auto-dismiss after 5 s
+  (errors stay until tapped), and the toast surface is opaque with a coloured border (it was 15 % alpha and
+  disappeared over matching backgrounds).
+- [x] All Items shows lists with no items, groups by **list id** (not title), and can delete (organizer any,
+  participant own — same rule as the per-list screen).
+
+**UX / forms**
+- [x] Tap-to-vote removed; `VoteSummary` is read-only again (keeps the "my vote" ring).
+- [x] Trip nav: pill bar restored + a native-only first **Menu** pill (`TripMenuTab`); web keeps pills only;
+  `TripNavDrawer` deleted.
+- [x] "Set1": the remembered expense currency is per trip (`lastUsedCurrency(tripId)`), so a trip's first
+  expense opens in the trip's currency. **Accommodation/transfer currencies were deliberately left as-is**
+  (global last-used, documented as an intentional "destination habit" in their utils) — the docx only asked
+  about expenses.
+- [x] **Exact split (Exp 8).** Switching an even expense to *exact* now seeds an even split of the total
+  (`evenExactShares`), so it starts balanced; an expense already stored as exact prefills from
+  `amount_owed_original_currency` (expense currency) instead of `amount_owed` (trip base currency); and
+  **Add/Save is disabled while the shares don't add up to the total** (`isExactSplitBalanced`), with a toast
+  from `onInvalid` for any other blocked submit. Pure helpers + tests in `packages/utils/src/expenseSplits.ts`.
+  *The tester's literal "150 + 15 = 165 doesn't save" was not reproduced against the RPC; these are the
+  paths found that make an exact edit fail or silently do nothing.*
+- [x] German copy: shop tab and category "Shopping", groceries "Supermarkt" (food_drink is "Essen & Trinken").
+
+**Timezones**
+- [x] All manual timezone selection removed (trip create/edit, profile); times float — see the software
+  engineering guide. `isActivityOngoing/AutoCompleted/HappeningNow` (`activityStatus.ts`) replace the
+  `dayjs.tz` comparisons; `formatDateRange`/`formatCalendarDayHeader`/`buildTripCalendarData` lost their
+  timezone parameters; `SUPPORTED_TIMEZONES` and `packages/utils/src/timezones.ts` are gone.
+  `useDeviceTimezoneSync` keeps `users.timezone` = the phone's zone; reminders became per-recipient
+  (migration `20260921110000`).
+
+**Test environment:** `preview-dev` EAS profile (`apps/mobile/eas.json`) — release-like build (embedded JS, so
+force-close / relaunch / reboot tests work) pointed at the **dev** backend. `preview` points at PROD.
+It installs over the dev client (same package). Build with `eas build --profile preview-dev --platform android`.
+
+**Verification done:** typecheck 0; tests utils 229 / api 16 / mobile 247. Migrations applied to dev and
+verified in rolled-back `DO` blocks (see `supabase.md`). **No device run of any of this** — web/desktop only.
+
+### Round 3 — fixes from the 22.09.26 test session (`Test 22.09.26.docx`)
+
+Still v1.39.0, still uncommitted. Three parallel read-only investigations (code + a rolled-back dev-DB
+query) root-caused every finding before any fix was written. Most of round 2 held up — chat, expenses,
+accommodations, votes, packing, shopping and trip notes all correctly sync on reconnect, and a queued
+create no longer even flickers on the fast path.
+
+**One root cause explains three offline symptoms.** `packages/api/src/members.ts` `getCurrentMemberRole`
+was the only read in the whole package that swallowed an error into a trusted return value
+(`if (error) return null`) instead of throwing. Offline, that silently overwrote the correctly-prefetched
+role with `null`, hiding every `role === 'organizer' | 'participant'` control app-wide: the shopping
+delete icon, an activity's Edit/Close voting/Reopen voting, and the Overview "Edit trip" pencil. Fixed by
+distinguishing a genuine "not a member" (PGRST116 **and** a plausibly-valid session) from "we don't
+actually know" (anything else, which now throws so TanStack keeps the cached role) — see
+[[offline-client-generated-ids]]'s sibling skill `anon-key-fallback-guard`.
+
+**The same underlying mechanism — supabase-js silently retrying on the anon key when a token refresh
+fails, against RLS that returns a legitimate-*looking* empty/not-found result — turned out to explain
+several other symptoms too**, so this round did a **full audit of `packages/api`**, not just the
+reported ones: `looksSessionValid()` (no network call, reads the same on-disk session blob as
+`readStoredSession()`) plus `trustEmptyList()`/`trustNullResult()` wrappers, applied to every
+authenticated list/nullable read across the package (excluding `auth.ts`, `restoreCredentials.ts`, and
+`invites.ts`'s public preview — genuinely pre-auth). Same mechanism, two more concrete fixes:
+- `useTrips.ts`'s `TripNotFoundError` cache purge — no longer trusted (and no longer wipes the trip from
+  memory + disk) unless the session looks valid. This was the "some trips randomly fail to load offline"
+  finding.
+- `QueryProvider.tsx`'s `shouldDehydrateQuery` — now persists any query with usable `data`, not only
+  `status === 'success'`; a query that merely *errored on its most recent refetch* used to be dropped
+  from disk entirely within the 4s persist window, discarding perfectly good cached data.
+
+**`getQueryDisplayState` gained a `showError` state**, and all 22 of its consumers were swept to use it —
+a query that genuinely fails with no cached data used to match neither `showSkeleton` nor
+`showOfflineEmpty`, so every screen fell through to its own "nothing here" empty-state render,
+indistinguishable from real emptiness. This is what made Prework show a false "no topics yet" after
+reconnecting, and (combined with a hand-rolled `isError || !trip` check that ran *before* checking for
+cached data) what made the trip screen show "could not be loaded" over a trip it had perfectly good
+cached data for. New shared `<QueryErrorState>` component, mirrors `OfflineEmptyState`.
+
+**Voting didn't visibly work offline** — a separate root cause: `useCastVote`'s (and the accommodation/
+flight equivalents') `onMutate` skipped its optimistic write entirely when `previous` was `undefined`
+(`if (previous) { ... }`), and the per-activity votes query key it reads was never prefetched (only the
+trip-level batch was). Fixed by seeding from `previous ?? []` unconditionally, and — for activities —
+having `prefetchTripData` populate every `['activities', id, 'votes']` entry from the already-fetched
+batch (cheaper than N individual fetches); accommodations and flights have no batch equivalent, so they
+get a bounded per-entity prefetch loop instead, same shape as the existing shopping-items loop.
+
+**Prework (and, found while there, Recipes) were never prefetched at all** — `prefetchTripData`'s 22-key
+list had no entry for either. Added, including the topic-scoped preference queries (a per-topic loop,
+same shape as shopping-lists → items).
+
+**UX / product reversals and fixes:**
+- Shopping item delete now needs an inline confirm step (`ShoppingItemRow.tsx`, same pattern as list
+  deletion) — ticking stays a single tap, per the tester's explicit split verdict. Fixed while touching
+  the file: `EditShoppingItemSheet.tsx` was the only sheet with zero i18n (hardcoded English).
+- **The Profile "Couldn't sync" list from round 2 is removed** — confused users, Retry rarely helped (the
+  underlying rejection was still there), and the raw server error text wasn't meaningful to a
+  non-developer. The one genuine improvement is kept invisibly: a queued mutation that fails on an
+  expired-session error still gets one silent retry after a session refresh; final failure goes back to
+  the same generic toast every non-persisted mutation failure already used. `failedMutations.ts` and
+  `FailedSyncSection.tsx` are deleted.
+- **Deleted-member expense split** (the "Alex" report — Alex was never in it; a *different* member had
+  deleted their account, and `delete_own_account()` correctly reassigned their open split to the
+  "Deleted User" sentinel, not a bug): `ExpenseSplitBreakdown` now falls back to the split's own embedded
+  `split_user` instead of "Unknown"; `EditExpenseSheet`'s `initialSelectedIds` is filtered to real
+  members so the header can't read "4 of 4" next to a visibly-unchecked chip; migration
+  `20260922100000` lets both expense RPCs accept the sentinel id so editing such an expense no longer
+  fails outright; the client locks split composition (method, amounts, total, tip, currency) whenever a
+  stored split belongs to the sentinel and always resubmits the stored splits verbatim as `exact` — never
+  silently recomputing a departed member's historical share. `delete_own_account()` itself is untouched
+  (documented, disclosed retention behavior).
+
+**Verification done:** typecheck 0; tests utils 229 / api 30 / mobile 245 (net down from 250: -5 for the
+deleted `failedMutations.test.ts`, +10 new across `session.test.ts`/`members.test.ts`, +3
+`useOfflineAwareQuery.test.ts`). Migration `20260922100000` applied to dev and verified against the real
+reported expense (`6960d767-…`) in a rolled-back `DO` block — the save that used to fail now succeeds,
+`expense_splits` row count and the sentinel's `amount_owed` byte-identical before/after. **No device run
+of any of this** — web/desktop only.
+
+**Still open / not verified**
+- ✅ **Prod:** `20260920100000`, `20260921100000`, `20260921110000`, `20260922100000` all pushed to prod
+  2026-09-22, ahead of the client commit, at the Tech Lead's explicit request (see `engineering/supabase.md`'s
+  "2026-09-22 (later)" entry) — each re-verified backward-compatible with the currently-live client first;
+  zero-diff schema parity confirmed via `gen types --linked` dev vs prod. The client commit is no longer
+  migration-gated.
+- ⚠️ Scoped replay ordering (`scope`) and `handleQueuedFailure` are untested against a real offline device.
+- ⚠️ The Part C audit's `trustEmptyList`/`trustNullResult` sweep covered every list/nullable read in
+  `packages/api` as of 2026-09-22 — a *new* read added later must apply the same guard itself; nothing
+  enforces it automatically. `getTripTabContent` (a single-object RPC with a default-all-false fallback,
+  not a list/nullable shape) was deliberately left out — low stakes (only affects the tab "has content"
+  dots), scope boundary for this round.
+- Marketing copy (`docs/i18n/*.js` `feat.6.desc`) still says the calendar is "displayed in the trip's
+  timezone" — needs an `en.js` + `de.js` edit and `npm run build:site`.
+- Tutorial copy (trip navigation, offline) still to review.

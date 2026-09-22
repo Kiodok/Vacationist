@@ -92,17 +92,11 @@ describe('formatCalendarDayHeader', () => {
     process.env.TZ = ORIGINAL_TZ;
   });
 
-  it('renders the given date, not a device-local rollback, regardless of the timezone argument', () => {
-    // dayName/dayNumber/monthShort no longer use the timezone argument at all (see calendar.ts's
-    // doc comment) — passing two different named zones (SupportedTimezone only offers European
-    // ones, but Berlin/Lisbon still differ by a real UTC offset) must produce identical labels.
-    const berlin = formatCalendarDayHeader('2026-09-02', 'Europe/Berlin');
-    expect(berlin.dayNumber).toBe('2');
-    expect(berlin.monthShort).toBe('Sep');
-
-    const lisbon = formatCalendarDayHeader('2026-09-02', 'Europe/Lisbon');
-    expect(lisbon.dayNumber).toBe('2');
-    expect(lisbon.monthShort).toBe('Sep');
-    expect(lisbon.dayName).toBe(berlin.dayName);
+  it('renders the given date, not a device-local rollback (device TZ is behind UTC here)', () => {
+    // The labels are pure functions of the stored date digits — no timezone in play at all.
+    const header = formatCalendarDayHeader('2026-09-02');
+    expect(header.dayNumber).toBe('2');
+    expect(header.monthShort).toBe('Sep');
+    expect(header.dayName).toBe('Wed');
   });
 });

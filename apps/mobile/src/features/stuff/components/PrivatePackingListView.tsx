@@ -12,6 +12,7 @@ import { SEEDED_CATEGORY_I18N } from '../utils/categoryUtils';
 import { isMutationBusy } from '../../../utils/mutationStatus';
 import { getQueryDisplayState } from '../../../hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../components/OfflineEmptyState';
+import { QueryErrorState } from '../../../components/QueryErrorState';
 
 interface PrivatePackingListViewProps {
   tripId: string;
@@ -103,6 +104,9 @@ export function PrivatePackingListView({ tripId, onCopyToTrip }: PrivatePackingL
   }
   if (ux.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
+  }
+  if (ux.showError) {
+    return <QueryErrorState onRetry={refetch} />;
   }
 
   const isEmpty = !items || items.length === 0;

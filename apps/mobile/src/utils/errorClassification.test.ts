@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isExpectedMutationError } from './errorClassification';
+import { isExpectedMutationError, isAuthError } from './errorClassification';
 
 describe('isExpectedMutationError', () => {
   it('treats a bare RAISE EXCEPTION (P0001) as expected', () => {
@@ -53,5 +53,22 @@ describe('isExpectedMutationError', () => {
     expect(isExpectedMutationError(undefined)).toBe(false);
     expect(isExpectedMutationError('boom')).toBe(false);
     expect(isExpectedMutationError({})).toBe(false);
+  });
+});
+
+describe('isAuthError', () => {
+  // The OFF-8 root cause candidate: after >1 h offline the JWT lapses, so a replayed write is rejected
+  // for the SESSION, not for the change. That must be retried on a fresh session, not treated as final.
+  it('recognises an expired / invalid token however it surfaces', () => {
+    expect(isAuthError({ code: 'PGRST301', message: 'JWT expired' })).toBe(true);
+    expect(isAuthError({ status: 401, message: 'Unauthorized' })).toBe(true);
+    expect(isAuthError({ code: 'P0001', message: 'Not authenticated' })).toBe(true);
+    expect(isAuthError(new Error('invalid JWT: unable to parse'))).toBe(true);
+  });
+
+  it('does not mistake a real rejection of the change for an auth problem', () => {
+    expect(isAuthError({ code: 'P0001', message: 'Split amounts (10) do not sum to expense amount (12)' })).toBe(false);
+    expect(isAuthError({ code: '42501', message: 'permission denied for table expenses' })).toBe(false);
+    expect(isAuthError(null)).toBe(false);
   });
 });

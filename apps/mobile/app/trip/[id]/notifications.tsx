@@ -13,6 +13,7 @@ import { openStoreReviewOrFallback } from '../../../src/utils/openStoreReview';
 import { ThemedIcon, useThemeColors } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 export default function TripNotificationsScreen() {
   const themeColors = useThemeColors();
@@ -74,6 +75,8 @@ export default function TripNotificationsScreen() {
         </View>
       ) : ux.showOfflineEmpty ? (
         <OfflineEmptyState onRetry={refetch} />
+      ) : ux.showError ? (
+        <QueryErrorState onRetry={refetch} />
       ) : (
         <FlashList
           data={notifications}

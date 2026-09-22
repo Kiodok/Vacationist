@@ -40,13 +40,17 @@ export function useCastTransferFlightVote() {
     onMutate: async ({ vote, flightId, tripId }) => {
       await queryClient.cancelQueries({ queryKey: ['transfer-flights', flightId, 'votes'] });
       const previous = queryClient.getQueryData<TransferFlightVote[]>(['transfer-flights', flightId, 'votes']);
-      if (previous) {
-        const exists = previous.findIndex((v) => v.user_id === currentUserId);
-        const optimistic: TransferFlightVote[] =
-          exists >= 0
-            ? previous.map((v) => (v.user_id === currentUserId ? { ...v, vote } : v))
+      // `previous ?? []` (not `if (previous)`): offline, this query is never prefetched
+      // per-entity, so `previous` is undefined the first time — the guard used to make an
+      // offline vote silently do nothing (it queues and syncs, but looks broken until
+      // reconnect). Seeding from an empty array always writes the optimistic row.
+      const base = previous ?? [];
+      const exists = base.findIndex((v) => v.user_id === currentUserId);
+      const optimistic: TransferFlightVote[] =
+        exists >= 0
+          ? base.map((v) => (v.user_id === currentUserId ? { ...v, vote } : v))
             : [
-                ...previous,
+                ...base,
                 {
                   id: createOptimisticId(),
                   flight_id: flightId,
@@ -56,8 +60,7 @@ export function useCastTransferFlightVote() {
                   created_at: new Date().toISOString(),
                 },
               ];
-        queryClient.setQueryData(['transfer-flights', flightId, 'votes'], optimistic);
-      }
+      queryClient.setQueryData(['transfer-flights', flightId, 'votes'], optimistic);
       return { previous };
     },
     onSuccess: (_data, { flightId, tripId }) => {
@@ -87,7 +90,7 @@ export function useRemoveTransferFlightVote() {
       const previous = queryClient.getQueryData<TransferFlightVote[]>(['transfer-flights', flightId, 'votes']);
       queryClient.setQueryData<TransferFlightVote[]>(
         ['transfer-flights', flightId, 'votes'],
-        (old) => old?.filter((v) => v.user_id !== currentUserId),
+        (old) => (old ?? []).filter((v) => v.user_id !== currentUserId),
       );
       return { previous };
     },

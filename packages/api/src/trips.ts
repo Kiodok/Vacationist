@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Trip, CreateTripInput, UpdateTripInput, TripTabContent, CostSummaryRow, MyCostShareRow } from '@vacationist/types';
 
@@ -17,7 +17,7 @@ export async function getTrips(): Promise<(Trip & { member_count: number })[]> {
     .order('start_date', { ascending: true });
 
   if (error) throw error;
-  return data as unknown as (Trip & { member_count: number })[];
+  return trustEmptyList(data as unknown as (Trip & { member_count: number })[]);
 }
 
 export async function getTrip(tripId: string): Promise<Trip & { member_count: number }> {
@@ -124,7 +124,7 @@ export function unsubscribeFromTrip(channel: RealtimeChannel): void {
 export async function getTripCostSummary(tripId: string): Promise<CostSummaryRow[]> {
   const { data, error } = await supabase.rpc('get_trip_cost_summary', { p_trip_id: tripId });
   if (error) throw error;
-  return (data as unknown as CostSummaryRow[]).map((r) => ({ ...r, amount: Number(r.amount) }));
+  return trustEmptyList((data as unknown as CostSummaryRow[]).map((r) => ({ ...r, amount: Number(r.amount) })));
 }
 
 /** Raw per-trip, per-source "my share" cost rows for the global Analytics tab (v1.34.0 item 2)
@@ -133,5 +133,5 @@ export async function getTripCostSummary(tripId: string): Promise<CostSummaryRow
 export async function getMyTripCostShares(): Promise<MyCostShareRow[]> {
   const { data, error } = await supabase.rpc('get_my_trip_cost_shares');
   if (error) throw error;
-  return (data as unknown as MyCostShareRow[]).map((r) => ({ ...r, amount: Number(r.amount), member_count: Number(r.member_count) }));
+  return trustEmptyList((data as unknown as MyCostShareRow[]).map((r) => ({ ...r, amount: Number(r.amount), member_count: Number(r.member_count) })));
 }

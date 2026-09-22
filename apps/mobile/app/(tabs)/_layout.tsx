@@ -1,12 +1,9 @@
 import { Tabs } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../src/features/notifications/hooks/useUnreadCount';
 import { useNotificationsRealtime } from '../../src/features/notifications/hooks/useNotifications';
 import { colors, useThemeColors, useResolvedTheme, ThemedIcon } from '@vacationist/ui';
 import { ThemeVarsProvider } from '../../src/components/ThemeVarsProvider';
-import { useNetworkStatus } from '../../src/hooks/useNetworkStatus';
-import { OFFLINE_BANNER_HEIGHT } from '../../src/components/OfflineBanner';
 import { useTutorialSeen } from '../../src/features/tutorial/hooks/useTutorialSeen';
 import { TutorialModal } from '../../src/features/tutorial/components/TutorialModal';
 
@@ -16,8 +13,6 @@ export default function TabLayout() {
   useNotificationsRealtime();
   const tc = useThemeColors();
   const theme = useResolvedTheme();
-  const { isConnected } = useNetworkStatus();
-  const insets = useSafeAreaInsets();
   const { seen: tutorialSeen, markSeen: markTutorialSeen } = useTutorialSeen();
   // In colorful mode the tab icons/labels use the warm wine tone instead of purple
   const tabActivePrimary = theme === 'colorful' ? tc.textPrimary : tc.primary;
@@ -34,8 +29,6 @@ export default function TabLayout() {
           tabBarStyle: {
             backgroundColor: tc.background,
             borderTopColor: tc.border,
-            bottom: isConnected === false ? OFFLINE_BANNER_HEIGHT + insets.bottom : 0,
-            paddingBottom: isConnected === false ? 0 : undefined,
           },
           tabBarInactiveTintColor: tc.textMuted,
         }}

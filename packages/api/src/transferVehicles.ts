@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferVehicle,
@@ -18,7 +18,7 @@ export async function getTransferVehicles(tripId: string): Promise<TransferVehic
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as TransferVehicle[];
+  return trustEmptyList(data as unknown as TransferVehicle[]);
 }
 
 export async function createTransferVehicle(tripId: string, input: CreateTransferVehicleInput): Promise<TransferVehicle> {
@@ -64,7 +64,7 @@ export async function getTransferVehiclePassengers(vehicleId: string): Promise<T
     .eq('vehicle_id', vehicleId);
 
   if (error) throw error;
-  return data as unknown as TransferVehiclePassenger[];
+  return trustEmptyList(data as unknown as TransferVehiclePassenger[]);
 }
 
 export async function addTransferVehiclePassenger(

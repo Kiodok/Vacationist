@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { dayjs } from '@vacationist/utils';
-import type { Activity, SupportedTimezone } from '@vacationist/types';
+import type { Activity } from '@vacationist/types';
 import { colors , ThemedIcon } from '@vacationist/ui';
 import { AgendaItem } from './AgendaItem';
 import { useTripMembers } from '../../trips/hooks/useMembers';
 import { useTripActivityVotes } from '../../activities/hooks/useVotes';
 
 interface GlobalCalendarTripSectionProps {
-  trip: { id: string; title: string; start_date: string; end_date: string; timezone: SupportedTimezone };
+  trip: { id: string; title: string; start_date: string; end_date: string };
   activities: Activity[];
   onActivityPress: (activity: Activity) => void;
   onTripPress: (tripId: string) => void;
@@ -55,10 +55,10 @@ export function GlobalCalendarTripSection({
             {trip.title}
           </Text>
           <Text className="text-body-small text-text-secondary">
-            {/* .tz(), not a bare dayjs(dateString) parse — a date-only string parses as UTC
+            {/* .utc(), not a bare dayjs(dateString) parse — a date-only string parses as UTC
                 midnight, and formatting without .tz()/.utc() converts to device-local first,
                 which can roll the displayed date back a day (task 12/13's bug class). */}
-            {dayjs.tz(trip.start_date, trip.timezone).format('D MMM')} – {dayjs.tz(trip.end_date, trip.timezone).format('D MMM YYYY')}
+            {dayjs.utc(trip.start_date).format('D MMM')} – {dayjs.utc(trip.end_date).format('D MMM YYYY')}
           </Text>
         </View>
         <ThemedIcon name="chevron-forward" size={16} color={colors.textMuted} />
@@ -70,7 +70,6 @@ export function GlobalCalendarTripSection({
           <AgendaItem
             key={activity.id}
             activity={activity}
-            timezone={trip.timezone}
             onPress={onActivityPress}
             attendees={attendeesByActivity[activity.id]}
           />

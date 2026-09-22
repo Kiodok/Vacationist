@@ -1,5 +1,5 @@
 import { supabase } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList, trustNullResult } from './session';
 import { uploadDocumentFile, getSignedDocumentUrl, deleteDocumentFile, buildExpenseDocumentPath } from './documentStorage';
 import type { ExpenseDocument } from '@vacationist/types';
 
@@ -13,7 +13,7 @@ export async function getExpenseDocuments(expenseId: string): Promise<ExpenseDoc
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as unknown as ExpenseDocument[];
+  return trustEmptyList((data ?? []) as unknown as ExpenseDocument[]);
 }
 
 export async function uploadExpenseDocument(

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { getTrips, getTrip, getTripTabContent, createTrip, softDeleteTrip, TripNotFoundError } from '@vacationist/api';
+import { getTrips, getTrip, getTripTabContent, createTrip, softDeleteTrip, TripNotFoundError, looksSessionValid } from '@vacationist/api';
 import type { CreateTripInput, Trip, UpdateTripVariables } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
@@ -37,14 +37,26 @@ export function useTrip(tripId: string) {
   // loop: removeQueries resets state → triggers refetch → same error → repeat.
   const purgedForTrip = useRef<string | null>(null);
   useEffect(() => {
-    if (query.error instanceof TripNotFoundError && purgedForTrip.current !== tripId) {
+    if (!(query.error instanceof TripNotFoundError) || purgedForTrip.current === tripId) return;
+    let cancelled = false;
+    void (async () => {
+      // `TripNotFoundError` is PGRST116 (0 rows) from `.single()` — genuinely means "removed from
+      // the trip", UNLESS the request actually went out on the anon key (an expired token + a
+      // failed refresh while offline), which RLS turns into the identical 0-row result. That false
+      // negative used to permanently purge — and, within 4s, persist the removal of — a trip the
+      // user was never actually removed from (v1.39.0 round 3, "some trips randomly fail to load
+      // offline"). Only trust it when the stored session looks like it should have been valid.
+      if (!(await looksSessionValid())) return;
+      if (cancelled) return;
       purgedForTrip.current = tripId;
       // Cancel any in-flight fetch first so it can't re-insert a stale error
       // entry after the cache is purged.
-      void qc.cancelQueries({ queryKey: ['trips', tripId] }).then(() => {
-        qc.removeQueries({ queryKey: ['trips', tripId] });
-      });
-    }
+      await qc.cancelQueries({ queryKey: ['trips', tripId] });
+      qc.removeQueries({ queryKey: ['trips', tripId] });
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [query.error, tripId, qc]);
 
   return query;

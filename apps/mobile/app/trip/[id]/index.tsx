@@ -19,6 +19,9 @@ import { ScreenErrorBoundary } from '../../../src/components/ScreenErrorBoundary
 import { TripNotificationBell } from '../../../src/features/notifications/components/TripNotificationBell';
 import { StoreBadges } from '../../../src/components/StoreBadges';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import type { IoniconsName } from '@vacationist/ui';
+import { TripMenuTab, type TripMenuItem } from '../../../src/features/trips/components/TripMenuTab';
+import { OfflineIndicator } from '../../../src/components/OfflineIndicator';
 import type { TripTabContent } from '@vacationist/types';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
@@ -35,14 +38,18 @@ import CalendarTab from './calendar';
 import NotesTab from './notes';
 import ChatTab from './chat';
 
-const TABS = ['Overview', 'Chat', 'Prework', 'Base', 'Transfer', 'Expenses', 'Activities', 'Calendar', 'Stuff', 'Shopping', 'Notes', 'Settings'] as const;
-type Tab = (typeof TABS)[number];
+const CONTENT_TABS = ['Overview', 'Chat', 'Prework', 'Base', 'Transfer', 'Expenses', 'Activities', 'Calendar', 'Stuff', 'Shopping', 'Notes', 'Settings'] as const;
+type ContentTab = (typeof CONTENT_TABS)[number];
+type Tab = 'Menu' | ContentTab;
+// "Menu" is a native-only first pill listing every other section as a button. Web screens are wide
+// enough for the whole pill bar, so it would be redundant there. It is never the default tab.
+const TABS: readonly Tab[] = Platform.OS === 'web' ? CONTENT_TABS : ['Menu', ...CONTENT_TABS];
 
 // Maps each tab to its TripTabContent flag for the "has data" border.
 // Overview and Settings are never bordered — Overview is the trip itself
 // (always "populated"), Settings holds no content. Calendar mirrors Activities
 // since it renders the same activity rows in a different layout.
-const TAB_CONTENT_KEY: Partial<Record<Tab, keyof TripTabContent>> = {
+const TAB_CONTENT_KEY: Partial<Record<ContentTab, keyof TripTabContent>> = {
   Chat: 'chat',
   Prework: 'prework',
   Base: 'base',
@@ -59,6 +66,23 @@ const TAB_CONTENT_KEY: Partial<Record<Tab, keyof TripTabContent>> = {
 };
 
 
+// One glyph per section for the Menu tab. Where a section has a counterpart elsewhere in the app it
+// reuses that glyph (Base = the accommodation bed, Transfer = the flight, Expenses = the wallet…).
+const TAB_ICONS: Record<ContentTab, IoniconsName> = {
+  Overview: 'home-outline',
+  Chat: 'chatbubbles-outline',
+  Prework: 'clipboard-outline',
+  Base: 'bed-outline',
+  Transfer: 'airplane-outline',
+  Expenses: 'wallet-outline',
+  Activities: 'compass-outline',
+  Calendar: 'calendar-outline',
+  Stuff: 'bag-handle-outline',
+  Shopping: 'cart-outline',
+  Notes: 'document-text-outline',
+  Settings: 'settings-outline',
+};
+
 function getInitialTab(paramTab?: string): Tab {
   if (TABS.includes(paramTab as Tab)) return paramTab as Tab;
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -73,6 +97,7 @@ export default function TripDetailScreen() {
 
   const getTabLabel = (tabKey: Tab): string => {
     switch (tabKey) {
+      case 'Menu':        return t('tab.menu');
       case 'Overview':    return t('tab.overview');
       case 'Chat':        return t('tab.chat');
       case 'Prework':     return t('tab.prework');
@@ -150,7 +175,11 @@ export default function TripDetailScreen() {
     );
   }
 
-  if (isError || !trip) {
+  // `ux.showError` (not the raw `isError`): a trip with perfectly good cached data used to render
+  // this screen the moment any one refetch failed, discarding the real data it already had (the
+  // "trips randomly fail to load offline" finding, v1.39.0 round 3) — `showError` only fires when
+  // there is genuinely no cached trip to fall back on.
+  if (ux.showError) {
     const isNotMember = error instanceof TripNotFoundError;
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-md gap-md">
@@ -169,8 +198,21 @@ export default function TripDetailScreen() {
     );
   }
 
+  // Defensive only — `showSkeleton`/`showOfflineEmpty`/`showError` above should already cover
+  // every state a `trip`-less render could be in; this just keeps TypeScript (and any state those
+  // three don't anticipate) from reaching the rest of the screen without `trip`.
+  if (!trip) {
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator color={colors.primary} size="large" />
+      </SafeAreaView>
+    );
+  }
+
   function renderTab() {
     switch (activeTab) {
+      case 'Menu':
+        return <TripMenuTab items={menuItems} onSelect={(key) => handleTabChange(key as Tab)} />;
       case 'Overview':
         return <OverviewTab onTabChange={(tab) => handleTabChange(tab as Tab)} />;
       case 'Chat':
@@ -198,6 +240,17 @@ export default function TripDetailScreen() {
     }
   }
 
+  // The Menu tab lists every content section and reuses the pill bar's has-data signal.
+  const menuItems: TripMenuItem[] = CONTENT_TABS.map((tabKey) => {
+    const contentKey = TAB_CONTENT_KEY[tabKey];
+    return {
+      key: tabKey,
+      label: getTabLabel(tabKey),
+      icon: TAB_ICONS[tabKey],
+      hasData: !!contentKey && !!tabContent?.[contentKey],
+    };
+  });
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Header */}
@@ -219,6 +272,7 @@ export default function TripDetailScreen() {
               </Text>
             </Pressable>
           </View>
+          <OfflineIndicator />
           <StoreBadges />
           <TripNotificationBell tripId={id!} />
           <StatusBadge status={getEffectiveStatus(trip)} />
@@ -233,7 +287,7 @@ export default function TripDetailScreen() {
         >
           {TABS.map((tabKey) => {
             const isActive = activeTab === tabKey;
-            const contentKey = TAB_CONTENT_KEY[tabKey];
+            const contentKey = tabKey === 'Menu' ? undefined : TAB_CONTENT_KEY[tabKey];
             const hasData = !isActive && !!contentKey && !!tabContent?.[contentKey];
             return (
             <Pressable

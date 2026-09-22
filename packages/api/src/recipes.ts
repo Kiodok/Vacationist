@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import { broadcastShoppingItemsRemoved } from './shopping';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
@@ -26,12 +26,12 @@ export async function getRecipes(tripId: string): Promise<(Recipe & { ingredient
 
   if (error) throw error;
 
-  return ((data ?? []) as unknown as (Recipe & { recipe_ingredients: { id: string }[] })[]).map(
+  return trustEmptyList(((data ?? []) as unknown as (Recipe & { recipe_ingredients: { id: string }[] })[]).map(
     ({ recipe_ingredients: ingredients, ...recipe }) => ({
       ...recipe,
       ingredient_count: ingredients?.length ?? 0,
     }),
-  );
+  ));
 }
 
 export async function getRecipe(recipeId: string): Promise<RecipeWithIngredients> {

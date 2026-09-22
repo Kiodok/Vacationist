@@ -115,7 +115,7 @@ export function ChatInputBar({
         </View>
       )}
       <View
-        className="flex-row items-end px-md py-sm gap-sm"
+        className="flex-row items-end px-md pt-sm pb-md gap-sm"
         style={Platform.OS === 'web' ? { alignItems: 'stretch' } : undefined}
       >
         {/* Wrapper owns background/border/radius — more reliable than styling the textarea directly on web */}

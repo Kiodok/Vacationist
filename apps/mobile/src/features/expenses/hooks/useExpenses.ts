@@ -11,7 +11,6 @@ import {
   getExpenseSplits,
   getTripBalances,
   getTripExpenseCategoryTotals,
-  settleAllForPair,
   settleAllExpenses,
   getSettlementReceipts,
   getSettlementReceipt,
@@ -25,13 +24,18 @@ import type {
   UnsettleExpenseSplitVariables,
   CoverSplitVariables,
   UncoverSplitVariables,
-  SettleAllForPairVariables,
   SettleAllExpensesVariables,
   ExpenseSplit,
 } from '@vacationist/types';
 import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { createOptimisticId } from '../../../utils/optimisticId';
+import {
+  addOptimisticExpense,
+  snapshotExpenseCaches,
+  restoreExpenseCaches,
+} from '../utils/expenseCache';
 
 /**
  * Optimistically patch one split row in the `['expenses', <id>, 'splits']` cache
@@ -149,18 +153,31 @@ export function useCreateExpense() {
 
   return useMutation({
     mutationKey: ['createExpense'],
-    mutationFn: ({ tripId, input }: CreateExpenseVariables) => createExpense(tripId, input),
+    mutationFn: ({ tripId, input, id }: CreateExpenseVariables) => createExpense(tripId, input, id),
     // Optimistically flips the Business Summary button's gating flag on immediately, rather than
     // waiting on a network round trip (the RPC call) plus a second one (mutationDefaults'
     // post-success invalidate+refetch of has-business) before the button appears. Only ever sets
     // it to `true` here — never `false` on omission, since other business expenses may still
     // exist; the real invalidate+refetch still runs on success and is the source of truth.
-    onMutate: ({ tripId, input }: CreateExpenseVariables) => {
+    onMutate: async ({ tripId, input, id }: CreateExpenseVariables) => {
       if (input.is_business) {
         queryClient.setQueryData(['trips', tripId, 'expenses', 'has-business'], true);
       }
+      // Show the expense in the list straight away. Before v1.39.0 nothing was inserted, so an
+      // expense created offline "vanished" until the queued RPC replayed. See expenseCache.ts.
+      await queryClient.cancelQueries({ queryKey: ['trips', tripId, 'expenses'] });
+      const previous = snapshotExpenseCaches(queryClient, tripId);
+      addOptimisticExpense(queryClient, {
+        // The client-minted id when the caller supplied one (it is the row's real id), else a throwaway.
+        optimisticId: id ?? createOptimisticId(),
+        tripId,
+        input,
+        createdBy: useAuthStore.getState().user?.id ?? '',
+      });
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, { tripId }, context) => {
+      if (context) restoreExpenseCaches(queryClient, tripId, context.previous);
       addToast('error', i18n.t('expenses:toast.addFailed'));
     },
   });
@@ -234,38 +251,15 @@ export const useUncoverSplit = makeSplitPatchHook<UncoverSplitVariables>(
   (addToast) => addToast('error', i18n.t('expenses:toast.uncoverFailed')),
 );
 
-export function useSettleAllForPair() {
-  const queryClient = useQueryClient();
-  const addToast = useToastStore((s) => s.addToast);
-
-  return useMutation({
-    mutationKey: ['settleAllForPair'],
-    mutationFn: ({ tripId, debtor, creditor }: SettleAllForPairVariables) =>
-      settleAllForPair(tripId, debtor, creditor),
-    onSuccess: (_, { tripId }) => {
-      addToast('success', i18n.t('expenses:toast.settleAllDone'));
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
-    },
-    onError: () => {
-      addToast('error', i18n.t('expenses:toast.settleAllFailed'));
-    },
-  });
-}
-
 export function useSettleAllExpenses() {
-  const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
+  // No `onSuccess` here: a hook-level onSuccess REPLACES the default's, and a hook doesn't exist on
+  // a cold-start replay of the persisted queue — so the invalidations + "All settled" toast live
+  // only in mutationDefaults.ts, where they run for both the live call and the replay.
   return useMutation({
     mutationKey: ['settleAllExpenses'],
     mutationFn: ({ tripId }: SettleAllExpensesVariables) => settleAllExpenses(tripId),
-    onSuccess: (_, { tripId }) => {
-      addToast('success', i18n.t('expenses:toast.settleAllDone'));
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
-      queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'settlement-receipts'] });
-    },
     onError: (error: Error) => {
       const msg = error?.message?.includes('No open splits')
         ? i18n.t('expenses:toast.noOpenSplits')

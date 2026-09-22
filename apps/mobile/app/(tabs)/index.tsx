@@ -14,10 +14,12 @@ import { useCollapsibleSections } from '../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../src/components/CollapsibleSectionHeader';
 import { SearchInput } from '../../src/components/SearchInput';
 import { StoreBadges } from '../../src/components/StoreBadges';
+import { OfflineIndicator } from '../../src/components/OfflineIndicator';
 import type { Trip } from '@vacationist/types';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../src/components/QueryErrorState';
 import { useStoreReviewNudge } from '../../src/hooks/useStoreReviewNudge';
 
 type TripWithCount = Trip & { member_count: number };
@@ -146,29 +148,36 @@ export default function TripsScreen() {
 
   if (ux.showSkeleton) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
         <TripListSkeleton />
       </SafeAreaView>
     );
   }
   if (ux.showOfflineEmpty) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
         <OfflineEmptyState onRetry={refetch} />
+      </SafeAreaView>
+    );
+  }
+  if (ux.showError) {
+    return (
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+        <QueryErrorState onRetry={refetch} />
       </SafeAreaView>
     );
   }
 
   if (!trips || trips.length === 0) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
         <EmptyTrips onCreateTrip={handleCreateTrip} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <SectionList
         sections={sections}
         keyExtractor={(item) => '__type' in item ? `${item.sectionKey}-year-${item.year}` : item.id}
@@ -201,7 +210,7 @@ export default function TripsScreen() {
                 <StoreBadges />
               </View>
               <Text className="text-heading-xl text-text-primary" numberOfLines={1}>{t('screen.title')}</Text>
-              <View className="w-[40px]" />
+              <View className="w-[40px] items-end justify-center"><OfflineIndicator /></View>
             </View>
             <SearchInput
               value={searchQuery}

@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { trustEmptyList } from './session';
 import type {
   TravelDocument,
   DocumentAccessRequest,
@@ -13,7 +14,7 @@ import type {
 export async function getMyTravelDocuments(): Promise<TravelDocument[]> {
   const { data, error } = await supabase.rpc('get_my_travel_documents');
   if (error) throw error;
-  return ((data ?? []) as unknown) as TravelDocument[];
+  return trustEmptyList(((data ?? []) as unknown) as TravelDocument[]);
 }
 
 export async function upsertTravelDocument(
@@ -68,7 +69,7 @@ export async function respondToDocumentAccessRequest(
 export async function getMyPendingAccessRequests(): Promise<DocumentAccessRequest[]> {
   const { data, error } = await supabase.rpc('get_my_pending_access_requests');
   if (error) throw error;
-  return ((data ?? []) as unknown) as DocumentAccessRequest[];
+  return trustEmptyList(((data ?? []) as unknown) as DocumentAccessRequest[]);
 }
 
 /** Organizer-only. Metadata for every (member, document_type) the caller currently has access
@@ -80,7 +81,7 @@ export async function getMemberDocumentAccessList(
     p_trip_id: tripId,
   });
   if (error) throw error;
-  return ((data ?? []) as unknown) as MemberDocumentAccessEntry[];
+  return trustEmptyList(((data ?? []) as unknown) as MemberDocumentAccessEntry[]);
 }
 
 /** Organizer-only. Decrypts and returns one member's documents. The FIRST call for a member
@@ -94,7 +95,7 @@ export async function revealMemberDocuments(
     p_member_user_id: memberUserId,
   });
   if (error) throw error;
-  return ((data ?? []) as unknown) as AccessibleMemberDocument[];
+  return trustEmptyList(((data ?? []) as unknown) as AccessibleMemberDocument[]);
 }
 
 export async function revokeDocumentAccess(requestId: string): Promise<void> {
@@ -107,5 +108,5 @@ export async function revokeDocumentAccess(requestId: string): Promise<void> {
 export async function getMyActiveGrants(): Promise<ActiveGrant[]> {
   const { data, error } = await supabase.rpc('get_my_active_grants');
   if (error) throw error;
-  return ((data ?? []) as unknown) as ActiveGrant[];
+  return trustEmptyList(((data ?? []) as unknown) as ActiveGrant[]);
 }

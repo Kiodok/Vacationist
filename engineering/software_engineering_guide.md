@@ -291,11 +291,10 @@ dayjs/plugin/localizedFormat
 ```
 
 ### Rules:
-- All dates are stored in the database as UTC timestamps
-- Dates are converted to the trip's configured timezone only at render time
-- Never store local device timezone-shifted dates
-- Use `dayjs.utc()` when writing to the database
-- Use `dayjs().tz(trip.timezone)` when displaying to the user
+- **User-entered times are floating wall-clock values, not instants** (v1.39.0 — see "Floating wall-clock times" below). Activity/accommodation dates and times, and flight / public-transport / rental timestamps, are stored as the literal digits the organizer typed; there is no timezone conversion on write or on read.
+- Date-only columns (`start_date`, `activity_date`, …) are parsed with `dayjs.utc()` and formatted without conversion. Never `dayjs.tz(dateString, zone)` — a named-zone lookup is unreliable on Hermes (see the `hermes-intl-timezone-gap` skill).
+- Genuine instants (`created_at`, `updated_at`, notification times) are UTC timestamps and are displayed in the device's own timezone.
+- "Now" comparisons (is this activity ongoing / completed / today?) read the **device clock as wall-clock digits** — `packages/utils/src/activityStatus.ts`, `formatCalendarDayHeader`, `findTodayOrNextDate`.
 - `dayjs` must be initialized once globally in the app entrypoint with all required plugins
 
 ---
@@ -401,16 +400,27 @@ Offline-queued mutations survive an app kill and replay on reconnect only if reg
 
 Reference implementations: `useActivities.ts` (update/delete/voting), `useNotes.ts` (optimistic create with `createOptimisticId()`).
 
-**Deliberately NOT persisted** (immediate feedback + generic "could not be saved" warning toast from the mutation-cache subscriber): travel documents (sensitive, cache-excluded), profile update, invites/members (security-sensitive), `sendNudge` (stale push on replay), `copyPackingList`, prework preferences, recipe/ingredient sync flows, transfer passenger assignment (set-replace → silent overwrite on stale replay). Do not add these to `PERSISTED_MUTATION_KEYS`.
+5. **Make it visible after a restart (v1.39.0).** The queue survives a kill but the optimistic rows it produced do not (`stripOptimisticRows` removes them before the cache is written, and `onMutate` lives in a hook that doesn't exist at boot). If the mutation's absence would be user-visible, move its cache patch into a **pure helper** in `features/<feature>/utils/` (shared by the hook's `onMutate` and the rehydrator), then register it in `REHYDRATORS` in `apps/mobile/src/utils/optimisticRehydrate.ts`. Rehydrators must be idempotent, must only patch a cache that is already loaded (never fabricate a partial list), and are registered only for keys that are in `PERSISTED_MUTATION_KEYS` (test-enforced). Registered today: `createShoppingItem`, `updateShoppingItem`, `updateShoppingItemGlobal`, `deleteShoppingItem`, `createExpense`. **If one item is readable through two query keys** (a shopping item is in both `['shopping-lists', id, 'items']` and `['trips', id, 'all-shopping-items']`), the helper must write both.
 
-#### Offline Banner & Sync Feedback
+**Deliberately NOT persisted** (immediate feedback + generic "could not be saved" warning toast from the mutation-cache subscriber, **which also drops the paused mutation from the cache** so it can never fire on reconnect and duplicate a manual retry): travel documents (sensitive, cache-excluded), profile update, invites/members (security-sensitive), `sendNudge` (stale push on replay), `copyPackingList`, prework preferences, recipe/ingredient sync flows, transfer passenger assignment (set-replace → silent overwrite on stale replay). Do not add these to `PERSISTED_MUTATION_KEYS`.
 
-`apps/mobile/src/components/OfflineBanner.tsx` is the single sync-status surface:
-- Offline with queued work → "*N* changes will sync when you're back online" (count via `useMutationState` filtering paused mutations)
-- Offline, nothing queued → static offline notice
-- Reconnect with queued work → "Syncing changes…" → green "All changes synced" (~2.5 s) → hidden
+6. **Creates mint their own id (v1.39.0 round 2).** A row created offline must be addressable *before* it syncs — an item added to a list created offline, an edit queued behind a create. So a `create*` mutation takes a **client-generated UUID** in its variables (`id: createClientId()` from `utils/optimisticId.ts`, passed by the *call site*), the API sends it as the row's primary key (`insert({ id, … })` / an RPC `p_id`), and the optimistic row uses it too — the optimistic row, the persisted queue entry and the server row are one identity, and nothing is ever re-keyed. The insert must be **idempotent** (a duplicate-key on replay resolves to the existing row; `create_expense_with_splits` returns the existing id) because replay is at-least-once. Because the id is a real UUID, "is it still pending?" is no longer readable off the id — use `useIsCreatePending(mutationKey, id)`. Done for `createShoppingList`, `createShoppingItem`, `createExpense`; the other creates still use `createOptimisticId()` placeholders.
+7. **Order dependent writes with a `scope`.** `mutationDefaults.ts` gives each family a TanStack `scope` (`'shopping'`, `'expenses'`): scoped mutations run one after another in queued order, so a create and the edit/delete queued behind it cannot race on replay. Scope per *family*, never one global scope — a single hung request would otherwise hold up every queued write.
+8. **A queued write that fails for good is never dropped (v1.39.0 round 2).** `utils/queuedFailure.ts` (called from the `queryClient.ts` mutation-cache subscriber, for mutations that were queued offline or hydrated from the queue): a session error (`isAuthError`) refreshes the session and retries once; anything else is parked in `FAILED_MUTATIONS_v1` (`utils/failedMutations.ts`), the user gets one toast, and Profile → *Couldn't sync* (`FailedSyncSection`) offers Retry / Discard. Mutations that fail while the user is online and watching are unaffected — the hook's own `onError` toast covers those.
 
-All banner strings live under `offline.*` in `packages/i18n` (`en` + `de`).
+#### Offline caching is proactive (v1.39.0 round 2)
+
+Nothing may depend on a screen having been opened online. `useGlobalOfflinePrefetch` (root layout) downloads, after sign-in / on reconnect / on foreground (throttled 5 min): Trips list, global Calendar (+ votes), Analytics, notifications, FX rates, then every **planning or ongoing** trip in full (`utils/offlinePrefetch.ts` `prefetchTripData`: header, role, tab flags, every tab's list, votes, each shopping list's items) — one trip at a time, 4 requests in flight, aborting when offline. Completed/archived trips are cached when opened (`useTripOfflinePrefetch`). Query keys in `offlinePrefetch.ts` **must match the screen hooks exactly** (e.g. `['global-calendar-activities', sortedTripIds]`) or the offline screen renders its empty state. Keep it bounded — the v1.37.3 memory work (`gcTime` 24 h, persister `throttleTime` 4 s) depends on it.
+
+#### Offline & Sync Feedback (v1.39.0 — replaced the permanent bottom bar)
+
+Users expect offline changes to persist and sync on their own, so the app stays quiet except at two moments. There is **no change counter anywhere**, and nothing shifts the tab bar.
+- `apps/mobile/src/components/OfflineNotices.tsx` (renders nothing; mounted in `app/_layout.tsx`): a one-time "You are offline. Your changes will sync automatically…" toast when the **first resolved** connectivity status is offline (going offline mid-session doesn't toast, so a flapping connection can't spam), and an "All changes synced" toast when a reconnect that had queued work has drained.
+- `apps/mobile/src/components/OfflineIndicator.tsx`: a small cloud-off chip in the Trips-tab and trip-screen headers — the only persistent signal. Sits on a `surface` chip, not a `warning`-tinted icon (warning amber has almost no contrast on the colorful theme's orange).
+- `addToast(type, message, { durationMs })` lets a non-critical warning self-dismiss (only `success` did before).
+- Reconnect/boot replay goes through `apps/mobile/src/utils/replayQueue.ts` — refresh session → `resumePausedMutations()` → `invalidateQueries()`, in that order, with a bounded wait on the refresh.
+
+All strings live under `offline.*` in `packages/i18n` (`en` + `de`).
 
 #### Global Error Boundary
 
@@ -753,10 +763,12 @@ UNIQUE (activity_id, user_id)
 ```sql
 id                UUID PRIMARY KEY
 trip_id           UUID REFERENCES trips(id) ON DELETE CASCADE
-related_type      TEXT CHECK (related_type IN ('accommodation', 'activity', 'transport', 'shopping', 'manual'))
+related_type      TEXT CHECK (related_type IN ('accommodation', 'activity', 'transport', 'shopping', 'manual',
+                                               'food_drink', 'groceries', 'fuel_parking', 'tickets_entry', 'health', 'souvenirs'))
 related_id        UUID
 title             TEXT NOT NULL
-amount            NUMERIC(10,2) NOT NULL
+amount            NUMERIC(10,2) NOT NULL          -- the GRAND TOTAL (bill + tip); what is split and converted
+tip_amount        NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (tip_amount >= 0 AND tip_amount <= amount)
 currency          TEXT DEFAULT 'EUR' REFERENCES currency_catalog(code)
 exchange_rate     NUMERIC(18,8) NOT NULL DEFAULT 1
 converted_amount  NUMERIC(10,2) NOT NULL
@@ -765,6 +777,10 @@ created_by        UUID REFERENCES users(id)
 created_at        TIMESTAMPTZ DEFAULT NOW()
 archived_at       TIMESTAMPTZ DEFAULT NULL
 ```
+
+**Tip (v1.39.0):** `amount` is always the grand total. The form takes the *bill* and the *tip* separately and submits `amount = bill + tip`, `tip_amount = tip`; the tip is split with the bill and is metadata only, so FX, splits, balances and the cost-summary RPCs never see it. Editing loads the bill back as `amount - tip_amount`. The category list is enforced in **three** places that must stay in sync: the table CHECK and the `NOT IN (…)` guards inside `create_expense_with_splits` / `update_expense_with_splits` — plus `EXPENSE_RELATED_TYPE` in `packages/types`.
+
+**Cost-summary rule for a new category:** the RPC emits each expense bucket as `'expense_' || related_type`. `computeTripCostSummary` treats every `expense_*` source that isn't one of the three entity-fallback sources (`expense_accommodation/transport/activity`) as purely additive, so a category with no entity counterpart needs no cost-logic change. Do not hardcode a list of additive sources.
 
 `currency` may differ from `trips.base_currency` (Phase 15, multi-currency). `exchange_rate` (multiplier from `currency` → `base_currency`) and `converted_amount` (`amount * exchange_rate`, rounded) are resolved once at write time and frozen — never recalculated. All balance/settlement math sums `converted_amount`, not `amount`. When `currency === base_currency`, `exchange_rate` is always exactly `1` and no FX lookup happens.
 
@@ -1161,6 +1177,24 @@ Recommended structure:
   /activity
   /expense
 ```
+
+### Trip section navigation (v1.39.0)
+
+`app/trip/[id]/index.tsx` is a single route holding an `activeTab` state that mounts one section component at a time (Overview, Chat, Prework, Base, Transfer, Expenses, Activities, Calendar, Stuff, Shopping, Notes, Settings), chosen from a **horizontal pill bar**. On **native** the bar has an extra first pill, **Menu** (`TripMenuTab`, `features/trips/components/`), whose screen lists every other section as a full-width button with the same "has content" dot the pills carry (`useTripTabContent`) — twelve sections don't fit a phone width. The **web** build has no Menu pill: its screens are wide enough for the whole bar. Menu is never the default tab (Overview is), so `?tab=` deep links and `resolveNotificationPath` are unchanged; `?tab=Menu` is ignored on web.
+
+A left slide-over drawer (`TripNavDrawer`) was built and tried in v1.39.0 and **rejected in device testing**; it was deleted. Do not reintroduce a navigation drawer without a Tech Lead decision.
+
+### Floating wall-clock times (v1.39.0)
+
+**There is no timezone selection anywhere in the app** — not on trips, not in the profile. Times a user types are *floating*: an activity planned in Germany for 14:00–16:00 is still 14:00–16:00 after the group flies to Porto. Concretely:
+
+- Every user-entered time is stored and shown as the literal digits (DATE / TIME columns, and TIMESTAMPTZ columns that hold naive digits — read them with `formatNaiveTimestamp`, never a bare `dayjs(value)`).
+- "Is it happening now?" compares those digits with the device's own clock read as wall-clock digits (`packages/utils/src/activityStatus.ts`): at 14:30 on a phone in Porto, the 14:00–16:00 activity is ongoing.
+- `trips.timezone` / `users.timezone` columns still exist (defaults `Europe/Berlin`, no CHECK) but are **never chosen by a user**. `trips.timezone` is filled from the creator's device at creation (`getDeviceTimezone()`); `users.timezone` is kept equal to the phone's zone by `useDeviceTimezoneSync` (sign-in + every foreground). They exist only for the server.
+- The one server consumer is `private.create_activity_reminders()` (migration `20260921110000`): it decides *per recipient* whether an activity starts within 65 minutes on **that member's** clock, using `COALESCE(users.timezone, trips.timezone, 'Europe/Berlin')` (each validated against `pg_timezone_names`, so a bad name can't abort the run), with per-(activity, member) dedup.
+- `dayjs.tz()` must not be used on user-entered values anywhere; there are no named-zone lookups left in the client.
+
+Do not reintroduce a picker, a "trip timezone" display, or a `SUPPORTED_TIMEZONES` list.
 
 ---
 
@@ -1765,35 +1799,7 @@ The calendar is simply:
 
 ## Trip Timezone
 
-Every trip has a configured timezone that defines how all dates and times are displayed within that trip's context.
-
-```txt
-Default: Europe/Berlin
-```
-
-### Supported European Timezones (V1):
-
-```txt
-Europe/Berlin       (Germany, Austria, most of Central Europe)
-Europe/London       (United Kingdom, Ireland)
-Europe/Paris        (France, Belgium, Luxembourg)
-Europe/Rome         (Italy)
-Europe/Madrid       (Spain)
-Europe/Lisbon       (Portugal)
-Europe/Amsterdam    (Netherlands)
-Europe/Zurich       (Switzerland)
-Europe/Vienna       (Austria)
-Europe/Warsaw       (Poland)
-Europe/Prague       (Czech Republic)
-Europe/Stockholm    (Sweden, Norway, Denmark)
-Europe/Helsinki     (Finland, Estonia)
-Europe/Athens       (Greece, Bulgaria)
-Europe/Bucharest    (Romania)
-Europe/Budapest     (Hungary)
-Europe/Istanbul     (Turkey)
-```
-
-No other timezones are supported in V1.
+**Superseded in v1.39.0 — see "Floating wall-clock times" above.** There is no user-facing trip timezone. Times are floating wall-clock digits and display verbatim everywhere; the `trips.timezone` column is filled silently from the creator's device and read only by the server-side reminder job.
 
 ---
 
@@ -1914,9 +1920,7 @@ useEffect(() => {
 }, []);
 ```
 
-The timezone is set once at trip creation and cannot be changed after activities have been added.
-
-All `activity_date`, `start_time`, and `end_time` values are stored without timezone in the database and are interpreted within the trip's configured timezone at render time using `dayjs.tz()`.
+All `activity_date`, `start_time`, and `end_time` values are stored without a timezone and shown exactly as stored (floating wall-clock times — see "Floating wall-clock times").
 
 ---
 
@@ -2495,7 +2499,7 @@ The following order is mandatory. A feature must not be started until all its li
   ┌─────────────────────────────────────────────────┐
   │  • Trip calendar view (activities by date)       │
   │  • Global calendar view (all trips)              │
-  │  • Timezone-aware date rendering                 │
+  │  • Floating wall-clock date rendering            │
   └─────────────────────────────────────────────────┘
          │
          ▼

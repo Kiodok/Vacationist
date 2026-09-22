@@ -13,6 +13,7 @@ import { openStoreReviewOrFallback } from '../../src/utils/openStoreReview';
 import { colors } from '@vacationist/ui';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../src/components/QueryErrorState';
 
 export default function NotificationsScreen() {
   const { t } = useTranslation('notifications');
@@ -64,6 +65,8 @@ export default function NotificationsScreen() {
         <NotificationListSkeleton />
       ) : ux.showOfflineEmpty ? (
         <OfflineEmptyState onRetry={refetch} />
+      ) : ux.showError ? (
+        <QueryErrorState onRetry={refetch} />
       ) : (
         <FlashList
           data={notifications}

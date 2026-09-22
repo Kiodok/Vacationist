@@ -1,5 +1,5 @@
 import { supabase } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { TripNote, CreateTripNoteInput, UpdateTripNoteInput } from '@vacationist/types';
 
 export async function getNotes(tripId: string): Promise<TripNote[]> {
@@ -11,7 +11,7 @@ export async function getNotes(tripId: string): Promise<TripNote[]> {
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as TripNote[];
+  return trustEmptyList(data as unknown as TripNote[]);
 }
 
 export async function createNote(tripId: string, input: CreateTripNoteInput): Promise<TripNote> {

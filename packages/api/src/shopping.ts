@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   ShoppingList,
@@ -16,15 +16,24 @@ export async function getShoppingLists(tripId: string): Promise<ShoppingListWith
     p_trip_id: tripId,
   });
   if (error) throw error;
-  return (data ?? []) as unknown as ShoppingListWithCounts[];
+  return trustEmptyList((data ?? []) as unknown as ShoppingListWithCounts[]);
 }
 
-export async function createShoppingList(tripId: string, input: CreateShoppingListInput): Promise<ShoppingList> {
+/** Postgres unique_violation — a replayed create whose first attempt actually landed. */
+const UNIQUE_VIOLATION = '23505';
+
+/**
+ * `id` is a client-generated UUID (see `createClientId`). Creates are at-least-once: a replay after a
+ * request that succeeded but whose response was lost hits the primary key, and that must resolve to
+ * the row that is already there, not to an error that would strand the queue entry as "failed".
+ */
+export async function createShoppingList(tripId: string, input: CreateShoppingListInput, id?: string): Promise<ShoppingList> {
   const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('shopping_lists')
     .insert({
+      ...(id ? { id } : {}),
       trip_id: tripId,
       title: input.title,
       created_by: user.id,
@@ -32,7 +41,13 @@ export async function createShoppingList(tripId: string, input: CreateShoppingLi
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (id && error.code === UNIQUE_VIOLATION) {
+      const { data: existing, error: readError } = await supabase.from('shopping_lists').select().eq('id', id).single();
+      if (!readError && existing) return existing as unknown as ShoppingList;
+    }
+    throw error;
+  }
   return data as unknown as ShoppingList;
 }
 
@@ -78,7 +93,7 @@ export async function getShoppingItems(listId: string): Promise<ShoppingItem[]> 
     .order('created_at', { ascending: true });
 
   if (error) throw error;
-  return data as unknown as ShoppingItem[];
+  return trustEmptyList(data as unknown as ShoppingItem[]);
 }
 
 export async function getAllShoppingItemsForTrip(tripId: string): Promise<(ShoppingItem & { list_title: string })[]> {
@@ -92,20 +107,21 @@ export async function getAllShoppingItemsForTrip(tripId: string): Promise<(Shopp
 
   if (error) throw error;
 
-  return ((data ?? []) as unknown as (ShoppingItem & { shopping_lists: { title: string } })[]).map(
+  return trustEmptyList(((data ?? []) as unknown as (ShoppingItem & { shopping_lists: { title: string } })[]).map(
     ({ shopping_lists: sl, ...item }) => ({
       ...item,
       list_title: sl.title,
     }),
-  );
+  ));
 }
 
-export async function createShoppingItem(listId: string, input: CreateShoppingItemInput): Promise<ShoppingItem> {
+export async function createShoppingItem(listId: string, input: CreateShoppingItemInput, id?: string): Promise<ShoppingItem> {
   const user = { id: await getUserIdOfflineSafe() };
 
   const { data, error } = await supabase
     .from('shopping_items')
     .insert({
+      ...(id ? { id } : {}),
       shopping_list_id: listId,
       title: input.title,
       created_by: user.id,
@@ -113,7 +129,13 @@ export async function createShoppingItem(listId: string, input: CreateShoppingIt
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (id && error.code === UNIQUE_VIOLATION) {
+      const { data: existing, error: readError } = await supabase.from('shopping_items').select().eq('id', id).single();
+      if (!readError && existing) return existing as unknown as ShoppingItem;
+    }
+    throw error;
+  }
   return data as unknown as ShoppingItem;
 }
 

@@ -34,6 +34,9 @@ import {
   readStoredSession,
   readStoredSessionResult,
   getUserIdOfflineSafe,
+  looksSessionValid,
+  trustEmptyList,
+  trustNullResult,
   NotAuthenticatedError,
 } from './session';
 
@@ -41,6 +44,13 @@ const STORED_BLOB = JSON.stringify({
   access_token: 'at',
   refresh_token: 'rt',
   expires_at: 1_900_000_000,
+  user: { id: 'stored-user', is_anonymous: false },
+});
+
+const EXPIRED_BLOB = JSON.stringify({
+  access_token: 'at',
+  refresh_token: 'rt',
+  expires_at: 1000, // 1970 — clearly in the past
   user: { id: 'stored-user', is_anonymous: false },
 });
 
@@ -130,5 +140,65 @@ describe('getUserIdOfflineSafe', () => {
     state.session = null;
     state.stored = null;
     await expect(getUserIdOfflineSafe()).rejects.toBeInstanceOf(NotAuthenticatedError);
+  });
+});
+
+// v1.39.0 round 3: guards the anon-key-fallback class of bug (an expired token + a failed refresh
+// makes supabase-js silently retry on the anon key; RLS then returns a legitimate-looking
+// empty/not-found result that must NOT be trusted as ground truth).
+describe('looksSessionValid', () => {
+  it('is true for a stored session whose token has not expired yet', async () => {
+    state.stored = STORED_BLOB; // expires_at is far in the future
+    expect(await looksSessionValid()).toBe(true);
+  });
+
+  it('is false for a stored session whose token has already expired', async () => {
+    state.stored = EXPIRED_BLOB;
+    expect(await looksSessionValid()).toBe(false);
+  });
+
+  it('is false when there is no stored session at all', async () => {
+    state.stored = null;
+    expect(await looksSessionValid()).toBe(false);
+  });
+
+  it('makes no network call — a `getSession` that would throw is never invoked', async () => {
+    state.stored = STORED_BLOB;
+    state.getSessionThrows = true; // would blow up getUserIdOfflineSafe's live-session path
+    await expect(looksSessionValid()).resolves.toBe(true);
+  });
+});
+
+describe('trustEmptyList', () => {
+  it('always trusts a non-empty result, session validity aside', async () => {
+    state.stored = null; // session looks invalid
+    await expect(trustEmptyList([{ id: '1' }])).resolves.toEqual([{ id: '1' }]);
+  });
+
+  it('trusts a genuinely empty result when the session looks valid', async () => {
+    state.stored = STORED_BLOB;
+    await expect(trustEmptyList([])).resolves.toEqual([]);
+  });
+
+  it('throws on an empty result when the session does not look valid (anon-key fallback)', async () => {
+    state.stored = null;
+    await expect(trustEmptyList([])).rejects.toThrow(/unverified/);
+  });
+});
+
+describe('trustNullResult', () => {
+  it('always trusts a non-null value', async () => {
+    state.stored = null;
+    await expect(trustNullResult({ id: '1' })).resolves.toEqual({ id: '1' });
+  });
+
+  it('trusts a genuine null when the session looks valid', async () => {
+    state.stored = STORED_BLOB;
+    await expect(trustNullResult(null)).resolves.toBeNull();
+  });
+
+  it('throws on null when the session does not look valid', async () => {
+    state.stored = null;
+    await expect(trustNullResult(null)).rejects.toThrow(/unverified/);
   });
 });

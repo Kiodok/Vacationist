@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Notification, NotificationPreference, UpdateNotificationPreferencesInput } from '@vacationist/types';
 
@@ -11,7 +11,7 @@ export async function getNotifications(limit = 50): Promise<Notification[]> {
     .limit(limit);
 
   if (error) throw error;
-  return data as unknown as Notification[];
+  return trustEmptyList(data as unknown as Notification[]);
 }
 
 export async function getTripNotifications(tripId: string, limit = 50): Promise<Notification[]> {
@@ -23,7 +23,7 @@ export async function getTripNotifications(tripId: string, limit = 50): Promise<
     .limit(limit);
 
   if (error) throw error;
-  return data as unknown as Notification[];
+  return trustEmptyList(data as unknown as Notification[]);
 }
 
 export async function getUnreadCount(tripId?: string): Promise<number> {

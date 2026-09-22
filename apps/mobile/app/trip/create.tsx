@@ -3,15 +3,19 @@ import { View, Text, Pressable, TextInput } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { onlineManager } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, ThemedIcon, useThemeColors, useResolvedTheme } from '@vacationist/ui';
-import { createTripSchema, SUPPORTED_TIMEZONES } from '@vacationist/types';
+import { createTripSchema, TRIP_DESCRIPTION_MAX_LENGTH } from '@vacationist/types';
 import type { CreateTripInput } from '@vacationist/types';
 import { useCreateTrip } from '../../src/features/trips/hooks/useTrips';
 import { useCurrencies } from '../../src/features/currencies/hooks/useCurrencies';
 import { DateTimePickerField } from '../../src/components/DateTimePickerField';
+import { getDeviceTimezone } from '../../src/utils/deviceTimezone';
+import { isMutationBusy } from '../../src/utils/mutationStatus';
+import { useToastStore } from '../../src/stores/toastStore';
 
 export default function CreateTripScreen() {
   const { t } = useTranslation('trips');
@@ -41,11 +45,19 @@ export default function CreateTripScreen() {
       end_date: '',
       budget_per_person: null,
       base_currency: 'EUR',
-      timezone: 'Europe/Berlin',
+      // Filled silently from the phone (times float; the zone is only used for server-side reminders).
+      timezone: getDeviceTimezone(),
     },
   });
 
   async function onSubmit(data: CreateTripInput) {
+    // Creating a trip is deliberately NOT queueable: it fans out into membership, RLS and the example-trip
+    // trigger, and the screen needs the new trip's id to navigate. Attempting it offline used to leave this
+    // page open with no outcome and a stack of "could not be saved" toasts on reconnect — say so up front.
+    if (!onlineManager.isOnline()) {
+      useToastStore.getState().addToast('warning', t('toast.createNeedsConnection'));
+      return;
+    }
     try {
       const trip = await createTrip.mutateAsync(data);
       router.replace({ pathname: '/trip/[id]', params: { id: trip.id } } as never);
@@ -94,6 +106,7 @@ export default function CreateTripScreen() {
               error={errors.description?.message}
               multiline
               numberOfLines={3}
+              maxLength={TRIP_DESCRIPTION_MAX_LENGTH}
             />
           )}
         />
@@ -208,50 +221,11 @@ export default function CreateTripScreen() {
           </View>
         </View>
 
-        <Controller
-          control={control}
-          name="timezone"
-          render={({ field: { value, onChange } }) => (
-            <View className="gap-sm">
-              <Text className="text-label text-text-muted uppercase">
-                {t('field.timezone')}<Text className="text-danger"> *</Text>
-              </Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerClassName="gap-sm"
-              >
-                {SUPPORTED_TIMEZONES.map((tz) => {
-                  const label = tz.replace('Europe/', '');
-                  return (
-                    <Pressable
-                      key={tz}
-                      onPress={() => onChange(tz)}
-                      className={`px-md min-h-[40px] rounded-full items-center justify-center border ${
-                        value === tz
-                          ? 'bg-primary border-primary'
-                          : 'bg-surface border-border'
-                      }`}
-                    >
-                      <Text
-                        className={`text-body-small ${value === tz ? 'font-semibold' : 'text-text-secondary'}`}
-                        style={value === tz ? { color: isColorful ? colors.surface : '#FFFFFF' } : undefined}
-                      >
-                        {label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          )}
-        />
-
         <View className="mt-md">
           <Button
             label={t('create.submit')}
             onPress={handleSubmit(onSubmit)}
-            loading={createTrip.isPending}
+            loading={isMutationBusy(createTrip)}
           />
         </View>
       </ScrollView>

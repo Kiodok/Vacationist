@@ -5,7 +5,7 @@ export { colors, darkColors, lightColors, colorfulColors, useThemeColors, setLiv
 export type { ColorKey, Colors, AccentColors } from './theme';
 export { ThemeProvider, useResolvedTheme } from './themeContext';
 export type { ResolvedTheme } from './themeContext';
-export { CATEGORY_ICON_COLORS, FEATURE_ICON_COLORS, NOTIFICATION_ICON_COLORS, METADATA_ICON_COLORS } from './iconColors';
+export { CATEGORY_ICON_COLORS, FEATURE_ICON_COLORS, EXPENSE_CATEGORY_ICON_COLORS, NOTIFICATION_ICON_COLORS, METADATA_ICON_COLORS } from './iconColors';
 export type { IconColorConfig } from './iconColors';
 export { Skeleton } from './components/Skeleton';
 export { LoadingScreen } from './components/LoadingScreen';

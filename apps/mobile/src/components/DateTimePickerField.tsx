@@ -97,6 +97,8 @@ export function DateTimePickerField({
   clearable = false,
 }: DateTimePickerFieldProps) {
   const [show, setShow] = useState(false);
+  // iOS tray only: the value being spun. Committed to the form on Done, discarded on Cancel/backdrop.
+  const [draft, setDraft] = useState<Date>(() => new Date());
   const webInputRef = useRef<HTMLInputElement>(null);
   const defaultPlaceholder = mode === 'date' ? i18n.t('common:placeholder.selectDate') : i18n.t('common:placeholder.selectTime');
   const displayPlaceholder = placeholder ?? defaultPlaceholder;
@@ -260,6 +262,21 @@ export function DateTimePickerField({
     if (normalizedMax && pickerValue > normalizedMax) pickerValue = normalizedMax;
   }
 
+  const openPicker = () => {
+    setDraft(pickerValue);
+    setShow(true);
+  };
+
+  const commitDraft = () => {
+    let selected = draft;
+    if (mode === 'date') {
+      if (normalizedMin && selected < normalizedMin) selected = normalizedMin;
+      if (normalizedMax && selected > normalizedMax) selected = normalizedMax;
+    }
+    setShow(false);
+    onChange(mode === 'date' ? toDateString(selected) : toTimeString(selected));
+  };
+
   return (
     <View className="gap-xs">
       {label && (
@@ -267,7 +284,7 @@ export function DateTimePickerField({
       )}
       <View className="bg-surface border border-border rounded-sm px-md min-h-[48px] flex-row items-center gap-sm">
         <Pressable
-          onPress={() => setShow(true)}
+          onPress={openPicker}
           className="flex-1 flex-row items-center justify-between py-md"
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
         >
@@ -320,52 +337,46 @@ export function DateTimePickerField({
       )}
 
       {show && Platform.OS === 'ios' && RNDateTimePicker && (
+        // No GestureHandlerRootView here on purpose (unlike SwipeToDismiss's Modals): this tray uses no
+        // RNGH gesture — the native spinner must receive touches untouched.
         <Modal transparent animationType="fade" onRequestClose={() => setShow(false)}>
-          <Pressable
-            className="flex-1 justify-end bg-background/80"
-            onPress={() => setShow(false)}
-          >
-            <View
-              className="bg-surface-elevated rounded-t-lg px-md pt-sm pb-xl"
-              onStartShouldSetResponder={() => true}
+          <View className="flex-1 justify-end">
+            {/* The backdrop is a SIBLING of the panel, never its ancestor (same shape as
+                SwipeToDismiss). Previously the panel sat inside the backdrop Pressable and set
+                `onStartShouldSetResponder={() => true}` to stop taps falling through — which made
+                JS claim every touch that began over the native UIDatePicker, so the spinner never
+                received the pan and the tray opened but couldn't be operated. */}
+            <Pressable
+              className="absolute inset-0"
+              onPress={() => setShow(false)}
+              accessibilityLabel={i18n.t('common:button.cancel')}
             >
+              <View className="flex-1 bg-background/80" />
+            </Pressable>
+            <View className="bg-surface-elevated rounded-t-lg px-md pt-sm pb-xl">
               <View className="flex-row justify-between items-center mb-sm">
                 <Pressable onPress={() => setShow(false)}>
                   <Text className="text-text-secondary text-body">{i18n.t('common:button.cancel')}</Text>
                 </Pressable>
-                <Pressable
-                  onPress={() => {
-                    setShow(false);
-                    onChange(
-                      mode === 'date'
-                        ? toDateString(pickerValue)
-                        : toTimeString(pickerValue),
-                    );
-                  }}
-                >
+                <Pressable onPress={commitDraft}>
                   <Text className="text-primary text-body font-semibold">{i18n.t('common:button.done')}</Text>
                 </Pressable>
               </View>
               <RNDateTimePicker
-                value={pickerValue}
+                value={draft}
                 mode={mode}
                 display="spinner"
                 is24Hour
                 minimumDate={normalizedMin}
                 maximumDate={normalizedMax}
-                themeVariant="dark"
+                // Was hardcoded "dark" — unreadable in light/colorful, whose elevated surface is light.
+                themeVariant={theme === 'dark' ? 'dark' : 'light'}
                 onChange={(_event, date) => {
-                  if (date) {
-                    onChange(
-                      mode === 'date'
-                        ? toDateString(date)
-                        : toTimeString(date),
-                    );
-                  }
+                  if (date) setDraft(date);
                 }}
               />
             </View>
-          </Pressable>
+          </View>
         </Modal>
       )}
     </View>

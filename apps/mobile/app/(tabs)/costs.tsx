@@ -9,6 +9,7 @@ import { colors, ThemedIcon, ScrollView } from '@vacationist/ui';
 import { useMyTripCostShares } from '../../src/features/costsOverview/hooks/useMyTripCostShares';
 import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../src/components/QueryErrorState';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -58,6 +59,8 @@ export default function CostsOverviewScreen() {
       >
         {ux.showOfflineEmpty ? (
           <OfflineEmptyState onRetry={refetch} />
+        ) : ux.showError ? (
+          <QueryErrorState onRetry={refetch} />
         ) : ux.showSkeleton ? (
           <View className="items-center py-xl">
             <ThemedIcon name="stats-chart-outline" size={32} color={colors.textMuted} />

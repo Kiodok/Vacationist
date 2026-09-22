@@ -75,7 +75,7 @@ export function EditAccommodationSheet({ visible, onClose, onSubmit, isPending, 
       <SwipeToDismiss
           onDismiss={onClose}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+          style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
           {/* Handle bar */}
           <View className="items-center mb-md">

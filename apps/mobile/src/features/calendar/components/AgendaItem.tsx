@@ -1,36 +1,25 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { Activity, SupportedTimezone } from '@vacationist/types';
-import { dayjs, formatActivityTime } from '@vacationist/utils';
+import type { Activity } from '@vacationist/types';
+import { formatActivityTime, isActivityHappeningNow } from '@vacationist/utils';
 import { StatusIndicator } from '../../activities/components/StatusIndicator';
 import { colors, METADATA_ICON_COLORS, CATEGORY_ICON_COLORS , ThemedIcon } from '@vacationist/ui';
 
 interface AgendaItemProps {
   activity: Activity;
-  timezone: SupportedTimezone;
   onPress: (activity: Activity) => void;
   attendees?: string[];
 }
 
-function isActivityOngoing(activity: Activity, timezone: SupportedTimezone): boolean {
-  if (!activity.activity_date || !activity.start_time) return false;
-  const now = dayjs().tz(timezone);
-  if (now.format('YYYY-MM-DD') !== activity.activity_date) return false;
-  const todayPrefix = activity.activity_date + 'T';
-  const startDt = dayjs.tz(todayPrefix + activity.start_time, timezone);
-  if (!activity.end_time) return !now.isBefore(startDt);
-  const endDt = dayjs.tz(todayPrefix + activity.end_time, timezone);
-  return !now.isBefore(startDt) && now.isBefore(endDt);
-}
-
-export function AgendaItem({ activity, timezone, onPress, attendees }: AgendaItemProps) {
+export function AgendaItem({ activity, onPress, attendees }: AgendaItemProps) {
   const { t } = useTranslation('calendar');
   const timeLabel = formatActivityTime(activity.start_time, activity.end_time, t('allDay'));
   const [showAttendees, setShowAttendees] = useState(false);
   const categoryIcon = activity.category ? CATEGORY_ICON_COLORS[activity.category] : null;
   const [, setTick] = useState(0);
-  const ongoing = isActivityOngoing(activity, timezone);
+  // Times float: compared with the device's own clock (see utils/activityStatus.ts).
+  const ongoing = isActivityHappeningNow(activity);
 
   // Re-evaluate ongoing status every minute so the border appears/disappears without a manual refresh.
   useEffect(() => {

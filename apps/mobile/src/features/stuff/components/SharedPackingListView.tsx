@@ -11,6 +11,7 @@ import { EmptySharedPacking } from './EmptyPacking';
 import { isMutationBusy } from '../../../utils/mutationStatus';
 import { getQueryDisplayState } from '../../../hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../components/OfflineEmptyState';
+import { QueryErrorState } from '../../../components/QueryErrorState';
 
 interface SharedPackingListViewProps {
   tripId: string;
@@ -58,6 +59,9 @@ export function SharedPackingListView({ tripId, currentUserId, role, memberNameM
   }
   if (ux.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
+  }
+  if (ux.showError) {
+    return <QueryErrorState onRetry={refetch} />;
   }
 
   const isEmpty = sortedItems.length === 0;

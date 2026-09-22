@@ -16,6 +16,9 @@ import { CalendarActivitySheet } from '../../../src/features/calendar/components
 import { EditActivitySheet } from '../../../src/features/activities/components/EditActivitySheet';
 import { colors } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 interface CalendarTabProps {
   onTabChange?: (tab: string) => void;
@@ -24,8 +27,12 @@ interface CalendarTabProps {
 export default function CalendarTab({ onTabChange }: Readonly<CalendarTabProps>) {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { data: trip, isLoading: tripLoading } = useTrip(tripId!);
-  const { data: activitiesByDate, isLoading: activitiesLoading } = useCalendarActivities(tripId!);
+  const tripQuery = useTrip(tripId!);
+  const activitiesQuery = useCalendarActivities(tripId!);
+  const { data: trip } = tripQuery;
+  const { data: activitiesByDate } = activitiesQuery;
+  const tripUx = getQueryDisplayState(tripQuery);
+  const activitiesUx = getQueryDisplayState(activitiesQuery);
   useCalendarRealtime(tripId!);
 
   const { data: allTripVotes } = useTripActivityVotes(tripId!);
@@ -97,7 +104,32 @@ export default function CalendarTab({ onTabChange }: Readonly<CalendarTabProps>)
     updateActivityMutation.mutate({ activityId: editingActivity.id, tripId: tripId!, input });
   };
 
-  if (tripLoading || activitiesLoading || !trip) {
+  // A paused (offline) fetch with nothing cached is neither `isLoading` nor data — the old
+  // `isLoading` check fell through to the `!trip` spinner and never left it. Show the offline
+  // empty state instead (Phase 19 item E3).
+  if (tripUx.showOfflineEmpty || activitiesUx.showOfflineEmpty) {
+    return (
+      <OfflineEmptyState
+        onRetry={() => {
+          void tripQuery.refetch();
+          void activitiesQuery.refetch();
+        }}
+      />
+    );
+  }
+
+  if (tripUx.showError || activitiesUx.showError) {
+    return (
+      <QueryErrorState
+        onRetry={() => {
+          void tripQuery.refetch();
+          void activitiesQuery.refetch();
+        }}
+      />
+    );
+  }
+
+  if (tripUx.showSkeleton || activitiesUx.showSkeleton || !trip) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={colors.primary} size="large" />
@@ -109,14 +141,12 @@ export default function CalendarTab({ onTabChange }: Readonly<CalendarTabProps>)
     <View className="flex-1">
       <DayStrip
         dateRange={dateRange}
-        timezone={trip.timezone}
         selectedDate={selectedDate}
         activityCountByDate={activityCountByDate}
         onSelectDate={setSelectedDate}
       />
       <AgendaList
         activities={selectedActivities}
-        timezone={trip.timezone}
         selectedDate={selectedDate}
         onActivityPress={setPreviewActivity}
         attendeesByActivity={attendeesByActivity}
@@ -125,7 +155,6 @@ export default function CalendarTab({ onTabChange }: Readonly<CalendarTabProps>)
         visible={!!previewActivity}
         onClose={() => setPreviewActivity(null)}
         activity={previewActivity}
-        timezone={trip.timezone}
         onEdit={(act) => {
           setPreviewActivity(null);
           setEditingActivity(act);

@@ -13,6 +13,7 @@ import { isMutationBusy } from '../../../utils/mutationStatus';
 import { safeScrollToIndex } from '../../../utils/safeListScroll';
 import { getQueryDisplayState } from '../../../hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../components/OfflineEmptyState';
+import { QueryErrorState } from '../../../components/QueryErrorState';
 
 interface LostFoundListViewProps {
   tripId: string;
@@ -72,6 +73,9 @@ export function LostFoundListView({ tripId, currentUserId, role, members, member
   }
   if (ux.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
+  }
+  if (ux.showError) {
+    return <QueryErrorState onRetry={refetch} />;
   }
 
   const isEmpty = sortedCases.length === 0;

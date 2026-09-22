@@ -1,5 +1,5 @@
 import { supabase } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type {
   PackingCategory,
   PackingItem,
@@ -44,7 +44,7 @@ export async function getPackingItems(tripId: string): Promise<PackingItem[]> {
     .order('created_at', { ascending: true });
 
   if (error) throw error;
-  return (data ?? []) as PackingItem[];
+  return trustEmptyList((data ?? []) as PackingItem[]);
 }
 
 export async function createPackingItem(tripId: string, input: CreatePackingItemInput): Promise<PackingItem> {
@@ -104,7 +104,7 @@ export async function getSharedPackingItems(tripId: string): Promise<SharedPacki
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as SharedPackingItem[];
+  return trustEmptyList((data ?? []) as SharedPackingItem[]);
 }
 
 export async function createSharedPackingItem(tripId: string, input: CreateSharedPackingItemInput): Promise<SharedPackingItem> {
@@ -167,7 +167,7 @@ export async function getLostFoundCases(tripId: string): Promise<LostFoundCase[]
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as LostFoundCase[];
+  return trustEmptyList((data ?? []) as LostFoundCase[]);
 }
 
 export async function createLostFoundCase(tripId: string, input: CreateLostFoundCaseInput): Promise<LostFoundCase> {

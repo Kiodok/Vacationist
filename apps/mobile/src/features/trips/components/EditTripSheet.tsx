@@ -7,7 +7,7 @@ import { SheetScrollArea } from '../../../components/SheetScrollArea';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { updateTripSchema, type UpdateTripInput, SUPPORTED_TIMEZONES } from '@vacationist/types';
+import { updateTripSchema, type UpdateTripInput, TRIP_DESCRIPTION_MAX_LENGTH } from '@vacationist/types';
 import type { Trip } from '@vacationist/types';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { ThemedIcon, colors, useResolvedTheme } from '@vacationist/ui';
@@ -61,7 +61,6 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
         end_date: trip.end_date,
         budget_per_person: trip.budget_per_person ?? null,
         base_currency: trip.base_currency,
-        timezone: trip.timezone as typeof SUPPORTED_TIMEZONES[number],
       });
     }
   }, [visible, trip]);
@@ -72,7 +71,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
         <SwipeToDismiss
           onDismiss={onClose}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[92%]"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+          style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
             {/* Handle bar */}
             <View className="items-center mb-md">
@@ -131,7 +130,7 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                         onBlur={onBlur}
                         multiline
                         numberOfLines={3}
-                        maxLength={1000}
+                        maxLength={TRIP_DESCRIPTION_MAX_LENGTH}
                         style={{ minHeight: 80, textAlignVertical: 'top' }}
                       />
                     )}
@@ -264,46 +263,6 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
                     />
                   </View>
                 </View>
-
-                {/* Timezone */}
-                <Controller
-                  control={control}
-                  name="timezone"
-                  render={({ field: { value, onChange } }) => (
-                    <View className="gap-xs">
-                      <Text className="text-label text-text-muted uppercase">
-                        {t('field.timezone')}<Text className="text-danger"> *</Text>
-                      </Text>
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerClassName="gap-sm"
-                        keyboardShouldPersistTaps="handled"
-                      >
-                        {SUPPORTED_TIMEZONES.map((tz) => {
-                          const label = tz.replace('Europe/', '');
-                          return (
-                            <Pressable
-                              key={tz}
-                              onPress={() => onChange(tz)}
-                              className={`px-md min-h-[40px] rounded-full items-center justify-center border ${
-                                value === tz ? 'bg-primary border-primary' : 'bg-surface border-border'
-                              }`}
-                            >
-                              <Text
-                                className={`text-body-small ${
-                                  value === tz ? 'text-white font-semibold' : 'text-text-secondary'
-                                }`}
-                              >
-                                {label}
-                              </Text>
-                            </Pressable>
-                          );
-                        })}
-                      </ScrollView>
-                    </View>
-                  )}
-                />
 
                 {/* Submit */}
                 <Pressable

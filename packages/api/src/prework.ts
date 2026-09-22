@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList, trustNullResult } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   PreworkTopic,
@@ -26,7 +26,7 @@ export async function getPreworkTopics(tripId: string): Promise<PreworkTopic[]> 
     .order('created_at', { ascending: true });
 
   if (error) throw error;
-  return data as PreworkTopic[];
+  return trustEmptyList(data as PreworkTopic[]);
 }
 
 export async function createPreworkTopic(
@@ -94,7 +94,7 @@ export async function getTopicPreferences(topicId: string): Promise<PreworkPrefe
     .order('updated_at', { ascending: false });
 
   if (error) throw error;
-  return data as PreworkPreferences[];
+  return trustEmptyList(data as PreworkPreferences[]);
 }
 
 export async function getMyTopicPreferences(topicId: string): Promise<PreworkPreferences | null> {
@@ -108,7 +108,7 @@ export async function getMyTopicPreferences(topicId: string): Promise<PreworkPre
     .maybeSingle();
 
   if (error) throw error;
-  return data as PreworkPreferences | null;
+  return trustNullResult(data as PreworkPreferences | null);
 }
 
 export async function upsertTopicPreferences(

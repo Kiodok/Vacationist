@@ -29,7 +29,7 @@ interface SettlementsModalProps {
   receipts?: SettlementReceipt[];
   isLoadingReceipts?: boolean;
   onViewReceipt?: (receiptId: string) => void;
-  /** "Show in X" — live balances/settlements are shown converted into this currency (display only, never affects settlement status). Receipts (immutable history) always stay in `currency` regardless. */
+  /** "Show in X" — live balances/settlements are shown converted into this currency (display only, never affects settlement status). Receipts are recorded (immutably) in `currency` regardless; their list rows show an "≈" conversion into this currency with the recorded amount beneath. */
   displayCurrency?: Currency | null;
   convert?: (amount: number, from: Currency, to: Currency) => number | null;
   ratesAsOf?: string | null;
@@ -94,7 +94,7 @@ export function SettlementsModal({
       <SwipeToDismiss
         onDismiss={onClose}
         className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-        style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
       >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -195,6 +195,11 @@ export function SettlementsModal({
                 <View className="rounded-md bg-surface border border-border px-sm py-sm mb-lg gap-sm">
                   <Text className="text-body text-text-primary font-semibold">{t('modal.settleAllConfirmTitle')}</Text>
                   <Text className="text-body-small text-text-secondary">{t('modal.settleAllConfirmBody')}</Text>
+                  {/* Balances above are shown in the viewer's preferred currency, but the receipt is
+                      recorded in the trip's currency — say so before it becomes immutable. */}
+                  {isForeignDisplay && (
+                    <Text className="text-body-small text-text-muted">{t('modal.settleAllCurrencyNote', { currency })}</Text>
+                  )}
                   <View className="flex-row gap-sm mt-xs">
                     <Pressable
                       onPress={() => setConfirmingSettle(false)}
@@ -325,9 +330,14 @@ export function SettlementsModal({
                           </View>
                         </View>
                         <View className="items-end gap-xs">
+                          {/* Shown in the viewer's preferred currency (converted at today's rate, hence
+                              "≈") with the authoritative recorded amount beneath. */}
                           <Text className="text-body-small text-success font-semibold">
-                            {formatCurrency(receipt.total_amount, currency)}
+                            {isForeignDisplay ? '≈ ' : ''}{formatCurrency(displayAmount(receipt.total_amount), effectiveCurrency)}
                           </Text>
+                          {isForeignDisplay && (
+                            <Text className="text-label text-text-muted">{formatCurrency(receipt.total_amount, currency)}</Text>
+                          )}
                           <View className="flex-row items-center gap-xs">
                             <Text className="text-label text-text-muted">
                               {t('receipt.viewReceipt')}

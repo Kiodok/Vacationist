@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dayjs, generateDateRange } from '@vacationist/utils';
-import type { Activity, SupportedTimezone, UpdateActivityInput, Currency } from '@vacationist/types';
+import type { Activity, UpdateActivityInput, Currency } from '@vacationist/types';
 import { useUpdateActivity } from '../../src/features/activities/hooks/useActivities';
 import { useActivityVotesForTrips } from '../../src/features/activities/hooks/useVotes';
 import { EditActivitySheet } from '../../src/features/activities/components/EditActivitySheet';
@@ -17,13 +17,20 @@ import { CalendarActivitySheet } from '../../src/features/calendar/components/Ca
 import { GlobalCalendarTripSection } from '../../src/features/calendar/components/GlobalCalendarTripSection';
 import { colors , ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../src/utils/mutationStatus';
+import { getQueryDisplayState } from '../../src/hooks/useOfflineAwareQuery';
+import { OfflineEmptyState } from '../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../src/components/QueryErrorState';
 
 export default function GlobalCalendarScreen() {
   const { t } = useTranslation('calendar');
   const router = useRouter();
   const { date: incomingDate } = useLocalSearchParams<{ date?: string }>();
-  const { data: trips, isLoading: tripsLoading } = useTrips();
-  const { data: globalData, isLoading: activitiesLoading } = useGlobalCalendarActivities();
+  const tripsQuery = useTrips();
+  const activitiesQuery = useGlobalCalendarActivities();
+  const { data: trips } = tripsQuery;
+  const { data: globalData } = activitiesQuery;
+  const tripsUx = getQueryDisplayState(tripsQuery);
+  const activitiesUx = getQueryDisplayState(activitiesQuery);
 
   const tripIds = useMemo(() => (trips?.map((t) => t.id) ?? []), [trips]);
 
@@ -131,7 +138,6 @@ export default function GlobalCalendarScreen() {
   }, [globalData, selectedDate, blockedActivityIds]);
 
   const [previewActivity, setPreviewActivity] = useState<Activity | null>(null);
-  const [previewTimezone, setPreviewTimezone] = useState<SupportedTimezone>('Europe/Berlin');
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [editingTripDates, setEditingTripDates] = useState<{ start_date: string; end_date: string; trip_id: string; base_currency: string } | null>(null);
 
@@ -145,9 +151,37 @@ export default function GlobalCalendarScreen() {
     updateActivityMutation.mutate({ activityId: editingActivity.id, tripId, input });
   };
 
-  if (tripsLoading || activitiesLoading) {
+  // Nothing cached and the fetch is paused (offline): say so, rather than spinning or — worse —
+  // falling through to the "No trips yet" card below, which would tell the user they have no trips.
+  if (tripsUx.showOfflineEmpty || activitiesUx.showOfflineEmpty) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+        <OfflineEmptyState
+          onRetry={() => {
+            void tripsQuery.refetch();
+            void activitiesQuery.refetch();
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
+
+  if (tripsUx.showError || activitiesUx.showError) {
+    return (
+      <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+        <QueryErrorState
+          onRetry={() => {
+            void tripsQuery.refetch();
+            void activitiesQuery.refetch();
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
+
+  if (tripsUx.showSkeleton || activitiesUx.showSkeleton) {
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center" edges={['top']}>
         <ActivityIndicator color={colors.primary} size="large" />
       </SafeAreaView>
     );
@@ -155,7 +189,7 @@ export default function GlobalCalendarScreen() {
 
   if (!trips || trips.length === 0) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center px-xl gap-md">
+      <SafeAreaView className="flex-1 bg-background items-center justify-center px-xl gap-md" edges={['top']}>
         <View className="w-[80px] h-[80px] rounded-full bg-info-muted items-center justify-center">
           <ThemedIcon name="calendar-outline" size={36} color={colors.info} />
         </View>
@@ -168,7 +202,7 @@ export default function GlobalCalendarScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       {view === 'year' ? (
         <YearGrid
           year={year}
@@ -206,10 +240,7 @@ export default function GlobalCalendarScreen() {
                   key={trip.id}
                   trip={trip}
                   activities={activitiesForDate}
-                  onActivityPress={(activity) => {
-                    setPreviewActivity(activity);
-                    setPreviewTimezone(trip.timezone);
-                  }}
+                  onActivityPress={(activity) => setPreviewActivity(activity)}
                   onTripPress={(tripId) =>
                     router.push({ pathname: '/trip/[id]', params: { id: tripId } } as never)
                   }
@@ -224,7 +255,6 @@ export default function GlobalCalendarScreen() {
         visible={!!previewActivity}
         onClose={() => setPreviewActivity(null)}
         activity={previewActivity}
-        timezone={previewTimezone}
         onEdit={(act) => {
           const trip = trips?.find((t) => t.id === act.trip_id);
           if (!trip) return;

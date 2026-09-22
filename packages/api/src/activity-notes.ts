@@ -1,5 +1,5 @@
 import { supabase } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { ActivityNote, CreateActivityNoteInput, UpdateActivityNoteInput } from '@vacationist/types';
 
 export async function getActivityNotes(activityId: string): Promise<ActivityNote[]> {
@@ -10,7 +10,7 @@ export async function getActivityNotes(activityId: string): Promise<ActivityNote
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as ActivityNote[];
+  return trustEmptyList(data as unknown as ActivityNote[]);
 }
 
 export async function createActivityNote(

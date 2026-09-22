@@ -41,6 +41,8 @@ const EXPENSE_FALLBACK_SOURCE: Record<'base' | 'transfer' | 'activities', string
   activities: 'expense_activity',
 };
 
+const FALLBACK_EXPENSE_SOURCES: ReadonlySet<string> = new Set(Object.values(EXPENSE_FALLBACK_SOURCE));
+
 /**
  * Converts every row into `baseCurrency`, applies category-level precedence (an entity-priced
  * category's own price sum wins over its matching expense bucket whenever that sum is `> 0`;
@@ -78,7 +80,16 @@ export function computeTripCostSummary(
   }
 
   const byCategory: Record<CostCategory, number> = { base: 0, transfer: 0, activities: 0, expenses: 0 };
-  let expensesTotal = (sumBySource.get('expense_manual') ?? 0) + (sumBySource.get('expense_shopping') ?? 0);
+  // Every expense category with no entity counterpart is purely additive — `expense_manual`,
+  // `expense_shopping` and (v1.39.0) `expense_food_drink`, `expense_groceries`, … . Matched
+  // generically rather than by name because the RPC emits `'expense_' || related_type`: a hardcoded
+  // list would silently drop a new category from the trip total until someone remembered to add it.
+  // Only the three entity-backed categories (accommodation/transport/activity) are excluded here;
+  // they are applied below as precedence fallbacks instead.
+  let expensesTotal = 0;
+  for (const [source, sum] of sumBySource) {
+    if (source.startsWith('expense_') && !FALLBACK_EXPENSE_SOURCES.has(source)) expensesTotal += sum;
+  }
 
   for (const category of ['base', 'transfer', 'activities'] as const) {
     const entitySum = ENTITY_SOURCES_BY_CATEGORY[category].reduce((sum, source) => sum + (sumBySource.get(source) ?? 0), 0);

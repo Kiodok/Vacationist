@@ -8,7 +8,7 @@ import type { CreateShoppingListInput, ShoppingListWithCounts, ShoppingItem, Cre
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
 import { useShoppingLists, useCreateShoppingList, useDeleteShoppingList, useArchiveShoppingList } from '../../../src/features/shopping/hooks/useShoppingLists';
-import { useAllTripShoppingItems, useUpdateShoppingItemGlobal } from '../../../src/features/shopping/hooks/useShoppingItems';
+import { useAllTripShoppingItems, useUpdateShoppingItemGlobal, useDeleteShoppingItem } from '../../../src/features/shopping/hooks/useShoppingItems';
 import { useRecipes, useCreateRecipe, useDeleteRecipe } from '../../../src/features/recipes/hooks/useRecipes';
 import { useRecipeShoppingStatus } from '../../../src/features/recipes/hooks/useRecipeShoppingStatus';
 import { useRecipesRealtime } from '../../../src/features/recipes/hooks/useRecipesRealtime';
@@ -24,8 +24,10 @@ import { EmptyRecipes } from '../../../src/features/recipes/components/EmptyReci
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { createClientId } from '../../../src/utils/optimisticId';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 import { SegmentedControl } from '../../../src/components/SegmentedControl';
 
 type ViewMode = 'lists' | 'all' | 'recipes';
@@ -100,7 +102,7 @@ export default function ShoppingTab() {
 
   const handleCreate = (input: CreateShoppingListInput) => {
     setShowCreate(false);
-    createList.mutate({ tripId: tripId!, input });
+    createList.mutate({ tripId: tripId!, input, id: createClientId() });
   };
 
   if (listsUx.showSkeleton || (viewMode === 'recipes' && recipesUx.showSkeleton)) {
@@ -112,6 +114,9 @@ export default function ShoppingTab() {
   }
   if (listsUx.showOfflineEmpty || (viewMode === 'recipes' && recipesUx.showOfflineEmpty)) {
     return <OfflineEmptyState onRetry={() => { refetch(); if (viewMode === 'recipes') refetchRecipes(); }} />;
+  }
+  if (listsUx.showError || (viewMode === 'recipes' && recipesUx.showError)) {
+    return <QueryErrorState onRetry={() => { refetch(); if (viewMode === 'recipes') refetchRecipes(); }} />;
   }
 
   const isEmpty = !lists || lists.length === 0;
@@ -155,7 +160,7 @@ export default function ShoppingTab() {
           windowSize={5}
           maxToRenderPerBatch={10}
           initialNumToRender={10}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 88 }}
           renderSectionHeader={({ section }) => {
             const cfg = SECTION_CONFIG[section.key] ?? SECTION_CONFIG.active;
             return (
@@ -257,7 +262,7 @@ function RecipesView({
     <FlashList
       data={recipes}
       keyExtractor={(item) => item.id}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 88, gap: 8 }}
       renderItem={({ item }) => (
         <RecipeCardWrapper
           recipe={item}
@@ -286,22 +291,39 @@ function AllItemsView({ tripId }: { tripId: string }) {
   const allItemsQuery = useAllTripShoppingItems(tripId);
   const { data: allItems, refetch } = allItemsQuery;
   const allItemsUx = getQueryDisplayState(allItemsQuery);
+  // The lists themselves, so a list with no items still gets a section here (it used to be missing
+  // until its first item existed, which made a freshly created list look lost).
+  const { data: lists } = useShoppingLists(tripId);
   const updateItem = useUpdateShoppingItemGlobal();
+  const deleteItem = useDeleteShoppingItem();
+  const { data: role } = useCurrentMemberRole(tripId);
+  const userId = useAuthStore((s) => s.user?.id);
+
+  // Same rule as the per-list screen: organizers delete anything, participants their own items.
+  const canDeleteItem = (item: ShoppingItem) =>
+    role === 'organizer' || (role === 'participant' && item.created_by === userId);
 
   const sections = useMemo(() => {
     if (!allItems) return [];
-    const byList: Record<string, (ShoppingItem & { list_title: string })[]> = {};
-    for (const item of allItems) {
-      if (!byList[item.list_title]) byList[item.list_title] = [];
-      byList[item.list_title].push(item);
+    type Row = ShoppingItem & { list_title: string };
+    // Grouped by list ID, never by title: two lists can share a name and must not merge.
+    const byList = new Map<string, { title: string; items: Row[] }>();
+    // Known lists first, in their own order, including empty ones (archived lists only when they hold items).
+    for (const l of lists ?? []) {
+      if (!l.archived_at) byList.set(l.id, { title: l.title, items: [] });
     }
-    return Object.entries(byList).map(([title, items]) => ({
-      key: title,
+    for (const item of allItems) {
+      const group = byList.get(item.shopping_list_id) ?? { title: item.list_title, items: [] };
+      group.items.push(item);
+      byList.set(item.shopping_list_id, group);
+    }
+    return Array.from(byList, ([listId, { title, items }]) => ({
+      key: listId,
       title,
       data: items,
       boughtCount: items.filter((i) => i.status === 'bought').length,
     }));
-  }, [allItems]);
+  }, [allItems, lists]);
 
   const handleToggle = (item: ShoppingItem) => {
     const newStatus = item.status === 'open' ? 'bought' : 'open';
@@ -318,8 +340,11 @@ function AllItemsView({ tripId }: { tripId: string }) {
   if (allItemsUx.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
   }
+  if (allItemsUx.showError) {
+    return <QueryErrorState onRetry={refetch} />;
+  }
 
-  if (!allItems || allItems.length === 0) {
+  if (sections.length === 0) {
     return (
       <View className="flex-1 items-center justify-center px-xl gap-sm">
         <ThemedIcon name="basket-outline" size={40} color="#5C5C5C" />
@@ -338,7 +363,7 @@ function AllItemsView({ tripId }: { tripId: string }) {
       windowSize={5}
       maxToRenderPerBatch={10}
       initialNumToRender={10}
-      contentContainerStyle={{ paddingBottom: 32 }}
+      contentContainerStyle={{ paddingBottom: 88 }}
       renderSectionHeader={({ section }) => (
         <View className="flex-row items-center gap-xs pt-md pb-sm px-md bg-background">
           <ThemedIcon name="list-outline" size={16} color={colors.primary} />
@@ -350,10 +375,16 @@ function AllItemsView({ tripId }: { tripId: string }) {
           </Text>
         </View>
       )}
+      renderSectionFooter={({ section }) =>
+        section.data.length === 0 ? (
+          <Text className="text-body-small text-text-muted px-md pb-sm">{t('card.noItems')}</Text>
+        ) : null
+      }
       renderItem={({ item }) => (
         <ShoppingItemRow
           item={item}
           onToggle={() => handleToggle(item)}
+          onDelete={canDeleteItem(item) ? () => deleteItem.mutate({ itemId: item.id, listId: item.shopping_list_id, tripId }) : undefined}
         />
       )}
     />

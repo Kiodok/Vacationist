@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Activity, ActivityVote, VoteType, CreateActivityInput, UpdateActivityInput } from '@vacationist/types';
 
@@ -34,7 +34,7 @@ export async function getActivitiesPage(
     .range(offset, offset + ACTIVITY_PAGE_SIZE - 1);
 
   if (error) throw error;
-  const items = (data as unknown as Activity[]) ?? [];
+  const items = await trustEmptyList((data as unknown as Activity[]) ?? []);
   return { items, hasMore: items.length === ACTIVITY_PAGE_SIZE };
 }
 
@@ -74,7 +74,7 @@ export async function getAllActivities(tripId: string): Promise<Activity[]> {
     all.push(...batch);
     if (batch.length < ALL_ACTIVITIES_BATCH_SIZE) break;
   }
-  return all;
+  return trustEmptyList(all);
 }
 
 export async function getActivity(activityId: string): Promise<Activity> {
@@ -143,7 +143,7 @@ export async function getActivityVotes(activityId: string): Promise<ActivityVote
     .eq('activity_id', activityId);
 
   if (error) throw error;
-  return data as unknown as ActivityVote[];
+  return trustEmptyList(data as unknown as ActivityVote[]);
 }
 
 // Trip-scoped (not activity-id-list-scoped): the query key this backs is
@@ -157,7 +157,7 @@ export async function getTripActivityVotes(tripId: string): Promise<ActivityVote
     .eq('trip_id', tripId);
 
   if (error) throw error;
-  return data as unknown as ActivityVote[];
+  return trustEmptyList(data as unknown as ActivityVote[]);
 }
 
 // Cross-trip variant for the global (all-trips) calendar screen, keyed by the
@@ -172,7 +172,7 @@ export async function getActivityVotesForTrips(tripIds: string[]): Promise<Activ
     .in('trip_id', tripIds);
 
   if (error) throw error;
-  return data as unknown as ActivityVote[];
+  return trustEmptyList(data as unknown as ActivityVote[]);
 }
 
 export async function castActivityVote(activityId: string, vote: VoteType): Promise<ActivityVote> {
@@ -257,7 +257,7 @@ export async function getActivitiesForTrips(tripIds: string[]): Promise<Activity
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as Activity[];
+  return trustEmptyList(data as unknown as Activity[]);
 }
 
 export interface CalendarActivityRealtimeCallbacks {

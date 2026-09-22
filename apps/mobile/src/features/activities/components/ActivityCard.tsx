@@ -13,7 +13,6 @@ interface ActivityCardProps {
   votes: ActivityVote[];
   currentUserId: string | undefined;
   currency: Currency;
-  timezone: string;
   onPress: () => void;
   onVotePress: () => void;
   detail?: React.ReactNode;
@@ -21,7 +20,7 @@ interface ActivityCardProps {
   highlight?: boolean;
 }
 
-export function ActivityCard({ activity, votes, currentUserId, currency, timezone, onPress, onVotePress, detail, displayStatus, highlight }: ActivityCardProps) {
+export function ActivityCard({ activity, votes, currentUserId, currency, onPress, onVotePress, detail, displayStatus, highlight }: ActivityCardProps) {
   const { t } = useTranslation('activities');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
@@ -75,11 +74,11 @@ export function ActivityCard({ activity, votes, currentUserId, currency, timezon
           <View className="flex-row items-center gap-xs">
             <ThemedIcon name="calendar-outline" size={14} color={METADATA_ICON_COLORS.calendar.color} />
             <Text className="text-body-small text-text-secondary">
-              {/* .tz(), not a bare dayjs(activity_date) parse — activity_date is a date-only
-                  'YYYY-MM-DD' string, which parses as UTC midnight; formatting without .tz()
+              {/* .utc(), not a bare dayjs(activity_date) parse — activity_date is a date-only
+                  'YYYY-MM-DD' string, which parses as UTC midnight; formatting without .utc()
                   converts to the device's local timezone first, rolling the displayed date back
                   a day on any device behind UTC (task 12). */}
-              {dayjs.tz(activity.activity_date, timezone).format('ddd, D MMM')}
+              {dayjs.utc(activity.activity_date).format('ddd, D MMM')}
             </Text>
           </View>
         ) : null}
@@ -125,7 +124,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, timezon
       {/* Vote section */}
       <View className="mt-xs gap-xs">
         <View className="flex-row items-center gap-sm">
-          {votes.length > 0 && <VoteSummary votes={votes} />}
+          {votes.length > 0 && <VoteSummary votes={votes} myVote={myVote?.vote ?? null} />}
           {votingClosed ? null : myVote ? (
             <VoteChip vote={myVote.vote} size="sm" onPress={onVotePress} />
           ) : (
@@ -144,7 +143,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, timezon
             onPress={onVotePress}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
-            <Text className="text-body-small text-text-primary">
+            <Text className="text-primary text-body-small font-medium">
               {t('vote.showCount', { count: votes.length })}
             </Text>
           </Pressable>

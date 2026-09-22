@@ -23,6 +23,7 @@ import { colors, EmptyState } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 export default function ChatTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
@@ -121,6 +122,8 @@ export default function ChatTab() {
         </View>
       ) : ux.showOfflineEmpty ? (
         <OfflineEmptyState onRetry={refetch} />
+      ) : ux.showError ? (
+        <QueryErrorState onRetry={refetch} />
       ) : (
         <FlashList
           data={messages}

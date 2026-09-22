@@ -17,8 +17,10 @@ import { EditShoppingItemSheet } from '../../../src/features/shopping/components
 import { EditShoppingListSheet } from '../../../src/features/shopping/components/EditShoppingListSheet';
 import { colors, ThemedIcon, useThemeColors } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
+import { createClientId } from '../../../src/utils/optimisticId';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 export default function ShoppingListDetail() {
   const { listId, tripId } = useLocalSearchParams<{ listId: string; tripId: string }>();
@@ -80,7 +82,7 @@ export default function ShoppingListDetail() {
   };
 
   const handleAdd = (title: string) => {
-    createItem.mutate({ listId: listId!, tripId: tripId!, input: { title } });
+    createItem.mutate({ listId: listId!, tripId: tripId!, input: { title }, id: createClientId() });
   };
 
   const handleEditSubmit = (input: UpdateShoppingItemInput) => {
@@ -188,6 +190,8 @@ export default function ShoppingListDetail() {
           </View>
         ) : ux.showOfflineEmpty ? (
           <OfflineEmptyState onRetry={refetch} />
+        ) : ux.showError ? (
+          <QueryErrorState onRetry={refetch} />
         ) : (
           <FlashList
             data={items}

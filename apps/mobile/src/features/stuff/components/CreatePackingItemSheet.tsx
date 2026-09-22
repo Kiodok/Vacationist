@@ -75,7 +75,7 @@ export function CreatePackingItemSheet({ visible, categories, usedCustomCategori
         <SwipeToDismiss
           onDismiss={handleClose}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+          style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />

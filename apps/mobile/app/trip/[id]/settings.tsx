@@ -79,7 +79,7 @@ export default function SettingsTab() {
 
       const lines: string[] = [
         t('invite.share.header', { name: currentUser?.name ?? 'Someone', trip: trip?.title ?? 'my trip' }),
-        t('invite.share.dates', { dateRange: trip?.start_date && trip?.end_date ? formatDateRange(trip.start_date, trip.end_date, trip.timezone) : '' }),
+        t('invite.share.dates', { dateRange: trip?.start_date && trip?.end_date ? formatDateRange(trip.start_date, trip.end_date) : '' }),
         '',
         t('invite.share.peoplePlanning', { count: memberCount }),
         '',
@@ -135,7 +135,7 @@ export default function SettingsTab() {
             renderItem={(member, index) => {
               const canRemove = isOrganizer && member.user_id !== currentUser?.id;
               const isPending = pendingRemovalId === member.user_id;
-              const isRemoving = removeMember.isPending && isPending;
+              const isRemoving = isMutationBusy(removeMember) && isPending;
 
               return (
                 <View
@@ -215,7 +215,7 @@ export default function SettingsTab() {
               label={t('settings.generateInvite')}
               variant="secondary"
               onPress={handleCreateInvite}
-              loading={createInvite.isPending}
+              loading={isMutationBusy(createInvite)}
               icon={<ThemedIcon name="link-outline" size={18} color={colors.primary} />}
             />
 
@@ -284,7 +284,7 @@ export default function SettingsTab() {
                   label={t('settings.requestDocuments')}
                   variant="secondary"
                   onPress={() => setRequestDocVisible(true)}
-                  loading={createAccessRequest.isPending}
+                  loading={isMutationBusy(createAccessRequest)}
                   icon={<ThemedIcon name="shield-checkmark-outline" size={18} color={colors.primary} />}
                 />
               </View>
@@ -359,7 +359,7 @@ export default function SettingsTab() {
                 <Pressable
                   onPress={() => setPendingLeave(false)}
                   className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
-                  disabled={leaveTrip.isPending}
+                  disabled={isMutationBusy(leaveTrip)}
                 >
                   <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
                 </Pressable>
@@ -374,9 +374,9 @@ export default function SettingsTab() {
                     }
                   }}
                   className="flex-1 min-h-[44px] rounded-md bg-danger items-center justify-center"
-                  disabled={leaveTrip.isPending}
+                  disabled={isMutationBusy(leaveTrip)}
                 >
-                  {leaveTrip.isPending ? (
+                  {isMutationBusy(leaveTrip) ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
                     <Text className="text-body text-white font-semibold">{t('settings.leaveTrip')}</Text>
@@ -405,7 +405,7 @@ export default function SettingsTab() {
                 <Pressable
                   onPress={() => setPendingDelete(false)}
                   className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
-                  disabled={deleteTrip.isPending}
+                  disabled={isMutationBusy(deleteTrip)}
                 >
                   <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
                 </Pressable>
@@ -420,9 +420,9 @@ export default function SettingsTab() {
                     }
                   }}
                   className="flex-1 min-h-[44px] rounded-md bg-danger items-center justify-center"
-                  disabled={deleteTrip.isPending}
+                  disabled={isMutationBusy(deleteTrip)}
                 >
-                  {deleteTrip.isPending ? (
+                  {isMutationBusy(deleteTrip) ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
                     <Text className="text-body text-white font-semibold">{tCommon('button.delete')}</Text>

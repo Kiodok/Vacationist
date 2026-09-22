@@ -5,7 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
 import { CollapsibleSectionHeader } from '../../../src/components/CollapsibleSectionHeader';
-import { dayjs } from '@vacationist/utils';
+import { dayjs, isActivityAutoCompleted, isActivityOngoing } from '@vacationist/utils';
 import type { Activity, VoteType, CreateActivityInput, UpdateActivityInput, Currency } from '@vacationist/types';
 import { useActivities, useAllActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, useCloseVoting, useReopenVoting } from '../../../src/features/activities/hooks/useActivities';
 import { useActivityVotes, useCastVote, useRemoveVote, useTripActivityVotes } from '../../../src/features/activities/hooks/useVotes';
@@ -25,6 +25,7 @@ import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 import { SearchInput } from '../../../src/components/SearchInput';
 import { flattenActivities, type ActivitiesData } from '../../../src/features/activities/utils/activityCache';
 import { compareActivitiesForDisplay } from '../../../src/features/activities/utils/activityOrder';
@@ -43,44 +44,6 @@ const ACTIVITY_SECTION_CONFIG: Record<string, { icon: IoniconsName; iconColor: s
   blocked:     { icon: 'chatbubbles-outline',     iconColor: colors.danger,      textClass: 'text-danger' },
   completed:   { icon: 'checkmark-done-outline', iconColor: colors.success,     textClass: 'text-success' },
 };
-
-function isAutoCompleted(activity: Activity, timezone: string): boolean {
-  if (!activity.activity_date) return false;
-  const now = dayjs();
-  const date = activity.activity_date;
-  if (activity.end_time) {
-    let end = dayjs.tz(`${date}T${activity.end_time}`, timezone);
-    // If end_time is earlier than start_time the activity crosses midnight — shift end to next day.
-    if (activity.start_time && activity.end_time < activity.start_time) {
-      end = end.add(1, 'day');
-    }
-    return now.isAfter(end);
-  }
-  if (activity.start_time) {
-    return now.isAfter(dayjs.tz(`${date}T${activity.start_time}`, timezone).add(2, 'hour'));
-  }
-  return now.isAfter(dayjs.tz(date, timezone).endOf('day'));
-}
-
-function isOngoing(activity: Activity, timezone: string): boolean {
-  if (!activity.activity_date) return false;
-  const now = dayjs();
-  const date = activity.activity_date;
-  if (activity.start_time && activity.end_time) {
-    const start = dayjs.tz(`${date}T${activity.start_time}`, timezone);
-    let end = dayjs.tz(`${date}T${activity.end_time}`, timezone);
-    // Midnight-crossing activity: shift end to next day.
-    if (activity.end_time < activity.start_time) {
-      end = end.add(1, 'day');
-    }
-    return now.isAfter(start) && now.isBefore(end);
-  }
-  if (activity.start_time) {
-    const start = dayjs.tz(`${date}T${activity.start_time}`, timezone);
-    return now.isAfter(start) && now.isBefore(start.add(2, 'hour'));
-  }
-  return dayjs().tz(timezone).isSame(dayjs.tz(date, timezone), 'day');
-}
 
 export default function ActivitiesTab() {
   const { t } = useTranslation('activities');
@@ -148,10 +111,6 @@ export default function ActivitiesTab() {
     );
   }, [activities, searchQuery]);
 
-  // Hoisted out of the grouping useMemo below (not just its own local) so ActivityCard's date
-  // display can use the exact same trip timezone the ongoing/completed bucketing already relies on.
-  const tz = trip?.timezone ?? 'Europe/Berlin';
-
   const { inPlanningList, plannedList, blockedList, ongoingList, completedList } = useMemo(() => {
     const inPlanning: Activity[] = [];
     const planned: Activity[] = [];
@@ -161,9 +120,9 @@ export default function ActivitiesTab() {
     for (const a of filteredActivities) {
       if (a.status === 'completed' || a.status === 'skipped') {
         completed.push(a);
-      } else if (isAutoCompleted(a, tz)) {
+      } else if (isActivityAutoCompleted(a)) {
         completed.push(a);
-      } else if (isOngoing(a, tz)) {
+      } else if (isActivityOngoing(a)) {
         ongoing.push(a);
       } else if (a.voting_open && blockedActivityIds.has(a.id)) {
         blocked.push(a);
@@ -179,7 +138,7 @@ export default function ActivitiesTab() {
     ongoing.sort(compareActivitiesForDisplay);
     completed.sort(compareActivitiesForDisplay);
     return { inPlanningList: inPlanning, plannedList: planned, blockedList: blocked, ongoingList: ongoing, completedList: completed };
-  }, [filteredActivities, blockedActivityIds, trip?.timezone]);
+  }, [filteredActivities, blockedActivityIds]);
 
   const rawSections = useMemo(() => {
     const result: { key: string; title: string; data: Activity[] }[] = [];
@@ -284,6 +243,9 @@ export default function ActivitiesTab() {
   if (ux.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
   }
+  if (ux.showError) {
+    return <QueryErrorState onRetry={refetch} />;
+  }
 
   // Whether the trip has any activities at all — deliberately based on the
   // paged feed, not the search-affected `activities` list, so a search that
@@ -328,7 +290,7 @@ export default function ActivitiesTab() {
               safeScrollToSectionLocation(sectionListRef, sections, { ...target, animated: false, viewOffset: 80 });
             }, 80);
           }}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 88 }}
           ListHeaderComponent={
             <View className="mb-sm">
               <SearchInput
@@ -370,7 +332,6 @@ export default function ActivitiesTab() {
                 currentUserId={user?.id}
                 role={role}
                 currency={currency}
-                timezone={tz}
                 initialExpanded={item.id === activityId}
                 isBlocked={blockedActivityIds.has(item.id)}
                 locked={locked}
@@ -455,7 +416,6 @@ function ActivityCardWithVotes({
   currentUserId,
   role,
   currency,
-  timezone,
   initialExpanded,
   isBlocked,
   onEdit,
@@ -470,7 +430,6 @@ function ActivityCardWithVotes({
   currentUserId: string | undefined;
   role: string | null | undefined;
   currency: Currency;
-  timezone: string;
   initialExpanded?: boolean;
   isBlocked: boolean;
   locked: boolean;
@@ -716,7 +675,6 @@ function ActivityCardWithVotes({
         votes={votes}
         currentUserId={currentUserId}
         currency={currency}
-        timezone={timezone}
         onPress={() => setShowDetail(!showDetail)}
         onVotePress={() => setShowVoteSheet(true)}
         detail={detailContent}

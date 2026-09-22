@@ -54,9 +54,16 @@ export function VoteChip({ vote, selected, onPress, showLabel = true, size = 'md
 
 interface VoteSummaryProps {
   votes: { vote: VoteType }[];
+  /** The viewer's current vote — that pill is drawn with a ring. */
+  myVote?: VoteType | null;
 }
 
-export function VoteSummary({ votes }: VoteSummaryProps) {
+/**
+ * Read-only per-option counts. Deliberately NOT tappable: a tap-to-vote variant was tried in v1.39.0
+ * and rejected in device testing (too easy to vote by accident). Voting always goes through the
+ * `VoteSheet` / the viewer's own `VoteChip`.
+ */
+export function VoteSummary({ votes, myVote = null }: VoteSummaryProps) {
   const counts = votes.reduce<Partial<Record<VoteType, number>>>((acc, v) => {
     acc[v.vote] = (acc[v.vote] ?? 0) + 1;
     return acc;
@@ -73,7 +80,9 @@ export function VoteSummary({ votes }: VoteSummaryProps) {
         return (
           <View
             key={voteType}
-            className={`flex-row items-center gap-xs rounded-full px-sm py-xs ${config.bg}`}
+            className={`flex-row items-center gap-xs rounded-full px-sm py-xs ${config.bg} ${
+              myVote === voteType ? 'border-2 border-primary' : ''
+            }`}
           >
             <Text className="text-body-small">{config.icon}</Text>
             <Text className={`${config.text} text-body-small font-medium`}>{count}</Text>

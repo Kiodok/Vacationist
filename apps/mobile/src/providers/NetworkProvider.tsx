@@ -1,9 +1,9 @@
 import NetInfo from '@react-native-community/netinfo';
 import { onlineManager } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { reconnectRealtime, refreshSessionQuietly } from '@vacationist/api';
+import { reconnectRealtime } from '@vacationist/api';
 import { resolveOnline, getInitialOnlineStatus } from '../hooks/netInfoUtils';
-import { queryClient } from '../utils/queryClient';
+import { refreshAndResumeMutations } from '../utils/replayQueue';
 
 // null = status not yet determined (first render before async check completes)
 // true = online; false = offline
@@ -21,13 +21,10 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       // Debounce against a flapping connection.
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
       reconnectTimerRef.current = setTimeout(() => {
-        void refreshSessionQuietly();
         reconnectRealtime();
-        // resumePausedMutations first so queued writes land before the refetch,
-        // then bring every cached query up to date.
-        void queryClient.resumePausedMutations().finally(() => {
-          queryClient.invalidateQueries();
-        });
+        // Refresh the session, replay queued writes so they land before the refetch, then bring
+        // every cached query up to date — in that order (see replayQueue.ts).
+        void refreshAndResumeMutations('always');
       }, 1000);
     }
 

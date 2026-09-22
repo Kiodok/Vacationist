@@ -120,3 +120,45 @@ export async function getUserIdOfflineSafe(): Promise<string> {
 export async function hasStoredSession(): Promise<boolean> {
   return (await readStoredSession()) !== null;
 }
+
+/**
+ * Does the stored session's access token look like it's still valid right now?
+ *
+ * supabase-js silently falls back to the ANON key when `getSession()`/its token refresh fails
+ * (typically: expired token + a flaky reconnect) — against RLS that produces a legitimate-LOOKING
+ * empty or not-found result, no thrown error. A read function that trusts such a result as ground
+ * truth ends up caching (and, offline, persisting) a false negative over real data.
+ *
+ * `false` here means a request just made with the stored credentials may actually have gone out
+ * unauthenticated — an empty/null/not-found result it returned should NOT be trusted; the caller
+ * should throw instead, so TanStack Query preserves whatever is already cached. `true` means the
+ * token should have been valid, so a genuinely-empty result is genuinely empty.
+ *
+ * No network call — reads the same on-disk blob as `readStoredSession()`.
+ */
+export async function looksSessionValid(): Promise<boolean> {
+  const stored = await readStoredSession();
+  return !!stored && stored.expiresAt != null && stored.expiresAt * 1000 > Date.now();
+}
+
+/**
+ * Guards a plain list `.select()` result. Unlike `.single()`, an RLS-filtered list read returns an
+ * empty array with NO error at all — a function that just `return`s it is trusting an anon-key
+ * fallback's silently-empty result exactly like the old `getCurrentMemberRole` bug did, just without
+ * an `error` to catch. A non-empty result is always trusted (an anon-key request can only ever be
+ * filtered DOWN by RLS, never fabricate rows); an empty one is trusted only when the session looks
+ * like it was actually valid.
+ *
+ * Call as `return trustEmptyList(data as Foo[]);` at the end of any trip/user-scoped list read.
+ */
+export async function trustEmptyList<T>(rows: T[]): Promise<T[]> {
+  if (rows.length > 0 || (await looksSessionValid())) return rows;
+  throw new Error('Empty result while session validity is unverified (likely an offline anon-key fallback)');
+}
+
+/** Same guard as `trustEmptyList`, for a single-row read that resolves `null` on "not found"
+ * (`.maybeSingle()`, or an RPC that returns zero rows) instead of an array. */
+export async function trustNullResult<T>(value: T | null): Promise<T | null> {
+  if (value !== null || (await looksSessionValid())) return value;
+  throw new Error('Null result while session validity is unverified (likely an offline anon-key fallback)');
+}

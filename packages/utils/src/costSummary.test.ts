@@ -86,6 +86,58 @@ describe('computeTripCostSummary', () => {
     });
   });
 
+  // v1.39.0 item 8: the RPC emits `'expense_' || related_type`, so each new expense category arrives
+  // as its own source string. They have no entity counterpart, so — like manual/shopping — they must
+  // ALWAYS count. Regression guard: the additive bucket used to be a hardcoded manual+shopping pair,
+  // which would have silently dropped every new category from the trip total.
+  describe('expense categories with no entity counterpart (v1.39.0)', () => {
+    const NEW_CATEGORY_SOURCES = [
+      'expense_food_drink',
+      'expense_groceries',
+      'expense_fuel_parking',
+      'expense_tickets_entry',
+      'expense_health',
+      'expense_souvenirs',
+    ];
+
+    it.each(NEW_CATEGORY_SOURCES)('%s is additive into the expenses total', (source) => {
+      const result = computeTripCostSummary([row(source, 60)], {}, 'EUR');
+      expect(result.byCategory.expenses).toBe(60);
+      expect(result.total).toBe(60);
+    });
+
+    it('stays additive even when every entity-backed category is fully priced', () => {
+      const result = computeTripCostSummary(
+        [
+          row('accommodation', 900),
+          row('transfer_flight', 200),
+          row('activity', 100),
+          row('expense_food_drink', 80),
+          row('expense_souvenirs', 20),
+        ],
+        {},
+        'EUR',
+      );
+      expect(result.byCategory.expenses).toBe(100);
+      expect(result.total).toBe(1300);
+    });
+
+    it('does not let a new category suppress or double-count an entity fallback', () => {
+      const result = computeTripCostSummary(
+        [row('expense_food_drink', 50), row('expense_transport', 120)], // transfer unpriced -> fallback fires once
+        {},
+        'EUR',
+      );
+      expect(result.byCategory.expenses).toBe(170);
+      expect(result.total).toBe(170);
+    });
+
+    it('converts a new category from a foreign currency like any other expense source', () => {
+      const result = computeTripCostSummary([row('expense_groceries', 110, 'USD')], { EUR: 1, USD: 1.1 }, 'EUR');
+      expect(result.byCategory.expenses).toBeCloseTo(100, 5);
+    });
+  });
+
   describe('multi-currency conversion', () => {
     const EUR_USD_RATES = { EUR: 1, USD: 1.1 }; // exchange_rates semantics: value of 1 EUR in `currency`
 
@@ -315,6 +367,20 @@ describe('computeMyCostShares', () => {
     );
     expect(result.trips[0].share).toBe(87.5);
   });
+
+  it.each(['food_drink', 'groceries', 'fuel_parking', 'tickets_entry', 'health', 'souvenirs'])(
+    'a %s expense_owed_by_me row is additive like manual — new categories have no entity to defer to',
+    (relatedType) => {
+      // Handled by the switch's `default` branch, deliberately not by explicit cases: a future
+      // category is additive by default, which is the only safe direction to fail in.
+      const result = computeMyCostShares(
+        [shareRow({ source: 'expense_owed_by_me', related_type: relatedType, amount: 33, member_count: 4 })],
+        {},
+        'EUR',
+      );
+      expect(result.trips[0].share).toBe(33);
+    },
+  );
 
   it('a null related_type on an expense_owed_by_me row is treated as manual (always counts)', () => {
     const result = computeMyCostShares(

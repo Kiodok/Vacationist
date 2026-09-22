@@ -40,7 +40,7 @@ export function MessageActionsSheet({
       <SwipeToDismiss
         onDismiss={onClose}
         className="bg-surface-elevated rounded-t-lg px-md pt-md gap-sm"
-        style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
       >
           <View className="items-center mb-xs">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />

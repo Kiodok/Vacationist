@@ -82,3 +82,20 @@ export function isExpectedMutationError(error: unknown): boolean {
 
   return false;
 }
+
+/**
+ * A rejection of the SESSION rather than of the change: an expired/invalid access token, or a request
+ * that reached the server unauthenticated. After a long offline stretch the JWT (1 h) has lapsed, so a
+ * queued write replayed before the refresh lands fails this way even though the write itself is fine —
+ * it must be retried on a fresh session, not treated as a permanent failure.
+ */
+export function isAuthError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const e = error as MaybePgError & { status?: unknown };
+  if (e.code === 'PGRST301' || e.code === 'PGRST303' || e.status === 401) return true;
+  if (typeof e.message === 'string') {
+    const lower = e.message.toLowerCase();
+    return lower.includes('jwt expired') || lower.includes('invalid jwt') || lower.includes('not authenticated');
+  }
+  return false;
+}

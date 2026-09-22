@@ -10,7 +10,6 @@ import type {
   ShoppingItemStatus,
   Currency,
   NotificationType,
-  SupportedTimezone,
   TransferFlightStatus,
   TransferDirection,
   DocumentType,
@@ -41,7 +40,7 @@ export interface Trip {
   end_date: string;
   budget_per_person: number | null;
   base_currency: Currency;
-  timezone: SupportedTimezone;
+  timezone: string;
   status: TripStatus;
   /** True only for the auto-seeded demo trip (create-example-trip). Used to keep
    *  demo-trip activity out of the web-app product-funnel analytics. */
@@ -190,6 +189,8 @@ export interface Expense {
   updated_by: string | null;
   archived_at: string | null;
   is_business: boolean;
+  /** Portion of `amount` that was tip. `amount` stays the grand total that is split between members. */
+  tip_amount: number;
   payer?: { id: string; name: string; avatar_url: string | null } | null;
 }
 

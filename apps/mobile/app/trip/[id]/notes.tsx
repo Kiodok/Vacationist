@@ -19,6 +19,7 @@ import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { safeScrollToIndex } from '../../../src/utils/safeListScroll';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 function isTripLocked(endDate: string | null | undefined): boolean {
   if (!endDate) return false;
@@ -111,6 +112,9 @@ export default function NotesTab() {
   }
   if (ux.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
+  }
+  if (ux.showError) {
+    return <QueryErrorState onRetry={refetch} />;
   }
 
   const isEmpty = activeNotes.length === 0 && doneNotes.length === 0;

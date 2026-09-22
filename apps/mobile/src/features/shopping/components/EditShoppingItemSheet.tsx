@@ -62,7 +62,8 @@ export function EditShoppingItemSheet({
       <SwipeToDismiss
           onDismiss={onClose}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+          // +16 over the standard sheet padding: this sheet ends in a full-width Delete button that sat too close to the system bar.
+          style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -210,7 +211,7 @@ export function EditShoppingItemSheet({
                       className="flex-row items-center justify-center gap-xs py-sm rounded-md bg-danger/10"
                       style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
                     >
-                      <Text className="text-danger text-body font-medium">Delete Item</Text>
+                      <Text className="text-danger text-body font-medium">{t('action.deleteItem')}</Text>
                     </Pressable>
                   )
                 )}

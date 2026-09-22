@@ -5,7 +5,7 @@ import { ScrollView } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createExpenseSchema, type CreateExpenseInput, EXPENSE_RELATED_TYPE, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency } from '@vacationist/types';
+import { createExpenseSchema, type CreateExpenseInput, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency } from '@vacationist/types';
 
 // The "cover" whole-expense split method is retired from the create/edit UI (v1.33.0) — the
 // covered_by per-split "Cover" button in ExpenseSplitBreakdown is the supported way to cover a
@@ -15,16 +15,18 @@ const SELECTABLE_SPLIT_METHODS = EXPENSE_SPLIT_METHOD.filter(
   (m): m is SelectableSplitMethod => m !== 'cover',
 );
 import type { TripMemberWithUser } from '@vacationist/api';
-import { formatCurrency, roundCurrency, isNegligible, sanitizeDecimalInput } from '@vacationist/utils';
+import { formatCurrency, roundCurrency, sanitizeDecimalInput, evenExactShares, sumExactAmounts, isExactSplitBalanced } from '@vacationist/utils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
 import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/useCurrencies';
 import { getLastUsedCurrency, setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
+import { useToastStore } from '../../../stores/toastStore';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 import { StagedDocumentsField } from './StagedDocumentsField';
+import { useExpenseCategoryLabels } from '../hooks/useExpenseCategoryLabels';
 import type { PickedDocumentFile } from '../../../utils/documentPicker';
 
 interface CreateExpenseSheetProps {
@@ -38,26 +40,22 @@ interface CreateExpenseSheetProps {
   members: TripMemberWithUser[];
   currentUserId: string;
   currency: Currency;
+  /** Scopes the remembered currency — the first expense of a trip opens in the trip's own currency. */
+  tripId: string;
   /** Shown as a small banner below the header — only set when this sheet was auto-opened by
    * the app-icon "Add Expense" quick action (task 16), which picks a trip automatically with no
    * confirmation step; the user needs to see which one before submitting. */
   autoSelectedTripBanner?: string;
 }
 
-export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, members, currentUserId, currency, autoSelectedTripBanner }: CreateExpenseSheetProps) {
+export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, members, currentUserId, currency, tripId, autoSelectedTripBanner }: CreateExpenseSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation('common');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
 
-  const RELATED_TYPE_LABELS: Record<string, string> = {
-    manual: t('category.manual'),
-    accommodation: t('category.accommodation'),
-    activity: t('category.activity'),
-    transport: t('category.transport'),
-    shopping: t('category.shopping'),
-  };
+  const { labels: RELATED_TYPE_LABELS, options: categoryOptions } = useExpenseCategoryLabels();
 
   const SPLIT_METHOD_LABELS: Record<SelectableSplitMethod, string> = {
     even: t('split.even'),
@@ -75,7 +73,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
   const [stagedFiles, setStagedFiles] = useState<PickedDocumentFile[]>([]);
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
-  const categoryOptions = EXPENSE_RELATED_TYPE.map((type) => ({ value: type, label: RELATED_TYPE_LABELS[type] ?? type }));
+  const [tipText, setTipText] = useState('');
   const [paidByPickerVisible, setPaidByPickerVisible] = useState(false);
   const paidByOptions = members.map((m) => ({ value: m.user_id, label: m.user.name }));
 
@@ -87,7 +85,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     defaultValues: {
       title: '',
       amount: undefined,
-      currency: getLastUsedCurrency() ?? currency,
+      currency: getLastUsedCurrency(tripId) ?? currency,
       paid_by: currentUserId,
       related_type: 'manual',
       split_method: 'even',
@@ -95,7 +93,12 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     },
   });
 
-  const totalAmount = watch('amount') ?? 0;
+  // The RHF `amount` field is the BILL the user types. The tip is added on top and split with it, so
+  // `totalAmount` (bill + tip) is what every split preview, the exact-sum check and the FX preview
+  // work on — and what's submitted as `amount`, with `tip_amount` recording the tip portion.
+  const billAmount = watch('amount') ?? 0;
+  const tip = roundCurrency(parseFloat(tipText) || 0);
+  const totalAmount = roundCurrency(billAmount + tip);
   const paidBy = watch('paid_by');
   const selectedCurrency = watch('currency') || currency;
   const isForeignCurrency = selectedCurrency !== currency;
@@ -120,17 +123,21 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   const handleSplitMethodChange = (method: SelectableSplitMethod) => {
     setSplitMethod(method);
     setValue('split_method', method);
+    // Switching to "exact" starts from an even split of the total instead of a blank column the user
+    // has to fill in cent by cent (an existing even expense would otherwise open with every share empty).
+    if (method === 'exact' && selectedMembers.size > 1 && totalAmount > 0 && sumExactAmounts(selectedMembers, exactAmounts) === 0) {
+      setExactAmounts(evenExactShares(Array.from(selectedMembers), totalAmount));
+    }
   };
 
   const exactTotal = useMemo(() => {
     if (selectedMembers.size === 1) return roundCurrency(totalAmount);
-    let sum = 0;
-    for (const uid of selectedMembers) {
-      const val = parseFloat(exactAmounts[uid] ?? '');
-      if (!isNaN(val)) sum += val;
-    }
-    return roundCurrency(sum);
+    return sumExactAmounts(selectedMembers, exactAmounts);
   }, [exactAmounts, selectedMembers, totalAmount]);
+
+  // "Remaining != 0" must block the submit button — an exact split that doesn't add up is rejected by
+  // the RPC, which used to look like the button silently doing nothing.
+  const exactBalanced = splitMethod !== 'exact' || isExactSplitBalanced(totalAmount, selectedMembers.size, exactTotal);
 
   const totalShares = useMemo(() => {
     let sum = 0;
@@ -162,13 +169,14 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const onValid = (data: CreateExpenseInput) => {
     Keyboard.dismiss();
-    onSubmit({ ...data, splits: buildSplits() }, stagedFiles);
+    onSubmit({ ...data, amount: totalAmount, tip_amount: tip, splits: buildSplits() }, stagedFiles);
     resetForm();
   };
 
   const resetForm = () => {
     reset();
     setAmountText('');
+    setTipText('');
     setSelectedMembers(new Set(allMemberIds));
     setSplitMethod('even');
     setExactAmounts({});
@@ -181,7 +189,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     onClose();
   };
 
-  const canSubmit = !isPending && canConvert;
+  const canSubmit = !isPending && canConvert && exactBalanced;
+  const onInvalid = () => useToastStore.getState().addToast('error', t('toast.checkForm'));
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
@@ -189,7 +198,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
       <SwipeToDismiss
         onDismiss={handleClose}
         className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-        style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+        style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
       >
           <View className="items-center mb-md">
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
@@ -294,6 +303,24 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                   />
                 </View>
                 {errors.amount && <Text className="text-danger text-body-small">{errors.amount.message}</Text>}
+
+                {/* Tip — optional; added on top of the amount and split with it. */}
+                <Text className="text-label text-text-muted uppercase mt-xs">{t('field.tipLabel', { currency: selectedCurrency })}</Text>
+                <TextInput
+                  className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                  placeholderTextColor={colors.textMuted}
+                  placeholder="0.00"
+                  value={tipText}
+                  onChangeText={(text) => setTipText(sanitizeDecimalInput(text))}
+                  keyboardType="decimal-pad"
+                />
+                {tip > 0 && (
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-body-small text-text-secondary">{t('field.totalWithTip')}</Text>
+                    <Text className="text-body-small text-text-primary font-semibold">{formatCurrency(totalAmount, selectedCurrency)}</Text>
+                  </View>
+                )}
+
                 {isForeignCurrency && convertedPreview != null && (
                   <Text className="text-text-secondary text-body-small">
                     {t('field.convertedPreview', { amount: formatCurrency(convertedPreview, currency), asOf: ratesAsOf ?? '—' })}
@@ -307,7 +334,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
               <CurrencyPickerSheet
                 visible={currencyPickerVisible}
                 selectedCode={selectedCurrency}
-                onSelect={(code) => { setValue('currency', code); setLastUsedCurrency(code); }}
+                onSelect={(code) => { setValue('currency', code); setLastUsedCurrency(tripId, code); }}
                 onClose={() => setCurrencyPickerVisible(false)}
               />
 
@@ -490,13 +517,13 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
               {/* Exact sum indicator */}
               {splitMethod === 'exact' && totalAmount > 0 && selectedMembers.size > 1 && (
-                <View className={`flex-row items-center justify-between px-sm py-xs rounded-sm ${isNegligible(exactTotal - totalAmount) ? 'bg-success/10' : 'bg-warning/10'}`}>
-                  <Text className={`text-body-small ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
-                    {isNegligible(exactTotal - totalAmount)
+                <View className={`flex-row items-center justify-between px-sm py-xs rounded-sm ${exactBalanced ? 'bg-success/10' : 'bg-warning/10'}`}>
+                  <Text className={`text-body-small ${exactBalanced ? 'text-success' : 'text-warning'}`}>
+                    {exactBalanced
                       ? t('field.amountsMatch')
                       : t('field.remaining', { amount: formatCurrency(totalAmount - exactTotal, selectedCurrency) })}
                   </Text>
-                  <Text className={`text-body-small font-medium ${isNegligible(exactTotal - totalAmount) ? 'text-success' : 'text-warning'}`}>
+                  <Text className={`text-body-small font-medium ${exactBalanced ? 'text-success' : 'text-warning'}`}>
                     {formatCurrency(exactTotal, selectedCurrency)} / {formatCurrency(totalAmount, selectedCurrency)}
                   </Text>
                 </View>
@@ -525,7 +552,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
               {/* Submit */}
               <Pressable
-                onPress={handleSubmit(onValid)}
+                onPress={handleSubmit(onValid, onInvalid)}
                 disabled={!canSubmit}
                 className={`items-center py-sm rounded-md mt-sm ${!canSubmit ? 'bg-primary/50' : 'bg-primary'}`}
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}

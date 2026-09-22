@@ -1,9 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useToastStore, type ToastType } from '../stores/toastStore';
-import { useNetworkStatus } from '../hooks/useNetworkStatus';
-import { colors } from '@vacationist/ui';
-import { OFFLINE_BANNER_HEIGHT } from './OfflineBanner';
+import { colors, useThemeColors } from '@vacationist/ui';
 
 const TYPE_COLORS: Record<ToastType, { bg: string; text: string }> = {
   success: { bg: 'rgba(62, 207, 142, 0.15)', text: colors.success },
@@ -13,30 +11,28 @@ const TYPE_COLORS: Record<ToastType, { bg: string; text: string }> = {
 
 export function ToastContainer() {
   const insets = useSafeAreaInsets();
-  const { isConnected } = useNetworkStatus();
   const toasts = useToastStore((s) => s.toasts);
   const removeToast = useToastStore((s) => s.removeToast);
+  const tc = useThemeColors();
 
   if (toasts.length === 0) return null;
-
-  // Push toasts above the offline banner when it's visible.
-  // The banner sits at bottom: insets.bottom, so we add its height + an 8px gap.
-  // isConnected === false (not null) is required — null means "not yet determined".
-  const offlineClearance = isConnected === false ? OFFLINE_BANNER_HEIGHT + 8 : 0;
 
   // Raise the toast above the FAB (56px height + 16px bottom margin = 72px zone).
   // Add 12px extra gap so the toast never visually touches the FAB.
   const fabClearance = 72 + 12;
   return (
-    <View style={[styles.container, { bottom: Math.max(insets.bottom, fabClearance) + 8 + offlineClearance }]}>
+    <View style={[styles.container, { bottom: Math.max(insets.bottom, fabClearance) + 8 }]}>
       {toasts.map((toast) => {
         const toastColors = TYPE_COLORS[toast.type];
         return (
+          // Opaque surface + a coloured border, with the type tint laid over it. The tint alone is only 15 %
+          // opaque, so the toast read as see-through and vanished whenever it sat over a matching background.
           <Pressable
             key={toast.id}
-            style={[styles.toast, { backgroundColor: toastColors.bg }]}
+            style={[styles.toast, { backgroundColor: tc.surfaceElevated, borderColor: toastColors.text }]}
             onPress={() => removeToast(toast.id)}
           >
+            <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: toastColors.bg, borderRadius: 11 }]} />
             <Text style={[styles.text, { color: toastColors.text }]}>{toast.message}</Text>
           </Pressable>
         );
@@ -57,6 +53,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
+    borderWidth: 1,
   },
   text: {
     fontSize: 14,

@@ -17,6 +17,7 @@ import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 export default function RecipesTab() {
   const theme = useResolvedTheme();
@@ -53,6 +54,9 @@ export default function RecipesTab() {
   if (ux.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
   }
+  if (ux.showError) {
+    return <QueryErrorState onRetry={refetch} />;
+  }
 
   const isEmpty = !recipes || recipes.length === 0;
 
@@ -66,7 +70,7 @@ export default function RecipesTab() {
         <FlashList
           data={recipes}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, gap: 8 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 88, gap: 8 }}
           renderItem={({ item }) => (
             <RecipeCardWrapper
               recipe={item}

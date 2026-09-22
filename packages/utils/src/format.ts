@@ -85,19 +85,17 @@ export function sanitizeDecimalInput(text: string, maxDecimals = 2): string {
 }
 
 /**
- * Formats a trip's date-only start/end range (`trips.start_date`/`end_date`, plain
- * 'YYYY-MM-DD' strings, no time component). A bare `dayjs(dateString)` parses a date-only ISO
- * string as UTC midnight, then `.format()` renders it in the *device's* local timezone — on any
- * device behind UTC this rolls the displayed date back a day (the same class of bug fixed in
- * ActivityCard.tsx for task 12). Pass `timezone` (the trip's own) when available to parse via
- * `.tz()` instead; when it isn't (e.g. the pre-join invite preview, which has no timezone field),
- * `.utc()` is an equally correct fallback — for a value with no time-of-day, both simply avoid
- * ever converting to device-local, so the displayed date always matches the stored digits
- * regardless of which one is used.
+ * Formats a trip's date-only start/end range (`trips.start_date`/`end_date`, plain 'YYYY-MM-DD' strings,
+ * no time component). A bare `dayjs(dateString)` parses a date-only ISO string as UTC midnight, then
+ * `.format()` renders it in the *device's* local timezone — on any device behind UTC that rolls the
+ * displayed date back a day (the same class of bug fixed in ActivityCard.tsx for task 12). `dayjs.utc()`
+ * never converts to device-local, so the displayed date always matches the stored digits. There is no
+ * timezone parameter: a value with no time-of-day has nothing to convert, and resolving a NAMED zone
+ * (`dayjs.tz`) is unreliable on Hermes (see the hermes-intl-timezone-gap skill).
  */
-export function formatDateRange(start: string, end: string, timezone?: string): string {
-  const s = timezone ? dayjs.tz(start, timezone) : dayjs.utc(start);
-  const e = timezone ? dayjs.tz(end, timezone) : dayjs.utc(end);
+export function formatDateRange(start: string, end: string): string {
+  const s = dayjs.utc(start);
+  const e = dayjs.utc(end);
   if (s.year() !== e.year()) return `${s.format('D MMM YYYY')} – ${e.format('D MMM YYYY')}`;
   if (s.month() !== e.month()) return `${s.format('D MMM')} – ${e.format('D MMM YYYY')}`;
   return `${s.format('D')} – ${e.format('D MMM YYYY')}`;

@@ -80,7 +80,7 @@ export function GuestUpgradeSheet({ visible, onClose }: GuestUpgradeSheetProps) 
         <SwipeToDismiss
           onDismiss={handleClose}
           className="bg-surface-elevated rounded-t-lg px-md pt-md"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+          style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
             {/* Drag handle */}
             <View className="items-center mb-md">

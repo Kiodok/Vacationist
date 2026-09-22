@@ -1,7 +1,10 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, Pressable, SectionList, RefreshControl, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useMutationState } from '@tanstack/react-query';
+import { useNetworkStatus } from '../../../src/hooks/useNetworkStatus';
+import { useIsCreatePending } from '../../../src/hooks/useIsCreatePending';
+import { createClientId } from '../../../src/utils/optimisticId';
 
 import { useTranslation } from 'react-i18next';
 import { useCollapsibleSections } from '../../../src/hooks/useCollapsibleSections';
@@ -31,6 +34,7 @@ import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 import { CurrencyPickerSheet } from '../../../src/features/currencies/components/CurrencyPickerSheet';
 import { useCurrencyConversion } from '../../../src/features/currencies/hooks/useCurrencies';
 import { shareText, shareFile, downloadTextFile, deliverBase64File } from '../../../src/utils/share';
@@ -78,7 +82,15 @@ export default function ExpensesTab() {
   const archiveExpenseMutation = useArchiveExpense();
   const unarchiveExpenseMutation = useUnarchiveExpense();
   const settleAllExpensesMutation = useSettleAllExpenses();
-  const settlingRef = useRef(false);
+  const { isConnected } = useNetworkStatus();
+  // Any settle-all for THIS trip that hasn't completed — in flight, or paused offline, or replayed
+  // from the persisted queue after a cold start (which no hook instance owns, so
+  // `settleAllExpensesMutation` alone can't see it). Doubles as the double-submit guard: a second
+  // queued settle-all would only replay into a "No open splits" error.
+  const settleAllPending = useMutationState({
+    filters: { mutationKey: ['settleAllExpenses'], status: 'pending' },
+    select: (m) => (m.state.variables as { tripId?: string } | undefined)?.tripId,
+  }).includes(tripId);
   const sectionListRef = useRef<SectionList<ExpenseWithSplits>>(null);
   const scrollTargetRef = useRef<{ sectionIndex: number; itemIndex: number } | null>(null);
   const scrollRetriedRef = useRef(false);
@@ -174,7 +186,8 @@ export default function ExpensesTab() {
   const handleCreate = (input: CreateExpenseInput, stagedFiles: PickedDocumentFile[]) => {
     setShowCreate(false);
     createExpense.mutate(
-      { tripId: tripId!, input },
+      // `id` is the client-minted UUID sent to the server, so the optimistic row is the real row.
+      { tripId: tripId!, input, id: createClientId() },
       { onSuccess: (expenseId) => { void uploadStagedExpenseDocuments(expenseId, stagedFiles); } },
     );
   };
@@ -402,6 +415,9 @@ export default function ExpensesTab() {
   if (ux.showOfflineEmpty) {
     return <OfflineEmptyState onRetry={refetch} />;
   }
+  if (ux.showError) {
+    return <QueryErrorState onRetry={refetch} />;
+  }
 
   const currency = trip?.base_currency ?? 'EUR';
   const isEmpty = expenses.length === 0;
@@ -429,7 +445,7 @@ export default function ExpensesTab() {
               safeScrollToSectionLocation(sectionListRef, sections, { ...target, animated: false, viewOffset: 80 });
             });
           }}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 88 }}
           ListHeaderComponent={
             <View className="gap-sm mb-xs">
               <SettlementsCard
@@ -532,6 +548,7 @@ export default function ExpensesTab() {
           members={members}
           currentUserId={user.id}
           currency={currency}
+          tripId={tripId!}
           autoSelectedTripBanner={
             cameFromQuickAction && trip ? t('quickAction.addingTo', { trip: trip.title }) : undefined
           }
@@ -560,14 +577,17 @@ export default function ExpensesTab() {
           tripTitle={trip?.title ?? ''}
           currentUserId={user?.id}
           onSettleAllExpenses={() => {
-            if (settlingRef.current) return;
-            settlingRef.current = true;
-            settleAllExpensesMutation.mutate(
-              { tripId: tripId! },
-              { onSettled: () => { settlingRef.current = false; } },
-            );
+            if (settleAllPending) return;
+            // Close BEFORE mutate() (offline-ux convention). This used to keep the modal open and
+            // reset a ref from a per-call `onSettled` — which never fires for a mutation paused
+            // offline, so the ref stayed true forever and every later tap was silently ignored.
+            setShowSettlements(false);
+            settleAllExpensesMutation.mutate({ tripId: tripId! });
+            // The persisted queue accepts this silently; without a toast an offline user gets no
+            // confirmation at all (the bottom "N changes" counter is gone).
+            if (isConnected === false) addToast('success', t('toast.settleAllQueued'));
           }}
-          isSettlingAll={settleAllExpensesMutation.isPending}
+          isSettlingAll={settleAllPending}
           receipts={settlementReceipts}
           isLoadingReceipts={isLoadingReceipts}
           onViewReceipt={(receiptId) => {
@@ -620,6 +640,7 @@ function ExpenseCardWithSplits({
   const unsettleSplit = useUnsettleExpenseSplit();
   const coverSplitMutation = useCoverSplit();
   const uncoverSplitMutation = useUncoverSplit();
+  const isPendingSync = useIsCreatePending('createExpense', expense.id);
   const [showSplits, setShowSplits] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -718,7 +739,10 @@ function ExpenseCardWithSplits({
         currentUserId={currentUserId}
         currency={currency}
         highlight={highlight}
-        onPress={() => setShowDetail(!showDetail)}
+        pendingSync={isPendingSync}
+        // A still-queued expense has no splits, documents or server row yet: its detail view (edit /
+        // archive / settle) would act on data that doesn't exist. It opens once the create has synced.
+        onPress={() => { if (!isPendingSync) setShowDetail(!showDetail); }}
         detail={detailContent}
       />
 

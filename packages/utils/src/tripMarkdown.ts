@@ -67,7 +67,6 @@ export function generateTripMarkdown(input: TripMarkdownInput, options: TripMark
     lines.push(`**Budget/person:** ${formatCurrency(trip.budget_per_person, trip.base_currency)}`);
   }
   lines.push(`**Currency:** ${trip.base_currency}`);
-  lines.push(`**Timezone:** ${trip.timezone}`);
   lines.push('');
 
   if (members.length > 0) {

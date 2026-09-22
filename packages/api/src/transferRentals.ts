@@ -1,5 +1,5 @@
 import { supabase, freshChannel } from './client';
-import { getUserIdOfflineSafe } from './session';
+import { getUserIdOfflineSafe, trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   TransferRental,
@@ -17,7 +17,7 @@ export async function getTransferRentals(tripId: string): Promise<TransferRental
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as unknown as TransferRental[];
+  return trustEmptyList(data as unknown as TransferRental[]);
 }
 
 export async function createTransferRental(tripId: string, input: CreateTransferRentalInput): Promise<TransferRental> {

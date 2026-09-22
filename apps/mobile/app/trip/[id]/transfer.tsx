@@ -53,6 +53,7 @@ import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { safeScrollToSectionLocation, safeScrollToIndex } from '../../../src/utils/safeListScroll';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 type Segment = 'All' | 'Flights' | 'Vehicles' | 'Rentals' | 'PublicTransport';
 
@@ -220,6 +221,13 @@ export default function TransferTab() {
     (activeSegment === 'Rentals' && rentalsUx.showOfflineEmpty) ||
     (activeSegment === 'PublicTransport' && publicTransportUx.showOfflineEmpty);
 
+  const showError =
+    (activeSegment === 'All' && (flightsUx.showError || vehiclesUx.showError || rentalsUx.showError || publicTransportUx.showError)) ||
+    (activeSegment === 'Flights' && flightsUx.showError) ||
+    (activeSegment === 'Vehicles' && vehiclesUx.showError) ||
+    (activeSegment === 'Rentals' && rentalsUx.showError) ||
+    (activeSegment === 'PublicTransport' && publicTransportUx.showError);
+
   const handleCreateFlight = (input: CreateTransferFlightInput) => {
     setShowCreateFlight(false);
     createFlight.mutate({ tripId: tripId!, input });
@@ -298,6 +306,15 @@ export default function TransferTab() {
     );
   }
 
+  if (showError) {
+    return (
+      <View className="flex-1">
+        <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
+        <QueryErrorState onRetry={() => { refetchFlights(); refetchVehicles(); refetchRentals(); refetchPublicTransport(); }} />
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1">
       <TransferSegmentedControl activeSegment={activeSegment} onSegmentChange={setActiveSegment} />
@@ -346,7 +363,7 @@ export default function TransferTab() {
                 safeScrollToSectionLocation(flightListRef, flightSections, { ...target, animated: false, viewOffset: 80 });
               }, 80);
             }}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 88 }}
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
             renderItem={({ item }) => (
               <View style={{ marginBottom: 12 }}>
@@ -408,7 +425,7 @@ export default function TransferTab() {
                 safeScrollToSectionLocation(vehicleListRef, vehicleSections, { ...target, animated: false, viewOffset: 80 });
               }, 80);
             }}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 88 }}
             renderSectionHeader={({ section }) => renderDirectionHeader(section.title, section.key ?? '')}
             renderItem={({ item }) => (
               <View style={{ marginBottom: 12 }}>
@@ -447,7 +464,7 @@ export default function TransferTab() {
             ref={rentalListRef}
             data={rentals}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 88 }}
             ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             renderItem={({ item }) => (
               <RentalCardExpanded
@@ -482,7 +499,7 @@ export default function TransferTab() {
             ref={publicTransportListRef}
             data={publicTransport}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 88 }}
             ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             renderItem={({ item }) => (
               <PublicTransportCardExpanded
@@ -1060,7 +1077,7 @@ function VehicleCardWithPassengers({
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => leaveVehicleMutation.mutate()}
-          disabled={leaveVehicleMutation.isPending}
+          disabled={isMutationBusy(leaveVehicleMutation)}
           className="flex-row items-center gap-xs px-md py-xs rounded-sm bg-danger/10"
         >
           <ThemedIcon name="exit-outline" size={14} color={colors.danger} />
@@ -1070,7 +1087,7 @@ function VehicleCardWithPassengers({
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => joinVehicleMutation.mutate()}
-          disabled={joinVehicleMutation.isPending}
+          disabled={isMutationBusy(joinVehicleMutation)}
           className="flex-row items-center gap-xs px-md py-xs rounded-sm bg-success/10"
         >
           <ThemedIcon name="enter-outline" size={14} color={colors.success} />

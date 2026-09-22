@@ -2,8 +2,7 @@ import { Animated, Platform, View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
 import { formatCurrency } from '@vacationist/utils';
-import { colors, METADATA_ICON_COLORS, FEATURE_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
-import type { IoniconsName } from '@vacationist/ui';
+import { colors, METADATA_ICON_COLORS, EXPENSE_CATEGORY_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
 interface ExpenseCardProps {
@@ -15,9 +14,11 @@ interface ExpenseCardProps {
   onPress: () => void;
   detail?: React.ReactNode;
   highlight?: boolean;
+  /** The create is still queued/in flight — shows the "pending sync" line. */
+  pendingSync?: boolean;
 }
 
-export function ExpenseCard({ expense, splits, members, currentUserId, currency, onPress, detail, highlight }: ExpenseCardProps) {
+export function ExpenseCard({ expense, splits, members, currentUserId, currency, onPress, detail, highlight, pendingSync }: ExpenseCardProps) {
   const { t } = useTranslation('expenses');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
@@ -68,11 +69,23 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
                   : t('card.paidBy', { name: payer?.name ?? 'Unknown' })}
               </Text>
             </View>
+            {pendingSync && (
+              <View className="flex-row items-center gap-xs">
+                <ThemedIcon name="cloud-upload-outline" size={13} color={colors.textMuted} />
+                <Text className="text-body-small text-text-muted">{t('card.pendingSync')}</Text>
+              </View>
+            )}
           </View>
           <View className="items-end gap-xs">
             <Text className="text-body text-text-primary font-semibold">
               {formatCurrency(Number(expense.amount), expense.currency)}
             </Text>
+            {/* `?? 0`: a row persisted by a pre-v1.39.0 build has no tip_amount at all. */}
+            {Number(expense.tip_amount ?? 0) > 0 && (
+              <Text className="text-body-small text-text-muted">
+                {t('card.inclTip', { amount: formatCurrency(Number(expense.tip_amount), expense.currency) })}
+              </Text>
+            )}
             {expense.currency !== currency && (
               <Text className="text-body-small text-text-muted">
                 ≈ {formatCurrency(Number(expense.converted_amount), currency)}
@@ -91,32 +104,22 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
           </View>
         )}
 
-        {expense.related_type !== 'manual' && (
-          <View className="flex-row items-center gap-xs">
-            <ThemedIcon
-              name={getRelatedIcon(expense.related_type)}
-              size={14}
-              color={FEATURE_ICON_COLORS[expense.related_type]?.color ?? METADATA_ICON_COLORS.receipt.color}
-            />
-            <Text className="text-body-small text-text-muted">
-              {t(`category.${expense.related_type}`, { defaultValue: expense.related_type })}
-            </Text>
-          </View>
-        )}
+        {expense.related_type !== 'manual' && (() => {
+          // A related_type from a newer build than this client knows falls back to the receipt glyph.
+          const category = EXPENSE_CATEGORY_ICON_COLORS[expense.related_type] ?? METADATA_ICON_COLORS.receipt;
+          return (
+            <View className="flex-row items-center gap-xs">
+              <ThemedIcon name={category.icon} size={14} color={category.color} />
+              <Text className="text-body-small text-text-muted">
+                {t(`category.${expense.related_type}`, { defaultValue: expense.related_type })}
+              </Text>
+            </View>
+          );
+        })()}
       </Pressable>
       {detail}
     </Animated.View>
   );
-}
-
-function getRelatedIcon(relatedType: string): IoniconsName {
-  switch (relatedType) {
-    case 'accommodation': return 'bed-outline';
-    case 'activity': return 'compass-outline';
-    case 'transport': return 'car-outline';
-    case 'shopping': return 'cart-outline';
-    default: return 'receipt-outline';
-  }
 }
 
 function SettlementBadge({ allSettled, settledCount, totalCount }: { allSettled: boolean; settledCount: number; totalCount: number }) {

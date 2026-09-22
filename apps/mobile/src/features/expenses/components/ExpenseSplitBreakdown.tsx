@@ -53,7 +53,7 @@ export function ExpenseSplitBreakdown({
       <SwipeToDismiss
           onDismiss={onClose}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
-          style={{ paddingBottom: Math.max(insets.bottom, 32) }}
+          style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
           {/* Handle bar */}
           <View className="items-center mb-md">
@@ -75,7 +75,13 @@ export function ExpenseSplitBreakdown({
           <SheetScrollArea>
           <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-sm">
             {owerSplits.map((split) => {
-              const user = members.get(split.user_id);
+              // `members` is trip-membership-scoped, so a split held by someone who has since
+              // deleted their account (delete_own_account reassigns their open splits to the
+              // "Deleted User" sentinel rather than destroying them — see CLAUDE.md's Account
+              // Deletion section) has no entry there and fell back to the literal string
+              // "Unknown". The split's own embedded `split_user` join already carries the
+              // sentinel's real name (v1.39.0 round 3).
+              const user = members.get(split.user_id) ?? split.split_user;
               const coveredByUser = split.covered_by ? members.get(split.covered_by) : null;
               const isCovered = !!split.covered_by;
               const isSettled = split.status === 'settled' && !isCovered;

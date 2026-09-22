@@ -25,7 +25,6 @@ import {
   unsettleExpenseSplit,
   coverSplit,
   uncoverSplit,
-  settleAllForPair,
   settleAllExpenses,
   createShoppingList,
   updateShoppingList,
@@ -110,7 +109,6 @@ import type {
   UnsettleExpenseSplitVariables,
   CoverSplitVariables,
   UncoverSplitVariables,
-  SettleAllForPairVariables,
   SettleAllExpensesVariables,
   CreateShoppingListVariables,
   UpdateShoppingListVariables,
@@ -175,6 +173,8 @@ import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
 import { addSentryBreadcrumb } from './sentry';
 import { isOptimisticId } from './optimisticId';
+import { resolveCreatedShoppingItem } from '../features/shopping/utils/shoppingItemCache';
+import { removeOptimisticExpenses } from '../features/expenses/utils/expenseCache';
 import { trackFeatureEvent } from './trackFeatureEvent';
 import { isCachedExampleTrip } from './exampleTrip';
 import {
@@ -195,6 +195,14 @@ import {
 // those require the React context that resumed mutations do not have.
 
 // ─── Activities ──────────────────────────────────────────────────────────────
+
+// TanStack `scope`: mutations sharing a scope id run strictly one after another, in the order they were
+// queued. Without it a queued replay fires every mutation in parallel, so "create item" and the "tick it
+// off" / "delete it" queued behind it can reach the server in either order and the later one hits a row that
+// does not exist yet. Scoped by FAMILY (not one global scope) so a single hung request can only ever hold up
+// its own family. The scope survives persistence — dehydrate() writes it into the queue entry.
+const SHOPPING_SCOPE = { id: 'shopping' } as const;
+const EXPENSES_SCOPE = { id: 'expenses' } as const;
 
 queryClient.setMutationDefaults(['createActivity'], {
   mutationFn: ({ tripId, input }: CreateActivityVariables) => createActivity(tripId, input),
@@ -301,8 +309,13 @@ queryClient.setMutationDefaults(['removeTransferFlightVote'], {
 // ─── Expenses ────────────────────────────────────────────────────────────────
 
 queryClient.setMutationDefaults(['createExpense'], {
-  mutationFn: ({ tripId, input }: CreateExpenseVariables) => createExpense(tripId, input),
+  scope: EXPENSES_SCOPE,
+  mutationFn: ({ tripId, input, id }: CreateExpenseVariables) => createExpense(tripId, input, id),
   onSuccess: (_data: string, { tripId }: CreateExpenseVariables) => {
+    // Drop the optimistic placeholder(s) first, so the row doesn't sit next to its real twin until
+    // the refetch lands — and so a replay after a cold start (whose placeholder was re-applied by
+    // the rehydrator, not the hook) is cleaned up too.
+    removeOptimisticExpenses(queryClient, tripId);
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
     useToastStore.getState().addToast('success', i18n.t('expenses:toast.added'));
@@ -315,6 +328,7 @@ queryClient.setMutationDefaults(['createExpense'], {
 });
 
 queryClient.setMutationDefaults(['updateExpenseWithSplits'], {
+  scope: EXPENSES_SCOPE,
   mutationFn: ({ expenseId, input }: UpdateExpenseWithSplitsVariables) =>
     updateExpenseWithSplits(expenseId, input),
   onSuccess: (_data: void, { expenseId, tripId }: UpdateExpenseWithSplitsVariables) => {
@@ -326,6 +340,7 @@ queryClient.setMutationDefaults(['updateExpenseWithSplits'], {
 });
 
 queryClient.setMutationDefaults(['archiveExpense'], {
+  scope: EXPENSES_SCOPE,
   mutationFn: ({ expenseId }: ArchiveExpenseVariables) => archiveExpense(expenseId),
   onSuccess: (_data: void, { tripId }: ArchiveExpenseVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
@@ -335,6 +350,7 @@ queryClient.setMutationDefaults(['archiveExpense'], {
 });
 
 queryClient.setMutationDefaults(['unarchiveExpense'], {
+  scope: EXPENSES_SCOPE,
   mutationFn: ({ expenseId }: UnarchiveExpenseVariables) => unarchiveExpense(expenseId),
   onSuccess: (_data: void, { tripId }: UnarchiveExpenseVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
@@ -344,6 +360,7 @@ queryClient.setMutationDefaults(['unarchiveExpense'], {
 });
 
 queryClient.setMutationDefaults(['settleExpenseSplit'], {
+  scope: EXPENSES_SCOPE,
   mutationFn: ({ splitId }: SettleExpenseSplitVariables) => settleExpenseSplit(splitId),
   onSuccess: (_data: void, { expenseId, tripId }: SettleExpenseSplitVariables) => {
     queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
@@ -354,6 +371,7 @@ queryClient.setMutationDefaults(['settleExpenseSplit'], {
 });
 
 queryClient.setMutationDefaults(['unsettleExpenseSplit'], {
+  scope: EXPENSES_SCOPE,
   mutationFn: ({ splitId }: UnsettleExpenseSplitVariables) => unsettleExpenseSplit(splitId),
   onSuccess: (_data: void, { expenseId, tripId }: UnsettleExpenseSplitVariables) => {
     queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
@@ -364,6 +382,7 @@ queryClient.setMutationDefaults(['unsettleExpenseSplit'], {
 });
 
 queryClient.setMutationDefaults(['coverSplit'], {
+  scope: EXPENSES_SCOPE,
   mutationFn: ({ splitId }: CoverSplitVariables) => coverSplit(splitId),
   onSuccess: (_data: void, { expenseId, tripId }: CoverSplitVariables) => {
     queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
@@ -374,6 +393,7 @@ queryClient.setMutationDefaults(['coverSplit'], {
 });
 
 queryClient.setMutationDefaults(['uncoverSplit'], {
+  scope: EXPENSES_SCOPE,
   mutationFn: ({ splitId }: UncoverSplitVariables) => uncoverSplit(splitId),
   onSuccess: (_data: void, { expenseId, tripId }: UncoverSplitVariables) => {
     queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
@@ -383,17 +403,8 @@ queryClient.setMutationDefaults(['uncoverSplit'], {
   },
 });
 
-queryClient.setMutationDefaults(['settleAllForPair'], {
-  mutationFn: ({ tripId, debtor, creditor }: SettleAllForPairVariables) =>
-    settleAllForPair(tripId, debtor, creditor),
-  onSuccess: (_data: number, { tripId }: SettleAllForPairVariables) => {
-    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
-    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
-    useToastStore.getState().addToast('success', i18n.t('expenses:toast.settleAllDone'));
-  },
-});
-
 queryClient.setMutationDefaults(['settleAllExpenses'], {
+  scope: EXPENSES_SCOPE,
   mutationFn: ({ tripId }: SettleAllExpensesVariables) => settleAllExpenses(tripId),
   onSuccess: (_data: string, { tripId }: SettleAllExpensesVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
@@ -406,7 +417,8 @@ queryClient.setMutationDefaults(['settleAllExpenses'], {
 // ─── Shopping lists ───────────────────────────────────────────────────────────
 
 queryClient.setMutationDefaults(['createShoppingList'], {
-  mutationFn: ({ tripId, input }: CreateShoppingListVariables) => createShoppingList(tripId, input),
+  scope: SHOPPING_SCOPE,
+  mutationFn: ({ tripId, input, id }: CreateShoppingListVariables) => createShoppingList(tripId, input, id),
   onSuccess: (_data: ShoppingList, { tripId }: CreateShoppingListVariables) => {
     // Drop the hook's optimistic placeholder(s) before the invalidate refetch.
     queryClient.setQueryData<ShoppingListWithCounts[]>(
@@ -419,6 +431,7 @@ queryClient.setMutationDefaults(['createShoppingList'], {
 });
 
 queryClient.setMutationDefaults(['updateShoppingList'], {
+  scope: SHOPPING_SCOPE,
   mutationFn: ({ listId, input }: UpdateShoppingListVariables) => updateShoppingList(listId, input),
   onSuccess: (_data: ShoppingList, { tripId }: UpdateShoppingListVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
@@ -427,6 +440,7 @@ queryClient.setMutationDefaults(['updateShoppingList'], {
 });
 
 queryClient.setMutationDefaults(['archiveShoppingList'], {
+  scope: SHOPPING_SCOPE,
   mutationFn: ({ listId }: ArchiveShoppingListVariables) => archiveShoppingList(listId),
   onSuccess: (_data: void, { tripId }: ArchiveShoppingListVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
@@ -435,6 +449,7 @@ queryClient.setMutationDefaults(['archiveShoppingList'], {
 });
 
 queryClient.setMutationDefaults(['unarchiveShoppingList'], {
+  scope: SHOPPING_SCOPE,
   mutationFn: ({ listId }: UnarchiveShoppingListVariables) => unarchiveShoppingList(listId),
   onSuccess: (_data: void, { tripId }: UnarchiveShoppingListVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
@@ -443,6 +458,7 @@ queryClient.setMutationDefaults(['unarchiveShoppingList'], {
 });
 
 queryClient.setMutationDefaults(['deleteShoppingList'], {
+  scope: SHOPPING_SCOPE,
   mutationFn: ({ listId }: DeleteShoppingListVariables) => deleteShoppingList(listId),
   onSuccess: (_data: void, { tripId }: DeleteShoppingListVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
@@ -453,42 +469,46 @@ queryClient.setMutationDefaults(['deleteShoppingList'], {
 // ─── Shopping items ───────────────────────────────────────────────────────────
 
 queryClient.setMutationDefaults(['createShoppingItem'], {
-  mutationFn: ({ listId, input }: CreateShoppingItemVariables) => createShoppingItem(listId, input),
+  scope: SHOPPING_SCOPE,
+  mutationFn: ({ listId, input, id }: CreateShoppingItemVariables) => createShoppingItem(listId, input, id),
   onSuccess: (newItem: ShoppingItem, { listId, tripId }: CreateShoppingItemVariables) => {
-    queryClient.setQueryData<ShoppingItem[]>(
-      ['shopping-lists', listId, 'items'],
-      (old) => {
-        // Drop any optimistic placeholder rows from the hook's onMutate, then
-        // append the real row (dedup against a realtime INSERT that already landed).
-        const base = (old ?? []).filter((i) => !isOptimisticId(i.id));
-        if (base.some((i) => i.id === newItem.id)) return base;
-        return [...base, newItem];
-      },
-    );
+    // Drops the optimistic placeholder(s) and appends the real row in BOTH the list's cache and
+    // the All Items cache (deduped against a realtime INSERT that already landed).
+    resolveCreatedShoppingItem(queryClient, newItem, listId, tripId);
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
+    // All Items is a separate query — without this, an item added from a list never reached it.
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
   },
 });
 
 queryClient.setMutationDefaults(['updateShoppingItem'], {
+  scope: SHOPPING_SCOPE,
   mutationFn: ({ itemId, input }: UpdateShoppingItemVariables) => updateShoppingItem(itemId, input),
   onSuccess: (_data: ShoppingItem, { listId, tripId }: UpdateShoppingItemVariables) => {
     queryClient.invalidateQueries({ queryKey: ['shopping-lists', listId, 'items'] });
-    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
-  },
-});
-
-queryClient.setMutationDefaults(['updateShoppingItemGlobal'], {
-  mutationFn: ({ itemId, input }: UpdateShoppingItemGlobalVariables) => updateShoppingItem(itemId, input),
-  onSuccess: (_data: ShoppingItem, { tripId }: UpdateShoppingItemGlobalVariables) => {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
   },
 });
 
+queryClient.setMutationDefaults(['updateShoppingItemGlobal'], {
+  scope: SHOPPING_SCOPE,
+  mutationFn: ({ itemId, input }: UpdateShoppingItemGlobalVariables) => updateShoppingItem(itemId, input),
+  onSuccess: (_data: ShoppingItem, { tripId }: UpdateShoppingItemGlobalVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
+    // The variables carry no list id, so refresh every list's items (only ['shopping-lists', id,
+    // 'items'] keys start with 'shopping-lists' — the trip-level lists key is ['trips', …]).
+    queryClient.invalidateQueries({ queryKey: ['shopping-lists'] });
+  },
+});
+
 queryClient.setMutationDefaults(['deleteShoppingItem'], {
+  scope: SHOPPING_SCOPE,
   mutationFn: ({ itemId }: DeleteShoppingItemVariables) => softDeleteShoppingItem(itemId),
   onSuccess: (_data: void, { listId, tripId }: DeleteShoppingItemVariables) => {
     queryClient.invalidateQueries({ queryKey: ['shopping-lists', listId, 'items'] });
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'all-shopping-items'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'shopping-lists'] });
     useToastStore.getState().addToast('success', i18n.t('shopping:toast.itemRemoved'));
   },

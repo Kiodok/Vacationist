@@ -27,8 +27,28 @@ const CATEGORY_COLORS: Record<ExpenseRelatedType, { light: string; dark: string;
   transport:     { light: '#1baf7a', dark: '#199e70', colorful: '#1baf7a' }, // aqua
   shopping:      { light: '#eda100', dark: '#c98500', colorful: '#eda100' }, // yellow
   manual:        { light: '#e87ba4', dark: '#d55181', colorful: '#e87ba4' }, // magenta
+  // v1.39.0 — six more hues appended AFTER the original five so their colours never change
+  // ("color follows the entity"). NOTE: unlike the original five, these were NOT run through
+  // scripts/validate_palette.js (not available when they were added). They were checked with an
+  // all-pairs CIE-Lab ΔE instead: 11 hues can't match the original 5-hue floor (ΔE ≈ 39.6 light /
+  // 33.9 dark) — measured floor is ≈ 36 light / ≈ 26 dark, the tightest pair being dark
+  // food_drink ~ manual/activity (coral sits between the orange and the pink). Contrast on the dark
+  // elevated surface is 3.9–5.0:1 for every hue, matching the originals. Only non-zero categories
+  // render, and every slice carries a direct label + legend row, which is the mitigation the
+  // original palette relies on too. Re-run the real validator if it becomes available.
+  tickets_entry: { light: '#7c4dd6', dark: '#8f66e6', colorful: '#7c4dd6' }, // violet
+  food_drink:    { light: '#b3243b', dark: '#e8505b', colorful: '#b3243b' }, // crimson
+  groceries:     { light: '#86b31c', dark: '#8fbf2a', colorful: '#86b31c' }, // lime
+  health:        { light: '#12a5c9', dark: '#22b5d8', colorful: '#12a5c9' }, // cyan
+  fuel_parking:  { light: '#4b5563', dark: '#a3acb9', colorful: '#4b5563' }, // slate
+  souvenirs:     { light: '#9c6b3c', dark: '#b07d4a', colorful: '#9c6b3c' }, // brown
 };
-const CATEGORY_ORDER: ExpenseRelatedType[] = ['accommodation', 'activity', 'transport', 'shopping', 'manual'];
+// Fixed order, never re-sorted by value. New categories are appended so the chart's existing slices
+// keep their position and hue; the appended hues alternate warm/cool to keep neighbours apart.
+const CATEGORY_ORDER: ExpenseRelatedType[] = [
+  'accommodation', 'activity', 'transport', 'shopping', 'manual',
+  'tickets_entry', 'food_drink', 'groceries', 'health', 'fuel_parking', 'souvenirs',
+];
 
 const SIZE = 140;
 const STROKE_WIDTH = 22;

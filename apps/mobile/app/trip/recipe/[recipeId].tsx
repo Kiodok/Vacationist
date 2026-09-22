@@ -21,6 +21,7 @@ import { colors, ThemedIcon } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
+import { QueryErrorState } from '../../../src/components/QueryErrorState';
 
 export default function RecipeDetail() {
   const { t } = useTranslation('recipes');
@@ -86,6 +87,14 @@ export default function RecipeDetail() {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <OfflineEmptyState onRetry={refetch} />
+      </SafeAreaView>
+    );
+  }
+
+  if (ux.showError) {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <QueryErrorState onRetry={refetch} />
       </SafeAreaView>
     );
   }

@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { trustEmptyList } from './session';
 import type { User, UpdateProfileInput } from '@vacationist/types';
 import type { Session } from '@supabase/supabase-js';
 
@@ -90,7 +91,7 @@ export async function getUsersByIds(userIds: string[]): Promise<User[]> {
     .select('*')
     .in('id', userIds);
   if (error) throw error;
-  return (data ?? []) as User[];
+  return trustEmptyList((data ?? []) as User[]);
 }
 
 export async function updateUserProfile(

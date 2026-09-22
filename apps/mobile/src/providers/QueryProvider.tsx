@@ -11,6 +11,7 @@ import { mmkvStorageAdapter } from '../utils/mmkvStorage';
 import { stripOptimisticRows } from '../utils/persistOptimistic';
 import { queryClient } from '../utils/queryClient';
 import { hydrateMutationQueue, subscribeMutationQueue } from '../utils/mutationQueue';
+import { refreshAndResumeMutations } from '../utils/replayQueue';
 import '../utils/mutationDefaults';
 
 // Bump the persisted cache automatically whenever the app version changes, so a
@@ -89,7 +90,14 @@ export function QueryProvider({ children }: Props) {
             if (typeof key === 'string' && EXCLUDED_QUERY_KEYS.includes(key)) {
               return false;
             }
-            return query.state.status === 'success';
+            // `data !== undefined`, not just `status === 'success'`: a query that errors on its
+            // MOST RECENT refetch still holds its last-successful data (TanStack never clears it on
+            // an error transition) — but the old `status === 'success'`-only check dropped that good
+            // data from disk entirely the next time this runs (throttled 4s), even though it was
+            // still showing correctly in memory. One flaky refetch used to permanently erase a
+            // trip's offline cache (v1.39.0 round 3). Persist anything with usable data regardless
+            // of how the most recent attempt went.
+            return query.state.status === 'success' || query.state.data !== undefined;
           },
           // Offline mutations are persisted SEPARATELY now (utils/mutationQueue.ts)
           // so they aren't discarded with the query cache when maxAge lapses.
@@ -113,8 +121,7 @@ export function QueryProvider({ children }: Props) {
         // Only resume and invalidate when online — when offline the hydrated
         // cache is the source of truth and triggering network work causes churn.
         if (onlineManager.isOnline()) {
-          await queryClient.resumePausedMutations();
-          queryClient.invalidateQueries();
+          await refreshAndResumeMutations('if-queued');
         }
       }}
     >

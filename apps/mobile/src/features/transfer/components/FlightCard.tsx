@@ -157,7 +157,7 @@ export function FlightCard({ flight, votes, currentUserId, isWinner, onPress, on
         {/* Vote section */}
         <View className="mt-xs gap-xs">
           <View className="flex-row items-center gap-sm">
-            {votes.length > 0 && <VoteSummary votes={votes} />}
+            {votes.length > 0 && <VoteSummary votes={votes} myVote={myVote?.vote ?? null} />}
             {votingClosed ? null : myVote ? (
               <VoteChip vote={myVote.vote} size="sm" onPress={onVotePress} />
             ) : (
@@ -176,7 +176,7 @@ export function FlightCard({ flight, votes, currentUserId, isWinner, onPress, on
               onPress={onVotePress}
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <Text className="text-body-small text-text-primary">
+              <Text className="text-primary text-body-small font-medium">
                 {tTransfer('vote.showCount', { count: votes.length })}
               </Text>
             </Pressable>

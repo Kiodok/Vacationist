@@ -1,18 +1,16 @@
 import { Pressable, Text, View } from 'react-native';
 import { formatCalendarDayHeader } from '@vacationist/utils';
-import type { SupportedTimezone } from '@vacationist/types';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 
 interface DayCellProps {
   date: string;
-  timezone: SupportedTimezone;
   isSelected: boolean;
   hasActivities: boolean;
   onPress: (date: string) => void;
 }
 
-export function DayCell({ date, timezone, isSelected, hasActivities, onPress }: DayCellProps) {
-  const { dayName, dayNumber, isToday } = formatCalendarDayHeader(date, timezone);
+export function DayCell({ date, isSelected, hasActivities, onPress }: DayCellProps) {
+  const { dayName, dayNumber, isToday } = formatCalendarDayHeader(date);
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const selectedTextColor = isColorful ? colors.surface : '#FFFFFF';
