@@ -1,0 +1,66 @@
+---
+url: https://vacationist.app/de/features/
+title: Vacationist Funktionen — Alles für die Gruppenreise in einer App
+description: Aktivitäten-Abstimmung, Kostenteilung, gemeinsame Listen, verschlüsselte Reisedokumente, Gruppenchat und Offline-Sync — alle Vacationist-Funktionen für Gruppenreisen im Überblick.
+lang: de
+published: 2026-07-21
+updated: 2026-09-20
+---
+
+# Eine App für die ganze Reise
+
+Die meisten Gruppen planen ihre Reisen über vier oder fünf Apps: ein Chat für die Diskussion, eine Tabelle fürs Geld, eine Notiz-App für Listen und ein Dokument, das niemand öffnet. Vacationist bringt den kompletten Gruppenreise-Workflow an einen Ort — und alle machen mit einem einzigen Link mit, ganz ohne Konto.
+
+## Die Kernfunktionen
+
+### [Aktivitäten-Abstimmung →](/de/features/voting/)
+
+Aktivitäten vorschlagen und die Gruppe mit einem fünfstufigen Voting entscheiden lassen — von „Muss sein" bis „Gruppen-Blocker". Keine andere Reise-App hat das, und es beendet die endlosen Gruppenchat-Debatten. [So funktioniert das Voting.](/de/features/voting/)
+
+### [Kostenteilung →](/de/features/expenses/)
+
+Jede gemeinsame Ausgabe mit Kategorie und angehängtem Beleg erfassen, gleichmäßig oder mit eigenen Beträgen aufteilen und zusehen, wie sich die Salden in Echtzeit aktualisieren. Geschäftskosten — bei Ausgaben, Buchungen oder Transport — markieren und für Geschäftsreisen einen Bericht pro Person exportieren. [So funktioniert die Kostenteilung.](/de/features/expenses/)
+
+### [Gemeinsame Einkaufs- & Packlisten →](/de/features/shopping-lists/)
+
+Live-Listen, die sich sofort auf jedes Handy synchronisieren — plus eine einzigartige Rezept-zu-Einkaufsliste-Übernahme fürs gemeinsame Kochen. [Gemeinsame Listen entdecken.](/de/features/shopping-lists/)
+
+### [Transfers & Flüge →](/de/features/transfers/)
+
+Über Flüge abstimmen, Mietwagen und öffentliche Verkehrsmittel verwalten, festlegen wer mit wem fährt, und jedes Ticket und jede Bordkarte bei der Fahrt behalten. [So funktionieren Transfers.](/de/features/transfers/)
+
+### [Verschlüsselte Reisedokumente →](/de/features/travel-documents/)
+
+Reisepässe und Ausweise verschlüsselt gespeichert, gesichert durch eine biometrische Sperre, temporär mit dem Organisator teilbar — und jederzeit widerrufbar. [Mehr über den Dokumenten-Tresor.](/de/features/travel-documents/)
+
+### [Reisekosten & Analyse →](/de/features/analytics/)
+
+Eine laufende Kostensumme pro Reise gegen dein Budget, plus ein Analyse-Tab, der deinen eigenen Anteil an jeder Reise zeigt — nach Jahr, in deiner Währung. [So funktioniert das Reisekosten-Tracking.](/de/features/analytics/)
+
+### [Offline-Modus →](/de/features/offline/)
+
+Den ganzen Plan lesen, Ausgaben erfassen und abstimmen — ohne Verbindung, eine Woche lang. Alles gleicht sich ab, sobald du wieder online bist, und du wirst offline nie abgemeldet. [So funktioniert der Offline-Modus.](/de/features/offline/)
+
+## Und alles drumherum
+
+- **Gastzugang ohne Konto** — einen Link verschicken und die ganze Gruppe ist drin. Niemand muss sich registrieren, um abzustimmen, Listen zu bearbeiten oder bei den Ausgaben dabei zu sein.
+- **Echtzeit-Sync** — jede Stimme, jede Ausgabe und jede Listenänderung erscheint sofort auf allen Geräten.
+- **Gemeinsamer Reisekalender** — gewählte Aktivitäten, Unterkünfte und Transfers in einer Zeitleiste, die alle sehen.
+- **Unterkunftsverwaltung** — Optionen sammeln, darüber abstimmen und Buchungsbestätigungen dort aufbewahren, wo die Gruppe sie findet. Jede Unterkunft behält ihre eigene Währung und kann als Geschäftskosten markiert werden.
+- **Gruppenchat** — die Reisediskussion direkt neben dem Plan, um den es geht, statt verloren in einem parallelen WhatsApp-Thread. Entwürfe überstehen den Tab-Wechsel.
+- **Ausgabe vom Startbildschirm hinzufügen** — ein Longpress-Kürzel auf dem App-Symbol springt direkt zum Erfassen einer Ausgabe für deine aktive Reise.
+- **Urlaubsübersicht** — die ganze Reise und ihre Ausgaben auf einen Blick.
+
+## Häufige Fragen
+
+### Ist Vacationist kostenlos?
+
+Ja — die Kern-App ist kostenlos und werbefrei, für Gruppen jeder Größe.
+
+### Auf welchen Plattformen läuft die App?
+
+Auf iOS, Android und im Web. Freunde können auf jedem Gerät auch über den Einladungslink per Web-App mitmachen, ganz ohne Installation.
+
+### Was unterscheidet Vacationist von Splitwise oder Wanderlog?
+
+Splitwise macht nur Ausgaben; Wanderlog konzentriert sich auf Reisepläne mit oberflächlicher Zusammenarbeit. Vacationist ist um die *Gruppe* herum gebaut — Abstimmungen, gemeinsame Kosten, gemeinsame Listen, Gastzugang — in einer App. Die ausführlichen Vergleiche: [Vacationist vs. Splitwise](/de/vs/splitwise/) und [Vacationist vs. Wanderlog](/de/vs/wanderlog/).

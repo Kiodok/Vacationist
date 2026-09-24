@@ -2,6 +2,8 @@
 
 > The free group trip planner. Vacationist helps groups plan trips together — voting on activities, splitting travel expenses with receipts attached, managing flights and transfers, sharing packing lists, and keeping everyone in sync in real time.
 
+Last updated: 2026-09-24 · App version: 1.39.0 · Full text of every page: [llms-full.txt](https://vacationist.app/llms-full.txt)
+
 ## TL;DR
 
 Vacationist is a free group trip planning app for iOS, Android, and web. Groups vote on activities (five-tier system: must do → group blocker), split expenses with live balances, receipts attached to each expense, and settle-up; flag business costs on expenses, accommodations and transport and export a per-person report; see each trip's cost total and their own share across every trip in an Analytics tab; share real-time packing/shopping lists; manage flights, rental cars and public transport (with passenger assignment and tickets attached); and store travel documents in an AES-256 encrypted vault. Every accommodation and transfer keeps its own currency, converted with stored daily rates. Anyone can join a trip via a single link with no account required. No ads, no tracking. Built in Switzerland by an independent developer.
@@ -31,7 +33,7 @@ Key use cases:
 - **Per-item currency** — every accommodation, flight, rental car and public-transport entry keeps its own currency, independent of later trip-currency changes; conversion uses stored daily exchange rates
 - **Business cost reports** — flag any expense, accommodation, flight, rental car or public-transport cost as a business cost; export a per-person summary (PDF, plus Markdown on the web) that merges all of those sources, itemised by date, category, and payer, with amounts converted across currencies and links to the attached receipts (links valid 30 days); only committed bookings are included — for team offsites and work trips
 - **Group chat** — dedicated real-time chat tab per trip; send, edit, and delete messages; drafts persist across tab switches; organizers can moderate the conversation; paginated message history
-- **Vacation tracker & shared calendar** — visual timeline of activities, transfers, and check-ins in the trip's timezone; off-calendar view of every day
+- **Vacation tracker & shared calendar** — visual timeline of activities, transfers, and check-ins, times shown exactly as typed (no timezone conversion); off-calendar view of every day
 - **Real-time shared lists** — shopping lists, packing checklists; concurrent updates across all group members; recipe-to-shopping-list sync
 - **Transfer & flight management** — four segments: flights (suggest, vote, book, assign passengers, per-passenger boarding-pass/ticket uploads, round-trip flight numbers), own cars (driver + passengers, who rides with whom), rental cars, and public transport (train/coach/ferry, with passenger join/leave and per-member ticket uploads); everything dated lands on the shared calendar
 - **Encrypted travel documents** — passport and ID details protected by biometric authentication and AES-256 encryption; temporary organiser access that starts counting only on the organiser's first view, expires after the duration the owner set, lapses after a 7-day outer deadline if unused, shows a "Not opened yet" status, and can be revoked at any time
@@ -156,4 +158,4 @@ Free to use. No ads. No tracking in the app (the website loads analytics only af
 
 ## About
 
-Built by Gary Lude, an independent developer based in Switzerland, together with Gary's wife. It grew out of more than 30 couple and friend trips organized over three years, which used to run on WhatsApp chats, documents on a local PC and scattered tickets; Vacationist's features came from using it on real trips. Launched 2026. Trip data is stored on Supabase infrastructure in the EU (Paris, France); travel documents are additionally encrypted with AES-256. Details: [About Vacationist](https://vacationist.app/about/) ([Über Vacationist, Deutsch](https://vacationist.app/de/about/)).
+Built by Gary Lude, an independent developer based in Switzerland, together with Gary's wife. It grew out of more than 30 couple and friend trips organized over three years, which used to run on WhatsApp chats, documents on a local PC and scattered tickets; Vacationist's features came from using it on real trips. Launched 2026. Trip data is stored on Supabase infrastructure in Switzerland (Zurich) — the same country Vacationist is developed in; travel documents are additionally encrypted with AES-256. Details: [About Vacationist](https://vacationist.app/about/) ([Über Vacationist, Deutsch](https://vacationist.app/de/about/)).

@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-20
 altPath: /use-cases/family-reunion-planner/
 keywords: Familientreffen planen App, Großfamilien-Reisekoordination, Mehrgenerationen-Reiseplaner
 related: /de/features/voting/, /de/blog/family-vacation-coordination-guide/, /de/features/expenses/, /de/blog/travel-document-safety-guide/

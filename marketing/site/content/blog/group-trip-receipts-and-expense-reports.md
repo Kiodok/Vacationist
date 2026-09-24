@@ -6,6 +6,7 @@ lang: en
 type: article
 schema: BlogPosting
 date: 2026-09-03
+updated: 2026-09-08
 altPath: /de/blog/group-trip-receipts-and-expense-reports/
 keywords: group trip receipts, travel expense report, business travel expense report, how to expense a work trip, keep travel receipts
 blogIndex: true

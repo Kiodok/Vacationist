@@ -7,6 +7,7 @@ type: comparison-index
 schema: CollectionPage
 appLd: true
 date: 2026-09-20
+updated: 2026-09-20
 altPath: /vs/
 keywords: Vacationist vs Splitwise, Gruppenreise App Vergleich, Splitwise oder Wanderlog, beste Gruppenreise-App
 related: /de/blog/best-group-travel-apps-2026/, /de/alternatives/, /de/features/

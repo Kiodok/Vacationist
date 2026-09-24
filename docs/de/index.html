@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- GEO/no-JS: .reveal sections default to visible (see .reveal rule below); this flips
+       them to the fade-in-on-scroll behavior only once JS actually runs. Keeps content
+       visible to crawlers and renderers that don't execute JS or never fire the
+       IntersectionObserver below. -->
+  <script>document.documentElement.classList.add('js')</script>
+
   <!-- Analytics: gated behind opt-in consent (Consent Mode v2). See marketing/site/consent.js -->
   <script defer src="/assets/consent.js"></script>
   <!-- Funnel tracking (page visits, outbound CTA clicks): also consent-gated. See marketing/site/track.js -->
@@ -19,6 +25,8 @@
   <link rel="alternate" hreflang="x-default" href="https://vacationist.app/">
   <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/de/blog/feed.xml">
   <link rel="alternate" type="text/plain" title="llms.txt" href="https://vacationist.app/llms.txt">
+  <link rel="alternate" type="text/plain" title="llms-full.txt" href="https://vacationist.app/llms-full.txt">
+  <link rel="alternate" type="text/markdown" href="https://vacationist.app/de/index.md">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Gruppenreise-Planer App — Ausgaben teilen | Vacationist">
@@ -37,10 +45,10 @@
   <meta name="twitter:image" content="https://vacationist.app/og-image.png">
 
   <!-- JSON-LD: separate blocks for maximum parser compatibility -->
-  <!-- The SoftwareApplication, WebSite, WebPage, Organization and HowTo blocks below are
-       rewritten by `npm run build:site` (see syncEnglishHomepageAppLd in
-       marketing/site/build.mjs) — edit them there, not here. The FAQPage block is the
-       one hand-authored block; it must match the faq.N.q/a keys in docs/i18n/en.js. -->
+  <!-- All six blocks below (SoftwareApplication, WebSite, WebPage, Organization, FAQPage,
+       HowTo, DefinedTermSet) are rewritten by `npm run build:site` (see
+       syncEnglishHomepageAppLd in marketing/site/build.mjs) — edit the source in build.mjs
+       or docs/i18n/en.js, not this markup directly; a rebuild overwrites it. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -50,7 +58,7 @@
     "applicationCategory": "TravelApplication",
     "applicationSubCategory": "Group Trip Planner",
     "operatingSystem": "Android, iOS, Web",
-    "softwareVersion": "1.38.1",
+    "softwareVersion": "1.39.1",
     "description": "Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten, eine Woche lang offline weiterarbeiten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.",
     "url": "https://vacationist.app/",
     "installUrl": [
@@ -142,7 +150,29 @@
       "@type": "WebSite",
       "name": "Vacationist",
       "url": "https://vacationist.app/"
-    }
+    },
+    "citation": [
+      {
+        "@type": "CreativeWork",
+        "name": "NIST FIPS 197 — Advanced Encryption Standard",
+        "url": "https://csrc.nist.gov/pubs/fips/197/final"
+      },
+      {
+        "@type": "CreativeWork",
+        "name": "DSGVO Art. 32 — Sicherheit der Verarbeitung",
+        "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu"
+      },
+      {
+        "@type": "CreativeWork",
+        "name": "Supabase — Verfügbare Regionen",
+        "url": "https://supabase.com/docs/guides/platform/regions"
+      },
+      {
+        "@type": "CreativeWork",
+        "name": "DSGVO Art. 17 — Recht auf Löschung",
+        "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu"
+      }
+    ]
   }
   </script>
   <script type="application/ld+json">
@@ -257,6 +287,46 @@
           "@type": "Answer",
           "text": "Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftskosten unterwegs — Ausgaben, Hotels, Flüge, Transport — und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "Ist Vacationist kostenlos?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja. Vacationist ist für jede Gruppe kostenlos, ohne Werbung und ohne kostenpflichtige Version — alle Funktionen, von der Aktivitäten-Abstimmung über die Kostenteilung bis zur verschlüsselten Dokumentenablage, sind ohne Zusatzkosten enthalten."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Brauchen meine Freunde ein Konto, um einer Reise beizutreten?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nein. Über einen einzigen Einladungslink kann jeder sofort mitmachen — abstimmen, Ausgaben eintragen, Punkte auf der Einkaufsliste abhaken — ganz ohne Konto. Die App zu installieren ist optional."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wo werden meine Reisedaten gespeichert, und ist Vacationist DSGVO-konform?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Reisedaten liegen auf Supabase-Infrastruktur in der Schweiz (Zürich) — im selben Land, in dem Vacationist entwickelt wird, unter Schweizer Datenschutzrecht. Reisedokumente sind zusätzlich mit AES-256 verschlüsselt — eine Maßnahme, die auch die DSGVO als geeignet zum Schutz personenbezogener Daten nennt (Art. 32) —, und Konto und Daten kannst du jederzeit dauerhaft löschen, ein Recht, das die DSGVO EU-Bürger:innen in Art. 17 einräumt."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Funktioniert Vacationist ohne Internetverbindung?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ja. Zwischengespeicherte Reisedaten bleiben verfügbar, und Änderungen, die du offline machst — Stimmen, Ausgaben, abgehakte Listeneinträge — werden gesammelt und synchronisieren sich automatisch, sobald du wieder online bist, bis zu einer Woche lang."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Was unterscheidet Vacationist von Splitwise?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Splitwise ist eine ausgereifte, fokussierte App für laufende gemeinsame Kosten, etwa unter Mitbewohnern oder in einer Beziehung. Vacationist deckt Kostenteilung ebenfalls ab, dazu Aktivitäten-Abstimmung, gemeinsame Packlisten, Transfer- und Flugverwaltung, verschlüsselte Reisedokumente und Gast-Beitritt ohne Konto — gebaut speziell für die Planung einer Gruppenreise, nicht für laufende gemeinsame Finanzen."
+        }
       }
     ]
   }
@@ -288,6 +358,78 @@
         "name": "Gemeinsam planen",
         "text": "Ideen abstimmen, Kosten aufteilen, Listen und Notizen teilen. Alle immer auf dem Laufenden, in Echtzeit.",
         "url": "https://vacationist.app/de/#how"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "DefinedTermSet",
+    "@id": "https://vacationist.app/#glossary",
+    "name": "Die Begriffe, die Vacationist verwendet.",
+    "url": "https://vacationist.app/de/#glossary",
+    "inLanguage": "de",
+    "hasDefinedTerm": [
+      {
+        "@type": "DefinedTerm",
+        "@id": "https://vacationist.app/#term-group-blocker",
+        "name": "Gruppen-Blocker",
+        "description": "Die stärkste von Vacationists fünf Abstimmungsstufen — Muss sein, Gefällt mir, Offen, Auslassen, Gruppen-Blocker — und bedeutet, dass ein Gruppenmitglied einen echten Einwand gegen eine Aktivität hat. Nichts wird automatisch gelöscht; die Aktivität wird nur markiert, damit die Gruppe darüber sprechen kann, bevor irgendetwas gebucht wird.",
+        "inDefinedTermSet": {
+          "@id": "https://vacationist.app/#glossary"
+        },
+        "url": "https://vacationist.app/de/#term-group-blocker"
+      },
+      {
+        "@type": "DefinedTerm",
+        "@id": "https://vacationist.app/#term-settle-up-plan",
+        "name": "Ausgleichsplan",
+        "description": "Die vereinfachte Liste an Zahlungen, die alle Salden einer Reise mit den wenigsten Überweisungen ausgleicht — automatisch berechnet aus jeder eingetragenen Ausgabe und wer sie bezahlt hat.",
+        "inDefinedTermSet": {
+          "@id": "https://vacationist.app/#glossary"
+        },
+        "url": "https://vacationist.app/de/#term-settle-up-plan"
+      },
+      {
+        "@type": "DefinedTerm",
+        "@id": "https://vacationist.app/#term-guest-join",
+        "name": "Gast-Beitritt ohne Konto",
+        "description": "Über den Einladungslink kann jeder einer Reise sofort beitreten und mitmachen — abstimmen, Ausgaben eintragen, Punkte auf der Einkaufsliste abhaken — ganz ohne Konto, Registrierung oder App-Installation.",
+        "inDefinedTermSet": {
+          "@id": "https://vacationist.app/#glossary"
+        },
+        "url": "https://vacationist.app/de/#term-guest-join"
+      },
+      {
+        "@type": "DefinedTerm",
+        "@id": "https://vacationist.app/#term-business-cost-flag",
+        "name": "Geschäftskosten-Markierung",
+        "description": "Markierst du eine Ausgabe, Unterkunft, einen Flug, Mietwagen oder öffentlichen Transport als Geschäftskosten, fließt sie in einen Pro-Person-Geschäftskostenbericht ein — ein PDF (und im Web auch Markdown), nach Datum und Kategorie aufgeschlüsselt, für Dienstreisen und Firmen-Offsites.",
+        "inDefinedTermSet": {
+          "@id": "https://vacationist.app/#glossary"
+        },
+        "url": "https://vacationist.app/de/#term-business-cost-flag"
+      },
+      {
+        "@type": "DefinedTerm",
+        "@id": "https://vacationist.app/#term-per-item-currency",
+        "name": "Eigene Währung pro Posten",
+        "description": "Jede Unterkunft, jeder Flug, Mietwagen und öffentliche Transport behält seine eigene Währung, unabhängig von der Hauptwährung der Reise oder späteren Änderungen daran — die Umrechnung nutzt gespeicherte Tageskurse.",
+        "inDefinedTermSet": {
+          "@id": "https://vacationist.app/#glossary"
+        },
+        "url": "https://vacationist.app/de/#term-per-item-currency"
+      },
+      {
+        "@type": "DefinedTerm",
+        "@id": "https://vacationist.app/#term-organizer-document-access",
+        "name": "Temporärer Dokumentenzugriff",
+        "description": "Eine zeitlich begrenzte, jederzeit widerrufbare Berechtigung, die ein Organisator erhalten kann, um das verschlüsselte Reisedokument eines Mitglieds einzusehen. Die Frist beginnt erst mit dem ersten Öffnen durch den Organisator, läuft nach der vom Dokumenteninhaber festgelegten Dauer ab, verfällt spätestens nach 7 Tagen, falls sie nie genutzt wird, und lässt sich jederzeit widerrufen.",
+        "inDefinedTermSet": {
+          "@id": "https://vacationist.app/#glossary"
+        },
+        "url": "https://vacationist.app/de/#term-organizer-document-access"
       }
     ]
   }
@@ -955,8 +1097,40 @@
     .cmp td.cmp-us.cmp-text { color: var(--text); font-weight: 600; }
     .cmp-note { max-width: 760px; margin: 1.25rem 0 0; font-size: .88rem; line-height: 1.65; color: var(--text2); }
 
+    /* ── FAQ heading wrap (GEO pass, 2026-09-24) — button keeps all its own
+       typography, the <h3> wrapper is purely for document structure. ── */
+    .faq-item h3 { margin: 0; font-size: inherit; font-weight: inherit; }
+
+    /* ── GLOSSARY ── */
+    .gloss-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.75rem 2rem; max-width: 980px; margin: 0 auto; }
+    .gloss-term { margin: 0 0 .4rem; font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+    .gloss-def { margin: 0; font-size: .88rem; line-height: 1.65; color: var(--text2); }
+
+    /* ── HONEST FIT ── */
+    .fit-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto; }
+    .fit-h { margin: 0 0 .9rem; font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+    .fit-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .7rem; }
+    .fit-list li { font-size: .9rem; line-height: 1.6; color: var(--text2); padding-left: 1.1rem; position: relative; }
+    .fit-list li::before { content: ""; position: absolute; left: 0; top: .55rem; width: 6px; height: 6px; border-radius: 50%; background: var(--pri); }
+    .fit-col:last-child .fit-list li::before { background: var(--text3); }
+
+    /* ── CHECKABLE FACTS ── */
+    .fact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.75rem 2rem; max-width: 980px; margin: 0 auto; }
+    .fact-claim { margin: 0 0 .4rem; font-size: .96rem; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+    .fact-body { margin: 0 0 .6rem; font-size: .86rem; line-height: 1.6; color: var(--text2); }
+    .fact-src { margin: 0; font-size: .8rem; }
+    .fact-src-label { color: var(--text3); margin-right: .35rem; }
+    .src-link { color: var(--pri-lite); text-decoration: none; }
+    .src-link:hover { text-decoration: underline; }
+    .src-link cite { font-style: normal; }
+    .page-updated { max-width: 980px; margin: 2rem auto 0; font-size: .78rem; color: var(--text3); }
+    .page-updated time { color: var(--text2); }
+
     /* ── REVEAL ── */
-    .reveal { opacity:0; transform:translateY(22px); transition:opacity .6s ease,transform .6s ease; }
+    /* Visible by default (no-JS / no-scroll renderers, incl. many AI/answer-engine
+       crawlers); .js .reveal is what actually starts hidden for the fade-in-on-scroll
+       effect once script.js has run — see the classList.add('js') script in <head>. */
+    .js .reveal { opacity:0; transform:translateY(22px); transition:opacity .6s ease,transform .6s ease; }
     .reveal.in { opacity:1; transform:none; }
     .d1{transition-delay:.1s} .d2{transition-delay:.2s} .d3{transition-delay:.3s}
     .d4{transition-delay:.4s} .d5{transition-delay:.5s}
@@ -982,7 +1156,7 @@
     Vacationist
   </a>
   <div class="nav-links">
-    <a href="#features" data-i18n="nav.features">Features</a>
+    <a href="#features" data-i18n="nav.features">Funktionen</a>
     <a href="#how" data-i18n="nav.how">So funktioniert's</a>
     <a href="#use-cases" data-i18n="nav.useCases">Anwendungsfälle</a>
     <a href="#faq" data-i18n="nav.faq">FAQ</a>
@@ -1173,7 +1347,7 @@
       <a class="feat-card reveal d3" href="/de/features/" data-i18n-href="feat.6.href">
         <div class="feat-icon">🗓️</div>
         <div class="feat-title" data-i18n="feat.6.title">Urlaubsverfolgung &amp; Kalender</div>
-        <div class="feat-desc" data-i18n="feat.6.desc">Eine visuelle Zeitleiste aller geplanten Aktivitäten, Transfers und Check-ins — deine Urlaubsverfolgung in der Zeitzone der Reise. Jeden freien Tag auf einen Blick.</div>
+        <div class="feat-desc" data-i18n="feat.6.desc">Eine visuelle Zeitleiste aller geplanten Aktivitäten, Transfers und Check-ins — deine Urlaubsverfolgung, Uhrzeiten genau so wie eingetragen. Jeden freien Tag auf einen Blick.</div>
       </a>
       <a class="feat-card feat-card--wide reveal d3" href="/de/blog/group-trip-receipts-and-expense-reports/" data-i18n-href="feat.8.href">
         <div>
@@ -1368,66 +1542,111 @@
     </div>
     <div class="faq-list">
       <div class="faq-item reveal d1">
-        <button class="faq-q" aria-expanded="false">
+        <h3><button class="faq-q" aria-expanded="false">
           <span data-i18n="faq.1.q">Was ist Vacationist?</span>
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+        </button></h3>
         <div class="faq-a" hidden>
           <p data-i18n="faq.1.a">Vacationist ist eine kostenlose Reise-App für kollaborative Gruppenreisen. Aktivitäten vorschlagen und abstimmen, Ausgaben aufteilen, Urlaub verfolgen, Unterkünfte verwalten, Einkaufslisten teilen und alle synchron halten — alles an einem Ort. Funktioniert für alles vom Städtetrip bis zur mehrtägigen Roadtrip-Tour.</p>
         </div>
       </div>
       <div class="faq-item reveal d2">
-        <button class="faq-q" aria-expanded="false">
+        <h3><button class="faq-q" aria-expanded="false">
           <span data-i18n="faq.2.q">Wie funktioniert die Ausgabenaufteilung in der Gruppe?</span>
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+        </button></h3>
         <div class="faq-a" hidden>
           <p data-i18n="faq.2.a">Jede Gruppenausgabe erfassen — Abendessen, Unterkunft, Transport oder anderes — eine Kategorie wählen, den Beleg anhängen, auswählen wer gezahlt hat und gleichmäßig oder mit eigenen Beträgen aufteilen. Vacationist verfolgt die Salden automatisch und zeigt am Reiseende den einfachsten Weg zum Ausgleich.</p>
         </div>
       </div>
       <div class="faq-item reveal d3">
-        <button class="faq-q" aria-expanded="false">
+        <h3><button class="faq-q" aria-expanded="false">
           <span data-i18n="faq.3.q">Kann ich Vacationist für Van-Life oder Roadtrips nutzen?</span>
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+        </button></h3>
         <div class="faq-a" hidden>
           <p data-i18n="faq.3.a">Absolut. Vacationist ist ideal für Van-Roadtrips und Überland-Abenteuer. Der gemeinsame Kalender verfolgt jeden Stopp, der Aktivitätsplaner hält die Route flexibel, die Packliste hält den Van organisiert, und die Ausgabenteilung macht gemeinsame Sprit- und Campingplatzkosten fair und transparent.</p>
         </div>
       </div>
       <div class="faq-item reveal d1">
-        <button class="faq-q" aria-expanded="false">
+        <h3><button class="faq-q" aria-expanded="false">
           <span data-i18n="faq.4.q">Was unterscheidet Vacationist von anderen Gruppenreise-Apps?</span>
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+        </button></h3>
         <div class="faq-a" hidden>
           <p data-i18n="faq.4.a">Vacationist vereint Aktivitätsabstimmung, Ausgabenteilung, geteilte Packlisten und Echtzeit-Zusammenarbeit in einer App, die speziell für Gruppenreisen entwickelt wurde. Anders als bei allgemeinen Apps ist alles auf den Gruppenreise-Workflow ausgelegt — vom Vorschlagen und Abstimmen über Aktivitäten bis zur Kostenteilung und Reisedokumentenverwaltung. Und alle können ohne Konto beitreten.</p>
         </div>
       </div>
       <div class="faq-item reveal d2">
-        <button class="faq-q" aria-expanded="false">
+        <h3><button class="faq-q" aria-expanded="false">
           <span data-i18n="faq.5.q">Kann ich es für Timeshare oder Ferienunterkünfte nutzen?</span>
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+        </button></h3>
         <div class="faq-a" hidden>
           <p data-i18n="faq.5.a">Ja. Viele Vacationist-Nutzer koordinieren Timeshare-Aufenthalte, Ferienunterkünfte und gemeinsame Urlaubsimmobilien. Verfolgen, wer wann ankommt, laufende Kosten unter Miteigentümern aufteilen, gemeinsame Einkaufslisten für das Objekt verwalten und Reisedokumente für den Check-in zugänglich halten.</p>
         </div>
       </div>
       <div class="faq-item reveal d3">
-        <button class="faq-q" aria-expanded="false">
+        <h3><button class="faq-q" aria-expanded="false">
           <span data-i18n="faq.6.q">Wie funktionieren Urlaubsverfolgung und Teilen mit der Gruppe?</span>
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+        </button></h3>
         <div class="faq-a" hidden>
           <p data-i18n="faq.6.a">Jede Reise in Vacationist ist ein gemeinsamer Arbeitsbereich. Per Link einladen — alle treten sofort bei, kein Konto zum Mitmachen nötig. Die Urlaubsübersicht zeigt die gesamte Reise-Zeitleiste, alle Termine außerhalb des Kalenders und Ausgaben auf einen Blick. Änderungen synchronisieren sich in Echtzeit, sodass alle immer auf dem neuesten Stand sind.</p>
         </div>
       </div>
       <div class="faq-item reveal d1">
-        <button class="faq-q" aria-expanded="false">
+        <h3><button class="faq-q" aria-expanded="false">
           <span data-i18n="faq.7.q">Kann ich Belege anhängen und eine Geschäftsreise abrechnen?</span>
           <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+        </button></h3>
         <div class="faq-a" hidden>
           <p data-i18n="faq.7.a">Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftskosten unterwegs — Ausgaben, Hotels, Flüge, Transport — und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d2">
+        <h3><button class="faq-q" aria-expanded="false">
+          <span data-i18n="faq.8.q">Ist Vacationist kostenlos?</span>
+          <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button></h3>
+        <div class="faq-a" hidden>
+          <p data-i18n="faq.8.a">Ja. Vacationist ist für jede Gruppe kostenlos, ohne Werbung und ohne kostenpflichtige Version — alle Funktionen, von der Aktivitäten-Abstimmung über die Kostenteilung bis zur verschlüsselten Dokumentenablage, sind ohne Zusatzkosten enthalten.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d3">
+        <h3><button class="faq-q" aria-expanded="false">
+          <span data-i18n="faq.9.q">Brauchen meine Freunde ein Konto, um einer Reise beizutreten?</span>
+          <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button></h3>
+        <div class="faq-a" hidden>
+          <p data-i18n="faq.9.a">Nein. Über einen einzigen Einladungslink kann jeder sofort mitmachen — abstimmen, Ausgaben eintragen, Punkte auf der Einkaufsliste abhaken — ganz ohne Konto. Die App zu installieren ist optional.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d1">
+        <h3><button class="faq-q" aria-expanded="false">
+          <span data-i18n="faq.10.q">Wo werden meine Reisedaten gespeichert, und ist Vacationist DSGVO-konform?</span>
+          <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button></h3>
+        <div class="faq-a" hidden>
+          <p data-i18n="faq.10.a">Reisedaten liegen auf Supabase-Infrastruktur in der Schweiz (Zürich) — im selben Land, in dem Vacationist entwickelt wird, unter Schweizer Datenschutzrecht. Reisedokumente sind zusätzlich mit AES-256 verschlüsselt — eine Maßnahme, die auch die DSGVO als geeignet zum Schutz personenbezogener Daten nennt (Art. 32) —, und Konto und Daten kannst du jederzeit dauerhaft löschen, ein Recht, das die DSGVO EU-Bürger:innen in Art. 17 einräumt.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d2">
+        <h3><button class="faq-q" aria-expanded="false">
+          <span data-i18n="faq.11.q">Funktioniert Vacationist ohne Internetverbindung?</span>
+          <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button></h3>
+        <div class="faq-a" hidden>
+          <p data-i18n="faq.11.a">Ja. Zwischengespeicherte Reisedaten bleiben verfügbar, und Änderungen, die du offline machst — Stimmen, Ausgaben, abgehakte Listeneinträge — werden gesammelt und synchronisieren sich automatisch, sobald du wieder online bist, bis zu einer Woche lang.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal d3">
+        <h3><button class="faq-q" aria-expanded="false">
+          <span data-i18n="faq.12.q">Was unterscheidet Vacationist von Splitwise?</span>
+          <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button></h3>
+        <div class="faq-a" hidden>
+          <p data-i18n="faq.12.a">Splitwise ist eine ausgereifte, fokussierte App für laufende gemeinsame Kosten, etwa unter Mitbewohnern oder in einer Beziehung. Vacationist deckt Kostenteilung ebenfalls ab, dazu Aktivitäten-Abstimmung, gemeinsame Packlisten, Transfer- und Flugverwaltung, verschlüsselte Reisedokumente und Gast-Beitritt ohne Konto — gebaut speziell für die Planung einer Gruppenreise, nicht für laufende gemeinsame Finanzen.</p>
         </div>
       </div>
     </div>
@@ -1520,6 +1739,125 @@
   </div>
 </section>
 
+<!-- GLOSSARY -->
+<section class="section" id="glossary">
+  <div class="wrap">
+    <div class="s-head reveal">
+      <div class="s-label" data-i18n="gloss.label">Kurz erklärt</div>
+      <h2 class="s-title" data-i18n="gloss.title">Die Begriffe, die Vacationist verwendet.</h2>
+      <p class="s-sub" data-i18n="gloss.sub">Sechs Begriffe, die in der App immer wieder vorkommen — einmal erklärt, statt jedes Mal neu.</p>
+    </div>
+    <div class="gloss-list">
+      <div class="gloss-item reveal d1">
+        <h3 class="gloss-term" id="term-group-blocker" data-i18n="gloss.1.term">Gruppen-Blocker</h3>
+        <p class="gloss-def" data-i18n="gloss.1.def">Die stärkste von Vacationists fünf Abstimmungsstufen — Muss sein, Gefällt mir, Offen, Auslassen, Gruppen-Blocker — und bedeutet, dass ein Gruppenmitglied einen echten Einwand gegen eine Aktivität hat. Nichts wird automatisch gelöscht; die Aktivität wird nur markiert, damit die Gruppe darüber sprechen kann, bevor irgendetwas gebucht wird.</p>
+      </div>
+      <div class="gloss-item reveal d2">
+        <h3 class="gloss-term" id="term-settle-up-plan" data-i18n="gloss.2.term">Ausgleichsplan</h3>
+        <p class="gloss-def" data-i18n="gloss.2.def">Die vereinfachte Liste an Zahlungen, die alle Salden einer Reise mit den wenigsten Überweisungen ausgleicht — automatisch berechnet aus jeder eingetragenen Ausgabe und wer sie bezahlt hat.</p>
+      </div>
+      <div class="gloss-item reveal d3">
+        <h3 class="gloss-term" id="term-guest-join" data-i18n="gloss.3.term">Gast-Beitritt ohne Konto</h3>
+        <p class="gloss-def" data-i18n="gloss.3.def">Über den Einladungslink kann jeder einer Reise sofort beitreten und mitmachen — abstimmen, Ausgaben eintragen, Punkte auf der Einkaufsliste abhaken — ganz ohne Konto, Registrierung oder App-Installation.</p>
+      </div>
+      <div class="gloss-item reveal d1">
+        <h3 class="gloss-term" id="term-business-cost-flag" data-i18n="gloss.4.term">Geschäftskosten-Markierung</h3>
+        <p class="gloss-def" data-i18n="gloss.4.def">Markierst du eine Ausgabe, Unterkunft, einen Flug, Mietwagen oder öffentlichen Transport als Geschäftskosten, fließt sie in einen Pro-Person-Geschäftskostenbericht ein — ein PDF (und im Web auch Markdown), nach Datum und Kategorie aufgeschlüsselt, für Dienstreisen und Firmen-Offsites.</p>
+      </div>
+      <div class="gloss-item reveal d2">
+        <h3 class="gloss-term" id="term-per-item-currency" data-i18n="gloss.5.term">Eigene Währung pro Posten</h3>
+        <p class="gloss-def" data-i18n="gloss.5.def">Jede Unterkunft, jeder Flug, Mietwagen und öffentliche Transport behält seine eigene Währung, unabhängig von der Hauptwährung der Reise oder späteren Änderungen daran — die Umrechnung nutzt gespeicherte Tageskurse.</p>
+      </div>
+      <div class="gloss-item reveal d3">
+        <h3 class="gloss-term" id="term-organizer-document-access" data-i18n="gloss.6.term">Temporärer Dokumentenzugriff</h3>
+        <p class="gloss-def" data-i18n="gloss.6.def">Eine zeitlich begrenzte, jederzeit widerrufbare Berechtigung, die ein Organisator erhalten kann, um das verschlüsselte Reisedokument eines Mitglieds einzusehen. Die Frist beginnt erst mit dem ersten Öffnen durch den Organisator, läuft nach der vom Dokumenteninhaber festgelegten Dauer ab, verfällt spätestens nach 7 Tagen, falls sie nie genutzt wird, und lässt sich jederzeit widerrufen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HONEST FIT -->
+<section class="section alt-bg" id="fit">
+  <div class="wrap">
+    <div class="s-head reveal">
+      <div class="s-label" data-i18n="fit.label">Ehrlich eingeordnet</div>
+      <h2 class="s-title" data-i18n="fit.title">Wann Vacationist das richtige Werkzeug ist.</h2>
+    </div>
+    <div class="fit-cols">
+      <div class="fit-col reveal d1">
+        <h3 class="fit-h" data-i18n="fit.use.h">Nutze Vacationist, wenn …</h3>
+        <ul class="fit-list">
+          <li data-i18n="fit.use.1">… deine ganze Gruppe mitentscheiden soll, statt dass nur eine Person alles plant.</li>
+          <li data-i18n="fit.use.2">… du Ausgaben teilen, Salden verfolgen und einen Ausgleichsplan willst, ohne eine Tabelle zu führen.</li>
+          <li data-i18n="fit.use.3">… manche in der Gruppe keine App installieren oder kein Konto erstellen wollen, nur um mitzumachen.</li>
+          <li data-i18n="fit.use.4">… du konkret eine Gruppenreise planst — nicht laufende gemeinsame Kosten mit denselben Leuten auf unbestimmte Zeit verwaltest.</li>
+          <li data-i18n="fit.use.5">… du Reisedokumente wie Pässe und Ausweise verschlüsselt ablegen willst statt sie in den Gruppenchat zu fotografieren.</li>
+        </ul>
+      </div>
+      <div class="fit-col reveal d2">
+        <h3 class="fit-h" data-i18n="fit.skip.h">Nutze etwas anderes, wenn …</h3>
+        <ul class="fit-list">
+          <li data-i18n="fit.skip.1">… du eine Reiseroute willst, die automatisch aus weitergeleiteten Buchungsbestätigungen entsteht — das kann TripIt.</li>
+          <li data-i18n="fit.skip.2">… du integrierte Karten und Ortsvorschläge zur Reiseplanung suchst — das kann Wanderlog besser.</li>
+          <li data-i18n="fit.skip.3">… du laufende Kosten mit denselben Leuten auf unbestimmte Zeit teilst (WG, Beziehung) statt eine konkrete Reise zu planen — dafür ist Splitwise die ausgereiftere, fokussiertere Lösung.</li>
+          <li data-i18n="fit.skip.4">… du allein unterwegs bist — Vacationist ist auf Gruppen-Koordination ausgelegt.</li>
+          <li data-i18n="fit.skip.5">… dein Unternehmen zentrale Abrechnung oder SSO braucht — Vacationist hat keine Firmenkonten.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHECKABLE FACTS — sourced only from marketing/geo-citations.md (Tech
+     Lead-approved register). Never add a row without a matching entry there
+     and a real, one-click-verifiable primary source. -->
+<section class="section" id="facts">
+  <div class="wrap">
+    <div class="s-head reveal">
+      <div class="s-label" data-i18n="fact.label">Nachprüfbare Fakten</div>
+      <h2 class="s-title" data-i18n="fact.title">Woher diese Aussagen stammen.</h2>
+    </div>
+    <div class="fact-list">
+      <div class="fact reveal d1">
+        <h3 class="fact-claim" data-i18n="fact.1.claim">Reisedokumente sind mit AES-256 verschlüsselt gespeichert.</h3>
+        <p class="fact-body" data-i18n="fact.1.body">AES-256 ist der US-Bundesstandard für symmetrische Verschlüsselung, definiert in NIST FIPS 197 — derselbe Algorithmus, der auch für als geheim eingestufte Daten verwendet wird.</p>
+        <p class="fact-src">
+          <span class="fact-src-label" data-i18n="fact.src.label">Quelle</span>
+          <a class="src-link" href="https://csrc.nist.gov/pubs/fips/197/final" target="_blank" rel="noopener noreferrer nofollow" data-i18n-href="fact.1.src.href"><cite data-i18n="fact.1.src">NIST FIPS 197 — Advanced Encryption Standard</cite></a>
+        </p>
+      </div>
+      <div class="fact reveal d2">
+        <h3 class="fact-claim" data-i18n="fact.2.claim">Verschlüsselung ist eine Maßnahme, die die DSGVO ausdrücklich nennt.</h3>
+        <p class="fact-body" data-i18n="fact.2.body">Artikel 32 der DSGVO nennt „die Pseudonymisierung und Verschlüsselung personenbezogener Daten" als geeignete technische Maßnahme zum Schutz personenbezogener Daten.</p>
+        <p class="fact-src">
+          <span class="fact-src-label" data-i18n="fact.src.label">Quelle</span>
+          <a class="src-link" href="https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu" target="_blank" rel="noopener noreferrer nofollow" data-i18n-href="fact.2.src.href"><cite data-i18n="fact.2.src">DSGVO Art. 32 — Sicherheit der Verarbeitung</cite></a>
+        </p>
+      </div>
+      <div class="fact reveal d3">
+        <h3 class="fact-claim" data-i18n="fact.3.claim">Reisedaten werden in der Schweiz gehostet — im selben Land wie der Entwickler.</h3>
+        <p class="fact-body" data-i18n="fact.3.body">Vacationist wird in der Schweiz entwickelt und dort auch gehostet: Reisedaten liegen auf Supabase-Infrastruktur in Central Europe (Zürich), unter Schweizer Datenschutzrecht.</p>
+        <p class="fact-src">
+          <span class="fact-src-label" data-i18n="fact.src.label">Quelle</span>
+          <a class="src-link" href="https://supabase.com/docs/guides/platform/regions" target="_blank" rel="noopener noreferrer nofollow" data-i18n-href="fact.3.src.href"><cite data-i18n="fact.3.src">Supabase — Verfügbare Regionen</cite></a>
+        </p>
+      </div>
+      <div class="fact reveal d1">
+        <h3 class="fact-claim" data-i18n="fact.4.claim">Konto und Daten kannst du dauerhaft löschen.</h3>
+        <p class="fact-body" data-i18n="fact.4.body">Artikel 17 der DSGVO gewährt das Recht auf Löschung — der Konto-löschen-Ablauf von Vacationist entfernt deine personenbezogenen Daten auf Wunsch.</p>
+        <p class="fact-src">
+          <span class="fact-src-label" data-i18n="fact.src.label">Quelle</span>
+          <a class="src-link" href="https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu" target="_blank" rel="noopener noreferrer nofollow" data-i18n-href="fact.4.src.href"><cite data-i18n="fact.4.src">DSGVO Art. 17 — Recht auf Löschung</cite></a>
+        </p>
+      </div>
+    </div>
+    <p class="page-updated">
+      <span data-i18n="updated.label">Zuletzt aktualisiert</span>
+      <time datetime="2026-09-24" id="home-updated">2026-09-24</time>
+    </p>
+  </div>
+</section>
+
 <!-- TRUST STRIP -->
 <div class="trust">
   <div class="trust-inner">
@@ -1600,7 +1938,11 @@ document.querySelectorAll('.faq-q').forEach(function(btn) {
   btn.addEventListener('click', function() {
     var expanded = btn.getAttribute('aria-expanded') === 'true';
     btn.setAttribute('aria-expanded', !expanded);
-    btn.nextElementSibling.hidden = expanded;
+    // .faq-q is wrapped in an <h3> for heading-level chunking (GEO pass,
+    // 2026-09-24), so its answer is no longer a direct nextElementSibling —
+    // it's the next sibling of the <h3>. closest('.faq-item') + a direct
+    // query is robust regardless of the button's own wrapper.
+    btn.closest('.faq-item').querySelector('.faq-a').hidden = expanded;
   });
 });
 

@@ -20,6 +20,7 @@
 
   <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="https://vacationist.app/de/blog/feed.xml">
   <link rel="alternate" type="text/plain" title="llms.txt" href="https://vacationist.app/llms.txt">
+  <link rel="alternate" type="text/markdown" href="https://vacationist.app/de/features/travel-documents/index.md">
   <meta property="og:title" content="Verschlüsselte Reisedokumente — Reisepässe mit Biometrie gesichert | Vacationist">
   <meta property="og:description" content="Reisepässe, Ausweise und Reisedokumente verschlüsselt speichern, gesichert durch eine biometrische Sperre auf deinem Gerät. Dem Organisator temporären Zugriff gewähren — und jederzeit widerrufen.">
   <meta property="og:url" content="https://vacationist.app/de/features/travel-documents/">
@@ -41,10 +42,33 @@
     "speakable": {
       "@type": "SpeakableSpecification",
       "cssSelector": [
-        ".lede",
-        ".tldr"
+        ".lede"
       ]
     },
+    "datePublished": "2026-07-26",
+    "dateModified": "2026-09-24",
+    "citation": [
+      {
+        "@type": "CreativeWork",
+        "name": "NIST FIPS 197 — Advanced Encryption Standard",
+        "url": "https://csrc.nist.gov/pubs/fips/197/final"
+      },
+      {
+        "@type": "CreativeWork",
+        "name": "DSGVO Art. 32 — Sicherheit der Verarbeitung",
+        "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu"
+      },
+      {
+        "@type": "CreativeWork",
+        "name": "DSGVO Art. 17 — Recht auf Löschung",
+        "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu"
+      },
+      {
+        "@type": "CreativeWork",
+        "name": "Supabase — Verfügbare Regionen",
+        "url": "https://supabase.com/docs/guides/platform/regions"
+      }
+    ],
     "inLanguage": "de",
     "isPartOf": {
       "@type": "WebSite",
@@ -121,7 +145,15 @@
         "name": "Ist diese Funktion kostenlos?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Der Dokumenten-Tresor ist Teil der App; die aktuellen Tarifdetails findest du in der App. Was für die Sicherheit zählt: Verschlüsselung und biometrisches Entsperren gelten für alle, in jedem Tarif."
+          "text": "Ja. Der Dokumenten-Tresor, die Verschlüsselung und das biometrische Entsperren sind Teil der kostenlosen App — für jede Gruppe enthalten, ohne kostenpflichtige Version."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Ist meine Reisedokumente DSGVO-konform, und wo werden sie gespeichert?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Reisedaten, einschließlich verschlüsselter Reisedokumente, liegen auf Supabase-Infrastruktur in der Schweiz (Zürich) — im selben Land, in dem auch der Entwickler sitzt, unter Schweizer Datenschutzrecht. Die DSGVO nennt Verschlüsselung ebenfalls als geeignete Maßnahme zum Schutz personenbezogener Daten (Art. 32) und gewährt EU-Bürger:innen das Recht auf Löschung (Art. 17); die Kontolöschung von Vacationist entfernt deine Daten unabhängig vom Wohnsitz auf Wunsch. Siehe Quellen unten."
         }
       }
     ]
@@ -193,7 +225,16 @@
 <h3 id="welche-dokumente-kann-ich-speichern">Welche Dokumente kann ich speichern?</h3>
 <p>Reisepässe, Personalausweise und andere Reisedokumente — die Angaben, die eine Gruppenbuchung typischerweise erfordert. Jedes Familienmitglied bzw. jeder Reisende verwaltet seine eigenen.</p>
 <h3 id="ist-diese-funktion-kostenlos">Ist diese Funktion kostenlos?</h3>
-<p>Der Dokumenten-Tresor ist Teil der App; die aktuellen Tarifdetails findest du in der App. Was für die Sicherheit zählt: Verschlüsselung und biometrisches Entsperren gelten für alle, in jedem Tarif.</p>
+<p>Ja. Der Dokumenten-Tresor, die Verschlüsselung und das biometrische Entsperren sind Teil der kostenlosen App — für jede Gruppe enthalten, ohne kostenpflichtige Version.</p>
+<h3 id="ist-meine-reisedokumente-dsgvo-konform-und-wo-werden-sie-gespeichert">Ist meine Reisedokumente DSGVO-konform, und wo werden sie gespeichert?</h3>
+<p>Reisedaten, einschließlich verschlüsselter Reisedokumente, liegen auf Supabase-Infrastruktur in der Schweiz (Zürich) — im selben Land, in dem auch der Entwickler sitzt, unter Schweizer Datenschutzrecht. Die DSGVO nennt Verschlüsselung ebenfalls als geeignete Maßnahme zum Schutz personenbezogener Daten (Art. 32) und gewährt EU-Bürger:innen das Recht auf Löschung (Art. 17); die Kontolöschung von Vacationist entfernt deine Daten unabhängig vom Wohnsitz auf Wunsch. Siehe Quellen unten.</p>
+<h2 id="quellen">Quellen</h2>
+<ul>
+<li><a href="https://csrc.nist.gov/pubs/fips/197/final">NIST FIPS 197 — Advanced Encryption Standard</a>: der US-Bundesstandard, der AES definiert, den oben beschriebenen Verschlüsselungsalgorithmus.</li>
+<li><a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu">DSGVO Art. 32 — Sicherheit der Verarbeitung</a>: nennt „die Pseudonymisierung und Verschlüsselung personenbezogener Daten&quot; als geeignete Sicherheitsmaßnahme.</li>
+<li><a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu">DSGVO Art. 17 — Recht auf Löschung</a>: die rechtliche Grundlage für die Konto- und Datenlöschung bei Vacationist.</li>
+<li><a href="https://supabase.com/docs/guides/platform/regions">Supabase — Verfügbare Regionen</a>: bestätigt die Region Central Europe (Zürich), in der Reisedaten gespeichert werden.</li>
+</ul>
 
   </article>
 

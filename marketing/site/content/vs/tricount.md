@@ -6,6 +6,7 @@ lang: en
 type: comparison
 schema: Article
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /de/vs/tricount/
 keywords: vacationist vs tricount, tricount alternative for travel, tricount for group trips
 related: /alternatives/splitwise/, /features/expenses/, /blog/how-to-split-travel-expenses/

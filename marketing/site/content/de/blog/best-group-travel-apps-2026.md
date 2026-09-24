@@ -6,6 +6,7 @@ lang: de
 type: article
 schema: BlogPosting
 date: 2026-07-21
+updated: 2026-09-20
 altPath: /blog/best-group-travel-apps-2026/
 keywords: beste Gruppenreise App, Reise App Gruppe, beste Reiseplanungs-Apps 2026, Reise App für Freundesgruppen
 blogIndex: true

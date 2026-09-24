@@ -6,6 +6,7 @@ lang: de
 type: feature
 schema: WebPage
 date: 2026-07-21
+updated: 2026-07-21
 altPath: /features/shopping-lists/
 keywords: Packliste App Gruppe, gemeinsame Einkaufsliste Reise, Gruppenreise Packliste, Rezept Einkaufsliste App
 related: /de/features/voting/, /de/blog/group-camping-trip-planner/, /de/blog/how-to-plan-a-group-trip/

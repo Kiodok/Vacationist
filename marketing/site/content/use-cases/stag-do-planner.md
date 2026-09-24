@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /de/use-cases/stag-do-planner/
 keywords: stag do planner app, bachelor party trip planning, split stag costs, bachelor party budget app
 related: /features/expenses/, /features/voting/, /blog/bachelorette-trip-planning-guide/

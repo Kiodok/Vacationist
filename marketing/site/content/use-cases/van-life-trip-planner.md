@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /de/use-cases/van-life-trip-planner/
 keywords: van life trip planner, road trip expense splitting, campervan group trip, road trip planning app
 related: /features/expenses/, /blog/group-camping-trip-planner/, /features/shopping-lists/

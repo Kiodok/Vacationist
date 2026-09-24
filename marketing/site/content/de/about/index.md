@@ -8,6 +8,7 @@ schema: AboutPage
 orgLd: true
 appLd: true
 date: 2026-09-20
+updated: 2026-09-24
 altPath: /about/
 keywords: Über Vacationist, wer macht Vacationist, Gruppenreise-Planer Entwickler, Vacationist Schweiz
 related: /de/pricing/, /de/features/travel-documents/, /de/blog/travel-document-safety-guide/
@@ -38,9 +39,9 @@ Vacationist wird von **Gary Lude** gebaut, einem unabhängigen Entwickler mit Si
 
 ## Wo deine Daten liegen — und was sie schützt
 
-„Built in Switzerland“ sagt, wo Vacationist entsteht, nicht, wo die Daten gespeichert werden. Deshalb hier der Unterschied im Klartext:
+Vacationist wird in der Schweiz entwickelt — und dort auch gehostet:
 
-- **Reisedaten** liegen auf der Infrastruktur von Supabase in der EU (Paris, Frankreich).
+- **Reisedaten** liegen auf der Infrastruktur von Supabase in der Schweiz (Zürich), unter Schweizer Datenschutzrecht.
 - **Reisedokumente** — Pass- und Ausweisdaten — sind im Ruhezustand mit AES-256 verschlüsselt und durch biometrische Entsperrung geschützt. Der Zugriff für Organisatoren ist zeitlich begrenzt und lässt sich jederzeit widerrufen. Wie das funktioniert, erklärt der [Ratgeber zur sicheren Weitergabe von Reisedokumenten](/de/blog/travel-document-safety-guide/).
 - **Die mobilen Apps** enthalten keine Werbung und keine Analyse-SDKs von Drittanbietern. Die Website lädt Analyse-Werkzeuge erst, nachdem du das Cookie-Banner akzeptiert hast.
 
@@ -60,7 +61,7 @@ Es ist aus mehr als 30 Paar- und Freundesreisen entstanden, die wir über drei J
 
 ### Wo werden meine Reisedaten gespeichert?
 
-Auf der Infrastruktur von Supabase in der EU (Paris, Frankreich). Pass- und Ausweisdaten sind zusätzlich im Ruhezustand mit AES-256 verschlüsselt.
+Auf der Infrastruktur von Supabase in der Schweiz (Zürich), im selben Land, in dem Vacationist entwickelt wird. Pass- und Ausweisdaten sind zusätzlich im Ruhezustand mit AES-256 verschlüsselt.
 
 ### Wie erreiche ich Vacationist?
 

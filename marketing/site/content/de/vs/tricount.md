@@ -6,6 +6,7 @@ lang: de
 type: comparison
 schema: Article
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /vs/tricount/
 keywords: Vacationist vs Tricount, Tricount Alternative Reise, Tricount für Gruppenreisen
 related: /de/alternatives/splitwise/, /de/features/expenses/, /de/blog/how-to-split-travel-expenses/

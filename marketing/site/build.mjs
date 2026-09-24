@@ -33,7 +33,7 @@ const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
 
 /* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
    release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
-const APP_VERSION = '1.38.1';
+const APP_VERSION = '1.39.1';
 
 /* Growth Plan Q4 2026, Phase 2 — "harvest social proof". 25+ reviews is a documented
    threshold (marketing/growth-plan-2026-q4.md), not a gradient: below it, no rating is shown
@@ -219,7 +219,11 @@ function howToLd(lang) {
     '@type': 'HowTo',
     name: h.name,
     description: h.description,
-    step: [1, 2, 3].map((n) => ({
+    // Derived from the how.N.title/desc keys (numberedKeys(), defined below —
+    // function declarations hoist) rather than a hardcoded [1, 2, 3]: a 4th
+    // step added to the "Ready in three steps" section used to render
+    // visibly while silently staying absent from this schema.
+    step: numberedKeys(t, 'how', 'title').map((n) => ({
       '@type': 'HowToStep',
       position: n,
       name: t[`how.${n}.title`],
@@ -229,9 +233,55 @@ function howToLd(lang) {
   };
 }
 
+/* English id slugs for the #glossary terms (see gloss.N.term/def keys,
+   docs/i18n/{en,de}.js) — ids stay English on both homepages since /de/ is a
+   DOM transform of the English markup and ids are never translated.
+   Index-aligned with the ascending order numberedKeys(t, 'gloss', 'term')
+   returns; definedTermsLd() throws if a slug is missing for a term rather
+   than silently mismatching id <-> term. */
+const GLOSSARY_SLUGS = [
+  'group-blocker', 'settle-up-plan', 'guest-join', 'business-cost-flag',
+  'per-item-currency', 'organizer-document-access',
+];
+
+/* DefinedTermSet for the homepage's #glossary section — the product's own
+   coined vocabulary (group blocker, settle-up plan, …), otherwise defined
+   authoritatively nowhere but docs/llms.txt. Mirrors the visible gloss.N.*
+   content exactly, same discipline as howToLd() above. */
+function definedTermsLd(lang) {
+  const t = loadTranslations(lang);
+  const nums = numberedKeys(t, 'gloss', 'term');
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTermSet',
+    '@id': `${SITE}/#glossary`,
+    name: t['gloss.title'],
+    url: `${homeUrl(lang)}#glossary`,
+    inLanguage: lang,
+    hasDefinedTerm: nums.map((n, i) => {
+      const slug = GLOSSARY_SLUGS[i];
+      if (!slug) {
+        throw new Error(`definedTermsLd(${lang}): GLOSSARY_SLUGS has no entry for gloss.${n} (index ${i}) — keep it index-aligned with the ascending gloss.N.term keys`);
+      }
+      return {
+        '@type': 'DefinedTerm',
+        '@id': `${SITE}/#term-${slug}`,
+        name: t[`gloss.${n}.term`],
+        description: t[`gloss.${n}.def`],
+        inDefinedTermSet: { '@id': `${SITE}/#glossary` },
+        url: `${homeUrl(lang)}#term-${slug}`,
+      };
+    }),
+  };
+}
+
 /* WebPage for the two homepages, carrying the same SpeakableSpecification every
    generated page gets from jsonLd(). Selectors match elements that exist in
-   docs/index.html: the hero entity sentence and the TL;DR block. */
+   docs/index.html: the hero entity sentence and the TL;DR block.
+   `citation` mirrors the homepage's #facts section (fact.N.src/src.href in
+   docs/i18n/{en,de}.js) — same source of truth feeds the visible links, this
+   schema, and marketing/geo-citations.md's register, so none of the three can
+   drift from the others. */
 function homePageLd(lang) {
   const t = loadTranslations(lang);
   return {
@@ -244,6 +294,9 @@ function homePageLd(lang) {
     speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.entity-def', '.tldr'] },
     about: { '@id': `${SITE}/#app` },
     isPartOf: { '@type': 'WebSite', name: 'Vacationist', url: `${SITE}/` },
+    citation: numberedKeys(t, 'fact', 'claim').map((n) => ({
+      '@type': 'CreativeWork', name: t[`fact.${n}.src`], url: t[`fact.${n}.src.href`],
+    })),
   };
 }
 
@@ -294,14 +347,19 @@ function webSiteLd(lang) {
   };
 }
 
-/* Bump when docs/i18n/de.js or docs/index.html content changes materially —
-   it is the <lastmod> of the generated German homepage. */
-const DE_HOME_LASTMOD = '2026-09-20';
+/* Bump when docs/index.html or docs/i18n/{en,de}.js content changes materially.
+   Single source of truth for every homepage freshness signal: the generated
+   /de/'s <lastmod>, the "/" entry in STATIC_SITEMAP_ENTRIES, and the visible
+   #home-updated <time> injected into both homepages (see syncEnglishHomepageAppLd
+   / renderGermanHome). Previously two independently hardcoded dates that only
+   stayed in sync by discipline — collapsed into one constant here. */
+const HOME_LASTMOD = '2026-09-24';
+const DE_HOME_LASTMOD = HOME_LASTMOD;
 
 /* ── Hand-authored pages included in the sitemap (not generated here) ── */
 const STATIC_SITEMAP_ENTRIES = [
   {
-    loc: `${SITE}/`, lastmod: '2026-09-20', changefreq: 'monthly', priority: '1.0',
+    loc: `${SITE}/`, lastmod: HOME_LASTMOD, changefreq: 'monthly', priority: '1.0',
     alternates: [
       { hreflang: 'en', href: `${SITE}/` },
       { hreflang: 'de', href: `${SITE}/de/` },
@@ -610,6 +668,19 @@ function loadPages() {
       appLd: meta.appLd === 'true',
       orgLd: meta.orgLd === 'true',
       related: meta.related ? meta.related.split(',').map((s) => s.trim()).filter(Boolean) : [],
+      // `citations:` front matter → Article.citation (CreativeWork[]). Shape:
+      // "Title::https://url|Other Title::https://other-url" — "::" (not ":")
+      // separates title from URL so a title itself containing a colon still
+      // parses; "|" separates multiple citations. Only present on the handful
+      // of pages that make a claim needing a primary source (see
+      // marketing/geo-citations.md — the approved fact register).
+      citations: meta.citations
+        ? meta.citations.split('|').map((s) => s.trim()).filter(Boolean).map((s) => {
+            const i = s.indexOf('::');
+            if (i === -1) throw new Error(`Bad "citations:" entry "${s}" (expected "Title::https://url") in ${relative(ROOT, file)}`);
+            return { name: s.slice(0, i).trim(), url: s.slice(i + 2).trim() };
+          })
+        : [],
       body,
       faqs: extractFaq(body),
       listItems: meta.type === 'listicle' ? extractListItems(body) : [],
@@ -650,18 +721,26 @@ function breadcrumbs(page, registry) {
 /* `schema:` front-matter values that are plain WebPage subtypes (no Article fields). */
 const WEBPAGE_SUBTYPES = new Set(['WebPage', 'AboutPage', 'CollectionPage']);
 
-function jsonLd(page, registry) {
+function jsonLd(page, registry, contentHtml) {
   const blocks = [];
   const url = SITE + page.path;
   const crumbs = breadcrumbs(page, registry);
 
   // Extractable by AI answer engines / voice assistants — points at the
   // .lede short-answer paragraph (comparison/listicle pages) and .tldr
-  // callouts (use-case pages), both already present in the rendered body.
-  const speakable = {
-    '@type': 'SpeakableSpecification',
-    cssSelector: ['.lede', '.tldr'],
-  };
+  // callouts (use-case pages). Computed from the actually-rendered content,
+  // not assumed: a handful of pages (the hand-authored DE legal pages have no
+  // Markdown source at all, and any future page might simply lack a lede)
+  // contain neither element, and declaring a selector that matches nothing is
+  // worse than omitting speakable entirely. `page.body` is empty for the
+  // generated blog indexes even though they DO render a `.lede` (see
+  // renderBlogIndex), which is exactly why this checks `contentHtml` and not
+  // `page.body`.
+  const speakableSelectors = ['.lede', '.tldr'].filter((cls) =>
+    contentHtml && new RegExp(`class="[^"]*\\b${cls.slice(1)}\\b[^"]*"`).test(contentHtml));
+  const speakable = speakableSelectors.length
+    ? { '@type': 'SpeakableSpecification', cssSelector: speakableSelectors }
+    : null;
 
   if (page.schema === 'Article' || page.schema === 'BlogPosting') {
     blocks.push({
@@ -671,9 +750,12 @@ function jsonLd(page, registry) {
       description: page.description,
       url,
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-      speakable,
+      ...(speakable && { speakable }),
       datePublished: page.date,
       dateModified: page.updated,
+      ...(page.citations?.length && {
+        citation: page.citations.map(({ name, url: curl }) => ({ '@type': 'CreativeWork', name, url: curl })),
+      }),
       inLanguage: page.lang,
       author: personLd(),
       publisher: { '@type': 'Organization', 'name': 'Vacationist', 'url': `${SITE}/`, 'logo': { '@type': 'ImageObject', 'url': `${SITE}/favicon.svg` } },
@@ -686,7 +768,21 @@ function jsonLd(page, registry) {
       name: page.title,
       description: page.description,
       url,
-      speakable,
+      ...(speakable && { speakable }),
+      // WebPage-subtype pages previously carried no date fields at all (this
+      // branch covers 44 of 76 pages). datePublished/dateModified are valid on
+      // any CreativeWork, WebPage included, and both already exist on every
+      // page object — no new front-matter key needed.
+      datePublished: page.date,
+      dateModified: page.updated,
+      // Optional `lastReviewed:` front matter — the schema property that means
+      // "a human re-checked this is still true," distinct from dateModified
+      // (which can be a copy tweak). Applied only to pages genuinely reviewed
+      // each quarter; most pages simply don't set this key.
+      ...(page.lastReviewed && { lastReviewed: page.lastReviewed, reviewedBy: personLd() }),
+      ...(page.citations?.length && {
+        citation: page.citations.map(({ name, url: curl }) => ({ '@type': 'CreativeWork', name, url: curl })),
+      }),
       inLanguage: page.lang,
       isPartOf: { '@type': 'WebSite', 'name': 'Vacationist', 'url': `${SITE}/` },
       // AboutPage: the page's subject is the organization, emitted in full just below.
@@ -866,8 +962,12 @@ function renderPage(page, registry, contentHtml) {
       : `<a href="${c.path}">${esc(c.name)}</a>`
   )).join(' <span class="crumb-sep">/</span> ');
 
-  const dateLine = (page.schema === 'BlogPosting' || page.schema === 'Article')
+  const isArticle = page.schema === 'BlogPosting' || page.schema === 'Article';
+  const dateLine = isArticle
     ? `\n    <p class="article-meta">${page.lang === 'de' ? 'Aktualisiert' : 'Updated'} <time datetime="${page.updated}">${page.updated}</time></p>`
+    : '';
+  const articleMeta = isArticle
+    ? `  <meta property="article:published_time" content="${page.date}">\n  <meta property="article:modified_time" content="${page.updated}">\n`
     : '';
 
   return `<!DOCTYPE html>
@@ -888,18 +988,19 @@ ${page.keywords ? `  <meta name="keywords" content="${esc(page.keywords)}">\n` :
 ${hreflangLinks(page)}
   <link rel="alternate" type="application/rss+xml" title="Vacationist Blog" href="${page.lang === 'de' ? `${SITE}/de/blog/feed.xml` : `${SITE}/blog/feed.xml`}">
   <link rel="alternate" type="text/plain" title="llms.txt" href="${SITE}/llms.txt">
+  <link rel="alternate" type="text/markdown" href="${url}index.md">
   <meta property="og:title" content="${esc(page.title)}">
   <meta property="og:description" content="${esc(page.description)}">
   <meta property="og:url" content="${url}">
   <meta property="og:type" content="${ogType}">
-  <meta property="og:image" content="${pageOgImage(page)}">
+${articleMeta}  <meta property="og:image" content="${pageOgImage(page)}">
   <meta property="og:site_name" content="Vacationist">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(page.title)}">
   <meta name="twitter:description" content="${esc(page.description)}">
   <meta name="twitter:image" content="${pageOgImage(page)}">
 
-${jsonLd(page, registry)}
+${jsonLd(page, registry, contentHtml)}
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/assets/fonts/InterVariable-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -947,7 +1048,7 @@ function loadTranslations(lang) {
 const loadDeTranslations = () => loadTranslations('de');
 
 /* Numbers N for which both faq.N.q and faq.N.a exist, ascending. Derived from
-   the translation keys so an 8th FAQ can never render on /de/ yet be silently
+   the translation keys so an Nth FAQ can never render on a page yet be silently
    missing from its FAQPage schema (this used to be a hardcoded [1..7]). */
 function faqNumbers(t) {
   return Object.keys(t)
@@ -955,6 +1056,24 @@ function faqNumbers(t) {
     .filter((n) => n !== undefined && t[`faq.${n}.a`])
     .map(Number)
     .sort((a, b) => a - b);
+}
+
+/* Homepage FAQPage block, built from the faq.N.q/a keys for whichever language
+   is loaded. Used for BOTH homepages so the EN block (previously hand-authored
+   in docs/index.html and only kept in sync by hand) and the DE block (already
+   rebuilt inline) are generated by the exact same code — eliminates a 3-place
+   sync burden (en.js / de.js / the hand-authored EN <script> block) down to 2
+   places that were already necessary (en.js, de.js). */
+function homeFaqLd(lang) {
+  const t = loadTranslations(lang);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqNumbers(t).map((n) => ({
+      '@type': 'Question', name: t[`faq.${n}.q`],
+      acceptedAnswer: { '@type': 'Answer', text: t[`faq.${n}.a`] },
+    })),
+  };
 }
 
 const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -982,18 +1101,14 @@ function renderGermanHome() {
   html = html.replace(/(<meta name="twitter:description" content=")[^"]*(">)/, `$1${esc(t['meta.twitter_description'])}$2`);
   html = html.replace('<link rel="canonical" href="https://vacationist.app/">', `<link rel="canonical" href="${SITE}/de/">`);
   html = html.replace('href="https://vacationist.app/blog/feed.xml"', `href="${SITE}/de/blog/feed.xml"`);
+  // Markdown-twin alternate: EN homepage points at /index.md, DE at /de/index.md
+  // (both are build-generated by homeMarkdown() — see main()). Easy to forget
+  // since it's a plain <link>, not a data-i18n/data-i18n-href element.
+  html = html.replace('href="https://vacationist.app/index.md"', `href="${SITE}/de/index.md"`);
   html = html.replace('<meta property="og:url" content="https://vacationist.app/">', `<meta property="og:url" content="${SITE}/de/">`);
 
   // 4. FAQPage JSON-LD → rebuild from German FAQ strings so it matches the page
-  const faqLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqNumbers(t).map((n) => ({
-      '@type': 'Question', name: t[`faq.${n}.q`],
-      acceptedAnswer: { '@type': 'Answer', text: t[`faq.${n}.a`] },
-    })),
-  };
-  html = replaceLdBlock(html, 'FAQPage', faqLd);
+  html = replaceLdBlock(html, 'FAQPage', homeFaqLd('de'));
 
   // 4b. SoftwareApplication / WebSite / Organization / WebPage / HowTo JSON-LD →
   // German text. These previously stayed English on /de/ because only the FAQ
@@ -1003,6 +1118,7 @@ function renderGermanHome() {
   html = replaceLdBlock(html, 'Organization', organizationLd('de'));
   html = replaceLdBlock(html, 'WebPage', homePageLd('de'));
   html = replaceLdBlock(html, 'HowTo', howToLd('de'));
+  html = replaceLdBlock(html, 'DefinedTermSet', definedTermsLd('de'));
 
   // 4c. #rating-proof line → German text (build-time only, not a data-i18n element — see
   // syncEnglishHomepageAppLd and ratingProofText). Runs after step 3's title/description
@@ -1010,6 +1126,13 @@ function renderGermanHome() {
   html = html.replace(
     /<p class="rating-proof" id="rating-proof">[\s\S]*?<\/p>/,
     `<p class="rating-proof" id="rating-proof">${esc(ratingProofText('de'))}</p>`);
+
+  // 4d. #facts "last updated" <time> — build-injected like #rating-proof
+  // above (HOME_LASTMOD, not an i18n key: an EN/DE mismatch here would be a
+  // silent, undetectable date drift between the two homepages).
+  html = html.replace(
+    /<time datetime="[^"]*" id="home-updated">[^<]*<\/time>/,
+    `<time datetime="${HOME_LASTMOD}" id="home-updated">${HOME_LASTMOD}</time>`);
 
   // 5. Root-relative URLs (page lives one level deeper), then German-specific links
   html = html.replace(/href="\.\//g, 'href="/').replace(/src="\.\//g, 'src="/');
@@ -1042,14 +1165,19 @@ function renderGermanHome() {
 function syncEnglishHomepageAppLd() {
   const file = join(DOCS_DIR, 'index.html');
   let html = readFileSync(file, 'utf8');
+  html = replaceLdBlock(html, 'FAQPage', homeFaqLd('en'));
   html = replaceLdBlock(html, 'SoftwareApplication', softwareApplicationLd('en'));
   html = replaceLdBlock(html, 'WebSite', webSiteLd('en'));
   html = replaceLdBlock(html, 'Organization', organizationLd('en'));
   html = replaceLdBlock(html, 'WebPage', homePageLd('en'));
   html = replaceLdBlock(html, 'HowTo', howToLd('en'));
+  html = replaceLdBlock(html, 'DefinedTermSet', definedTermsLd('en'));
   html = html.replace(
     /<p class="rating-proof" id="rating-proof">[\s\S]*?<\/p>/,
     `<p class="rating-proof" id="rating-proof">${esc(ratingProofText('en'))}</p>`);
+  html = html.replace(
+    /<time datetime="[^"]*" id="home-updated">[^<]*<\/time>/,
+    `<time datetime="${HOME_LASTMOD}" id="home-updated">${HOME_LASTMOD}</time>`);
   writeOut(file, html);
 }
 
@@ -1126,6 +1254,207 @@ ${posts.map((p) => postCard(p)).join('\n')}
     </div>`;
 
   return { page, html: renderPage(page, registry, content) };
+}
+
+function blogIndexMarkdown(page, posts, lang) {
+  const front = [
+    `url: ${SITE}${page.path}`,
+    `title: ${page.title}`,
+    `description: ${page.description}`,
+    `lang: ${lang}`,
+    `updated: ${page.updated}`,
+  ].join('\n');
+  const list = posts.map((p) => `- [${p.title}](${SITE}${p.path}) — ${p.description}`).join('\n');
+  return `---\n${front}\n---\n\n# ${page.title}\n\n${list}\n`;
+}
+
+/* ─────────────────────── machine-readable corpus ───────────────────────
+ * llms.txt (hand-maintained) is a link index with no body text. These two
+ * artifacts add actual body content for anything that fetches a single URL:
+ * a per-page Markdown twin, and one consolidated llms-full.txt. Both are a
+ * cheap hedge, not a lever — checked 2026-09-24: across ~500M AI-bot visits
+ * only ~0.1% of requests ever targeted llms.txt, and no major AI vendor
+ * commits to reading the format. Kept intentionally light-touch.
+ *
+ * Both consumers share cleanPageBody() for HTML→plain-text cleanup so they
+ * can never render a claim differently from each other.
+ */
+
+/** Unwrap the small set of raw-HTML wrapper classes content pages embed
+ *  (see marketing/site/content/**, .lede / .tldr / .tldr-label) to plain
+ *  Markdown paragraphs, and drop the <!--CTA--> placeholder (no page/link
+ *  context to fill it meaningfully outside the rendered HTML page). */
+function cleanPageBody(bodyMd) {
+  return bodyMd
+    .replace(/<!--CTA-->/g, '')
+    .replace(/<div class="tldr">\s*<p class="tldr-label">([\s\S]*?)<\/p>\s*<p>([\s\S]*?)<\/p>\s*<\/div>/g,
+      (m, label, text) => `**${label}:** ${text}`)
+    .replace(/<p class="lede">([\s\S]*?)<\/p>/g, '$1')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function pageMarkdown(page) {
+  const front = [
+    `url: ${SITE}${page.path}`,
+    `title: ${page.title}`,
+    `description: ${page.description}`,
+    `lang: ${page.lang}`,
+    `published: ${page.date}`,
+    `updated: ${page.updated}`,
+  ].join('\n');
+  return `---\n${front}\n---\n\n${cleanPageBody(page.body)}\n`;
+}
+
+/* Numbers N for which t[`${prefix}.${n}.${suffix}`] exists, ascending. */
+function numberedKeys(t, prefix, suffix) {
+  const re = new RegExp(`^${prefix.replace(/\./g, '\\.')}\\.(\\d+)\\.${suffix}$`);
+  return Object.keys(t).map((k) => re.exec(k)?.[1]).filter((n) => n !== undefined).map(Number).sort((a, b) => a - b);
+}
+
+/* Numbers N for which the LEAF key `${prefix}.${n}` exists (no further suffix). */
+function numberedLeaf(t, prefix) {
+  const re = new RegExp(`^${prefix.replace(/\./g, '\\.')}\\.(\\d+)$`);
+  return Object.keys(t).map((k) => re.exec(k)?.[1]).filter((n) => n !== undefined).map(Number).sort((a, b) => a - b);
+}
+
+const stripInlineHtml = (s) => String(s)
+  .replace(/<br\s*\/?>/gi, ' ').replace(/<\/?em>/gi, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+
+/* Section prefixes whose N.suffix keys MUST be consumed somewhere in
+   homeMarkdown() below. A key added under one of these prefixes that isn't
+   rendered throws instead of silently missing from the homepage's machine-
+   readable twin — this is what makes "extend homeMarkdown() whenever a new
+   homepage section is added" a checked operation, not a hopeful one. */
+const HOME_MARKDOWN_REQUIRED_PREFIXES = ['feat', 'use', 'how', 'faq', 'gloss', 'fit', 'fact'];
+
+function homeMarkdown(lang) {
+  const t = loadTranslations(lang);
+  const used = new Set();
+  const get = (key) => { used.add(key); return t[key]; };
+  const has = (key) => key in t;
+
+  const L = [];
+  L.push(`# ${stripInlineHtml(get('hero.h1'))}`, '');
+  L.push(get('entity.def'), '');
+  L.push(`**${get('tldr.label')}:** ${get('tldr.text')}`, '');
+
+  L.push(`## ${stripInlineHtml(get('feat.title'))}`, '');
+  for (const n of numberedKeys(t, 'feat', 'title')) {
+    L.push(`### ${get(`feat.${n}.title`)}`, get(`feat.${n}.desc`), '');
+  }
+
+  L.push(`## ${get('how.title')}`, '');
+  for (const n of numberedKeys(t, 'how', 'title')) {
+    L.push(`${n}. **${get(`how.${n}.title`)}** — ${get(`how.${n}.desc`)}`);
+  }
+  L.push('');
+
+  L.push(`## ${stripInlineHtml(get('use.title'))}`, '');
+  for (const n of numberedKeys(t, 'use', 'title')) {
+    const tags = [1, 2].map((i) => (has(`use.${n}.tag${i}`) ? get(`use.${n}.tag${i}`) : null)).filter(Boolean);
+    L.push(`### ${get(`use.${n}.title`)}`);
+    L.push(get(`use.${n}.desc`) + (tags.length ? ` (${tags.join(', ')})` : ''), '');
+  }
+
+  if (numberedKeys(t, 'gloss', 'term').length) {
+    L.push(`## ${get('gloss.title')}`, '');
+    for (const n of numberedKeys(t, 'gloss', 'term')) {
+      L.push(`### ${get(`gloss.${n}.term`)}`, get(`gloss.${n}.def`), '');
+    }
+  }
+
+  if (has('fit.title')) {
+    L.push(`## ${get('fit.title')}`, '');
+    L.push(`### ${get('fit.use.h')}`);
+    for (const n of numberedLeaf(t, 'fit.use')) L.push(`- ${get(`fit.use.${n}`)}`);
+    L.push('');
+    L.push(`### ${get('fit.skip.h')}`);
+    for (const n of numberedLeaf(t, 'fit.skip')) L.push(`- ${get(`fit.skip.${n}`)}`);
+    L.push('');
+  }
+
+  if (has('fact.title')) {
+    L.push(`## ${get('fact.title')}`, '');
+    for (const n of numberedKeys(t, 'fact', 'claim')) {
+      L.push(`### ${get(`fact.${n}.claim`)}`);
+      L.push(get(`fact.${n}.body`));
+      if (has(`fact.${n}.src`)) L.push(`Source: [${get(`fact.${n}.src`)}](${get(`fact.${n}.src.href`)})`);
+      L.push('');
+    }
+  }
+
+  L.push(`## ${get('faq.title')}`, '');
+  for (const n of faqNumbers(t)) {
+    L.push(`### ${get(`faq.${n}.q`)}`, get(`faq.${n}.a`), '');
+  }
+
+  L.push(`## ${get('cmp.title')}`, '');
+  L.push(get('cmp.sub'), '');
+  L.push(lang === 'de' ? 'Vacationist bietet:' : 'Vacationist includes:');
+  for (const n of numberedLeaf(t, 'cmp.row')) L.push(`- ${t[`cmp.row.${n}`]}`);
+  L.push('', t['cmp.note'], '');
+
+  L.push(`## ${lang === 'de' ? 'Warum Vacationist' : 'Why Vacationist'}`, '');
+  for (const k of ['trust.aes', 'trust.noAds', 'trust.swiss', 'trust.free', 'trust.platform']) L.push(`- ${t[k]}`);
+  L.push('');
+
+  // Guard described above: a new N.suffix key under a required prefix that
+  // this function never reads throws here rather than vanishing silently.
+  for (const key of Object.keys(t)) {
+    if (key.endsWith('.href')) continue;
+    if (!HOME_MARKDOWN_REQUIRED_PREFIXES.some((p) => new RegExp(`^${p}\\.\\d+\\.`).test(key))) continue;
+    if (!used.has(key)) {
+      throw new Error(`homeMarkdown(${lang}): "${key}" exists in docs/i18n/${lang}.js but is never rendered — extend homeMarkdown() in marketing/site/build.mjs`);
+    }
+  }
+
+  const front = [
+    `url: ${homeUrl(lang)}`,
+    `title: ${t['meta.title']}`,
+    `description: ${t['meta.description']}`,
+    `lang: ${lang}`,
+    `updated: ${HOME_LASTMOD}`,
+  ].join('\n');
+  return `---\n${front}\n---\n\n${L.join('\n').replace(/\n{3,}/g, '\n\n').trim()}\n`;
+}
+
+/* EN only. DE is a translation, and doubling this file for near-zero new
+   information isn't worth it — DE content stays reachable via its own .md
+   twins. Legal pages are summarized (url + description), not inlined: long,
+   low answer-value, and the DE privacy policy alone is 21KB as Markdown. */
+function renderLlmsFull(pages) {
+  const enPages = [...pages.filter((p) => p.lang === 'en')].sort((a, b) => a.path.localeCompare(b.path));
+  const freshness = enPages.reduce((max, p) => (p.updated > max ? p.updated : max), '2026-01-01');
+
+  const sections = enPages.map((p) => {
+    const header = `---\nurl: ${SITE}${p.path}\ntitle: ${p.title}\n---\n`;
+    if (p.type === 'legal') return `${header}\n${p.description}\n`;
+    return `${header}\n${cleanPageBody(p.body)}\n`;
+  });
+
+  const out = `# Vacationist — full text corpus
+
+> The free group trip planner. Vacationist helps groups plan trips together — voting on activities, splitting travel expenses with receipts attached, managing flights and transfers, sharing packing lists, and keeping everyone in sync in real time.
+
+Source: ${SITE}/ · Generated from marketing/site/content/**
+Last updated: ${freshness} · App version: ${APP_VERSION}
+Canonical link index (this file has body text; that one has none): ${SITE}/llms.txt
+
+## How to cite this
+
+- Product: Vacationist
+- Canonical URL: ${SITE}/
+- Software version: ${APP_VERSION}
+- Vacationist is a free group trip planning app for iOS, Android, and web that lets a group vote on activities, split travel expenses, and share packing and shopping lists together — no account required to join.
+
+${sections.join('\n---\n\n')}`;
+
+  const bytes = Buffer.byteLength(out, 'utf8');
+  if (bytes > 400_000) {
+    console.warn(`[llms-full] docs/llms-full.txt is ${(bytes / 1024).toFixed(0)} KB — over the 400KB soft budget, consider trimming`);
+  }
+  return out;
 }
 
 /* ────────────────────────────── RSS feed ────────────────────────────── */
@@ -1227,6 +1556,12 @@ function outPathFor(pagePath) {
   return join(DOCS_DIR, ...pagePath.split('/').filter(Boolean), 'index.html');
 }
 
+// `path` always ends in "/", so "index.md" alongside "index.html" is the only
+// sane shape for a per-page Markdown twin — "<path>.md" doesn't parse.
+function outPathForMd(pagePath) {
+  return join(DOCS_DIR, ...pagePath.split('/').filter(Boolean), 'index.md');
+}
+
 function writeOut(file, content) {
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, content.replace(/\r\n/g, '\n'), 'utf8');
@@ -1269,6 +1604,7 @@ async function main() {
     const contentHtml = marked.parse(body);
     writeOut(outPathFor(page.path), renderPage(page, registry, contentHtml));
     writeBinary(join(DOCS_DIR, 'assets', 'og', ogImagePath(page)), await generateOgImage(page));
+    writeOut(outPathForMd(page.path), pageMarkdown(page));
   }
 
   // Blog indexes (generated, no md source) — also rendered via renderPage(),
@@ -1277,11 +1613,15 @@ async function main() {
   registry.set('/blog/', blogIndex.page);
   writeOut(outPathFor('/blog/'), blogIndex.html);
   writeBinary(join(DOCS_DIR, 'assets', 'og', ogImagePath(blogIndex.page)), await generateOgImage(blogIndex.page));
+  writeOut(outPathForMd('/blog/'), blogIndexMarkdown(blogIndex.page,
+    pages.filter((p) => p.blogIndex && p.lang === 'en').sort((a, b) => (a.date < b.date ? 1 : -1)), 'en'));
 
   const deBlogIndex = renderBlogIndex(pages, registry, 'de');
   registry.set('/de/blog/', deBlogIndex.page);
   writeOut(outPathFor('/de/blog/'), deBlogIndex.html);
   writeBinary(join(DOCS_DIR, 'assets', 'og', ogImagePath(deBlogIndex.page)), await generateOgImage(deBlogIndex.page));
+  writeOut(outPathForMd('/de/blog/'), blogIndexMarkdown(deBlogIndex.page,
+    pages.filter((p) => p.blogIndex && p.lang === 'de').sort((a, b) => (a.date < b.date ? 1 : -1)), 'de'));
 
   // RSS feeds — same post filter renderBlogIndex() uses
   const enPosts = pages.filter((p) => p.blogIndex && p.lang === 'en').sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -1296,6 +1636,15 @@ async function main() {
 
   // German homepage: full transform of the English landing page
   writeOut(outPathFor('/de/'), renderGermanHome());
+
+  // Homepage Markdown twins — docs/index.html has no Markdown source, so these
+  // are generated straight from the same i18n dictionaries the visible page
+  // renders from (never hand-maintained — see homeMarkdown()'s doc comment).
+  writeOut(join(DOCS_DIR, 'index.md'), homeMarkdown('en'));
+  writeOut(join(DOCS_DIR, 'de', 'index.md'), homeMarkdown('de'));
+
+  // llms-full.txt — one consolidated EN text corpus (see renderLlmsFull()).
+  writeOut(join(DOCS_DIR, 'llms-full.txt'), renderLlmsFull(pages));
 
   // Shared stylesheet
   const css = readFileSync(join(ROOT, 'marketing', 'site', 'site.css'), 'utf8');
@@ -1321,7 +1670,7 @@ async function main() {
   const allPages = [...pages, blogIndex.page, deBlogIndex.page, deHome];
   writeOut(join(DOCS_DIR, 'sitemap.xml'), renderSitemap(allPages));
 
-  console.log(`Done — ${pages.length + 3} pages, ${pages.length + 2} OG images, sitemap, stylesheet, consent + track scripts, fonts.`);
+  console.log(`Done — ${pages.length + 3} pages, ${pages.length + 4} .md twins, llms-full.txt, ${pages.length + 2} OG images, sitemap, stylesheet, consent + track scripts, fonts.`);
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });

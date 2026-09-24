@@ -6,6 +6,7 @@ lang: en
 type: feature
 schema: WebPage
 date: 2026-09-08
+updated: 2026-09-08
 altPath: /de/features/offline/
 keywords: offline trip planner, travel app that works offline, group travel app no internet, offline expense tracker travel, trip planner without signal
 related: /features/travel-documents/, /features/expenses/, /features/voting/, /features/transfers/

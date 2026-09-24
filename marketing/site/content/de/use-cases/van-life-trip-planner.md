@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /use-cases/van-life-trip-planner/
 keywords: Van-Life-Reiseplaner, Roadtrip Kosten teilen App, Camper Gruppenreise, Roadtrip Planungs-App
 related: /de/features/expenses/, /de/blog/group-camping-trip-planner/, /de/features/shopping-lists/

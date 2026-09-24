@@ -6,6 +6,7 @@ lang: de
 type: feature
 schema: WebPage
 date: 2026-07-21
+updated: 2026-09-20
 altPath: /features/voting/
 keywords: Aktivitäten abstimmen App, Gruppenentscheidung Reise, Reiseplaner Gruppe Abstimmung, Gruppenreise planen App
 related: /de/features/expenses/, /de/features/transfers/, /de/blog/how-to-plan-a-group-trip/, /de/vs/wanderlog/

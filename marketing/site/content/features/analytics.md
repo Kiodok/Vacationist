@@ -6,6 +6,7 @@ lang: en
 type: feature
 schema: WebPage
 date: 2026-09-06
+updated: 2026-09-08
 altPath: /de/features/analytics/
 keywords: travel spending tracker, trip cost calculator, group trip budget tracker, my share of trip costs, travel expense analytics
 related: /features/expenses/, /features/transfers/, /use-cases/corporate-offsite-planner/

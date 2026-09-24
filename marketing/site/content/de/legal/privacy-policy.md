@@ -6,6 +6,7 @@ lang: de
 type: legal
 schema: WebPage
 date: 2026-08-09
+updated: 2026-09-24
 altPath: /privacy-policy.html
 breadcrumbLabel: Datenschutz
 ---
@@ -13,6 +14,8 @@ breadcrumbLabel: Datenschutz
 # Datenschutzerklärung
 
 *Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 3. September 2026*
+
+<p class="lede">Vacationist erhebt nur die Daten, die für die Reiseplanung nötig sind, speichert sie auf Supabase-Infrastruktur in der Schweiz (Zürich) und verschlüsselt Reisedokumente zusätzlich mit AES-256 — diese Seite erklärt im Detail, welche Daten das sind und wie du sie löschen kannst.</p>
 
 ## 1. Wer wir sind
 
@@ -30,7 +33,7 @@ Wir erheben nur die Daten, die zur Bereitstellung des Dienstes erforderlich sind
 
 - Name und E-Mail-Adresse (über Google Sign-In oder Magic Link bereitgestellt)
 - Google-Profilbild (optional, nur bei Anmeldung mit Google)
-- Bevorzugte Sprache und Zeitzone (beim Onboarding festgelegt)
+- Bevorzugte Sprache und Geräte-Zeitzone (automatisch erkannt, nie manuell ausgewählt — dient nur der zeitlich korrekten Zustellung von Erinnerungen)
 
 **Reise- & Planungsdaten**
 
@@ -81,7 +84,7 @@ Wir verkaufen deine Daten nicht und erstellen keine dienstübergreifenden Werbep
 
 ## 4. Datenspeicherung & Sicherheit
 
-Deine Daten werden auf Servern von **Supabase Inc.** gespeichert, gehostet in der EU (Paris, Frankreich, AWS-Region eu-west-3). Supabase Inc. ist ein US-Unternehmen; da von den USA aus grundsätzlich auf die EU-gehosteten Daten zugegriffen werden könnte, stützt sich diese Übermittlung auf Standardvertragsklauseln. Die Datenschutzerklärung von Supabase ist unter [supabase.com/privacy](https://supabase.com/privacy) abrufbar.
+Deine Daten werden auf Servern von **Supabase Inc.** gespeichert, gehostet in der Schweiz (Zürich, AWS-Region eu-central-2). Supabase Inc. ist ein US-Unternehmen; da von den USA aus grundsätzlich auf diese Daten zugegriffen werden könnte, unabhängig vom Hosting-Standort, stützt sich diese Übermittlung auf Standardvertragsklauseln, die auch nach dem Schweizer Datenschutzgesetz (DSG) anerkannt sind. Die Datenschutzerklärung von Supabase ist unter [supabase.com/privacy](https://supabase.com/privacy) abrufbar.
 
 Alle Daten werden über TLS übertragen. Reisedokumente und Chat-Nachrichten werden auf Datenbankebene verschlüsselt, bevor sie gespeichert werden; was „verschlüsselt" in der Praxis bedeutet, steht im Abschnitt Reisedokumente oben.
 

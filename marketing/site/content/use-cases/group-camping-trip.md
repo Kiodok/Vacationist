@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /de/use-cases/group-camping-trip/
 keywords: group camping planner, shared camping packing list, camping trip expense app
 related: /blog/group-camping-trip-planner/, /features/shopping-lists/, /features/expenses/

@@ -6,6 +6,7 @@ lang: de
 type: legal
 schema: WebPage
 date: 2026-07-26
+updated: 2026-09-24
 altPath: /terms-of-service.html
 breadcrumbLabel: Nutzungsbedingungen
 ---
@@ -13,6 +14,8 @@ breadcrumbLabel: Nutzungsbedingungen
 # Nutzungsbedingungen
 
 *Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 3. September 2026*
+
+<p class="lede">Diese Nutzungsbedingungen regeln, wie du die kostenlose Vacationist-App und Website nutzen darfst — keine Werbung, kein Bezahltarif, und du bleibst Eigentümer deiner eigenen Reisedaten.</p>
 
 ## 1. Annahme der Bedingungen
 

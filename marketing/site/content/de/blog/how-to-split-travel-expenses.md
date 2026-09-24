@@ -6,6 +6,7 @@ lang: de
 type: article
 schema: BlogPosting
 date: 2026-07-21
+updated: 2026-09-06
 altPath: /blog/how-to-split-travel-expenses/
 keywords: Reisekosten teilen, Kosten teilen Urlaub, Reisekosten aufteilen Gruppe, Gruppenreise Kosten
 blogIndex: true

@@ -6,6 +6,7 @@ lang: de
 type: feature
 schema: WebPage
 date: 2026-09-03
+updated: 2026-09-08
 altPath: /features/transfers/
 keywords: Gruppenflug planen App, Transfer Gruppenreise, Mietwagenkosten teilen, ÖPNV Reiseplaner, Bordkarten speichern App
 related: /de/features/expenses/, /de/features/analytics/, /de/features/voting/, /de/features/travel-documents/, /de/features/offline/

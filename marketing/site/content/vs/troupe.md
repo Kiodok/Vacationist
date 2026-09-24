@@ -6,6 +6,7 @@ lang: en
 type: comparison
 schema: Article
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /de/vs/troupe/
 keywords: vacationist vs troupe, troupe travel alternative, troupe app for group trips
 related: /vs/wanderlog/, /features/expenses/, /blog/best-group-travel-apps-2026/

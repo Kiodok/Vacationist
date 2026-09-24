@@ -6,6 +6,7 @@ lang: en
 type: comparison
 schema: Article
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /de/vs/tripit/
 keywords: vacationist vs tripit, tripit alternative for groups, tripit for group travel
 related: /alternatives/splitwise/, /features/voting/, /blog/best-group-travel-apps-2026/

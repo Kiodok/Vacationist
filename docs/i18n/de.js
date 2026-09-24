@@ -10,7 +10,7 @@ window.VACATIONIST_I18N = {
   'meta.keywords': 'Gruppenreise planen App, Reise App Gruppe, Urlaubsplaner App Gruppe, Reisekosten teilen App, Kosten teilen Urlaub App, Gruppenreise-Planer, Reiseplaner Gruppe, Packliste App, Junggesellinnenabschied planen App',
 
   // Nav
-  'nav.features': 'Features',
+  'nav.features': 'Funktionen',
   'nav.how': 'So funktioniert\'s',
   'nav.useCases': 'Anwendungsfälle',
   'nav.faq': 'FAQ',
@@ -79,7 +79,7 @@ window.VACATIONIST_I18N = {
   'feat.5.title': 'Verschlüsselte Reisedokumente',
   'feat.5.desc': 'Reisepass- und Ausweisdaten verschlüsselt gespeichert und gesichert durch biometrische Authentifizierung. Temporären Organisatorzugriff gewähren und jederzeit widerrufen.',
   'feat.6.title': 'Urlaubsverfolgung & Kalender',
-  'feat.6.desc': 'Eine visuelle Zeitleiste aller geplanten Aktivitäten, Transfers und Check-ins — deine Urlaubsverfolgung in der Zeitzone der Reise. Jeden freien Tag auf einen Blick.',
+  'feat.6.desc': 'Eine visuelle Zeitleiste aller geplanten Aktivitäten, Transfers und Check-ins — deine Urlaubsverfolgung, Uhrzeiten genau so wie eingetragen. Jeden freien Tag auf einen Blick.',
   'feat.7.title': 'Gruppenchat',
   'feat.7.desc': 'Ein eigener Chat-Tab für jede Reise — schreib der ganzen Gruppe, bearbeite oder lösche eigene Nachrichten und bleib mit Echtzeit-Zustellung immer auf dem neuesten Stand. Organisatoren können die Unterhaltung moderieren.',
   'feat.8.title': 'Belege, Tickets & Ausgabenberichte',
@@ -182,6 +182,16 @@ window.VACATIONIST_I18N = {
   'faq.6.a': 'Jede Reise in Vacationist ist ein gemeinsamer Arbeitsbereich. Per Link einladen — alle treten sofort bei, kein Konto zum Mitmachen nötig. Die Urlaubsübersicht zeigt die gesamte Reise-Zeitleiste, alle Termine außerhalb des Kalenders und Ausgaben auf einen Blick. Änderungen synchronisieren sich in Echtzeit, sodass alle immer auf dem neuesten Stand sind.',
   'faq.7.q': 'Kann ich Belege anhängen und eine Geschäftsreise abrechnen?',
   'faq.7.a': 'Ja. Häng ein Foto oder PDF als Beleg an jede Ausgabe — es bleibt privat für die Mitglieder deiner Reise. Für Geschäftsreisen markierst du Geschäftskosten unterwegs — Ausgaben, Hotels, Flüge, Transport — und exportierst einen Bericht pro Person als PDF, aufgeschlüsselt nach Datum und Kategorie, mit Links zu den Belegen.',
+  'faq.8.q': 'Ist Vacationist kostenlos?',
+  'faq.8.a': 'Ja. Vacationist ist für jede Gruppe kostenlos, ohne Werbung und ohne kostenpflichtige Version — alle Funktionen, von der Aktivitäten-Abstimmung über die Kostenteilung bis zur verschlüsselten Dokumentenablage, sind ohne Zusatzkosten enthalten.',
+  'faq.9.q': 'Brauchen meine Freunde ein Konto, um einer Reise beizutreten?',
+  'faq.9.a': 'Nein. Über einen einzigen Einladungslink kann jeder sofort mitmachen — abstimmen, Ausgaben eintragen, Punkte auf der Einkaufsliste abhaken — ganz ohne Konto. Die App zu installieren ist optional.',
+  'faq.10.q': 'Wo werden meine Reisedaten gespeichert, und ist Vacationist DSGVO-konform?',
+  'faq.10.a': 'Reisedaten liegen auf Supabase-Infrastruktur in der Schweiz (Zürich) — im selben Land, in dem Vacationist entwickelt wird, unter Schweizer Datenschutzrecht. Reisedokumente sind zusätzlich mit AES-256 verschlüsselt — eine Maßnahme, die auch die DSGVO als geeignet zum Schutz personenbezogener Daten nennt (Art. 32) —, und Konto und Daten kannst du jederzeit dauerhaft löschen, ein Recht, das die DSGVO EU-Bürger:innen in Art. 17 einräumt.',
+  'faq.11.q': 'Funktioniert Vacationist ohne Internetverbindung?',
+  'faq.11.a': 'Ja. Zwischengespeicherte Reisedaten bleiben verfügbar, und Änderungen, die du offline machst — Stimmen, Ausgaben, abgehakte Listeneinträge — werden gesammelt und synchronisieren sich automatisch, sobald du wieder online bist, bis zu einer Woche lang.',
+  'faq.12.q': 'Was unterscheidet Vacationist von Splitwise?',
+  'faq.12.a': 'Splitwise ist eine ausgereifte, fokussierte App für laufende gemeinsame Kosten, etwa unter Mitbewohnern oder in einer Beziehung. Vacationist deckt Kostenteilung ebenfalls ab, dazu Aktivitäten-Abstimmung, gemeinsame Packlisten, Transfer- und Flugverwaltung, verschlüsselte Reisedokumente und Gast-Beitritt ohne Konto — gebaut speziell für die Planung einer Gruppenreise, nicht für laufende gemeinsame Finanzen.',
 
   // Vergleich. Jede Zelle stammt aus den Tabellen der /vs/-Vergleichsseiten — eine Zeile
   // nur aufnehmen, wenn sie dort in allen dreien vorkommt (und geprüft ist).
@@ -219,6 +229,68 @@ window.VACATIONIST_I18N = {
   'cmp.alt.3.href': '/de/alternatives/tripit/',
   'cmp.alt.all': 'Alle Alternativen →',
   'cmp.alt.all.href': '/de/alternatives/',
+
+  // Glossar — Vacationists eigene Begriffe, an einem Ort definiert. Auch die
+  // Quelle für das DefinedTermSet-Schema (siehe definedTermsLd() /
+  // GLOSSARY_SLUGS in build.mjs) — mit dem Begriff/Definitionstext synchron
+  // halten, er wird wörtlich ins Schema übernommen.
+  'gloss.label': 'Kurz erklärt',
+  'gloss.title': 'Die Begriffe, die Vacationist verwendet.',
+  'gloss.sub': 'Sechs Begriffe, die in der App immer wieder vorkommen — einmal erklärt, statt jedes Mal neu.',
+  'gloss.1.term': 'Gruppen-Blocker',
+  'gloss.1.def': 'Die stärkste von Vacationists fünf Abstimmungsstufen — Muss sein, Gefällt mir, Offen, Auslassen, Gruppen-Blocker — und bedeutet, dass ein Gruppenmitglied einen echten Einwand gegen eine Aktivität hat. Nichts wird automatisch gelöscht; die Aktivität wird nur markiert, damit die Gruppe darüber sprechen kann, bevor irgendetwas gebucht wird.',
+  'gloss.2.term': 'Ausgleichsplan',
+  'gloss.2.def': 'Die vereinfachte Liste an Zahlungen, die alle Salden einer Reise mit den wenigsten Überweisungen ausgleicht — automatisch berechnet aus jeder eingetragenen Ausgabe und wer sie bezahlt hat.',
+  'gloss.3.term': 'Gast-Beitritt ohne Konto',
+  'gloss.3.def': 'Über den Einladungslink kann jeder einer Reise sofort beitreten und mitmachen — abstimmen, Ausgaben eintragen, Punkte auf der Einkaufsliste abhaken — ganz ohne Konto, Registrierung oder App-Installation.',
+  'gloss.4.term': 'Geschäftskosten-Markierung',
+  'gloss.4.def': 'Markierst du eine Ausgabe, Unterkunft, einen Flug, Mietwagen oder öffentlichen Transport als Geschäftskosten, fließt sie in einen Pro-Person-Geschäftskostenbericht ein — ein PDF (und im Web auch Markdown), nach Datum und Kategorie aufgeschlüsselt, für Dienstreisen und Firmen-Offsites.',
+  'gloss.5.term': 'Eigene Währung pro Posten',
+  'gloss.5.def': 'Jede Unterkunft, jeder Flug, Mietwagen und öffentliche Transport behält seine eigene Währung, unabhängig von der Hauptwährung der Reise oder späteren Änderungen daran — die Umrechnung nutzt gespeicherte Tageskurse.',
+  'gloss.6.term': 'Temporärer Dokumentenzugriff',
+  'gloss.6.def': 'Eine zeitlich begrenzte, jederzeit widerrufbare Berechtigung, die ein Organisator erhalten kann, um das verschlüsselte Reisedokument eines Mitglieds einzusehen. Die Frist beginnt erst mit dem ersten Öffnen durch den Organisator, läuft nach der vom Dokumenteninhaber festgelegten Dauer ab, verfällt spätestens nach 7 Tagen, falls sie nie genutzt wird, und lässt sich jederzeit widerrufen.',
+
+  // Ehrlich eingeordnet — jeder "nutze etwas anderes"-Punkt ist eine bereits
+  // freigegebene Aussage von den /vs/-Seiten bzw. docs/llms.txt; hier kommen
+  // keine neuen Vergleichsaussagen hinzu, nur eine ehrliche Abgrenzung.
+  'fit.label': 'Ehrlich eingeordnet',
+  'fit.title': 'Wann Vacationist das richtige Werkzeug ist.',
+  'fit.use.h': 'Nutze Vacationist, wenn …',
+  'fit.use.1': '… deine ganze Gruppe mitentscheiden soll, statt dass nur eine Person alles plant.',
+  'fit.use.2': '… du Ausgaben teilen, Salden verfolgen und einen Ausgleichsplan willst, ohne eine Tabelle zu führen.',
+  'fit.use.3': '… manche in der Gruppe keine App installieren oder kein Konto erstellen wollen, nur um mitzumachen.',
+  'fit.use.4': '… du konkret eine Gruppenreise planst — nicht laufende gemeinsame Kosten mit denselben Leuten auf unbestimmte Zeit verwaltest.',
+  'fit.use.5': '… du Reisedokumente wie Pässe und Ausweise verschlüsselt ablegen willst statt sie in den Gruppenchat zu fotografieren.',
+  'fit.skip.h': 'Nutze etwas anderes, wenn …',
+  'fit.skip.1': '… du eine Reiseroute willst, die automatisch aus weitergeleiteten Buchungsbestätigungen entsteht — das kann TripIt.',
+  'fit.skip.2': '… du integrierte Karten und Ortsvorschläge zur Reiseplanung suchst — das kann Wanderlog besser.',
+  'fit.skip.3': '… du laufende Kosten mit denselben Leuten auf unbestimmte Zeit teilst (WG, Beziehung) statt eine konkrete Reise zu planen — dafür ist Splitwise die ausgereiftere, fokussiertere Lösung.',
+  'fit.skip.4': '… du allein unterwegs bist — Vacationist ist auf Gruppen-Koordination ausgelegt.',
+  'fit.skip.5': '… dein Unternehmen zentrale Abrechnung oder SSO braucht — Vacationist hat keine Firmenkonten.',
+
+  // Nachprüfbare Fakten — ausschließlich aus marketing/geo-citations.md (vom
+  // Tech Lead freigegebenes Register). Nie eine Zeile ohne passenden
+  // Registereintrag und eine echte, mit einem Klick prüfbare Quelle hinzufügen.
+  'fact.label': 'Nachprüfbare Fakten',
+  'fact.title': 'Woher diese Aussagen stammen.',
+  'fact.src.label': 'Quelle',
+  'fact.1.claim': 'Reisedokumente sind mit AES-256 verschlüsselt gespeichert.',
+  'fact.1.body': 'AES-256 ist der US-Bundesstandard für symmetrische Verschlüsselung, definiert in NIST FIPS 197 — derselbe Algorithmus, der auch für als geheim eingestufte Daten verwendet wird.',
+  'fact.1.src': 'NIST FIPS 197 — Advanced Encryption Standard',
+  'fact.1.src.href': 'https://csrc.nist.gov/pubs/fips/197/final',
+  'fact.2.claim': 'Verschlüsselung ist eine Maßnahme, die die DSGVO ausdrücklich nennt.',
+  'fact.2.body': 'Artikel 32 der DSGVO nennt „die Pseudonymisierung und Verschlüsselung personenbezogener Daten" als geeignete technische Maßnahme zum Schutz personenbezogener Daten.',
+  'fact.2.src': 'DSGVO Art. 32 — Sicherheit der Verarbeitung',
+  'fact.2.src.href': 'https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu',
+  'fact.3.claim': 'Reisedaten werden in der Schweiz gehostet — im selben Land wie der Entwickler.',
+  'fact.3.body': 'Vacationist wird in der Schweiz entwickelt und dort auch gehostet: Reisedaten liegen auf Supabase-Infrastruktur in Central Europe (Zürich), unter Schweizer Datenschutzrecht.',
+  'fact.3.src': 'Supabase — Verfügbare Regionen',
+  'fact.3.src.href': 'https://supabase.com/docs/guides/platform/regions',
+  'fact.4.claim': 'Konto und Daten kannst du dauerhaft löschen.',
+  'fact.4.body': 'Artikel 17 der DSGVO gewährt das Recht auf Löschung — der Konto-löschen-Ablauf von Vacationist entfernt deine personenbezogenen Daten auf Wunsch.',
+  'fact.4.src': 'DSGVO Art. 17 — Recht auf Löschung',
+  'fact.4.src.href': 'https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu',
+  'updated.label': 'Zuletzt aktualisiert',
 
   // Trust strip
   'trust.aes': 'Dokumente verschlüsselt gespeichert',

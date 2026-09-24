@@ -1,0 +1,112 @@
+---
+url: https://vacationist.app/alternatives/splitwise/
+title: 7 Best Splitwise Alternatives for Group Travel in 2026
+description: Looking for a Splitwise alternative for your next group trip? An honest comparison of 7 apps — Vacationist, Tricount, Settle Up, Splid, and more — with real strengths and weaknesses.
+lang: en
+published: 2026-07-17
+updated: 2026-07-27
+---
+
+# The 7 best Splitwise alternatives for group travel in 2026
+
+Splitwise is the default answer for splitting costs — 50M+ users, mature, trusted. But if you're here, something isn't fitting: maybe the free-tier limits, maybe a friend who refuses to make an account, maybe the realization that a trip needs more than a ledger. Here are seven genuine alternatives, honestly compared.
+
+First, to be fair to the incumbent: **Splitwise is still excellent at pure debt tracking.** Its multi-currency support is broad, its PayPal/Venmo integrations are convenient, and its network effect is real. If none of the limitations below bother you, staying is a valid choice. The free tier's daily expense-entry limits and ads are the most common reasons people look elsewhere — along with the fact that for *travel*, expense splitting is only a fraction of the coordination problem.
+
+## 1. Vacationist — best for group trips
+
+*(Yes, this is our app — so judge the claims, not the ranking.)*
+
+[Vacationist](https://vacationist.app/) takes a different angle from every other app on this list: instead of being a better ledger, it puts expense splitting *inside the trip*. The group plans activities and [votes on them](/features/voting/), manages accommodations, keeps [shared shopping and packing lists](/features/shopping-lists/), chats — and every shared cost is logged and [split](/features/expenses/) in the same place.
+
+- **What it adds over Splitwise:** activity voting, shared trip calendar, accommodation management, flights/rentals/public-transport with tickets attached, real-time shopping lists with recipe sync, encrypted travel documents, group chat, offline-first sync. On the money side specifically: receipts attach to each expense on the free tier (Splitwise gates receipt scanning behind Pro), a category breakdown of spending, an Analytics tab that totals your share across every trip, and — for work trips — a business-cost flag on expenses, hotels, flights and transport with a per-person report export (PDF + Markdown, receipts linked), which Splitwise has at no tier.
+- **The friction-killer:** friends join by one invite link, **no account needed** — and can still vote, edit lists, and be part of expense splits. The "one friend who won't install Splitwise" problem disappears.
+- **What it lacks vs. Splitwise:** currency conversion uses stored daily rates only (no historical or manual per-transaction rate), no PayPal/Venmo settlement integrations, and a small user base (launched 2026).
+- **Price:** free, no ads.
+- **Best for:** groups of friends, families, and crews who want the whole trip — not just the debts — in one app.
+
+## 2. Tricount — best lightweight option
+
+Tricount (now part of the bunq family) is beloved in Europe for one reason: participants don't need accounts either — you share a "tricount" by link. It's simple, fast, and free for the basics.
+
+- **Strengths:** dead simple, link-based sharing, good multi-currency, popular in Europe.
+- **Weaknesses:** expenses only — no planning, lists, or chat; monetization pushes bunq services.
+- **Best for:** quick cost-splitting with minimal setup, especially European groups.
+
+## 3. Settle Up — best cross-platform ledger
+
+Settle Up is a solid Splitwise-style tracker with real-time sync across iOS, Android, and web, and flexible weighted splits.
+
+- **Strengths:** weighted splits (great for couples or partial participation), debt-minimizing settlements, works everywhere.
+- **Weaknesses:** premium unlock needed for some features; again, a pure ledger — no trip context.
+- **Best for:** groups who want Splitwise mechanics with different pricing.
+
+## 4. Splid — best offline-first ledger
+
+Splid works fully without accounts and even without internet; groups sync via invitation code when online.
+
+- **Strengths:** no accounts, works fully offline, one-time purchase model.
+- **Weaknesses:** paid unlock for larger groups; expenses only, no receipts or trip context. (Vacationist also works offline and also exports a report — a per-person business summary as PDF — while doing the rest of the trip too.)
+- **Best for:** trips with patchy connectivity where you only need the money handled and don't want a subscription.
+
+## 5. Kittysplit — best zero-install option
+
+Kittysplit is a website, not an app: create a page, share the link, everyone adds expenses in the browser.
+
+- **Strengths:** absolutely zero installation or accounts, free for simple use.
+- **Weaknesses:** browser-only experience, no offline, no planning features, basic interface.
+- **Best for:** one-off events — a dinner, a weekend — where installing anything feels like overkill.
+
+## 6. Spliito — best for quick group events
+
+Spliito is in the same link-based family: fast group creation, shareable link, straightforward splitting, no accounts.
+
+- **Strengths:** friction-free entry, clean design.
+- **Weaknesses:** young product, limited feature depth, no trip planning.
+- **Best for:** casual groups that found Kittysplit too bare.
+
+## 7. Wanderlog — best if you want itinerary + basic splitting
+
+Coming from the other direction: [Wanderlog](/vs/wanderlog/) is a trip-itinerary app (maps, places, day plans) with a basic expense-splitting feature attached.
+
+- **Strengths:** excellent maps and place discovery, beautiful itineraries, iOS + Android.
+- **Weaknesses:** expense splitting is shallow (fine for a few costs, frustrating as the main ledger); collaboration requires accounts; offline access is a paid feature.
+- **Best for:** travelers whose main job is researching the destination, with light cost-sharing on the side.
+
+## How to choose
+
+| If your situation is… | Pick |
+|---|---|
+| A group **trip** with activities, lists, and costs to coordinate | **Vacationist** |
+| A work trip or team offsite you have to expense afterwards | **Vacationist** (business-cost flag on expenses, hotels & flights + per-person report) |
+| Just need to split costs, want zero accounts, in Europe | Tricount |
+| Want Splitwise mechanics, different pricing | Settle Up |
+| Remote trip, patchy signal, money only | Splid |
+| One dinner or weekend, install nothing | Kittysplit / Spliito |
+| Destination research first, light splitting | Wanderlog |
+
+The honest bottom line: every app above except Vacationist and Wanderlog is a better *ledger with fewer strings* than Splitwise. Only Vacationist treats the expense ledger as one part of the actual problem — getting a group through a trip without the WhatsApp chaos. If that's the problem you recognize, [that's what we built it for](/features/).
+
+
+
+## Frequently asked questions
+
+### What are the best alternatives to Splitwise?
+
+The most well-known alternatives are Vacationist, Tricount, Settle Up, Splid, Kittysplit, Spliito, and Wanderlog. For pure cost-splitting with no accounts, Tricount or Splid work best. For group trips where you're also planning together — activities, accommodations, shopping lists — Vacationist is the most complete option.
+
+### Why do people leave Splitwise?
+
+The most common reasons: free-tier limits on daily expense entries, ads, friends who won't create yet another account, and — for travelers — realizing the ledger covers only a small slice of trip coordination.
+
+### What's the best free Splitwise alternative?
+
+For pure splitting with no accounts, Tricount or Splid. For group travel where you also plan together, Vacationist — free, no ads, and guests join by link.
+
+### Can any of these apps import Splitwise data?
+
+Generally no — including Vacationist. In practice this matters less for travel: a new trip starts at zero balance anyway.
+
+### Do these apps handle multiple currencies?
+
+All of them do the everyday job. Vacationist gives each expense, booking, and transfer its own currency and converts with a stored daily rate into your preferred currency; Splitwise and Tricount go a little further for constant cross-border splitting (historical rates, longer currency lists). If that's your situation, weigh it honestly.

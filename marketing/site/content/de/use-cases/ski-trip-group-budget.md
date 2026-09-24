@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-20
 altPath: /use-cases/ski-trip-group-budget/
 keywords: Ski-Gruppenreise planen, Skireise-Kosten teilen, Chalet-Gruppenbuchung, Skireise-Budget-App
 related: /de/features/expenses/, /de/features/voting/, /de/blog/how-to-plan-a-group-trip/

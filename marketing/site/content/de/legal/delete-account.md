@@ -6,13 +6,16 @@ lang: de
 type: legal
 schema: WebPage
 date: 2026-08-09
+updated: 2026-09-24
 altPath: /delete-account.html
 breadcrumbLabel: Konto löschen
 ---
 
 # Konto löschen
 
-*Gültig ab: 9. August 2026 · Zuletzt aktualisiert: 3. September 2026*
+*Gültig ab: 9. August 2026 · Zuletzt aktualisiert: 24. September 2026*
+
+<p class="lede">Du kannst dein Vacationist-Konto und deine Daten jederzeit dauerhaft löschen — in der App, im Web oder per E-Mail; diese Seite listet genau, was sofort gelöscht wird und was anonymisiert erhalten bleibt.</p>
 
 Vacationist wird von **Gary Lude** entwickelt, mit Sitz in der Schweiz — derselbe Entwicklername, der im Google Play Store und im Apple App Store beim Vacationist-Eintrag angezeigt wird. Diese Seite erklärt, wie du dein Vacationist-Konto dauerhaft löschst und was mit deinen Daten passiert, wenn du das tust.
 
@@ -36,7 +39,7 @@ Falls du dich nicht anmelden kannst (z. B. keinen Zugriff mehr auf deine E-Mail-
 
 - Dein Konto und deine Anmeldeidentität (Google Sign-In / Magic-Link-E-Mail)
 - Dein Name, deine E-Mail-Adresse und dein Profilbild
-- Deine bevorzugte Sprache und Zeitzone
+- Deine bevorzugte Sprache und Geräte-Zeitzone
 - Push-Benachrichtigungs-Tokens deiner Geräte
 - Von dir eingegebene Reisedokumente, einschließlich verschlüsselter Felder (Dokumentennummer, Geburtsdatum, vollständiger Name, Notizen)
 - Deine Stimmen und In-App-Benachrichtigungen

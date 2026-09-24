@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /de/use-cases/bachelorette-party-planner/
 keywords: bachelorette trip planning app, hen do planner, split bachelorette costs, bachelorette party budget app
 related: /features/expenses/, /features/voting/, /blog/bachelorette-trip-planning-guide/

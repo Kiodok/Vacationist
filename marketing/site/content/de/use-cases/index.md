@@ -7,6 +7,7 @@ type: use-case-index
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-06
 altPath: /use-cases/
 keywords: Gruppenreise-Planer Anwendungsfälle, Gruppenreise-App, Reisekoordination App für Gruppen
 related: /de/features/, /de/blog/how-to-plan-a-group-trip/, /de/vs/splitwise/

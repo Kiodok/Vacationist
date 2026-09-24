@@ -6,6 +6,7 @@ lang: de
 type: article
 schema: BlogPosting
 date: 2026-09-03
+updated: 2026-09-08
 altPath: /blog/group-trip-receipts-and-expense-reports/
 keywords: Belege Gruppenreise, Reisekostenabrechnung, Reisekostenabrechnung Geschäftsreise, Geschäftsreise abrechnen, Reisebelege aufbewahren
 blogIndex: true

@@ -6,7 +6,9 @@ lang: en
 type: feature
 schema: WebPage
 date: 2026-07-26
+updated: 2026-09-24
 altPath: /de/features/travel-documents/
+citations: NIST FIPS 197 — Advanced Encryption Standard::https://csrc.nist.gov/pubs/fips/197/final|GDPR Article 32 — Security of processing::https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng|GDPR Article 17 — Right to erasure::https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng|Supabase — Available regions::https://supabase.com/docs/guides/platform/regions
 keywords: travel document organizer app, store passport details securely, encrypted travel documents, travel document wallet
 related: /features/expenses/, /features/offline/, /blog/family-vacation-coordination-guide/, /blog/how-to-plan-a-group-trip/, /blog/travel-document-safety-guide/
 breadcrumbLabel: Travel documents
@@ -60,4 +62,15 @@ Passports, ID cards, and other travel documents — the details a group booking 
 
 ### Is this feature free?
 
-The document vault is part of the app; check the current plan details in the app. What matters for security: encryption and biometric unlock apply to everyone, on every tier.
+Yes. The document vault, encryption, and biometric unlock are part of the free app — included for every group, no paid tier.
+
+### Is my travel document data GDPR compliant, and where is it stored?
+
+Trip data, including encrypted travel documents, is stored on Supabase infrastructure in Switzerland (Zurich) — the same country the developer is based in, governed by Swiss data protection law. GDPR also names encryption as an appropriate measure for protecting personal data (Article 32) and gives EU users the right to have their data erased (Article 17); Vacationist's account deletion removes your data on request regardless of where you're based. See Sources below.
+
+## Sources
+
+- [NIST FIPS 197 — Advanced Encryption Standard](https://csrc.nist.gov/pubs/fips/197/final): the U.S. federal standard defining AES, the algorithm behind the encryption described above.
+- [GDPR Article 32 — Security of processing](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng): lists "the pseudonymisation and encryption of personal data" as an appropriate security measure.
+- [GDPR Article 17 — Right to erasure](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng): the legal basis for Vacationist's account and data deletion.
+- [Supabase — Available regions](https://supabase.com/docs/guides/platform/regions): confirms the Central Europe (Zurich) region trip data is stored in.

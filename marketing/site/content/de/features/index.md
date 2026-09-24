@@ -6,6 +6,7 @@ lang: de
 type: features-index
 schema: WebPage
 date: 2026-07-21
+updated: 2026-09-20
 altPath: /features/
 keywords: Gruppenreise planen App, Gruppenreise App Funktionen, Reiseplaner Gruppe, Urlaubsplaner App Gruppe
 related: /de/blog/how-to-plan-a-group-trip/, /de/vs/splitwise/, /de/vs/wanderlog/

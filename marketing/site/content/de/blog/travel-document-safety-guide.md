@@ -6,7 +6,9 @@ lang: de
 type: article
 schema: BlogPosting
 date: 2026-08-05
+updated: 2026-09-24
 altPath: /blog/travel-document-safety-guide/
+citations: NIST FIPS 197 — Advanced Encryption Standard::https://csrc.nist.gov/pubs/fips/197/final|DSGVO Art. 32 — Sicherheit der Verarbeitung::https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu|DSGVO Art. 17 — Recht auf Löschung::https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu|Supabase — Verfügbare Regionen::https://supabase.com/docs/guides/platform/regions
 keywords: Reisedokumente sicher teilen, verschlüsselte Passspeicherung, Reisedokument App, Passfoto Gruppenchat Risiko
 blogIndex: true
 related: /de/features/travel-documents/, /de/use-cases/family-reunion-planner/, /de/blog/how-to-plan-a-group-trip/
@@ -84,4 +86,11 @@ Nein — standardmäßig kann niemand außer dir deine Dokumente sehen. Ein Orga
 
 ### Ist das DSGVO-konform?
 
-Verschlüsselung von Dokumenten im Ruhezustand mit nutzergesteuertem, widerrufbarem Zugriff ist genau die Art von Datenminimierung und Zugriffskontrolle, die die DSGVO fördern soll — du kontrollierst, was mit wem und für wie lange geteilt wird, statt dass ein Dritter standardmäßig dauerhafte Kopien deines Ausweises hält. Vacationist ist von Grund auf mit Schweizer/EU-Datenschutzstandards gebaut und gehostet, nicht nachträglich angepasst.
+Verschlüsselung von Dokumenten im Ruhezustand mit nutzergesteuertem, widerrufbarem Zugriff ist genau die Art von Datenminimierung und Zugriffskontrolle, die die DSGVO fördern soll — du kontrollierst, was mit wem und für wie lange geteilt wird, statt dass ein Dritter standardmäßig dauerhafte Kopien deines Ausweises hält. Konkret: Artikel 32 der DSGVO nennt Verschlüsselung als eine geeignete Maßnahme zum Schutz personenbezogener Daten, und Artikel 17 gewährt EU-Bürger:innen das Recht auf Löschung — die Kontolöschung von Vacationist entfernt deine Daten unabhängig vom Wohnsitz auf Wunsch. Reisedaten, einschließlich verschlüsselter Dokumente, liegen auf Supabase-Infrastruktur in der Schweiz (Zürich) — im selben Land, in dem auch der Entwickler sitzt, unter Schweizer Datenschutzrecht. Siehe Quellen unten.
+
+## Quellen
+
+- [NIST FIPS 197 — Advanced Encryption Standard](https://csrc.nist.gov/pubs/fips/197/final): der US-Bundesstandard, der AES-256 definiert, den Algorithmus hinter den „verschlüsselt gespeichert"-Aussagen oben.
+- [DSGVO Art. 32 — Sicherheit der Verarbeitung](https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu): nennt „die Pseudonymisierung und Verschlüsselung personenbezogener Daten" als geeignete Sicherheitsmaßnahme.
+- [DSGVO Art. 17 — Recht auf Löschung](https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu): die rechtliche Grundlage für Konto- und Datenlöschung.
+- [Supabase — Verfügbare Regionen](https://supabase.com/docs/guides/platform/regions): bestätigt die Region Central Europe (Zürich), in der Reisedaten gespeichert werden.

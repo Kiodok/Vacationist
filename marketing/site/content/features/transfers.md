@@ -6,6 +6,7 @@ lang: en
 type: feature
 schema: WebPage
 date: 2026-09-03
+updated: 2026-09-08
 altPath: /de/features/transfers/
 keywords: group flight planning app, group travel transfer planner, split rental car costs, public transport trip planner, boarding pass storage app
 related: /features/expenses/, /features/analytics/, /features/voting/, /features/travel-documents/, /features/offline/

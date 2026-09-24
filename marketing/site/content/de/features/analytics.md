@@ -6,6 +6,7 @@ lang: de
 type: feature
 schema: WebPage
 date: 2026-09-06
+updated: 2026-09-08
 altPath: /features/analytics/
 keywords: Reisekosten Tracker, Reisekosten berechnen, Gruppenreise Budget, mein Anteil Reisekosten, Reiseausgaben Analyse
 related: /de/features/expenses/, /de/features/transfers/, /de/use-cases/corporate-offsite-planner/

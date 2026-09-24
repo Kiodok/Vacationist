@@ -1,0 +1,67 @@
+---
+url: https://vacationist.app/features/travel-documents/
+title: Encrypted Travel Document Storage — Passports Secured with Biometrics | Vacationist
+description: Store passports, IDs, and travel documents encrypted at rest, behind a biometric lock on your device. Grant the trip organizer temporary access — and revoke it anytime.
+lang: en
+published: 2026-07-26
+updated: 2026-09-24
+---
+
+# Your passport details. Encrypted, not screenshotted.
+
+Every group trip reaches the moment where the organizer asks everyone to "just send your passport details for the booking" — and suddenly ID photos live forever in a WhatsApp chat. Vacationist replaces that with an encrypted travel document vault built into the trip itself.
+
+## How the document vault works
+
+- **Encrypted at rest.** Sensitive fields — full name, document number, date of birth — are encrypted before they're stored. No shared passwords.
+- **Biometric lock.** Viewing your documents in the app requires your fingerprint, face, or device passcode.
+- **Per-person, per-trip.** Each traveler manages their own documents and decides what to share, with whom, for how long.
+
+## Organizer access — with consent and revocation
+
+Group bookings genuinely need one person to have everyone's details: flights, hotels, rental cars, ski passes. The problem was never the need — it's that the sharing happens over chat and can never be undone.
+
+In Vacationist, you grant the trip organizer **temporary access** to specific documents. You choose how long that access lasts — and the clock doesn't start until the organizer actually opens your documents for the first time, so a grant you make a week early doesn't burn its window while you wait. From that first view, access runs for the duration you set and then expires on its own. There's also a hard outer deadline: if the organizer never opens the documents within seven days, the grant lapses regardless. Until the organizer opens them, your view shows **"Not opened yet"**, and you're notified the moment they're granted and can **revoke access** at any point. No copies floating around anyone's camera roll.
+
+## Why this matters for real groups
+
+- **Families** — parents keep the whole family's passports and IDs in one secured place, ready at every check-in counter, instead of digging through email attachments at the gate.
+- **Bachelorette and large groups** — one organizer books for twelve people without twelve ID photos landing in a group chat that still exists three years later.
+- **Privacy-conscious travelers** — your documents are encrypted at rest, viewing them requires your device's biometrics, and access is something you grant and revoke — not something you lose control of the moment you hit send.
+
+## Offline, like everything else
+
+Your documents are available on your device even without a connection — exactly when you tend to need them: at borders, on planes, in basements with no signal.
+
+## Frequently asked questions
+
+### Can Vacationist read my documents?
+
+Sensitive document fields are encrypted at rest and access is restricted and logged. Viewing a document in the app requires your device's biometrics or passcode. Like any service that isn't fully client-side end-to-end encrypted, we technically hold the means to access this data on our servers — we don't, and access is limited to what's necessary to run the service. See our [Privacy Policy](/privacy-policy.html) for the full picture.
+
+### What happens when I revoke the organizer's access?
+
+They immediately lose the ability to view the document. Unlike sending a photo in chat, sharing in Vacationist is an access grant, not a copy — revoking it actually ends it.
+
+### When does the access window start counting?
+
+Not when you grant it — when the organizer first opens your documents. Until then your view shows "Not opened yet." From that first view, access lasts for the duration you chose, then expires on its own. A grant that's never opened lapses after seven days.
+
+### Which documents can I store?
+
+Passports, ID cards, and other travel documents — the details a group booking typically requires. Each family member or traveler manages their own.
+
+### Is this feature free?
+
+Yes. The document vault, encryption, and biometric unlock are part of the free app — included for every group, no paid tier.
+
+### Is my travel document data GDPR compliant, and where is it stored?
+
+Trip data, including encrypted travel documents, is stored on Supabase infrastructure in Switzerland (Zurich) — the same country the developer is based in, governed by Swiss data protection law. GDPR also names encryption as an appropriate measure for protecting personal data (Article 32) and gives EU users the right to have their data erased (Article 17); Vacationist's account deletion removes your data on request regardless of where you're based. See Sources below.
+
+## Sources
+
+- [NIST FIPS 197 — Advanced Encryption Standard](https://csrc.nist.gov/pubs/fips/197/final): the U.S. federal standard defining AES, the algorithm behind the encryption described above.
+- [GDPR Article 32 — Security of processing](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng): lists "the pseudonymisation and encryption of personal data" as an appropriate security measure.
+- [GDPR Article 17 — Right to erasure](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng): the legal basis for Vacationist's account and data deletion.
+- [Supabase — Available regions](https://supabase.com/docs/guides/platform/regions): confirms the Central Europe (Zurich) region trip data is stored in.

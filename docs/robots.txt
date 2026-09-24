@@ -2,7 +2,10 @@ User-agent: *
 Allow: /
 Disallow:
 
-# AI / answer engines — explicitly welcome
+# AI / answer engines — explicitly welcome. Named Allow blocks below are
+# declarative signalling on top of the wildcard "*" rule above (which already
+# covers everyone) — the one entry that functionally matters is
+# Google-Extended, which gates AI Overviews/Gemini grounding.
 User-agent: GPTBot
 Allow: /
 User-agent: OAI-SearchBot
@@ -15,13 +18,29 @@ User-agent: Claude-Web
 Allow: /
 User-agent: PerplexityBot
 Allow: /
+User-agent: Perplexity-User
+Allow: /
 User-agent: Google-Extended
+Allow: /
+User-agent: Google-CloudVertexBot
 Allow: /
 User-agent: Applebot-Extended
 Allow: /
+User-agent: Applebot
+Allow: /
 User-agent: CCBot
 Allow: /
+User-agent: meta-externalagent
+Allow: /
+User-agent: MistralAI-User
+Allow: /
+User-agent: DuckAssistBot
+Allow: /
+User-agent: YouBot
+Allow: /
 
-# LLM-readable summary of the site (Markdown): https://vacationist.app/llms.txt
+# LLM-readable summary of the site (Markdown, links only, no body text): https://vacationist.app/llms.txt
+# Full-text corpus of every page (Markdown): https://vacationist.app/llms-full.txt
+# Every generated page also has a Markdown twin at <page-url>index.md
 
 Sitemap: https://vacationist.app/sitemap.xml

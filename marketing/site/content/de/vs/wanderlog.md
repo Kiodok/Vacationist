@@ -6,6 +6,7 @@ lang: de
 type: comparison
 schema: Article
 date: 2026-07-21
+updated: 2026-09-20
 altPath: /vs/wanderlog/
 keywords: Vacationist vs Wanderlog, Wanderlog Alternative, Wanderlog Vergleich, Gruppenreise planen App
 related: /de/alternatives/wanderlog/, /de/features/voting/, /de/blog/best-group-travel-apps-2026/

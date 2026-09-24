@@ -6,6 +6,7 @@ lang: de
 type: comparison
 schema: Article
 date: 2026-07-21
+updated: 2026-09-08
 altPath: /vs/splitwise/
 keywords: Vacationist vs Splitwise, Splitwise Alternative Reise, Splitwise Alternative Deutsch, Kosten teilen Urlaub App
 related: /de/alternatives/splitwise/, /de/features/expenses/, /de/blog/how-to-split-travel-expenses/

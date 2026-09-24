@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-20
 altPath: /use-cases/stag-do-planner/
 keywords: Junggesellenabschied planen App, Junggesellenabschied Reiseplanung, Kosten Junggesellenabschied teilen, Junggesellenabschied Budget App
 related: /de/features/expenses/, /de/features/voting/, /de/blog/bachelorette-trip-planning-guide/

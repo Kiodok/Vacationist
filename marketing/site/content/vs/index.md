@@ -7,6 +7,7 @@ type: comparison-index
 schema: CollectionPage
 appLd: true
 date: 2026-09-20
+updated: 2026-09-20
 altPath: /de/vs/
 keywords: vacationist vs splitwise, group trip app comparison, splitwise vs wanderlog, best group travel app comparison
 related: /blog/best-group-travel-apps-2026/, /alternatives/, /features/

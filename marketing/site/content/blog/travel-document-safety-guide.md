@@ -6,7 +6,9 @@ lang: en
 type: article
 schema: BlogPosting
 date: 2026-08-05
+updated: 2026-09-24
 altPath: /de/blog/travel-document-safety-guide/
+citations: NIST FIPS 197 — Advanced Encryption Standard::https://csrc.nist.gov/pubs/fips/197/final|GDPR Article 32 — Security of processing::https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng|GDPR Article 17 — Right to erasure::https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng|Supabase — Available regions::https://supabase.com/docs/guides/platform/regions
 keywords: share travel documents safely, encrypted passport storage, travel document app, passport photo group chat risk
 blogIndex: true
 related: /features/travel-documents/, /use-cases/family-reunion-planner/, /blog/how-to-plan-a-group-trip/
@@ -84,4 +86,11 @@ No — by default, nobody can see your documents except you. An organizer only s
 
 ### Is this GDPR compliant?
 
-Document encryption at rest with user-controlled, revocable access is exactly the kind of data-minimization and access-control practice GDPR is designed to encourage — you control what's shared, with whom, and for how long, rather than a third party holding permanent copies of your ID by default. Vacationist is built and hosted with Swiss/EU privacy standards in mind from the ground up, not retrofitted after the fact.
+Document encryption at rest with user-controlled, revocable access is exactly the kind of data-minimization and access-control practice GDPR is designed to encourage — you control what's shared, with whom, and for how long, rather than a third party holding permanent copies of your ID by default. Concretely: GDPR Article 32 names encryption among the appropriate measures for protecting personal data, and Article 17 gives EU users the right to erasure — Vacationist's account deletion removes your data on request regardless of where you're based. Trip data, including encrypted documents, is stored on Supabase infrastructure in Switzerland (Zurich) — the same country the developer is based in, governed by Swiss data protection law. See Sources below.
+
+## Sources
+
+- [NIST FIPS 197 — Advanced Encryption Standard](https://csrc.nist.gov/pubs/fips/197/final): the U.S. federal standard defining AES-256, the algorithm behind the "encrypted at rest" claims above.
+- [GDPR Article 32 — Security of processing](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng): lists "the pseudonymisation and encryption of personal data" as an appropriate security measure.
+- [GDPR Article 17 — Right to erasure](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng): the legal basis for account and data deletion.
+- [Supabase — Available regions](https://supabase.com/docs/guides/platform/regions): confirms the Central Europe (Zurich) region trip data is stored in.

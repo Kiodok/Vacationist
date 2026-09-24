@@ -79,7 +79,7 @@ window.VACATIONIST_I18N = {
   'feat.5.title': 'Encrypted travel documents',
   'feat.5.desc': 'Passport and ID details encrypted at rest and protected by biometric authentication. Share temporary organiser access and revoke it any time.',
   'feat.6.title': 'Vacation tracker & calendar',
-  'feat.6.desc': 'A visual timeline of all planned activities, transfers, and check-ins — your vacation tracker displayed in the trip\'s timezone. See every day off at a glance.',
+  'feat.6.desc': 'A visual timeline of all planned activities, transfers, and check-ins — your vacation tracker, times shown exactly as typed. See every day off at a glance.',
   'feat.7.title': 'Group chat',
   'feat.7.desc': 'A dedicated chat tab for every trip — message the whole group, edit or delete your own messages, and catch up instantly with real-time delivery. Organizers can moderate the conversation.',
   'feat.8.title': 'Receipts, tickets & expense reports',
@@ -182,6 +182,16 @@ window.VACATIONIST_I18N = {
   'faq.6.a': 'Each trip in Vacationist acts as a shared workspace. Invite anyone via a single link — they join instantly, no account needed to participate. The vacation tracker view shows your full trip timeline, off-calendar events, and spending at a glance. Changes sync in real time so everyone stays up to date.',
   'faq.7.q': 'Can I attach receipts and expense a work trip?',
   'faq.7.a': 'Yes. Attach a photo or PDF receipt to any expense — it stays private to your trip\'s members. For work trips, flag business costs as you go — expenses, hotels, flights, transport — and export a per-person report as a PDF, itemised by date and category, with links to the receipts.',
+  'faq.8.q': 'Is Vacationist free to use?',
+  'faq.8.a': 'Yes. Vacationist is free for every group, with no ads and no paid tier — every feature, including activity voting, expense splitting, and travel document encryption, is included at no cost.',
+  'faq.9.q': 'Do my friends need to create an account to join a trip?',
+  'faq.9.a': 'No. Anyone can join a trip through a single invite link and participate — voting, adding expenses, checking off shopping-list items — without creating an account. Installing the app is optional.',
+  'faq.10.q': 'Where is my trip data stored, and is Vacationist GDPR compliant?',
+  'faq.10.a': 'Trip data is stored on Supabase infrastructure in Switzerland (Zurich) — the same country Vacationist is developed in, governed by Swiss data protection law. Travel documents are additionally encrypted with AES-256, a security measure GDPR also names as appropriate for protecting personal data (Article 32), and you can permanently delete your account and data at any time — a right GDPR grants EU users under Article 17.',
+  'faq.11.q': 'Does Vacationist work without an internet connection?',
+  'faq.11.a': 'Yes. Cached trip data stays available, and changes you make offline — votes, expenses, checked-off list items — are queued and sync automatically once you\'re back online, for up to a week without a connection.',
+  'faq.12.q': 'What\'s the difference between Vacationist and Splitwise?',
+  'faq.12.a': 'Splitwise is a mature, focused expense-splitting app for ongoing shared costs like roommates or couples. Vacationist covers expense splitting too, plus activity voting, shared packing lists, transfer and flight management, encrypted travel documents, and no-account guest joins — built specifically for planning a group trip, not everyday shared finances.',
 
   // Comparison. Every cell is sourced from the /vs/ comparison pages' own tables —
   // add a row here only if it is present (and checked) in all three of them.
@@ -219,6 +229,68 @@ window.VACATIONIST_I18N = {
   'cmp.alt.3.href': './alternatives/tripit/',
   'cmp.alt.all': 'All alternatives →',
   'cmp.alt.all.href': './alternatives/',
+
+  // Glossary — Vacationist's own terms, defined in one place. Also the
+  // source of the DefinedTermSet schema (see definedTermsLd() / GLOSSARY_SLUGS
+  // in build.mjs) — keep in sync with the term/def wording, it's read back
+  // verbatim into the schema description.
+  'gloss.label': 'In plain terms',
+  'gloss.title': 'The words Vacationist uses.',
+  'gloss.sub': 'Six terms that come up across the app, defined once so they never need re-explaining.',
+  'gloss.1.term': 'Group blocker',
+  'gloss.1.def': 'The strongest of Vacationist\'s five vote tiers — must do, like, open, skip, group blocker — meaning a group member has a real objection to an activity. Nothing is deleted automatically; the activity is flagged so the group can talk it through before anyone books.',
+  'gloss.2.term': 'Settle-up plan',
+  'gloss.2.def': 'The simplified list of payments that clears every balance in a trip using the fewest transfers possible, calculated automatically from every logged expense and who paid.',
+  'gloss.3.term': 'Guest join (no account)',
+  'gloss.3.def': 'Tapping a trip\'s invite link and starting to vote, add expenses, and check off shopping-list items immediately — no account, no sign-up, no app install required.',
+  'gloss.4.term': 'Business cost flag',
+  'gloss.4.def': 'Flagging an expense, accommodation, flight, rental car, or public-transport cost as a business cost. Flagged items feed a per-person business expense report — a PDF (and Markdown on the web), itemised by date and category — for work trips and team offsites.',
+  'gloss.5.term': 'Per-item currency',
+  'gloss.5.def': 'Every accommodation, flight, rental car, and public-transport entry keeps its own currency, independent of the trip\'s main currency or later changes to it. Conversions use stored daily exchange rates.',
+  'gloss.6.term': 'Organizer document access',
+  'gloss.6.def': 'A time-boxed, revocable permission an organizer can be granted to view a member\'s encrypted travel document. The clock starts only on the organizer\'s first view, expires after the duration the document owner set, lapses automatically after 7 days if never opened, and can be revoked at any time.',
+
+  // Honest fit — every "use something else" bullet is a claim already
+  // approved on the /vs/ pages and docs/llms.txt; no new comparison claims
+  // are introduced here, only restated as a self-limiting boundary.
+  'fit.label': 'Honest fit',
+  'fit.title': 'When Vacationist is the right tool.',
+  'fit.use.h': 'Use Vacationist when…',
+  'fit.use.1': '…your whole group needs to agree on what to do, not just one organizer deciding for everyone.',
+  'fit.use.2': '…you want expenses split, balances tracked, and a settle-up plan without a spreadsheet.',
+  'fit.use.3': '…some people in the group don\'t want to install an app or create an account just to join.',
+  'fit.use.4': '…you\'re planning a group trip specifically — not managing ongoing shared costs with the same people indefinitely.',
+  'fit.use.5': '…you want travel documents like passports and IDs stored encrypted, not photographed into a group chat.',
+  'fit.skip.h': 'Use something else when…',
+  'fit.skip.1': '…you want an itinerary built automatically from forwarded confirmation emails — that\'s TripIt.',
+  'fit.skip.2': '…you want built-in maps and place discovery for researching where to go — Wanderlog does that better.',
+  'fit.skip.3': '…you\'re splitting ongoing costs with the same people indefinitely (roommates, a couple) rather than planning a specific trip — Splitwise is the more mature, focused tool for that.',
+  'fit.skip.4': '…you\'re traveling solo — Vacationist is built around group coordination.',
+  'fit.skip.5': '…your company needs central billing or SSO — Vacationist has no company accounts.',
+
+  // Checkable facts — sourced only from marketing/geo-citations.md (Tech
+  // Lead-approved register). Never add a row here without a matching
+  // register entry and a real, one-click-verifiable source.
+  'fact.label': 'Checkable facts',
+  'fact.title': 'Where these claims come from.',
+  'fact.src.label': 'Source',
+  'fact.1.claim': 'Travel documents are encrypted at rest with AES-256.',
+  'fact.1.body': 'AES-256 is the U.S. federal standard for symmetric encryption, defined by NIST FIPS 197 — the same algorithm used for classified data.',
+  'fact.1.src': 'NIST FIPS 197 — Advanced Encryption Standard',
+  'fact.1.src.href': 'https://csrc.nist.gov/pubs/fips/197/final',
+  'fact.2.claim': 'Encryption is a security measure the EU\'s GDPR names directly.',
+  'fact.2.body': 'GDPR Article 32 lists "the pseudonymisation and encryption of personal data" as an appropriate technical measure for protecting personal information.',
+  'fact.2.src': 'GDPR Article 32 — Security of processing',
+  'fact.2.src.href': 'https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng',
+  'fact.3.claim': 'Trip data is hosted in Switzerland — the same country as the developer.',
+  'fact.3.body': 'Vacationist is developed in Switzerland and hosted there too: trip data lives on Supabase\'s Central Europe (Zurich) infrastructure, governed by Swiss data protection law.',
+  'fact.3.src': 'Supabase — Available regions',
+  'fact.3.src.href': 'https://supabase.com/docs/guides/platform/regions',
+  'fact.4.claim': 'You can permanently delete your account and data.',
+  'fact.4.body': 'GDPR Article 17 gives you the right to erasure — Vacationist\'s delete-account flow removes your personal data on request.',
+  'fact.4.src': 'GDPR Article 17 — Right to erasure',
+  'fact.4.src.href': 'https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng',
+  'updated.label': 'Last updated',
 
   // Trust strip
   'trust.aes': 'Documents encrypted at rest',

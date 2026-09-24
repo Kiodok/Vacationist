@@ -6,6 +6,7 @@ lang: de
 type: article
 schema: BlogPosting
 date: 2026-07-21
+updated: 2026-09-20
 altPath: /blog/bachelorette-trip-planning-guide/
 keywords: Junggesellinnenabschied planen App, JGA planen, JGA Reise organisieren, Junggesellenabschied planen
 blogIndex: true

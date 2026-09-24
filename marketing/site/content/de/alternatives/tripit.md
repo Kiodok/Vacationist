@@ -6,6 +6,7 @@ lang: de
 type: listicle
 schema: Article
 date: 2026-08-05
+updated: 2026-09-20
 altPath: /alternatives/tripit/
 keywords: TripIt Alternative, TripIt Alternativen 2026, Apps wie TripIt, Gruppenreise-Planungs-App
 related: /de/vs/tripit/, /de/features/voting/, /de/blog/best-group-travel-apps-2026/

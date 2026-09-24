@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-09-03
+updated: 2026-09-08
 altPath: /de/use-cases/corporate-offsite-planner/
 keywords: corporate offsite planner, team retreat planning app, business travel expense report, company trip coordination app
 related: /features/expenses/, /features/voting/, /features/transfers/

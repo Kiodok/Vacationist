@@ -7,6 +7,7 @@ type: alternatives-index
 schema: CollectionPage
 appLd: true
 date: 2026-09-20
+updated: 2026-09-20
 altPath: /alternatives/
 keywords: Splitwise Alternative, Wanderlog Alternative, TripIt Alternative, Gruppenreise App Alternativen
 related: /de/vs/, /de/blog/best-group-travel-apps-2026/, /de/features/

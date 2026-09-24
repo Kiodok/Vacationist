@@ -6,6 +6,7 @@ lang: en
 type: article
 schema: BlogPosting
 date: 2026-07-17
+updated: 2026-09-03
 altPath: /de/blog/group-camping-trip-planner/
 keywords: group camping trip planner, group camping checklist, camping meal planning group, plan camping trip with friends
 blogIndex: true

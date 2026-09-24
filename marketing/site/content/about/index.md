@@ -8,6 +8,7 @@ schema: AboutPage
 orgLd: true
 appLd: true
 date: 2026-09-20
+updated: 2026-09-24
 altPath: /de/about/
 keywords: about vacationist, who makes vacationist, group trip planner developer, vacationist switzerland
 related: /pricing/, /features/travel-documents/, /blog/travel-document-safety-guide/
@@ -38,9 +39,9 @@ Vacationist is built by **Gary Lude**, an independent developer based in Switzer
 
 ## Where your data lives — and what protects it
 
-"Built in Switzerland" describes where Vacationist is made, not where its data is stored, so here is the difference plainly:
+Vacationist is built in Switzerland, and hosted there too:
 
-- **Trip data** is stored on Supabase infrastructure in the EU (Paris, France).
+- **Trip data** is stored on Supabase infrastructure in Switzerland (Zurich), governed by Swiss data protection law.
 - **Travel documents** — passport and ID details — are encrypted at rest with AES-256 and protected by biometric unlock. Organizer access is temporary and can be revoked at any time. The [travel document safety guide](/blog/travel-document-safety-guide/) explains how that works.
 - **The mobile apps** contain no ads and no third-party analytics SDKs. The website loads analytics only after you accept its cookie banner.
 
@@ -60,7 +61,7 @@ It grew out of more than 30 couple and friend trips organized over three years. 
 
 ### Where is my trip data stored?
 
-On Supabase infrastructure in the EU (Paris, France). Passport and ID details are additionally encrypted at rest with AES-256.
+On Supabase infrastructure in Switzerland (Zurich), the same country Vacationist is developed in. Passport and ID details are additionally encrypted at rest with AES-256.
 
 ### How do I contact Vacationist?
 

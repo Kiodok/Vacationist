@@ -7,6 +7,7 @@ type: pricing
 schema: WebPage
 appLd: true
 date: 2026-09-20
+updated: 2026-09-20
 altPath: /pricing/
 keywords: ist Vacationist kostenlos, Vacationist Preise, kostenloser Gruppenreise-Planer, Gruppenreise App ohne Werbung
 related: /de/vs/, /de/features/, /de/about/

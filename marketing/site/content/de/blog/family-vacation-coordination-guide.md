@@ -6,6 +6,7 @@ lang: de
 type: article
 schema: BlogPosting
 date: 2026-07-21
+updated: 2026-09-20
 altPath: /blog/family-vacation-coordination-guide/
 keywords: Familienurlaub planen App, Familienreise koordinieren, Urlaub mehrere Familien planen, Familientreffen Reise planen
 blogIndex: true

@@ -6,6 +6,7 @@ lang: en
 type: feature
 schema: WebPage
 date: 2026-07-17
+updated: 2026-09-08
 altPath: /de/features/expenses/
 keywords: travel expense splitting app, group travel expense app, split hotel costs app, vacation expense tracker
 related: /features/voting/, /features/transfers/, /features/analytics/, /vs/splitwise/, /blog/how-to-split-travel-expenses/, /blog/group-trip-receipts-and-expense-reports/

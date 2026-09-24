@@ -6,6 +6,7 @@ lang: de
 type: legal
 schema: WebPage
 date: 2026-07-26
+updated: 2026-09-24
 navAltPath: /impressum.html
 breadcrumbLabel: Impressum
 ---
@@ -13,6 +14,8 @@ breadcrumbLabel: Impressum
 # Impressum
 
 *Anbieterkennzeichnung nach Schweizer Recht (UWG Art. 3 Abs. 1 lit. s & DSG Art. 19) · Zuletzt aktualisiert: 26. Juli 2026*
+
+<p class="lede">Vacationist wird als persönliches Nebenprojekt von Gary Lude betrieben, mit Sitz in der Schweiz — diese Seite listet die gesetzlich vorgeschriebene Anbieterkennzeichnung und Kontaktangaben.</p>
 
 ## 1. Verantwortliche Person
 

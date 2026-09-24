@@ -7,6 +7,7 @@ type: use-case
 schema: WebPage
 appLd: true
 date: 2026-08-05
+updated: 2026-09-20
 altPath: /use-cases/bachelorette-party-planner/
 keywords: Junggesellinnenabschied planen App, Kosten Junggesellinnenabschied teilen, Junggesellinnenabschied Budget App
 related: /de/features/expenses/, /de/features/voting/, /de/blog/bachelorette-trip-planning-guide/

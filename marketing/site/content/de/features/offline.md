@@ -6,6 +6,7 @@ lang: de
 type: feature
 schema: WebPage
 date: 2026-09-08
+updated: 2026-09-08
 altPath: /features/offline/
 keywords: Offline Reiseplaner, Reise-App offline nutzbar, Gruppenreise App ohne Internet, Ausgaben teilen ohne Internet, Reiseplaner ohne Empfang
 related: /de/features/travel-documents/, /de/features/expenses/, /de/features/voting/, /de/features/transfers/

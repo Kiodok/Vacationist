@@ -6,6 +6,7 @@ lang: de
 type: comparison
 schema: Article
 date: 2026-08-05
+updated: 2026-09-08
 altPath: /vs/tripit/
 keywords: Vacationist vs TripIt, TripIt Alternative Gruppen, TripIt für Gruppenreisen
 related: /de/alternatives/splitwise/, /de/features/voting/, /de/blog/best-group-travel-apps-2026/

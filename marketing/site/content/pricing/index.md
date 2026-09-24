@@ -7,6 +7,7 @@ type: pricing
 schema: WebPage
 appLd: true
 date: 2026-09-20
+updated: 2026-09-20
 altPath: /de/pricing/
 keywords: is vacationist free, vacationist pricing, free group trip planner, group trip app no ads
 related: /vs/, /features/, /about/

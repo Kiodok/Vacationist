@@ -1,0 +1,86 @@
+---
+url: https://vacationist.app/de/blog/travel-document-safety-guide/
+title: Musst du dein Passfoto wirklich in den Gruppenchat schicken?
+description: Der übliche Weg, wie Gruppenreisen Reisedokumente teilen — Chat-Screenshots, Fotoalben — ist der unsicherste. So funktioniert Verschlüsselung „at rest" wirklich, und so macht man es richtig.
+lang: de
+published: 2026-08-05
+updated: 2026-09-24
+---
+
+# Musst du dein Passfoto wirklich in den Gruppenchat schicken?
+
+Es passiert bei fast jeder Gruppenreise: Für eine Buchung werden die Passdaten aller gebraucht, also kommt beim Abendessen ein Handy raus und Passfotos landen nacheinander im Gruppenchat. Niemand denkt sich dabei etwas — bis man tatsächlich darüber nachdenkt, wo diese Fotos landen.
+
+## Was Gruppenreisen wirklich geteilt werden muss
+
+Gruppenbuchungen brauchen tatsächlich öfter Dokumentendaten, als man denkt. Eine Ferienwohnung in der EU will die Passnummer jedes Gastes für das lokale Meldewesen. Eine Flugbuchung mit mehreren Namen braucht die vollständigen rechtlichen Namen und Geburtsdaten exakt wie im Pass. Manche Reiseziele verlangen einen Versicherungsnachweis vor dem Check-in, und einige fragen noch nach Impfnachweisen. Das ist kein Papierkram, den der Organisator übertrieben genau nimmt — es ist das, was die Buchung tatsächlich verlangt.
+
+Das Problem war nie, *ob* diese Angaben geteilt werden. Es war immer *wie*.
+
+## Das übliche schlechte Muster
+
+Drei Wege, wie das normalerweise abläuft — und warum jeder davon schlimmer ist, als er aussieht:
+
+- **Chat-Screenshots.** Sobald ein Passfoto im Gruppenchat landet, existiert es dauerhaft auf jedem Handy aller Mitglieder, in jedem Chat-Backup des Geräts (iCloud, Google Drive, WhatsApps eigenes Backup) und in jeder Cloud-Synchronisierung, die diese Backups speist. Niemand „besitzt" das Foto mehr in irgendeinem sinnvollen Sinn — es ist über zehn und mehr Geräte und Backups kopiert, unverschlüsselt, ohne Möglichkeit zu wissen, wer es seither tatsächlich gesehen hat.
+- **Geteilte Fotoalben.** Etwas organisierter, strukturell identisch. Ein geteiltes Album mit „Dokumente" im Namen ist immer noch eine unverschlüsselte Sammlung von Passfotos, die jedes Mitglied screenshotten, weiterleiten oder versehentlich auf einem geteilten oder verlorenen Gerät offen lassen kann.
+- **E-Mail-Anhänge.** Der Organisator sammelt die Passfotos aller per E-Mail, um sie an die Buchungsplattform weiterzuleiten. Jetzt existieren die Dokumente unbegrenzt im Posteingang des Organisators, in welchem Speicher auch immer der E-Mail-Anbieter nutzt, plus eine Kopie im System der Buchungsplattform — ein Dritter, dem der Reisende nie direkt vertraut hat.
+
+Der gemeinsame Nenner bei allen drei: Sobald ein Passfoto verschickt ist, gibt es keine Möglichkeit, es zurückzuholen, keine Verschlüsselung, die es im Ruhezustand schützt, und keine Möglichkeit, den Zugriff später zu widerrufen — etwa, wenn diese Person die Reise verlässt oder die Reise vorbei ist und es keinen Grund mehr gibt, dass irgendjemand es noch hat.
+
+## Was „verschlüsselt gespeichert" wirklich bedeutet
+
+„Verschlüsselt gespeichert" wird gerne als Feature-Stichpunkt hingeworfen, also hier, was es tatsächlich in einfachen Worten bedeutet: Das Dokument wird gar nicht als betrachtbares Foto gespeichert. Es wird als verschlüsselte Daten gespeichert, die ohne den richtigen Schlüssel mathematisch unbrauchbar sind — und dieser Schlüssel existiert nur auf deinem Gerät, entsperrt durch deine Biometrie (Fingerabdruck oder Gesicht), nicht auf irgendeinem Server, der auf ein Datenleck wartet.
+
+Konkret bei Vacationist: Wenn du einen Pass oder Ausweis zu deinem [verschlüsselten Reisedokumenten-Tresor](/de/features/travel-documents/) hinzufügst, wird er mit AES-256 verschlüsselt — demselben Verschlüsselungsstandard, der für als geheim eingestufte Regierungsdaten genutzt wird —, bevor er dein Gerät überhaupt verlässt. Niemand, auch Vacationist nicht, kann das Rohdokument ohne die biometrische Entsperrung deines Geräts einsehen. Das ist ein strukturell anderes Versprechen als „wir schauen versprochen nicht rein", was du tatsächlich bei einem Chat-Screenshot oder E-Mail-Anhang voraussetzt.
+
+## Wie temporärer, widerrufbarer Organisator-Zugriff funktioniert
+
+Der Teil, der bei Gruppenbuchungen tatsächlich zählt, ist nicht die Verschlüsselung allein — es ist, was passiert, wenn der Organisator wirklich deine Passdaten sehen muss, um eine Buchung abzuschließen. Genau hier scheitern die meisten „sicheren" Dokumenten-Tools leise: Entweder unterstützen sie gar kein Teilen (sodass Leute doch wieder auf Screenshots zurückgreifen), oder sie teilen dauerhaft, sobald einmal gewährt.
+
+Der Ablauf, der das Gruppenreise-Problem tatsächlich löst, sieht so aus:
+
+1. Jede Person fügt ihre eigenen Dokumente zu ihrem eigenen verschlüsselten Tresor hinzu — standardmäßig kann niemand sonst sie sehen.
+2. Wenn eine Buchung es wirklich erfordert, gewährt diese Person dem Organisator **temporären** Zugriff — kein dauerhaftes Teilen, sondern zeitlich begrenzt, für eine selbst gewählte Dauer.
+3. Die Uhr läuft erst, wenn der Organisator die Dokumente tatsächlich öffnet. Bis dahin sieht die Person den Status „Noch nicht geöffnet"; ab dem ersten Öffnen läuft der Zugriff für die gewählte Dauer und endet dann von selbst. Eine nie geöffnete Freigabe verfällt trotzdem nach sieben Tagen.
+4. Der Organisator wird über die Freigabe benachrichtigt, sieht genau das, was nötig ist, und nicht mehr. Die Person kann den **Zugriff jederzeit widerrufen** — sobald die Buchung erledigt ist oder einfach weil die Reise vorbei ist.
+
+Vergleiche das mit einem Chat-Screenshot: Es gibt keinen Schritt 3 oder 4. Einmal verschickt, ist es dauerhaft verschickt, an alle im Chat-Verlauf, für immer.
+
+## Eine einfache Checkliste vor deiner nächsten Gruppenreise
+
+Diese hier solltest du speichern — zum Überfliegen und Weiterleiten an wer auch immer gerade organisiert:
+
+- **Nie ein Foto von Pass, Ausweis oder Versicherungsnachweis direkt im Gruppenchat verschicken** — auch nicht „nur an den Organisator" per DM. DMs werden auch gesichert.
+- **Fragen, ob die Buchungsplattform wirklich das ganze Dokumentenfoto braucht**, oder nur bestimmte Felder (Name, Passnummer, Ablaufdatum). Oft ist es Letzteres, und diese Felder einzutippen ist sicherer als ein Foto zu verschicken.
+- **Wenn ein Dokument wirklich geteilt werden muss, ein Tool nutzen, bei dem der Zugriff temporär und widerrufbar ist** — idealerweise eines, bei dem das Zeitfenster von selbst abläuft, damit niemand daran denken muss, es zu schließen.
+- **Trotzdem nach bestätigter Buchung kurz die aktiven Freigaben ansehen** — wenn das Tool den Zugriff selbst ablaufen lässt, ist das eine schnelle Kontrolle statt einer Aufgabe.
+- **Nach der Reise prüfen, dass niemand mehr dauerhaften Zugriff** auf Dokumente hat, die nur für eine Buchung gebraucht wurden.
+
+## Was es kostet
+
+Das ist kein kostenpflichtiges Feature — [verschlüsselte Reisedokumente](/de/features/travel-documents/) sind Teil von Vacationists kostenloser Kern-App, genau wie Abstimmungen und Kostenteilung. Privatsphäre sollte nicht das sein, wofür man upgraden muss.
+
+## Häufige Fragen
+
+### Ist es sicher, ein Foto meines Passes an eine Freundin zu schicken, die die Reise organisiert?
+
+Nicht wirklich, selbst an jemanden, dem du voll vertraust — das Risiko ist nicht diese Person, sondern alles, wohin das Foto danach kopiert wird: Chat-Backups, Cloud-Synchronisierung und jedes andere Gerät im Chat-Verlauf, das es jetzt weiterleiten kann. Sicherer ist es, temporären, widerrufbaren Zugriff nur auf die Felder zu gewähren, die eine Buchung braucht, statt ein dauerhaftes Bild zu verschicken.
+
+### Was passiert mit meinen Dokumenten, wenn ich eine Reise verlasse?
+
+Bei Chat oder geteiltem Album passiert automatisch nichts — Kopien deiner Dokumente bleiben unbegrenzt auf jedem Gerät, das sie je erhalten hat. Mit Vacationists verschlüsseltem Tresor wurden deine Dokumente standardmäßig nie geteilt; jeder temporäre Zugriff, den du einem Organisator gewährt hast, kann sofort widerrufen werden, und deine Dokumente bleiben unabhängig von der Reisemitgliedschaft auf deinem eigenen Gerät verschlüsselt.
+
+### Kann der Reiseorganisator meine Dokumente jederzeit sehen?
+
+Nein — standardmäßig kann niemand außer dir deine Dokumente sehen. Ein Organisator sieht nur, was du ihm explizit gewährst, und das Zugriffsfenster beginnt nicht einmal, bevor er die Dokumente zum ersten Mal öffnet; ab da läuft es für die von dir gesetzte Dauer und endet dann von selbst (eine ungeöffnete Freigabe verfällt nach sieben Tagen). Du kannst den Zugriff jederzeit widerrufen. Das unterscheidet sich von einem geteilten Ordner oder Chat, wo jeder mit Zugriff alles sehen kann, dauerhaft, ohne dass du es zurücknehmen kannst.
+
+### Ist das DSGVO-konform?
+
+Verschlüsselung von Dokumenten im Ruhezustand mit nutzergesteuertem, widerrufbarem Zugriff ist genau die Art von Datenminimierung und Zugriffskontrolle, die die DSGVO fördern soll — du kontrollierst, was mit wem und für wie lange geteilt wird, statt dass ein Dritter standardmäßig dauerhafte Kopien deines Ausweises hält. Konkret: Artikel 32 der DSGVO nennt Verschlüsselung als eine geeignete Maßnahme zum Schutz personenbezogener Daten, und Artikel 17 gewährt EU-Bürger:innen das Recht auf Löschung — die Kontolöschung von Vacationist entfernt deine Daten unabhängig vom Wohnsitz auf Wunsch. Reisedaten, einschließlich verschlüsselter Dokumente, liegen auf Supabase-Infrastruktur in der Schweiz (Zürich) — im selben Land, in dem auch der Entwickler sitzt, unter Schweizer Datenschutzrecht. Siehe Quellen unten.
+
+## Quellen
+
+- [NIST FIPS 197 — Advanced Encryption Standard](https://csrc.nist.gov/pubs/fips/197/final): der US-Bundesstandard, der AES-256 definiert, den Algorithmus hinter den „verschlüsselt gespeichert"-Aussagen oben.
+- [DSGVO Art. 32 — Sicherheit der Verarbeitung](https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu): nennt „die Pseudonymisierung und Verschlüsselung personenbezogener Daten" als geeignete Sicherheitsmaßnahme.
+- [DSGVO Art. 17 — Recht auf Löschung](https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu): die rechtliche Grundlage für Konto- und Datenlöschung.
+- [Supabase — Verfügbare Regionen](https://supabase.com/docs/guides/platform/regions): bestätigt die Region Central Europe (Zürich), in der Reisedaten gespeichert werden.
