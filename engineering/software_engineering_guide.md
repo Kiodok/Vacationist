@@ -1745,6 +1745,10 @@ Expense cards show the original-currency amount as primary, with a muted convert
 
 ---
 
+## "Is this trip settled?" — one definition (v1.39.1)
+
+`private.trip_member_balances(trip_id)` is the **single** balance computation; `public.get_trip_balances` is a guarded wrapper over it and server jobs (e.g. `create_expense_reminders`) call it directly. A trip has an outstanding settlement **only if at least one creditor (`net >= 0.01`) AND at least one debtor (`net <= -0.01`) exist** — the exact rule of `computeSettlements()` in `packages/utils/src/settlements.ts`. Never test "any member's net ≠ 0": rounding residue, or a member who left/deleted their account (their splits are retained, their `trip_members` row is not), leaves a lone non-zero balance on a trip the UI correctly calls settled. Never hand-copy the balance CTEs into another function.
+
 ## Expense Principle
 
 Every cost-related entity can:

@@ -51,3 +51,17 @@ input — this exact bug took three attempts (CSS pseudo-element rule, then a co
 both reported still broken by the user despite passing local `claude-in-chrome` verification in
 both dark and light theme) before the opacity-on-the-real-input rewrite was confirmed working.
 See [[v1-33-0-batch]] for the full blow-by-blow and [[project_v1_33_0_batch]] for context.
+
+## Addendum (v1.39.1): `opacity: 0` is NOT viable for segmented controls (`type="time"`)
+
+The `opacity: 0` + visual-sibling technique above made keyboard entry into `<input type="time">` look dead
+on web from v1.33.0 to v1.39.0. A segmented input exposes **no `value` until every segment is filled**
+(mid-edit: `value === ''`, `validity.badInput === true`), so a sibling div mirroring `value` shows `--:--`
+while the real input — invisible — holds the caret, the highlighted segment and every typed digit.
+**Only use the technique for controls whose visible state is fully derivable from `value`** (e.g. checkbox).
+For `time`, keep the native input visible and accept the browser's own picker glyph.
+
+Also: a *controlled* time input propagating `''` on partial input either wipes parent state or gets a stale
+prop written back over the half-typed digits. `DateTimePickerField`'s `WebTimeInput` is uncontrolled and only
+reports a complete time or a genuine clear (`!validity.badInput`). See [[settled-trip-predicate]] for the
+sibling lesson from the same release.

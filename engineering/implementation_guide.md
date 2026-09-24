@@ -1939,3 +1939,24 @@ of any of this** — web/desktop only.
 - Marketing copy (`docs/i18n/*.js` `feat.6.desc`) still says the calendar is "displayed in the trip's
   timezone" — needs an `en.js` + `de.js` edit and `npm run build:site`.
 - Tutorial copy (trip navigation, offline) still to review.
+
+---
+
+## 🩹 Phase 21.1: False expense reminders + web time-field typing (v1.39.1)
+
+**PATCH, JS-only client change → OTA-eligible; web auto-deploys on push to `main`.**
+
+- [x] **Expense reminder on a settled trip** — root-caused on prod data (a +0.01 FX-rounding residue vs. a
+  cron predicate that disagreed with the app's "All settled up"). Fix is three migrations (see
+  `engineering/supabase.md`, 2026-09-24) — **deployed dev + prod 2026-09-24**, verified against the real trips.
+- [x] **Web time inputs untypeable** — regression from v1.33.0 (`c2a7891`), not v1.38/v1.39. That commit hid
+  `<input type="time">` at `opacity: 0` behind a div mirroring `value`; a segmented time input exposes no
+  value until every segment is filled, so typed digits/caret/highlight were all invisible.
+  `DateTimePickerField.tsx` now renders a visible native input (the browser's own picker glyph is the single
+  icon; the custom clock button is gone) via a small **uncontrolled** `WebTimeInput` that only reports a
+  COMPLETE time or a genuine clear (`!validity.badInput`).
+- [ ] **Not browser-verified** — the Chrome extension wasn't connected. The `validity.badInput` behaviour of
+  a half-typed time and the colorful-theme legibility of the native picker glyph still need a manual pass
+  (Chrome + Firefox, all four themes).
+- [x] Migrations applied dev → prod (ledger parity 250/250).
+- [ ] `eas update` for the client change.

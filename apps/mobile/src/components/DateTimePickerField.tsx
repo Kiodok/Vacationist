@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { View, Text, Pressable, Platform, Modal } from 'react-native';
 import { i18n } from '@vacationist/i18n';
 import { colors, ThemedIcon, useThemeColors, useResolvedTheme } from '@vacationist/ui';
@@ -9,6 +9,53 @@ type RNDateTimePickerType =
 let RNDateTimePicker: RNDateTimePickerType | null = null;
 if (Platform.OS !== 'web') {
   RNDateTimePicker = require('@react-native-community/datetimepicker').default;
+}
+
+interface WebTimeInputProps {
+  value: string | null | undefined;
+  onChange: (value: string | null) => void;
+  style: CSSProperties;
+}
+
+/**
+ * Web-only native `<input type="time">`, deliberately UNcontrolled.
+ *
+ * A time input is segmented: while the user is mid-edit (a segment blank) the browser reports
+ * `value === ''` and `validity.badInput === true`. A controlled input would either propagate that `''`
+ * as "cleared" — the transfer sheets then wipe the whole date+time field, date included — or, if the
+ * parent ignores it, have React write the stale prop back over the half-typed digits. So the DOM keeps
+ * its own partial state, and the parent only ever hears about a COMPLETE time, or a genuine clear
+ * (empty AND not badInput, e.g. Firefox's clear button).
+ *
+ * The DOM is re-synced to `value` only when it isn't being edited (external changes), and on blur, which
+ * discards an abandoned partial edit rather than leaving `--:--` on screen over a stored time.
+ */
+function WebTimeInput({ value, onChange, style }: WebTimeInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const shown = value ?? '';
+
+  useEffect(() => {
+    const el = inputRef.current;
+    if (el && document.activeElement !== el && el.value !== shown) el.value = shown;
+  }, [shown]);
+
+  return (
+    <input
+      ref={inputRef}
+      type="time"
+      defaultValue={shown}
+      style={style}
+      onChange={(e) => {
+        const el = e.currentTarget;
+        if (el.value) onChange(el.value);
+        else if (!el.validity.badInput) onChange(null);
+      }}
+      onBlur={(e) => {
+        const el = e.currentTarget;
+        if (el.value !== shown) el.value = shown;
+      }}
+    />
+  );
 }
 
 interface DateTimePickerFieldProps {
@@ -99,7 +146,6 @@ export function DateTimePickerField({
   const [show, setShow] = useState(false);
   // iOS tray only: the value being spun. Committed to the form on Done, discarded on Cancel/backdrop.
   const [draft, setDraft] = useState<Date>(() => new Date());
-  const webInputRef = useRef<HTMLInputElement>(null);
   const defaultPlaceholder = mode === 'date' ? i18n.t('common:placeholder.selectDate') : i18n.t('common:placeholder.selectTime');
   const displayPlaceholder = placeholder ?? defaultPlaceholder;
   const themeColors = useThemeColors();
@@ -108,6 +154,19 @@ export function DateTimePickerField({
   if (Platform.OS === 'web') {
     const minStr = minimumDate ? toDateString(minimumDate) : undefined;
     const maxStr = maximumDate ? toDateString(maximumDate) : undefined;
+    const webInputStyle: CSSProperties = {
+      flex: 1,
+      backgroundColor: 'transparent',
+      border: 'none',
+      outline: 'none',
+      color: value ? themeColors.textPrimary : themeColors.textMuted,
+      fontSize: 16,
+      fontFamily: 'inherit',
+      height: 48,
+      width: '100%',
+      colorScheme: theme === 'dark' ? 'dark' : 'light',
+      cursor: 'pointer',
+    };
 
     return (
       <View className="gap-xs">
@@ -128,100 +187,22 @@ export function DateTimePickerField({
           paddingRight: 16,
           gap: 8,
         }}>
+          {/* Both modes render a real, fully visible native <input>. v1.33.0 hid the time one
+              (opacity: 0) behind a div mirroring `value`, to suppress the browser's clock glyph — which
+              also hid the caret, the highlighted segment and every typed digit, so keyboard entry looked
+              dead until the last keystroke. The browser's own picker indicator is the single icon now.
+              Do not make this transparent again (see native-form-control-icon-suppression). */}
           {mode === 'time' ? (
-            // Every attempt to hide just the native picker-indicator icon while keeping the
-            // rest of the native <input> visible turned out unreliable across engines: the
-            // ::-webkit-calendar-picker-indicator CSS rule only ever covers WebKit/Blink (never
-            // Firefox, which exposes no hook for it at all), and even a same-background overlay
-            // div positioned exactly over the icon's box didn't visually cover it in testing —
-            // browsers evidently paint a native form control's own chrome above ordinary
-            // sibling content regardless of normal stacking order. The one thing that IS
-            // guaranteed to affect 100% of an element's own rendering, icon included, on every
-            // engine, is opacity on that exact element — so the real <input> is fully
-            // transparent here (still focusable/typable/clickable, opacity doesn't disable
-            // interactivity) and a purely presentational div underneath renders the visible
-            // text. The custom ThemedIcon button below remains the only visible icon anywhere.
-            <div style={{ position: 'relative', flex: 1, height: 48 }}>
-              <div
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  pointerEvents: 'none',
-                  color: value ? themeColors.textPrimary : themeColors.textMuted,
-                  fontSize: 16,
-                  fontFamily: 'inherit',
-                }}
-              >
-                {value || '--:--'}
-              </div>
-              <input
-                ref={webInputRef as React.RefObject<HTMLInputElement>}
-                type="time"
-                value={value ?? ''}
-                onChange={(e) => onChange(e.target.value || null)}
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0,
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  fontSize: 16,
-                  fontFamily: 'inherit',
-                  colorScheme: theme === 'dark' ? 'dark' : 'light',
-                  cursor: 'pointer',
-                }}
-              />
-            </div>
+            <WebTimeInput value={value} onChange={onChange} style={webInputStyle} />
           ) : (
             <input
-              ref={webInputRef as React.RefObject<HTMLInputElement>}
               type={mode}
               value={value ?? ''}
               onChange={(e) => onChange(e.target.value || null)}
               min={minStr}
               max={maxStr}
-              style={{
-                flex: 1,
-                backgroundColor: 'transparent',
-                border: 'none',
-                outline: 'none',
-                color: value ? themeColors.textPrimary : themeColors.textMuted,
-                fontSize: 16,
-                fontFamily: 'inherit',
-                height: 48,
-                width: '100%',
-                colorScheme: theme === 'dark' ? 'dark' : 'light',
-                cursor: 'pointer',
-              }}
+              style={webInputStyle}
             />
-          )}
-          {mode === 'time' && (
-            <button
-              type="button"
-              onClick={() => {
-                const input = webInputRef.current;
-                if (input) {
-                  input.focus();
-                  try { input.showPicker(); } catch {}
-                }
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                padding: 0,
-              }}
-            >
-              <ThemedIcon name="time-outline" size={20} color={colors.textSecondary} />
-            </button>
           )}
           {clearable && value && (
             <button

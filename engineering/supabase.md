@@ -5673,3 +5673,57 @@ three device-test rounds is staged but not committed (repo rule: Tech Lead tests
 `preview-dev` EAS build and a full manual/device pass are still pending — see the release-review
 artifact for the complete checklist. Prod's RPCs will silently accept the old client's calls in the
 meantime (verified above), so there is no window where prod is broken for the currently-live app.
+
+## 2026-09-24 — v1.39.1: false "unsettled expenses" reminder + cron hygiene (3 migrations)
+
+**Status: DEPLOYED dev + prod 2026-09-24** at the Tech Lead's explicit request (migration ledgers 250/250,
+identical on both). Migration 3 first failed on dev — the build script collapsed `$$` to `$` in the
+update function's terminator; fixed in the file before it had been applied anywhere, then re-pushed. All three are
+function-body-only (no schema change, no signature change, grants preserved), so they are
+backward-compatible with every live client.
+
+**Trigger.** A settled trip ("Sarajevo") kept getting "…ended N days ago and has unsettled expenses"
+on days 1, 3 and 7. Verified on prod: exactly 3 trips ever received an `expense_reminder`; two
+(`87aa84da…`, `61514293…`) are genuinely unsettled (correct), one (`122e543b…`) had **all 109 splits
+`status='settled'`** and a member net of exactly **+0.01**.
+
+**Root cause.** Two hand-copied definitions of "settled" had drifted. The app's "All settled up"
+(`SettlementsModal` → `computeSettlements`) needs a creditor AND a debtor; the cron asked "does ANY
+member have `ABS(net) >= 0.01`?". The stray cent is FX rounding residue: the RPCs freeze
+`converted_amount = ROUND(amount*rate,2)` once but convert each split with its own `ROUND()` (BAM @
+1.95583: 78.46+0+39.23+39.21 = 156.90 vs 156.92). The same predicate also misfired whenever a member
+left / deleted their account (splits retained, `trip_members` row deleted).
+
+- `20260924100000_shared_trip_balances_and_expense_reminder.sql` — new `private.trip_member_balances()`
+  is now the single balance computation (moved verbatim out of `get_trip_balances`, which becomes a
+  guarded wrapper). `create_expense_reminders` fires only when a creditor AND a debtor exist; notifies
+  only members with a non-zero net; skips `is_example` trips; honours `notification_preferences.reminder`;
+  dedups on `related_type` instead of `body LIKE '%unsettled expenses%'`.
+- `20260924110000_notification_cron_hygiene.sql` — `create_trip_reminders` / `create_guest_nudge_…` /
+  `create_planning_nudge_…` skip `is_example` trips (every new user was getting "in 7 days" pushes about
+  the fake Barcelona trip ~3 months after signup); planning nudge capped at **3 per user, ever** (was: every
+  14 days forever); all four reminder/nudge crons (incl. review nudge) honour the per-trip `reminder`
+  toggle for the in-app row, not just the push. `create_trip_reminders` already deduped on
+  `related_type='trip'` (`20260602130000`), so no change there.
+- `20260924120000_expense_split_base_currency_rounding.sql` — new `private.absorb_split_rounding()`, called
+  at the end of `create_/update_expense_with_splits` (bodies = live `20260922100000` verbatim + one
+  `PERFORM`). Adds the ≤0.50 residue to the largest **non-sentinel** split so `SUM(amount_owed) =
+  converted_amount`. `cover` exempt; the "Deleted User" sentinel share is never touched. Forward-only —
+  historical rows keep their drift (harmless once the predicate is fixed).
+
+**Doc corrections.** The 2026-06-15 entry above says the Edge Function detects expense reminders via
+`dbBody.includes('unsettled expenses')`; it actually keys on `related_type === 'expense_reminder'`
+(`supabase/functions/push-notification/index.ts` ~178-196). The comment at `index.ts:47-48` is stale too
+(left unedited: a comment-only Edge Function edit still needs a redeploy).
+
+**Known gap, deliberately not changed:** `private.create_trip_notification` writes the in-app row for
+`new_activity` / `vote_update` / `expense_change` etc. without checking `notification_preferences` — only
+the push is gated. Widening the gate there is a separate product call.
+
+**Verified (rollback-only):** dev — new predicate removes 1 false positive (7→6 firing trips, 0 newly firing);
+all 5 crons execute; `absorb_split_rounding` turns a +0.02 perturbation back into the exact total and is a no-op
+for `cover`. Prod — Sarajevo old=fires/new=silent (nets 0,0,0,+0.01); Kroatien 2026 + Lac Chalain still fire; all 5 crons
+execute (planning nudge would send 12 on the next Monday run). **Original plan:** rolled-back `DO` replaying `trip_member_balances` for the
+three trips above (Sarajevo → no fire; the other two → fire); a foreign-currency `even`/`shares`/`exact`
+expense sums exactly to `converted_amount`, a `cover` expense is unchanged; dev-vs-prod parity via
+`gen types --linked`.
