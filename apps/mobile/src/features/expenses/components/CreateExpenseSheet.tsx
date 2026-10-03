@@ -29,6 +29,39 @@ import { StagedDocumentsField } from './StagedDocumentsField';
 import { useExpenseCategoryLabels } from '../hooks/useExpenseCategoryLabels';
 import type { PickedDocumentFile } from '../../../utils/documentPicker';
 
+/**
+ * v1.39.2 task 4: pre-fills the sheet when it's opened from the "record this as an expense?"
+ * prompt after booking an accommodation/flight, or after setting a rental/public-transport
+ * price. `relatedId` is the entity's own row id — the RPC stores it on `expenses.related_id` so
+ * the cost-analysis RPCs can exclude that specific entity's price once this expense exists (see
+ * `20261003110000_cost_summary_related_id_exclusion.sql`). It is NOT a user-editable field in
+ * this form.
+ */
+export interface ExpensePrefill {
+  title: string;
+  /** Flights price per-person. `transfer.tsx`'s `computeFlightGroupTotal` computes the real group
+   * total (price × distinct passengers ∪ ticket holders) at Book time and passes it through here
+   * — it's undefined only when no participants are assigned yet. This only became reliable once
+   * flight passengers could be assigned before booking (2026-10-03 follow-up,
+   * `20261003140000_allow_prebooking_flight_passengers.sql`); before that, participant count was
+   * structurally always 0 the instant Book succeeded, so this was always undefined (code review
+   * 2026-10-03, Tech Lead decision: "leave blank, require manual entry"). Accommodations/rentals
+   * have no per-person ambiguity — their price is already the group total — and always prefill
+   * it. **Public transport never sets this prop at all** — its booking-prompt was removed
+   * entirely (2026-10-03 follow-up); see `promptExpenseForEntity`'s doc comment in `transfer.tsx`
+   * and the `transfer_public_transport` exclusion in `packages/utils/src/costSummary.ts`. */
+  amount?: number;
+  /** The booked entity's own currency — accommodations/flights/rentals/public-transport can each
+   * be priced independently of the trip's base currency (Phase 15). Without this the form fell
+   * back to the trip's base/last-used currency, silently re-labeling a foreign-currency price as
+   * if it were in the trip's own currency (code review 2026-10-03). */
+  currency: Currency;
+  relatedType: CreateExpenseInput['related_type'];
+  relatedId: string;
+  /** Shown as an info banner below the header, same style as `autoSelectedTripBanner`. */
+  banner: string;
+}
+
 interface CreateExpenseSheetProps {
   visible: boolean;
   onClose: () => void;
@@ -46,9 +79,12 @@ interface CreateExpenseSheetProps {
    * the app-icon "Add Expense" quick action (task 16), which picks a trip automatically with no
    * confirmation step; the user needs to see which one before submitting. */
   autoSelectedTripBanner?: string;
+  /** See `ExpensePrefill`. Mutually exclusive in practice with `autoSelectedTripBanner` — both
+   * are informational banners about why the form already has values filled in. */
+  prefill?: ExpensePrefill;
 }
 
-export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, members, currentUserId, currency, tripId, autoSelectedTripBanner }: CreateExpenseSheetProps) {
+export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, members, currentUserId, currency, tripId, autoSelectedTripBanner, prefill }: CreateExpenseSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation('common');
@@ -65,7 +101,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const allMemberIds = members.map((m) => m.user_id);
 
-  const [amountText, setAmountText] = useState('');
+  const [amountText, setAmountText] = useState(prefill?.amount != null ? prefill.amount.toFixed(2) : '');
   const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set(allMemberIds));
   const [splitMethod, setSplitMethod] = useState<SelectableSplitMethod>('even');
   const [exactAmounts, setExactAmounts] = useState<Record<string, string>>({});
@@ -83,11 +119,11 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   const { control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<CreateExpenseInput>({
     resolver: zodResolver(createExpenseSchema),
     defaultValues: {
-      title: '',
-      amount: undefined,
-      currency: getLastUsedCurrency(tripId) ?? currency,
+      title: prefill?.title ?? '',
+      amount: prefill?.amount,
+      currency: prefill?.currency ?? getLastUsedCurrency(tripId) ?? currency,
       paid_by: currentUserId,
-      related_type: 'manual',
+      related_type: prefill?.relatedType ?? 'manual',
       split_method: 'even',
       splits: allMemberIds.map((id) => ({ user_id: id })),
     },
@@ -169,7 +205,10 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const onValid = (data: CreateExpenseInput) => {
     Keyboard.dismiss();
-    onSubmit({ ...data, amount: totalAmount, tip_amount: tip, splits: buildSplits() }, stagedFiles);
+    onSubmit(
+      { ...data, amount: totalAmount, tip_amount: tip, related_id: prefill?.relatedId ?? null, splits: buildSplits() },
+      stagedFiles,
+    );
     resetForm();
   };
 
@@ -211,10 +250,10 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
             </Pressable>
           </View>
 
-          {autoSelectedTripBanner && (
+          {(autoSelectedTripBanner || prefill) && (
             <View className="flex-row items-center gap-xs bg-primary/10 rounded-sm px-sm py-sm mb-md">
               <ThemedIcon name="information-circle-outline" size={16} color={colors.primary} />
-              <Text className="text-body-small text-primary flex-1">{autoSelectedTripBanner}</Text>
+              <Text className="text-body-small text-primary flex-1">{autoSelectedTripBanner ?? prefill?.banner}</Text>
             </View>
           )}
 

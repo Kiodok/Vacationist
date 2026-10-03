@@ -77,7 +77,7 @@
   "publicTransport.field.departureTime": "Departure",
   "publicTransport.field.arrivalTime": "Arrival",
   "publicTransport.field.bookingRef": "Booking reference",
-  "publicTransport.field.price": "Total price",
+  "publicTransport.field.price": "Price per person",
   "publicTransport.field.url": "Booking link",
   "publicTransport.field.notes": "Notes",
   "publicTransport.field.businessExpense": "Business expense",

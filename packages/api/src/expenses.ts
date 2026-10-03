@@ -2,7 +2,7 @@ import { supabase, freshChannel } from './client';
 import { trustEmptyList } from './session';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Json } from './database.types';
-import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, ExpenseCategoryTotal, CreateExpenseInput, UpdateExpenseWithSplitsInput, SettlementReceipt, BusinessExpensePdfInput } from '@vacationist/types';
+import type { ExpenseSplit, ExpenseWithSplits, MemberBalance, ExpenseCategoryTotal, CreateExpenseInput, UpdateExpenseWithSplitsInput, UpdateExpenseMetadataInput, SettlementReceipt, BusinessExpensePdfInput } from '@vacationist/types';
 
 export const EXPENSE_PAGE_SIZE = 30;
 
@@ -144,6 +144,26 @@ export async function updateExpenseWithSplits(expenseId: string, input: UpdateEx
     // NULL = keep the stored tip (clamped to the new amount). The app always sends the field, so an
     // edit that clears the tip sends 0 explicitly rather than relying on this sentinel.
     p_tip_amount: input.tip_amount ?? null,
+  });
+
+  if (error) throw error;
+}
+
+/**
+ * Metadata-only edit (title/description/related_type/is_business) — never touches
+ * expense_splits. The only RPC that may edit an expense once any of its splits is
+ * settled (see update_expense_metadata in
+ * 20261003100000_expense_metadata_only_update.sql); update_expense_with_splits itself
+ * now rejects that case server-side.
+ */
+export async function updateExpenseMetadata(expenseId: string, input: UpdateExpenseMetadataInput): Promise<void> {
+  const { error } = await (supabase.rpc as Function)('update_expense_metadata', {
+    p_expense_id: expenseId,
+    p_title: input.title,
+    // '' clears the description; the RPC only treats NULL (never sent by this app) as "keep existing".
+    p_description: input.description ?? '',
+    p_related_type: input.related_type ?? null,
+    p_is_business: input.is_business ?? null,
   });
 
   if (error) throw error;

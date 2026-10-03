@@ -81,6 +81,8 @@ export function VehicleCard({ vehicle, passengers, members, onPress, detail, hig
           <RichText
             className="text-body-small text-text-secondary"
             numberOfLines={notesExpanded ? undefined : 2}
+            selectable={notesExpanded}
+            linksInteractive={false}
           >
             {vehicle.notes}
           </RichText>

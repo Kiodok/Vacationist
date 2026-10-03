@@ -65,7 +65,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, onPress
         </View>
 
         {accommodation.description && (
-          <RichText className="text-body-small text-text-secondary" numberOfLines={2}>
+          <RichText className="text-body-small text-text-secondary" numberOfLines={2} linksInteractive={false}>
             {accommodation.description}
           </RichText>
         )}

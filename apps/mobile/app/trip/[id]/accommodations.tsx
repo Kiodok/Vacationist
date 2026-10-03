@@ -4,7 +4,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 
 import { useTranslation } from 'react-i18next';
-import type { Accommodation, VoteType, CreateAccommodationInput, UpdateAccommodationInput } from '@vacationist/types';
+import type { Accommodation, VoteType, CreateAccommodationInput, UpdateAccommodationInput, CreateExpenseInput } from '@vacationist/types';
 import { useAccommodations, useCreateAccommodation, useUpdateAccommodation, useBookAccommodation, useUnbookAccommodation, useDeleteAccommodation, useCloseAccommodationVoting, useReopenAccommodationVoting } from '../../../src/features/accommodations/hooks/useAccommodations';
 import { useAccommodationVotes, useCastAccommodationVote, useRemoveAccommodationVote } from '../../../src/features/accommodations/hooks/useAccommodationVotes';
 import { useAccommodationVotesRealtime } from '../../../src/features/accommodations/hooks/useAccommodationVotesRealtime';
@@ -17,18 +17,27 @@ import { CreateAccommodationSheet } from '../../../src/features/accommodations/c
 import { EditAccommodationSheet } from '../../../src/features/accommodations/components/EditAccommodationSheet';
 import { EmptyAccommodations } from '../../../src/features/accommodations/components/EmptyAccommodations';
 import { AccommodationNotesSection } from '../../../src/features/accommodations/components/AccommodationNotesSection';
-import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { CreateExpenseSheet } from '../../../src/features/expenses/components/CreateExpenseSheet';
+import { useCreateExpense } from '../../../src/features/expenses/hooks/useExpenses';
+import { uploadExpenseDocument } from '@vacationist/api';
+import { readFileAsArrayBuffer, type PickedDocumentFile } from '../../../src/utils/documentPicker';
+import { createClientId } from '../../../src/utils/optimisticId';
+import { useQueryClient } from '@tanstack/react-query';
+import { colors, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import { QueryErrorState } from '../../../src/components/QueryErrorState';
+import { useToastStore } from '../../../src/stores/toastStore';
 
 export default function AccommodationsTab() {
   const { id: tripId } = useLocalSearchParams<{ id: string }>();
+  const { t: tExpenses } = useTranslation('expenses');
   const user = useAuthStore((s) => s.user);
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const { data: trip } = useTrip(tripId!);
+  const { data: members } = useTripMembers(tripId!);
   const accommodationsQuery = useAccommodations(tripId!);
   const { data: accommodations, refetch } = accommodationsQuery;
   const ux = getQueryDisplayState(accommodationsQuery);
@@ -38,10 +47,42 @@ export default function AccommodationsTab() {
   const deleteAccommodation = useDeleteAccommodation();
   const closeVoting = useCloseAccommodationVoting();
   const reopenVoting = useReopenAccommodationVoting();
+  const createExpense = useCreateExpense();
+  const queryClient = useQueryClient();
   useAccommodationVotesRealtime(tripId!);
 
   const [showCreate, setShowCreate] = useState(false);
   const [editingAccommodation, setEditingAccommodation] = useState<Accommodation | null>(null);
+  // v1.39.2 task 4: offered right after a successful "Book" — accept creates a split expense
+  // linked via related_id (so the cost analysis excludes this accommodation's own price and
+  // counts the expense instead); dismiss/cancel leaves it unset, which is today's behavior.
+  const [expensePromptAccommodation, setExpensePromptAccommodation] = useState<Accommodation | null>(null);
+  // Gated on price_total > 0: an unpriced accommodation would prefill a 0.00 amount, which
+  // fails the expense form's positive-amount validation (code review 2026-10-03).
+  const onAccommodationBooked = (accommodation: Accommodation) => {
+    if (Number(accommodation.price_total ?? 0) > 0) setExpensePromptAccommodation(accommodation);
+  };
+
+  // Mirrors expenses.tsx's uploadStagedExpenseDocuments exactly (same accepted gap: lost if the
+  // create mutation is queued offline and replays after the app was killed) — fires from the
+  // create mutation's onSuccess, never in parallel with it, and surfaces a toast on failure
+  // instead of swallowing it (code review 2026-10-03: the expense already exists by the time
+  // uploadExpenseDocument runs, so a parallel fire-and-forget upload could race the expense
+  // create against the row it needs to attach to, and failures were silently dropped).
+  const uploadStagedExpenseDocuments = async (expenseId: string, files: PickedDocumentFile[]) => {
+    if (files.length === 0) return;
+    const results = await Promise.allSettled(
+      files.map(async (file) => {
+        const fileData = await readFileAsArrayBuffer(file.uri);
+        return uploadExpenseDocument(tripId!, expenseId, fileData, file.fileName, file.mimeType);
+      }),
+    );
+    queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'documents'] });
+    const failedCount = results.filter((r) => r.status === 'rejected').length;
+    if (failedCount > 0) {
+      useToastStore.getState().addToast('error', tExpenses('toast.stagedDocumentsFailed', { count: failedCount }));
+    }
+  };
 
   const handleCreate = (input: CreateAccommodationInput) => {
     setShowCreate(false);
@@ -97,6 +138,7 @@ export default function AccommodationsTab() {
             onCloseVoting={() => closeVoting.mutate({ accommodationId: item.id, tripId: tripId! })}
             onReopenVoting={() => reopenVoting.mutate({ accommodationId: item.id, tripId: tripId! })}
             onToggleAutoClose={(val) => updateAccommodationMutation.mutate({ accommodationId: item.id, tripId: tripId!, input: { auto_close: val } })}
+            onBooked={onAccommodationBooked}
           />
         )}
         refreshControl={
@@ -140,6 +182,33 @@ export default function AccommodationsTab() {
           tripEndDate={trip?.end_date ?? null}
         />
       )}
+
+      {expensePromptAccommodation && user?.id && members && (
+        <CreateExpenseSheet
+          visible={!!expensePromptAccommodation}
+          onClose={() => setExpensePromptAccommodation(null)}
+          onSubmit={(input: CreateExpenseInput, stagedFiles: PickedDocumentFile[]) => {
+            setExpensePromptAccommodation(null);
+            createExpense.mutate(
+              { tripId: tripId!, input, id: createClientId() },
+              { onSuccess: (expenseId) => { void uploadStagedExpenseDocuments(expenseId, stagedFiles); } },
+            );
+          }}
+          isPending={isMutationBusy(createExpense)}
+          members={members}
+          currentUserId={user.id}
+          currency={trip?.base_currency ?? 'EUR'}
+          tripId={tripId!}
+          prefill={{
+            title: expensePromptAccommodation.title,
+            amount: Number(expensePromptAccommodation.price_total ?? 0),
+            currency: expensePromptAccommodation.currency,
+            relatedType: 'accommodation',
+            relatedId: expensePromptAccommodation.id,
+            banner: tExpenses('create.linkedToBookingBanner', { title: expensePromptAccommodation.title }),
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -156,6 +225,7 @@ function AccommodationCardWithVotes({
   onCloseVoting,
   onReopenVoting,
   onToggleAutoClose,
+  onBooked,
 }: {
   accommodation: Accommodation;
   tripId: string;
@@ -168,6 +238,10 @@ function AccommodationCardWithVotes({
   onCloseVoting: () => void;
   onReopenVoting: () => void;
   onToggleAutoClose: (autoClose: boolean) => void;
+  /** v1.39.2 task 4: fires after a successful book, so the parent can offer to record a
+   * matching expense (expenses.related_id links it so the cost analysis doesn't double-count
+   * this booking). Not fired on unbook. */
+  onBooked: (accommodation: Accommodation) => void;
 }) {
   const { t } = useTranslation('accommodations');
   const { t: tCommon } = useTranslation("common");
@@ -218,7 +292,7 @@ function AccommodationCardWithVotes({
       {accommodation.description && (
         <View className="gap-xs">
           <Text className="text-label text-text-muted uppercase">{tCommon('label.description')}</Text>
-          <Text className="text-body-small text-text-secondary">{accommodation.description}</Text>
+          <RichText className="text-body-small text-text-secondary" selectable>{accommodation.description}</RichText>
         </View>
       )}
       {accommodation.notes && (
@@ -352,7 +426,10 @@ function AccommodationCardWithVotes({
             {canBook && (
               <TouchableOpacity
                 activeOpacity={0.7}
-                onPress={() => bookMutation.mutate({ accommodationId: accommodation.id, tripId })}
+                onPress={() => bookMutation.mutate(
+                  { accommodationId: accommodation.id, tripId },
+                  { onSuccess: () => onBooked(accommodation) },
+                )}
                 disabled={isMutationBusy(bookMutation)}
                 className="flex-row items-center gap-xs px-md py-sm rounded-sm bg-success/10"
               >

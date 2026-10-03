@@ -50,3 +50,13 @@ export function isExpenseFullySettled(splits: { user_id: string; status: string 
   const nonPayer = splits.filter((s) => s.user_id !== paidBy);
   return nonPayer.length > 0 && nonPayer.every((s) => s.status === 'settled');
 }
+
+/**
+ * v1.39.2 task 2: true as soon as ANY non-payer split is settled — deliberately broader
+ * than `isExpenseFullySettled` (which requires ALL of them). This is the lock condition
+ * for amount/currency/tip/paid_by/split_method/split-among in EditExpenseSheet: a partial
+ * settlement must not be silently reset to 'open' by an unrelated metadata edit either.
+ */
+export function hasAnySettledSplit(splits: { user_id: string; status: string }[], paidBy: string): boolean {
+  return splits.some((s) => s.user_id !== paidBy && s.status === 'settled');
+}

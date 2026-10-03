@@ -233,6 +233,18 @@ export const updateExpenseWithSplitsSchema = z.object({
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseWithSplitsInput = z.infer<typeof updateExpenseWithSplitsSchema>;
 
+// v1.39.2 task 2: once any non-payer split is settled, amount/currency/tip/paid_by/
+// split_method/splits are locked (EditExpenseSheet's hasSettledSplit) — only these fields
+// stay editable, via update_expense_metadata (which never touches expense_splits).
+export const updateExpenseMetadataSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
+  related_type: z.enum(EXPENSE_RELATED_TYPE).optional(),
+  is_business: z.boolean().optional(),
+});
+
+export type UpdateExpenseMetadataInput = z.infer<typeof updateExpenseMetadataSchema>;
+
 // --- Shopping schemas ---
 
 export const createShoppingListSchema = z.object({
@@ -683,6 +695,7 @@ export type RemovePublicTransportPassengerVariables = { publicTransportId: strin
 // Optional only so legacy queue entries persisted by an older build still replay.
 export type CreateExpenseVariables = { tripId: string; input: CreateExpenseInput; id?: string };
 export type UpdateExpenseWithSplitsVariables = { expenseId: string; tripId: string; input: UpdateExpenseWithSplitsInput };
+export type UpdateExpenseMetadataVariables = { expenseId: string; tripId: string; input: UpdateExpenseMetadataInput };
 export type ArchiveExpenseVariables = { expenseId: string; tripId: string };
 export type UnarchiveExpenseVariables = { expenseId: string; tripId: string };
 export type SettleExpenseSplitVariables = { splitId: string; expenseId: string; tripId: string };

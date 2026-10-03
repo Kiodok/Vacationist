@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeSettlements, isExpenseFullySettled } from './settlements';
+import { computeSettlements, isExpenseFullySettled, hasAnySettledSplit } from './settlements';
 import type { MemberBalance } from '@vacationist/types';
 
 function balance(user_id: string, total_paid: number, total_owed: number): MemberBalance {
@@ -344,5 +344,41 @@ describe('isExpenseFullySettled', () => {
   it('returns false when single non-payer split is open', () => {
     const splits = [{ user_id: 'b', status: 'open' }];
     expect(isExpenseFullySettled(splits, 'payer')).toBe(false);
+  });
+});
+
+describe('hasAnySettledSplit', () => {
+  it('returns true when only one of several non-payer splits is settled', () => {
+    const splits = [
+      { user_id: 'payer', status: 'settled' },
+      { user_id: 'b', status: 'settled' },
+      { user_id: 'c', status: 'open' },
+    ];
+    expect(hasAnySettledSplit(splits, 'payer')).toBe(true);
+  });
+
+  it('returns true when every non-payer split is settled (superset of isExpenseFullySettled)', () => {
+    const splits = [
+      { user_id: 'payer', status: 'settled' },
+      { user_id: 'b', status: 'settled' },
+    ];
+    expect(hasAnySettledSplit(splits, 'payer')).toBe(true);
+  });
+
+  it('returns false when every non-payer split is open', () => {
+    const splits = [
+      { user_id: 'payer', status: 'settled' },
+      { user_id: 'b', status: 'open' },
+      { user_id: 'c', status: 'open' },
+    ];
+    expect(hasAnySettledSplit(splits, 'payer')).toBe(false);
+  });
+
+  it("the payer's own auto-settled split never counts on its own", () => {
+    expect(hasAnySettledSplit([{ user_id: 'payer', status: 'settled' }], 'payer')).toBe(false);
+  });
+
+  it('returns false for an empty splits array', () => {
+    expect(hasAnySettledSplit([], 'payer')).toBe(false);
   });
 });

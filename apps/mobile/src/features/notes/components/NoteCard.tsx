@@ -53,6 +53,7 @@ export function NoteCard({ note, authorName, onPress, onToggleDone, onLongPress,
         <RichText
           className={`text-body-small ${note.is_done ? 'text-text-muted' : 'text-text-secondary'}`}
           numberOfLines={2}
+          linksInteractive={false}
         >
           {note.description}
         </RichText>

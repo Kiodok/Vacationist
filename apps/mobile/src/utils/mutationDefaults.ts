@@ -19,6 +19,7 @@ import {
   removeTransferFlightVote,
   createExpense,
   updateExpenseWithSplits,
+  updateExpenseMetadata,
   archiveExpense,
   unarchiveExpense,
   settleExpenseSplit,
@@ -103,6 +104,7 @@ import type {
   RemoveTransferFlightVoteVariables,
   CreateExpenseVariables,
   UpdateExpenseWithSplitsVariables,
+  UpdateExpenseMetadataVariables,
   ArchiveExpenseVariables,
   UnarchiveExpenseVariables,
   SettleExpenseSplitVariables,
@@ -335,6 +337,16 @@ queryClient.setMutationDefaults(['updateExpenseWithSplits'], {
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
     queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'balances'] });
     queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'splits'] });
+    useToastStore.getState().addToast('success', i18n.t('expenses:toast.updated'));
+  },
+});
+
+queryClient.setMutationDefaults(['updateExpenseMetadata'], {
+  scope: EXPENSES_SCOPE,
+  mutationFn: ({ expenseId, input }: UpdateExpenseMetadataVariables) =>
+    updateExpenseMetadata(expenseId, input),
+  onSuccess: (_data: void, { tripId }: UpdateExpenseMetadataVariables) => {
+    queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'expenses'] });
     useToastStore.getState().addToast('success', i18n.t('expenses:toast.updated'));
   },
 });

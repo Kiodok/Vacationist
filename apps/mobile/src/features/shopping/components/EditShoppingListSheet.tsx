@@ -56,7 +56,7 @@ export function EditShoppingListSheet({ visible, onClose, onSubmit, isPending, c
           </View>
 
           <View className="flex-row items-center justify-between mb-md">
-            <Text className="text-heading-m text-text-primary">Rename List</Text>
+            <Text className="text-heading-m text-text-primary">{t('edit.renameList')}</Text>
             <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
@@ -64,7 +64,7 @@ export function EditShoppingListSheet({ visible, onClose, onSubmit, isPending, c
 
           <View className="gap-md">
             <View className="gap-xs">
-              <Text className="text-label text-text-muted uppercase">Title *</Text>
+              <Text className="text-label text-text-muted uppercase">{t('field.listName')} *</Text>
               <Controller
                 control={control}
                 name="title"
@@ -72,7 +72,7 @@ export function EditShoppingListSheet({ visible, onClose, onSubmit, isPending, c
                   <TextInput
                     className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                     placeholderTextColor="#5C5C5C"
-                    placeholder="e.g. Groceries, Beach Day"
+                    placeholder={t('placeholder.listName')}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}

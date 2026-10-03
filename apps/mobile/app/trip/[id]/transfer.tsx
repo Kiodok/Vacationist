@@ -10,7 +10,7 @@ import type {
   CreateTransferVehicleInput, UpdateTransferVehicleInput,
   CreateTransferRentalInput, UpdateTransferRentalInput,
   CreateTransferPublicTransportInput, UpdateTransferPublicTransportInput,
-  BookTransferFlightInput,
+  BookTransferFlightInput, Currency,
 } from '@vacationist/types';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useCurrentMemberRole, useTripMembers } from '../../../src/features/trips/hooks/useMembers';
@@ -54,6 +54,14 @@ import { safeScrollToSectionLocation, safeScrollToIndex } from '../../../src/uti
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
 import { OfflineEmptyState } from '../../../src/components/OfflineEmptyState';
 import { QueryErrorState } from '../../../src/components/QueryErrorState';
+import { CreateExpenseSheet, type ExpensePrefill } from '../../../src/features/expenses/components/CreateExpenseSheet';
+import { useCreateExpense } from '../../../src/features/expenses/hooks/useExpenses';
+import { uploadExpenseDocument, getTransferFlightPassengers, getTransferFlightDocuments } from '@vacationist/api';
+import { readFileAsArrayBuffer, type PickedDocumentFile } from '../../../src/utils/documentPicker';
+import { createClientId } from '../../../src/utils/optimisticId';
+import { useQueryClient } from '@tanstack/react-query';
+import { useToastStore } from '../../../src/stores/toastStore';
+import type { CreateExpenseInput } from '@vacationist/types';
 
 type Segment = 'All' | 'Flights' | 'Vehicles' | 'Rentals' | 'PublicTransport';
 
@@ -90,6 +98,33 @@ export default function TransferTab() {
   const reopenFlightVoting = useReopenTransferFlightVoting();
   const bookFlight = useBookTransferFlight();
   useTransferRealtime(tripId!);
+  const createExpense = useCreateExpense();
+  const queryClient = useQueryClient();
+  const { t: tExpenses } = useTranslation('expenses');
+
+  // Mirrors expenses.tsx's uploadStagedExpenseDocuments exactly (same accepted gap: lost if the
+  // create mutation is queued offline and replays after the app was killed) — fires from the
+  // create mutation's onSuccess, never in parallel with it, and surfaces a toast on failure
+  // instead of swallowing it (code review 2026-10-03).
+  const uploadStagedExpenseDocuments = async (expenseId: string, files: PickedDocumentFile[]) => {
+    if (files.length === 0) return;
+    const results = await Promise.allSettled(
+      files.map(async (file) => {
+        const fileData = await readFileAsArrayBuffer(file.uri);
+        return uploadExpenseDocument(tripId!, expenseId, fileData, file.fileName, file.mimeType);
+      }),
+    );
+    queryClient.invalidateQueries({ queryKey: ['expenses', expenseId, 'documents'] });
+    const failedCount = results.filter((r) => r.status === 'rejected').length;
+    if (failedCount > 0) {
+      useToastStore.getState().addToast('error', tExpenses('toast.stagedDocumentsFailed', { count: failedCount }));
+    }
+  };
+  // v1.39.2 task 4: offered after booking a flight, or after a rental/public-transport entry's
+  // price is first set (no Book/status step on those two) — accept links a split expense via
+  // related_id so the cost analysis excludes the entity's own price and counts the expense
+  // instead; dismiss/cancel leaves it unset, which is today's behavior.
+  const [expensePrompt, setExpensePrompt] = useState<ExpensePrefill | null>(null);
 
   // Vehicles
   const vehiclesQuery = useTransferVehicles(tripId!);
@@ -250,26 +285,102 @@ export default function TransferTab() {
     updateVehicleMutation.mutate({ vehicleId: editingVehicle.id, tripId: tripId!, input });
   };
 
+  // v1.39.2 task 4: rentals have no Book/status step, so the "record as expense?" prompt's
+  // equivalent moment is the price going from unset/zero to a positive value — only prompt once
+  // (the "was unset before" check), not on every subsequent edit. Public transport NEVER
+  // triggers this prompt (Tech Lead follow-up, 2026-10-03) — ridership is often unknown or still
+  // changing at the moment a PT entry's price is set, so prompting immediately was premature,
+  // unwanted UX. See §3 of the cost-analysis doc in software_engineering_guide.md: PT prices are
+  // now excluded from the cost analysis entirely instead (same treatment as
+  // `activities.cost_estimate`), since removing this prompt also removes the only mechanism that
+  // ever populated `expenses.related_id` for a PT entity.
+  //
+  // `priceSignal` only gates whether we prompt at all (the entity has SOME price set);
+  // `prefillAmount` is what goes in the form. `price_per_person` is a PER-PERSON rate, not the
+  // group total the cost-analysis RPC actually excludes once this expense is linked
+  // (`price × participant_count`) — prefilling the bare per-person number read as authoritative
+  // (the banner says it "replaces" the booking's price) and was easy to miss correcting. Flights
+  // now compute the real group total via `computeFlightGroupTotal` below (passengers are
+  // assignable before Book as of the same follow-up, so a non-zero count is the common case) —
+  // `prefillAmount` is `undefined` only when no passengers/tickets are assigned yet. Rentals have
+  // no per-person ambiguity at all — `price_total` already IS the group total (summed directly by
+  // the RPC, never multiplied) — so rentals always prefill it.
+  const promptExpenseForEntity = (title: string, priceSignal: number, prefillAmount: number | undefined, currencyCode: Currency, id: string) => {
+    if (priceSignal > 0) {
+      setExpensePrompt({
+        title,
+        amount: prefillAmount,
+        currency: currencyCode,
+        relatedType: 'transport',
+        relatedId: id,
+        banner: tExpenses('create.linkedToBookingBanner', { title }),
+      });
+    }
+  };
+
+  // Mirrors get_trip_cost_summary's flight participant math — price_per_person ×
+  // COUNT(DISTINCT user_id) over transfer_flight_passengers ∪ transfer_documents (ticket
+  // holders) — so the booking prompt prefills the real group total instead of the bare
+  // per-person rate. Flight passengers are now assignable before Book (20261003140000), so a
+  // non-zero count is the common case by the time this fires. Resolves to undefined on fetch
+  // failure or an empty union — never blocks the prompt.
+  const computeFlightGroupTotal = async (flightId: string, perPersonPrice: number): Promise<number | undefined> => {
+    try {
+      const [passengers, documents] = await Promise.all([
+        queryClient.fetchQuery({
+          queryKey: ['transfer-flights', flightId, 'passengers'],
+          queryFn: () => getTransferFlightPassengers(flightId),
+        }),
+        queryClient.fetchQuery({
+          queryKey: ['transfer-flights', flightId, 'documents'],
+          queryFn: () => getTransferFlightDocuments(flightId),
+        }),
+      ]);
+      const uniqueUserIds = new Set([...passengers, ...documents].map((row) => row.user_id));
+      return uniqueUserIds.size > 0 ? Number((perPersonPrice * uniqueUserIds.size).toFixed(2)) : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+
   const handleCreateRental = (input: CreateTransferRentalInput) => {
     setShowCreateRental(false);
-    createRental.mutate({ tripId: tripId!, input });
+    // Rentals have no per-person ambiguity — price_total already is the group total (see
+    // promptExpenseForEntity's doc comment) — safe to prefill directly.
+    createRental.mutate({ tripId: tripId!, input }, {
+      onSuccess: (rental) => promptExpenseForEntity(rental.title, Number(input.price_total ?? 0), Number(input.price_total ?? 0), rental.currency, rental.id),
+    });
   };
 
   const handleUpdateRental = (input: UpdateTransferRentalInput) => {
     if (!editingRental) return;
+    const hadNoPrice = !(Number(editingRental.price_total ?? 0) > 0);
+    const rentalId = editingRental.id;
+    // input.title is the just-submitted value — editingRental.title is only a fallback for an
+    // old/partial payload that happens to omit it (code review 2026-10-03: using the stale
+    // pre-edit title unconditionally showed the OLD name in the prompt banner when a save
+    // renamed the rental and set its price in the same edit).
+    const title = input.title ?? editingRental.title;
+    const rentalCurrency = input.currency ?? editingRental.currency;
     setEditingRental(null);
-    updateRentalMutation.mutate({ rentalId: editingRental.id, tripId: tripId!, input });
+    updateRentalMutation.mutate({ rentalId, tripId: tripId!, input }, {
+      onSuccess: () => { if (hadNoPrice) promptExpenseForEntity(title, Number(input.price_total ?? 0), Number(input.price_total ?? 0), rentalCurrency, rentalId); },
+    });
   };
 
   const handleCreatePublicTransport = (input: CreateTransferPublicTransportInput) => {
     setShowCreatePublicTransport(false);
+    // No booking-prompt for PT (Tech Lead follow-up, 2026-10-03) — see promptExpenseForEntity's
+    // doc comment. Its price is excluded from the cost analysis entirely instead.
     createPublicTransport.mutate({ tripId: tripId!, input });
   };
 
   const handleUpdatePublicTransport = (input: UpdateTransferPublicTransportInput) => {
     if (!editingPublicTransport) return;
+    const ptId = editingPublicTransport.id;
     setEditingPublicTransport(null);
-    updatePublicTransportMutation.mutate({ publicTransportId: editingPublicTransport.id, tripId: tripId!, input });
+    // No booking-prompt for PT here either — see handleCreatePublicTransport's comment.
+    updatePublicTransportMutation.mutate({ publicTransportId: ptId, tripId: tripId!, input });
   };
 
   const renderDirectionHeader = (title: string, sectionKey: string) => {
@@ -381,7 +492,19 @@ export default function TransferTab() {
                   onCloseVoting={() => closeFlightVoting.mutate({ flightId: item.id, tripId: tripId! })}
                   onReopenVoting={() => reopenFlightVoting.mutate({ flightId: item.id, tripId: tripId! })}
                   onToggleAutoClose={(val) => updateFlightMutation.mutate({ flightId: item.id, tripId: tripId!, input: { auto_close: val } })}
-                  onBook={(input) => bookFlight.mutate({ flightId: item.id, tripId: tripId!, input })}
+                  onBook={(input) => bookFlight.mutate(
+                    { flightId: item.id, tripId: tripId!, input },
+                    // Prefill is computed from real assigned passengers/tickets now that
+                    // flight passengers are assignable before Book (20261003140000, 2026-10-03
+                    // follow-up) — see computeFlightGroupTotal's doc comment.
+                    {
+                      onSuccess: async () => {
+                        const perPersonPrice = Number(item.price_per_person ?? 0);
+                        const prefillAmount = await computeFlightGroupTotal(item.id, perPersonPrice);
+                        promptExpenseForEntity(item.title, perPersonPrice, prefillAmount, item.currency, item.id);
+                      },
+                    },
+                  )}
                 />
               </View>
             )}
@@ -622,6 +745,31 @@ export default function TransferTab() {
           tripEndDate={trip?.end_date ?? undefined}
         />
       )}
+
+      {/* members defaults to [] (truthy, unlike accommodations.tsx's undefined-while-loading
+          `members`), so this needs an explicit length check to actually gate on "loaded" —
+          otherwise a prompt that fires before useTripMembers resolves mounts the sheet with an
+          empty member list, producing an unsubmittable zero-split expense (code review
+          2026-10-03). */}
+      {expensePrompt && user?.id && members.length > 0 && (
+        <CreateExpenseSheet
+          visible={!!expensePrompt}
+          onClose={() => setExpensePrompt(null)}
+          onSubmit={(input: CreateExpenseInput, stagedFiles: PickedDocumentFile[]) => {
+            setExpensePrompt(null);
+            createExpense.mutate(
+              { tripId: tripId!, input, id: createClientId() },
+              { onSuccess: (expenseId) => { void uploadStagedExpenseDocuments(expenseId, stagedFiles); } },
+            );
+          }}
+          isPending={isMutationBusy(createExpense)}
+          members={members}
+          currentUserId={user.id}
+          currency={currency}
+          tripId={tripId!}
+          prefill={expensePrompt}
+        />
+      )}
     </View>
   );
 }
@@ -702,7 +850,10 @@ function FlightCardWithVotes({
   const canCloseVoting = role === 'organizer' && flight.voting_open;
   const canReopenVoting = role === 'organizer' && !flight.voting_open;
   const canBook = role === 'organizer' && !flight.voting_open && flight.status !== 'booked';
-  const canManagePassengers = role === 'organizer' && flight.status === 'booked';
+  // 2026-10-03 follow-up: passengers can now be assigned before booking (organizer-only, still —
+  // no self-join for flights, unlike PT/vehicles), so the Book-time prompt can prefill a real
+  // group total. See the 20261003140000 migration.
+  const canManagePassengers = role === 'organizer';
 
   const isDiscuss = votes.some((v) => v.vote === 'group_blocker') && flight.voting_open;
   const canActOnDiscuss = isDiscuss && (role === 'organizer' || flight.created_by === currentUserId);
@@ -745,7 +896,7 @@ function FlightCardWithVotes({
         </TouchableOpacity>
       )}
 
-      {flight.status === 'booked' && passengers.length > 0 && (
+      {passengers.length > 0 && (
         <View className="gap-xs">
           <Text className="text-label text-text-muted uppercase">{t('action.passengers')}</Text>
           <View className="flex-row flex-wrap gap-xs">

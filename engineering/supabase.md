@@ -5727,3 +5727,120 @@ execute (planning nudge would send 12 on the next Monday run). **Original plan:*
 three trips above (Sarajevo → no fire; the other two → fire); a foreign-currency `even`/`shares`/`exact`
 expense sums exactly to `converted_amount`, a `cover` expense is unchanged; dev-vs-prod parity via
 `gen types --linked`.
+
+## 2026-10-03 — v1.39.2: settled-expense metadata lock + cost-analysis double-count fix (2 migrations)
+
+**Status: NOT YET PUSHED to dev or prod** — code-complete, `npm run typecheck` + `npm test` green, pending
+the Tech Lead's go-ahead before `supabase db push`. Client code also not committed ([[commit-discipline]]).
+
+- `20261003100000_expense_metadata_only_update.sql` — new `public.update_expense_metadata(p_expense_id,
+  p_title, p_description, p_related_type, p_is_business)`, same auth checks as
+  `update_expense_with_splits` (organizer or `created_by`), but it **never** touches `expense_splits`.
+  Fixes: editing *any* field of a settled expense — even just the description — used to silently
+  unsettle it, because `update_expense_with_splits` always `DELETE`s and re-`INSERT`s every split on
+  every save, defaulting non-payer splits back to `'open'`. `EditExpenseSheet` now locks
+  amount/currency/tip/paid_by/split_method/split-among as soon as **any** non-payer split is settled
+  (`hasAnySettledSplit()`, `packages/utils/src/settlements.ts`) and calls this RPC instead for the
+  metadata-only fields that stay editable. `update_expense_with_splits` itself also gained a guard that
+  `RAISE EXCEPTION`s outright if a non-payer split is already settled — defense in depth against a
+  stale/bypassed client. No new column, no signature change to the existing RPC (same 11 params),
+  backward-compatible with every live client (an old client just never calls the new RPC and keeps
+  hitting the now-slightly-stricter guard, which it would never trip anyway since it never resubmits a
+  pre-settled expense unedited).
+- `20261003110000_cost_summary_related_id_exclusion.sql` — `get_trip_cost_summary` /
+  `get_my_trip_cost_shares` (bodies = live `20260905170000` / `20260905200000` verbatim, plus one
+  `AND NOT EXISTS (...)` per entity branch) now exclude an `accommodations` / `transfer_flights` /
+  `transfer_rentals` / `transfer_public_transport` row from the entity sum once a live (non-archived)
+  expense exists with `expenses.related_id` = that row's id. Fixes: a booked accommodation/flight (or a
+  priced rental/PT entry) AND a separately-recorded expense for the same booking both counted toward
+  the cost analysis — the old category-level heuristic (entity price `> 0` suppresses the matching
+  `expense_*` bucket) only caught it when the expense's `related_type` happened to match, and real
+  users very often don't categorize it that way. `related_id` already existed and was already wired
+  end-to-end (`CreateExpenseSheet` → `create_expense_with_splits`'s `p_related_id` →
+  `expenses.related_id`) but no UI ever populated it before this. New partial index
+  `idx_expenses_related_id` backs the added `EXISTS` lookups. `packages/utils/src/costSummary.ts`
+  simplified to match: `expense_accommodation`/`expense_transport` are now always additive (same as
+  `expense_manual`); the old entity-presence gating survives only for `activity`/`expense_activity`
+  (out of scope this round — no equivalent Book/status moment to hang a "link this expense" prompt off
+  of yet).
+
+**Client wiring (not yet committed):** a "record this as an expense?" prompt opens `CreateExpenseSheet`
+pre-filled (`ExpensePrefill`) after booking an accommodation (`accommodations.tsx`) or a flight
+(`transfer.tsx`'s `onBook`), or after a rental/public-transport entry's price is first set (no
+Book/status step on those two — `transfer.tsx`'s `promptExpenseForEntity`, fires once per entity).
+Declining leaves `related_id` unset — today's behavior, unchanged. No "link an existing expense" picker
+was built (Tech Lead call) — this only prevents double-counting for bookings made after this ships;
+already-double-counted historical trips are not backfilled.
+
+**Also fixed in this session (pre-existing, unrelated to the two items above):** the marketing site's
+`SoftwareApplication.softwareVersion` (`marketing/site/build.mjs`'s `APP_VERSION`) was still `1.39.1`
+while `apps/mobile/app.config.ts` had already been bumped to `1.39.2` before this session started —
+`site.test.js`'s drift check caught it. Also corrected that constant's comment, which claimed the bump
+is only needed on MINOR/MAJOR releases; the test asserts exact equality on every release, patch
+included.
+
+## 2026-10-03 (later) — v1.39.2 code-review follow-up: trip-scope the related_id exclusion (1 migration)
+
+**Status: DEPLOYED dev only**, same gating as the rest of v1.39.2 — safe for prod immediately
+(see below), client still not committed. `/code-review` on the local diff found 5 issues; 4 were
+real bugs, fixed (3 client-side, 1 here). The 5th (the booking prompt isn't wired through the
+persisted-mutation `mutationDefaults.ts` pattern, so it's silently skipped if a Book/price-set
+mutation is queued offline and replays after the app is killed) was judged an acceptable,
+already-precedented gap — same shape as the documented limitation on
+`uploadStagedExpenseDocuments` in `expenses.tsx` — and left alone rather than over-engineered for
+a non-critical secondary prompt.
+
+- `20261003120000_cost_summary_trip_scope_related_id.sql` — the `NOT EXISTS` added in
+  `20261003110000` matched an expense to an entity purely on `related_id`, with no `trip_id`
+  scoping, and `create_expense_with_splits` never validated that `p_related_id` actually belongs
+  to `p_trip_id`. A cross-trip `related_id` (bug, stale replayed mutation-queue entry, or a
+  direct RPC call) could therefore silently exclude an entity from a DIFFERENT trip's own cost
+  summary. Fixed both sides: every `NOT EXISTS` in `get_trip_cost_summary` /
+  `get_my_trip_cost_shares` now also requires `e2.trip_id = <row>.trip_id`; `create_expense_with_splits`
+  now rejects a `p_related_id` that doesn't resolve to a row in `p_trip_id` across the four
+  linkable tables (defense in depth — the only client that ever sets `p_related_id` already only
+  ever passes same-trip ids, so this closes the gap rather than fixing an observed incident).
+  Same signatures throughout, no DROP needed.
+
+**Client-side fixes (not yet committed):**
+- `accommodations.tsx` / `transfer.tsx`: the booking-prompt's staged-document upload fired in
+  parallel with `createExpense.mutate()` instead of waiting for it to succeed, racing the upload
+  against a row that might not exist yet when offline, and swallowed failures with no toast. Now
+  matches `expenses.tsx`'s established `uploadStagedExpenseDocuments` pattern exactly (upload
+  only in the create mutation's `onSuccess`, toast on partial failure).
+- `accommodations.tsx` (booking) and `transfer.tsx` (flight booking): the prompt fired
+  unconditionally on a successful Book, with no `price > 0` gate — unlike the rental/PT paths,
+  which already gated on it via `promptExpenseForEntity`. Booking an unpriced accommodation or
+  flight opened `CreateExpenseSheet` pre-filled with a `0.00` amount, which fails the schema's
+  `amount.positive()` check. Flights now route through `promptExpenseForEntity` too (same gate,
+  one place); accommodations gained an equivalent `onAccommodationBooked` wrapper.
+- `transfer.tsx`'s `handleUpdateRental` / `handleUpdatePublicTransport` captured the prompt's
+  title from the stale pre-edit entity object instead of the just-submitted `input.title` — a
+  save that renamed the entity AND set its price in the same edit showed the OLD name in the
+  "Linked to ..." banner. Now prefers `input.title`.
+
+## 2026-10-03 (later still) — code review on the activity/PT/shopping follow-up round (1 migration)
+
+**Status: DEPLOYED dev only.** `/code-review` on that round's diff found 7 issues; 3 fixed here
+(the other 4 are an amount-prefill accuracy gap and a removed double-count fallback — genuine
+product trade-offs, surfaced to the Tech Lead rather than guessed at, see
+`.claude/skills/v1-39-2-batch/SKILL.md`).
+
+- `20261003130000_update_expense_with_splits_auth_order.sql` — the "settled non-payer split"
+  guard added in `20261003100000` ran BEFORE the trip-membership/permission checks, so a caller
+  who is a member of some OTHER trip (not this one) could learn whether a guessed/obtained
+  expense id has a settled split before being told "Not a trip member" — a minor
+  authorization-check-ordering / information-disclosure issue. Fixed by moving the guard to
+  after the role/permission checks (same relative position it held before, just shifted past
+  them). Pure reordering, no other behavior change, same signature.
+- `ExpensePrefill` (`CreateExpenseSheet.tsx`) gained a required `currency` field — the
+  booking-linked expense prompt previously always defaulted to the trip's base/last-used
+  currency, silently re-labeling a foreign-currency accommodation/flight/rental/PT price (Phase
+  15 multi-currency) as if it were in the trip's own currency. All four prefill call sites
+  (`accommodations.tsx`, `transfer.tsx` ×3) now pass the entity's own `currency` column.
+- `transfer.tsx`'s booking-linked `CreateExpenseSheet` mount was gated on `expensePrompt &&
+  user?.id` only — `members` defaults to `[]` there (unlike `accommodations.tsx`, where it's
+  `undefined` while loading), so the existing `members &&` idiom can't catch "not loaded yet" the
+  same way. Changed to `members.length > 0` so a prompt firing before `useTripMembers` resolves
+  can't mount the sheet with an empty member list (which would produce an unsubmittable
+  zero-split expense).

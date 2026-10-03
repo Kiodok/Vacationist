@@ -6,7 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, type Currency, ACTIVITY_CATEGORIES } from '@vacationist/types';
-import { getCurrencySymbol } from '@vacationist/utils';
+import { getCurrencySymbol, sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
@@ -40,6 +40,11 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
   });
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
   const categoryOptions = ACTIVITY_CATEGORIES.map((cat) => ({ value: cat, label: t(`category.${cat}`, { defaultValue: cat }) }));
+  // Mirrors CreateExpenseSheet's amountText pattern: the TextInput shows exactly what was typed
+  // (sanitized), never a re-rendered `String(RHF number)` — binding display straight to the
+  // parsed number drops a trailing "," or "." the moment it's typed, since parseFloat("116.")
+  // rounds to 116 and the display collapses before the fractional digits can be entered.
+  const [costText, setCostText] = useState(activity.cost_estimate != null ? String(activity.cost_estimate) : '');
 
   useEffect(() => {
     if (visible) {
@@ -58,6 +63,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
         maps_url: activity.maps_url ?? undefined,
         reservation_required: activity.reservation_required,
       });
+      setCostText(activity.cost_estimate != null ? String(activity.cost_estimate) : '');
     }
   }, [visible, activity]);
 
@@ -231,14 +237,16 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                 <Controller
                   control={control}
                   name="cost_estimate"
-                  render={({ field: { onChange, value } }) => (
+                  render={({ field: { onChange } }) => (
                     <TextInput
                       className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
                       placeholderTextColor="#5C5C5C"
                       placeholder="0.00"
-                      value={value != null ? String(value) : ''}
-                      onChangeText={(t) => {
-                        const num = parseFloat(t.replace(',', '.'));
+                      value={costText}
+                      onChangeText={(text) => {
+                        const cleaned = sanitizeDecimalInput(text);
+                        setCostText(cleaned);
+                        const num = parseFloat(cleaned);
                         onChange(isNaN(num) ? null : num);
                       }}
                       keyboardType="decimal-pad"

@@ -56,7 +56,7 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
 
           <View className="gap-md">
             <View className="gap-xs">
-              <Text className="text-label text-text-muted uppercase">{t('field.item')} *</Text>
+              <Text className="text-label text-text-muted uppercase">{t('field.listName')} *</Text>
               <Controller
                 control={control}
                 name="title"

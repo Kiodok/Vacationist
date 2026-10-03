@@ -31,7 +31,7 @@ export function TripCard({ trip, onPress }: TripCardProps) {
       </View>
 
       {trip.description ? (
-        <RichText className="text-body-small text-text-secondary mb-md" numberOfLines={2}>
+        <RichText className="text-body-small text-text-secondary mb-md" numberOfLines={2} linksInteractive={false}>
           {trip.description}
         </RichText>
       ) : null}

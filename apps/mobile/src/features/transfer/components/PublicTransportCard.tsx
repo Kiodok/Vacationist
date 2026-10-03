@@ -92,7 +92,7 @@ export function PublicTransportCard({ entry, onPress, detail, highlight }: Publi
           )}
           {entry.price_total != null && (
             <Text className="text-body-small text-text-secondary">
-              {formatCurrency(Number(entry.price_total), entry.currency)}
+              {formatCurrency(Number(entry.price_total), entry.currency)} {t('all.perPerson')}
             </Text>
           )}
         </View>

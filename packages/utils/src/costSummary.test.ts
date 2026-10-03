@@ -14,22 +14,27 @@ describe('computeTripCostSummary', () => {
     const result = computeTripCostSummary([], {}, 'EUR');
     expect(result).toEqual({
       total: 0,
-      byCategory: { base: 0, transfer: 0, activities: 0, expenses: 0 },
+      byCategory: { base: 0, transfer: 0, expenses: 0 },
       excludedSourceCount: 0,
     });
   });
 
-  describe('category-level precedence (entity price wins over the matching expense bucket)', () => {
-    it('uses the entity sum and ignores the expense bucket when the entity sum is > 0', () => {
+  describe('base/transfer are additive (v1.39.2 — precedence replaced by the RPC\'s per-row related_id exclusion)', () => {
+    it('accommodation entity sum (base) and expense_accommodation (expenses) are both counted, in their own buckets', () => {
       const result = computeTripCostSummary(
         [row('accommodation', 900), row('expense_accommodation', 400)],
         {},
         'EUR',
       );
-      // The 400 expense_accommodation must not leak in under any path — this is the exact
-      // double-count scenario the precedence rule exists to prevent.
+      // Pre-v1.39.2 this asserted total === 900 (expense suppressed by category-level
+      // precedence). That heuristic is gone: get_trip_cost_summary itself now excludes an
+      // accommodation row the moment a live expense is linked to it via related_id, so by the
+      // time rows reach this pure function, an unlinked accommodation row and an unrelated
+      // accommodation-category expense are two genuinely separate costs and must both count —
+      // the entity sum stays in `base`, the expense bucket is additive into `expenses`.
       expect(result.byCategory.base).toBe(900);
-      expect(result.total).toBe(900);
+      expect(result.byCategory.expenses).toBe(400);
+      expect(result.total).toBe(1300);
     });
 
     it('falls back to the expense bucket when the entity sum is exactly 0 (no priced/booked entities yet)', () => {
@@ -39,19 +44,23 @@ describe('computeTripCostSummary', () => {
       expect(result.total).toBe(250);
     });
 
-    it('sums multiple entity sources within one category before applying precedence (transfer = flights + rentals + public transport)', () => {
+    it('sums multiple entity sources within one category, all additive with the expense bucket (transfer = flights + rentals; public transport is excluded entirely)', () => {
       const result = computeTripCostSummary(
         [
           row('transfer_flight', 300),
           row('transfer_rental', 100),
           row('transfer_public_transport', 50),
-          row('expense_transport', 999), // must be fully suppressed — transfer entity sum is 450, not 0
+          row('expense_transport', 999),
         ],
         {},
         'EUR',
       );
-      expect(result.byCategory.transfer).toBe(450);
-      expect(result.total).toBe(450);
+      // transfer_public_transport (2026-10-03 follow-up) is excluded the same way `activity`
+      // is — see computeTripCostSummary's doc comment — so it contributes nothing here even
+      // though it's a real row; only flights + rentals sum into `transfer`.
+      expect(result.byCategory.transfer).toBe(400);
+      expect(result.byCategory.expenses).toBe(999);
+      expect(result.total).toBe(1399);
     });
 
     it("'manual' and 'shopping' expense rows always add, regardless of any other category's entity sum", () => {
@@ -68,21 +77,38 @@ describe('computeTripCostSummary', () => {
       expect(result.total).toBe(955);
     });
 
-    it('each category falls back independently — one priced category does not suppress another category\'s fallback', () => {
+    it('expense_activity is additive like any other expense source, with no entity to suppress it', () => {
       const result = computeTripCostSummary(
         [
-          row('accommodation', 900), // base priced -> no fallback
-          row('expense_transport', 120), // transfer unpriced -> fallback applies
-          row('expense_activity', 30), // activities unpriced -> fallback applies
+          row('accommodation', 900), // base priced — unrelated to the expenses bucket below
+          row('expense_transport', 120),
+          row('expense_activity', 30), // activity.cost_estimate is never summed, so this just adds
         ],
         {},
         'EUR',
       );
       expect(result.byCategory.base).toBe(900);
       expect(result.byCategory.transfer).toBe(0);
-      expect(result.byCategory.activities).toBe(0);
       expect(result.byCategory.expenses).toBe(150);
       expect(result.total).toBe(1050);
+    });
+  });
+
+  describe('activity.cost_estimate is never summed (it is a rough estimate, not a committed cost)', () => {
+    it('an activity entity row contributes to no bucket', () => {
+      const result = computeTripCostSummary([row('activity', 500)], {}, 'EUR');
+      expect(result.total).toBe(0);
+      expect(result.byCategory).toEqual({ base: 0, transfer: 0, expenses: 0 });
+    });
+
+    it('a real expense_activity (an actual recorded expense) still counts, same as expense_manual', () => {
+      const result = computeTripCostSummary(
+        [row('activity', 500), row('expense_activity', 45)],
+        {},
+        'EUR',
+      );
+      expect(result.byCategory.expenses).toBe(45);
+      expect(result.total).toBe(45);
     });
   });
 
@@ -111,7 +137,7 @@ describe('computeTripCostSummary', () => {
         [
           row('accommodation', 900),
           row('transfer_flight', 200),
-          row('activity', 100),
+          row('activity', 100), // ignored — cost_estimate never contributes
           row('expense_food_drink', 80),
           row('expense_souvenirs', 20),
         ],
@@ -119,7 +145,7 @@ describe('computeTripCostSummary', () => {
         'EUR',
       );
       expect(result.byCategory.expenses).toBe(100);
-      expect(result.total).toBe(1300);
+      expect(result.total).toBe(1200);
     });
 
     it('does not let a new category suppress or double-count an entity fallback', () => {
@@ -181,19 +207,21 @@ describe('computeTripCostSummary', () => {
     });
 
     it('sums many small multi-currency rows to the expected total', () => {
-      // 7 rows across 3 currencies — a real aggregation, not a single hand-picked pair.
+      // 7 rows across 3 currencies — a real aggregation, not a single hand-picked pair. The
+      // transfer_public_transport rows are included to confirm they're excluded entirely
+      // (2026-10-03 follow-up), not just one contributing currency among several.
       const rates = { EUR: 1, USD: 1.1, GBP: 0.85 };
       const rows: CostSummaryRow[] = [
         row('transfer_flight', 110, 'USD'), // -> 100
         row('transfer_flight', 55, 'USD'), // -> 50
         row('transfer_rental', 85, 'GBP'), // -> 100
         row('transfer_rental', 42.5, 'GBP'), // -> 50
-        row('transfer_public_transport', 20, 'EUR'),
-        row('transfer_public_transport', 30, 'EUR'),
-        row('transfer_public_transport', 10.5, 'EUR'),
+        row('transfer_public_transport', 20, 'EUR'), // excluded
+        row('transfer_public_transport', 30, 'EUR'), // excluded
+        row('transfer_public_transport', 10.5, 'EUR'), // excluded
       ];
       const result = computeTripCostSummary(rows, rates, 'EUR');
-      expect(result.byCategory.transfer).toBeCloseTo(360.5, 2);
+      expect(result.byCategory.transfer).toBeCloseTo(300, 2);
     });
   });
 
@@ -313,23 +341,21 @@ describe('computeMyCostShares', () => {
 
   // v1.34.1 task 4: public transport now follows the same passenger-or-ticket gating as flights
   // (one row per entry, price counts in full or not at all) — it is NOT an even split any more.
-  describe('public transport passenger/ticket gating', () => {
-    it('counts the full price_total when the caller is a passenger or ticket-holder', () => {
-      const result = computeMyCostShares(
+  describe('public transport is never part of the analysis (2026-10-03 follow-up)', () => {
+    it('counts ZERO regardless of is_mine — its own price never contributes, unlike a flight', () => {
+      const resultMine = computeMyCostShares(
         [shareRow({ source: 'transfer_public_transport', amount: 60, is_mine: true, member_count: 5 })],
         {},
         'EUR',
       );
-      expect(result.trips[0].share).toBe(60); // not 60/5
-    });
+      expect(resultMine.trips[0].share).toBe(0);
 
-    it('counts ZERO for a public transport entry the caller is not on', () => {
-      const result = computeMyCostShares(
+      const resultNotMine = computeMyCostShares(
         [shareRow({ source: 'transfer_public_transport', amount: 60, is_mine: false, member_count: 5 })],
         {},
         'EUR',
       );
-      expect(result.trips[0].share).toBe(0);
+      expect(resultNotMine.trips[0].share).toBe(0);
     });
   });
 
@@ -345,7 +371,8 @@ describe('computeMyCostShares', () => {
     });
 
     it('sums multiple even-split rows before dividing once by member_count, not per-row', () => {
-      // 100 (accommodation) + 40 (rental) + 20 (activity) = 160, / 4 members = 40 each.
+      // 100 (accommodation) + 40 (rental) = 140, / 4 members = 35 each. The activity row is
+      // ignored — cost_estimate never contributes.
       const result = computeMyCostShares(
         [
           shareRow({ source: 'accommodation', amount: 100, member_count: 4 }),
@@ -355,7 +382,7 @@ describe('computeMyCostShares', () => {
         {},
         'EUR',
       );
-      expect(result.trips[0].share).toBe(40);
+      expect(result.trips[0].share).toBe(35);
     });
   });
 
@@ -404,11 +431,12 @@ describe('computeMyCostShares', () => {
     expect(result.trips[0].share).toBe(150 + 30 + 50);
   });
 
-  // v1.34.2: the same category-level precedence computeTripCostSummary applies — a priced entity
-  // in a category suppresses that category's expense bucket, so the €900-booked-hotel +
-  // €900-hotel-expense case doesn't charge the caller twice for one payment.
-  describe('category-level precedence (entity price wins over the matching expense bucket)', () => {
-    it('suppresses my expense_accommodation debt when the trip has a priced accommodation entity', () => {
+  // v1.39.2: accommodation/transport expense debt is now always additive — the precedence that
+  // used to suppress it here was replaced by get_my_trip_cost_shares excluding a SPECIFIC linked
+  // entity row at the source (via expenses.related_id), which this pure function has no way to
+  // see (by the time a row reaches here, it's already a genuinely separate, unlinked cost).
+  describe('accommodation/transport expense debt is additive (precedence replaced by the RPC\'s related_id exclusion)', () => {
+    it('adds my expense_accommodation debt even when the trip has a priced accommodation entity', () => {
       const result = computeMyCostShares(
         [
           shareRow({ source: 'accommodation', amount: 900, member_count: 4 }), // -> 225/person
@@ -417,7 +445,7 @@ describe('computeMyCostShares', () => {
         {},
         'EUR',
       );
-      expect(result.trips[0].share).toBe(225); // NOT 225 + 225
+      expect(result.trips[0].share).toBe(225 + 225);
     });
 
     it('uses my expense_accommodation debt when nothing is priced at the entity level', () => {
@@ -429,7 +457,7 @@ describe('computeMyCostShares', () => {
       expect(result.trips[0].share).toBe(180);
     });
 
-    it('a priced flight the caller is NOT on (someone else is) still suppresses my expense_transport debt — matches the group card', () => {
+    it('a priced flight the caller is NOT on (someone else is) does not suppress my expense_transport debt', () => {
       const result = computeMyCostShares(
         [
           // RPC only emits this row because the flight has >=1 participant; is_mine=false = not me.
@@ -439,7 +467,7 @@ describe('computeMyCostShares', () => {
         {},
         'EUR',
       );
-      expect(result.trips[0].share).toBe(0); // flight isn't mine (0), transport expense suppressed
+      expect(result.trips[0].share).toBe(60); // flight isn't mine (0) + the transport expense, additive
     });
 
     it('does NOT suppress the transport fallback when no transfer entity is priced (zero-participant flights are omitted by the RPC)', () => {
@@ -463,21 +491,21 @@ describe('computeMyCostShares', () => {
       expect(result.trips[0].share).toBe(120);
     });
 
-    it('each category falls back independently — a priced accommodation does not suppress the activity expense fallback', () => {
+    it('accommodation/transport/activity debt are all additive, with no entity-presence fallback left for any of them', () => {
       const result = computeMyCostShares(
         [
           shareRow({ source: 'accommodation', amount: 800, member_count: 4 }), // -> 200/person
-          shareRow({ source: 'expense_owed_by_me', related_type: 'accommodation', amount: 200, member_count: 4 }), // suppressed
-          shareRow({ source: 'expense_owed_by_me', related_type: 'activity', amount: 35, member_count: 4 }), // kept
+          shareRow({ source: 'expense_owed_by_me', related_type: 'accommodation', amount: 200, member_count: 4 }), // additive
+          shareRow({ source: 'expense_owed_by_me', related_type: 'activity', amount: 35, member_count: 4 }), // always additive — no activity entity sum exists to guard against
           shareRow({ source: 'expense_owed_by_me', related_type: 'shopping', amount: 12, member_count: 4 }), // always kept
         ],
         {},
         'EUR',
       );
-      expect(result.trips[0].share).toBe(200 + 35 + 12);
+      expect(result.trips[0].share).toBe(200 + 200 + 35 + 12);
     });
 
-    it('an entity priced in a rate-less currency still suppresses its expense fallback (amount is known > 0 even when unconvertible)', () => {
+    it('an accommodation entity priced in a rate-less currency is excluded from the sum, but no longer suppresses the expense debt', () => {
       const result = computeMyCostShares(
         [
           shareRow({ source: 'accommodation', amount: 500, currency: 'BAM', member_count: 2 }), // excluded from the sum
@@ -486,7 +514,7 @@ describe('computeMyCostShares', () => {
         { EUR: 1 }, // no BAM rate
         'EUR',
       );
-      expect(result.trips[0].share).toBe(0); // accommodation row excluded, expense fallback still suppressed
+      expect(result.trips[0].share).toBe(250); // accommodation row excluded (unconvertible), expense debt still counts
       expect(result.excludedSourceCount).toBe(1);
     });
 

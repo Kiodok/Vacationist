@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Pressable, Modal, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { TripMemberWithUser } from '@vacationist/api';
@@ -33,6 +33,21 @@ export function PassengerSelectSheet({
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [selected, setSelected] = useState<Set<string>>(new Set(selectedUserIds));
+
+  // Re-seed from the latest server state on the closed→open transition only. Every parent
+  // rebuilds selectedUserIds via .map() on every render, so depending on it directly would
+  // re-seed on every parent re-render while the sheet is already open, silently discarding
+  // whatever the user is mid-selecting. [visible] alone only fires on open/close, and this
+  // closure still sees that render's current selectedUserIds — exactly what we want. Without
+  // this, the sheet's checkbox state was seeded once at mount (often before the passenger query
+  // had even resolved) and never resynced, so a just-joined passenger silently reset to
+  // unchecked every time the sheet was reopened.
+  useEffect(() => {
+    if (visible) {
+      setSelected(new Set(selectedUserIds));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
 
   const toggle = (userId: string) => {
     setSelected((prev) => {

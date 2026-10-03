@@ -5,7 +5,7 @@ import { ScrollView } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateExpenseWithSplitsSchema, type UpdateExpenseWithSplitsInput, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency, type Expense, type ExpenseSplit } from '@vacationist/types';
+import { updateExpenseWithSplitsSchema, type UpdateExpenseWithSplitsInput, type UpdateExpenseMetadataInput, EXPENSE_SPLIT_METHOD, type ExpenseSplitMethod, type Currency, type Expense, type ExpenseSplit } from '@vacationist/types';
 
 // The "cover" whole-expense split method is retired from the create/edit UI (v1.33.0). Opening
 // an existing cover expense here converts it to an even split (real payer restored) on save —
@@ -15,7 +15,7 @@ const SELECTABLE_SPLIT_METHODS = EXPENSE_SPLIT_METHOD.filter(
   (m): m is SelectableSplitMethod => m !== 'cover',
 );
 import type { TripMemberWithUser } from '@vacationist/api';
-import { formatCurrency, roundCurrency, sanitizeDecimalInput, evenExactShares, storedExactShares, sumExactAmounts, isExactSplitBalanced } from '@vacationist/utils';
+import { formatCurrency, roundCurrency, sanitizeDecimalInput, evenExactShares, storedExactShares, sumExactAmounts, isExactSplitBalanced, hasAnySettledSplit } from '@vacationist/utils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
 import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/useCurrencies';
@@ -33,6 +33,14 @@ interface EditExpenseSheetProps {
   onClose: () => void;
   onSubmit: (input: UpdateExpenseWithSplitsInput) => void;
   isPending: boolean;
+  /** Metadata-only submit (title/description/category/business flag) — used instead of
+   * `onSubmit` whenever `hasSettledSplit` is true, since update_expense_metadata is the
+   * only RPC allowed to touch a settled expense. */
+  onSubmitMetadata: (input: UpdateExpenseMetadataInput) => void;
+  isPendingMetadata: boolean;
+  /** Closes this sheet and opens the split breakdown, so the user can unsettle a split
+   * and come back to edit the locked fields. */
+  onOpenSplitBreakdown: () => void;
   expense: Expense;
   splits: ExpenseSplit[];
   members: TripMemberWithUser[];
@@ -42,7 +50,7 @@ interface EditExpenseSheetProps {
   canManage: boolean;
 }
 
-export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expense, splits, members, currency, currentUserId, canManage }: EditExpenseSheetProps) {
+export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubmitMetadata, isPendingMetadata, onOpenSplitBreakdown, expense, splits, members, currency, currentUserId, canManage }: EditExpenseSheetProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('expenses');
   const { t: tCommon } = useTranslation('common');
@@ -69,6 +77,13 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
     (sum, s) => sum + Number(s.amount_owed_original_currency ?? s.amount_owed),
     0,
   );
+
+  // v1.39.2 task 2: once ANY non-payer split is settled, amount/currency/tip/paid_by/
+  // split_method/split-among lock permanently — update_expense_with_splits rejects this
+  // case server-side too (defense in depth). The user must unsettle via Split Breakdown
+  // first; only title/description/category/is_business/documents stay editable here.
+  const hasSettledSplit = hasAnySettledSplit(splits, expense.paid_by);
+  const moneyFieldsLocked = hasOrphanSplit || hasSettledSplit;
 
   // Legacy cover expense: expense.paid_by = covered person, splits[0].user_id = actual payer.
   // Cover is retired from this UI — such an expense is loaded already converted to an even
@@ -228,6 +243,17 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
 
   const onValid = (data: UpdateExpenseWithSplitsInput) => {
     Keyboard.dismiss();
+    if (hasSettledSplit) {
+      // Metadata-only — amount/currency/tip/paid_by/split_method/splits are locked and
+      // never sent; update_expense_metadata doesn't accept them anyway.
+      onSubmitMetadata({
+        title: data.title,
+        description: data.description,
+        related_type: data.related_type,
+        is_business: data.is_business,
+      });
+      return;
+    }
     // Always send tip_amount (0 when cleared) — omitting it would make the RPC keep the stored tip.
     onSubmit({
       ...data,
@@ -242,7 +268,9 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
   };
 
   const convertedPayerName = members.find((m) => m.user_id === initialPaidBy)?.user.name ?? '';
-  const canSubmit = !isPending && canConvertCurrency && exactBalanced;
+  // Once settled, none of the amount/currency/exact-sum checks below apply — those fields
+  // are locked and unchanged, so only the pending-state of the metadata mutation gates submit.
+  const canSubmit = hasSettledSplit ? !isPendingMetadata : (!isPending && canConvertCurrency && exactBalanced);
   const onInvalid = () => useToastStore.getState().addToast('error', t('toast.checkForm'));
 
   return (
@@ -268,6 +296,18 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
             <Text className="text-body-small text-warning mb-md">
               {t('edit.coverConverted', { name: convertedPayerName })}
             </Text>
+          )}
+          {hasSettledSplit && (
+            <View className="flex-row items-center gap-xs px-md py-sm rounded-md bg-surface border border-border mb-md">
+              <ThemedIcon name="lock-closed-outline" size={16} color={colors.textMuted} />
+              <Text className="text-body-small text-text-muted flex-1">{t('edit.settledLocked')}</Text>
+              <Pressable
+                onPress={onOpenSplitBreakdown}
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+              >
+                <Text className="text-primary text-body-small font-medium">{t('edit.unsettleToEdit')}</Text>
+              </Pressable>
+            </View>
           )}
 
           <SheetScrollArea>
@@ -368,8 +408,9 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                         keyboardType="decimal-pad"
                         // Locked splits are resubmitted as the exact STORED amounts (buildSplits) —
                         // changing the total here would make them silently fail the RPC's exact-sum
-                        // check instead of clearly explaining why.
-                        editable={!hasOrphanSplit}
+                        // check instead of clearly explaining why. A settled split locks it outright
+                        // (update_expense_metadata never sends amount at all).
+                        editable={!moneyFieldsLocked}
                       />
                     )}
                   />
@@ -380,10 +421,11 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                       <Pressable
                         onPress={() => setCurrencyPickerVisible(true)}
                         // Locked splits' stored amounts are in the CURRENT currency — changing it
-                        // would silently mislabel a departed member's historical share.
-                        disabled={hasOrphanSplit}
+                        // would silently mislabel a departed member's historical share. Same lock
+                        // applies once a split is settled.
+                        disabled={moneyFieldsLocked}
                         className="bg-surface border border-border rounded-sm px-md items-center justify-center min-w-[72px]"
-                        style={({ pressed }) => ({ opacity: pressed || hasOrphanSplit ? 0.7 : 1 })}
+                        style={({ pressed }) => ({ opacity: pressed || moneyFieldsLocked ? 0.7 : 1 })}
                       >
                         <Text className="text-body font-semibold text-text-primary">{value || currency}</Text>
                       </Pressable>
@@ -401,7 +443,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                   value={tipText}
                   onChangeText={(text) => setTipText(sanitizeDecimalInput(text))}
                   keyboardType="decimal-pad"
-                  editable={!hasOrphanSplit}
+                  editable={!moneyFieldsLocked}
                 />
                 {tip > 0 && (
                   <View className="flex-row items-center justify-between">
@@ -437,8 +479,9 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                     <>
                       <Pressable
                         onPress={() => setPaidByPickerVisible(true)}
+                        disabled={moneyFieldsLocked}
                         className="bg-surface border border-border rounded-sm px-md py-sm flex-row items-center justify-between"
-                        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, minHeight: 48 })}
+                        style={({ pressed }) => ({ opacity: pressed || moneyFieldsLocked ? 0.7 : 1, minHeight: 48 })}
                       >
                         <Text className="text-body flex-1 text-text-primary" numberOfLines={1}>
                           {members.find((m) => m.user_id === value)?.user.name ?? value}
@@ -461,12 +504,12 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
               {/* Split method */}
               <View className="gap-xs">
                 <Text className="text-label text-text-muted uppercase">{t('field.splitMethodLabel')}</Text>
-                <View className="flex-row gap-xs" style={hasOrphanSplit ? { opacity: 0.5 } : undefined}>
+                <View className="flex-row gap-xs" style={moneyFieldsLocked ? { opacity: 0.5 } : undefined}>
                   {SELECTABLE_SPLIT_METHODS.map((method) => (
                     <Pressable
                       key={method}
                       onPress={() => handleSplitMethodChange(method)}
-                      disabled={hasOrphanSplit}
+                      disabled={moneyFieldsLocked}
                       className={`flex-1 items-center py-sm rounded-md ${splitMethod === method ? 'bg-primary' : 'bg-surface border border-border'}`}
                       style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                     >
@@ -505,10 +548,10 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                         : 0;
 
                       return (
-                        <View className="gap-xs mb-sm" style={hasOrphanSplit ? { opacity: 0.5 } : undefined}>
+                        <View className="gap-xs mb-sm" style={moneyFieldsLocked ? { opacity: 0.5 } : undefined}>
                           <Pressable
                             onPress={() => toggleMember(m.user_id)}
-                            disabled={hasOrphanSplit}
+                            disabled={moneyFieldsLocked}
                             className={`flex-row items-center gap-xs px-md py-sm rounded-full ${isSelected ? 'bg-primary' : 'bg-surface border border-border'}`}
                             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                           >
@@ -545,7 +588,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                                   setExactAmounts((prev) => ({ ...prev, [m.user_id]: cleaned }));
                                 }}
                                 keyboardType="decimal-pad"
-                                editable={!hasOrphanSplit}
+                                editable={!moneyFieldsLocked}
                               />
                             </View>
                           )}
@@ -554,7 +597,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                             <View className="flex-row items-center gap-sm ml-lg">
                               <Pressable
                                 onPress={() => setShareValues((prev) => ({ ...prev, [m.user_id]: Math.max(1, (prev[m.user_id] ?? 1) - 1) }))}
-                                disabled={hasOrphanSplit}
+                                disabled={moneyFieldsLocked}
                                 className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
                                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                               >
@@ -565,7 +608,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                               </Text>
                               <Pressable
                                 onPress={() => setShareValues((prev) => ({ ...prev, [m.user_id]: (prev[m.user_id] ?? 1) + 1 }))}
-                                disabled={hasOrphanSplit}
+                                disabled={moneyFieldsLocked}
                                 className="w-[32px] h-[32px] rounded-full bg-surface border border-border items-center justify-center"
                                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                               >
@@ -594,7 +637,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
               )}
 
               {/* Exact sum indicator */}
-              {splitMethod === 'exact' && totalAmount > 0 && selectedMembers.size > 1 && (
+              {!moneyFieldsLocked && splitMethod === 'exact' && totalAmount > 0 && selectedMembers.size > 1 && (
                 <View className={`flex-row items-center justify-between px-sm py-xs rounded-sm ${exactBalanced ? 'bg-success/10' : 'bg-warning/10'}`}>
                   <Text className={`text-body-small ${exactBalanced ? 'text-success' : 'text-warning'}`}>
                     {exactBalanced
@@ -642,7 +685,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, expens
                 style={({ pressed }) => ({ minHeight: 48, opacity: pressed ? 0.7 : 1 })}
               >
                 <Text className="text-white text-body font-semibold" style={isColorful ? { color: colors.surface } : undefined}>
-                  {isPending ? tCommon('label.saving') : tCommon('button.save')}
+                  {(hasSettledSplit ? isPendingMetadata : isPending) ? tCommon('label.saving') : tCommon('button.save')}
                 </Text>
               </Pressable>
             </View>

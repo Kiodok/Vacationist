@@ -101,6 +101,7 @@ export {
   renderBusinessExpensePdf,
   createExpense,
   updateExpenseWithSplits,
+  updateExpenseMetadata,
   archiveExpense,
   unarchiveExpense,
   getExpenseSplits,

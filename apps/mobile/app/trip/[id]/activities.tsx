@@ -20,7 +20,7 @@ import { EditActivitySheet } from '../../../src/features/activities/components/E
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
 import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
 import { ActivityNotesSection } from '../../../src/features/activities/components/ActivityNotesSection';
-import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { colors, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
 import { getQueryDisplayState } from '../../../src/hooks/useOfflineAwareQuery';
@@ -496,7 +496,7 @@ function ActivityCardWithVotes({
       {activity.description && (
         <View className="gap-xs">
           <Text className="text-label text-text-muted uppercase">{tCommon('label.description')}</Text>
-          <Text className="text-body-small text-text-secondary">{activity.description}</Text>
+          <RichText className="text-body-small text-text-secondary" selectable>{activity.description}</RichText>
         </View>
       )}
       {activity.external_url && (

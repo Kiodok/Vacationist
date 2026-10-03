@@ -3,7 +3,7 @@ export { formatCurrency, getCurrencySymbol, setDefaultFormatLocale, roundCurrenc
 export { isValidUrl, splitTextIntoLinkSegments } from './validation';
 export type { TextSegment } from './validation';
 export { evenSplitAmounts, storedExactShares, evenExactShares, sumExactAmounts, isExactSplitBalanced } from './expenseSplits';
-export { computeSettlements, isExpenseFullySettled } from './settlements';
+export { computeSettlements, isExpenseFullySettled, hasAnySettledSplit } from './settlements';
 export type { Settlement } from './settlements';
 export { formatSettlementShareText, formatBusinessExpenseSummary, buildBusinessExpenseReport, mergeCostItemsForReport } from './settlementText';
 export type { SettlementTextInput, BusinessCostItem, MergedBusinessCostItem, BusinessExpenseDocumentRef, BusinessExpenseRow, BusinessExpenseReport, BuildBusinessExpenseReportInput } from './settlementText';

@@ -50,6 +50,7 @@ export const PERSISTED_MUTATION_KEYS = [
   // Expenses
   'createExpense',
   'updateExpenseWithSplits',
+  'updateExpenseMetadata',
   'archiveExpense',
   'unarchiveExpense',
   'settleExpenseSplit',
@@ -109,7 +110,7 @@ export function isPersistedMutationKey(key: unknown): boolean {
 // subscriber below (covers active mutations AND persisted replays after a cold start). Passenger
 // / ticket mutations aren't defaulted here; they invalidate the cost queries in their own hooks.
 const COST_AFFECTING_MUTATION_KEYS = new Set<string>([
-  'createExpense', 'updateExpenseWithSplits', 'archiveExpense', 'unarchiveExpense',
+  'createExpense', 'updateExpenseWithSplits', 'updateExpenseMetadata', 'archiveExpense', 'unarchiveExpense',
   'settleExpenseSplit', 'unsettleExpenseSplit', 'coverSplit', 'uncoverSplit',
   'settleAllExpenses',
   'createActivity', 'updateActivity', 'deleteActivity', 'closeActivityVoting',

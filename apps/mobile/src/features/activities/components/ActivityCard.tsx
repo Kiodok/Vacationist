@@ -64,7 +64,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
       </View>
 
       {activity.description ? (
-        <RichText className="text-body-small text-text-secondary" numberOfLines={2}>
+        <RichText className="text-body-small text-text-secondary" numberOfLines={2} linksInteractive={false}>
           {activity.description}
         </RichText>
       ) : null}

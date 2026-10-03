@@ -247,6 +247,7 @@ function RentalSummaryCard({ rental }: { rental: TransferRental }) {
 }
 
 function PublicTransportSummaryCard({ entry }: { entry: TransferPublicTransport }) {
+  const { t } = useTranslation('transfer');
   const departureFormatted = formatDatetime(entry.departure_time);
   const arrivalFormatted = formatDatetime(entry.arrival_time);
   return (
@@ -283,7 +284,7 @@ function PublicTransportSummaryCard({ entry }: { entry: TransferPublicTransport 
           )}
           {entry.price_total != null && (
             <Text className="text-body-small text-text-secondary">
-              {formatCurrency(Number(entry.price_total), entry.currency)}
+              {formatCurrency(Number(entry.price_total), entry.currency)} {t('all.perPerson')}
             </Text>
           )}
         </View>

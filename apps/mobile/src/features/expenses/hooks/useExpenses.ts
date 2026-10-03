@@ -6,6 +6,7 @@ import {
   hasBusinessCosts,
   createExpense,
   updateExpenseWithSplits,
+  updateExpenseMetadata,
   archiveExpense,
   unarchiveExpense,
   getExpenseSplits,
@@ -18,6 +19,7 @@ import {
 import type {
   CreateExpenseVariables,
   UpdateExpenseWithSplitsVariables,
+  UpdateExpenseMetadataVariables,
   ArchiveExpenseVariables,
   UnarchiveExpenseVariables,
   SettleExpenseSplitVariables,
@@ -193,6 +195,26 @@ export function useUpdateExpenseWithSplits() {
       updateExpenseWithSplits(expenseId, input),
     // Same immediate-visibility reasoning as useCreateExpense's onMutate above.
     onMutate: ({ tripId, input }: UpdateExpenseWithSplitsVariables) => {
+      if (input.is_business) {
+        queryClient.setQueryData(['trips', tripId, 'expenses', 'has-business'], true);
+      }
+    },
+    onError: () => {
+      addToast('error', i18n.t('expenses:toast.updateFailed'));
+    },
+  });
+}
+
+export function useUpdateExpenseMetadata() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationKey: ['updateExpenseMetadata'],
+    mutationFn: ({ expenseId, input }: UpdateExpenseMetadataVariables) =>
+      updateExpenseMetadata(expenseId, input),
+    // Same immediate-visibility reasoning as useUpdateExpenseWithSplits's onMutate above.
+    onMutate: ({ tripId, input }: UpdateExpenseMetadataVariables) => {
       if (input.is_business) {
         queryClient.setQueryData(['trips', tripId, 'expenses', 'has-business'], true);
       }

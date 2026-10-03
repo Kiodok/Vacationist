@@ -35,7 +35,7 @@ export function RecipeCard({
             {title}
           </Text>
           {description ? (
-            <RichText className="text-body-small text-text-secondary mt-xs" numberOfLines={2}>
+            <RichText className="text-body-small text-text-secondary mt-xs" numberOfLines={2} linksInteractive={false}>
               {description}
             </RichText>
           ) : null}

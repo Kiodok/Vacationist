@@ -31,9 +31,11 @@ const WEB_APP_URL = 'https://web.vacationist.app';
    own bespoke /og-image.png, untouched by this. */
 const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
 
-/* Bump alongside apps/mobile/app.config.ts `version` on every MINOR/MAJOR
-   release — feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). */
-const APP_VERSION = '1.39.1';
+/* Bump alongside apps/mobile/app.config.ts `version` on EVERY release, patch included —
+   feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). site.test.js's
+   "softwareVersion drift check" asserts exact equality regardless of SEMVER bump size
+   (the "MINOR/MAJOR" wording in this comment was itself stale drift — fixed 2026-10-03). */
+const APP_VERSION = '1.39.2';
 
 /* Growth Plan Q4 2026, Phase 2 — "harvest social proof". 25+ reviews is a documented
    threshold (marketing/growth-plan-2026-q4.md), not a gradient: below it, no rating is shown

@@ -112,8 +112,9 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
 
         {trip.description ? (
           <View className="bg-surface border border-border rounded-md p-md">
-            {/* RichText: https:// links in the description are tappable (same component the activity/notes text uses). */}
-            <RichText className="text-body text-text-primary">{trip.description}</RichText>
+            {/* RichText: https:// links in the description are tappable (same component the activity/notes text uses).
+                selectable: not inside a tappable card here, so long-press-to-copy is safe (task 1). */}
+            <RichText className="text-body text-text-primary" selectable>{trip.description}</RichText>
           </View>
         ) : null}
 

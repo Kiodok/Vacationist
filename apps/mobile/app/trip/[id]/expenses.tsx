@@ -15,7 +15,7 @@ import { isExpenseFullySettled, formatBusinessExpenseSummary, buildBusinessExpen
 import { getAllExpenses, getExpenseDocuments, getExpenseDocumentUrl, renderBusinessExpensePdf, getAccommodations, getTransferFlights, getTransferRentals, getTransferPublicTransport, getLatestExchangeRates, uploadExpenseDocument } from '@vacationist/api';
 import { readFileAsArrayBuffer, type PickedDocumentFile } from '../../../src/utils/documentPicker';
 import * as FileSystem from 'expo-file-system/legacy';
-import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useSettleAllExpenses, useSettlementReceipts, useHasBusinessCosts } from '../../../src/features/expenses/hooks/useExpenses';
+import { useExpenses, useCreateExpense, useArchiveExpense, useUnarchiveExpense, useSettleExpenseSplit, useUnsettleExpenseSplit, useCoverSplit, useUncoverSplit, useTripBalances, useUpdateExpenseWithSplits, useUpdateExpenseMetadata, useSettleAllExpenses, useSettlementReceipts, useHasBusinessCosts } from '../../../src/features/expenses/hooks/useExpenses';
 import { useExpensesRealtime } from '../../../src/features/expenses/hooks/useExpensesRealtime';
 import { useTrip } from '../../../src/features/trips/hooks/useTrips';
 import { useTripMembers, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
@@ -636,6 +636,7 @@ function ExpenseCardWithSplits({
   const { t: tCommon } = useTranslation("common");
   const splits = expense.expense_splits;
   const updateExpense = useUpdateExpenseWithSplits();
+  const updateExpenseMetadata = useUpdateExpenseMetadata();
   const settleSplit = useSettleExpenseSplit();
   const unsettleSplit = useUnsettleExpenseSplit();
   const coverSplitMutation = useCoverSplit();
@@ -770,6 +771,15 @@ function ExpenseCardWithSplits({
             updateExpense.mutate({ expenseId: expense.id, tripId, input });
           }}
           isPending={isMutationBusy(updateExpense)}
+          onSubmitMetadata={(input) => {
+            setShowEdit(false);
+            updateExpenseMetadata.mutate({ expenseId: expense.id, tripId, input });
+          }}
+          isPendingMetadata={isMutationBusy(updateExpenseMetadata)}
+          onOpenSplitBreakdown={() => {
+            setShowEdit(false);
+            setShowSplits(true);
+          }}
           expense={expense}
           splits={splits}
           members={members}

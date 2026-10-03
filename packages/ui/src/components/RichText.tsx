@@ -10,10 +10,20 @@ export interface RichTextProps extends Omit<TextProps, 'children'> {
    * Only opt in on reading surfaces that show the full text (note sheets, chat, detail
    * sheets) — inside a tappable card preview, a selectable Text can swallow the card's
    * own onPress on Android, and a numberOfLines-truncated preview can only ever copy its
-   * visible lines anyway. Links (isLink segments) are always tappable regardless of this
-   * prop — nested <Text onPress> does not have the same touch-swallowing problem.
+   * visible lines anyway.
    */
   selectable?: boolean;
+  /**
+   * Whether link segments are tappable. Defaults to true. React Native's nested
+   * `<Text onPress>` hit-testing can extend a link's touchable region across the rest of
+   * its text line — including trailing empty space — which steals taps meant for an
+   * OUTER Pressable/TouchableOpacity wrapping the whole RichText (e.g. a card's
+   * open/expand action). Pass `false` in exactly that situation: the link keeps its
+   * color+underline styling but renders as plain (non-interactive) text, so the outer
+   * card gets the tap instead. Leave true (default) wherever there's no competing outer
+   * Pressable over the same text.
+   */
+  linksInteractive?: boolean;
 }
 
 /**
@@ -23,7 +33,7 @@ export interface RichTextProps extends Omit<TextProps, 'children'> {
  * Input Sanitization). Linking.openURL is additionally guarded with a startsWith check
  * as defence in depth even though the regex only ever matches https:// text.
  */
-export function RichText({ children, selectable = false, ...rest }: RichTextProps) {
+export function RichText({ children, selectable = false, linksInteractive = true, ...rest }: RichTextProps) {
   const segments = splitTextIntoLinkSegments(children ?? '');
 
   return (
@@ -32,7 +42,7 @@ export function RichText({ children, selectable = false, ...rest }: RichTextProp
         segment.isLink ? (
           <Text
             key={i}
-            onPress={() => segment.text.startsWith('https://') && Linking.openURL(segment.text)}
+            onPress={linksInteractive ? () => segment.text.startsWith('https://') && Linking.openURL(segment.text) : undefined}
             style={{ color: colors.primary, textDecorationLine: 'underline' }}
           >
             {segment.text}
