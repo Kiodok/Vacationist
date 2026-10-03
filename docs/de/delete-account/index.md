@@ -45,7 +45,7 @@ Falls du dich nicht anmelden kannst (z. B. keinen Zugriff mehr auf deine E-Mail-
 
 Vacationist ist eine kollaborative App — Reisen, Aktivitäten, Ausgaben und Einkaufslisten werden mit anderen Personen geteilt. Das Löschen deines Kontos löscht keine Inhalte, auf die andere Reisemitglieder weiterhin angewiesen sind:
 
-- Reisen, Aktivitäten, Unterkünfte, Ausgaben und Ausgabenaufteilungen, hochgeladene Ausgabenbelege und Transfer-Tickets (Flüge und öffentliche Verkehrsmittel), Einkaufslisten, Notizen und Chat-Nachrichten, die du erstellt hast, bleiben für die anderen Mitglieder deiner Reisen sichtbar
+- Reisen, Aktivitäten, Unterkünfte, Ausgaben und Ausgabenaufteilungen, hochgeladene Ausgabenbelege, Transfer-Tickets (Flüge und öffentliche Verkehrsmittel), Aktivitätsdokumente, Einkaufslisten, Notizen und Chat-Nachrichten, die du erstellt hast, bleiben für die anderen Mitglieder deiner Reisen sichtbar
 - Diese Inhalte werden einem generischen **„Gelöschter Nutzer"** zugeordnet — sie sind nicht mehr mit deinem Namen, deiner E-Mail-Adresse oder deinem Konto verknüpft
 - Warst du das einzige Mitglied einer Reise, wird diese Reise zusammen mit deinem Konto gelöscht, statt erhalten zu bleiben
 

@@ -102,6 +102,7 @@ export async function createActivity(tripId: string, input: CreateActivityInput)
     p_maps_url: input.maps_url ?? undefined,
     p_reservation_required: input.reservation_required ?? false,
     p_auto_close: input.auto_close ?? false,
+    p_documents_enabled: input.documents_enabled ?? false,
   });
 
   if (error) throw error;

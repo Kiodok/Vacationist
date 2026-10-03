@@ -102,6 +102,7 @@ export function useCreateActivity() {
         voting_open: true,
         auto_close: input.auto_close ?? false,
         reservation_required: input.reservation_required ?? false,
+        documents_enabled: input.documents_enabled ?? false,
         created_by: userId,
         created_at: new Date().toISOString(),
         deleted_at: null,

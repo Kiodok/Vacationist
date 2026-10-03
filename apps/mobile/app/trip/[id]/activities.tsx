@@ -20,6 +20,7 @@ import { EditActivitySheet } from '../../../src/features/activities/components/E
 import { EmptyActivities } from '../../../src/features/activities/components/EmptyActivities';
 import { ActivityListSkeleton } from '../../../src/features/activities/components/ActivityListSkeleton';
 import { ActivityNotesSection } from '../../../src/features/activities/components/ActivityNotesSection';
+import { ActivityDocumentsSection } from '../../../src/features/activities/components/ActivityDocumentsSection';
 import { colors, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import type { IoniconsName } from '@vacationist/ui';
 import { isMutationBusy } from '../../../src/utils/mutationStatus';
@@ -503,10 +504,10 @@ function ActivityCardWithVotes({
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => Linking.openURL(activity.external_url!)}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', maxWidth: '100%' }}
         >
           <ThemedIcon name="link-outline" size={14} color={colors.primary} />
-          <Text className="text-primary text-body-small underline" numberOfLines={1}>
+          <Text className="text-primary text-body-small underline shrink" numberOfLines={1}>
             {activity.external_url}
           </Text>
         </TouchableOpacity>
@@ -515,13 +516,23 @@ function ActivityCardWithVotes({
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => Linking.openURL(activity.maps_url!)}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', maxWidth: '100%' }}
         >
           <ThemedIcon name="map-outline" size={14} color={colors.primary} />
-          <Text className="text-primary text-body-small underline" numberOfLines={1}>
+          <Text className="text-primary text-body-small underline shrink" numberOfLines={1}>
             {activity.maps_url}
           </Text>
         </TouchableOpacity>
+      )}
+
+      {activity.documents_enabled && (
+        <ActivityDocumentsSection
+          tripId={tripId}
+          activityId={activity.id}
+          members={(members ?? []).map((m) => ({ user_id: m.user_id, name: m.user.name }))}
+          currentUserId={currentUserId}
+          isOrganizer={role === 'organizer'}
+        />
       )}
 
       <ActivityNotesSection

@@ -47,19 +47,20 @@ function SectionHeader({
   );
 }
 
-function DirectionBadge({ direction }: { direction: string }) {
+function DirectionBadge({ direction, kind }: { direction: string; kind: 'flight' | 'vehicle' }) {
   const { t } = useTranslation('transfer');
+  const prefix = kind === 'vehicle' ? 'vehicle.direction' : 'direction';
   if (direction === 'outbound-return') {
     return (
       <View className="px-sm py-xs rounded-full bg-success/10">
-        <Text className="text-label font-medium text-success">{t('direction.both')}</Text>
+        <Text className="text-label font-medium text-success">{t(`${prefix}.both`)}</Text>
       </View>
     );
   }
   return (
     <View className={`px-sm py-xs rounded-full ${direction === 'outbound' ? 'bg-primary/10' : 'bg-warning/10'}`}>
       <Text className={`text-label font-medium ${direction === 'outbound' ? 'text-primary' : 'text-warning'}`}>
-        {direction === 'outbound' ? t('direction.outbound') : t('direction.return')}
+        {direction === 'outbound' ? t(`${prefix}.outbound`) : t(`${prefix}.return`)}
       </Text>
     </View>
   );
@@ -175,7 +176,7 @@ function FlightSummaryCard({ flight }: { flight: TransferFlight }) {
             {formatCurrency(Number(flight.price_per_person), flight.currency)} {t('all.perPerson')}
           </Text>
         ) : <View />}
-        <DirectionBadge direction={flight.direction} />
+        <DirectionBadge direction={flight.direction} kind="flight" />
       </View>
     </View>
   );
@@ -188,7 +189,7 @@ function VehicleSummaryCard({ vehicle }: { vehicle: TransferVehicle }) {
         <Text className="text-body font-semibold text-text-primary flex-1 mr-sm" numberOfLines={1}>
           {vehicle.title}
         </Text>
-        <DirectionBadge direction={vehicle.direction} />
+        <DirectionBadge direction={vehicle.direction} kind="vehicle" />
       </View>
       {vehicle.notes ? (
         <RichText className="text-body-small text-text-secondary">

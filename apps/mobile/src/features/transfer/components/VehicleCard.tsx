@@ -100,14 +100,14 @@ function DirectionBadge({ direction }: { direction: string }) {
   if (direction === 'outbound-return') {
     return (
       <View className="px-sm py-xs rounded-full bg-success/10">
-        <Text className="text-label font-medium text-success">{t('direction.both')}</Text>
+        <Text className="text-label font-medium text-success">{t('vehicle.direction.both')}</Text>
       </View>
     );
   }
   return (
     <View className={`px-sm py-xs rounded-full ${direction === 'outbound' ? 'bg-primary/10' : 'bg-warning/10'}`}>
       <Text className={`text-label font-medium ${direction === 'outbound' ? 'text-primary' : 'text-warning'}`}>
-        {direction === 'outbound' ? t('direction.outbound') : t('direction.return')}
+        {direction === 'outbound' ? t('vehicle.direction.outbound') : t('vehicle.direction.return')}
       </Text>
     </View>
   );

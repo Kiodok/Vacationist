@@ -108,6 +108,7 @@ export const createActivitySchema = z.object({
   maps_url: httpsUrlSchema.nullable().optional(),
   reservation_required: z.boolean().optional(),
   auto_close: z.boolean().optional(),
+  documents_enabled: z.boolean().optional(),
 });
 
 export const updateActivitySchema = createActivitySchema.partial().extend({

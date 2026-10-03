@@ -93,10 +93,10 @@ export function RentalCard({ rental, onPress, detail, highlight }: RentalCardPro
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => Linking.openURL(rental.external_url!)}
-            className="flex-row items-center gap-xs"
+            className="flex-row items-center gap-xs self-start max-w-full"
           >
             <ThemedIcon name="link-outline" size={14} color={colors.primary} />
-            <Text className="text-primary text-body-small underline" numberOfLines={1}>
+            <Text className="text-primary text-body-small underline shrink" numberOfLines={1}>
               {rental.external_url}
             </Text>
           </TouchableOpacity>

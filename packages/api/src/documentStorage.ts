@@ -49,6 +49,12 @@ export function buildTransferTicketPath(tripId: string, entityId: string, userId
   return `${tripId}/transfer/${entityId}/${userId}/ticket`;
 }
 
+/** `activity-documents` bucket path — same fixed-path-per-(entity, user) convention as
+ * `buildTransferTicketPath`, so a re-upload always overwrites the previous document. */
+export function buildActivityDocumentPath(tripId: string, activityId: string, userId: string): string {
+  return `${tripId}/activities/${activityId}/${userId}/ticket`;
+}
+
 /** Uploads (or overwrites, with upsert: true) a document file to a private Storage bucket. */
 export async function uploadDocumentFile(
   bucket: string,

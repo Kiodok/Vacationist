@@ -1,3 +1,4 @@
+import { getTransferDocumentUrl } from '@vacationist/api';
 import { usePublicTransportDocuments, useUploadPublicTransportDocument, useDeletePublicTransportDocument } from '../hooks/useTransferDocuments';
 import { TicketsSection } from './TicketsSection';
 
@@ -24,6 +25,7 @@ export function PublicTransportTicketsSection({ tripId, publicTransportId, membe
       members={members}
       currentUserId={currentUserId}
       isOrganizer={isOrganizer}
+      getDocumentUrl={getTransferDocumentUrl}
     />
   );
 }

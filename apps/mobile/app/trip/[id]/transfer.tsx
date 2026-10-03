@@ -182,9 +182,9 @@ export default function TransferTab() {
     const outbound = vehicles.filter((v) => v.direction === 'outbound');
     const ret = vehicles.filter((v) => v.direction === 'return');
     const sections: { key: string; title: string; data: TransferVehicle[] }[] = [];
-    if (both.length > 0) sections.push({ key: 'outbound-return', title: t('direction.both'), data: both });
-    if (outbound.length > 0) sections.push({ key: 'outbound', title: t('direction.outbound'), data: outbound });
-    if (ret.length > 0) sections.push({ key: 'return', title: t('direction.return'), data: ret });
+    if (both.length > 0) sections.push({ key: 'outbound-return', title: t('vehicle.direction.both'), data: both });
+    if (outbound.length > 0) sections.push({ key: 'outbound', title: t('vehicle.direction.outbound'), data: outbound });
+    if (ret.length > 0) sections.push({ key: 'return', title: t('vehicle.direction.return'), data: ret });
     return sections;
   }, [vehicles, t]);
 
@@ -887,10 +887,10 @@ function FlightCardWithVotes({
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => Linking.openURL(flight.external_url!)}
-          className="flex-row items-center gap-xs"
+          className="flex-row items-center gap-xs self-start max-w-full"
         >
           <ThemedIcon name="link-outline" size={14} color={colors.primary} />
-          <Text className="text-primary text-body-small underline" numberOfLines={1}>
+          <Text className="text-primary text-body-small underline shrink" numberOfLines={1}>
             {flight.external_url}
           </Text>
         </TouchableOpacity>

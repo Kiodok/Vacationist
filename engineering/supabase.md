@@ -5911,3 +5911,148 @@ no native changes, OTA-eligible per `app.config.ts`'s `version: '1.39.2'`), a us
 already-**settled** expense on a still-old installed mobile build will hit `20261003100000`'s new
 `update_expense_with_splits` guard and get a hard `RAISE EXCEPTION`, instead of today's
 silent-but-buggy success. Recommend shipping that OTA promptly to close the window.
+
+## 2026-10-03 (same day, later still) — v1.39.3: activity documents, link tap-targets, vehicle direction labels
+
+**Status: DEPLOYED dev + prod, same session.** Three items from a Tech Lead `/plan` request:
+(1) booking/maps links on Activities/Accommodations/Transfers were tappable across their full row
+width instead of just the link text — a column-flex `alignItems: 'stretch'` default stretching a
+`TouchableOpacity` to its container's width, fixed with `self-start`/`alignSelf: 'flex-start'`
+across 6 files (no migration); (2) per-person activity document uploads, gated by a new
+`activities.documents_enabled` switch (off by default) exposed in Create/Edit Activity — mirrors
+the existing Transfers ticket-upload feature; (3) vehicle transfer direction labels were reading
+flight wording ("Hin- und Rückflug") in German — added vehicle-specific
+`vehicle.direction.{outbound,return,both}` i18n keys, left the flight-only `direction.*` keys
+untouched.
+
+**Migration `20261003150000_activity_documents_and_toggle.sql`** (item 2 only):
+1. `activities.documents_enabled BOOLEAN NOT NULL DEFAULT FALSE` — additive column.
+2. `create_activity` RPC: DROP + CREATE with a new trailing `p_documents_enabled BOOLEAN DEFAULT
+   FALSE` param (same dance as the `reservation_required`/`auto_close` additions to this RPC) —
+   backwards-compatible, since `supabase.rpc()` calls pass a named JSON object, not positional
+   args, so an old client that never sends the new key still works unchanged.
+3. New `activity_documents` table + `activity-documents` private Storage bucket (10 MB, same
+   image/PDF allow-list as `transfer-documents`) — own table rather than grafted onto
+   `transfer_documents`, since activities are a distinct parent entity. Table/RLS/trigger shape
+   copied verbatim from `transfer_documents` (`20260901110001`), single `activity_id` parent
+   column (no dual-parent branching needed).
+4. `delete_own_account()` gained a reassignment block for `activity_documents.user_id`/
+   `uploaded_by` (new non-cascading FKs to `public.users`), per CLAUDE.md's Account Deletion rule
+   — full function body copied verbatim from its latest definition (`20260902110000`) with only
+   the new block added, same conflict-avoidance shape `transfer_documents` originally used for
+   its single-parent (flight-only) case.
+
+**Evaluated as prod-safe and pushed immediately** (additive column with a default, new
+table/bucket nothing yet references, backwards-compatible RPC signature change) — no Tech Lead
+file-prep/push block hit this time, unlike the two `/prod-deploy-classifier-blocks-file-prep`
+incidents earlier in the v1.39.2 session. **Verification:** `supabase migration list` shows
+`local == remote` for `20261003150000` on both `aejywkbkcwyanhyzhrle` (dev) and
+`fsfsqghbejwvgxujoyne` (prod); `supabase gen types typescript --linked` against dev (run right
+after the dev push, before relinking to prod) confirmed `activity_documents`,
+`activities.documents_enabled`, and `create_activity`'s new `p_documents_enabled` arg are all
+genuinely present in the live schema, replacing a hand-edited placeholder version of
+`database.types.ts` written before the push (net 82-line diff after regeneration — the hand-edit
+was already structurally correct). CLI left re-linked to dev afterward.
+
+**Edge Function redeploy (same turn as the source edit, per `edge-function-redeploy-after-edit`):**
+`create-example-trip` now sets `documents_enabled: true` (plus `reservation_required: true`) on
+the demo trip's "Sagrada Família" activity, so new sign-ups see the toggle's effect — deliberately
+**not** seeding an actual `activity_documents` row/file, same reasoning the function's header
+comment already gives for skipping `expense_documents`/`transfer_documents` seeding (a metadata
+row with no uploaded file would render a document card whose signed-URL fetch 404s; uploading
+placeholder bytes per signup was already rejected on Storage-cost grounds). Deployed to dev then
+prod via `supabase functions deploy create-example-trip --use-api` (no Docker on this machine).
+
+**TicketsSection.tsx generalized**, not duplicated, for item 2: gained a generic `TDoc extends
+DocumentLike` type param (a structural subset — `id`/`user_id`/`storage_path`/`mime_type` — shared
+by `TransferDocument` and the new `ActivityDocument`), an optional `namespace` prop (defaults
+`'transfer'`; the new `ActivityDocumentsSection` passes `'activities'`) typed as a literal union
+(`'transfer' | 'activities'`, not `string` — `useTranslation` rejects an arbitrary string), and a
+`getDocumentUrl` prop (bucket-specific signed-URL minting, since the two entity types now live in
+different Storage buckets). `FlightTicketsSection`/`PublicTransportTicketsSection` pass
+`getDocumentUrl={getTransferDocumentUrl}` explicitly now that it's no longer hardcoded inside the
+shared component — zero behavior change for those two.
+
+**`npm test`'s site drift check caught the same class of bug flagged mid-session in the v1.39.2
+entry above** — `marketing/site/build.mjs`'s `APP_VERSION` constant was still `'1.39.2'` against
+`apps/mobile/app.config.ts`'s already-bumped `'1.39.3'`. Fixed (`npm run build:site` re-run to
+regenerate `docs/`) before this item's migration work even began, since it's an unrelated
+pre-existing drift rather than something introduced by this session's changes.
+
+Client code not committed — pending Tech Lead testing. `npm run typecheck` exits 0; `npm test`
+(full workspace: 235 + 30 + 245 = 510 tests across the three vitest projects, plus the marketing
+site's `site.test.js` checks) all green.
+
+## Same day, later still — v1.39.3 follow-up #1: PassengerSelectSheet driver-switch deselect bug
+
+Separate same-day `/plan` request, Tech Lead-reported: tapping a selected vehicle passenger's
+"Driver" switch also unchecked them (and the switch then vanished, since it only renders while
+selected). Root cause: `PassengerSelectSheet.tsx`'s `Switch` was nested INSIDE the row's own
+`Pressable` (`onPress={() => toggle(member.user_id)}`) — a tap on the switch also fired the row's
+`onPress` (web: DOM click-bubbling through `Switch`'s underlying `<input>`). This codebase already
+hit this exact bug class and rejected the wrong fix: `DateTimePickerField.tsx:320-336`'s comment
+explains `onStartShouldSetResponder={() => true}` to "swallow" a nested touch was tried and
+reverted (it makes JS claim touches meant for a native control). Fix: made the checkbox+name and
+the Driver switch **siblings** (row became a plain `View`; checkbox+name got their own `flex-1`
+`Pressable`) instead of nested — same structural pattern already established by that file.
+
+Also fixed while diagnosing: the driver switch was reachable for a member only *locally* checked,
+not yet a real `transfer_vehicle_passengers` row — tapping it there was a guaranteed `PGRST116`
+failure (`updateTransferVehiclePassenger`'s `.update(...).single()` has no row to match). Added
+`&& selectedUserIds.includes(member.user_id)` to the visibility guard (the live server-backed
+prop, not the local unconfirmed selection state).
+
+No migration. File: `PassengerSelectSheet.tsx` only. Browser-verified live (Chrome, `npm run web`,
+"Test" dev trip, organizer account): toggled a passenger's driver flag — stayed checked, switch
+stayed visible, `is_driver` persisted (car icon appeared on the passenger chip); reverted the test
+toggle back off afterward.
+
+## Same day, later still — v1.39.3 follow-up #2: `/code-review` findings, 3 confirmed and fixed
+
+Ran `/code-review` on the full local diff (items above + the PassengerSelectSheet fix). All 3
+findings confirmed real and fixed:
+
+1. **`activity_documents` missing a BEFORE UPDATE trip_id trigger** — `20261003150000` only wired
+   `set_activity_document_trip_id()` as BEFORE INSERT, reopening the exact RLS trip_id-spoofing gap
+   already discovered and fixed for `transfer_documents` by `20260901110002`. `uploadActivityDocument`'s
+   `.upsert(..., { onConflict: 'activity_id,user_id' })` resolves a "replace existing document" call
+   to the UPDATE-on-conflict path, which never ran the INSERT-only trigger — a client-supplied
+   `trip_id` there would be written as-is and evaluated by the UPDATE policy's `WITH CHECK`,
+   letting the document's own owner (who already satisfies the policy's `user_id = auth.uid()`
+   branch) spoof which trip it's attributed to. **Fixed:** new migration
+   `20261003160000_activity_documents_trip_id_on_update.sql`, a direct port of `20260901110002`'s
+   fix — adds `trg_set_activity_document_trip_id_on_update` (BEFORE UPDATE, same function). Can't
+   edit `20261003150000` in place, already deployed — **deployed dev then prod same session**
+   (purely additive, no Tech Lead hand-off needed). Verified via `supabase migration list` ledger
+   parity on both; CLI re-linked to dev after.
+2. **URL-truncation regression from the item-1 tap-target fix** — adding `self-start`/
+   `alignSelf:'flex-start'` to the external_url/maps_url `TouchableOpacity` rows (to fix the
+   oversized tap target) removed the accidental width constraint that used to make the sibling
+   `Text`'s `numberOfLines={1}` actually truncate — the row no longer stretches to the card's full
+   width, and without an explicit bound the `Text` has nothing to ellipsize against, so a long URL
+   now overflows the card instead of clipping with "…". **Fixed** in the same 6 files (not
+   `AccommodationCard.tsx`, which shows a fixed short label like "External link", not the raw URL —
+   no truncation risk there): `max-w-full` on the row (caps it back at the parent's bound) + `shrink`
+   on the `Text` (lets it actually shrink to fit within that bound, re-enabling the ellipsis).
+   Verified empirically in Chrome: a 193-char test URL rendered full-width un-truncated at desktop
+   width BEFORE this fix too (the string happened to fit — a false negative in the earlier
+   same-session manual check); confirmed via direct DOM inspection (`scrollWidth`/`clientWidth`,
+   computed `max-width`/`flex-shrink`/`text-overflow`) that the CSS was wired correctly, then
+   proved it functionally by constraining an ancestor to a realistic 380px card width — truncation
+   now engages (`scrollWidth 1143 > clientWidth 326`, ellipsis rendered). No migration.
+3. **Account-deletion disclosure pages not updated for the new `activity_documents` table** —
+   CLAUDE.md's Account Deletion rule requires updating both docs pages (EN + DE) when
+   `delete_own_account()`'s sentinel-reassignment list changes; `20261003150000`'s own comment
+   confirms `activity_documents` was added to that list, but the disclosure pages were missed in
+   the original pass. **Fixed:** `docs/delete-account.html` and `docs/privacy-policy.html` (both
+   hand-authored, EN), plus their DE sources `marketing/site/content/de/legal/{delete-account,
+   privacy-policy}.md` (German phrasing: "Aktivitätsdokumente", not a literal calque) — each now
+   lists activity documents alongside expense receipts and transfer tickets. `npm run build:site`
+   re-run to regenerate `docs/de/{delete-account,privacy-policy}/`; confirmed via grep that the
+   generated HTML picked up the new sentence.
+
+`npm run typecheck` exits 0; `npm test` green (510 tests, unchanged count — no new test files
+needed for a JSX/migration/docs-only round) after all of the above.
+
+Related: [[v1-39-2-batch]], [[no-branches-main-only]], [[commit-discipline]],
+[[edge-function-redeploy-after-edit]].

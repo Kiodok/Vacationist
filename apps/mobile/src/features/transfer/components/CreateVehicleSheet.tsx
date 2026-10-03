@@ -106,7 +106,7 @@ export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: Cr
                         style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                       >
                         <Text className={`text-body-small font-medium ${directionMode === dir ? 'text-white' : 'text-text-secondary'}`}>
-                          {dir === 'both' ? t('direction.both') : dir === 'outbound' ? t('direction.outbound') : t('direction.return')}
+                          {dir === 'both' ? t('vehicle.direction.both') : dir === 'outbound' ? t('vehicle.direction.outbound') : t('vehicle.direction.return')}
                         </Text>
                       </Pressable>
                     ))}

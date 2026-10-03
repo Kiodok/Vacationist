@@ -35,7 +35,7 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
   );
   const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<CreateActivityInput>({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', reservation_required: false, auto_close: false },
+    defaultValues: { title: '', reservation_required: false, auto_close: false, documents_enabled: false },
   });
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
   const categoryOptions = ACTIVITY_CATEGORIES.map((cat) => ({ value: cat, label: t(`category.${cat}`, { defaultValue: cat }) }));
@@ -314,6 +314,24 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
                 render={({ field: { onChange, value } }) => (
                   <View className="flex-row items-center justify-between py-xs">
                     <Text className="text-body text-text-primary">{t('field.autoClose')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                      thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
+
+              {/* Documents Enabled */}
+              <Controller
+                control={control}
+                name="documents_enabled"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.documentsEnabled')}</Text>
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}

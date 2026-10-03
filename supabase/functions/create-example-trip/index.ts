@@ -107,6 +107,12 @@ Deno.serve(async (req: Request) => {
           end_time: '12:30',
           status: 'planned',
           voting_open: true,
+          reservation_required: true,
+          // Showcases the per-person document toggle (v1.39.3) — no activity_documents row is
+          // seeded (same deliberate omission as expense_documents/transfer_documents below: a
+          // metadata row with no uploaded file would render a document card whose signed-URL
+          // fetch 404s), but the toggle itself and its empty-state UI are now visible.
+          documents_enabled: true,
           created_by: userId,
         },
         {

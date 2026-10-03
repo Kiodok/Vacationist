@@ -730,6 +730,9 @@ external_url    TEXT
 maps_url        TEXT
 status          TEXT DEFAULT 'planned' CHECK (status IN ('planned', 'reserved', 'completed', 'skipped'))
 voting_open     BOOLEAN DEFAULT TRUE
+auto_close      BOOLEAN DEFAULT FALSE
+reservation_required BOOLEAN DEFAULT FALSE
+documents_enabled    BOOLEAN DEFAULT FALSE  -- v1.39.3: gates the per-person document-upload section (activity_documents table, activity-documents bucket), same shape as transfer_documents
 created_by      UUID REFERENCES users(id)
 created_at      TIMESTAMPTZ DEFAULT NOW()
 deleted_at      TIMESTAMPTZ DEFAULT NULL

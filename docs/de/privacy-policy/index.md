@@ -35,7 +35,7 @@ Wir erheben nur die Daten, die zur Bereitstellung des Dienstes erforderlich sind
 
 - Reisenamen, Termine, Ziele und Mitgliederlisten
 - Aktivitäten, Stimmen, Ausgaben, Einkaufslisten, Notizen, Unterkünfte und Transferdaten, die du erstellst
-- Dateien, die du zu einer Reise hochlädst — Ausgabenbelege sowie Flug- oder ÖPNV-Tickets (Bilder oder PDFs). Sie werden in privatem, zugriffsgeschütztem Speicher abgelegt, der nur für Mitglieder dieser Reise lesbar ist; sie werden nicht im Ruhezustand verschlüsselt wie die Felder von Reisedokumenten.
+- Dateien, die du zu einer Reise hochlädst — Ausgabenbelege, Flug- oder ÖPNV-Tickets sowie Aktivitätsdokumente (Bilder oder PDFs). Sie werden in privatem, zugriffsgeschütztem Speicher abgelegt, der nur für Mitglieder dieser Reise lesbar ist; sie werden nicht im Ruhezustand verschlüsselt wie die Felder von Reisedokumenten.
 - Chat-Nachrichten innerhalb einer Reise (verschlüsselt gespeichert, siehe unten)
 - Einladungslinks, die du erzeugst oder verwendest
 

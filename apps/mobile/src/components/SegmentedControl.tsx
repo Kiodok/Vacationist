@@ -21,7 +21,14 @@ interface SegmentedControlProps {
  * segments — e.g. Transfer's five, "Öffentliche Verkehrsmittel" included — is always reachable)
  * and auto-scrolls the active pill into view when it changes, mirroring the outer trip tab bar
  * in app/trip/[id]/index.tsx. `flexGrow: 0` keeps the pills hugging their intrinsic height
- * inside flex:1 parents (see the horizontal-scrollview-height skill).
+ * inside flex:1 parents (see the horizontal-scrollview-height skill). `items-center` on the
+ * content container is load-bearing on web, not cosmetic: without it the row defaults to
+ * `align-items: stretch`, and since every pill is itself an auto-height column box, a fresh
+ * mount hits a circular cross-axis sizing computation that React Native Web can resolve to a
+ * degenerate ~0px for every pill's label simultaneously (confirmed live — scrollHeight reports
+ * the correct line height, but the rendered box collapses to 0 and numberOfLines' overflow:hidden
+ * clips it to invisible). `items-center` breaks the circularity by letting each pill size off its
+ * own content instead of the row's.
  */
 export function SegmentedControl({ segments, activeKey, onChange, trailingAction }: SegmentedControlProps) {
   const theme = useResolvedTheme();
@@ -49,7 +56,7 @@ export function SegmentedControl({ segments, activeKey, onChange, trailingAction
       horizontal
       showsHorizontalScrollIndicator={false}
       style={{ flexGrow: 0 }}
-      contentContainerClassName="flex-row gap-xs px-md pt-sm pb-xs"
+      contentContainerClassName="flex-row items-center gap-xs px-md pt-sm pb-xs"
     >
       {segments.map((segment) => {
         const isActive = segment.key === activeKey;

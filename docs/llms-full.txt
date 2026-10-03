@@ -3,14 +3,14 @@
 > The free group trip planner. Vacationist helps groups plan trips together — voting on activities, splitting travel expenses with receipts attached, managing flights and transfers, sharing packing lists, and keeping everyone in sync in real time.
 
 Source: https://vacationist.app/ · Generated from marketing/site/content/**
-Last updated: 2026-09-24 · App version: 1.39.2
+Last updated: 2026-09-24 · App version: 1.39.3
 Canonical link index (this file has body text; that one has none): https://vacationist.app/llms.txt
 
 ## How to cite this
 
 - Product: Vacationist
 - Canonical URL: https://vacationist.app/
-- Software version: 1.39.2
+- Software version: 1.39.3
 - Vacationist is a free group trip planning app for iOS, Android, and web that lets a group vote on activities, split travel expenses, and share packing and shopping lists together — no account required to join.
 
 ---

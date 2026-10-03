@@ -90,7 +90,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, onPress
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => accommodation.external_url?.startsWith('https://') && Linking.openURL(accommodation.external_url)}
-            className="flex-row items-center gap-xs"
+            className="flex-row items-center gap-xs self-start"
           >
             <ThemedIcon name="link-outline" size={14} color={METADATA_ICON_COLORS.link.color} />
             <Text className="text-primary text-body-small underline" numberOfLines={1}>
@@ -103,7 +103,7 @@ export function AccommodationCard({ accommodation, votes, currentUserId, onPress
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => accommodation.maps_url?.startsWith('https://') && Linking.openURL(accommodation.maps_url)}
-            className="flex-row items-center gap-xs"
+            className="flex-row items-center gap-xs self-start"
           >
             <ThemedIcon name="location-outline" size={14} color={METADATA_ICON_COLORS.location.color} />
             <Text className="text-primary text-body-small underline" numberOfLines={1}>

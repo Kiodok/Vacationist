@@ -18,6 +18,7 @@ function activity(overrides: Partial<Activity> & { id: string }): Activity {
     voting_open: true,
     auto_close: false,
     reservation_required: false,
+    documents_enabled: false,
     created_by: 'user-1',
     created_at: '2026-08-01T10:00:00.000Z',
     deleted_at: null,

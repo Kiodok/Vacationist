@@ -94,22 +94,38 @@ export function PassengerSelectSheet({
               const isSelected = selected.has(member.user_id);
               const isDriver = driverUserIds.includes(member.user_id);
               return (
-                <Pressable
-                  onPress={() => toggle(member.user_id)}
+                // The row itself is NOT a Pressable — the driver Switch must be a sibling, never
+                // a descendant, of the selection Pressable. Nesting it caused a tap on the
+                // Switch to also fire the row's onPress (DOM click-bubbling through Switch's
+                // underlying <input> on web), deselecting the member and unmounting the Switch
+                // out from under the tap. Same bug class, same fix (siblings, not ancestor/
+                // descendant) as DateTimePickerField.tsx's backdrop/panel split — that file's
+                // comment also explains why `onStartShouldSetResponder` to "swallow" the touch
+                // is the wrong fix: it makes JS claim touches meant for the native control.
+                <View
                   className={`flex-row items-center px-md py-sm rounded-md border mb-xs ${
                     isSelected ? 'border-primary bg-primary/10' : 'border-border bg-surface'
                   }`}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                 >
-                  <View className={`w-[20px] h-[20px] rounded-sm border-2 items-center justify-center mr-md ${
-                    isSelected ? 'bg-primary border-primary' : 'border-border'
-                  }`}>
-                    {isSelected && <ThemedIcon name="checkmark" size={14} color={isColorful ? colors.surface : '#FFFFFF'} />}
-                  </View>
-                  <Text className="text-body text-text-primary flex-1">
-                    {member.user?.name ?? 'Unknown'}
-                  </Text>
-                  {showDriverToggle && isSelected && onDriverToggle && (
+                  <Pressable
+                    onPress={() => toggle(member.user_id)}
+                    className="flex-row items-center flex-1"
+                    style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  >
+                    <View className={`w-[20px] h-[20px] rounded-sm border-2 items-center justify-center mr-md ${
+                      isSelected ? 'bg-primary border-primary' : 'border-border'
+                    }`}>
+                      {isSelected && <ThemedIcon name="checkmark" size={14} color={isColorful ? colors.surface : '#FFFFFF'} />}
+                    </View>
+                    <Text className="text-body text-text-primary flex-1">
+                      {member.user?.name ?? 'Unknown'}
+                    </Text>
+                  </Pressable>
+                  {/* Only once the member is a genuinely persisted passenger (selectedUserIds is
+                      the live server-backed prop — not the local, possibly-unconfirmed `selected`
+                      state): toggling is_driver on a row that doesn't exist in
+                      transfer_vehicle_passengers yet is a guaranteed PGRST116 failure. */}
+                  {showDriverToggle && isSelected && selectedUserIds.includes(member.user_id) && onDriverToggle && (
                     <View className="flex-row items-center gap-xs">
                       <Text className="text-body-small text-text-muted">Driver</Text>
                       <Switch
@@ -120,7 +136,7 @@ export function PassengerSelectSheet({
                       />
                     </View>
                   )}
-                </Pressable>
+                </View>
               );
             }}
           />

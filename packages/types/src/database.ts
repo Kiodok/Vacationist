@@ -89,6 +89,7 @@ export interface Activity {
   voting_open: boolean;
   auto_close: boolean;
   reservation_required: boolean;
+  documents_enabled: boolean;
   created_by: string;
   created_at: string;
   deleted_at: string | null;
@@ -502,6 +503,20 @@ export interface TransferDocument {
   flight_id: string | null;
   public_transport_id: string | null;
   /** The passenger this ticket belongs to — may differ from uploaded_by when the organizer uploads on a member's behalf. */
+  user_id: string;
+  uploaded_by: string;
+  storage_path: string;
+  file_name: string;
+  mime_type: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ActivityDocument {
+  id: string;
+  trip_id: string;
+  activity_id: string;
+  /** The member this document belongs to — may differ from uploaded_by when the organizer uploads on a member's behalf. */
   user_id: string;
   uploaded_by: string;
   storage_path: string;

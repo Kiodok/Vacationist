@@ -44,6 +44,7 @@ const activity: Activity = {
   voting_open: false,
   auto_close: false,
   reservation_required: false,
+  documents_enabled: false,
   created_by: 'u1',
   created_at: '2026-01-01',
   deleted_at: null,

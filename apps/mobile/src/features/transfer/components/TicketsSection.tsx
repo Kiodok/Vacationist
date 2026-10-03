@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { View, Text, Pressable, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { UseMutationResult } from '@tanstack/react-query';
-import { getTransferDocumentUrl } from '@vacationist/api';
-import type { TransferDocument } from '@vacationist/types';
 import { colors, ThemedIcon } from '@vacationist/ui';
 import { useToastStore } from '../../../stores/toastStore';
 import { isMutationBusy } from '../../../utils/mutationStatus';
@@ -12,28 +10,45 @@ import { pickDocumentFile, readFileAsArrayBuffer, DocumentTooLargeError } from '
 type UploadTicketArgs = { passengerUserId: string; fileData: Blob | ArrayBuffer; fileName: string; mimeType: string };
 type DeleteTicketArgs = { documentId: string; storagePath: string };
 
-interface TicketsSectionProps {
-  documents: TransferDocument[] | undefined;
-  uploadMutation: UseMutationResult<TransferDocument, unknown, UploadTicketArgs>;
+/** Structural subset shared by TransferDocument and ActivityDocument — the only fields this
+ * component actually reads. Lets both entity types' concrete document rows flow in without a
+ * shared base type. */
+interface DocumentLike {
+  id: string;
+  user_id: string;
+  storage_path: string;
+  mime_type: string;
+}
+
+interface TicketsSectionProps<TDoc extends DocumentLike> {
+  documents: TDoc[] | undefined;
+  uploadMutation: UseMutationResult<TDoc, unknown, UploadTicketArgs>;
   deleteMutation: UseMutationResult<void, unknown, DeleteTicketArgs>;
   /** Every trip member, not just assigned passengers — a ticket can be attached before formal
-   * passenger assignment (flights) or is open to everyone (public transport, no passenger
-   * concept at all). */
+   * passenger assignment (flights) or is open to everyone (public transport/activities, no
+   * passenger concept at all). */
   members: { user_id: string; name: string }[];
   currentUserId: string | undefined;
   /** Organizer — allowed to upload/replace/delete any member's ticket, not just their own. */
   isOrganizer: boolean;
+  /** i18n namespace to read field/action/toast/confirm strings from. Defaults to 'transfer'
+   * (flight/public-transport tickets); activities documents pass 'activities'. Same key names
+   * are expected to exist in both namespaces, worded for that namespace's content. */
+  namespace?: 'transfer' | 'activities';
+  /** Mints a signed URL for a document's storage_path — bucket-specific, so callers supply it
+   * (getTransferDocumentUrl for flights/PT, getActivityDocumentUrl for activities). */
+  getDocumentUrl: (storagePath: string) => Promise<string>;
 }
 
 /**
- * Generic per-passenger ticket row list, shared by FlightTicketsSection and
- * PublicTransportTicketsSection — the two were previously near-identical copies of this exact
- * component, differing only in which entity-specific hooks fed the query/mutations in. Callers
- * own the hooks (each entity type has its own query key / RPC), this component owns only the
- * upload/open/delete UI and interaction logic.
+ * Generic per-passenger ticket row list, shared by FlightTicketsSection,
+ * PublicTransportTicketsSection and ActivityDocumentsSection — these were previously
+ * near-identical copies of this exact component, differing only in which entity-specific hooks
+ * fed the query/mutations in. Callers own the hooks (each entity type has its own query key /
+ * RPC), this component owns only the upload/open/delete UI and interaction logic.
  */
-export function TicketsSection({ documents, uploadMutation, deleteMutation, members, currentUserId, isOrganizer }: TicketsSectionProps) {
-  const { t } = useTranslation('transfer');
+export function TicketsSection<TDoc extends DocumentLike>({ documents, uploadMutation, deleteMutation, members, currentUserId, isOrganizer, namespace = 'transfer', getDocumentUrl }: TicketsSectionProps<TDoc>) {
+  const { t } = useTranslation(namespace);
   const { t: tCommon } = useTranslation('common');
   const addToast = useToastStore((s) => s.addToast);
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
@@ -67,7 +82,7 @@ export function TicketsSection({ documents, uploadMutation, deleteMutation, memb
   const handleOpen = async (userId: string, storagePath: string) => {
     setOpeningUserId(userId);
     try {
-      const url = await getTransferDocumentUrl(storagePath);
+      const url = await getDocumentUrl(storagePath);
       await Linking.openURL(url);
     } catch {
       addToast('error', t('toast.documentOpenFailed'));

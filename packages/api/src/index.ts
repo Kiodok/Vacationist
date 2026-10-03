@@ -254,6 +254,13 @@ export {
   deletePublicTransportDocument,
 } from './transferDocuments';
 
+export {
+  getActivityDocuments,
+  uploadActivityDocument,
+  getActivityDocumentUrl,
+  deleteActivityDocument,
+} from './activityDocuments';
+
 export { getNotes, createNote, updateNote, deleteNote } from './notes';
 
 export {

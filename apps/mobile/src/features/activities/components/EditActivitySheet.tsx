@@ -62,6 +62,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
         external_url: activity.external_url ?? undefined,
         maps_url: activity.maps_url ?? undefined,
         reservation_required: activity.reservation_required,
+        documents_enabled: activity.documents_enabled,
       });
       setCostText(activity.cost_estimate != null ? String(activity.cost_estimate) : '');
     }
@@ -310,6 +311,24 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
                 render={({ field: { onChange, value } }) => (
                   <View className="flex-row items-center justify-between py-xs">
                     <Text className="text-body text-text-primary">{t('field.reservationRequired')}</Text>
+                    <Switch
+                      value={value ?? false}
+                      onValueChange={onChange}
+                      trackColor={{ false: '#3E3E3E', true: isColorful ? colors.surface : colors.primary }}
+                      thumbColor={isColorful ? colors.surfaceElevated : '#FFFFFF'}
+                      ios_backgroundColor="#3E3E3E"
+                    />
+                  </View>
+                )}
+              />
+
+              {/* Documents Enabled */}
+              <Controller
+                control={control}
+                name="documents_enabled"
+                render={({ field: { onChange, value } }) => (
+                  <View className="flex-row items-center justify-between py-xs">
+                    <Text className="text-body text-text-primary">{t('field.documentsEnabled')}</Text>
                     <Switch
                       value={value ?? false}
                       onValueChange={onChange}

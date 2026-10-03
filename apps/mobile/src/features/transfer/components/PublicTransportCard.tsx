@@ -101,10 +101,10 @@ export function PublicTransportCard({ entry, onPress, detail, highlight }: Publi
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => Linking.openURL(entry.external_url!)}
-            className="flex-row items-center gap-xs"
+            className="flex-row items-center gap-xs self-start max-w-full"
           >
             <ThemedIcon name="link-outline" size={14} color={colors.primary} />
-            <Text className="text-primary text-body-small underline" numberOfLines={1}>
+            <Text className="text-primary text-body-small underline shrink" numberOfLines={1}>
               {entry.external_url}
             </Text>
           </TouchableOpacity>

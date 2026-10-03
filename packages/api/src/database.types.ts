@@ -241,6 +241,7 @@ export type Database = {
           created_by: string
           deleted_at: string | null
           description: string | null
+          documents_enabled: boolean
           end_time: string | null
           external_url: string | null
           id: string
@@ -262,6 +263,7 @@ export type Database = {
           created_by: string
           deleted_at?: string | null
           description?: string | null
+          documents_enabled?: boolean
           end_time?: string | null
           external_url?: string | null
           id?: string
@@ -283,6 +285,7 @@ export type Database = {
           created_by?: string
           deleted_at?: string | null
           description?: string | null
+          documents_enabled?: boolean
           end_time?: string | null
           external_url?: string | null
           id?: string
@@ -308,6 +311,74 @@ export type Database = {
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_documents: {
+        Row: {
+          activity_id: string
+          created_at: string
+          file_name: string
+          id: string
+          mime_type: string
+          storage_path: string
+          trip_id: string
+          updated_at: string
+          uploaded_by: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          file_name: string
+          id?: string
+          mime_type: string
+          storage_path: string
+          trip_id: string
+          updated_at?: string
+          uploaded_by: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          file_name?: string
+          id?: string
+          mime_type?: string
+          storage_path?: string
+          trip_id?: string
+          updated_at?: string
+          uploaded_by?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_documents_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_documents_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -2843,6 +2914,7 @@ export type Database = {
           p_category?: string
           p_cost_estimate?: number
           p_description?: string
+          p_documents_enabled?: boolean
           p_end_time?: string
           p_external_url?: string
           p_maps_url?: string
@@ -3221,6 +3293,16 @@ export type Database = {
       }
       unsettle_expense_split: {
         Args: { p_split_id: string }
+        Returns: undefined
+      }
+      update_expense_metadata: {
+        Args: {
+          p_description: string
+          p_expense_id: string
+          p_is_business: boolean
+          p_related_type: string
+          p_title: string
+        }
         Returns: undefined
       }
       update_expense_with_splits: {

@@ -1,3 +1,4 @@
+import { getTransferDocumentUrl } from '@vacationist/api';
 import { useTransferFlightDocuments, useUploadTransferFlightDocument, useDeleteTransferFlightDocument } from '../hooks/useTransferDocuments';
 import { TicketsSection } from './TicketsSection';
 
@@ -24,6 +25,7 @@ export function FlightTicketsSection({ tripId, flightId, members, currentUserId,
       members={members}
       currentUserId={currentUserId}
       isOrganizer={isOrganizer}
+      getDocumentUrl={getTransferDocumentUrl}
     />
   );
 }
