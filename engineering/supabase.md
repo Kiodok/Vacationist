@@ -5844,3 +5844,70 @@ product trade-offs, surfaced to the Tech Lead rather than guessed at, see
   same way. Changed to `members.length > 0` so a prompt firing before `useTripMembers` resolves
   can't mount the sheet with an empty member list (which would produce an unsubmittable
   zero-split expense).
+
+## 2026-10-03 (later still) — PT booking-prompt removed + allow pre-booking flight passengers (1 migration)
+
+**Status: DEPLOYED dev → later same day, prod (see next entry).** Two Tech Lead follow-up
+requests landed together: (1) the PT booking-prompt (added earlier the same day) was removed
+entirely — premature/unwanted UX, since PT ridership is often unknown or still changing when its
+price is set — with PT's price excluded from the cost analysis entirely as the explicit
+consequence (no `related_id` can ever be set for PT now, and there's deliberately no manual link
+picker); this was a pure client change (`costSummary.ts`, `transfer.tsx`), no migration. (2)
+Flight passengers can now be assigned **before** booking, organizer-only (no self-join widening —
+explicit Tech Lead call), so the flight booking-prompt can finally prefill a real
+`price_per_person × assigned-passenger-count` total instead of always blank.
+
+- `20261003140000_allow_prebooking_flight_passengers.sql` — drops the `BEFORE INSERT` trigger
+  `on_transfer_flight_passenger_insert_verify` (and its function
+  `verify_flight_booked_before_passenger()`) that previously blocked any
+  `transfer_flight_passengers` insert until `status = 'booked'`, and `CREATE OR REPLACE`s
+  `set_transfer_flight_passengers` with the identical duplicate `status` check removed — every
+  other check (auth, organizer-only via `private.is_trip_organizer`, per-user
+  `private.is_trip_member` validation, atomic delete+insert replace) unchanged, same signature.
+  `get_trip_cost_summary`/`get_my_trip_cost_shares`'s flight branches keep their existing
+  `status IN ('booked', 'completed')` filter — this migration only changes *when* passengers can
+  be assigned, not when a flight counts toward the trip total.
+- Also fixed while here (pre-existing gap): `useSetTransferFlightPassengers`'s `onSuccess` never
+  called `invalidateCostQueries`, unlike the public-transport equivalent — now it does.
+- Dormant-safe for the then-current prod client the same way `20261003110000`/`120000` were: the
+  old client's "Passengers" button was still gated client-side on `flight.status === 'booked'`,
+  so it would never have exercised the relaxed DB permission even if pushed alone — but could not
+  be pushed alone regardless, since `supabase db push` applies pending migrations strictly in
+  timestamp order and `20261003100000`/`130000` (which must not go to prod ahead of their
+  matching client) sit earlier in the queue.
+
+## 2026-10-03 (same day, later still) — v1.39.2 full prod push: all 5 migrations deployed
+
+**Status: DEPLOYED dev + prod.** The blocker on every entry above — `20261003100000`/`130000`
+changing `update_expense_with_splits` behavior in a way that would break the then-live prod
+client's expense-edit flow — was resolved when the Tech Lead committed and pushed the full
+v1.39.2 client (commit `f76c02d`, "feat: v1.39.2 — settled-expense lock, link tap-area fix,
+booking double-count fix") to `origin/main`, outside this session's own tool calls. Verified via
+`git show --name-only f76c02d` (not assumed from the commit message, written before the final
+PT/flight-passenger round and incomplete relative to the actual diff) that the commit contains
+every client change through that final round **and all 5 migration files**; `git status -sb`
+confirmed `main` was already even with `origin/main`, so Vercel's auto-deploy already covers the
+web client.
+
+With the client shipped, the Tech Lead instructed a full prod push. Claude Code's own
+`npx supabase db push` attempt against prod was blocked by the auto-mode classifier a second
+time — on the real push command itself, not just a file-prep step this time (see the
+`prod-deploy-classifier-blocks-file-prep` skill for the earlier, related block) — declined to
+retry or route around it, explained the block, and gave the Tech Lead the exact
+`supabase link --project-ref fsfsqghbejwvgxujoyne` + `db push` commands. The Tech Lead ran them
+manually.
+
+**Verification:** `supabase migration list` shows `local == remote` for all 5
+(`20261003100000/110000/120000/130000/140000`) on **both** `aejywkbkcwyanhyzhrle` (dev) and
+`fsfsqghbejwvgxujoyne` (prod) — no gaps. Additionally ran `supabase gen types typescript --linked`
+against prod and confirmed `update_expense_metadata` is present in the generated types, as an
+independent check beyond ledger bookkeeping that the schema actually changed (this CLI/environment
+has no working `db dump --schema-only`, per the "No Docker on this machine" note — ledger parity +
+a types-gen spot check is the established substitute here). CLI left re-linked to dev afterward.
+
+**One known residual gap, accepted by the Tech Lead's explicit go-ahead:** mobile clients don't
+auto-deploy like web. Until a separate `eas update --branch production` OTA ships (PATCH-level,
+no native changes, OTA-eligible per `app.config.ts`'s `version: '1.39.2'`), a user editing an
+already-**settled** expense on a still-old installed mobile build will hit `20261003100000`'s new
+`update_expense_with_splits` guard and get a hard `RAISE EXCEPTION`, instead of today's
+silent-but-buggy success. Recommend shipping that OTA promptly to close the window.

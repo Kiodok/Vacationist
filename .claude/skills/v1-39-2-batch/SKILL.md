@@ -9,27 +9,36 @@ Four original items from the Tech Lead's 2026-10-03 `/plan` request, plus two fo
 small fixes, plus a later round reworking booking-prompt/passenger-assignment behavior. All
 code-complete (`npm run typecheck` + `npm test` green).
 
-**Deployment (re-verified 2026-10-03 via `supabase migration list` on both projects, not just
-memory): 5 migrations now exist** (`20261003100000/110000/120000/130000/140000`) **— all applied
-on DEV, confirmed full ledger parity** (`140000`, §5 below, was still pending when first checked —
-explicitly pushed with `supabase db push`, then re-verified). **Confirmed NONE are on prod** —
-`remote` empty for all 5 on `fsfsqghbejwvgxujoyne`. `140000` is dormant-safe the same way
-`110000`/`120000` are — the live prod client still gates its "Passengers" button on
-`flight.status === 'booked'` client-side, so it never exercises the now-relaxed DB permission even
-once pushed — but it's stuck behind the identical ordering blocker. Prod push for the dormant-safe
-ones was attempted and blocked by the Claude Code auto-mode classifier mid-sequence (see
-[[prod-deploy-classifier-blocks-file-prep]]); on a later re-check in this same session, explicitly
-declined to retry that workaround rather than re-attempt it under a different framing.
-`20261003100000` must never go to prod alone (see §2) — and neither can `20261003130000`, since
-it's a `CREATE OR REPLACE` of the same function and carries `100000`'s settled-split guard
-forward. `supabase db push` has no per-migration selection; it applies all pending migrations in
-timestamp order, so none of `110000`/`120000`/`140000` can be cherry-picked without resequencing
-files — the exact action the classifier already denied. **Tech Lead's explicit call, given twice
-now (`AskUserQuestion`, both times choosing the Recommended option): wait for the client to be
-approved for commit, then push all migrations to prod in that same session** — this is precisely
-CLAUDE.md's "migrations never get ahead of the client" rule, not a one-off judgment call. **Client
-NOT committed** — pending the Tech Lead's go-ahead. CLI session left re-linked to dev (the
-default) after each prod-status check. See [[no-branches-main-only]] and [[commit-discipline]].
+**SHIPPED 2026-10-03.** Client committed as `f76c02d` ("feat: v1.39.2 — settled-expense lock,
+link tap-area fix, booking double-count fix") and pushed to `origin/main` — the Tech Lead
+committed this themselves, outside this session's own tool calls (no `git commit` was ever run
+from here; discovered via a routine `git log` check when re-verifying deploy status later).
+Confirmed via `git show --name-only` (not assumed from the commit message, which was written
+before the final round and undersells the actual diff) that the commit includes every change
+through the final round — PT prompt removal, `PassengerSelectSheet` fix, pre-booking flight
+passengers — **and all 5 migration files**. `git status -sb` showed no divergence from
+`origin/main`, so Vercel's auto-deploy already covers the web client.
+
+**All 5 migrations** (`20261003100000/110000/120000/130000/140000`) **are now deployed to BOTH
+dev and prod** — confirmed via `supabase migration list` ledger parity (`local` == `remote` for
+all 5 on both `aejywkbkcwyanhyzhrle` and `fsfsqghbejwvgxujoyne`), plus an independent
+`supabase gen types --linked` against prod showing `update_expense_metadata` genuinely present in
+the live schema (not just ledger bookkeeping). **Claude's own attempt to run the prod
+`db push` was blocked by the auto-mode classifier a second time — on the real push command
+itself this time, not just a file-prep step (see [[prod-deploy-classifier-blocks-file-prep]] for
+the earlier, related block)** — declined to retry or route around it, explained the block, and
+gave the Tech Lead the exact `supabase link --project-ref fsfsqghbejwvgxujoyne` + `db push`
+commands; the Tech Lead ran them manually. CLI left re-linked to dev (the default) after
+verification.
+
+**One residual gap, flagged but not blocking since the Tech Lead gave an explicit go-ahead
+knowing it:** mobile clients don't auto-update like web — an already-installed native app won't
+get this client until a separate `eas update --branch production` OTA ships (PATCH-level, no
+native changes, OTA-eligible per `app.config.ts`'s `version: '1.39.2'`). Until that OTA goes out,
+a user editing a **settled expense** on the still-old mobile build hits `100000`'s new
+`update_expense_with_splits` guard and gets a hard `RAISE EXCEPTION` instead of today's
+silent-but-buggy success. Recommend shipping that OTA promptly. See [[no-branches-main-only]] and
+[[commit-discipline]].
 
 ## 1. Trip description selectable
 One-line fix: `apps/mobile/app/trip/[id]/overview.tsx` passes `selectable` to the `<RichText>`
