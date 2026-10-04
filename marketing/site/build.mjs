@@ -35,7 +35,7 @@ const pageOgImage = (page) => `${SITE}/assets/og/${ogImagePath(page)}`;
    feeds SoftwareApplication.softwareVersion (see softwareApplicationLd). site.test.js's
    "softwareVersion drift check" asserts exact equality regardless of SEMVER bump size
    (the "MINOR/MAJOR" wording in this comment was itself stale drift — fixed 2026-10-03). */
-const APP_VERSION = '1.39.3';
+const APP_VERSION = '1.39.4';
 
 /* Growth Plan Q4 2026, Phase 2 — "harvest social proof". 25+ reviews is a documented
    threshold (marketing/growth-plan-2026-q4.md), not a gradient: below it, no rating is shown

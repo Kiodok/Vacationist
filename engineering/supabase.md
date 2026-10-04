@@ -1,5 +1,56 @@
 # Supabase Changes Log
 
+## 2026-10-04 — v1.39.4: persistent per-entity currency for Activities (1 migration)
+
+**Why:** the last gap in the item-12 currency work. Transfers got their own `currency` column
+2026-09-04, Accommodations followed 2026-09-05 — at the time, Accommodations' entry explicitly
+noted "activities' cost_estimate correctly stays on base_currency since it has no currency
+column," a deliberate scoping decision, not an oversight. The Tech Lead asked to close it now: an
+activity's cost estimate can be in a different currency than the trip, and changing the trip's
+currency later must not retroactively reinterpret an already-estimated activity cost.
+
+**Migration `20261004100000_add_activity_currency_column.sql`** — `currency TEXT REFERENCES
+currency_catalog(code)` added to `activities`, backfilled from each row's trip's current
+`base_currency`, then set `NOT NULL`. Unlike Accommodation (a direct client-side `.insert()`),
+activity creation goes through the `create_activity` RPC, so this required the usual
+`DROP FUNCTION` + `CREATE FUNCTION` dance (Postgres forbids changing a signature via `CREATE OR
+REPLACE`) to add a trailing `p_currency TEXT DEFAULT NULL` param, with a defensive
+`COALESCE(p_currency, trips.base_currency)` fallback inside the function body — the client always
+sends it explicitly, but this keeps the `NOT NULL` constraint safe against any stale caller.
+`updateActivity()` needed no RPC change — it's already a plain `.update(input)`.
+
+**No RPC changes to the cost-analysis functions** (`get_trip_cost_summary` /
+`get_my_trip_cost_shares`) — unlike the Accommodation extension, which did need them.
+`activities.cost_estimate` is deliberately excluded from cost analysis entirely, for a reason
+unrelated to currency (rough planning number, not a committed cost — see
+`packages/utils/src/costSummary.ts`), and that exclusion is untouched by this change.
+
+**App layer:** `Activity` type + `createActivitySchema` gained `currency` (required). New shared
+hook/util pair `useActivityCurrencyField`/`lastUsedActivityCurrency.ts`
+(`apps/mobile/src/features/currencies/`), mirroring the Accommodation pair exactly, with its own
+MMKV "last used activity currency" habit (separate from expense/transfer/accommodation currency
+memory — same reasoning as those three). `CreateActivitySheet`/`EditActivitySheet` gained the
+shared `EntityCurrencyField` button next to the Cost Estimate input, defaulting new rows to the
+last-used activity currency and always showing an existing row's own currency when editing.
+`ActivityCard` now reads `activity.currency` via `formatCurrency` instead of a `currency` prop
+threaded down from the trip's `base_currency` (no longer passed at all — matches
+`AccommodationCard`/`FlightCard`/`RentalCard`). `tripMarkdown.ts`'s activity cost-estimate export
+lines switched from `trip.base_currency` to `a.currency`. `create-example-trip`'s 4 seeded
+activities gained `currency: 'EUR'` (would otherwise violate the new `NOT NULL`).
+
+**Verification:** `npm run typecheck` / `npm test` pass (236 + 30 + 245 tests, plus the marketing
+site's own test suite). Applied to dev then prod (migration ledger parity confirmed both
+directions — no Docker on this machine, so schema-dump diffing isn't available). `npm run
+supabase:types` regenerated to pick up the new column. `create-example-trip` Edge Function
+redeployed to dev + prod.
+
+**Found and fixed while here (unrelated pre-existing drift, not introduced this session):**
+`apps/mobile/app.config.ts`'s `version` had already been bumped to `1.39.4` (by the Tech Lead,
+ahead of this batch) but `marketing/site/build.mjs`'s `APP_VERSION` constant — which feeds the
+homepage's `SoftwareApplication.softwareVersion` JSON-LD and is explicitly commented "bump
+alongside app.config.ts on EVERY release" — was still `1.39.3`, tripping `site.test.js`'s
+softwareVersion drift check. Bumped to match and rebuilt the site (`npm run build:site`).
+
 ## 2026-09-20 (v1.39.0 items 8 + 13) — 6 new expense categories + `expenses.tip_amount` (1 migration)
 
 **Status: on DEV. On PROD it was applied and then REVERTED the same day (2026-09-20).**

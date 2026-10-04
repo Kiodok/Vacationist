@@ -239,6 +239,7 @@ export type Database = {
           cost_estimate: number | null
           created_at: string
           created_by: string
+          currency: string
           deleted_at: string | null
           description: string | null
           documents_enabled: boolean
@@ -261,6 +262,7 @@ export type Database = {
           cost_estimate?: number | null
           created_at?: string
           created_by: string
+          currency: string
           deleted_at?: string | null
           description?: string | null
           documents_enabled?: boolean
@@ -283,6 +285,7 @@ export type Database = {
           cost_estimate?: number | null
           created_at?: string
           created_by?: string
+          currency?: string
           deleted_at?: string | null
           description?: string | null
           documents_enabled?: boolean
@@ -305,6 +308,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency_catalog"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "activities_trip_id_fkey"
@@ -2913,6 +2923,7 @@ export type Database = {
           p_auto_close?: boolean
           p_category?: string
           p_cost_estimate?: number
+          p_currency?: string
           p_description?: string
           p_documents_enabled?: boolean
           p_end_time?: string

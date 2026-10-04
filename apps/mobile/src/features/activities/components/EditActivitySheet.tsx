@@ -6,10 +6,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { updateActivitySchemaForTrip, type UpdateActivityInput, type Activity, type Currency, ACTIVITY_CATEGORIES } from '@vacationist/types';
-import { getCurrencySymbol, sanitizeDecimalInput } from '@vacationist/utils';
+import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyField';
+import { useActivityCurrencyField } from '../../currencies/hooks/useActivityCurrencyField';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
@@ -35,7 +37,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
     [tripStartDate, tripEndDate],
   );
 
-  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<UpdateActivityInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateActivityInput>({
     resolver: zodResolver(schema),
   });
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
@@ -46,6 +48,9 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
   // rounds to 116 and the display collapses before the fractional digits can be entered.
   const [costText, setCostText] = useState(activity.cost_estimate != null ? String(activity.cost_estimate) : '');
 
+  const selectedCurrency = (watch('currency') || activity.currency || currency) as Currency;
+  const currencyField = useActivityCurrencyField(selectedCurrency, (code) => setValue('currency', code));
+
   useEffect(() => {
     if (visible) {
       reset({
@@ -53,6 +58,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
         description: activity.description ?? undefined,
         category: activity.category ?? undefined,
         cost_estimate: activity.cost_estimate ?? undefined,
+        currency: activity.currency,
         // Explicit null (not undefined) so a cleared value is actually sent on
         // submit — JSON.stringify drops undefined keys from the update payload,
         // which would silently leave the previous DB value in place.
@@ -234,26 +240,35 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
 
               {/* Cost Estimate */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">{t('field.cost')} ({getCurrencySymbol(currency)})</Text>
-                <Controller
-                  control={control}
-                  name="cost_estimate"
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                      placeholderTextColor="#5C5C5C"
-                      placeholder="0.00"
-                      value={costText}
-                      onChangeText={(text) => {
-                        const cleaned = sanitizeDecimalInput(text);
-                        setCostText(cleaned);
-                        const num = parseFloat(cleaned);
-                        onChange(isNaN(num) ? null : num);
-                      }}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
+                <Text className="text-label text-text-muted uppercase">{t('field.cost')} ({currencyField.currencySymbol})</Text>
+                <View className="flex-row gap-xs">
+                  <Controller
+                    control={control}
+                    name="cost_estimate"
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        placeholderTextColor="#5C5C5C"
+                        placeholder="0.00"
+                        value={costText}
+                        onChangeText={(text) => {
+                          const cleaned = sanitizeDecimalInput(text);
+                          setCostText(cleaned);
+                          const num = parseFloat(cleaned);
+                          onChange(isNaN(num) ? null : num);
+                        }}
+                        keyboardType="decimal-pad"
+                      />
+                    )}
+                  />
+                  <EntityCurrencyField
+                    selectedCurrency={selectedCurrency}
+                    pickerVisible={currencyField.pickerVisible}
+                    onOpen={currencyField.openPicker}
+                    onClose={currencyField.closePicker}
+                    onSelect={currencyField.onSelect}
+                  />
+                </View>
               </View>
 
               {/* External URL */}

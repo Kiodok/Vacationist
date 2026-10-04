@@ -35,6 +35,7 @@ const activity: Activity = {
   description: 'Sea kayaking tour',
   category: 'Sport',
   cost_estimate: 30,
+  currency: 'EUR',
   activity_date: '2026-07-03',
   start_time: '09:00:00',
   end_time: '12:00:00',
@@ -128,6 +129,17 @@ describe('generateTripMarkdown', () => {
     expect(md).toContain('Friday, July 3, 2026');
     expect(md).toContain('**Kayaking** 09:00–12:00');
     expect(md).toContain('Category: Sport');
+  });
+
+  it('formats an activity cost estimate in its own currency, not the trip base currency', () => {
+    const gbpActivity: Activity = { ...activity, id: 'a2', currency: 'GBP', cost_estimate: 20 };
+    const md = generateTripMarkdown(
+      { trip: baseTrip, members, activities: [gbpActivity], accommodations: [], ...empty },
+      { includeExpenses: false },
+    );
+
+    expect(md).toContain('Cost estimate: £20.00');
+    expect(md).not.toContain('Cost estimate: €20.00');
   });
 
   it('omits expenses section when includeExpenses is false', () => {

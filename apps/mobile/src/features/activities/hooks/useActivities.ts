@@ -93,6 +93,7 @@ export function useCreateActivity() {
         description: input.description ?? null,
         category: input.category ?? null,
         cost_estimate: input.cost_estimate ?? null,
+        currency: input.currency,
         activity_date: input.activity_date ?? null,
         start_time: input.start_time ?? null,
         end_time: input.end_time ?? null,

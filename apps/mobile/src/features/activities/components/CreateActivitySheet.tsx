@@ -6,10 +6,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { createActivitySchemaForTrip, type CreateActivityInput, type Currency, ACTIVITY_CATEGORIES } from '@vacationist/types';
-import { getCurrencySymbol, sanitizeDecimalInput } from '@vacationist/utils';
+import { sanitizeDecimalInput } from '@vacationist/utils';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
+import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyField';
+import { initialActivityCurrency, useActivityCurrencyField } from '../../currencies/hooks/useActivityCurrencyField';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
 
@@ -33,9 +35,15 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
     () => createActivitySchemaForTrip(tripStartDate, tripEndDate),
     [tripStartDate, tripEndDate],
   );
-  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<CreateActivityInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateActivityInput>({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', reservation_required: false, auto_close: false, documents_enabled: false },
+    defaultValues: {
+      title: '',
+      currency: initialActivityCurrency(currency),
+      reservation_required: false,
+      auto_close: false,
+      documents_enabled: false,
+    },
   });
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
   const categoryOptions = ACTIVITY_CATEGORIES.map((cat) => ({ value: cat, label: t(`category.${cat}`, { defaultValue: cat }) }));
@@ -45,14 +53,27 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
   // rounds to 116 and the display collapses before the fractional digits can be entered.
   const [costText, setCostText] = useState('');
 
+  const selectedCurrency = (watch('currency') || currency) as Currency;
+  const currencyField = useActivityCurrencyField(selectedCurrency, (code) => setValue('currency', code));
+
+  // Re-computed on every call (not a stale mount-time snapshot) so a currency picked for one
+  // entry is reflected as the default for the very next one in the same sheet-open session.
+  const resetValues = (): CreateActivityInput => ({
+    title: '',
+    currency: initialActivityCurrency(currency),
+    reservation_required: false,
+    auto_close: false,
+    documents_enabled: false,
+  });
+
   const onValid = (data: CreateActivityInput) => {
     onSubmit(data);
-    reset();
+    reset(resetValues());
     setCostText('');
   };
 
   const handleClose = () => {
-    reset();
+    reset(resetValues());
     setCostText('');
     onClose();
   };
@@ -219,26 +240,35 @@ export function CreateActivitySheet({ visible, onClose, onSubmit, isPending, cur
 
               {/* Cost Estimate */}
               <View className="gap-xs">
-                <Text className="text-label text-text-muted uppercase">{t('field.cost')} ({getCurrencySymbol(currency)})</Text>
-                <Controller
-                  control={control}
-                  name="cost_estimate"
-                  render={({ field: { onChange } }) => (
-                    <TextInput
-                      className="bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
-                      placeholderTextColor="#5C5C5C"
-                      placeholder="0.00"
-                      value={costText}
-                      onChangeText={(text) => {
-                        const cleaned = sanitizeDecimalInput(text);
-                        setCostText(cleaned);
-                        const num = parseFloat(cleaned);
-                        onChange(isNaN(num) ? null : num);
-                      }}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
+                <Text className="text-label text-text-muted uppercase">{t('field.cost')} ({currencyField.currencySymbol})</Text>
+                <View className="flex-row gap-xs">
+                  <Controller
+                    control={control}
+                    name="cost_estimate"
+                    render={({ field: { onChange } }) => (
+                      <TextInput
+                        className="flex-1 bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body"
+                        placeholderTextColor="#5C5C5C"
+                        placeholder="0.00"
+                        value={costText}
+                        onChangeText={(text) => {
+                          const cleaned = sanitizeDecimalInput(text);
+                          setCostText(cleaned);
+                          const num = parseFloat(cleaned);
+                          onChange(isNaN(num) ? null : num);
+                        }}
+                        keyboardType="decimal-pad"
+                      />
+                    )}
+                  />
+                  <EntityCurrencyField
+                    selectedCurrency={selectedCurrency}
+                    pickerVisible={currencyField.pickerVisible}
+                    onOpen={currencyField.openPicker}
+                    onClose={currencyField.closePicker}
+                    onSelect={currencyField.onSelect}
+                  />
+                </View>
               </View>
 
               {/* External URL */}

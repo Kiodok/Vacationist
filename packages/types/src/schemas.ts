@@ -101,6 +101,7 @@ export const createActivitySchema = z.object({
   description: z.string().max(1000).optional(),
   category: z.string().max(100).optional(),
   cost_estimate: z.number().nonnegative().nullable().optional(),
+  currency: currencyCodeSchema,
   activity_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
   start_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/).nullable().optional(),
   end_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/).nullable().optional(),

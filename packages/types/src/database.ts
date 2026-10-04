@@ -80,6 +80,7 @@ export interface Activity {
   description: string | null;
   category: string | null;
   cost_estimate: number | null;
+  currency: Currency;
   activity_date: string | null;
   start_time: string | null;
   end_time: string | null;

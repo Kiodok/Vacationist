@@ -124,7 +124,7 @@ export function generateTripMarkdown(input: TripMarkdownInput, options: TripMark
       lines.push(`**${a.title}**${time}`);
       if (a.status !== 'planned') lines.push(`- Status: ${capitalize(a.status)}`);
       if (a.category) lines.push(`- Category: ${a.category}`);
-      if (a.cost_estimate != null) lines.push(`- Cost estimate: ${formatCurrency(a.cost_estimate, trip.base_currency)}`);
+      if (a.cost_estimate != null) lines.push(`- Cost estimate: ${formatCurrency(a.cost_estimate, a.currency)}`);
       if (a.description) lines.push(`- Notes: ${a.description}`);
       if (a.external_url) lines.push(`- Link: ${a.external_url}`);
       if (a.maps_url) lines.push(`- Maps: ${a.maps_url}`);
@@ -138,7 +138,7 @@ export function generateTripMarkdown(input: TripMarkdownInput, options: TripMark
         lines.push(`**${a.title}**`);
         if (a.status !== 'planned') lines.push(`- Status: ${capitalize(a.status)}`);
         if (a.category) lines.push(`- Category: ${a.category}`);
-        if (a.cost_estimate != null) lines.push(`- Cost estimate: ${formatCurrency(a.cost_estimate, trip.base_currency)}`);
+        if (a.cost_estimate != null) lines.push(`- Cost estimate: ${formatCurrency(a.cost_estimate, a.currency)}`);
         if (a.description) lines.push(`- Notes: ${a.description}`);
         lines.push('');
       }

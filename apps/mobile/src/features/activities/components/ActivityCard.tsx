@@ -1,7 +1,7 @@
 import { View, Text, Pressable, TouchableOpacity, Linking, Animated, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { dayjs, formatCurrency } from '@vacationist/utils';
-import type { Activity, ActivityVote, Currency } from '@vacationist/types';
+import type { Activity, ActivityVote } from '@vacationist/types';
 import { VoteChip, VoteSummary } from './VoteChip';
 import { StatusIndicator } from './StatusIndicator';
 import { colors, CATEGORY_ICON_COLORS, METADATA_ICON_COLORS, RichText, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
@@ -12,7 +12,6 @@ interface ActivityCardProps {
   activity: Activity;
   votes: ActivityVote[];
   currentUserId: string | undefined;
-  currency: Currency;
   onPress: () => void;
   onVotePress: () => void;
   detail?: React.ReactNode;
@@ -20,7 +19,7 @@ interface ActivityCardProps {
   highlight?: boolean;
 }
 
-export function ActivityCard({ activity, votes, currentUserId, currency, onPress, onVotePress, detail, displayStatus, highlight }: ActivityCardProps) {
+export function ActivityCard({ activity, votes, currentUserId, onPress, onVotePress, detail, displayStatus, highlight }: ActivityCardProps) {
   const { t } = useTranslation('activities');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
@@ -95,7 +94,7 @@ export function ActivityCard({ activity, votes, currentUserId, currency, onPress
           <View className="flex-row items-center gap-xs">
             <ThemedIcon name="wallet-outline" size={14} color={METADATA_ICON_COLORS.cost.color} />
             <Text className="text-body-small text-text-secondary">
-              {formatCurrency(Number(activity.cost_estimate), currency)}
+              {formatCurrency(Number(activity.cost_estimate), activity.currency)}
             </Text>
           </View>
         )}

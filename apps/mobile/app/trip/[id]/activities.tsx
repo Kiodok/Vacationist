@@ -332,7 +332,6 @@ export default function ActivitiesTab() {
                 tripId={tripId!}
                 currentUserId={user?.id}
                 role={role}
-                currency={currency}
                 initialExpanded={item.id === activityId}
                 isBlocked={blockedActivityIds.has(item.id)}
                 locked={locked}
@@ -416,7 +415,6 @@ function ActivityCardWithVotes({
   tripId,
   currentUserId,
   role,
-  currency,
   initialExpanded,
   isBlocked,
   onEdit,
@@ -430,7 +428,6 @@ function ActivityCardWithVotes({
   tripId: string;
   currentUserId: string | undefined;
   role: string | null | undefined;
-  currency: Currency;
   initialExpanded?: boolean;
   isBlocked: boolean;
   locked: boolean;
@@ -685,7 +682,6 @@ function ActivityCardWithVotes({
         activity={activity}
         votes={votes}
         currentUserId={currentUserId}
-        currency={currency}
         onPress={() => setShowDetail(!showDetail)}
         onVotePress={() => setShowVoteSheet(true)}
         detail={detailContent}

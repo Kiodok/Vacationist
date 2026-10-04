@@ -723,6 +723,7 @@ title           TEXT NOT NULL
 description     TEXT
 category        TEXT
 cost_estimate   NUMERIC(10,2)
+currency        TEXT NOT NULL REFERENCES currency_catalog(code)  -- v1.39.4: own currency, independent of trips.base_currency
 activity_date   DATE
 start_time      TIME
 end_time        TIME

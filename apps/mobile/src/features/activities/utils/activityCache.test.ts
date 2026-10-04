@@ -21,6 +21,7 @@ function activity(overrides: Partial<Activity> & { id: string }): Activity {
     description: null,
     category: null,
     cost_estimate: null,
+    currency: 'EUR',
     activity_date: null,
     start_time: null,
     end_time: null,
