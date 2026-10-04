@@ -1,5 +1,5 @@
 ---
-title: Firmen-Offsite planen — Teamreise koordinieren & abrechnen
+title: Firmen-Offsite planen - Teamreise koordinieren & abrechnen
 description: Ein Team-Offsite ohne Tabelle und Freigabe-Thread planen: über die Agenda abstimmen, Kosten teilen, Belege anhängen und pro Person einen Ausgabenbericht exportieren.
 path: /de/use-cases/corporate-offsite-planner/
 lang: de
@@ -14,11 +14,11 @@ related: /de/features/expenses/, /de/features/voting/, /de/features/transfers/
 breadcrumbLabel: Firmen-Offsite planen
 ---
 
-# Das Offsite planen — und dann sauber abrechnen
+# Das Offsite planen - und dann sauber abrechnen
 
 <div class="tldr">
   <p class="tldr-label">Kurz gesagt</p>
-  <p>Vacationist lässt ein Team über die Offsite-Agenda abstimmen, erfasst gemeinsame Kosten — Ausgaben, Hotels, Flüge und Transport — mit angehängten Belegen und exportiert pro Person einen Geschäftsausgaben-Bericht als PDF — Reise planen und bei der Buchhaltung einreichen sind derselbe Ablauf. Es ist kostenlos, und Kolleg:innen treten mit einem Link bei, ohne Konto und ohne IT-Freigabe.</p>
+  <p>Vacationist lässt ein Team über die Offsite-Agenda abstimmen, erfasst gemeinsame Kosten - Ausgaben, Hotels, Flüge und Transport - mit angehängten Belegen und exportiert pro Person einen Geschäftsausgaben-Bericht als PDF - Reise planen und bei der Buchhaltung einreichen sind derselbe Ablauf. Es ist kostenlos, und Kolleg:innen treten mit einem Link bei, ohne Konto und ohne IT-Freigabe.</p>
 </div>
 
 ## Das Problem beim Planen eines Firmen-Offsites
@@ -29,15 +29,15 @@ Ein Team-Offsite läuft auf zwei Dokumenten, die nie ganz übereinstimmen: einem
 
 ### Über die Agenda abstimmen statt in einem 40-Nachrichten-Thread
 
-Trag den Workshop-Slot, das Team-Dinner und die optionale Samstagswanderung als Vorschläge ein und lass das Team mit einem fünfstufigen System abstimmen — von „Muss sein" bis „Gruppen-Blocker". Der Plan spiegelt, was das Team wirklich will, und die Entscheidung ist sichtbar statt im Chat vergraben. Siehe [wie die Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
+Trag den Workshop-Slot, das Team-Dinner und die optionale Samstagswanderung als Vorschläge ein und lass das Team mit einem fünfstufigen System abstimmen - von „Muss sein" bis „Gruppen-Blocker". Der Plan spiegelt, was das Team wirklich will, und die Entscheidung ist sichtbar statt im Chat vergraben. Siehe [wie die Aktivitäten-Abstimmung funktioniert](/de/features/voting/).
 
 ### Geschäftskosten markieren und den Bericht exportieren
 
-Markiere jede Kosten beim Erfassen als Geschäftskosten — eine Ausgabe, aber auch das Hotel, die Flüge, den Mietwagen, den Flughafenzug. Zum Einreichen exportierst du eine **Geschäftsausgaben-Übersicht** — einen sauberen Bericht pro Person als PDF (im Web zusätzlich als Markdown), der all diese Quellen zusammenführt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen und Beträgen in anderen Währungen für dich umgerechnet. Nur bestätigte Buchungen sind enthalten, damit nichts, worüber das Team noch entscheidet, in einem Buchhaltungsbericht landet. Gib ihn der Buchhaltung oder häng ihn an deine eigene Erstattungsforderung. Siehe [wie die Kostenteilung funktioniert](/de/features/expenses/).
+Markiere jede Kosten beim Erfassen als Geschäftskosten - eine Ausgabe, aber auch das Hotel, die Flüge, den Mietwagen, den Flughafenzug. Zum Einreichen exportierst du eine **Geschäftsausgaben-Übersicht** - einen sauberen Bericht pro Person als PDF (im Web zusätzlich als Markdown), der all diese Quellen zusammenführt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen und Beträgen in anderen Währungen für dich umgerechnet. Nur bestätigte Buchungen sind enthalten, damit nichts, worüber das Team noch entscheidet, in einem Buchhaltungsbericht landet. Gib ihn der Buchhaltung oder häng ihn an deine eigene Erstattungsforderung. Siehe [wie die Kostenteilung funktioniert](/de/features/expenses/).
 
-### Belege angehängt — die Erstattung wird keine Schnitzeljagd
+### Belege angehängt - die Erstattung wird keine Schnitzeljagd
 
-Fotografiere den Beleg in dem Moment in die Ausgabe, in dem du zahlst. Er liegt in privatem, zugriffsgeschütztem Speicher bei der Ausgabe selbst — nicht in einer Foto-Galerie, die du auf dem Rückflug durchscrollst. Der exportierte Bericht verlinkt direkt auf jeden einzelnen.
+Fotografiere den Beleg in dem Moment in die Ausgabe, in dem du zahlst. Er liegt in privatem, zugriffsgeschütztem Speicher bei der Ausgabe selbst - nicht in einer Foto-Galerie, die du auf dem Rückflug durchscrollst. Der exportierte Bericht verlinkt direkt auf jeden einzelnen.
 
 ### Ein Link, keine Konten, kein IT-Ticket
 
@@ -53,11 +53,11 @@ Kostenlos, ohne Werbung. Abstimmung, Kostenteilung, Belege, der Geschäftsausgab
 
 ### Kann jede Person einen eigenen Ausgabenbericht bekommen?
 
-Ja. Die Geschäftsausgaben-Übersicht wird pro Person erzeugt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen — und sie zieht markierte Hotels, Flüge und Transport mit ein, nicht nur Ausgaben — so kann jede:r die eigene Forderung einreichen, und die Buchhaltung bekommt von allen ein einheitliches Format.
+Ja. Die Geschäftsausgaben-Übersicht wird pro Person erzeugt, aufgeschlüsselt nach Datum, Kategorie und Zahler, mit Links zu den angehängten Belegen - und sie zieht markierte Hotels, Flüge und Transport mit ein, nicht nur Ausgaben - so kann jede:r die eigene Forderung einreichen, und die Buchhaltung bekommt von allen ein einheitliches Format.
 
 ### Funktionieren die Beleg-Links im Export dauerhaft?
 
-Jeder Beleg-Link im exportierten Bericht bleibt 30 Tage gültig — lang genug, um eine Erstattung einzureichen und bearbeiten zu lassen. Der Beleg selbst bleibt so lange in der Reise, wie die Reise existiert.
+Jeder Beleg-Link im exportierten Bericht bleibt 30 Tage gültig - lang genug, um eine Erstattung einzureichen und bearbeiten zu lassen. Der Beleg selbst bleibt so lange in der Reise, wie die Reise existiert.
 
 ### Braucht jemand ein Firmenkonto oder eine Admin-Freigabe?
 

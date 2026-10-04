@@ -1,6 +1,6 @@
 ---
-title: Vacationist Pricing — Free, No Ads, No Paid Tier
-description: Vacationist is free for every group — no ads, no subscription and no paid features. How that compares with Splitwise, Wanderlog and TripIt.
+title: Vacationist Pricing - Free, No Ads, No Paid Tier
+description: Vacationist is free for every group - no ads, no subscription and no paid features. How that compares with Splitwise, Wanderlog and TripIt.
 path: /pricing/
 lang: en
 type: pricing
@@ -16,7 +16,7 @@ breadcrumbLabel: Pricing
 
 # Vacationist is free
 
-<p class="lede">Vacationist is free for every group: no ads, no subscription, and no feature locked behind a paywall. Everyone you invite gets exactly the same thing — and doesn't even need an account to join.</p>
+<p class="lede">Vacationist is free for every group: no ads, no subscription, and no feature locked behind a paywall. Everyone you invite gets exactly the same thing - and doesn't even need an account to join.</p>
 
 ## What you get for free
 
@@ -33,7 +33,7 @@ Everything in the app, on iOS, Android and the web:
 
 ## No ads
 
-There are no ads in Vacationist. For how your data is handled, read the [privacy policy](/privacy-policy.html) — including what the website measures, and only after you accept its cookie banner.
+There are no ads in Vacationist. For how your data is handled, read the [privacy policy](/privacy-policy.html) - including what the website measures, and only after you accept its cookie banner.
 
 ## How the price compares
 
@@ -45,7 +45,7 @@ There are no ads in Vacationist. For how your data is handled, read the [privacy
 | TripIt | Free tier; TripIt Pro subscription |
 | Tricount | Free, with some premium extras |
 
-This is the summary from our comparison pages — [Splitwise](/vs/splitwise/), [Wanderlog](/vs/wanderlog/), [TripIt](/vs/tripit/) and [Tricount](/vs/tricount/) — where each app's strengths are laid out too. Other apps change their pricing, so check each one's own page before deciding.
+This is the summary from our comparison pages - [Splitwise](/vs/splitwise/), [Wanderlog](/vs/wanderlog/), [TripIt](/vs/tripit/) and [Tricount](/vs/tricount/) - where each app's strengths are laid out too. Other apps change their pricing, so check each one's own page before deciding.
 
 <!--CTA-->
 
@@ -61,7 +61,7 @@ No. Vacationist doesn't show ads.
 
 ### Do the people I invite have to pay or create an account?
 
-Neither. Anyone can join a trip with a single invite link and take part fully — voting, adding expenses, editing lists — without signing up for anything.
+Neither. Anyone can join a trip with a single invite link and take part fully - voting, adding expenses, editing lists - without signing up for anything.
 
 ### Where can I get Vacationist?
 

@@ -1,7 +1,7 @@
 ---
 url: https://vacationist.app/de/terms-of-service/
-title: Nutzungsbedingungen — Vacationist
-description: Nutzungsbedingungen für die Vacationist-App — die Regeln für die Nutzung unserer kollaborativen Reiseplanungs-App.
+title: Nutzungsbedingungen - Vacationist
+description: Nutzungsbedingungen für die Vacationist-App - die Regeln für die Nutzung unserer kollaborativen Reiseplanungs-App.
 lang: de
 published: 2026-07-26
 updated: 2026-09-24
@@ -11,7 +11,7 @@ updated: 2026-09-24
 
 *Gültig ab: 1. Juni 2026 · Zuletzt aktualisiert: 3. September 2026*
 
-Diese Nutzungsbedingungen regeln, wie du die kostenlose Vacationist-App und Website nutzen darfst — keine Werbung, kein Bezahltarif, und du bleibst Eigentümer deiner eigenen Reisedaten.
+Diese Nutzungsbedingungen regeln, wie du die kostenlose Vacationist-App und Website nutzen darfst - keine Werbung, kein Bezahltarif, und du bleibst Eigentümer deiner eigenen Reisedaten.
 
 ## 1. Annahme der Bedingungen
 
@@ -46,7 +46,7 @@ Du verpflichtest dich, die App nicht zu nutzen, um:
 
 ## 5. Nutzergenerierte Inhalte
 
-Du behältst das Eigentum an allen Inhalten, die du in der App erstellst (Reisedetails, Aktivitäten, Notizen, Ausgaben-Einträge usw.). Mit dem Einreichen von Inhalten gewährst du uns eine beschränkte, nicht-exklusive Lizenz, diese Inhalte zu speichern und zu verarbeiten — ausschliesslich zum Zweck der Bereitstellung des Dienstes für dich und deine Reisemitglieder.
+Du behältst das Eigentum an allen Inhalten, die du in der App erstellst (Reisedetails, Aktivitäten, Notizen, Ausgaben-Einträge usw.). Mit dem Einreichen von Inhalten gewährst du uns eine beschränkte, nicht-exklusive Lizenz, diese Inhalte zu speichern und zu verarbeiten - ausschliesslich zum Zweck der Bereitstellung des Dienstes für dich und deine Reisemitglieder.
 
 Du bist allein verantwortlich für die Richtigkeit und Rechtmässigkeit der von dir eingereichten Inhalte. Wir prüfen oder moderieren keine Nutzerinhalte.
 
@@ -58,17 +58,17 @@ Wenn du einem anderen Reisemitglied temporären Zugriff auf dein Reisedokument g
 
 ## 7. Geistiges Eigentum
 
-Alle Rechte an der App — einschliesslich, aber nicht beschränkt auf Design, Software, Marken und Grafiken — gehören dem Entwickler oder sind an ihn lizenziert. Diese Bedingungen übertragen dir keine Rechte an geistigem Eigentum. Du darfst die App ohne ausdrückliche schriftliche Erlaubnis nicht kopieren, verändern, verbreiten oder abgeleitete Werke erstellen.
+Alle Rechte an der App - einschliesslich, aber nicht beschränkt auf Design, Software, Marken und Grafiken - gehören dem Entwickler oder sind an ihn lizenziert. Diese Bedingungen übertragen dir keine Rechte an geistigem Eigentum. Du darfst die App ohne ausdrückliche schriftliche Erlaubnis nicht kopieren, verändern, verbreiten oder abgeleitete Werke erstellen.
 
 ## 8. Gewährleistungsausschluss
 
 > Die App wird „wie besehen" und „wie verfügbar" ohne jegliche ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Wir gewährleisten nicht, dass die App unterbrechungsfrei, fehlerfrei oder frei von Viren oder anderen schädlichen Komponenten ist. Die Nutzung der App erfolgt auf dein alleiniges Risiko.
 
-Wir übernehmen keine Gewähr für die Richtigkeit, Zuverlässigkeit oder Vollständigkeit von Informationen, die über die App bereitgestellt werden — einschliesslich Ausgaben-Berechnungen, Reisedokument-Speicherung oder Benachrichtigungen.
+Wir übernehmen keine Gewähr für die Richtigkeit, Zuverlässigkeit oder Vollständigkeit von Informationen, die über die App bereitgestellt werden - einschliesslich Ausgaben-Berechnungen, Reisedokument-Speicherung oder Benachrichtigungen.
 
 ## 9. Haftungsbeschränkung
 
-Soweit gesetzlich zulässig, haftet der Entwickler nicht für indirekte, zufällige, besondere, Folge- oder Strafschäden — einschliesslich Datenverlust, Reiseunterbrechung, finanzieller Verluste oder Ähnlichem — die aus deiner Nutzung oder der Unmöglichkeit der Nutzung der App entstehen.
+Soweit gesetzlich zulässig, haftet der Entwickler nicht für indirekte, zufällige, besondere, Folge- oder Strafschäden - einschliesslich Datenverlust, Reiseunterbrechung, finanzieller Verluste oder Ähnlichem - die aus deiner Nutzung oder der Unmöglichkeit der Nutzung der App entstehen.
 
 In Rechtsordnungen, die den Ausschluss bestimmter Gewährleistungen oder die Beschränkung der Haftung nicht zulassen, ist unsere Haftung auf das gesetzlich zulässige Höchstmass beschränkt. Unberührt bleibt in jedem Fall die Haftung für Vorsatz und grobe Fahrlässigkeit sowie für Personenschäden (Art. 100 Abs. 1 OR).
 
@@ -82,7 +82,7 @@ Wir garantieren keine bestimmte Verfügbarkeit oder Betriebszeit. Geplante Wartu
 
 Du kannst die Nutzung der App jederzeit beenden und dein Konto über den Profil-Bildschirm löschen. Nach der Kontolöschung werden deine Daten gemäss unserer [Datenschutzerklärung](/de/privacy-policy/) innerhalb von 30 Tagen dauerhaft entfernt.
 
-Wir behalten uns das Recht vor, deinen Zugang zur App auszusetzen oder zu beenden, wenn du nachweislich gegen diese Bedingungen verstossen hast — insbesondere gegen Ziffer 4 (Verhalten der Nutzer). Wo die Umstände es zulassen, informieren wir dich vorab und geben dir Gelegenheit, dazu Stellung zu nehmen; bei schwerwiegenden Verstössen oder einer Gefährdung anderer Nutzer können wir den Zugang ohne vorherige Ankündigung sofort aussetzen.
+Wir behalten uns das Recht vor, deinen Zugang zur App auszusetzen oder zu beenden, wenn du nachweislich gegen diese Bedingungen verstossen hast - insbesondere gegen Ziffer 4 (Verhalten der Nutzer). Wo die Umstände es zulassen, informieren wir dich vorab und geben dir Gelegenheit, dazu Stellung zu nehmen; bei schwerwiegenden Verstössen oder einer Gefährdung anderer Nutzer können wir den Zugang ohne vorherige Ankündigung sofort aussetzen.
 
 ## 12. Änderungen dieser Bedingungen
 

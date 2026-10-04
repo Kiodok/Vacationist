@@ -303,6 +303,29 @@ GitHub Pages serves `docs/` directly (no CI). SEO pages are **generated** — ne
 - **Verify:** run build **twice** (second run must produce zero git diff), then `npm run serve:docs` (port 3001) and click through `/`, `/de/`, `/blog/`.
 - Deploy = commit + push to `main` (after user approval). Post-deploy: resubmit `sitemap.xml` in Search Console.
 
+### 🔴 No em dashes in visitor-facing copy
+Write landing-page and marketing copy with a plain hyphen (`-`), never an em dash (`—`) — em dashes
+read as an AI-writing tell, and a full sweep already removed every one from the site once (2026-10-04,
+see the `em-dash-hyphen-sweep` skill). This applies to anything a visitor, search engine, or AI
+crawler reads: `docs/index.html`, `docs/i18n/{en,de}.js`, every `marketing/site/content/**/*.md`
+(body + front matter), `docs/llms.txt`, and any user-visible string literal you add to
+`marketing/site/build.mjs` (`APP_LD`, `STR`, `HOWTO_LD`, `ratingProofText`, or similar).
+- **English:** just don't type one. If you're pasting or adapting text that has one, swap it for
+  `-` before it lands in any of the files above.
+- **German:** don't swap to a bare hyphen — write the sentence without a dash at all (comma, colon,
+  parentheses, or two sentences). An em dash isn't standard German typography either way, so this
+  isn't a workaround, it's the correct form.
+- **Exempt (leave em dashes alone):** code comments everywhere (`//`, `/* */`, `<!-- -->` — this
+  repo's established comment style uses them freely, including in this file), dev-facing
+  `console.log`/`console.warn`/`throw new Error()` strings in `build.mjs`/`og-image.mjs`, and
+  `docs/robots.txt`'s `#` comments.
+- `npm run test:site` enforces this automatically (the "Em dash guard" check in `site.test.js`) —
+  it strips `<script>`/`<style>`/`<!-- -->` but still scans JSON-LD and runs over `docs/llms.txt` /
+  `docs/llms-full.txt` whole. Let it fail loudly rather than hand-auditing for stray em dashes.
+- Not covered by the guard, and not yet swept: `play-store/listing.md` and
+  `marketing/product-hunt-launch.md` / baked `social-media/**` creatives. Apply the same rule there
+  by hand if you touch them.
+
 ---
 
 ## Release Strategy

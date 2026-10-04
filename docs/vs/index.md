@@ -1,7 +1,7 @@
 ---
 url: https://vacationist.app/vs/
-title: Vacationist vs. Other Group Trip Apps — Honest Comparisons
-description: Honest head-to-head comparisons of Vacationist with Splitwise, Wanderlog, TripIt, Tricount and Troupe — where each is stronger, and which to pick.
+title: Vacationist vs. Other Group Trip Apps - Honest Comparisons
+description: Honest head-to-head comparisons of Vacationist with Splitwise, Wanderlog, TripIt, Tricount and Troupe - where each is stronger, and which to pick.
 lang: en
 published: 2026-09-20
 updated: 2026-09-20
@@ -9,7 +9,7 @@ updated: 2026-09-20
 
 # Vacationist vs. the apps you're comparing it to
 
-Splitwise, Wanderlog, TripIt, Tricount and Troupe are all good at something. Vacationist is built for one job — a <em>group</em> planning and paying for a trip together — so the honest question is which job you actually have. Pick the app you're weighing below.
+Splitwise, Wanderlog, TripIt, Tricount and Troupe are all good at something. Vacationist is built for one job - a <em>group</em> planning and paying for a trip together - so the honest question is which job you actually have. Pick the app you're weighing below.
 
 ## Pick a comparison
 
@@ -19,7 +19,7 @@ Splitwise is a mature, excellent pure expense tracker for ongoing shared finance
 
 ### [Vacationist vs. Wanderlog →](/vs/wanderlog/)
 
-Wanderlog is the stronger itinerary-research tool — maps, place discovery, route optimization. Vacationist is the stronger group-coordination tool — voting, expense splitting with receipts, shared lists, transfer and ticket management.
+Wanderlog is the stronger itinerary-research tool - maps, place discovery, route optimization. Vacationist is the stronger group-coordination tool - voting, expense splitting with receipts, shared lists, transfer and ticket management.
 
 ### [Vacationist vs. TripIt →](/vs/tripit/)
 
@@ -46,7 +46,7 @@ Still deciding between more than two? The [best group travel apps of 2026](/blog
 
 ### Is Vacationist a replacement for Splitwise?
 
-For group trips, largely yes — it splits expenses with custom amounts, live balances and a settle-up plan, and adds receipts, planning and voting. For everyday shared finances like household bills, Splitwise is built for that and does it very well.
+For group trips, largely yes - it splits expenses with custom amounts, live balances and a settle-up plan, and adds receipts, planning and voting. For everyday shared finances like household bills, Splitwise is built for that and does it very well.
 
 ### Can I use Vacationist alongside Wanderlog or TripIt?
 
@@ -54,4 +54,4 @@ Yes. They do different jobs: Wanderlog for researching places and routes, TripIt
 
 ### Do these comparisons only list where Vacationist wins?
 
-No. Each table includes rows where the other app is ahead — payment integrations for Splitwise, maps and place discovery for Wanderlog, automatic itineraries from emails for TripIt. If a row shows Vacationist without a tick, that is deliberate.
+No. Each table includes rows where the other app is ahead - payment integrations for Splitwise, maps and place discovery for Wanderlog, automatic itineraries from emails for TripIt. If a row shows Vacationist without a tick, that is deliberate.

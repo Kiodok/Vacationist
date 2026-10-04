@@ -1,5 +1,5 @@
 ---
-title: Group Trip App Alternatives — Splitwise, Wanderlog, TripIt
+title: Group Trip App Alternatives - Splitwise, Wanderlog, TripIt
 description: Looking for an alternative to Splitwise, Wanderlog or TripIt for a group trip? Three honest ranked lists of the best options, with strengths and weaknesses.
 path: /alternatives/
 lang: en
@@ -16,7 +16,7 @@ breadcrumbLabel: Alternatives
 
 # Alternatives to the apps you already know
 
-<p class="lede">If you're here, one of the well-known apps isn't quite fitting your group trip. These lists rank the real alternatives for each — honestly, including where the app you're leaving is still the better choice.</p>
+<p class="lede">If you're here, one of the well-known apps isn't quite fitting your group trip. These lists rank the real alternatives for each - honestly, including where the app you're leaving is still the better choice.</p>
 
 ## Choose the app you're replacing
 
@@ -26,7 +26,7 @@ Seven apps for splitting travel costs, from focused ledgers to full trip planner
 
 ### [Best Wanderlog alternatives →](/alternatives/wanderlog/)
 
-Six options that actually handle group coordination — voting, shared costs, guests without accounts — for people whose trip is more about the group than the map.
+Six options that actually handle group coordination - voting, shared costs, guests without accounts - for people whose trip is more about the group than the map.
 
 ### [Best TripIt alternatives →](/alternatives/tripit/)
 
@@ -34,7 +34,7 @@ Six apps for groups, where TripIt's one-traveler, forwarded-email model doesn't 
 
 ## How these lists work
 
-Each list ranks its options for *group* trips specifically and says plainly where each app is weak. Vacationist appears in all three lists — usually first, because group coordination is the job it's built for — but the lists also name the cases where another app is the better pick. For a single app, see the head-to-head [comparison pages](/vs/).
+Each list ranks its options for *group* trips specifically and says plainly where each app is weak. Vacationist appears in all three lists - usually first, because group coordination is the job it's built for - but the lists also name the cases where another app is the better pick. For a single app, see the head-to-head [comparison pages](/vs/).
 
 <!--CTA-->
 
@@ -46,7 +46,7 @@ It depends on whether you need only a ledger or the whole trip. For a pure ledge
 
 ### Do I need everyone in the group to install the same app?
 
-Not with Vacationist — guests can join a trip through a single link and take part without creating an account, and there is also a web app. Requirements differ between apps, which is one of the rows compared on each list.
+Not with Vacationist - guests can join a trip through a single link and take part without creating an account, and there is also a web app. Requirements differ between apps, which is one of the rows compared on each list.
 
 ### How are the alternatives chosen?
 

@@ -28,7 +28,7 @@
     en: {
       aria: 'Cookie consent',
       title: 'Cookies on this site',
-      body: 'We use Google Analytics and the Reddit Pixel to understand how visitors use this site and how our ads perform. Both only run if you accept — nothing is set beforehand.',
+      body: 'We use Google Analytics and the Reddit Pixel to understand how visitors use this site and how our ads perform. Both only run if you accept - nothing is set beforehand.',
       accept: 'Accept',
       decline: 'Decline',
       privacy: 'Privacy policy',
@@ -37,7 +37,7 @@
     de: {
       aria: 'Cookie-Einwilligung',
       title: 'Cookies auf dieser Website',
-      body: 'Wir nutzen Google Analytics und das Reddit-Pixel, um zu verstehen, wie Besucher diese Website nutzen und wie unsere Anzeigen wirken. Beide laufen nur, wenn du zustimmst — vorher wird nichts gesetzt.',
+      body: 'Wir nutzen Google Analytics und das Reddit-Pixel, um zu verstehen, wie Besucher diese Website nutzen und wie unsere Anzeigen wirken. Beide laufen nur, wenn du zustimmst - vorher wird nichts gesetzt.',
       accept: 'Akzeptieren',
       decline: 'Ablehnen',
       privacy: 'Datenschutzerklärung',

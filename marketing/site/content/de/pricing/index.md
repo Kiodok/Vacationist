@@ -1,5 +1,5 @@
 ---
-title: Vacationist Preise — Kostenlos, ohne Werbung, ohne Abo
+title: Vacationist Preise - Kostenlos, ohne Werbung, ohne Abo
 description: Vacationist ist für jede Gruppe kostenlos: ohne Werbung, ohne Abo, ohne Bezahlschranke. So schneidet das im Vergleich mit Splitwise, Wanderlog und TripIt ab.
 path: /de/pricing/
 lang: de
@@ -16,7 +16,7 @@ breadcrumbLabel: Preise
 
 # Vacationist ist kostenlos
 
-<p class="lede">Vacationist ist für jede Gruppe kostenlos: ohne Werbung, ohne Abo und ohne Funktion hinter einer Bezahlschranke. Alle, die du einlädst, bekommen genau dasselbe — und brauchen zum Beitreten nicht einmal ein Konto.</p>
+<p class="lede">Vacationist ist für jede Gruppe kostenlos: ohne Werbung, ohne Abo und ohne Funktion hinter einer Bezahlschranke. Alle, die du einlädst, bekommen genau dasselbe - und brauchen zum Beitreten nicht einmal ein Konto.</p>
 
 ## Was du kostenlos bekommst
 
@@ -33,7 +33,7 @@ Alles in der App, auf iOS, Android und im Web:
 
 ## Keine Werbung
 
-In Vacationist gibt es keine Werbung. Wie mit deinen Daten umgegangen wird, steht in der [Datenschutzerklärung](/de/privacy-policy/) — auch, was die Website misst, und zwar erst, nachdem du das Cookie-Banner akzeptiert hast.
+In Vacationist gibt es keine Werbung. Wie mit deinen Daten umgegangen wird, steht in der [Datenschutzerklärung](/de/privacy-policy/) - auch, was die Website misst, und zwar erst, nachdem du das Cookie-Banner akzeptiert hast.
 
 ## So sieht der Preis im Vergleich aus
 
@@ -61,7 +61,7 @@ Nein. Vacationist zeigt keine Werbung.
 
 ### Müssen die Leute, die ich einlade, bezahlen oder ein Konto anlegen?
 
-Weder noch. Jeder kann einer Reise mit einem einzigen Einladungslink beitreten und voll mitmachen — abstimmen, Ausgaben eintragen, Listen bearbeiten —, ohne sich irgendwo anzumelden.
+Weder noch. Jeder kann einer Reise mit einem einzigen Einladungslink beitreten und voll mitmachen - abstimmen, Ausgaben eintragen, Listen bearbeiten -, ohne sich irgendwo anzumelden.
 
 ### Wo bekomme ich Vacationist?
 

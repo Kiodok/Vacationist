@@ -27,7 +27,7 @@ Living reference for search and AI-answer-engine visibility. Covers all 9 SEO pi
 ## 2. On-Page & Semantic SEO
 
 **✅ Implemented:**
-- High-intent title tags follow a consistent `Primary Benefit — Secondary Benefit | Vacationist` (or reversed) pattern across all 58 pages, generated from front matter `title:` — see any file in `marketing/site/content/**/*.md`.
+- High-intent title tags follow a consistent `Primary Benefit - Secondary Benefit | Vacationist` (or reversed) pattern across all 58 pages, generated from front matter `title:` — see any file in `marketing/site/content/**/*.md`.
 - H1/H2 structure targets commercial-intent phrasing directly: homepage H1 "Plan trips together, effortlessly," feature pages lead with the feature-specific job ("Split every cost. Know exactly who owes what." on `/features/expenses/`), `/use-cases/` pages lead with the pain point ("Plan a bachelorette party without the group chat chaos").
 - **LSI/semantic terms** are woven into body copy naturally rather than stuffed: comparison pages use vocabulary a competitor's own users search for (chalet, non-member participant, points tracking) rather than only Vacationist's own terms.
 - **Internal linking rule (enforced by build):** every content page declares `related:` in front matter; `build.mjs`'s `relatedHtml()` renders these as cards and **warns at build time** if a target path doesn't exist — link rot is caught before deploy, not after.

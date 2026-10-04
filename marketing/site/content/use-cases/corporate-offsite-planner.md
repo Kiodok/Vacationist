@@ -1,5 +1,5 @@
 ---
-title: Corporate Offsite Planner — Coordinate & Expense the Team Trip
+title: Corporate Offsite Planner - Coordinate & Expense the Team Trip
 description: Plan a team offsite without a spreadsheet and an approval thread. Vote on the agenda, split shared costs, attach receipts, and export a per-person expense report.
 path: /use-cases/corporate-offsite-planner/
 lang: en
@@ -18,7 +18,7 @@ breadcrumbLabel: Corporate offsite planner
 
 <div class="tldr">
   <p class="tldr-label">Short answer</p>
-  <p>Vacationist lets a team vote on the offsite agenda, tracks shared costs — expenses, hotels, flights, and transport — with receipts attached, and exports a per-person business expense report as a PDF — so planning the trip and filing it with finance are the same workflow. It's free, and colleagues join with one link, no account and no IT approval.</p>
+  <p>Vacationist lets a team vote on the offsite agenda, tracks shared costs - expenses, hotels, flights, and transport - with receipts attached, and exports a per-person business expense report as a PDF - so planning the trip and filing it with finance are the same workflow. It's free, and colleagues join with one link, no account and no IT approval.</p>
 </div>
 
 ## The problem with planning a corporate offsite
@@ -29,15 +29,15 @@ A team offsite runs on two documents that never quite agree: a planning doc nobo
 
 ### Vote on the agenda instead of a 40-message thread
 
-Put the workshop slot, the team dinner, and the optional Saturday hike in as proposals and let the team vote with a five-tier system — from "must do" to "group blocker." The plan reflects what the team actually wants, and the decision is visible instead of buried in chat. See [how activity voting works](/features/voting/).
+Put the workshop slot, the team dinner, and the optional Saturday hike in as proposals and let the team vote with a five-tier system - from "must do" to "group blocker." The plan reflects what the team actually wants, and the decision is visible instead of buried in chat. See [how activity voting works](/features/voting/).
 
 ### Flag business costs and export the report
 
-Mark any cost as a business cost as you record it — an expense, but also the hotel, the flights, the rental car, the airport train. When it's time to file, export a **business expense summary** — a clean per-person report as a PDF (and Markdown on the web) that merges all of those sources, itemised by date, category, and payer, with links to the attached receipts, and amounts in other currencies converted for you. Only committed bookings are included, so nothing the team is still deciding on lands in a finance report. Hand it to finance or drop it into your own reimbursement claim. See [how expense splitting works](/features/expenses/).
+Mark any cost as a business cost as you record it - an expense, but also the hotel, the flights, the rental car, the airport train. When it's time to file, export a **business expense summary** - a clean per-person report as a PDF (and Markdown on the web) that merges all of those sources, itemised by date, category, and payer, with links to the attached receipts, and amounts in other currencies converted for you. Only committed bookings are included, so nothing the team is still deciding on lands in a finance report. Hand it to finance or drop it into your own reimbursement claim. See [how expense splitting works](/features/expenses/).
 
 ### Receipts attached, so reimbursement isn't a scavenger hunt
 
-Photograph the receipt into the expense the moment you pay. It lives in private, access-controlled storage with the expense itself — not in a camera roll you'll be scrolling through on the flight back. The exported report links straight to each one.
+Photograph the receipt into the expense the moment you pay. It lives in private, access-controlled storage with the expense itself - not in a camera roll you'll be scrolling through on the flight back. The exported report links straight to each one.
 
 ### One link, no accounts, no IT ticket
 
@@ -53,11 +53,11 @@ Free, with no ads. Voting, expense splitting, receipts, the business expense rep
 
 ### Can each person get their own expense report?
 
-Yes. The business expense summary is generated per person, itemised by date, category, and who paid, with links to the attached receipts — and it pulls in flagged hotels, flights, and transport, not just expenses — so each colleague can file their own claim and finance gets a consistent format from everyone.
+Yes. The business expense summary is generated per person, itemised by date, category, and who paid, with links to the attached receipts - and it pulls in flagged hotels, flights, and transport, not just expenses - so each colleague can file their own claim and finance gets a consistent format from everyone.
 
 ### Do the receipt links in the export keep working?
 
-Each receipt link in the exported report stays valid for 30 days — long enough to submit and process a reimbursement claim. The receipt itself stays in the trip for as long as the trip exists.
+Each receipt link in the exported report stays valid for 30 days - long enough to submit and process a reimbursement claim. The receipt itself stays in the trip for as long as the trip exists.
 
 ### Does anyone need a company account or admin approval?
 

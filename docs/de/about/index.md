@@ -1,6 +1,6 @@
 ---
 url: https://vacationist.app/de/about/
-title: Über Vacationist — Wer dahintersteckt, wie es funktioniert
+title: Über Vacationist - Wer dahintersteckt, wie es funktioniert
 description: Kostenloser Gruppenreise-Planer von Gary Lude aus der Schweiz, entstanden aus über 30 echten Reisen. Die Geschichte dahinter und wo deine Daten liegen.
 lang: de
 published: 2026-09-20
@@ -13,28 +13,28 @@ Vacationist ist ein kostenloser Gruppenreise-Planer für iOS, Android und das We
 
 ## Was Vacationist ist
 
-Ein Gruppenreise-Planer: über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Pack- und Einkaufslisten teilen, Flüge, Mietwagen und öffentliche Verkehrsmittel verwalten und alle auf dem gleichen Stand halten — von der ersten Idee bis zum letzten Heimflug. Jeder kann einer Reise mit einem einzigen Link beitreten, ohne ein Konto anzulegen. Die [vollständige Funktionsübersicht](/de/features/) zeigt alles im Detail, und die [Preisseite](/de/pricing/) erklärt, was es kostet (nichts).
+Ein Gruppenreise-Planer: über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Pack- und Einkaufslisten teilen, Flüge, Mietwagen und öffentliche Verkehrsmittel verwalten und alle auf dem gleichen Stand halten - von der ersten Idee bis zum letzten Heimflug. Jeder kann einer Reise mit einem einzigen Link beitreten, ohne ein Konto anzulegen. Die [vollständige Funktionsübersicht](/de/features/) zeigt alles im Detail, und die [Preisseite](/de/pricing/) erklärt, was es kostet (nichts).
 
 ## Warum wir es gebaut haben
 
-Ich habe Vacationist gemeinsam mit meiner Frau gebaut. In den letzten drei Jahren haben wir mehr als 30 Reisen organisiert — als Paar und mit Freunden — und wir waren jedes Mal diejenigen, die sich um alles gekümmert haben: Orte suchen, Unterkünfte und Flüge buchen, Aktivitäten finden und planen.
+Ich habe Vacationist gemeinsam mit meiner Frau gebaut. In den letzten drei Jahren haben wir mehr als 30 Reisen organisiert - als Paar und mit Freunden - und wir waren jedes Mal diejenigen, die sich um alles gekümmert haben: Orte suchen, Unterkünfte und Flüge buchen, Aktivitäten finden und planen.
 
 Vor Vacationist hieß das: chaotische WhatsApp-Chats, Dokumente auf dem eigenen PC, Tickets verstreut auf den Handys und Aufgabenlisten in Todoist. Alles Wichtige lag an einem anderen Ort.
 
 Also haben wir alles, was wir übers Organisieren von Reisen gelernt hatten, gesammelt und in eine App gepackt. Danach haben wir sie immer weiter verbessert: Auf den letzten Reisen haben wir Vacationist selbst benutzt, zusammen mit unseren Freunden, und neue Ideen und Funktionen sind direkt aus diesen echten Reisen entstanden. Heute liegt alles an einem Ort.
 
-— Gary Lude
+- Gary Lude
 
 ## Wer dahintersteckt
 
-Vacationist wird von **Gary Lude** gebaut, einem unabhängigen Entwickler mit Sitz in der Schweiz. Die Angaben zum Betreiber stehen im [Impressum](/de/impressum/). Du erreichst Gary direkt unter [meetdeep.de@gmail.com](mailto:meetdeep.de@gmail.com) — bei Fragen, Fehlermeldungen oder Feedback.
+Vacationist wird von **Gary Lude** gebaut, einem unabhängigen Entwickler mit Sitz in der Schweiz. Die Angaben zum Betreiber stehen im [Impressum](/de/impressum/). Du erreichst Gary direkt unter [meetdeep.de@gmail.com](mailto:meetdeep.de@gmail.com) - bei Fragen, Fehlermeldungen oder Feedback.
 
-## Wo deine Daten liegen — und was sie schützt
+## Wo deine Daten liegen - und was sie schützt
 
-Vacationist wird in der Schweiz entwickelt — und dort auch gehostet:
+Vacationist wird in der Schweiz entwickelt - und dort auch gehostet:
 
 - **Reisedaten** liegen auf der Infrastruktur von Supabase in der Schweiz (Zürich), unter Schweizer Datenschutzrecht.
-- **Reisedokumente** — Pass- und Ausweisdaten — sind im Ruhezustand mit AES-256 verschlüsselt und durch biometrische Entsperrung geschützt. Der Zugriff für Organisatoren ist zeitlich begrenzt und lässt sich jederzeit widerrufen. Wie das funktioniert, erklärt der [Ratgeber zur sicheren Weitergabe von Reisedokumenten](/de/blog/travel-document-safety-guide/).
+- **Reisedokumente** - Pass- und Ausweisdaten - sind im Ruhezustand mit AES-256 verschlüsselt und durch biometrische Entsperrung geschützt. Der Zugriff für Organisatoren ist zeitlich begrenzt und lässt sich jederzeit widerrufen. Wie das funktioniert, erklärt der [Ratgeber zur sicheren Weitergabe von Reisedokumenten](/de/blog/travel-document-safety-guide/).
 - **Die mobilen Apps** enthalten keine Werbung und keine Analyse-SDKs von Drittanbietern. Die Website lädt Analyse-Werkzeuge erst, nachdem du das Cookie-Banner akzeptiert hast.
 
 Die vollständige, verbindliche Darstellung steht in der [Datenschutzerklärung](/de/privacy-policy/).
@@ -59,4 +59,4 @@ Per E-Mail unter meetdeep.de@gmail.com. Die vollständigen Angaben zum Betreiber
 
 ### Ist Vacationist kostenlos?
 
-Ja — kostenlos, ohne Werbung und ohne Bezahlplan. Siehe die [Preisseite](/de/pricing/).
+Ja - kostenlos, ohne Werbung und ohne Bezahlplan. Siehe die [Preisseite](/de/pricing/).

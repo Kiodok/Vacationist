@@ -1,6 +1,6 @@
 ---
-title: Konto löschen — Vacationist
-description: So löschst du dein Vacationist-Konto und deine Daten — in der App, im Browser oder per E-Mail. Was gelöscht wird, was erhalten bleibt, und für wie lange.
+title: Konto löschen - Vacationist
+description: So löschst du dein Vacationist-Konto und deine Daten - in der App, im Browser oder per E-Mail. Was gelöscht wird, was erhalten bleibt, und für wie lange.
 path: /de/delete-account/
 lang: de
 type: legal
@@ -15,9 +15,9 @@ breadcrumbLabel: Konto löschen
 
 *Gültig ab: 9. August 2026 · Zuletzt aktualisiert: 24. September 2026*
 
-<p class="lede">Du kannst dein Vacationist-Konto und deine Daten jederzeit dauerhaft löschen — in der App, im Web oder per E-Mail; diese Seite listet genau, was sofort gelöscht wird und was anonymisiert erhalten bleibt.</p>
+<p class="lede">Du kannst dein Vacationist-Konto und deine Daten jederzeit dauerhaft löschen - in der App, im Web oder per E-Mail; diese Seite listet genau, was sofort gelöscht wird und was anonymisiert erhalten bleibt.</p>
 
-Vacationist wird von **Gary Lude** entwickelt, mit Sitz in der Schweiz — derselbe Entwicklername, der im Google Play Store und im Apple App Store beim Vacationist-Eintrag angezeigt wird. Diese Seite erklärt, wie du dein Vacationist-Konto dauerhaft löschst und was mit deinen Daten passiert, wenn du das tust.
+Vacationist wird von **Gary Lude** entwickelt, mit Sitz in der Schweiz - derselbe Entwicklername, der im Google Play Store und im Apple App Store beim Vacationist-Eintrag angezeigt wird. Diese Seite erklärt, wie du dein Vacationist-Konto dauerhaft löschst und was mit deinen Daten passiert, wenn du das tust.
 
 ## So beantragst du die Löschung
 
@@ -25,7 +25,7 @@ Vacationist wird von **Gary Lude** entwickelt, mit Sitz in der Schweiz — derse
 
 Öffne Vacationist, gehe zum Tab **Profil**, tippe auf **Konto löschen** und bestätige. Dein Konto wird sofort gelöscht.
 
-### 2. Im Browser — keine App-Installation nötig
+### 2. Im Browser - keine App-Installation nötig
 
 Gehe zu [web.vacationist.app](https://web.vacationist.app), melde dich mit demselben Google-Konto oder derselben Magic-Link-E-Mail an, die du in der App verwendest, und gehe dann zu **Profil → Konto löschen** und bestätige. Das funktioniert auch, wenn du die mobile App nie installiert oder bereits deinstalliert hast.
 
@@ -33,7 +33,7 @@ Gehe zu [web.vacationist.app](https://web.vacationist.app), melde dich mit demse
 
 Falls du dich nicht anmelden kannst (z. B. keinen Zugriff mehr auf deine E-Mail-Adresse), schreibe eine E-Mail an [meetdeep.de@gmail.com](mailto:meetdeep.de@gmail.com) von der mit deinem Konto verknüpften Adresse, mit dem Betreff „Account deletion". Wir prüfen deine Anfrage und löschen dein Konto innerhalb von **30 Tagen**.
 
-**Gastkonten** (durch Beitritt über einen Einladungslink erstellt, ohne E-Mail-Adresse) können den Self-Service-Weg oben nicht nutzen — beantrage die Löschung stattdessen per E-Mail, oder wandle das Konto zuerst in ein vollständiges Konto um und lösche es danach selbst.
+**Gastkonten** (durch Beitritt über einen Einladungslink erstellt, ohne E-Mail-Adresse) können den Self-Service-Weg oben nicht nutzen - beantrage die Löschung stattdessen per E-Mail, oder wandle das Konto zuerst in ein vollständiges Konto um und lösche es danach selbst.
 
 ## Was dauerhaft gelöscht wird
 
@@ -47,10 +47,10 @@ Falls du dich nicht anmelden kannst (z. B. keinen Zugriff mehr auf deine E-Mail-
 
 ## Was erhalten bleibt, und warum
 
-Vacationist ist eine kollaborative App — Reisen, Aktivitäten, Ausgaben und Einkaufslisten werden mit anderen Personen geteilt. Das Löschen deines Kontos löscht keine Inhalte, auf die andere Reisemitglieder weiterhin angewiesen sind:
+Vacationist ist eine kollaborative App - Reisen, Aktivitäten, Ausgaben und Einkaufslisten werden mit anderen Personen geteilt. Das Löschen deines Kontos löscht keine Inhalte, auf die andere Reisemitglieder weiterhin angewiesen sind:
 
 - Reisen, Aktivitäten, Unterkünfte, Ausgaben und Ausgabenaufteilungen, hochgeladene Ausgabenbelege, Transfer-Tickets (Flüge und öffentliche Verkehrsmittel), Aktivitätsdokumente, Einkaufslisten, Notizen und Chat-Nachrichten, die du erstellt hast, bleiben für die anderen Mitglieder deiner Reisen sichtbar
-- Diese Inhalte werden einem generischen **„Gelöschter Nutzer"** zugeordnet — sie sind nicht mehr mit deinem Namen, deiner E-Mail-Adresse oder deinem Konto verknüpft
+- Diese Inhalte werden einem generischen **„Gelöschter Nutzer"** zugeordnet - sie sind nicht mehr mit deinem Namen, deiner E-Mail-Adresse oder deinem Konto verknüpft
 - Warst du das einzige Mitglied einer Reise, wird diese Reise zusammen mit deinem Konto gelöscht, statt erhalten zu bleiben
 
 Wir tun dies, damit die gemeinsamen Pläne und Ausgabenabrechnungen anderer Reisender nicht durch das Ausscheiden einer Person beeinträchtigt werden.

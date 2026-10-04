@@ -1,6 +1,6 @@
 ---
 title: Vacationist im Vergleich mit anderen Gruppenreise-Apps
-description: Ehrliche Vergleiche von Vacationist mit Splitwise, Wanderlog, TripIt, Tricount und Troupe — wo jede App stärker ist und welche für eure Gruppenreise passt.
+description: Ehrliche Vergleiche von Vacationist mit Splitwise, Wanderlog, TripIt, Tricount und Troupe - wo jede App stärker ist und welche für eure Gruppenreise passt.
 path: /de/vs/
 lang: de
 type: comparison-index
@@ -22,11 +22,11 @@ breadcrumbLabel: Vergleiche
 
 ### [Vacationist vs. Splitwise →](/de/vs/splitwise/)
 
-Splitwise ist ein ausgereiftes, ausgezeichnetes Schuldenbuch für laufende gemeinsame Finanzen, etwa in der WG oder als Paar. Vacationist teilt ebenfalls Kosten, hängt Belege an und erstellt einen Geschäftskosten-Bericht pro Person — und bietet obendrein Reiseplanung, Aktivitäten-Abstimmung, gemeinsame Listen, Transfers und Gäste, die ohne Konto beitreten.
+Splitwise ist ein ausgereiftes, ausgezeichnetes Schuldenbuch für laufende gemeinsame Finanzen, etwa in der WG oder als Paar. Vacationist teilt ebenfalls Kosten, hängt Belege an und erstellt einen Geschäftskosten-Bericht pro Person - und bietet obendrein Reiseplanung, Aktivitäten-Abstimmung, gemeinsame Listen, Transfers und Gäste, die ohne Konto beitreten.
 
 ### [Vacationist vs. Wanderlog →](/de/vs/wanderlog/)
 
-Wanderlog ist das stärkere Werkzeug für die Reiserecherche — mit Karten, Ortsempfehlungen und Routenoptimierung. Vacationist ist das stärkere Werkzeug für die Gruppe: Abstimmen, Kosten teilen mit Belegen, gemeinsame Listen, Transfers und Tickets.
+Wanderlog ist das stärkere Werkzeug für die Reiserecherche - mit Karten, Ortsempfehlungen und Routenoptimierung. Vacationist ist das stärkere Werkzeug für die Gruppe: Abstimmen, Kosten teilen mit Belegen, gemeinsame Listen, Transfers und Tickets.
 
 ### [Vacationist vs. TripIt →](/de/vs/tripit/)
 
@@ -63,4 +63,4 @@ Ja. Sie erledigen unterschiedliche Aufgaben: Wanderlog für die Recherche zu Ort
 
 ### Zeigen diese Vergleiche nur, wo Vacationist gewinnt?
 
-Nein. Jede Tabelle enthält auch Zeilen, in denen die andere App vorn liegt — bei Splitwise die Zahlungsanbindungen, bei Wanderlog Karten und Ortsempfehlungen, bei TripIt die automatische Reiseübersicht aus E-Mails. Wenn bei Vacationist in einer Zeile kein Haken steht, ist das Absicht.
+Nein. Jede Tabelle enthält auch Zeilen, in denen die andere App vorn liegt - bei Splitwise die Zahlungsanbindungen, bei Wanderlog Karten und Ortsempfehlungen, bei TripIt die automatische Reiseübersicht aus E-Mails. Wenn bei Vacationist in einer Zeile kein Haken steht, ist das Absicht.

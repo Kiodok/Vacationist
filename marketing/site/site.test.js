@@ -262,5 +262,42 @@ console.log('\nCitation URL sanity (sitewide):');
   assert(badCitations === 0, `every citation.url is absolute https:// (${badCitations} bad)`);
 }
 
+/* ── 12. No em dash in visitor-facing copy (2026-10-04 sweep) — strip plain
+   <script>/<style> blocks and HTML comments (where dev comments legitimately
+   keep using "—", same as the rest of this codebase) but keep JSON-LD
+   <script> content in the scan, since that's rendered text an answer engine
+   reads. llms.txt/llms-full.txt have no comment convention at all, so they're
+   checked whole. See the em-dash-hyphen-sweep skill for what's intentionally
+   excluded (code comments, robots.txt, the dead `[:|—|]` delimiter regexes,
+   and non-site assets like play-store/listing.md). ── */
+console.log('\nEm dash guard (visitor-facing copy):');
+{
+  function stripDevOnlyBlocks(html) {
+    return html
+      .replace(/<script(?![^>]*application\/ld\+json)[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/g, '')
+      .replace(/<!--[\s\S]*?-->/g, '');
+  }
+  let offenders = 0;
+  for (const file of walkHtml(DOCS_DIR)) {
+    const html = fs.readFileSync(file, 'utf8');
+    const visible = stripDevOnlyBlocks(html);
+    if (visible.includes('—')) {
+      offenders++;
+      const idx = visible.indexOf('—');
+      console.error(`  ! ${path.relative(ROOT, file)}: em dash in visitor-facing text: …${visible.slice(Math.max(0, idx - 30), idx + 30)}…`);
+    }
+  }
+  for (const rel of ['llms.txt', 'llms-full.txt']) {
+    const text = fs.readFileSync(path.join(DOCS_DIR, rel), 'utf8');
+    if (text.includes('—')) {
+      offenders++;
+      const idx = text.indexOf('—');
+      console.error(`  ! docs/${rel}: em dash: …${text.slice(Math.max(0, idx - 30), idx + 30)}…`);
+    }
+  }
+  assert(offenders === 0, `no em dash in visitor-facing HTML text, JSON-LD, or llms.txt/llms-full.txt (${offenders} file(s))`);
+}
+
 console.log(`\n${failures === 0 ? '✓ All checks passed.' : `✗ ${failures} check(s) failed.`}`);
 process.exit(failures === 0 ? 0 : 1);

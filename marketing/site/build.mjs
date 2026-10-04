@@ -63,8 +63,8 @@ function ratingProofText(lang) {
   if (!RATING_SCHEMA_ELIGIBLE) return '';
   const { ratingValue, ratingCount } = STORE_RATINGS;
   return lang === 'de'
-    ? `★ ${ratingValue} — ${ratingCount} Bewertungen bei Google Play und im App Store`
-    : `★ ${ratingValue} — ${ratingCount} ratings across Google Play and the App Store`;
+    ? `★ ${ratingValue} (${ratingCount} Bewertungen bei Google Play und im App Store)`
+    : `★ ${ratingValue} - ${ratingCount} ratings across Google Play and the App Store`;
 }
 
 /**
@@ -76,14 +76,14 @@ function ratingProofText(lang) {
  */
 const APP_LD = {
   en: {
-    description: 'The free group trip planning app. Vote on activities, split travel expenses with receipts attached, flag business costs on bookings and transport, track what each trip cost you across every trip, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, work for a week offline with no connection, and keep the whole group in sync — from the first idea to the last flight home.',
+    description: 'The free group trip planning app. Vote on activities, split travel expenses with receipts attached, flag business costs on bookings and transport, track what each trip cost you across every trip, share packing lists, manage accommodations and transfers, keep flights and tickets with the trip, work for a week offline with no connection, and keep the whole group in sync - from the first idea to the last flight home.',
     featureList: 'Group activity voting, Travel expense splitting, Expense receipts and documents, Business cost reports across expenses, bookings and transport, Cross-trip spending analytics, Per-item currencies with daily exchange rates, Expense category breakdown, Group chat, Shared packing lists, Shared shopping lists, Vacation tracker, Shared calendar, Flight, rental car and public transport management, Flight ticket and boarding pass storage, Encrypted travel documents, Real-time sync, Works offline for a week without a connection, Zero-tap sign-in on Android, Guest access without account',
-    siteDescription: 'The free group trip planner — vote on activities, split travel expenses and attach receipts, share packing lists, and keep everyone in sync, online or offline.',
+    siteDescription: 'The free group trip planner - vote on activities, split travel expenses and attach receipts, share packing lists, and keep everyone in sync, online or offline.',
   },
   de: {
-    description: 'Die kostenlose Gruppenreise-App. Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten, eine Woche lang offline weiterarbeiten und die ganze Gruppe synchron halten — von der ersten Idee bis zum letzten Heimflug.',
+    description: 'Die kostenlose Gruppenreise-App: Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Geschäftskosten bei Buchungen und Transport markieren, über alle Reisen hinweg verfolgen, was dich jede Reise gekostet hat, Packlisten teilen, Unterkünfte und Transfers verwalten, Flugtickets bei der Reise behalten, eine Woche lang offline weiterarbeiten und die ganze Gruppe synchron halten, von der ersten Idee bis zum letzten Heimflug.',
     featureList: 'Aktivitäten-Abstimmung, Reisekosten teilen, Belege und Dokumente zu Ausgaben, Geschäftskosten-Berichte über Ausgaben, Buchungen und Transport, Ausgaben-Analyse über alle Reisen, Eigene Währung pro Posten mit Tageskursen, Ausgaben-Kategorienübersicht, Gruppenchat, Geteilte Packlisten, Geteilte Einkaufslisten, Urlaubsverfolgung, Gemeinsamer Kalender, Verwaltung von Flügen, Mietwagen und öffentlichen Verkehrsmitteln, Flugticket- und Bordkarten-Ablage, Verschlüsselte Reisedokumente, Echtzeit-Synchronisierung, Eine Woche lang offline nutzbar, Zero-Tap-Anmeldung auf Android, Gastzugang ohne Konto',
-    siteDescription: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen und alle synchron halten, online wie offline.',
+    siteDescription: 'Der kostenlose Gruppenreise-Planer: über Aktivitäten abstimmen, Reisekosten teilen und Belege anhängen, Packlisten teilen und alle synchron halten, online wie offline.',
   },
 };
 
@@ -203,11 +203,11 @@ function organizationLd(lang) {
 const HOWTO_LD = {
   en: {
     name: 'How to plan a group trip with Vacationist',
-    description: 'Create a trip, invite your group with one link, and plan together — voting, expenses and lists in one place.',
+    description: 'Create a trip, invite your group with one link, and plan together - voting, expenses and lists in one place.',
   },
   de: {
     name: 'So planst du eine Gruppenreise mit Vacationist',
-    description: 'Reise anlegen, die Gruppe mit einem Link einladen und gemeinsam planen — Abstimmungen, Kosten und Listen an einem Ort.',
+    description: 'Reise anlegen, die Gruppe mit einem Link einladen und gemeinsam planen: Abstimmungen, Kosten und Listen an einem Ort.',
   },
 };
 
@@ -405,14 +405,14 @@ const STR = {
     breadcrumbHome: 'Home', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Features', breadcrumbUseCases: 'Use cases',
     breadcrumbVs: 'Comparisons', breadcrumbAlternatives: 'Alternatives',
     ctaTitle: 'Plan your next group trip with Vacationist',
-    ctaText: 'Vote on activities, split expenses and attach receipts, and keep everyone in sync — free, no ads, and friends can join without an account. Available on iOS, Android, and the web.',
+    ctaText: 'Vote on activities, split expenses and attach receipts, and keep everyone in sync - free, no ads, and friends can join without an account. Available on iOS, Android, and the web.',
     ctaPlay: 'Get it on Play Store', ctaAppStore: 'Get it on App Store', ctaWeb: 'Open the Web App',
     related: 'Keep reading',
-    footerTagline: 'The free group trip planner — vote on activities, split expenses with receipts, share lists, and keep everyone in sync.',
+    footerTagline: 'The free group trip planner - vote on activities, split expenses with receipts, share lists, and keep everyone in sync.',
     footerProduct: 'Product', footerCompare: 'Compare', footerResources: 'Resources', footerLegal: 'Legal',
     footerCopy: '© 2026 Vacationist · Gary Lude, Switzerland',
-    blogIndexTitle: 'Vacationist Blog — Group Travel Planning Guides',
-    blogIndexDesc: 'Practical guides on planning group trips, splitting travel expenses, and coordinating friends, families, and teams — from the makers of Vacationist.',
+    blogIndexTitle: 'Vacationist Blog - Group Travel Planning Guides',
+    blogIndexDesc: 'Practical guides on planning group trips, splitting travel expenses, and coordinating friends, families, and teams - from the makers of Vacationist.',
     blogIndexH1: 'The Vacationist blog',
     blogIndexIntro: 'Practical, honest guides on planning group trips: coordination, expense splitting, voting, and everything in between.',
   },
@@ -421,14 +421,14 @@ const STR = {
     breadcrumbHome: 'Startseite', breadcrumbBlog: 'Blog', breadcrumbFeatures: 'Funktionen', breadcrumbUseCases: 'Anwendungsfälle',
     breadcrumbVs: 'Vergleiche', breadcrumbAlternatives: 'Alternativen',
     ctaTitle: 'Plane deine nächste Gruppenreise mit Vacationist',
-    ctaText: 'Über Aktivitäten abstimmen, Kosten teilen und Belege anhängen und alle auf dem gleichen Stand halten — kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.',
+    ctaText: 'Über Aktivitäten abstimmen, Kosten teilen und Belege anhängen und alle auf dem gleichen Stand halten - kostenlos, ohne Werbung, und Freunde machen ohne Konto mit. Verfügbar für iOS, Android und im Web.',
     ctaPlay: 'Bei Google Play laden', ctaAppStore: 'Im App Store laden', ctaWeb: 'Web-App öffnen',
     related: 'Weiterlesen',
-    footerTagline: 'Der kostenlose Gruppenreise-Planer — über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Listen gemeinsam führen.',
+    footerTagline: 'Der kostenlose Gruppenreise-Planer - über Aktivitäten abstimmen, Kosten teilen und Belege anhängen, Listen gemeinsam führen.',
     footerProduct: 'Produkt', footerCompare: 'Vergleiche', footerResources: 'Ressourcen', footerLegal: 'Rechtliches',
     footerCopy: '© 2026 Vacationist · Gary Lude, Schweiz',
-    blogIndexTitle: 'Vacationist Blog — Guides für Gruppenreisen',
-    blogIndexDesc: 'Praktische Guides rund um Gruppenreisen: Planung, Kostenteilung, Abstimmungen und Koordination — auf Deutsch und Englisch.',
+    blogIndexTitle: 'Vacationist Blog - Guides für Gruppenreisen',
+    blogIndexDesc: 'Praktische Guides rund um Gruppenreisen: Planung, Kostenteilung, Abstimmungen und Koordination - auf Deutsch und Englisch.',
     blogIndexH1: 'Der Vacationist-Blog',
     blogIndexIntro: 'Praktische, ehrliche Guides zur Planung von Gruppenreisen.',
   },
@@ -1266,7 +1266,7 @@ function blogIndexMarkdown(page, posts, lang) {
     `lang: ${lang}`,
     `updated: ${page.updated}`,
   ].join('\n');
-  const list = posts.map((p) => `- [${p.title}](${SITE}${p.path}) — ${p.description}`).join('\n');
+  const list = posts.map((p) => `- [${p.title}](${SITE}${p.path}) - ${p.description}`).join('\n');
   return `---\n${front}\n---\n\n# ${page.title}\n\n${list}\n`;
 }
 
@@ -1348,7 +1348,7 @@ function homeMarkdown(lang) {
 
   L.push(`## ${get('how.title')}`, '');
   for (const n of numberedKeys(t, 'how', 'title')) {
-    L.push(`${n}. **${get(`how.${n}.title`)}** — ${get(`how.${n}.desc`)}`);
+    L.push(`${n}. **${get(`how.${n}.title`)}** - ${get(`how.${n}.desc`)}`);
   }
   L.push('');
 
@@ -1435,9 +1435,9 @@ function renderLlmsFull(pages) {
     return `${header}\n${cleanPageBody(p.body)}\n`;
   });
 
-  const out = `# Vacationist — full text corpus
+  const out = `# Vacationist - full text corpus
 
-> The free group trip planner. Vacationist helps groups plan trips together — voting on activities, splitting travel expenses with receipts attached, managing flights and transfers, sharing packing lists, and keeping everyone in sync in real time.
+> The free group trip planner. Vacationist helps groups plan trips together - voting on activities, splitting travel expenses with receipts attached, managing flights and transfers, sharing packing lists, and keeping everyone in sync in real time.
 
 Source: ${SITE}/ · Generated from marketing/site/content/**
 Last updated: ${freshness} · App version: ${APP_VERSION}
@@ -1448,7 +1448,7 @@ Canonical link index (this file has body text; that one has none): ${SITE}/llms.
 - Product: Vacationist
 - Canonical URL: ${SITE}/
 - Software version: ${APP_VERSION}
-- Vacationist is a free group trip planning app for iOS, Android, and web that lets a group vote on activities, split travel expenses, and share packing and shopping lists together — no account required to join.
+- Vacationist is a free group trip planning app for iOS, Android, and web that lets a group vote on activities, split travel expenses, and share packing and shopping lists together - no account required to join.
 
 ${sections.join('\n---\n\n')}`;
 

@@ -1,5 +1,5 @@
 ---
-title: Gruppenreise-Alternativen — Splitwise, Wanderlog, TripIt
+title: Gruppenreise-Alternativen - Splitwise, Wanderlog, TripIt
 description: Auf der Suche nach einer Alternative zu Splitwise, Wanderlog oder TripIt für die Gruppenreise? Drei ehrliche Ranglisten mit echten Stärken und Schwächen.
 path: /de/alternatives/
 lang: de
@@ -16,7 +16,7 @@ breadcrumbLabel: Alternativen
 
 # Alternativen zu den Apps, die du schon kennst
 
-<p class="lede">Wenn du hier gelandet bist, passt eine der bekannten Apps nicht ganz zu eurer Gruppenreise. Diese Listen ordnen die echten Alternativen ein — ehrlich, auch dort, wo die App, die du verlassen willst, weiterhin die bessere Wahl ist.</p>
+<p class="lede">Wenn du hier gelandet bist, passt eine der bekannten Apps nicht ganz zu eurer Gruppenreise. Diese Listen ordnen die echten Alternativen ein - ehrlich, auch dort, wo die App, die du verlassen willst, weiterhin die bessere Wahl ist.</p>
 
 ## Such dir die App aus, die du ersetzen willst
 
@@ -26,7 +26,7 @@ Sieben Apps zum Teilen von Reisekosten, vom schlanken Schuldenbuch bis zum volls
 
 ### [Die besten Wanderlog-Alternativen →](/de/alternatives/wanderlog/)
 
-Sechs Optionen, die Gruppenkoordination wirklich beherrschen — Abstimmen, gemeinsame Kosten, Gäste ohne Konto — für alle, bei denen es auf der Reise mehr um die Gruppe geht als um die Karte.
+Sechs Optionen, die Gruppenkoordination wirklich beherrschen - Abstimmen, gemeinsame Kosten, Gäste ohne Konto - für alle, bei denen es auf der Reise mehr um die Gruppe geht als um die Karte.
 
 ### [Die besten TripIt-Alternativen →](/de/alternatives/tripit/)
 
@@ -46,7 +46,7 @@ Das hängt davon ab, ob du nur ein Schuldenbuch brauchst oder die ganze Reise. F
 
 ### Müssen alle in der Gruppe dieselbe App installieren?
 
-Bei Vacationist nicht — Gäste treten über einen einzigen Link bei und machen ohne Konto mit, außerdem gibt es eine Web-App. Wie das bei anderen Apps aussieht, ist eine der Zeilen, die in jeder Liste verglichen werden.
+Bei Vacationist nicht - Gäste treten über einen einzigen Link bei und machen ohne Konto mit, außerdem gibt es eine Web-App. Wie das bei anderen Apps aussieht, ist eine der Zeilen, die in jeder Liste verglichen werden.
 
 ### Wie werden die Alternativen ausgewählt?
 
