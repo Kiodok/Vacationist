@@ -1583,14 +1583,36 @@ Never expose public IDs.
 
 ## Role Logic
 
-### organizer
-Can:
-- add/remove participants
-- manage trips
+### organizer — multiple per trip (v1.39.5)
+
+A trip can have more than one `trip_members` row with `role = 'organizer'`. There is no separate
+`main_organizer` role or column — the **main organizer** is simply whoever `trips.created_by`
+points at (the trip's creator). `private.is_trip_creator(trip_id, user_id)` is the server-side
+check; client-side it's `trip.created_by === currentUser.id`.
+
+Every organizer (main or appointed) can:
+- add/remove participants and guests
+- manage trips (edit title/dates/budget)
 - delete activities
 - generate invite links
 - end voting on any item
-- archive the trip
+- send a nudge, request/view member documents
+
+Only the **main organizer** can additionally:
+- appoint a `participant` to `organizer`, or revoke an appointed organizer back to `participant`
+  (guests are never eligible either direction — promoting a guest, or demoting anyone to `guest`,
+  is rejected by a DB trigger)
+- remove a member who already holds the `organizer` role (removing a participant/guest stays open
+  to any organizer — this one restriction exists so an appointed organizer can't use "remove
+  member" as a backdoor around the appointment restriction above)
+- archive/delete the trip
+
+The main organizer's own `trip_members` row can never be demoted or removed (DB-trigger enforced)
+— they leave by deleting the trip, not via "Leave Trip". If the main organizer deletes their
+account, `trips.created_by` transfers to the earliest-joined remaining organizer (or, lacking one,
+the earliest-joined remaining participant, then guest) inside `delete_own_account()`, so a trip
+never permanently loses the ability to appoint new organizers. See `engineering/supabase.md`'s
+2026-10-07 entry for the full migration.
 
 ---
 

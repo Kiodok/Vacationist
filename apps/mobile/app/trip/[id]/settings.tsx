@@ -9,7 +9,7 @@ import { formatDateRange } from '@vacationist/utils';
 import { Button } from '@vacationist/ui';
 import { getTripInviteStats } from '@vacationist/api';
 import { useTrip, useDeleteTrip } from '../../../src/features/trips/hooks/useTrips';
-import { useTripMembers, useRemoveMember, useLeaveTrip, useCurrentMemberRole } from '../../../src/features/trips/hooks/useMembers';
+import { useTripMembers, useRemoveMember, useLeaveTrip, useCurrentMemberRole, useUpdateMemberRole } from '../../../src/features/trips/hooks/useMembers';
 import { useActiveInvites, useCreateInvite, useRevokeInvite } from '../../../src/features/trips/hooks/useInvites';
 import { MemberAvatar } from '../../../src/features/trips/components/MemberAvatar';
 import { useAuthStore } from '../../../src/stores/authStore';
@@ -37,6 +37,7 @@ export default function SettingsTab() {
   const { data: invites } = useActiveInvites(tripId);
   const deleteTrip = useDeleteTrip();
   const removeMember = useRemoveMember(tripId);
+  const updateMemberRole = useUpdateMemberRole(tripId);
   const leaveTrip = useLeaveTrip(tripId);
   const createInvite = useCreateInvite(tripId);
   const revokeInvite = useRevokeInvite(tripId);
@@ -47,6 +48,7 @@ export default function SettingsTab() {
   const { t: tCommon } = useTranslation("common");
   const { t: tProfile } = useTranslation("profile");
   const isOrganizer = role === 'organizer';
+  const isMainOrganizer = trip?.created_by === currentUser?.id;
   const addToast = useToastStore((s) => s.addToast);
 
   const ROLE_LABELS: Record<string, string> = {
@@ -133,9 +135,18 @@ export default function SettingsTab() {
             keyExtractor={(member) => member.id}
             itemHeight={73}
             renderItem={(member, index) => {
-              const canRemove = isOrganizer && member.user_id !== currentUser?.id;
+              const isMainOrganizerRow = member.user_id === trip.created_by;
+              const canRemove =
+                !isMainOrganizerRow &&
+                member.user_id !== currentUser?.id &&
+                (isMainOrganizer || (isOrganizer && member.role !== 'organizer'));
+              const canManageOrganizer =
+                isMainOrganizer && !isMainOrganizerRow && member.role !== 'guest';
               const isPending = pendingRemovalId === member.user_id;
               const isRemoving = isMutationBusy(removeMember) && isPending;
+              const isRoleChanging =
+                isMutationBusy(updateMemberRole) &&
+                updateMemberRole.variables?.userId === member.user_id;
 
               return (
                 <View
@@ -161,7 +172,35 @@ export default function SettingsTab() {
                     )}
                   </View>
 
-                  {canRemove && !isPending && (
+                  {canManageOrganizer && !isPending && (
+                    isRoleChanging ? (
+                      <ActivityIndicator size="small" color={colors.primary} />
+                    ) : (
+                      <Pressable
+                        onPress={() =>
+                          updateMemberRole.mutate({
+                            userId: member.user_id,
+                            role: member.role === 'organizer' ? 'participant' : 'organizer',
+                          })
+                        }
+                        hitSlop={12}
+                        style={{ padding: 4 }}
+                        accessibilityLabel={
+                          member.role === 'organizer'
+                            ? t('settings.removeOrganizer')
+                            : t('settings.makeOrganizer')
+                        }
+                      >
+                        <ThemedIcon
+                          name={member.role === 'organizer' ? 'shield-checkmark' : 'shield-checkmark-outline'}
+                          size={22}
+                          color={member.role === 'organizer' ? colors.primary : colors.textSecondary}
+                        />
+                      </Pressable>
+                    )
+                  )}
+
+                  {canRemove && !isPending && !isRoleChanging && (
                     <Pressable
                       onPress={() => setPendingRemovalId(member.user_id)}
                       hitSlop={12}
@@ -331,7 +370,7 @@ export default function SettingsTab() {
         <View className="gap-sm">
 
           {/* Leave Trip */}
-          {!isOrganizer && !pendingLeave && (
+          {!isMainOrganizer && !pendingLeave && (
             isColorful ? (
               <Pressable
                 onPress={() => setPendingLeave(true)}
@@ -350,7 +389,7 @@ export default function SettingsTab() {
               />
             )
           )}
-          {!isOrganizer && pendingLeave && (
+          {!isMainOrganizer && pendingLeave && (
             <View className="rounded-md border border-danger p-md gap-sm">
               <Text className="text-body-small text-text-secondary">
                 {t('settings.leaveConfirm')}
@@ -387,7 +426,7 @@ export default function SettingsTab() {
           )}
 
           {/* Delete Trip */}
-          {isOrganizer && !pendingDelete && (
+          {isMainOrganizer && !pendingDelete && (
             <Pressable
               onPress={() => setPendingDelete(true)}
               className="min-h-[48px] rounded-md border border-danger items-center justify-center flex-row gap-sm"
@@ -396,7 +435,7 @@ export default function SettingsTab() {
               <Text className="text-body text-danger font-semibold">{t('settings.deleteTrip')}</Text>
             </Pressable>
           )}
-          {isOrganizer && pendingDelete && (
+          {isMainOrganizer && pendingDelete && (
             <View className="rounded-md border border-danger p-md gap-sm">
               <Text className="text-body-small text-text-secondary">
                 {t('settings.deleteConfirm')}

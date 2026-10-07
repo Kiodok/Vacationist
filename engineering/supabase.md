@@ -1,5 +1,108 @@
 # Supabase Changes Log
 
+## 2026-10-07 (later) — v1.39.5 `/code-review` follow-up: 4 findings, all addressed (1 migration)
+
+Ran `/code-review` on the full local diff. 4 findings:
+
+1. **`updateMemberRole()` never checked row count** — unlike its siblings `removeTripMember()`/
+   `leaveTrip()` in the same file, which both chain `.select('id')` specifically to detect a
+   0-row RLS-denied result. Since this diff is the first caller of this previously-dead function,
+   an RLS-denied UPDATE would silently return `{ data: null, error: null }` and the UI would show
+   a false "Role updated" success toast. **Fixed:** `packages/api/src/members.ts` now matches the
+   sibling pattern exactly. No migration.
+2. **`private.is_trip_creator()` granted main-organizer authority on `trips.created_by` alone,
+   with no check the caller still has a `trip_members` row** — not reachable through any current
+   code path (the creator's row is immutable outside `delete_own_account()`, which always
+   transfers `created_by` in the same transaction before the row can disappear), but the helper
+   shouldn't rely on every future caller preserving that invariant. **Fixed:** new migration
+   `20261007110000_harden_is_trip_creator_membership_check.sql` adds an `EXISTS` check against
+   `trip_members`. Re-ran all 12 scenarios from the original batch against dev afterward — still
+   all pass. Applied dev then prod.
+3. **The organizer-toggle and remove-member controls on the same row had no shared busy state** —
+   a user could tap the shield icon, then immediately tap remove-and-confirm before the role
+   change settled; if the DELETE won the race, the in-flight UPDATE would then match 0 rows.
+   Finding 1's fix turns that into a real (if generic) error instead of a silent false-positive,
+   and finding 4 makes that error message specific. **Also fixed:** `settings.tsx`'s remove button
+   now also respects `!isRoleChanging`, closing the one direction that wasn't already guarded by
+   the existing remove-pending state hiding the organizer toggle.
+4. **`useUpdateMemberRole`'s `onError` discarded the thrown error** for a generic toast, unlike
+   `useRemoveMember`'s `onError` in the same file which surfaces `error.message`. Relevant
+   specifically because of fix 1 above (a 0-row UPDATE now throws a real message) and because a
+   direct API call or stale UI could still trigger one of the trigger-level rejections ("Cannot
+   change the main organizer's role", etc.). **Fixed:** matches the sibling hook's pattern.
+
+`npm run typecheck` / `npm test` green throughout. Migration applied to dev, all 12 scenarios
+re-verified, then applied to prod; re-linked to dev after.
+
+Related: [[v1-39-5-batch]].
+
+## 2026-10-07 — v1.39.5: multiple organizers per trip (1 migration)
+
+**Why:** the Tech Lead wants more than one organizer per trip. The creator becomes the **main
+organizer** with exclusive power to appoint/revoke the `organizer` role on other participants —
+there is no new `main_organizer` role or column; "main organizer" is simply whoever
+`trips.created_by` points at. Appointed organizers get the same `role = 'organizer'` row as the
+creator and keep every existing organizer power (invites, nudge, member documents, removing
+participants/guests, closing voting, editing the trip) — they just can't appoint anyone
+themselves.
+
+**Migration `20261007100000_multiple_trip_organizers.sql`:**
+- New helper `private.is_trip_creator(trip_id, user_id)`, same shape as the existing
+  `private.is_trip_organizer`.
+- `trip_members` UPDATE policy (role changes) tightened from "any organizer" to "main organizer
+  only" — role changes are the only thing that policy is ever used for.
+- `trip_members` DELETE policy: any organizer can still remove a participant/guest; removing an
+  organizer-role member (or the creator's own row) now requires the main organizer.
+- `check_last_organizer()` / `check_organizer_role_change()` triggers extended: the creator's own
+  row can never be demoted or removed outside `delete_own_account()` (which already runs with
+  `session_replication_role = 'replica'` and bypasses these triggers), and a role change can never
+  touch `'guest'` on either side — guests are never promoted, nothing demotes into a guest row.
+- `soft_delete_trip()`: permission check changed from "any organizer" to "main organizer only."
+- `delete_own_account()`: one new step inserted between the existing sole-organizer-promotion loop
+  and the generic sentinel reassignment — if the deleting user is a trip's creator and other
+  members remain, `trips.created_by` transfers to the earliest-joined remaining organizer (falling
+  back to the earliest-joined remaining participant, then guest) instead of going to the
+  "Deleted User" sentinel. Without this, a trip would permanently lose the ability to appoint new
+  organizers the moment its creator deleted their account — existing organizers would keep their
+  powers, but no one could promote anyone new, ever. The rest of the function body is byte-for-byte
+  the version from `20261003150000_activity_documents_and_toggle.sql` (the real latest at the time
+  — not the older `20260727130000` body; had to re-derive this carefully, since several migrations
+  in between had added document-table reassignment steps that a naive `CREATE OR REPLACE` against
+  the older version would have silently reverted).
+
+**App layer:** `apps/mobile/app/trip/[id]/settings.tsx` gained `isMainOrganizer` (`trip.created_by
+=== currentUser?.id`) alongside the existing `isOrganizer`. Member rows show a shield-icon
+promote/demote toggle (wired to the previously-unused `useUpdateMemberRole` hook) only for the
+main organizer, only on non-guest, non-creator rows. `canRemove` now mirrors the new DELETE
+policy exactly (main organizer removes anyone; any other organizer only removes non-organizers).
+Leave Trip gating changed from `!isOrganizer` to `!isMainOrganizer` (appointed organizers can now
+leave — only the main organizer can't, by Tech Lead decision during planning); Delete Trip gating
+changed from `isOrganizer` to `isMainOrganizer` to match the DB-side restriction. 4 new i18n keys
+(`settings.makeOrganizer`/`removeOrganizer`, `toast.roleUpdated`/`updateRoleFailed`) in `en` + `de`
+— the toast strings were pre-existing hardcoded English in `useUpdateMemberRole` that had never
+shipped in the UI before now, fixed while wiring the hook in for the first time.
+
+**Verification:** `npm run typecheck` / `npm test` pass (236 + 30 + 245 tests, plus the marketing
+site's own suite). Applied to dev then prod (migration ledger parity confirmed both directions —
+no Docker on this machine). `npm run supabase:types` run; no diff (RLS/trigger/function-body-only
+change, no column/table shape change). Before pushing to prod, ran all 12 scenarios from the plan
+as a scratch SQL script against dev inside `BEGIN; ... ROLLBACK;` (`SET LOCAL ROLE authenticated` +
+`SET LOCAL request.jwt.claims` to simulate each test user, results collected into a temp table
+since `supabase db query`'s JSON transport doesn't surface `RAISE NOTICE`) — all 12 passed, and a
+follow-up query confirmed zero residue in dev afterward. Judged prod-safe without a separate
+Tech Lead sign-off because every tightened check is a no-op against today's live data: no trip in
+production has ever had a second organizer, so "main organizer vs. any organizer" is not yet an
+observable distinction anywhere live, and the new `delete_own_account()` step only fires in a path
+that previously just discarded the same information into the sentinel.
+
+**Found and fixed while here (unrelated pre-existing drift, not introduced this session):** same
+pattern as the v1.39.4 entry below — `apps/mobile/app.config.ts`'s `version` had already been
+bumped to `1.39.5` ahead of this batch, but `marketing/site/build.mjs`'s `APP_VERSION` constant was
+still `1.39.4`, tripping `site.test.js`'s softwareVersion drift check. Bumped to match and rebuilt
+the site (`npm run build:site`, verified idempotent on a second run).
+
+Related: [[no-branches-main-only]], [[commit-discipline]], [[no-docker-on-machine]].
+
 ## 2026-10-04 — v1.39.4: persistent per-entity currency for Activities (1 migration)
 
 **Why:** the last gap in the item-12 currency work. Transfers got their own `currency` column

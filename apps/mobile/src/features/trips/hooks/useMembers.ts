@@ -65,10 +65,11 @@ export function useUpdateMemberRole(tripId: string) {
       updateMemberRole(tripId, userId, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips', tripId, 'members'] });
-      addToast('success', 'Role updated');
+      addToast('success', i18n.t('trips:toast.roleUpdated'));
     },
-    onError: () => {
-      addToast('error', 'Failed to update role.');
+    onError: (error: Error) => {
+      if (__DEV__) console.error('[useUpdateMemberRole] error:', error.message);
+      addToast('error', error.message || i18n.t('trips:toast.updateRoleFailed'));
     },
   });
 }

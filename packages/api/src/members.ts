@@ -54,13 +54,19 @@ export async function updateMemberRole(
   userId: string,
   role: MemberRole
 ): Promise<void> {
-  const { error } = await supabase
+  // .select('id') is required: without it Supabase returns { data: null, error: null }
+  // even when RLS blocks the UPDATE, making it impossible to detect 0-row updates.
+  const { data, error } = await supabase
     .from('trip_members')
     .update({ role })
     .eq('trip_id', tripId)
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .select('id');
 
   if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error('Permission denied or member not found');
+  }
 }
 
 export async function getCurrentMemberRole(tripId: string): Promise<MemberRole | null> {
