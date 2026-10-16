@@ -7,28 +7,32 @@ Six Tech-Lead-reported items, all code-complete as of 2026-10-14, **not committe
 prod incident (see point 6 and [[migration-create-or-replace-overload-trap]]) reverted items 1 and
 6's migrations — read those two points carefully before touching either area again. The Tech
 Lead's own manual QA pass on 2026-10-16 then found and got fixed two more bugs, in points 4 and 5
-below — read those too before touching `SwipeToDismiss.tsx` or `errorClassification.ts`.
+below — read those too before touching `SwipeToDismiss.tsx` or `errorClassification.ts`. **As of
+2026-10-16, both items 1 and 6's migrations are live on prod again (re-verified safe each time) —
+only the client code commit/release is still pending.**
 
 **Why:** real-usage reports from the Tech Lead after v1.39.5 shipped — round-trip ticket uploads,
 sheet scroll/dismiss UX, a settlement-status edge case, and an offline-sync reliability gap.
 
 **How to apply:**
 
-1. **Round-trip flight ticket legs** — `transfer_documents.leg` (`'outbound' | 'return'`, default
-   `'outbound'`), unique key `(flight_id, user_id, leg)`. Migration
-   `20261014110000_transfer_document_leg.sql` is **DEV ONLY again** — it reached prod briefly on
-   2026-10-15 as a side effect of `supabase db push` sweeping in all pending migrations while
-   fixing the point-6 incident, and was reverted there the same session
-   (`20261015110000_revert_transfer_document_leg_prod_only.sql`, prod-only — dev's ledger marked
-   `applied` via `migration repair` without re-running it, so dev still has the feature). It changes
-   the client's `upsert(..., onConflict:)` target, so pushing it to prod ahead of the matching
-   client commit breaks every flight-ticket upload on prod — proven, not just theorized, now. It
-   must land on prod in the exact same push as the client commit that updates
-   `transferDocuments.ts`'s `onConflict: 'flight_id,user_id,leg'`. **Before ever pushing it to prod
-   again: regenerate `database.types.ts` and confirm `transfer_documents` shows `leg` AND no RPC
-   near it shows a duplicate `Args` union** (see point 6). `buildTransferTicketPath`'s `leg` param
-   defaults to `'outbound'` and only suffixes the path for `'return'`, so every pre-existing
-   ticket's storage object is untouched.
+1. **Round-trip flight ticket legs — now live on BOTH dev and prod.** `transfer_documents.leg`
+   (`'outbound' | 'return'`, default `'outbound'`), unique key `(flight_id, user_id, leg)`. It
+   changes the client's `upsert(..., onConflict:)` target, so it genuinely cannot tolerate a
+   still-live old client calling it — that's exactly what happened when it reached prod briefly
+   on 2026-10-15 as a side effect of `supabase db push` sweeping in all pending migrations while
+   fixing the point-6 incident, breaking ticket uploads until reverted (prod-only) the same
+   session. **Re-applied to prod on 2026-10-16**, via a brand-new migration
+   (`20261016100000_transfer_document_leg_prod.sql`, body identical to the original
+   `20261014110000`) — not a re-push of the original file, since prod's ledger already marked that
+   one "applied" and `db push` would never run it again (see the ledger note in point 6 below).
+   Done at the Tech Lead's explicit request, confirmed safe only because the matching client
+   commit (`transferDocuments.ts`'s `onConflict: 'flight_id,user_id,leg'`) is shipping in the same
+   release — **never push this schema change to prod without the client commit landing
+   essentially simultaneously.** Applied to prod only; dev's ledger marked `applied` via
+   `migration repair` without executing (dev already had the real schema). `buildTransferTicketPath`'s
+   `leg` param defaults to `'outbound'` and only suffixes the path for `'return'`, so every
+   pre-existing ticket's storage object was untouched throughout.
 2. **Sheet scrolling** — a sheet's full-body `RichText` must be non-selectable (`selectable` false
    or omitted) whenever it sits inside a `SheetScrollArea`, or it competes with the scroll gesture
    for the initial touch and can let swipe-to-dismiss win over scrolling — see `VehicleCard.tsx`'s

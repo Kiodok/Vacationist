@@ -1,5 +1,36 @@
 # Supabase Changes Log
 
+## 2026-10-16 (latest) — v1.39.6 task 1: round-trip ticket legs re-applied to prod (release-synced)
+
+New migration `20261016100000_transfer_document_leg_prod.sql`, body byte-identical to
+`20261014110000_transfer_document_leg.sql`. Re-applies the `leg` column + widened unique key +
+leg-aware `set_transfer_document_trip_id()`/`delete_own_account()` to prod.
+
+**Why a new file instead of re-running the original:** prod's migration ledger already marks
+`20261014110000` as "applied" (it genuinely ran once, before being reverted by
+`20261015110000_revert_transfer_document_leg_prod_only.sql`) — ledgers are an execution log, not a
+current-schema tracker, so `supabase db push` will never re-run that file again. A fresh migration
+was the only way to bring the schema back.
+
+**Why this is safe now, unlike the first time:** the Tech Lead confirmed the matching v1.39.6
+client commit (`transferDocuments.ts`'s `onConflict: 'flight_id,user_id,leg'`) is shipping in the
+same release — this is the "migration and client land together" case the no-branches-main-only
+rule requires, not the ahead-of-the-client case that broke ticket uploads before.
+
+**Applied to prod only.** Dev already had this schema live and unbroken the whole time (only prod
+was reverted) — running this migration's DDL on dev again would error (column/constraint already
+exist). Instead, marked `applied` in dev's ledger via
+`supabase migration repair 20261016100000 --status applied --linked`, without executing it there —
+confirmed via a before/after `database.types.ts` regeneration from dev producing a zero-line diff
+(schema genuinely untouched).
+
+Verified via regenerated `database.types.ts` from prod: `transfer_documents.leg` present, and the
+three expense RPCs (from the 2026-10-16-earlier push) remain a single `Args` shape — no unintended
+drift from this push. `npm run typecheck` / `npm test` green (250/250 mobile, 236/236 utils, 30/30
+api).
+
+**Both v1.39.6 migrations are now live on prod.** Nothing further blocks shipping the client.
+
 ## 2026-10-16 (later) — v1.39.6 task 6: expense created_at now on PROD too (Tech Lead pre-release call)
 
 `20261015120000_expense_created_at_editable_dev_redo.sql` (previously dev-only) pushed to prod.
