@@ -7,6 +7,7 @@ import Animated, {
   useSharedValue,
   withSpring,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import {
@@ -36,6 +37,18 @@ export const SheetPanGestureContext = createContext<GestureType | null>(null);
 interface SwipeToDismissProps {
   /** Called when the sheet should close — pass the sheet's local `handleClose` (form reset etc.), never the raw `onClose`. */
   onDismiss: () => void;
+  /** v1.39.6 fix: set when `onDismiss` might NOT actually dismiss (e.g. it shows a "discard
+   * changes?" confirm instead of closing) — a reanimated SharedValue so the gesture's `onEnd`
+   * worklet can read it synchronously on the UI thread. `true` at release time blocks the dismiss:
+   * the panel springs back to 0 (same as a drag that never crossed the threshold) instead of
+   * sliding fully off-screen and calling `onDismiss` — which previously left the panel invisible
+   * with no way back, since `onDismiss` didn't actually close it. Omit for ordinary sheets where
+   * `onDismiss` always really dismisses — the backdrop tap below needs no such guard, since it has
+   * no slide animation to get stuck in. */
+  dismissGuard?: SharedValue<boolean>;
+  /** Fires when a dismiss attempt was blocked by `dismissGuard` — the caller's cue to show its own
+   * confirmation while the panel is still fully visible. */
+  onDismissBlocked?: () => void;
   /** Panel classes, moved verbatim from the old panel `<View>` (e.g. `bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]`). */
   className?: string;
   /** Panel inline style, moved verbatim (usually `{ paddingBottom: Math.max(insets.bottom, 32) + 16 }`). */
@@ -59,7 +72,7 @@ interface SwipeToDismissProps {
  * non-scrolling area; a drag that starts inside a `<SheetScrollArea>`-wrapped
  * scrollable scrolls instead. See sheetGesture.ts for the thresholds.
  */
-export function SwipeToDismiss({ onDismiss, className, style, children }: SwipeToDismissProps) {
+export function SwipeToDismiss({ onDismiss, dismissGuard, onDismissBlocked, className, style, children }: SwipeToDismissProps) {
   const isColorful = useResolvedTheme() === 'colorful';
   const translateY = useSharedValue(0);
   const panelHeight = useSharedValue(0);
@@ -88,7 +101,11 @@ export function SwipeToDismiss({ onDismiss, className, style, children }: SwipeT
             velocityY: e.velocityY,
             panelHeight: panelHeight.value,
           });
-          if (dismiss) {
+          // Checked BEFORE committing to the slide-away animation, not after — onDismiss might
+          // not actually dismiss (see dismissGuard's doc comment), and discovering that only once
+          // the panel has already finished sliding off-screen leaves it invisible with no way back.
+          const blocked = dismiss && dismissGuard?.value === true;
+          if (dismiss && !blocked) {
             const target = panelHeight.value > 0 ? panelHeight.value : 600;
             translateY.value = withTiming(target, { duration: 160 }, (finished) => {
               if (finished) {
@@ -97,9 +114,12 @@ export function SwipeToDismiss({ onDismiss, className, style, children }: SwipeT
             });
           } else {
             translateY.value = withSpring(0, { damping: 22, stiffness: 220, overshootClamping: true });
+            if (blocked && onDismissBlocked) {
+              scheduleOnRN(onDismissBlocked);
+            }
           }
         }),
-    [onDismiss, panelHeight, translateY],
+    [onDismiss, onDismissBlocked, dismissGuard, panelHeight, translateY],
   );
 
   const panelStyle = useAnimatedStyle(() => ({

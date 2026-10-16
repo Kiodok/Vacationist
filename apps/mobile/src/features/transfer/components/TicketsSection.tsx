@@ -7,17 +7,20 @@ import { useToastStore } from '../../../stores/toastStore';
 import { isMutationBusy } from '../../../utils/mutationStatus';
 import { pickDocumentFile, readFileAsArrayBuffer, DocumentTooLargeError } from '../../../utils/documentPicker';
 
-type UploadTicketArgs = { passengerUserId: string; fileData: Blob | ArrayBuffer; fileName: string; mimeType: string };
+// `leg` (v1.39.6) is only meaningful for flight tickets — ActivityDocument and public-transport
+// uploads never set it, so their mutationFns simply ignore the extra property.
+type UploadTicketArgs = { passengerUserId: string; fileData: Blob | ArrayBuffer; fileName: string; mimeType: string; leg?: 'outbound' | 'return' };
 type DeleteTicketArgs = { documentId: string; storagePath: string };
 
 /** Structural subset shared by TransferDocument and ActivityDocument — the only fields this
  * component actually reads. Lets both entity types' concrete document rows flow in without a
- * shared base type. */
+ * shared base type. `leg` is optional since ActivityDocument has no such column. */
 interface DocumentLike {
   id: string;
   user_id: string;
   storage_path: string;
   mime_type: string;
+  leg?: 'outbound' | 'return';
 }
 
 interface TicketsSectionProps<TDoc extends DocumentLike> {
@@ -38,6 +41,14 @@ interface TicketsSectionProps<TDoc extends DocumentLike> {
   /** Mints a signed URL for a document's storage_path — bucket-specific, so callers supply it
    * (getTransferDocumentUrl for flights/PT, getActivityDocumentUrl for activities). */
   getDocumentUrl: (storagePath: string) => Promise<string>;
+  /** v1.39.6: a round-trip flight renders two `<TicketsSection>` instances, one per leg — this
+   * filters `documents` down to that leg and is threaded into the upload mutation so a new ticket
+   * lands on the right leg. Omitted for every other caller (public transport, activities), which
+   * have no leg concept at all. */
+  leg?: 'outbound' | 'return';
+  /** Overrides the default `t('field.ticket')` heading — used for the per-leg headings on a
+   * round-trip flight ("Outbound tickets" / "Return tickets"). */
+  label?: string;
 }
 
 /**
@@ -47,7 +58,7 @@ interface TicketsSectionProps<TDoc extends DocumentLike> {
  * fed the query/mutations in. Callers own the hooks (each entity type has its own query key /
  * RPC), this component owns only the upload/open/delete UI and interaction logic.
  */
-export function TicketsSection<TDoc extends DocumentLike>({ documents, uploadMutation, deleteMutation, members, currentUserId, isOrganizer, namespace = 'transfer', getDocumentUrl }: TicketsSectionProps<TDoc>) {
+export function TicketsSection<TDoc extends DocumentLike>({ documents, uploadMutation, deleteMutation, members, currentUserId, isOrganizer, namespace = 'transfer', getDocumentUrl, leg, label }: TicketsSectionProps<TDoc>) {
   const { t } = useTranslation(namespace);
   const { t: tCommon } = useTranslation('common');
   const addToast = useToastStore((s) => s.addToast);
@@ -57,7 +68,10 @@ export function TicketsSection<TDoc extends DocumentLike>({ documents, uploadMut
   // instead — same fix and reasoning as ExpenseDocumentsSection.
   const [confirmingDeleteUserId, setConfirmingDeleteUserId] = useState<string | null>(null);
 
-  const documentsByUserId = new Map((documents ?? []).map((d) => [d.user_id, d]));
+  // `leg` undefined (every caller except a round-trip flight) means "don't filter" — a document
+  // with no leg column (ActivityDocument) or the single-leg case both pass through unfiltered.
+  const relevantDocuments = leg ? (documents ?? []).filter((d) => (d.leg ?? 'outbound') === leg) : (documents ?? []);
+  const documentsByUserId = new Map(relevantDocuments.map((d) => [d.user_id, d]));
 
   const handleUpload = async (passengerUserId: string) => {
     try {
@@ -66,7 +80,7 @@ export function TicketsSection<TDoc extends DocumentLike>({ documents, uploadMut
       setBusyUserId(passengerUserId);
       const fileData = await readFileAsArrayBuffer(file.uri);
       uploadMutation.mutate(
-        { passengerUserId, fileData, fileName: file.fileName, mimeType: file.mimeType },
+        { passengerUserId, fileData, fileName: file.fileName, mimeType: file.mimeType, leg },
         { onSettled: () => setBusyUserId(null) },
       );
     } catch (err) {
@@ -98,7 +112,7 @@ export function TicketsSection<TDoc extends DocumentLike>({ documents, uploadMut
 
   return (
     <View className="gap-xs">
-      <Text className="text-label text-text-muted uppercase">{t('field.ticket')}</Text>
+      <Text className="text-label text-text-muted uppercase">{label ?? t('field.ticket')}</Text>
       <View className="gap-xs">
         {members.map((member) => {
           const doc = documentsByUserId.get(member.user_id);

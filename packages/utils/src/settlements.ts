@@ -46,9 +46,17 @@ export function computeSettlements(balances: MemberBalance[]): Settlement[] {
   return settlements;
 }
 
+/**
+ * v1.39.6: an expense with no non-payer splits at all (paid by one person, split only with
+ * themselves) is personal expense-tracking, not a group debt — there is nothing to settle, so it
+ * counts as fully settled as soon as it has its one (self-)split. `create_expense_with_splits` /
+ * `update_expense_with_splits` already insert that lone split as `status = 'settled'` by
+ * construction, so this never has to guess at a status that isn't there.
+ */
 export function isExpenseFullySettled(splits: { user_id: string; status: string }[], paidBy: string): boolean {
+  if (splits.length === 0) return false;
   const nonPayer = splits.filter((s) => s.user_id !== paidBy);
-  return nonPayer.length > 0 && nonPayer.every((s) => s.status === 'settled');
+  return nonPayer.every((s) => s.status === 'settled');
 }
 
 /**

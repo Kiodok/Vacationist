@@ -12,7 +12,9 @@ import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 import { invalidateCostQueries } from '../../../utils/queryClient';
 
-type UploadTicketArgs = { passengerUserId: string; fileData: Blob | ArrayBuffer; fileName: string; mimeType: string };
+// `leg` (v1.39.6) is only meaningful for flight tickets — PublicTransportTicketsSection never
+// sets it, so uploadPublicTransportDocument's callback simply ignores the extra property.
+type UploadTicketArgs = { passengerUserId: string; fileData: Blob | ArrayBuffer; fileName: string; mimeType: string; leg?: 'outbound' | 'return' };
 type DeleteTicketArgs = { documentId: string; storagePath: string };
 
 // Generic triad shared by flight tickets and public-transport tickets below — the two entity
@@ -82,8 +84,8 @@ export function useUploadTransferFlightDocument(tripId: string, flightId: string
   return useUploadDocumentMutation(
     ['transfer-flights', flightId, 'documents'],
     tripId,
-    ({ passengerUserId, fileData, fileName, mimeType }) =>
-      uploadTransferFlightDocument(tripId, flightId, passengerUserId, fileData, fileName, mimeType),
+    ({ passengerUserId, fileData, fileName, mimeType, leg }) =>
+      uploadTransferFlightDocument(tripId, flightId, passengerUserId, fileData, fileName, mimeType, leg),
   );
 }
 

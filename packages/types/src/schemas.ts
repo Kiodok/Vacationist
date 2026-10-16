@@ -209,6 +209,10 @@ export const createExpenseSchema = z.object({
   // `amount` is the grand total (bill + tip); tip_amount is the portion of it that was tip. The RPC
   // enforces 0 <= tip <= amount, so the form's read-only Total can never disagree with what's stored.
   tip_amount: z.number().nonnegative().optional(),
+  // v1.39.6: floating wall-clock digits (`YYYY-MM-DDTHH:mm`), not a real UTC instant — same
+  // convention as transfer_flights.departure_time etc. (floating-wall-clock-times skill). Omitted
+  // = the RPC defaults to NOW().
+  created_at: z.string().optional(),
 });
 
 // currency was added in Phase 15 (multi-currency support) — editing an expense can now
@@ -230,6 +234,8 @@ export const updateExpenseWithSplitsSchema = z.object({
   is_business: z.boolean().optional(),
   // Omitted = the RPC keeps the stored tip (clamped to the new amount); the app always sends it.
   tip_amount: z.number().nonnegative().optional(),
+  // v1.39.6: see createExpenseSchema's created_at — same floating convention. Omitted = unchanged.
+  created_at: z.string().optional(),
 });
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
@@ -243,6 +249,10 @@ export const updateExpenseMetadataSchema = z.object({
   description: z.string().max(500).optional(),
   related_type: z.enum(EXPENSE_RELATED_TYPE).optional(),
   is_business: z.boolean().optional(),
+  // v1.39.6: see createExpenseSchema's created_at — same floating convention. Omitted = unchanged.
+  // This is the path used once a non-payer split is settled, and created_at must stay editable
+  // there too (it's metadata, not a locked money field).
+  created_at: z.string().optional(),
 });
 
 export type UpdateExpenseMetadataInput = z.infer<typeof updateExpenseMetadataSchema>;

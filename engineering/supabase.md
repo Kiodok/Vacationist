@@ -1,5 +1,218 @@
 # Supabase Changes Log
 
+## 2026-10-16 (later) — v1.39.6 task 6: expense created_at now on PROD too (Tech Lead pre-release call)
+
+`20261015120000_expense_created_at_editable_dev_redo.sql` (previously dev-only) pushed to prod.
+
+**Safety analysis before pushing (Tech Lead explicitly asked "what breaks if I release 1.39.6 and
+push migrations now, with ~1 day of v1.39.5 still live"):** this migration is safe to run ahead of
+the matching client release, unlike the round-trip-ticket-legs migration. It explicitly
+`DROP FUNCTION`s the old (no-`p_created_at`) signature before creating the new one, so there is
+only ever **one** overload of each of the three expense RPCs — a currently-live v1.39.5 client
+simply omits `p_created_at` from its call, which defaults to `NULL` and falls back to
+`COALESCE(p_created_at, NOW())` / `COALESCE(p_created_at, created_at)` exactly as before. No
+ambiguity, no PostgREST resolution failure — this is the genuinely backward-compatible case the
+very first attempt (`20261014100000`) incorrectly claimed to be.
+
+**Important ledger nuance surfaced while checking what was actually "pending":** prod's migration
+ledger still records `20261014110000_transfer_document_leg.sql` (the round-trip ticket legs
+migration) as applied, even though its schema effects were undone by
+`20261015110000_revert_transfer_document_leg_prod_only.sql` — migration ledgers are append-only
+execution logs, not current-effective-schema trackers. So "all pending migrations" on prod
+resolved to exactly this one file; re-breaking ticket uploads would require writing a brand-new
+migration, which does not exist. Re-introducing the round-trip-ticket-legs schema change on prod
+still must wait for the matching client commit, per the earlier incident analysis — that has not
+changed.
+
+Verified via regenerated `database.types.ts` from both environments: prod now shows a single
+`Args` shape (with `p_created_at?`) for all three expense RPCs and correctly still has no `leg`
+column on `transfer_documents`; dev's `leg` column is untouched. `npm run typecheck` / `npm test`
+green (250/250 mobile, 236/236 utils, 30/30 api).
+
+## 2026-10-15 (later) — v1.39.6 task 6 redo: expense created_at, correctly this time (dev only)
+
+Re-adds `p_created_at` to `create_expense_with_splits` / `update_expense_with_splits` /
+`update_expense_metadata` — same bodies as the reverted `20261014100000`, but
+`20261015120000_expense_created_at_editable_dev_redo.sql` now explicitly `DROP FUNCTION`s each old
+(no-`p_created_at`) signature **before** creating the new one, in the same migration, closing the
+duplicate-overload gap documented in the incident entry below. **Applied to dev only** — dev has no
+live, not-yet-updated client depending on the old signature (this session's own uncommitted client
+code already sends `p_created_at`), so there's no ambiguity risk there. Still must not go to prod
+until the matching client code is committed and ships in the same push.
+
+Verified via regenerated `database.types.ts`: all three RPCs now show a single `Args` shape
+(including `p_created_at?`), not a union — confirming the fix actually closes the gap this time.
+`npm run typecheck` / `npm test` green (249/249 mobile, 236/236 utils, 30/30 api).
+
+## 2026-10-15 — INCIDENT: prod expense create/edit broken by duplicate RPC overloads (2 revert migrations)
+
+**Impact:** every expense create and edit on prod failed silently from shortly after
+`20261014100000` was pushed (2026-10-14) until this fix (2026-10-15) — no Postgres error, no
+Sentry capture, no console output, no network-layer error, because the rejection happened at the
+PostgREST API-gateway layer, before ever reaching Postgres. Reported by the Tech Lead as "adding an
+expense for a booking just fails"; confirmed to affect expense creation/editing generally, not only
+booking-linked expenses.
+
+**Root cause:** `CREATE OR REPLACE FUNCTION` only replaces a function in place when the argument
+**types** match exactly (Postgres docs: "the new function must have the same argument types as the
+old one"). `20261014100000_expense_created_at_editable.sql` added a trailing `p_created_at`
+parameter to `create_expense_with_splits`, `update_expense_with_splits`, and
+`update_expense_metadata` — since that changes each function's argument-type list, Postgres did
+**not** replace anything: it silently created a **second overload** of each function, leaving the
+original (no `p_created_at`) version still present and callable. Confirmed directly via
+`packages/api/src/database.types.ts`, which showed all three RPCs as a union of two distinct `Args`
+shapes on both dev and prod (`grep` for the entity name showed `: | { … } | { … }` instead of a
+single `: { … }` object — this is the tell to check for on any future migration using this
+technique).
+
+The live prod client (nothing from the v1.39.6 session was committed/shipped) calls these RPCs with
+the old argument shape only. With two overloads present, PostgREST cannot disambiguate the call and
+rejects it at the gateway layer with a `PGRST*`-coded error — `isExpectedMutationError`
+(`apps/mobile/src/utils/errorClassification.ts`) already treats any `PGRST*` code as "expected,"
+so it only produces a Sentry breadcrumb, never a captured exception, and never touches Postgres's
+own logs at all. Every symptom the Tech Lead reported (no Postgres error, no Sentry log, no
+console output, no network error) is exactly what this failure mode looks like — not an absence of
+error, but an error at a layer nobody was looking at.
+
+**This exact trap already hit this codebase once before:** `book_transfer_flight`
+(`20260905150000_add_return_flight_number.sql`, Sept 2026) used the identical "trailing default
+param via `CREATE OR REPLACE`" technique and needed a same-day follow-up
+(`20260905180000_drop_old_book_transfer_flight_overload.sql`) to drop the stale overload. That
+lesson wasn't carried forward into `20261014100000`. See the new `migration-create-or-replace-
+overload-trap` skill below.
+
+**A second incident compounded the first while fixing it:** `supabase db push` applies **every**
+pending migration for the linked project, not a chosen subset. Pushing the fix migration to prod
+also swept up `20261014110000_transfer_document_leg.sql` — deliberately held to dev-only the day
+before, because it changes the `ON CONFLICT` target the live client's ticket-upload `.upsert()`
+relies on. This briefly put the same class of silent-failure risk on prod for flight/PT ticket
+uploads. Caught and reverted within the same session once noticed; no user impact confirmed
+(feature had existed on prod for only minutes with zero adoption, so no data loss).
+
+**Fix (Tech Lead's explicit call: full revert, not "drop old keep new"):**
+- `20261015100000_revert_expense_created_at_overloads.sql` — drops the three `p_created_at`-bearing
+  overloads, restoring the original (untouched, still-present) overloads as the sole version of
+  each function. Applied to **dev, then prod**, immediately (active outage, not staged).
+- `20261015110000_revert_transfer_document_leg_prod_only.sql` — drops the `leg` column (auto-drops
+  its CHECK and the 3-column UNIQUE constraint that references it — same-table constraints don't
+  need `CASCADE`), restores the original 2-column `UNIQUE (flight_id, user_id)` constraint, and
+  restores `set_transfer_document_trip_id()` / `delete_own_account()` to their pre-leg bodies.
+  **Applied to PROD ONLY** — dev keeps the `leg` feature for continued development. To prevent a
+  future `supabase db push` on dev from re-sweeping this file in and reverting dev too, its version
+  was marked `applied` in dev's migration ledger via `supabase migration repair 20261015110000
+  --status applied --linked` **without ever executing its SQL on dev** — dev's ledger now agrees
+  with prod's that this version is "done," but dev's actual schema still has the `leg` column, 3-col
+  constraint, and leg-aware functions intact. Verified via `database.types.ts`: generating from dev
+  shows `transfer_documents.leg` present (feature intact) while all three expense RPCs collapsed
+  back to their single, old `Args` shape (feature reverted) — exactly the asymmetric state intended.
+
+**Net effect:** prod is now schema-identical to its pre-2026-10-14 state (both the `created_at` and
+the ticket-leg features fully reverted there). Dev keeps the `leg` feature for the round-trip-ticket
+work to continue, but also reverted its expense-RPC overloads (so dev's own `created_at` testing is
+paused too, mid-flight) — the Tech Lead's "full revert" choice applied consistently rather than
+leaving dev and prod's expense RPCs in different states.
+
+**Still pending, carried forward:** when the `created_at`-editable feature and the round-trip-ticket
+feature are eventually redeployed alongside their already-written client code, **each** migration
+must explicitly `DROP FUNCTION`/handle the old signature in the *same* migration that adds the new
+one — never rely on `CREATE OR REPLACE FUNCTION` alone when the parameter list changes. Verify by
+regenerating types and confirming a single `Args` shape (not a union) before ever pushing to prod,
+every time this technique is used.
+
+`npm test` green throughout (249/249 mobile, 236/236 utils, 30/30 api — unaffected, these are pure
+unit tests, not live RPC calls). `npm run typecheck` unaffected too: both affected call sites in
+`packages/api/src/expenses.ts` already used `as never` / `as Function` casts pre-existing in the
+codebase, which silently bypass the type mismatch — a real gap worth tightening later, but not one
+this incident introduced.
+
+## 2026-10-14 (later) — v1.39.6 task 1: round-trip flight ticket legs (1 migration, DEV ONLY — not yet prod-safe)
+
+A round trip is a single `transfer_flights` row (`direction = 'outbound-return'`), but
+`transfer_documents` had `UNIQUE (flight_id, user_id)` — exactly one ticket slot per passenger per
+flight *row*, so a round trip could only ever hold one ticket per person covering both legs.
+Migration `20261014110000_transfer_document_leg.sql`:
+
+1. Adds `leg TEXT NOT NULL DEFAULT 'outbound' CHECK (leg IN ('outbound', 'return'))` to
+   `transfer_documents`; every pre-existing row backfills to `'outbound'`, preserving its meaning.
+2. Drops `UNIQUE (flight_id, user_id)`, adds `UNIQUE (flight_id, user_id, leg)`.
+3. `set_transfer_document_trip_id()` (runs BEFORE INSERT and BEFORE UPDATE) now also validates
+   `leg` against the parent flight's `direction` — `leg = 'return'` is rejected outright unless the
+   flight is `'outbound-return'`; a public-transport-parented row must stay `'outbound'` (no leg
+   concept there).
+4. `delete_own_account()` re-issued (latest body copied from `20261007100000_multiple_trip_organizers.sql`
+   per the `migration-create-or-replace-latest-body` rule) — its `transfer_documents`
+   reassignment now dedupes on `(flight_id, leg)` / `(public_transport_id, leg)` via a correlated
+   `EXISTS`, not just the parent id, since two different legs for the same flight must not be
+   treated as conflicting.
+
+**🔴 Unlike task 6's migration above, this one is NOT safely deployable to prod ahead of the
+client commit.** Widening the unique key means the *old* client's
+`upsert(..., { onConflict: 'flight_id,user_id' })` call would start failing immediately on prod
+(Postgres: "no unique or exclusion constraint matching the ON CONFLICT specification") the moment
+this migration lands there, since the two-column constraint it targets no longer exists — breaking
+every flight-ticket upload/replace until the matching client change
+(`onConflict: 'flight_id,user_id,leg'`, `packages/api/src/transferDocuments.ts`) ships in the same
+push. This is exactly the migration-ahead-of-client hazard the no-branches-main-only rule exists
+to prevent (see the v1.34.2 incident). **Applied to dev only** — hold for prod until the client
+commit, per the Supabase Changes Workflow's "if not safe, inform the Tech Lead" step.
+
+Storage paths are unaffected for existing (outbound) tickets:
+`buildTransferTicketPath(tripId, entityId, userId, leg)` only appends a `-return` suffix when
+`leg === 'return'`; the default `'outbound'` path is byte-identical to every ticket uploaded before
+this feature, so no re-upload or storage migration is needed for existing data. Storage RLS
+policies are untouched — they only inspect path segments `[1]` (tripId) and `[4]` (userId), never
+the filename segment this suffix lives in.
+
+`npm run supabase:types` regenerated and diffed — confirmed scoped to exactly
+`transfer_documents` gaining `leg` and no other table/RPC signature changed (the PL/pgSQL-only
+changes to `delete_own_account`/`set_transfer_document_trip_id` produce no TypeScript diff, as
+expected). `npm run typecheck` / `npm test` green throughout. **No rolled-back `DO` block
+live-verification this session** — same no-Docker/no-SQL-execution-tool constraint noted in the
+task 6 entry above.
+
+Related: [[v1-39-5-batch]] precedent for `is_trip_creator` hardening style; v1.39.6 batch overall
+(see `engineering/implementation_guide.md`).
+
+## 2026-10-14 — v1.39.6 task 6: expense creation timestamp editable (1 migration)
+
+`expenses.created_at` (`TIMESTAMPTZ NOT NULL DEFAULT NOW()`) already existed but was never a
+parameter on any RPC, so the client had no way to show or change it. Migration
+`20261014100000_expense_created_at_editable.sql` adds a trailing, DEFAULTed
+`p_created_at TIMESTAMPTZ DEFAULT NULL` to all three expense-writing RPCs — a pure append (no
+DROP FUNCTION needed, same technique as `20260905150000_add_return_flight_number.sql`), so every
+existing caller keeps working unchanged:
+
+- `create_expense_with_splits` — inserts `COALESCE(p_created_at, NOW())`.
+- `update_expense_with_splits` — `SET created_at = COALESCE(p_created_at, created_at)`.
+- `update_expense_metadata` — same, since this is the path used once a non-payer split is settled
+  (`EditExpenseSheet`'s `hasSettledSplit`), and `created_at` is metadata, not a locked money field,
+  so it must stay editable there too.
+
+`p_created_at` is "floating" — literal `YYYY-MM-DDTHH:mm` digits with no timezone conversion, same
+convention as `transfer_flights.departure_time` etc. (see the `floating-wall-clock-times` skill) —
+and a `NULL` means "keep the default/existing value", the same omission convention every other
+optional parameter on these RPCs already uses. Each function also rejects a `p_created_at` more
+than a day in the future, to catch an obvious device-clock/fat-finger mistake without blocking
+legitimate backdating.
+
+All three bodies are copied verbatim from their current latest definitions
+(`20261003120000_cost_summary_trip_scope_related_id.sql`,
+`20261003130000_update_expense_with_splits_auth_order.sql`,
+`20261003100000_expense_metadata_only_update.sql`) per the
+`migration-create-or-replace-latest-body` rule, with only the new parameter, its validation, and
+its use in the INSERT/UPDATE added.
+
+Applied to dev, `npm run supabase:types` regenerated and diffed to confirm the change was scoped
+to exactly these three RPCs' `Args` (no unrelated schema drift), then applied to prod (ledger
+parity confirmed identical through `20261007110000` before the push), then re-linked to dev.
+`npm run typecheck` / `npm test` green throughout (utils 38/38 settlements, mobile/api/utils full
+suites). **No rolled-back `DO` block live-verification this session** — no Docker, no direct SQL
+execution tool available; correctness rests on the verbatim-copy + narrow-diff review above plus
+the regenerated-types scope check.
+
+Related: v1.39.6 batch (round-trip ticket legs, self-pay auto-settle, expense sheet swipe-dismiss
+guard, expense sync-failure hardening — see `engineering/implementation_guide.md`).
+
 ## 2026-10-07 (later) — v1.39.5 `/code-review` follow-up: 4 findings, all addressed (1 migration)
 
 Ran `/code-review` on the full local diff. 4 findings:

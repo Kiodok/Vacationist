@@ -58,7 +58,6 @@ export function resolveOptimisticFx(
 
 export function buildOptimisticExpense(qc: QueryClient, p: OptimisticExpenseParams): ExpenseWithSplits {
   const { input } = p;
-  const now = new Date().toISOString();
   const fx = resolveOptimisticFx(qc, p.tripId, input.currency, input.amount);
   return {
     id: p.optimisticId,
@@ -74,7 +73,9 @@ export function buildOptimisticExpense(qc: QueryClient, p: OptimisticExpensePara
     split_method: input.split_method,
     paid_by: input.paid_by,
     created_by: p.createdBy,
-    created_at: now,
+    // A backdated/postdated created_at (v1.39.6) displays correctly immediately instead of
+    // flashing "now" until the real row replaces this placeholder.
+    created_at: input.created_at ?? new Date().toISOString(),
     updated_by: null,
     archived_at: null,
     is_business: input.is_business ?? false,

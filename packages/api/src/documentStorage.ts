@@ -41,12 +41,18 @@ export function buildExpenseDocumentPath(tripId: string, expenseId: string, user
 }
 
 /** `transfer-documents` bucket path, shared by flight tickets and public-transport tickets — a
- * fixed path per (entity, user) pair, so a re-upload always overwrites the previous ticket via
- * `upsert: true`. `entityId` is a flight_id or public_transport_id; the two are independent UUID
- * spaces (never generated to collide), so sharing the literal `transfer` segment between them is
- * safe — RLS only inspects segment [1] (tripId) and [4] (userId), never [2]/[3]. */
-export function buildTransferTicketPath(tripId: string, entityId: string, userId: string): string {
-  return `${tripId}/transfer/${entityId}/${userId}/ticket`;
+ * fixed path per (entity, user, leg) tuple, so a re-upload always overwrites the previous ticket
+ * via `upsert: true`. `entityId` is a flight_id or public_transport_id; the two are independent
+ * UUID spaces (never generated to collide), so sharing the literal `transfer` segment between
+ * them is safe — RLS only inspects segment [1] (tripId) and [4] (userId), never [2]/[3].
+ *
+ * `leg` (v1.39.6, round-trip flights only — public transport never passes it) defaults to
+ * `'outbound'`, which keeps the exact unsuffixed path every ticket uploaded before this feature
+ * already used — only `'return'` gets a distinct suffix, so existing outbound tickets' storage
+ * objects are never orphaned by this change. */
+export function buildTransferTicketPath(tripId: string, entityId: string, userId: string, leg: 'outbound' | 'return' = 'outbound'): string {
+  const suffix = leg === 'return' ? '-return' : '';
+  return `${tripId}/transfer/${entityId}/${userId}/ticket${suffix}`;
 }
 
 /** `activity-documents` bucket path — same fixed-path-per-(entity, user) convention as

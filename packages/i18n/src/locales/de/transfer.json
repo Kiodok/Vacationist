@@ -160,6 +160,8 @@
   "toast.documentDeleteFailed": "Ticket konnte nicht gelöscht werden.",
   "confirm.deleteDocument": "Dieses Ticket löschen?",
   "field.ticket": "Ticket",
+  "field.ticketOutbound": "Ticket Hinflug",
+  "field.ticketReturn": "Ticket Rückflug",
   "field.noTicket": "Noch kein Ticket hochgeladen",
   "action.addTicket": "Ticket hinzufügen",
   "action.replaceTicket": "Ersetzen",

@@ -18,7 +18,14 @@ export async function getTransferFlightDocuments(flightId: string): Promise<Tran
 /**
  * Uploads (or replaces) a passenger's ticket for one flight-direction row. `passengerUserId` is
  * who the ticket belongs to; the uploader (from the session) may be the organizer uploading on
- * that passenger's behalf. Fixed storage path — an upload always overwrites the previous ticket.
+ * that passenger's behalf. Fixed storage path — an upload always overwrites the previous ticket
+ * for the same (flight, passenger, leg).
+ *
+ * `leg` (v1.39.6) lets a round-trip ("outbound-return") flight carry separate outbound and return
+ * tickets — the DB trigger `set_transfer_document_trip_id` rejects `leg: 'return'` outright for
+ * any flight whose `direction` isn't `'outbound-return'`, so passing it for a one-way flight is
+ * always a no-op validation error, never a silent wrong state. Defaults to `'outbound'`, matching
+ * every ticket uploaded before this feature existed.
  */
 export async function uploadTransferFlightDocument(
   tripId: string,
@@ -27,10 +34,11 @@ export async function uploadTransferFlightDocument(
   fileData: Blob | ArrayBuffer,
   fileName: string,
   mimeType: string,
+  leg: 'outbound' | 'return' = 'outbound',
 ): Promise<TransferDocument> {
   const uploadedBy = await getUserIdOfflineSafe();
 
-  const path = buildTransferTicketPath(tripId, flightId, passengerUserId);
+  const path = buildTransferTicketPath(tripId, flightId, passengerUserId, leg);
   await uploadDocumentFile(BUCKET, path, fileData, mimeType);
 
   // trip_id is included only to satisfy the generated Insert type — a BEFORE INSERT trigger
@@ -39,8 +47,8 @@ export async function uploadTransferFlightDocument(
   const { data, error } = await supabase
     .from('transfer_documents')
     .upsert(
-      { trip_id: tripId, flight_id: flightId, user_id: passengerUserId, uploaded_by: uploadedBy, storage_path: path, file_name: fileName, mime_type: mimeType },
-      { onConflict: 'flight_id,user_id' },
+      { trip_id: tripId, flight_id: flightId, user_id: passengerUserId, uploaded_by: uploadedBy, storage_path: path, file_name: fileName, mime_type: mimeType, leg },
+      { onConflict: 'flight_id,user_id,leg' },
     )
     .select()
     .single();

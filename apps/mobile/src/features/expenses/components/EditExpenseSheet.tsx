@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSharedValue } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
@@ -15,13 +16,14 @@ const SELECTABLE_SPLIT_METHODS = EXPENSE_SPLIT_METHOD.filter(
   (m): m is SelectableSplitMethod => m !== 'cover',
 );
 import type { TripMemberWithUser } from '@vacationist/api';
-import { formatCurrency, roundCurrency, sanitizeDecimalInput, evenExactShares, storedExactShares, sumExactAmounts, isExactSplitBalanced, hasAnySettledSplit } from '@vacationist/utils';
+import { formatCurrency, roundCurrency, sanitizeDecimalInput, evenExactShares, storedExactShares, sumExactAmounts, isExactSplitBalanced, hasAnySettledSplit, formatNaiveTimestamp } from '@vacationist/utils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
 import { useCurrencies, useCurrencyConversion } from '../../currencies/hooks/useCurrencies';
 import { setLastUsedCurrency } from '../../currencies/utils/lastUsedCurrency';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
+import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { useToastStore } from '../../../stores/toastStore';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
@@ -118,7 +120,10 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
   const { data: currencies } = useCurrencies();
   const { convert, ratesAsOf } = useCurrencyConversion();
 
-  const { control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<UpdateExpenseWithSplitsInput>({
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const initialTipText = initialTip > 0 ? initialTip.toFixed(2) : '';
+
+  const { control, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<UpdateExpenseWithSplitsInput>({
     resolver: zodResolver(updateExpenseWithSplitsSchema),
     defaultValues: {
       title: expense.title,
@@ -132,6 +137,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
         ? allMemberIds.map((user_id) => ({ user_id }))
         : splits.map((s) => ({ user_id: s.user_id, amount: Number(s.amount_owed) })),
       is_business: expense.is_business,
+      created_at: formatNaiveTimestamp(expense.created_at, 'YYYY-MM-DDTHH:mm') ?? undefined,
     },
   });
 
@@ -149,6 +155,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
           ? allMemberIds.map((user_id) => ({ user_id }))
           : splits.map((s) => ({ user_id: s.user_id, amount: Number(s.amount_owed) })),
         is_business: expense.is_business,
+        created_at: formatNaiveTimestamp(expense.created_at, 'YYYY-MM-DDTHH:mm') ?? undefined,
       });
       setAmountText(initialBill.toFixed(2));
       setTipText(initialTip > 0 ? initialTip.toFixed(2) : '');
@@ -251,6 +258,7 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
         description: data.description,
         related_type: data.related_type,
         is_business: data.is_business,
+        created_at: data.created_at,
       });
       return;
     }
@@ -273,11 +281,38 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
   const canSubmit = hasSettledSplit ? !isPendingMetadata : (!isPending && canConvertCurrency && exactBalanced);
   const onInvalid = () => useToastStore.getState().addToast('error', t('toast.checkForm'));
 
+  // Guards the swipe gesture, the backdrop tap and the header close button (all three route
+  // through this one handler — fixing the previous bug where this sheet passed the raw `onClose`
+  // straight to SwipeToDismiss, unlike every other sheet) against silently discarding an edit in
+  // progress. tipText lives in plain local state rather than a Controller, so RHF's isDirty
+  // alone would miss a tip-only change.
+  const hasUnsavedInput = isDirty || tipText !== initialTipText;
+  const requestClose = () => {
+    if (hasUnsavedInput) setShowDiscardConfirm(true);
+    else onClose();
+  };
+  const confirmDiscard = () => {
+    setShowDiscardConfirm(false);
+    onClose();
+  };
+  const cancelDiscard = () => setShowDiscardConfirm(false);
+
+  // Mirrors hasUnsavedInput into a SharedValue so SwipeToDismiss's gesture worklet can read it
+  // synchronously on the UI thread — without this, a swipe-dismiss on a dirty form slid the panel
+  // fully off-screen before discovering requestClose wasn't going to actually close it, leaving
+  // the sheet invisible and stuck (v1.39.6 manual-QA fix).
+  const dismissGuard = useSharedValue(false);
+  useEffect(() => {
+    dismissGuard.value = hasUnsavedInput;
+  }, [hasUnsavedInput, dismissGuard]);
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
       <SwipeToDismiss
-        onDismiss={onClose}
+        onDismiss={requestClose}
+        dismissGuard={dismissGuard}
+        onDismissBlocked={() => setShowDiscardConfirm(true)}
         className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
         style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
       >
@@ -285,9 +320,31 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
+          {showDiscardConfirm ? (
+            <View className="rounded-md border border-danger p-md gap-sm mb-md">
+              <Text className="text-body-small text-text-secondary text-center">
+                {t('confirm.discardChanges')}
+              </Text>
+              <View className="flex-row gap-sm">
+                <Pressable
+                  onPress={cancelDiscard}
+                  className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
+                >
+                  <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
+                </Pressable>
+                <Pressable
+                  onPress={confirmDiscard}
+                  className="flex-1 min-h-[44px] rounded-md bg-danger items-center justify-center"
+                >
+                  <Text className="text-body text-white font-semibold">{t('confirm.discardYes')}</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+          <>
           <View className="flex-row items-center justify-between mb-xs">
             <Text className="text-heading-m text-text-primary">{t('edit.title')}</Text>
-            <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+            <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
@@ -332,6 +389,47 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
                   )}
                 />
                 {errors.title && <Text className="text-danger text-body-small">{errors.title.message}</Text>}
+              </View>
+
+              {/* Date + time of creation — always editable, even once money fields are locked
+                  (hasSettledSplit): it's metadata, not a locked money field, and goes through
+                  update_expense_metadata in that state (see onValid above). */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.createdAt')}</Text>
+                <View className="flex-row gap-sm">
+                  <View className="flex-1">
+                    <Controller
+                      control={control}
+                      name="created_at"
+                      render={({ field: { onChange, value } }) => (
+                        <DateTimePickerField
+                          mode="date"
+                          value={value ? value.split('T')[0] : null}
+                          onChange={(date) => {
+                            const time = value?.split('T')[1] ?? '00:00';
+                            onChange(date ? `${date}T${time}` : null);
+                          }}
+                        />
+                      )}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Controller
+                      control={control}
+                      name="created_at"
+                      render={({ field: { onChange, value } }) => (
+                        <DateTimePickerField
+                          mode="time"
+                          value={value ? value.split('T')[1] : null}
+                          onChange={(time) => {
+                            const date = value?.split('T')[0] ?? null;
+                            onChange(date && time ? `${date}T${time}` : null);
+                          }}
+                        />
+                      )}
+                    />
+                  </View>
+                </View>
               </View>
 
               {/* Description */}
@@ -691,6 +789,8 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
             </View>
           </ScrollView>
           </SheetScrollArea>
+          </>
+          )}
       </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

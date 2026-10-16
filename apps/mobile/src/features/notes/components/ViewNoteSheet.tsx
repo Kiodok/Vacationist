@@ -37,11 +37,14 @@ export function ViewNoteSheet({ visible, note, onClose }: ViewNoteSheetProps) {
           <SheetScrollArea>
             <ScrollView showsVerticalScrollIndicator={false}>
             <View className="gap-md">
-              <RichText className="text-body text-text-primary font-semibold" selectable>
+              {/* Not selectable: a selectable Text competes with SheetScrollArea's scroll gesture
+                  for the initial touch, making a scroll drag fight the sheet's swipe-to-dismiss pan
+                  instead of scrolling the (often long) note body — see VehicleCard's identical fix. */}
+              <RichText className="text-body text-text-primary font-semibold">
                 {note.title}
               </RichText>
               {!!note.description && (
-                <RichText className="text-body text-text-secondary" selectable>
+                <RichText className="text-body text-text-secondary">
                   {note.description}
                 </RichText>
               )}

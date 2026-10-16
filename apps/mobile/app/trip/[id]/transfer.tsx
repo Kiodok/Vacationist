@@ -915,6 +915,7 @@ function FlightCardWithVotes({
       <FlightTicketsSection
         tripId={tripId}
         flightId={flight.id}
+        direction={flight.direction}
         members={(members ?? []).map((m) => ({ user_id: m.user_id, name: m.user.name }))}
         currentUserId={currentUserId}
         isOrganizer={role === 'organizer'}

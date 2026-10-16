@@ -160,6 +160,8 @@
   "toast.documentDeleteFailed": "Failed to delete ticket.",
   "confirm.deleteDocument": "Delete this ticket?",
   "field.ticket": "Ticket",
+  "field.ticketOutbound": "Outbound ticket",
+  "field.ticketReturn": "Return ticket",
   "field.noTicket": "No ticket uploaded yet",
   "action.addTicket": "Add ticket",
   "action.replaceTicket": "Replace",

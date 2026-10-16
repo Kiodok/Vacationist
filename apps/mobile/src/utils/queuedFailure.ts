@@ -49,7 +49,17 @@ export async function handleQueuedFailure(qc: QueryClient, mutation: Mutation<un
     }
     useToastStore.getState().addToast('warning', i18n.t('common:offline.mutationFailed'));
     // The optimistic row the queued change produced is now a phantom — a refetch drops it.
-    void qc.invalidateQueries();
+    // v1.39.6: scoped to the mutation's own trip when its variables carry one (every entity
+    // mutation does — same shape COST_AFFECTING_MUTATION_KEYS already reads below), rather than
+    // invalidating the entire cache and forcing every open screen to refetch for one trip's
+    // failure. Falls back to a global invalidate for the rare shape with no tripId (e.g.
+    // notification mutations) — safe, just less targeted.
+    const vars = variables as { tripId?: string } | undefined;
+    if (vars?.tripId) {
+      void qc.invalidateQueries({ queryKey: ['trips', vars.tripId] });
+    } else {
+      void qc.invalidateQueries();
+    }
   } catch {
     // Must never throw into the mutation cache's subscriber.
   }

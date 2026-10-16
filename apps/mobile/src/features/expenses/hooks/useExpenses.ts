@@ -33,6 +33,7 @@ import { i18n } from '@vacationist/i18n';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { createOptimisticId } from '../../../utils/optimisticId';
+import { isNetworkError } from '../../../utils/errorClassification';
 import {
   addOptimisticExpense,
   snapshotExpenseCaches,
@@ -178,7 +179,17 @@ export function useCreateExpense() {
       });
       return { previous };
     },
-    onError: (_err, { tripId }, context) => {
+    onError: (err, { tripId }, context) => {
+      // v1.39.6: a network-shaped failure should never erase what the user just entered —
+      // queryClient.ts's mutationRetry already flips onlineManager offline the moment one occurs,
+      // which pauses (queues, persists) the mutation on its next retry attempt instead of letting
+      // it reach this terminal error path at all. This is defense in depth for the rare race where
+      // that correction hasn't landed yet: keep the optimistic row and tell the user it's still
+      // pending, rather than rolling it back as if the write were rejected.
+      if (isNetworkError(err)) {
+        addToast('warning', i18n.t('common:offline.mutationFailed'));
+        return;
+      }
       if (context) restoreExpenseCaches(queryClient, tripId, context.previous);
       addToast('error', i18n.t('expenses:toast.addFailed'));
     },

@@ -84,6 +84,8 @@ export function CalendarActivitySheet({
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
+          <SheetScrollArea>
+          <ScrollView showsVerticalScrollIndicator={false}>
           {/* Time and status */}
           <View className="flex-row items-center justify-between mb-sm">
             <View className="flex-row items-center gap-xs">
@@ -115,7 +117,10 @@ export function CalendarActivitySheet({
 
           {/* Description */}
           {activity.description ? (
-            <RichText className="text-body-small text-text-secondary mb-sm" selectable>
+            // selectable={false}: a selectable native Text competes with SheetScrollArea's scroll
+            // gesture for the initial touch, making a scroll drag over the text fight the sheet's
+            // own swipe-to-dismiss pan instead of scrolling (see VehicleCard's identical fix).
+            <RichText className="text-body-small text-text-secondary mb-sm">
               {activity.description}
             </RichText>
           ) : null}
@@ -161,8 +166,10 @@ export function CalendarActivitySheet({
                   />
                 </Pressable>
                 {showVotes && (
-                  <SheetScrollArea>
-                  <ScrollView className="mt-sm" style={{ maxHeight: 140 }}>
+                  // Plain nested ScrollView, not its own SheetScrollArea — the body is already the
+                  // single outermost scrollable wrapped below; RN's standard nested-scroll handling
+                  // (not RNGH) is enough for this inner, height-capped list.
+                  <ScrollView className="mt-sm" style={{ maxHeight: 140 }} nestedScrollEnabled>
                     {voterDetails.map((v, i) => (
                       <View key={i} className="flex-row items-center gap-sm py-xs">
                         <VoteIcon vote={v.vote} />
@@ -170,13 +177,14 @@ export function CalendarActivitySheet({
                       </View>
                     ))}
                   </ScrollView>
-                  </SheetScrollArea>
                 )}
               </View>
             ) : (
               <Text className="text-body-small text-text-muted">{t('noVotes')}</Text>
             )}
           </View>
+          </ScrollView>
+          </SheetScrollArea>
 
           {/* Action buttons */}
           <View className="flex-row gap-sm">

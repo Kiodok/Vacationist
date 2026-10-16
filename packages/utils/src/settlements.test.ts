@@ -313,11 +313,11 @@ describe('isExpenseFullySettled', () => {
     expect(isExpenseFullySettled(splits, 'payer')).toBe(false);
   });
 
-  it('returns false when only payer split exists (self-pay)', () => {
+  it('returns true when only payer split exists (self-pay — personal tracking, nothing to settle)', () => {
     const splits = [
       { user_id: 'payer', status: 'settled' },
     ];
-    expect(isExpenseFullySettled(splits, 'payer')).toBe(false);
+    expect(isExpenseFullySettled(splits, 'payer')).toBe(true);
   });
 
   it('handles payer status irrelevant to result', () => {
@@ -332,8 +332,8 @@ describe('isExpenseFullySettled', () => {
     expect(isExpenseFullySettled([], 'payer')).toBe(false);
   });
 
-  it('returns false when only payer split exists (self-pay edge case)', () => {
-    expect(isExpenseFullySettled([{ user_id: 'payer', status: 'open' }], 'payer')).toBe(false);
+  it('ignores the payer split\'s own status (self-pay — no non-payer split to check)', () => {
+    expect(isExpenseFullySettled([{ user_id: 'payer', status: 'open' }], 'payer')).toBe(true);
   });
 
   it('returns true when single non-payer split is settled', () => {

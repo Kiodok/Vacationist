@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSharedValue } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
@@ -14,6 +15,14 @@ type SelectableSplitMethod = Exclude<ExpenseSplitMethod, 'cover'>;
 const SELECTABLE_SPLIT_METHODS = EXPENSE_SPLIT_METHOD.filter(
   (m): m is SelectableSplitMethod => m !== 'cover',
 );
+
+// Floating local digits (no timezone conversion), matching DateTimePickerField's own
+// toDateString/toTimeString — the device's current wall-clock date/time as typed, not a UTC instant.
+function nowAsLocalDateTimeString(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 import type { TripMemberWithUser } from '@vacationist/api';
 import { formatCurrency, roundCurrency, sanitizeDecimalInput, evenExactShares, sumExactAmounts, isExactSplitBalanced } from '@vacationist/utils';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
@@ -25,6 +34,7 @@ import { useToastStore } from '../../../stores/toastStore';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
+import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { StagedDocumentsField } from './StagedDocumentsField';
 import { useExpenseCategoryLabels } from '../hooks/useExpenseCategoryLabels';
 import type { PickedDocumentFile } from '../../../utils/documentPicker';
@@ -116,7 +126,9 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
   const { data: currencies } = useCurrencies();
   const { convert, ratesAsOf } = useCurrencyConversion();
 
-  const { control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<CreateExpenseInput>({
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const { control, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<CreateExpenseInput>({
     resolver: zodResolver(createExpenseSchema),
     defaultValues: {
       title: prefill?.title ?? '',
@@ -126,6 +138,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
       related_type: prefill?.relatedType ?? 'manual',
       split_method: 'even',
       splits: allMemberIds.map((id) => ({ user_id: id })),
+      created_at: nowAsLocalDateTimeString(),
     },
   });
 
@@ -214,6 +227,9 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const resetForm = () => {
     reset();
+    // reset() restores the mount-time default, which would otherwise leave created_at stuck at
+    // whenever this sheet was first opened across multiple adds in the same screen visit.
+    setValue('created_at', nowAsLocalDateTimeString());
     setAmountText('');
     setTipText('');
     setSelectedMembers(new Set(allMemberIds));
@@ -228,14 +244,39 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     onClose();
   };
 
+  // Guards the swipe gesture, the backdrop tap and the header Cancel button (all three route
+  // through this one handler) against silently discarding a half-filled form — RHF's isDirty
+  // misses the two fields that live in plain local state rather than a Controller.
+  const hasUnsavedInput = isDirty || tipText.length > 0 || stagedFiles.length > 0;
+  const requestClose = () => {
+    if (hasUnsavedInput) setShowDiscardConfirm(true);
+    else handleClose();
+  };
+  const confirmDiscard = () => {
+    setShowDiscardConfirm(false);
+    handleClose();
+  };
+  const cancelDiscard = () => setShowDiscardConfirm(false);
+
+  // Mirrors hasUnsavedInput into a SharedValue so SwipeToDismiss's gesture worklet can read it
+  // synchronously on the UI thread — without this, a swipe-dismiss on a dirty form slid the panel
+  // fully off-screen before discovering requestClose wasn't going to actually close it, leaving
+  // the sheet invisible and stuck (v1.39.6 manual-QA fix).
+  const dismissGuard = useSharedValue(false);
+  useEffect(() => {
+    dismissGuard.value = hasUnsavedInput;
+  }, [hasUnsavedInput, dismissGuard]);
+
   const canSubmit = !isPending && canConvert && exactBalanced;
   const onInvalid = () => useToastStore.getState().addToast('error', t('toast.checkForm'));
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
       <SwipeToDismiss
-        onDismiss={handleClose}
+        onDismiss={requestClose}
+        dismissGuard={dismissGuard}
+        onDismissBlocked={() => setShowDiscardConfirm(true)}
         className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
         style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
       >
@@ -243,9 +284,31 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
+          {showDiscardConfirm ? (
+            <View className="rounded-md border border-danger p-md gap-sm mb-md">
+              <Text className="text-body-small text-text-secondary text-center">
+                {t('confirm.discardChanges')}
+              </Text>
+              <View className="flex-row gap-sm">
+                <Pressable
+                  onPress={cancelDiscard}
+                  className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
+                >
+                  <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
+                </Pressable>
+                <Pressable
+                  onPress={confirmDiscard}
+                  className="flex-1 min-h-[44px] rounded-md bg-danger items-center justify-center"
+                >
+                  <Text className="text-body text-white font-semibold">{t('confirm.discardYes')}</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+          <>
           <View className="flex-row items-center justify-between mb-md">
             <Text className="text-heading-m text-text-primary">{t('create.title')}</Text>
-            <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+            <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
@@ -279,6 +342,45 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
                   )}
                 />
                 {errors.title && <Text className="text-danger text-body-small">{errors.title.message}</Text>}
+              </View>
+
+              {/* Date + time of creation — editable; defaults to now */}
+              <View className="gap-xs">
+                <Text className="text-label text-text-muted uppercase">{t('field.createdAt')}</Text>
+                <View className="flex-row gap-sm">
+                  <View className="flex-1">
+                    <Controller
+                      control={control}
+                      name="created_at"
+                      render={({ field: { onChange, value } }) => (
+                        <DateTimePickerField
+                          mode="date"
+                          value={value ? value.split('T')[0] : null}
+                          onChange={(date) => {
+                            const time = value?.split('T')[1] ?? '00:00';
+                            onChange(date ? `${date}T${time}` : null);
+                          }}
+                        />
+                      )}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Controller
+                      control={control}
+                      name="created_at"
+                      render={({ field: { onChange, value } }) => (
+                        <DateTimePickerField
+                          mode="time"
+                          value={value ? value.split('T')[1] : null}
+                          onChange={(time) => {
+                            const date = value?.split('T')[0] ?? null;
+                            onChange(date && time ? `${date}T${time}` : null);
+                          }}
+                        />
+                      )}
+                    />
+                  </View>
+                </View>
               </View>
 
               {/* Description */}
@@ -603,6 +705,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
             </View>
           </ScrollView>
           </SheetScrollArea>
+          </>
+          )}
       </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

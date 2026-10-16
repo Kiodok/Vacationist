@@ -1865,6 +1865,7 @@ export type Database = {
           file_name: string
           flight_id: string | null
           id: string
+          leg: string
           mime_type: string
           public_transport_id: string | null
           storage_path: string
@@ -1878,6 +1879,7 @@ export type Database = {
           file_name: string
           flight_id?: string | null
           id?: string
+          leg?: string
           mime_type: string
           public_transport_id?: string | null
           storage_path: string
@@ -1891,6 +1893,7 @@ export type Database = {
           file_name?: string
           flight_id?: string | null
           id?: string
+          leg?: string
           mime_type?: string
           public_transport_id?: string | null
           storage_path?: string
@@ -2943,6 +2946,7 @@ export type Database = {
       create_expense_with_splits: {
         Args: {
           p_amount: number
+          p_created_at?: string
           p_currency: string
           p_description?: string
           p_id?: string
@@ -3308,6 +3312,7 @@ export type Database = {
       }
       update_expense_metadata: {
         Args: {
+          p_created_at?: string
           p_description: string
           p_expense_id: string
           p_is_business: boolean
@@ -3319,6 +3324,7 @@ export type Database = {
       update_expense_with_splits: {
         Args: {
           p_amount: number
+          p_created_at?: string
           p_currency?: string
           p_description?: string
           p_expense_id: string

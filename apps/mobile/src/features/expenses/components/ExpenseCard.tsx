@@ -1,7 +1,7 @@
 import { Animated, Platform, View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Expense, ExpenseSplit, User, Currency } from '@vacationist/types';
-import { formatCurrency } from '@vacationist/utils';
+import { formatCurrency, formatNaiveTimestamp } from '@vacationist/utils';
 import { colors, METADATA_ICON_COLORS, EXPENSE_CATEGORY_ICON_COLORS, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { useHighlightAnimation } from '../../../hooks/useHighlightAnimation';
 
@@ -26,7 +26,11 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
   const payer = members.get(expense.paid_by);
   const owerSplits = splits.filter((s) => s.user_id !== expense.paid_by);
   const settledCount = owerSplits.filter((s) => s.status === 'settled').length;
-  const allSettled = owerSplits.length > 0 && settledCount === owerSplits.length;
+  // A self-only expense (paid by one person, split only with themselves) has no non-payer splits
+  // at all — personal tracking, not a group debt, so it counts as settled as soon as it has its
+  // one (self-)split, same rule as isExpenseFullySettled.
+  const isSelfOnly = splits.length > 0 && owerSplits.length === 0;
+  const allSettled = isSelfOnly || (owerSplits.length > 0 && settledCount === owerSplits.length);
 
   const mySplit = splits.find((s) => s.user_id === currentUserId);
   const iOwe = mySplit && mySplit.status === 'open' && expense.paid_by !== currentUserId;
@@ -75,6 +79,12 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
                 <Text className="text-body-small text-text-muted">{t('card.pendingSync')}</Text>
               </View>
             )}
+            <View className="flex-row items-center gap-xs">
+              <ThemedIcon name="time-outline" size={13} color={METADATA_ICON_COLORS.time.color} />
+              <Text className="text-body-small text-text-muted">
+                {formatNaiveTimestamp(expense.created_at, 'D MMM, HH:mm')}
+              </Text>
+            </View>
           </View>
           <View className="items-end gap-xs">
             <Text className="text-body text-text-primary font-semibold">
@@ -124,7 +134,9 @@ export function ExpenseCard({ expense, splits, members, currentUserId, currency,
 
 function SettlementBadge({ allSettled, settledCount, totalCount }: { allSettled: boolean; settledCount: number; totalCount: number }) {
   const { t } = useTranslation('expenses');
-  if (totalCount === 0) return null;
+  // totalCount === 0 with allSettled === true is the self-only case (isSelfOnly) — still show the
+  // "Settled" badge. totalCount === 0 with allSettled === false means no splits loaded yet — show nothing.
+  if (totalCount === 0 && !allSettled) return null;
 
   if (allSettled) {
     return (

@@ -119,6 +119,8 @@ export async function createExpense(tripId: string, input: CreateExpenseInput, i
     p_description: input.description ?? '',
     p_is_business: input.is_business ?? false,
     p_tip_amount: input.tip_amount ?? 0,
+    // Floating wall-clock digits, sent as-is (see createExpenseSchema). NULL = RPC defaults to NOW().
+    p_created_at: input.created_at ?? null,
   } as never);
 
   if (error) throw error;
@@ -144,6 +146,8 @@ export async function updateExpenseWithSplits(expenseId: string, input: UpdateEx
     // NULL = keep the stored tip (clamped to the new amount). The app always sends the field, so an
     // edit that clears the tip sends 0 explicitly rather than relying on this sentinel.
     p_tip_amount: input.tip_amount ?? null,
+    // Floating wall-clock digits, sent as-is. NULL = keep the stored value.
+    p_created_at: input.created_at ?? null,
   });
 
   if (error) throw error;
@@ -164,6 +168,8 @@ export async function updateExpenseMetadata(expenseId: string, input: UpdateExpe
     p_description: input.description ?? '',
     p_related_type: input.related_type ?? null,
     p_is_business: input.is_business ?? null,
+    // Floating wall-clock digits, sent as-is. NULL = keep the stored value.
+    p_created_at: input.created_at ?? null,
   });
 
   if (error) throw error;

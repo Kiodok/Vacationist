@@ -1960,3 +1960,71 @@ of any of this** — web/desktop only.
   (Chrome + Firefox, all four themes).
 - [x] Migrations applied dev → prod (ledger parity 250/250).
 - [ ] `eas update` for the client change.
+
+---
+
+## 🧳 Phase 21.2: Six-item polish batch (v1.39.6)
+
+**Mixed PATCH — one native-build-free client change set + two migrations, one of which must land
+on prod in the same push as the client (not ahead of it, unlike task 6's).**
+
+- [x] **Task 1 — round-trip flight ticket legs.** `transfer_documents` gained a `leg` discriminator
+  (`'outbound' | 'return'`, defaulting to `'outbound'` for every existing ticket) and its unique
+  key widened to `(flight_id, user_id, leg)`, so a round-trip ("outbound-return") flight can now
+  carry separate outbound and return tickets instead of one slot covering both legs. Migration
+  `20261014110000_transfer_document_leg.sql` — **applied to dev only, deliberately not prod** (see
+  `engineering/supabase.md`'s entry for why: it isn't safely deployable ahead of the client
+  commit). `FlightTicketsSection.tsx` now renders two `<TicketsSection>` instances (labeled
+  "Outbound ticket" / "Return ticket") for a round-trip flight, one otherwise, unchanged.
+- [x] **Task 2 — descriptions easier to scroll.** Two root causes fixed: `CalendarActivitySheet.tsx`
+  had no scroll container around its body at all (a long activity description was simply clipped);
+  and the full-body `RichText` in `ViewNoteSheet.tsx` (Trip Notes — the reported example) and
+  `CalendarActivitySheet.tsx` was `selectable`, which competes with `SheetScrollArea`'s scroll
+  gesture for the initial touch and can let the sheet's own swipe-to-dismiss pan win instead of
+  scrolling — same mechanism `VehicleCard.tsx` already worked around for its own notes field.
+  Both description views are now non-selectable, matching that precedent.
+- [x] **Task 3 — self-paid, self-split expenses auto-complete.** `isExpenseFullySettled()`
+  (`packages/utils/src/settlements.ts`) required at least one non-payer split to ever return
+  `true`, so a personal-tracking expense (paid by one person, split only with themselves) sat in
+  "Active" forever with no settled badge — even though the DB already stores that lone split as
+  `status = 'settled'` by construction. Fixed client-only: zero non-payer splits now counts as
+  settled. `ExpenseCard.tsx`'s settled badge updated to match.
+- [x] **Task 4 — Expense sheets resist accidental swipe-dismiss.** `CreateExpenseSheet.tsx` and
+  `EditExpenseSheet.tsx` (the only two sheets this was reported against) now show an inline
+  "Discard changes?" confirm before closing whenever the form has unsaved input — covers the swipe
+  gesture, the backdrop tap, and the header close button, since all three already route through one
+  handler. Fixed in passing: `EditExpenseSheet.tsx` previously passed the raw `onClose` straight to
+  `SwipeToDismiss`, unlike every other sheet in the app.
+- [x] **Task 5 — expenses no longer disappear on a flaky connection.** Root cause: with
+  `networkMode: 'offlineFirst'`, a mutation only pauses (queues, persists, protected from rollback)
+  when `onlineManager` believes the device is offline — a weak connection where NetInfo still
+  reports "online" but requests keep failing exhausted the flat `retry: 3` and rolled back the
+  optimistic row via `onError`, with no safety net. New `isNetworkError()` classifier
+  (`errorClassification.ts`) plus a `mutationRetry` function (`queryClient.ts`) that flips
+  `onlineManager` offline the moment a network-shaped failure is observed — pausing the mutation on
+  its next retry attempt instead of letting it exhaust and error out. `useCreateExpense`'s `onError`
+  additionally never rolls back the optimistic row for a network-shaped error, as a defense-in-depth
+  backstop for the race where that correction hasn't landed yet. Benefits every persisted mutation
+  in the app, not just expenses.
+- [x] **Task 6 — expense creation timestamp, shown and editable.** `expenses.created_at` already
+  existed but had no RPC parameter, no UI field, and no display. Migration
+  `20261014100000_expense_created_at_editable.sql` adds a trailing `p_created_at` to all three
+  expense-writing RPCs (pure append, fully backward compatible) — **applied dev + prod**. The
+  Create/Edit Expense sheets gained a date+time field (reusing `DateTimePickerField`, same
+  combined-string pattern as a flight's departure time), always editable even once money fields
+  lock on a settled expense (it goes through `update_expense_metadata`, which never touches
+  `expense_splits`). `ExpenseCard.tsx` shows the date via `formatNaiveTimestamp` — the existing
+  floating-wall-clock display helper, same as transfer flights.
+- [x] Found and fixed in passing (pre-existing, not introduced this session): the marketing site's
+  `APP_VERSION` constant (`marketing/site/build.mjs`) was still `1.39.5` against an already-bumped
+  `apps/mobile/app.config.ts` `1.39.6` — the same drift pattern documented for v1.39.4. Bumped and
+  rebuilt (`npm run build:site`, verified idempotent on a second run).
+- [x] `npm run typecheck` 0; `npm test` green throughout (utils settlements 38/38 incl. 2 flipped
+  expectations for task 3, mobile 249 incl. 4 new `isNetworkError` cases for task 5, api 30, site
+  suite including the version-drift check).
+- [ ] **Not browser-verified this session** — no Chrome session connected. Still to check: all four
+  themes for the new date/time field, the discard-confirm bar, and the per-leg ticket headings; the
+  round-trip ticket upload flow end-to-end; the Trip Notes scroll fix feel on a real long note.
+- [ ] Task 1's migration must land on prod in the **same push** as this client commit (see above) —
+  do not push it to prod standalone ahead of time.
+- [ ] `eas update` for the client change once committed (PATCH-shaped, no native module touched).

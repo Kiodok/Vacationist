@@ -509,6 +509,10 @@ export interface TransferDocument {
   storage_path: string;
   file_name: string;
   mime_type: string;
+  /** v1.39.6: which leg this ticket covers. Always `'outbound'` for a one-way flight or a
+   * public-transport-parented row (no leg concept there); `'return'` only valid when the parent
+   * flight's `direction` is `'outbound-return'` — enforced by `set_transfer_document_trip_id`. */
+  leg: 'outbound' | 'return';
   created_at: string;
   updated_at: string;
 }

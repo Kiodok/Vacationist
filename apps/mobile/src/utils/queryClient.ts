@@ -2,8 +2,35 @@ import { QueryClient, onlineManager } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
 import { useToastStore } from '../stores/toastStore';
 import { i18n } from '@vacationist/i18n';
-import { isExpectedMutationError } from './errorClassification';
+import { isExpectedMutationError, isNetworkError } from './errorClassification';
 import { handleQueuedFailure } from './queuedFailure';
+
+/**
+ * v1.39.6: a weak/flaky connection where NetInfo still reports the device "online" (so
+ * `networkMode: 'offlineFirst'` never pauses the mutation — pausing is the only thing that
+ * persists it to the offline queue, survives an app kill, and protects it from rollback) but
+ * individual requests keep failing used to exhaust the flat `retry: 3` and land in a genuine
+ * terminal `error` state — never queued, never retried again, and rolled back by the mutation's
+ * own `onError` (the "expenses disappear completely" report).
+ *
+ * Fix: an observed network-shaped failure is itself treated as stronger evidence than the OS's
+ * last-known connectivity state — `onlineManager` is flipped offline right here, so TanStack's own
+ * `canFetch` check (run before every retry attempt) pauses the mutation on its very next attempt
+ * instead of actually re-firing the request and burning down the retry budget. The existing
+ * `NetworkProvider` NetInfo listener corrects this back to online the next time it observes real
+ * connectivity (a state-change event, or the OS's own periodic reachability re-check), which is
+ * also what resumes every paused mutation via `refreshAndResumeMutations`. The capped retry count
+ * below is a safety net for the rare race where this fires before that correction lands, not the
+ * primary mechanism — a real server-side rejection (a business rule, a permission denial) is never
+ * network-shaped and always fails fast instead.
+ */
+function mutationRetry(failureCount: number, error: unknown): boolean {
+  if (isNetworkError(error)) {
+    onlineManager.setOnline(false);
+    return failureCount < 10;
+  }
+  return false;
+}
 
 // Keys whose mutations are persisted to MMKV and replayed on reconnect.
 // Only include mutations where every needed variable lives in the variables
@@ -148,7 +175,7 @@ export const queryClient = new QueryClient({
       networkMode: 'offlineFirst',
     },
     mutations: {
-      retry: 3,
+      retry: mutationRetry,
       networkMode: 'offlineFirst',
     },
   },
