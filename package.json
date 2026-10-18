@@ -38,7 +38,9 @@
     "ratings:sync": "node scripts/fetch-store-ratings.mjs",
     "screenshots:ios": "node scripts/generate-ios-screenshots.mjs",
     "screenshots:web": "node scripts/generate-web-screenshots.mjs",
-    "assets:producthunt": "node scripts/generate-producthunt-assets.mjs"
+    "assets:producthunt": "node scripts/generate-producthunt-assets.mjs",
+    "assets:appstore": "node scripts/generate-appstore-creative.mjs",
+    "assets:appstore-search": "node scripts/generate-appstore-search-card.mjs"
   },
   "devDependencies": {
     "@google-cloud/storage": "^8.2.0",
