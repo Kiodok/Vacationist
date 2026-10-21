@@ -75,6 +75,9 @@ export default function ExpensesTab() {
   );
   const { data: members = [] } = useTripMembers(tripId!);
   const { data: role } = useCurrentMemberRole(tripId!);
+  // settle_all_expenses is organizer-only server-side (security fix, 2026-10-21) — mirror that
+  // here so non-organizers never see a "Settle all" button that would just 403.
+  const canSettleAll = role === 'organizer';
   const { data: balances = [] } = useTripBalances(tripId!);
   const { data: settlementReceipts = [], isLoading: isLoadingReceipts } = useSettlementReceipts(tripId!);
   const createExpense = useCreateExpense();
@@ -576,7 +579,7 @@ export default function ExpensesTab() {
           tripId={tripId!}
           tripTitle={trip?.title ?? ''}
           currentUserId={user?.id}
-          onSettleAllExpenses={() => {
+          onSettleAllExpenses={canSettleAll ? () => {
             if (settleAllPending) return;
             // Close BEFORE mutate() (offline-ux convention). This used to keep the modal open and
             // reset a ref from a per-call `onSettled` — which never fires for a mutation paused
@@ -586,7 +589,7 @@ export default function ExpensesTab() {
             // The persisted queue accepts this silently; without a toast an offline user gets no
             // confirmation at all (the bottom "N changes" counter is gone).
             if (isConnected === false) addToast('success', t('toast.settleAllQueued'));
-          }}
+          } : undefined}
           isSettlingAll={settleAllPending}
           receipts={settlementReceipts}
           isLoadingReceipts={isLoadingReceipts}

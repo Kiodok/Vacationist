@@ -1,6 +1,74 @@
 # Supabase Changes Log
 
-## 2026-10-16 (latest) — v1.39.6 task 1: round-trip ticket legs re-applied to prod (release-synced)
+## 2026-10-21 (latest) — Security hardening batch: 4 findings from the full-codebase security review (4 migrations)
+
+A whole-app/infrastructure security review (not a diff review — three discovery agents scanned
+migrations, Edge Functions, and the client layer, each candidate finding independently
+re-verified) surfaced four currently-live, exploitable issues. All four are pure
+authorization-tightening with no schema/column shape changes — `database.types.ts` regenerated
+from both dev and prod produces a zero-line diff in both directions. Applied to dev, verified,
+then applied to prod, then re-linked to dev, same session.
+
+1. **`20261021100000_harden_settle_all_authz.sql` — HIGH.** `settle_all_expenses` and
+   `settle_all_for_pair` only checked `private.is_trip_member`, so any trip member (including a
+   debtor) could mark the whole trip's balances "settled" with zero consent from the real
+   creditor. `settle_all_expenses` settles every pair in the trip at once, so "caller is a party"
+   doesn't apply — tightened to organizer-only (`private.is_trip_organizer`, any organizer, not
+   just the creator — matches `settle_expense_split`'s own fallback). `settle_all_for_pair` is
+   scoped to one debtor/creditor pair — currently unreachable from the app UI (no `packages/api`
+   wrapper exists), kept per an earlier decision recorded in this log rather than removed, now
+   hardened to the exact `settle_expense_split` pattern (caller must be the debtor, the creditor,
+   or an organizer). **App layer (same commit):** `apps/mobile/app/trip/[id]/expenses.tsx` gained
+   `canSettleAll = role === 'organizer'`, gating `onSettleAllExpenses` so the "Settle all" button
+   in `SettlementsModal` disappears for non-organizers instead of 403ing.
+2. **`20261021110000_narrow_users_select_policy.sql` — HIGH.** `public.users`' SELECT policy was
+   `USING (true)` — any authenticated session (including a disposable anonymous guest from the
+   `/join` screen's guest flow, reachable even without redeeming a valid invite token first) could
+   read every user's email address via a direct REST call. Narrowed via a new
+   `private.shares_trip_with(p_user_id)` helper to: self, the `00000000-...` "Deleted User"
+   sentinel (needed so `expenses.ts`'s `payer`/`split_user` embeds keep resolving a deleted
+   account's display name — the sentinel has no `trip_members` row), or anyone who shares a trip.
+   Confirmed safe via an exhaustive read of every `public.users` consumer — no live feature reads
+   a user who is neither self nor a co-trip-member; the only arbitrary-id readers
+   (`getUserProfile`/`getUsersByIds`) have zero call sites today.
+3. **`20261021120000_require_secret_for_example_trip_trigger.sql` — MEDIUM.**
+   `create-example-trip` is deployed with `--no-verify-jwt` and the Edge Function itself performed
+   no caller authentication at all, trusting a client-supplied `user_id` — any internet caller
+   could POST an arbitrary `user_id` and seed a fake demo trip (fake expenses, fake chat messages)
+   onto a victim's account. Added a shared-secret `Authorization: Bearer` header, mirroring
+   `private.trigger_fetch_exchange_rates()` (`20260809100008`) and the Edge Function checked it
+   with the same `constantTimeEqual` helper `push-notification/index.ts` uses. New vault secret
+   `example_trip_secret` (dev + prod, different values) read by `private.trigger_create_example_trip()`;
+   new Edge Function secret `CREATE_EXAMPLE_TRIP_SECRET` (same value as the vault secret, per env).
+   Rollout order avoided any gap in demo-trip seeding: create the secret → push the migration
+   (trigger starts sending the header; the still-old function version ignores it harmlessly) →
+   redeploy the function (now enforces it). Verified on both envs: an unauthenticated POST to the
+   function's public URL now returns `401`; a POST with the correct Bearer secret passes the gate
+   (confirmed via a deliberately-invalid `user_id` that fails downstream on the `trips.created_by`
+   FK with a clean `500` and no partial writes, rather than risking a real seeded trip in the test).
+4. **`20261021130000_require_trip_membership_on_document_storage.sql` — MEDIUM.** The storage RLS
+   self-upload branch for `expense-documents`/`transfer-documents`/`activity-documents` never
+   checked trip membership on the trip-id path segment — only that the leaf user-id segment
+   matched `auth.uid()` — so any authenticated user (member of zero trips, or a different trip)
+   could write an object into an arbitrary trip's storage namespace. Bounded impact confirmed
+   during the review (the matching metadata tables already check trip membership, so a forged
+   object can never surface as a legitimate document, and UPDATE/DELETE can only ever touch
+   objects the attacker planted themselves) but a real cross-tenant write with zero prerequisites.
+   Added `private.is_trip_member(((storage.foldername(name))[1])::uuid, auth.uid())` as an
+   additional `AND` on all 9 INSERT/UPDATE/DELETE policies across the three buckets (SELECT
+   policies already had this check). First migration in this repo to `DROP POLICY`/recreate a
+   `storage.objects` policy — always qualified `ON storage.objects` since same-named table-level
+   policies also exist on the matching `public.*_documents` tables in the same original files.
+
+`npm run typecheck` / `npm test` green throughout (236 utils + 30 api + 250 mobile + the marketing
+site's own suite). Two findings surfaced by the same review were investigated and **not** acted
+on: a missing client-side `https://`-only check on two Transfer card components turned out to be
+fully covered by an existing DB-level `CHECK (external_url LIKE 'https://%')` constraint on every
+relevant table (no real bypass path), and the Turnstile WebView's `originWhitelist` laxness
+requires an unproven secondary compromise to matter (no attacker-influenced input reaches it
+anywhere in the app).
+
+## 2026-10-16 — v1.39.6 task 1: round-trip ticket legs re-applied to prod (release-synced)
 
 New migration `20261016100000_transfer_document_leg_prod.sql`, body byte-identical to
 `20261014110000_transfer_document_leg.sql`. Re-applies the `leg` column + widened unique key +

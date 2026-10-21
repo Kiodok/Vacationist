@@ -17,9 +17,31 @@ function logIfError(step: string, error: { message: string } | null): void {
   if (error) console.error(`[create-example-trip] step "${step}" failed:`, error.message);
 }
 
+// Constant-time string comparison — same helper as push-notification/index.ts, prevents a
+// timing oracle on the shared secret.
+function constantTimeEqual(a: string, b: string): boolean {
+  const enc = new TextEncoder();
+  const ab = enc.encode(a);
+  const bb = enc.encode(b);
+  if (ab.length !== bb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
+  return diff === 0;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
+  }
+
+  // This function is meant to be called only by private.trigger_create_example_trip()
+  // (server-to-server, via pg_net) — not by any mobile/web client. Require the same
+  // shared-secret Bearer header fetch-exchange-rates/push-notification use, since
+  // verify_jwt=false here means the platform does no caller check at all otherwise.
+  const authHeader = req.headers.get('Authorization');
+  const exampleTripSecret = Deno.env.get('CREATE_EXAMPLE_TRIP_SECRET');
+  if (!authHeader || !exampleTripSecret || !constantTimeEqual(authHeader, `Bearer ${exampleTripSecret}`)) {
+    return new Response('Unauthorized', { status: 401 });
   }
 
   let userId: string;
