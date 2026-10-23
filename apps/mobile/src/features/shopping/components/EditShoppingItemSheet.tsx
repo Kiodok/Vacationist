@@ -9,6 +9,8 @@ import { sanitizeDecimalInput } from '@vacationist/utils';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface EditShoppingItemSheetProps {
   visible: boolean;
@@ -36,12 +38,11 @@ export function EditShoppingItemSheet({
   const { t: tCommon } = useTranslation('common');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
-  const [quantityText, setQuantityText] = useState(
-    item.quantity != null ? String(item.quantity) : '',
-  );
+  const initialQuantityText = item.quantity != null ? String(item.quantity) : '';
+  const [quantityText, setQuantityText] = useState(initialQuantityText);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const { control, handleSubmit, formState: { errors } } = useForm<UpdateShoppingItemInput>({
+  const { control, handleSubmit, formState: { errors, isDirty } } = useForm<UpdateShoppingItemInput>({
     resolver: zodResolver(updateShoppingItemSchema),
     defaultValues: {
       title: item.title,
@@ -56,11 +57,17 @@ export function EditShoppingItemSheet({
     onSubmit(data);
   };
 
+  // This sheet unmounts entirely when its parent closes it (editingItem && <.../>), so there's no
+  // stale-dirty-across-opens risk — no local reset needed beyond the raw onClose.
+  const hasUnsavedInput = isDirty || quantityText !== initialQuantityText;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
       <SwipeToDismiss
-          onDismiss={onClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           // +16 over the standard sheet padding: this sheet ends in a full-width Delete button that sat too close to the system bar.
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
@@ -69,11 +76,15 @@ export function EditShoppingItemSheet({
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
+          {discardConfirmVisible ? (
+            <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+          ) : (
+          <>
           <View className="flex-row items-center justify-between mb-md">
             <Text className="text-heading-m text-text-primary">
               {canEdit ? 'Edit Item' : 'Item Details'}
             </Text>
-            <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+            <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">Close</Text>
             </Pressable>
           </View>
@@ -219,6 +230,8 @@ export function EditShoppingItemSheet({
             </View>
           </ScrollView>
             </SheetScrollArea>
+          </>
+          )}
         </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

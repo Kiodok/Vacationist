@@ -16,6 +16,9 @@ import { updatePreworkTopicSchema, type UpdatePreworkTopicInput, type PreworkTop
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
+import { sameMembers } from '../../../utils/sheetDirty';
 
 interface EditTopicSheetProps {
   topic: PreworkTopic | null;
@@ -48,6 +51,13 @@ export function EditTopicSheet({
   const [labelInput, setLabelInput] = useState('');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
+  // Snapshot of the prefilled values, captured alongside them — compared against below to tell
+  // an actual edit apart from the sheet simply being open (same pattern as EditExpenseSheet's
+  // initialTipText).
+  const [initialTitle, setInitialTitle] = useState('');
+  const [initialDescription, setInitialDescription] = useState('');
+  const [initialSeededLabels, setInitialSeededLabels] = useState<string[]>([]);
+
   useEffect(() => {
     if (visible && topic) {
       setTitle(topic.title);
@@ -55,6 +65,9 @@ export function EditTopicSheet({
       setSeededLabels(topic.seeded_labels ?? []);
       setLabelInput('');
       setConfirmingDelete(false);
+      setInitialTitle(topic.title);
+      setInitialDescription(topic.description ?? '');
+      setInitialSeededLabels(topic.seeded_labels ?? []);
     }
   }, [visible, topic]);
 
@@ -92,11 +105,20 @@ export function EditTopicSheet({
     onClose();
   };
 
+  // confirmingDelete is a presentational toggle, not unsaved content.
+  const hasUnsavedInput =
+    title !== initialTitle ||
+    description !== initialDescription ||
+    !sameMembers(seededLabels, initialSeededLabels) ||
+    labelInput.length > 0;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -104,9 +126,13 @@ export function EditTopicSheet({
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('topic.editTitle')}</Text>
-              <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -242,6 +268,8 @@ export function EditTopicSheet({
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

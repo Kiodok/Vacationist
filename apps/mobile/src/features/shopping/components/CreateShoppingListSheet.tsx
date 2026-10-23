@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { createShoppingListSchema, type CreateShoppingListInput } from '@vacationist/types';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface CreateShoppingListSheetProps {
   visible: boolean;
@@ -20,7 +22,7 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
   const { t: tCommon } = useTranslation("common");
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<CreateShoppingListInput>({
+  const { control, handleSubmit, reset, formState: { errors, isDirty } } = useForm<CreateShoppingListInput>({
     resolver: zodResolver(createShoppingListSchema),
     defaultValues: { title: '' },
   });
@@ -28,6 +30,7 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
   const onValid = (data: CreateShoppingListInput) => {
     Keyboard.dismiss();
     onSubmit(data);
+    reset();
   };
 
   const handleClose = () => {
@@ -35,11 +38,15 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
     onClose();
   };
 
+  const hasUnsavedInput = isDirty;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
       <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -47,9 +54,13 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
+          {discardConfirmVisible ? (
+            <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+          ) : (
+          <>
           <View className="flex-row items-center justify-between mb-md">
             <Text className="text-heading-m text-text-primary">{tCommon('button.add')}</Text>
-            <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+            <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
@@ -89,6 +100,8 @@ export function CreateShoppingListSheet({ visible, onClose, onSubmit, isPending 
               </Text>
             </Pressable>
           </View>
+          </>
+          )}
         </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

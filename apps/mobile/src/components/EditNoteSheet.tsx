@@ -9,6 +9,8 @@ import { noteContentSchema, type NoteContentInput } from '@vacationist/types';
 import type { NoteSheetNamespace } from './CreateNoteSheet';
 import { SwipeToDismiss } from './SwipeToDismiss';
 import { SheetScrollArea } from './SheetScrollArea';
+import { DiscardConfirmBar } from './DiscardConfirmBar';
+import { useDiscardGuard } from '../hooks/useDiscardGuard';
 
 // Shared edit sheet for entity-scoped notes (activity + accommodation notes),
 // including the owner/organizer delete flow with inline confirmation.
@@ -42,7 +44,7 @@ export function EditNoteSheet({
   const isColorful = theme === 'colorful';
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<NoteContentInput>({
+  const { control, handleSubmit, reset, formState: { errors, isDirty } } = useForm<NoteContentInput>({
     resolver: zodResolver(noteContentSchema),
     defaultValues: { content: note.content },
   });
@@ -58,11 +60,15 @@ export function EditNoteSheet({
     onClose();
   };
 
+  // confirmDelete is a presentational toggle (which inline UI is showing), not unsaved content.
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput: isDirty, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -70,9 +76,13 @@ export function EditNoteSheet({
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('edit.title')}</Text>
-              <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -158,6 +168,8 @@ export function EditNoteSheet({
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

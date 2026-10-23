@@ -10,6 +10,8 @@ import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 const DOCUMENT_LABELS: Record<string, string> = {
   passport: 'Passport',
@@ -36,7 +38,7 @@ export function EditTravelDocumentSheet({
   const { t: tCommon } = useTranslation('common');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpsertTravelDocumentInput>({
+  const { control, handleSubmit, reset, formState: { errors, isDirty } } = useForm<UpsertTravelDocumentInput>({
     resolver: zodResolver(upsertTravelDocumentSchema),
   });
 
@@ -67,11 +69,14 @@ export function EditTravelDocumentSheet({
     onClose();
   };
 
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput: isDirty, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -79,11 +84,15 @@ export function EditTravelDocumentSheet({
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-lg">
               <Text className="text-heading-m text-text-primary font-semibold">
                 Edit {DOCUMENT_LABELS[document.document_type]}
               </Text>
-              <Pressable onPress={handleClose} hitSlop={12}>
+              <Pressable onPress={requestClose} hitSlop={12}>
                 <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -241,6 +250,8 @@ export function EditTravelDocumentSheet({
                 {isPending ? tCommon('label.saving') : tCommon('button.save')}
               </Text>
             </Pressable>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

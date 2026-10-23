@@ -56,5 +56,7 @@
   "captcha.error": "Security check failed. Please reload and try again.",
   "captcha.verifying": "Verifying you are human…",
   "option.none": "None",
-  "quickAction.addExpense": "Add Expense"
+  "quickAction.addExpense": "Add Expense",
+  "confirm.discardChanges": "Discard changes? Anything you entered will be lost.",
+  "confirm.discardYes": "Discard"
 }

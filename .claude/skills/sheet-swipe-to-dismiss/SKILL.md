@@ -97,3 +97,8 @@ cascades to "every route missing default export" + "No QueryClient set". No code
 
 Related: [[v1-37-3-batch]], [[offline-ux-patterns]], [[horizontal-scrollview-height]],
 [[pressable-flex-android]], [[no-branches-main-only]].
+
+**If the sheet also collects a discardable draft** (a Create/Edit form, a multi-select with its
+own Confirm button), it needs more than the base gesture — see [[sheet-discard-guard]] for the
+`useDiscardGuard()`/`<DiscardConfirmBar>` pattern that resists accidental closing, rolled out
+app-wide in v1.39.8.

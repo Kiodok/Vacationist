@@ -4,6 +4,8 @@ import { ScrollView } from '@vacationist/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -36,9 +38,18 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
   // This is the UX-side heads-up so the picker never shows a value the server will reject.
   const { data: expensesData } = useExpenses(trip.id);
   const hasExpenses = (expensesData?.pages[0]?.items.length ?? 0) > 0;
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateTripInput>({
+  const { control, handleSubmit, reset, formState: { errors, isDirty } } = useForm<UpdateTripInput>({
     resolver: zodResolver(updateTripSchema),
   });
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  const hasUnsavedInput = isDirty;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
 
   const filteredCurrencies = currencyQuery.trim()
     ? currencies.filter(
@@ -66,10 +77,10 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
   }, [visible, trip]);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={onClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[92%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -78,9 +89,13 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('overview.editTrip')}</Text>
-              <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -280,6 +295,8 @@ export function EditTripSheet({ visible, onClose, onSubmit, isPending, trip }: E
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
         </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

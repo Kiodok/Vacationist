@@ -14,6 +14,12 @@ export const SheetPanGestureContext = createContext<unknown | null>(null);
 
 interface SwipeToDismissProps {
   onDismiss: () => void;
+  /** Native-only (no drag gesture on web to guard) — accepted so callers can spread the same
+   * `swipeProps` from `useDiscardGuard` on both platforms without a Platform branch. Ignored here;
+   * the backdrop tap below already routes through `onDismiss`, which has no animation to get stuck in. */
+  dismissGuard?: unknown;
+  /** Native-only, see `dismissGuard`. */
+  onDismissBlocked?: () => void;
   className?: string;
   style?: StyleProp<ViewStyle>;
   children: ReactNode;

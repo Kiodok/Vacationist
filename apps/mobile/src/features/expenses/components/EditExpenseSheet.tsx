@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useSharedValue } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
@@ -27,6 +26,8 @@ import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { useToastStore } from '../../../stores/toastStore';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 import { ExpenseDocumentsSection } from './ExpenseDocumentsSection';
 import { useExpenseCategoryLabels } from '../hooks/useExpenseCategoryLabels';
 
@@ -120,7 +121,6 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
   const { data: currencies } = useCurrencies();
   const { convert, ratesAsOf } = useCurrencyConversion();
 
-  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const initialTipText = initialTip > 0 ? initialTip.toFixed(2) : '';
 
   const { control, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<UpdateExpenseWithSplitsInput>({
@@ -281,38 +281,17 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
   const canSubmit = hasSettledSplit ? !isPendingMetadata : (!isPending && canConvertCurrency && exactBalanced);
   const onInvalid = () => useToastStore.getState().addToast('error', t('toast.checkForm'));
 
-  // Guards the swipe gesture, the backdrop tap and the header close button (all three route
-  // through this one handler — fixing the previous bug where this sheet passed the raw `onClose`
-  // straight to SwipeToDismiss, unlike every other sheet) against silently discarding an edit in
-  // progress. tipText lives in plain local state rather than a Controller, so RHF's isDirty
-  // alone would miss a tip-only change.
+  // tipText lives in plain local state rather than a Controller, so RHF's isDirty alone would
+  // miss a tip-only change.
   const hasUnsavedInput = isDirty || tipText !== initialTipText;
-  const requestClose = () => {
-    if (hasUnsavedInput) setShowDiscardConfirm(true);
-    else onClose();
-  };
-  const confirmDiscard = () => {
-    setShowDiscardConfirm(false);
-    onClose();
-  };
-  const cancelDiscard = () => setShowDiscardConfirm(false);
-
-  // Mirrors hasUnsavedInput into a SharedValue so SwipeToDismiss's gesture worklet can read it
-  // synchronously on the UI thread — without this, a swipe-dismiss on a dirty form slid the panel
-  // fully off-screen before discovering requestClose wasn't going to actually close it, leaving
-  // the sheet invisible and stuck (v1.39.6 manual-QA fix).
-  const dismissGuard = useSharedValue(false);
-  useEffect(() => {
-    dismissGuard.value = hasUnsavedInput;
-  }, [hasUnsavedInput, dismissGuard]);
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose });
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
       <SwipeToDismiss
-        onDismiss={requestClose}
-        dismissGuard={dismissGuard}
-        onDismissBlocked={() => setShowDiscardConfirm(true)}
+        {...swipeProps}
         className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
         style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
       >
@@ -320,26 +299,8 @@ export function EditExpenseSheet({ visible, onClose, onSubmit, isPending, onSubm
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
-          {showDiscardConfirm ? (
-            <View className="rounded-md border border-danger p-md gap-sm mb-md">
-              <Text className="text-body-small text-text-secondary text-center">
-                {t('confirm.discardChanges')}
-              </Text>
-              <View className="flex-row gap-sm">
-                <Pressable
-                  onPress={cancelDiscard}
-                  className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
-                >
-                  <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
-                </Pressable>
-                <Pressable
-                  onPress={confirmDiscard}
-                  className="flex-1 min-h-[44px] rounded-md bg-danger items-center justify-center"
-                >
-                  <Text className="text-body text-white font-semibold">{t('confirm.discardYes')}</Text>
-                </Pressable>
-              </View>
-            </View>
+          {discardConfirmVisible ? (
+            <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} message={t('confirm.discardChanges')} />
           ) : (
           <>
           <View className="flex-row items-center justify-between mb-xs">

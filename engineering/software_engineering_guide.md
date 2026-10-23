@@ -2362,6 +2362,50 @@ It renders the `flex-1 justify-end` container + scrim + panel and owns the swipe
   (non-dismissible), and the iOS tray in `DateTimePickerField` (the native date wheel owns
   vertical drag).
 
+**Every sheet that collects a discardable draft must resist accidental closing.** If the form has
+unsaved input, closing shows an inline "Discard changes?" bar (replacing the body, panel still
+visible) instead of closing; with no unsaved input, closing stays immediate. Built once as
+`useDiscardGuard()` (`apps/mobile/src/hooks/useDiscardGuard.ts`) +
+`<DiscardConfirmBar>` (`apps/mobile/src/components/DiscardConfirmBar.tsx`), first for
+`CreateExpenseSheet`/`EditExpenseSheet` (v1.39.6) and rolled out to every other input-collecting
+sheet (v1.39.8). Shape:
+
+```tsx
+const hasUnsavedInput = isDirty || priceText !== initialPriceText;   // RHF isDirty + any non-Controller text mirror
+const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+  useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });   // handleClose = the sheet's LOCAL close
+
+<Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
+  <SwipeToDismiss {...swipeProps} className="…" style={…}>
+    <grabber />
+    {discardConfirmVisible ? (
+      <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+    ) : (
+      <>{/* header Cancel -> onPress={requestClose}; body unchanged */}</>
+    )}
+  </SwipeToDismiss>
+</Modal>
+```
+
+- `requestClose` is the ONE handler for all three close surfaces: `Modal.onRequestClose` (Android
+  back button), the header Cancel/X button, and (via `swipeProps`) the swipe-down gesture and
+  backdrop tap inside `<SwipeToDismiss>`. Never let any of the three call the raw `onClose` prop
+  or `handleClose` directly once a sheet has this guard — that reintroduces the exact "half the
+  Edit sheets silently discard on a stray swipe" bug this fixed.
+- **What counts as unsaved input:** `formState.isDirty` covers RHF Controller fields. OR in any
+  local-state text mirror the form has outside a Controller (`priceText`, `costText`,
+  `quantityText`, staged files) compared against its initial value. Exclude purely presentational
+  state (picker-visible flags, a delete-confirm toggle) — flipping a UI mode without typing
+  anything is not lost work. For a non-RHF sheet (plain `useState` form), hand-roll the comparison
+  against each field's empty/initial value; use `sameMembers()`
+  (`apps/mobile/src/utils/sheetDirty.ts`) for an array/Set field.
+- **Not every sheet needs this.** Instant-commit pickers (a tap selects and the result is already
+  applied — `OptionPickerSheet`, `CurrencyPickerSheet`, `CalendarPickerSheet`, `VoteSheet`) and
+  view-only/action-list sheets (`InfoSheet`, `ViewNoteSheet`, `MessageActionsSheet`) have nothing
+  to lose on close — leave them as plain `<SwipeToDismiss onDismiss={onClose}>`. A multi-select
+  sheet with its own explicit Confirm button (`PassengerSelectSheet`) gets the guard keyed on the
+  selection diverging from its initial set, not on every local toggle.
+
 ---
 
 ### Vote Chips

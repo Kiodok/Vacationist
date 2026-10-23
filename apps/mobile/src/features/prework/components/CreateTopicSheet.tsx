@@ -15,6 +15,8 @@ import { createPreworkTopicSchema, type CreatePreworkTopicInput } from '@vacatio
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface CreateTopicSheetProps {
   visible: boolean;
@@ -71,11 +73,17 @@ export function CreateTopicSheet({ visible, onClose, onSubmit, isPending }: Crea
     onClose();
   };
 
+  // No react-hook-form here — hand-rolled against the empty defaults every field starts from.
+  const hasUnsavedInput =
+    title.length > 0 || description.length > 0 || seededLabels.length > 0 || labelInput.length > 0;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -83,9 +91,13 @@ export function CreateTopicSheet({ visible, onClose, onSubmit, isPending }: Crea
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('topic.createTitle')}</Text>
-              <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -181,6 +193,8 @@ export function CreateTopicSheet({ visible, onClose, onSubmit, isPending }: Crea
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

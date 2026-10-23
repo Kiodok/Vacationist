@@ -5,6 +5,9 @@ import type { TripMemberWithUser } from '@vacationist/api';
 import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
+import { sameMembers } from '../../../utils/sheetDirty';
 
 interface PassengerSelectSheetProps {
   visible: boolean;
@@ -67,10 +70,16 @@ export function PassengerSelectSheet({
     onClose();
   };
 
+  // Only the checkbox selection is a discardable draft — driver-toggle switches fire
+  // onDriverToggle as an immediate mutation, not part of this local draft.
+  const hasUnsavedInput = !sameMembers(selected, selectedUserIds);
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[75%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -78,9 +87,13 @@ export function PassengerSelectSheet({
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
+          {discardConfirmVisible ? (
+            <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+          ) : (
+          <>
           <View className="flex-row items-center justify-between mb-md">
             <Text className="text-heading-m text-text-primary">Select Passengers</Text>
-            <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+            <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">Cancel</Text>
             </Pressable>
           </View>
@@ -151,6 +164,8 @@ export function PassengerSelectSheet({
               {isPending ? 'Saving...' : `Confirm (${selected.size})`}
             </Text>
           </Pressable>
+          </>
+          )}
         </SwipeToDismiss>
     </Modal>
   );

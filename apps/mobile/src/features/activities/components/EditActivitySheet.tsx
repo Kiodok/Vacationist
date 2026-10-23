@@ -14,6 +14,8 @@ import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyF
 import { useActivityCurrencyField } from '../../currencies/hooks/useActivityCurrencyField';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface EditActivitySheetProps {
   visible: boolean;
@@ -37,7 +39,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
     [tripStartDate, tripEndDate],
   );
 
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateActivityInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<UpdateActivityInput>({
     resolver: zodResolver(schema),
   });
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
@@ -47,6 +49,7 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
   // parsed number drops a trailing "," or "." the moment it's typed, since parseFloat("116.")
   // rounds to 116 and the display collapses before the fractional digits can be entered.
   const [costText, setCostText] = useState(activity.cost_estimate != null ? String(activity.cost_estimate) : '');
+  const [initialCostText, setInitialCostText] = useState(activity.cost_estimate != null ? String(activity.cost_estimate) : '');
 
   const selectedCurrency = (watch('currency') || activity.currency || currency) as Currency;
   const currencyField = useActivityCurrencyField(selectedCurrency, (code) => setValue('currency', code));
@@ -70,7 +73,9 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
         reservation_required: activity.reservation_required,
         documents_enabled: activity.documents_enabled,
       });
-      setCostText(activity.cost_estimate != null ? String(activity.cost_estimate) : '');
+      const nextCostText = activity.cost_estimate != null ? String(activity.cost_estimate) : '';
+      setCostText(nextCostText);
+      setInitialCostText(nextCostText);
     }
   }, [visible, activity]);
 
@@ -78,11 +83,15 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
     onSubmit(data);
   };
 
+  const hasUnsavedInput = isDirty || costText !== initialCostText;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
       <SwipeToDismiss
-          onDismiss={onClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -91,9 +100,13 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
+          {discardConfirmVisible ? (
+            <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+          ) : (
+          <>
           <View className="flex-row items-center justify-between mb-md">
             <Text className="text-heading-m text-text-primary">{t('action.edit')}</Text>
-            <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+            <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
               <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
             </Pressable>
           </View>
@@ -371,6 +384,8 @@ export function EditActivitySheet({ visible, onClose, onSubmit, isPending, activ
             </View>
           </ScrollView>
             </SheetScrollArea>
+          </>
+          )}
         </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

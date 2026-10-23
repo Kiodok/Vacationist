@@ -56,5 +56,7 @@
   "captcha.error": "Sicherheitsüberprüfung fehlgeschlagen. Bitte lade die Seite neu und versuche es erneut.",
   "captcha.verifying": "Wir prüfen, ob du ein Mensch bist…",
   "option.none": "Keine",
-  "quickAction.addExpense": "Ausgabe hinzufügen"
+  "quickAction.addExpense": "Ausgabe hinzufügen",
+  "confirm.discardChanges": "Änderungen verwerfen? Deine Eingaben gehen dabei verloren.",
+  "confirm.discardYes": "Verwerfen"
 }

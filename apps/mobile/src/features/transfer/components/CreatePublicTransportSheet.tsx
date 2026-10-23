@@ -12,6 +12,8 @@ import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyF
 import { initialTransferCurrency, useTransferCurrencyField } from '../../currencies/hooks/useTransferCurrencyField';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface CreatePublicTransportSheetProps {
   visible: boolean;
@@ -40,7 +42,7 @@ export function CreatePublicTransportSheet({ visible, onClose, onSubmit, isPendi
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
 
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateTransferPublicTransportInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<CreateTransferPublicTransportInput>({
     resolver: zodResolver(createTransferPublicTransportSchema),
     defaultValues: { title: '', currency: initialTransferCurrency(currency), is_business: false },
   });
@@ -64,11 +66,15 @@ export function CreatePublicTransportSheet({ visible, onClose, onSubmit, isPendi
     onClose();
   };
 
+  const hasUnsavedInput = isDirty || priceText.length > 0;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -76,9 +82,13 @@ export function CreatePublicTransportSheet({ visible, onClose, onSubmit, isPendi
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('publicTransport.create.title')}</Text>
-              <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -386,6 +396,8 @@ export function CreatePublicTransportSheet({ visible, onClose, onSubmit, isPendi
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

@@ -1,5 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useSharedValue } from 'react-native-reanimated';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Modal, TextInput, KeyboardAvoidingView, Keyboard, Switch } from 'react-native';
 import { ScrollView } from '@vacationist/ui';
@@ -33,6 +32,8 @@ import { BoundedVirtualList } from '../../../components/BoundedVirtualList';
 import { useToastStore } from '../../../stores/toastStore';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 import { DateTimePickerField } from '../../../components/DateTimePickerField';
 import { StagedDocumentsField } from './StagedDocumentsField';
@@ -125,8 +126,6 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
 
   const { data: currencies } = useCurrencies();
   const { convert, ratesAsOf } = useCurrencyConversion();
-
-  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const { control, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<CreateExpenseInput>({
     resolver: zodResolver(createExpenseSchema),
@@ -244,28 +243,10 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     onClose();
   };
 
-  // Guards the swipe gesture, the backdrop tap and the header Cancel button (all three route
-  // through this one handler) against silently discarding a half-filled form — RHF's isDirty
-  // misses the two fields that live in plain local state rather than a Controller.
+  // RHF's isDirty misses the two fields that live in plain local state rather than a Controller.
   const hasUnsavedInput = isDirty || tipText.length > 0 || stagedFiles.length > 0;
-  const requestClose = () => {
-    if (hasUnsavedInput) setShowDiscardConfirm(true);
-    else handleClose();
-  };
-  const confirmDiscard = () => {
-    setShowDiscardConfirm(false);
-    handleClose();
-  };
-  const cancelDiscard = () => setShowDiscardConfirm(false);
-
-  // Mirrors hasUnsavedInput into a SharedValue so SwipeToDismiss's gesture worklet can read it
-  // synchronously on the UI thread — without this, a swipe-dismiss on a dirty form slid the panel
-  // fully off-screen before discovering requestClose wasn't going to actually close it, leaving
-  // the sheet invisible and stuck (v1.39.6 manual-QA fix).
-  const dismissGuard = useSharedValue(false);
-  useEffect(() => {
-    dismissGuard.value = hasUnsavedInput;
-  }, [hasUnsavedInput, dismissGuard]);
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
 
   const canSubmit = !isPending && canConvert && exactBalanced;
   const onInvalid = () => useToastStore.getState().addToast('error', t('toast.checkForm'));
@@ -274,9 +255,7 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
     <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
       <SwipeToDismiss
-        onDismiss={requestClose}
-        dismissGuard={dismissGuard}
-        onDismissBlocked={() => setShowDiscardConfirm(true)}
+        {...swipeProps}
         className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
         style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
       >
@@ -284,26 +263,8 @@ export function CreateExpenseSheet({ visible, onClose, onSubmit, isPending, memb
             <View className="w-[36px] h-[4px] rounded-full bg-border" />
           </View>
 
-          {showDiscardConfirm ? (
-            <View className="rounded-md border border-danger p-md gap-sm mb-md">
-              <Text className="text-body-small text-text-secondary text-center">
-                {t('confirm.discardChanges')}
-              </Text>
-              <View className="flex-row gap-sm">
-                <Pressable
-                  onPress={cancelDiscard}
-                  className="flex-1 min-h-[44px] rounded-md border border-border items-center justify-center"
-                >
-                  <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
-                </Pressable>
-                <Pressable
-                  onPress={confirmDiscard}
-                  className="flex-1 min-h-[44px] rounded-md bg-danger items-center justify-center"
-                >
-                  <Text className="text-body text-white font-semibold">{t('confirm.discardYes')}</Text>
-                </Pressable>
-              </View>
-            </View>
+          {discardConfirmVisible ? (
+            <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} message={t('confirm.discardChanges')} />
           ) : (
           <>
           <View className="flex-row items-center justify-between mb-md">

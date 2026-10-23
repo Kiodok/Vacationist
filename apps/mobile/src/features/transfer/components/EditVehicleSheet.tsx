@@ -8,6 +8,8 @@ import { updateTransferVehicleSchema, type UpdateTransferVehicleInput, type Tran
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface EditVehicleSheetProps {
   visible: boolean;
@@ -23,7 +25,7 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
   const { t: tCommon } = useTranslation('common');
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateTransferVehicleInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<UpdateTransferVehicleInput>({
     resolver: zodResolver(updateTransferVehicleSchema),
   });
 
@@ -44,11 +46,15 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
     onSubmit(data);
   };
 
+  const hasUnsavedInput = isDirty;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={onClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -56,9 +62,13 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('vehicle.edit.title')}</Text>
-              <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -146,6 +156,8 @@ export function EditVehicleSheet({ visible, onClose, onSubmit, isPending, vehicl
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

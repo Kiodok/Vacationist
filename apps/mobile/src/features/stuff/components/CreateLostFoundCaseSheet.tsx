@@ -9,6 +9,8 @@ import type { TripMemberWithUser } from '@vacationist/api';
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface CreateLostFoundCaseSheetProps {
   visible: boolean;
@@ -33,7 +35,7 @@ export function CreateLostFoundCaseSheet({ visible, members, currentUserId, onCl
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
 
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateLostFoundCaseInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<CreateLostFoundCaseInput>({
     resolver: zodResolver(createLostFoundCaseSchema),
     defaultValues: { case_type: 'lost_unknown', title: '', description: null, target_user: null },
   });
@@ -67,20 +69,29 @@ export function CreateLostFoundCaseSheet({ visible, members, currentUserId, onCl
     onClose();
   };
 
+  const hasUnsavedInput = isDirty;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
+
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('field.caseType')}</Text>
-              <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -204,6 +215,8 @@ export function CreateLostFoundCaseSheet({ visible, members, currentUserId, onCl
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

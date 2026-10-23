@@ -26,7 +26,8 @@ re-reading `SwipeToDismiss.tsx` directly, not guessed — see `project_v1_39_6_b
   class of bug by changing what `onDismiss` does after the animation runs; the panel is already
   gone by then.
 - Both props are optional and default to "never block" — every sheet that doesn't pass them is
-  completely unaffected. See `CreateExpenseSheet.tsx`/`EditExpenseSheet.tsx` for the reference
-  wiring (a `useSharedValue` mirror of the sheet's own `hasUnsavedInput`).
+  completely unaffected. As of v1.39.8, don't wire these two props by hand at all — use
+  `useDiscardGuard()`'s `swipeProps`, which mirrors `hasUnsavedInput` into this exact shared value
+  for you. See [[sheet-discard-guard]].
 
 See also [[sheet-swipe-to-dismiss]] for the base component's general conventions.

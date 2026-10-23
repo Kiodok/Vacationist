@@ -2028,3 +2028,65 @@ on prod in the same push as the client (not ahead of it, unlike task 6's).**
 - [ ] Task 1's migration must land on prod in the **same push** as this client commit (see above) —
   do not push it to prod standalone ahead of time.
 - [ ] `eas update` for the client change once committed (PATCH-shaped, no native module touched).
+
+## 🧳 Phase 21.3: Discard-guard rollout to every input-collecting sheet (v1.39.8)
+
+**JS-only, no migration, no Edge Function. Ships inside the existing 1.39.8.**
+
+v1.39.6 Task 4 gave only `CreateExpenseSheet`/`EditExpenseSheet` an inline "Discard changes?"
+confirm before closing a dirty form — the only two sheets it was reported against. This extends
+the same protection to every other input-collecting sheet in the app.
+
+- [x] Extracted the hand-rolled Expense pattern into two shared primitives so the other 35 sheets
+  didn't each reimplement it: `useDiscardGuard()` (`apps/mobile/src/hooks/useDiscardGuard.ts`) —
+  owns the confirm state, the `requestClose` router, and the `useSharedValue` mirror
+  `SwipeToDismiss`'s gesture worklet reads on the UI thread — and `<DiscardConfirmBar>`
+  (`apps/mobile/src/components/DiscardConfirmBar.tsx`), the inline bar itself. Added
+  `sameMembers()` (`apps/mobile/src/utils/sheetDirty.ts` + test) for the two sheets whose
+  "unsaved input" is a selection Set/array rather than form fields. `CreateExpenseSheet` and
+  `EditExpenseSheet` were refactored onto these primitives first, to prove parity before rolling
+  out further — behaviour unchanged, confirmed by the existing test suite and a manual diff read.
+- [x] Rolled out to **34 sheets** across notes, prework, profile, recipes, stuff, transfer,
+  accommodations, activities, trips, and shopping — every Create/Edit sheet with a real
+  discardable draft. `PassengerSelectSheet` (a multi-select sheet with its own Confirm button) is
+  included too, guarded on the selection diverging from its initial set rather than on every
+  local toggle (its driver-switch state is an immediate mutation, not part of the draft).
+- [x] **Found and fixed in passing, same bug class as the one v1.39.6 already fixed once for
+  `EditExpenseSheet`:** roughly a dozen `Edit*` sheets passed the raw `onClose` prop straight into
+  `Modal.onRequestClose`, the header Cancel button, **and** `SwipeToDismiss.onDismiss` — no local
+  close handler at all, in violation of the "`onDismiss` = the sheet's local close, never the raw
+  `onClose`" rule in `software_engineering_guide.md`'s Bottom Sheets section. Fixed in the same
+  edit as adding the guard (there's no single close path to hang a guard on otherwise):
+  `EditAccommodationSheet`, `EditActivitySheet`, `EditFlightSheet`, `EditPublicTransportSheet`,
+  `EditRentalSheet`, `EditVehicleSheet`, `EditLostFoundCaseSheet`, `EditSharedPackingItemSheet`,
+  `EditTripSheet`, `EditShoppingItemSheet`.
+- [x] **Found and fixed in passing, unrelated:** `CreateShoppingListSheet` never called RHF's
+  `reset()` after a successful create — harmless before this change since nothing read `isDirty`,
+  but would have left the new guard showing a false "Discard changes?" on every reopen after the
+  first create, since the sheet stays mounted and `isDirty` would never clear. Added `reset()`
+  after `onSubmit(data)` in `onValid`, matching `CreateExpenseSheet`'s existing convention.
+- [x] **Also found and fixed in passing, pre-existing, unrelated to sheets:** the marketing site's
+  `APP_VERSION` constant (`marketing/site/build.mjs`) was still `1.39.6` against the already-bumped
+  `apps/mobile/app.config.ts` `1.39.8` — the same drift pattern documented for v1.39.4 and v1.39.6.
+  Bumped and rebuilt (`npm run build:site`, verified idempotent on a second run).
+- [x] i18n: added `confirm.discardChanges` / `confirm.discardYes` to `common` (EN + DE) rather than
+  per-feature namespaces, since the copy is identical everywhere except the two Expense sheets
+  (which keep their existing expense-specific wording via `<DiscardConfirmBar message=…>`, no
+  copy churn there).
+- [x] **Deliberately left unguarded** — closing loses nothing, or a confirm would just add
+  friction to a one-tap flow: `OptionPickerSheet`, `CurrencyPickerSheet`, `VoteSheet`,
+  `CalendarPickerSheet`, `AddToShoppingListSheet`, `CopyPackingListSheet`, `TripExportSheet`,
+  `DocumentAccessRequestSheet`, `TripHighlightSheet`, `InfoSheet`, `NudgeSheet`,
+  `MessageActionsSheet`, `MemberDocumentsSheet`, `ViewNoteSheet`, `CalendarActivitySheet`,
+  `SettlementsModal`, `SettlementReceiptDetail`.
+- [x] **`GuestUpgradeSheet` deliberately left unguarded — Tech Lead's explicit call.** It has a
+  typed email plus an in-flight captcha, so a stray dismiss does cost real work, but a "Discard
+  changes?" bar reads oddly in an auth flow. Flagged as a judgment call rather than assumed;
+  confirmed to stay as-is, no narrower guard either.
+- [x] `npm run typecheck` 0; `npm test` green (utils 236/236 incl. 5 new `sameMembers` cases, api
+  30/30, mobile 255/255, site suite including the version-drift fix).
+- [ ] **Not browser-verified this session** — no Chrome session connected. Still to check: all
+  four themes for the new bar across a representative sheet per batch, the native swipe-gesture
+  path (web has no drag gesture to test), nested sheets (e.g. `CurrencyPickerSheet` opened from a
+  dirty `CreateActivitySheet`), and the Android hardware back button.
+- [ ] Staged, **not committed** — Tech Lead tests first.

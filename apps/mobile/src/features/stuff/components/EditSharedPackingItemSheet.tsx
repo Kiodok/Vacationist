@@ -8,6 +8,8 @@ import { updateSharedPackingItemSchema, type UpdateSharedPackingItemInput, type 
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface EditSharedPackingItemSheetProps {
   visible: boolean;
@@ -24,7 +26,7 @@ export function EditSharedPackingItemSheet({ visible, item, onClose, onSubmit, i
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<UpdateSharedPackingItemInput>({
+  const { control, handleSubmit, reset, formState: { errors, isDirty } } = useForm<UpdateSharedPackingItemInput>({
     resolver: zodResolver(updateSharedPackingItemSchema),
     defaultValues: { title: item?.title ?? '', notes: item?.notes ?? null },
   });
@@ -41,20 +43,35 @@ export function EditSharedPackingItemSheet({ visible, item, onClose, onSubmit, i
     onSubmit(item.id, data);
   };
 
+  // The prefill effect above re-syncs the form from `item` on every open, so closing needs no
+  // extra local reset of its own.
+  const handleClose = () => {
+    onClose();
+  };
+
+  const hasUnsavedInput = isDirty;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={onClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
             <View className="items-center mb-md">
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
+
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('action.edit')}</Text>
-              <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -119,6 +136,8 @@ export function EditSharedPackingItemSheet({ visible, item, onClose, onSubmit, i
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

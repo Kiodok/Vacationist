@@ -12,6 +12,8 @@ import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyF
 import { useTransferCurrencyField } from '../../currencies/hooks/useTransferCurrencyField';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface EditFlightSheetProps {
   visible: boolean;
@@ -50,8 +52,9 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
+  const [initialPriceText, setInitialPriceText] = useState('');
 
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateTransferFlightInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<UpdateTransferFlightInput>({
     resolver: zodResolver(updateTransferFlightSchema),
   });
 
@@ -82,7 +85,9 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
         external_url: flight.external_url ?? undefined,
         notes: flight.notes ?? undefined,
       });
-      setPriceText(flight.price_per_person != null ? String(flight.price_per_person) : '');
+      const nextPriceText = flight.price_per_person != null ? String(flight.price_per_person) : '';
+      setPriceText(nextPriceText);
+      setInitialPriceText(nextPriceText);
     }
   }, [visible, flight]);
 
@@ -91,11 +96,15 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
     onSubmit(data);
   };
 
+  const hasUnsavedInput = isDirty || priceText !== initialPriceText;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={onClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -103,9 +112,13 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('flight.edit.title')}</Text>
-              <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -575,6 +588,8 @@ export function EditFlightSheet({ visible, onClose, onSubmit, isPending, flight,
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

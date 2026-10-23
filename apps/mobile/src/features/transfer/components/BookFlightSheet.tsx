@@ -7,6 +7,8 @@ import { bookTransferFlightSchema, type BookTransferFlightInput } from '@vacatio
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface BookFlightSheetProps {
   visible: boolean;
@@ -25,7 +27,7 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending, directi
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const isRoundTrip = direction === 'outbound-return';
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<BookTransferFlightInput>({
+  const { control, handleSubmit, reset, formState: { errors, isDirty } } = useForm<BookTransferFlightInput>({
     resolver: zodResolver(bookTransferFlightSchema),
     defaultValues: { flight_number: '', return_flight_number: '', booking_reference: '' },
   });
@@ -45,13 +47,17 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending, directi
     onClose();
   };
 
+  const hasUnsavedInput = isDirty;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   const inputClass = 'bg-surface border border-border rounded-sm px-md py-sm text-text-primary text-body';
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -59,9 +65,13 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending, directi
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('action.book')}</Text>
-              <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -155,6 +165,8 @@ export function BookFlightSheet({ visible, onClose, onSubmit, isPending, directi
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

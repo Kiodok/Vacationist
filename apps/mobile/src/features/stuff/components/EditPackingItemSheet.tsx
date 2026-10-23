@@ -11,6 +11,8 @@ import { colors, ThemedIcon, useResolvedTheme } from '@vacationist/ui';
 import { OptionPickerSheet } from '../../../components/OptionPickerSheet';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 const CUSTOM_CATEGORY_VALUE = '__custom__';
 
@@ -36,7 +38,7 @@ export function EditPackingItemSheet({ visible, item, categories, onClose, onSub
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
 
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdatePackingItemInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<UpdatePackingItemInput>({
     resolver: zodResolver(updatePackingItemSchema),
     defaultValues: { category: item?.category ?? '', title: item?.title ?? '', notes: item?.notes ?? null },
   });
@@ -70,11 +72,15 @@ export function EditPackingItemSheet({ visible, item, categories, onClose, onSub
     onClose();
   };
 
+  const hasUnsavedInput = isDirty;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -82,9 +88,13 @@ export function EditPackingItemSheet({ visible, item, categories, onClose, onSub
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('action.edit')}</Text>
-              <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -200,6 +210,8 @@ export function EditPackingItemSheet({ visible, item, categories, onClose, onSub
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

@@ -11,6 +11,8 @@ import { LOCALE_LABELS, SUPPORTED_LOCALES, getCurrentLocale } from '@vacationist
 import { CurrencyPickerSheet } from '../../currencies/components/CurrencyPickerSheet';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface EditProfileSheetProps {
   visible: boolean;
@@ -27,7 +29,7 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
   const { t } = useTranslation('profile');
   const { t: tCommon } = useTranslation("common");
   const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
-  const { control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<UpdateProfileInput>({
+  const { control, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<UpdateProfileInput>({
     resolver: zodResolver(updateProfileSchema),
   });
 
@@ -54,11 +56,14 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
     onClose();
   };
 
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput: isDirty, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -66,9 +71,13 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-lg">
               <Text className="text-heading-m text-text-primary font-semibold">{t('edit.title')}</Text>
-              <Pressable onPress={handleClose} hitSlop={12}>
+              <Pressable onPress={requestClose} hitSlop={12}>
                 <Text className="text-body text-text-secondary">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -189,6 +198,8 @@ export function EditProfileSheet({ visible, onClose, onSubmit, isPending, user }
                 {isPending ? t('edit.saving') : t('edit.saveButton')}
               </Text>
             </Pressable>
+            </>
+            )}
         </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

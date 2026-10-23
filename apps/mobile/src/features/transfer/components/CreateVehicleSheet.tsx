@@ -8,6 +8,8 @@ import { createTransferVehicleSchema, type CreateTransferVehicleInput } from '@v
 import { colors, useResolvedTheme } from '@vacationist/ui';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 type DirectionMode = 'both' | 'outbound' | 'return';
 
@@ -28,7 +30,7 @@ export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: Cr
   const isColorful = theme === 'colorful';
   const [directionMode, setDirectionMode] = useState<DirectionMode>('both');
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<Omit<CreateTransferVehicleInput, 'direction'>>({
+  const { control, handleSubmit, reset, formState: { errors, isDirty } } = useForm<Omit<CreateTransferVehicleInput, 'direction'>>({
     resolver: zodResolver(createTransferVehicleSchema.omit({ direction: true })),
     defaultValues: { title: '' },
   });
@@ -47,11 +49,17 @@ export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: Cr
     onClose();
   };
 
+  // directionMode isn't registered with RHF (direction is omitted from this schema and submitted
+  // separately in onValid), so a direction change alone wouldn't otherwise mark the form dirty.
+  const hasUnsavedInput = isDirty || directionMode !== 'both';
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose: handleClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={handleClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[85%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -59,9 +67,13 @@ export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: Cr
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('vehicle.create.title')}</Text>
-              <Pressable onPress={handleClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -149,6 +161,8 @@ export function CreateVehicleSheet({ visible, onClose, onSubmit, isPending }: Cr
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>

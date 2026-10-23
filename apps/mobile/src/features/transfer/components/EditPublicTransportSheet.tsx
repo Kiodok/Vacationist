@@ -12,6 +12,8 @@ import { EntityCurrencyField } from '../../currencies/components/EntityCurrencyF
 import { useTransferCurrencyField } from '../../currencies/hooks/useTransferCurrencyField';
 import { SwipeToDismiss } from '../../../components/SwipeToDismiss';
 import { SheetScrollArea } from '../../../components/SheetScrollArea';
+import { DiscardConfirmBar } from '../../../components/DiscardConfirmBar';
+import { useDiscardGuard } from '../../../hooks/useDiscardGuard';
 
 interface EditPublicTransportSheetProps {
   visible: boolean;
@@ -40,8 +42,9 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
   const theme = useResolvedTheme();
   const isColorful = theme === 'colorful';
   const [priceText, setPriceText] = useState('');
+  const [initialPriceText, setInitialPriceText] = useState('');
 
-  const { control, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<UpdateTransferPublicTransportInput>({
+  const { control, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<UpdateTransferPublicTransportInput>({
     resolver: zodResolver(updateTransferPublicTransportSchema),
   });
 
@@ -65,7 +68,9 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
         external_url: entry.external_url ?? undefined,
         notes: entry.notes ?? undefined,
       });
-      setPriceText(entry.price_total != null ? String(entry.price_total) : '');
+      const nextPriceText = entry.price_total != null ? String(entry.price_total) : '';
+      setPriceText(nextPriceText);
+      setInitialPriceText(nextPriceText);
     }
   }, [visible, entry]);
 
@@ -74,11 +79,15 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
     onSubmit(data);
   };
 
+  const hasUnsavedInput = isDirty || priceText !== initialPriceText;
+  const { requestClose, swipeProps, discardConfirmVisible, confirmDiscard, cancelDiscard } =
+    useDiscardGuard({ visible, hasUnsavedInput, onClose });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={requestClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1">
         <SwipeToDismiss
-          onDismiss={onClose}
+          {...swipeProps}
           className="bg-surface-elevated rounded-t-lg px-md pt-md max-h-[90%]"
           style={{ paddingBottom: Math.max(insets.bottom, 32) + 16 }}
         >
@@ -86,9 +95,13 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
               <View className="w-[36px] h-[4px] rounded-full bg-border" />
             </View>
 
+            {discardConfirmVisible ? (
+              <DiscardConfirmBar onCancel={cancelDiscard} onDiscard={confirmDiscard} />
+            ) : (
+            <>
             <View className="flex-row items-center justify-between mb-md">
               <Text className="text-heading-m text-text-primary">{t('publicTransport.edit.title')}</Text>
-              <Pressable onPress={onClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+              <Pressable onPress={requestClose} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
                 <Text className="text-text-secondary text-body">{tCommon('button.cancel')}</Text>
               </Pressable>
             </View>
@@ -396,6 +409,8 @@ export function EditPublicTransportSheet({ visible, onClose, onSubmit, isPending
               </View>
             </ScrollView>
             </SheetScrollArea>
+            </>
+            )}
           </SwipeToDismiss>
       </KeyboardAvoidingView>
     </Modal>
