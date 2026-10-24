@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeTripCostSummary, computeBudgetProgress, computeMyCostShares, type CostSummaryRow, type MyCostShareRow } from './costSummary';
+import { computeTripCostSummary, computeBudgetProgress, computeMyCostShares, computeBudgetByYear, type CostSummaryRow, type MyCostShareRow, type BudgetTripInput } from './costSummary';
 
 function row(source: string, amount: number, currency = 'EUR'): CostSummaryRow {
   return { source, amount, currency };
@@ -648,5 +648,102 @@ describe('computeMyCostShares', () => {
     const result = computeMyCostShares([shareRow({ source: 'accommodation', amount: 100, currency: 'USD' })], { USD: 1.1 }, '');
     expect(result.trips[0].share).toBe(0);
     expect(result.excludedSourceCount).toBe(1);
+  });
+});
+
+function budgetTrip(overrides: Partial<BudgetTripInput>): BudgetTripInput {
+  return {
+    start_date: '2026-06-01',
+    budget_per_person: 500,
+    base_currency: 'EUR',
+    ...overrides,
+  };
+}
+
+// v1.39.9: the global Analytics tab's estimated-budget annotation, totalled per year. Reads off
+// the plain ['trips'] list (not the cost-share RPC rows), independent of computeMyCostShares.
+describe('computeBudgetByYear', () => {
+  it('returns an empty object for no trips', () => {
+    expect(computeBudgetByYear([], {}, 'EUR')).toEqual({});
+  });
+
+  it('skips a trip with no budget set — never counted as 0', () => {
+    const result = computeBudgetByYear([budgetTrip({ budget_per_person: null })], {}, 'EUR');
+    expect(result).toEqual({});
+  });
+
+  it('a year where every trip is unbudgeted has no key at all, not 0', () => {
+    const result = computeBudgetByYear(
+      [
+        budgetTrip({ start_date: '2026-03-01', budget_per_person: null }),
+        budgetTrip({ start_date: '2026-09-01', budget_per_person: null }),
+      ],
+      {},
+      'EUR',
+    );
+    expect(Object.keys(result)).toHaveLength(0);
+  });
+
+  it('sums multiple budgeted trips within the same year', () => {
+    const result = computeBudgetByYear(
+      [
+        budgetTrip({ start_date: '2026-03-01', budget_per_person: 500 }),
+        budgetTrip({ start_date: '2026-09-01', budget_per_person: 300 }),
+      ],
+      {},
+      'EUR',
+    );
+    expect(result).toEqual({ 2026: 800 });
+  });
+
+  it('keeps different years separate', () => {
+    const result = computeBudgetByYear(
+      [
+        budgetTrip({ start_date: '2026-03-01', budget_per_person: 500 }),
+        budgetTrip({ start_date: '2027-01-15', budget_per_person: 300 }),
+      ],
+      {},
+      'EUR',
+    );
+    expect(result).toEqual({ 2026: 500, 2027: 300 });
+  });
+
+  it('takes the year from start_date, not from any other field', () => {
+    const result = computeBudgetByYear([budgetTrip({ start_date: '2029-12-31', budget_per_person: 100 })], {}, 'EUR');
+    expect(result).toEqual({ 2029: 100 });
+  });
+
+  it('converts a trip budgeted in a non-display base_currency', () => {
+    // 110 USD -> 100 EUR
+    const result = computeBudgetByYear(
+      [budgetTrip({ budget_per_person: 110, base_currency: 'USD' })],
+      { EUR: 1, USD: 1.1 },
+      'EUR',
+    );
+    expect(result).toEqual({ 2026: 100 });
+  });
+
+  it('drops a trip whose base_currency has no rate entry, but still counts the others in the same year', () => {
+    const result = computeBudgetByYear(
+      [
+        budgetTrip({ start_date: '2026-03-01', budget_per_person: 500, base_currency: 'EUR' }),
+        budgetTrip({ start_date: '2026-09-01', budget_per_person: 50, base_currency: 'BAM' }), // no rate entry
+      ],
+      { EUR: 1 },
+      'EUR',
+    );
+    expect(result).toEqual({ 2026: 500 });
+  });
+
+  it('rounds each year total', () => {
+    const result = computeBudgetByYear(
+      [
+        budgetTrip({ start_date: '2026-03-01', budget_per_person: 33.333 }),
+        budgetTrip({ start_date: '2026-09-01', budget_per_person: 33.333 }),
+      ],
+      {},
+      'EUR',
+    );
+    expect(result[2026]).toBeCloseTo(66.67, 2);
   });
 });

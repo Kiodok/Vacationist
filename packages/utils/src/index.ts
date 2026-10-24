@@ -9,8 +9,8 @@ export { formatSettlementShareText, formatBusinessExpenseSummary, buildBusinessE
 export type { SettlementTextInput, BusinessCostItem, MergedBusinessCostItem, BusinessExpenseDocumentRef, BusinessExpenseRow, BusinessExpenseReport, BuildBusinessExpenseReportInput } from './settlementText';
 export { convertAmount } from './currencyConversion';
 export type { CurrencyRateMap } from './currencyConversion';
-export { computeTripCostSummary, computeBudgetProgress, computeMyCostShares } from './costSummary';
-export type { CostSummaryRow, CostCategory, CostSummaryResult, BudgetProgress, MyCostShareRow, MyTripCostShare, MyCostSharesResult } from './costSummary';
+export { computeTripCostSummary, computeBudgetProgress, computeMyCostShares, computeBudgetByYear } from './costSummary';
+export type { CostSummaryRow, CostCategory, CostSummaryResult, BudgetProgress, MyCostShareRow, MyTripCostShare, MyCostSharesResult, BudgetTripInput } from './costSummary';
 export { isActivityAutoCompleted, isActivityOngoing, isActivityHappeningNow } from './activityStatus';
 export type { ActivityWhen } from './activityStatus';
 export { computeDonutArcs } from './donutChart';

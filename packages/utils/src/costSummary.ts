@@ -122,6 +122,55 @@ export function computeBudgetProgress(total: number, budgetPerPerson: number | n
   return { perPerson, hasBudget: true, percent, clampedPercent: Math.min(100, Math.max(0, percent)) };
 }
 
+export interface BudgetTripInput {
+  start_date: string;
+  budget_per_person: number | null;
+  base_currency: string;
+}
+
+/**
+ * Global Analytics tab (v1.39.9) — annual sum of each trip's estimated `budget_per_person`,
+ * converted into `displayCurrency`. Deliberately separate from `computeMyCostShares`: it reads
+ * straight off the already-cached `['trips']` list (every trip the member has budgeted, whether
+ * or not it has any logged cost yet), not off the cost-share RPC rows, so a trip with a budget
+ * but no accommodation/expenses/etc. yet still counts.
+ *
+ * A trip with no budget set (`budget_per_person === null`, the column's default) is silently
+ * skipped — never treated as a 0 that would drag a year's total down. A year where every trip is
+ * either unbudgeted or unconvertible gets no key at all (not `0`), so the caller can render
+ * nothing rather than a misleading "(of 0 budget)".
+ */
+export function computeBudgetByYear(
+  trips: BudgetTripInput[],
+  rates: CurrencyRateMap,
+  displayCurrency: string,
+): Record<number, number> {
+  const byYear = new Map<number, number>();
+
+  for (const trip of trips) {
+    if (trip.budget_per_person == null) continue;
+
+    let converted: number;
+    if (trip.base_currency === displayCurrency) {
+      converted = trip.budget_per_person;
+    } else {
+      const rateFrom = rates[trip.base_currency];
+      const rateTo = rates[displayCurrency];
+      if (rateFrom == null || rateTo == null) continue;
+      converted = convertAmount(trip.budget_per_person, rateFrom, rateTo);
+    }
+
+    const year = Number(trip.start_date.slice(0, 4));
+    byYear.set(year, (byYear.get(year) ?? 0) + converted);
+  }
+
+  const result: Record<number, number> = {};
+  for (const [year, sum] of byYear) {
+    result[year] = roundCurrency(sum);
+  }
+  return result;
+}
+
 export interface MyTripCostShare {
   tripId: string;
   tripTitle: string;

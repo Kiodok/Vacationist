@@ -4,6 +4,7 @@
   "empty.subtitle": "Once you're part of a trip with costs, your share shows up here.",
   "year.tripCount": "{{count}} trip",
   "year.tripCount_other": "{{count}} trips",
+  "year.budgetSuffix": "(of {{budget}} budget)",
   "ratesExcluded": "{{count}} amount excluded — exchange rate unavailable",
   "ratesExcluded_other": "{{count}} amounts excluded — exchange rate unavailable"
 }

@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Vacationist',
   slug: 'vacationist',
-  version: '1.39.8',
+  version: '1.39.9',
   orientation: 'default',
   icon: './assets/images/icon.png',
   scheme: 'vacationist',

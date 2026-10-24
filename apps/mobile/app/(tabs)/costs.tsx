@@ -17,7 +17,7 @@ export default function CostsOverviewScreen() {
   const { t } = useTranslation('costsOverview');
   const router = useRouter();
   const query = useMyTripCostShares();
-  const { data, refetch, displayCurrency } = query;
+  const { data, refetch, displayCurrency, budgetByYear } = query;
   const ux = getQueryDisplayState(query);
   const [expandedYears, setExpandedYears] = useState<Set<number> | null>(null);
 
@@ -94,15 +94,21 @@ export default function CostsOverviewScreen() {
                     className="flex-row items-center justify-between py-xs"
                     style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   >
-                    <View className="flex-row items-center gap-sm">
+                    <View className="flex-row items-center gap-sm flex-1 mr-sm">
                       <ThemedIcon name={isExpanded ? 'chevron-down' : 'chevron-forward'} size={16} color={colors.textMuted} />
                       <Text className="text-heading-m text-text-primary">{year}</Text>
                       <Text className="text-body-small text-text-muted">
                         {t('year.tripCount', { count: tripsInYear.length })}
                       </Text>
                     </View>
-                    <Text className="text-body font-semibold text-text-secondary">
+                    <Text className="text-body font-semibold text-text-secondary text-right shrink">
                       {formatCurrency(data.totalByYear[year], displayCurrency, locale)}
+                      {budgetByYear[year] != null && (
+                        <Text className="text-body-small text-text-muted">
+                          {' '}
+                          {t('year.budgetSuffix', { budget: formatCurrency(budgetByYear[year], displayCurrency, locale) })}
+                        </Text>
+                      )}
                     </Text>
                   </Pressable>
 
